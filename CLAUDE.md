@@ -32,3 +32,12 @@ yarn common:lint && yarn common:format:check
 - PR: `picake-git-pr-create` skill. 작업 브랜치 → `staging` → `main`
 - 배포: `<앱>/staging-*`, `<앱>/production-*` 태그 푸시로 Vercel 배포 (`picake-deploy-release` skill, `/push-staging`, `/push-production`)
 - PR 필수 체크는 `test-web (web-user|web-seller|web-admin)`입니다. `test-web-e2e`는 결과만 보고합니다(필수 아님).
+
+## 운영 skill (automation 레포)
+
+아래 요청은 이 레포에 skill이 없습니다. 형제 폴더 `../picake-engineering-automation`의 skill 문서를 읽고 그 절차를 따르세요(없으면 `picake-team/picake-engineering-automation`을 clone).
+
+| 요청 예                                               | skill 문서                                                                      |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------- |
+| "사용자 데이터 보여줘", "전환율 어때", "회원수"       | `../picake-engineering-automation/.claude/skills/picake-data-report/SKILL.md`   |
+| "인프라 상태 어때", "이번 달 비용", "서버 업그레이드" | `../picake-engineering-automation/.claude/skills/picake-infra-monitor/SKILL.md` |
