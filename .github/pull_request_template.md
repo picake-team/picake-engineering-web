@@ -22,13 +22,12 @@
 
 <!-- 변경사항이 영향을 주는 앱이나 패키지를 선택해주세요 -->
 
-- [x] backend
-- [ ] web-user (frontend)
-- [ ] web-seller (frontend)
-- [ ] web-admin (frontend)
-- [ ] app-user
-- [ ] app-seller
-- [ ] 전체 프로젝트
+<!-- 백엔드는 picake-engineering-backend, Flutter 앱은 picake-engineering-app 레포에 이슈/PR을 올려주세요 -->
+
+- [ ] web-user
+- [ ] web-seller
+- [ ] web-admin
+- [ ] 공통 (루트 설정, 워크플로우, 문서)
 - [ ] 기타
 
 ## 🔗 관련 이슈
