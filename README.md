@@ -6,11 +6,12 @@ Picake(디저트 주문 플랫폼)의 웹 프론트엔드(`web-user`, `web-selle
 
 Picake 개발 코드는 아래 레포들로 나뉘어 있습니다.
 
-| 레포                                                                                       | 내용                                                  |
-| ------------------------------------------------------------------------------------------ | ----------------------------------------------------- |
-| **[picake-engineering-web](https://github.com/picake-team/picake-engineering-web)** (현재) | 웹 프론트엔드 (`web-user`, `web-seller`, `web-admin`) |
-| [picake-engineering-backend](https://github.com/picake-team/picake-engineering-backend)    | 백엔드 API 서버 (NestJS, EC2 배포)                    |
-| [picake-engineering-app](https://github.com/picake-team/picake-engineering-app)            | Flutter 앱 (`web-user`을 감싸는 WebView 앱, 예정)     |
+| 레포                                                                                          | 내용                                                  |
+| --------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| **[picake-engineering-web](https://github.com/picake-team/picake-engineering-web)** (현재)    | 웹 프론트엔드 (`web-user`, `web-seller`, `web-admin`) |
+| [picake-engineering-backend](https://github.com/picake-team/picake-engineering-backend)       | 백엔드 API 서버 (NestJS, EC2 배포)                    |
+| [picake-engineering-app](https://github.com/picake-team/picake-engineering-app)               | Flutter 앱 (`web-user`을 감싸는 WebView 앱, 예정)     |
+| [picake-engineering-automation](https://github.com/picake-team/picake-engineering-automation) | Claude 클라우드 루틴·운영 자동화 스킬                 |
 
 ## 🚀 시작하기
 

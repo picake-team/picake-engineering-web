@@ -57,6 +57,6 @@ description: Picake(운영사 두루랩스)의 통신판매업 신고정보나 �
 - 약관은 **수정이 아니라 항상 새 버전 등록**이다 (`terms-write.service.ts` 정책 — 기존 레코드는 절대 변경하지 않음). 첫 실 데이터 반영이라도 스테이징/프로덕션에 이미 placeholder 시드(버전 1.0, "시드 데이터용 약관 본문입니다")가 들어있을 수 있으므로, 반영 전 `GET /v1/admin/terms/versions?type=<TYPE>`로 기존 버전을 확인하고 다음 버전 번호(예: 1.0이 있으면 1.1)를 정한다.
 - 엔드포인트: `POST /v1/admin/terms` — body `{ type, version, title, content, effectiveAt, activateNow: true }`. `activateNow: true`면 같은 타입의 기존 활성 버전이 자동 비활성화된다.
 - **API 전역 prefix는 `/v1`이다** — `/admin/terms`가 아니라 `/v1/admin/terms`. base URL: production `https://api.picakes.com`, staging `https://api-staging.picakes.com`.
-- **관리자 인증은 절대 대신 로그인 시도하지 않는다.** admin 로그인은 ID/PW + Google OTP가 필수라 자동화 토큰이 없다(`picake-data-report` skill과 동일 정책). 사용자에게 해당 환경의 유효한 관리자 Bearer 토큰을 요청한다 — web-admin에 로그인 후 브라우저 개발자도구 → localStorage 또는 네트워크 탭에서 확인 가능하다고 안내.
+- **관리자 인증은 절대 대신 로그인 시도하지 않는다.** admin 로그인은 ID/PW + Google OTP가 필수라 자동화 토큰이 없다(picake-engineering-automation 레포의 `picake-data-report` skill과 동일 정책). 사용자에게 해당 환경의 유효한 관리자 Bearer 토큰을 요청한다 — web-admin에 로그인 후 브라우저 개발자도구 → localStorage 또는 네트워크 탭에서 확인 가능하다고 안내.
 - **순서: staging 먼저 반영 → 사용자에게 확인/승인 → production 반영.** 프로덕션 반영은 실제 서비스 이용자에게 노출되는 법적 문서이므로, 사용자의 명시적 승인 없이 진행하지 않는다.
 - 반영 후 `GET /v1/admin/terms`(활성 버전 목록)로 각 환경에서 정상 반영됐는지 확인한다.
