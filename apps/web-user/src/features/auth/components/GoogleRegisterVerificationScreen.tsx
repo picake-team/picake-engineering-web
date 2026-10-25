@@ -34,6 +34,7 @@ import {
   buildConsumerTermsDocumentIds,
   mapConsumerActiveTermsToDocIds,
 } from "@/apps/web-user/features/terms/utils/terms-consent.util";
+import { focusElementById, onEnterKey } from "@/apps/web-user/common/utils/enter-next.util";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import { resolvePhoneVerificationFailReason } from "@/apps/web-user/features/auth/utils/phone-verification-error.util";
 
@@ -286,6 +287,8 @@ export function GoogleRegisterVerificationScreen() {
               placeholder="이름을 입력해주세요."
               maxLength={50}
               autoComplete="name"
+              enterKeyHint="next"
+              onKeyDown={onEnterKey(() => focusElementById("google-register-phone"))}
               aria-invalid={!!nameError}
             />
           </div>
