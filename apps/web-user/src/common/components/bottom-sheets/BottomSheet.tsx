@@ -4,6 +4,9 @@ import { useEffect, useRef, type ReactNode } from "react";
 import clsx from "clsx";
 import { Icon } from "@/apps/web-user/common/components/icons";
 
+/** 아래로 끌어내려 닫히는 최소 거리(px) */
+const CLOSE_THRESHOLD_PX = 100;
+
 interface BottomSheetProps {
   isOpen: boolean;
   onClose: () => void;
@@ -43,6 +46,68 @@ export function BottomSheet({
       contentRef.current.scrollTop = 0;
     }
   }, [scrollResetKey]);
+
+  // 아래로 끌어내려 닫기: 콘텐츠가 맨 위일 때(또는 헤더/푸터에서) 아래로 드래그하면 시트가 따라 내려가고,
+  // 임계값 이상이면 닫힘. 그 외에는 원래 위치로 스냅백.
+  useEffect(() => {
+    const sheet = sheetRef.current;
+    const content = contentRef.current;
+    if (!isOpen || !sheet || !content) return;
+
+    let startY = 0;
+    let dragging = false;
+    let delta = 0;
+
+    const setTransform = (y: number, animate: boolean) => {
+      sheet.style.transition = animate ? "transform 0.2s ease-out" : "none";
+      sheet.style.transform = y ? `translateY(${y}px)` : "";
+    };
+
+    const onTouchStart = (e: TouchEvent) => {
+      startY = e.touches[0].clientY;
+      dragging = false;
+      delta = 0;
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      const dy = e.touches[0].clientY - startY;
+      if (!dragging) {
+        const target = e.target as Node;
+        const inContent = content.contains(target);
+        // 콘텐츠 안에서는 최상단이고 아래로 당길 때만 드래그 시작
+        if (dy <= 0 || (inContent && content.scrollTop > 0)) return;
+        dragging = true;
+        startY = e.touches[0].clientY;
+        return;
+      }
+      delta = Math.max(0, dy);
+      // 드래그 중에는 브라우저 기본 스크롤/pull-to-refresh 방지
+      if (e.cancelable) e.preventDefault();
+      setTransform(delta, false);
+    };
+
+    const onTouchEnd = () => {
+      if (!dragging) return;
+      dragging = false;
+      if (delta > CLOSE_THRESHOLD_PX) {
+        onClose();
+      } else {
+        setTransform(0, true);
+      }
+      delta = 0;
+    };
+
+    sheet.addEventListener("touchstart", onTouchStart, { passive: true });
+    sheet.addEventListener("touchmove", onTouchMove, { passive: false });
+    sheet.addEventListener("touchend", onTouchEnd);
+    sheet.addEventListener("touchcancel", onTouchEnd);
+    return () => {
+      sheet.removeEventListener("touchstart", onTouchStart);
+      sheet.removeEventListener("touchmove", onTouchMove);
+      sheet.removeEventListener("touchend", onTouchEnd);
+      sheet.removeEventListener("touchcancel", onTouchEnd);
+    };
+  }, [isOpen, onClose]);
 
   // 바깥 영역 클릭 시 닫기
   const handleBackdropClick = (e: React.MouseEvent) => {
@@ -119,7 +184,7 @@ export function BottomSheet({
         </div>
 
         {/* Content - 스크롤 가능 영역 */}
-        <div ref={contentRef} className="flex-1 overflow-y-auto">
+        <div ref={contentRef} className="flex-1 overflow-y-auto overscroll-contain">
           {children}
         </div>
 
