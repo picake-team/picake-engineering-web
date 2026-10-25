@@ -16,7 +16,6 @@
 | `picake-git-pr-create`         | Pull Request 생성                                                                                |
 | `picake-deploy-release`        | 태그 기반 배포 진행 (web-user/web-seller/web-admin은 Vercel, backend는 backend 레포)             |
 | `picake-docs-refresh`          | 특정 변경과 무관하게 문서 전체를 현재 코드베이스 기준으로 재점검                                 |
-| `picake-data-report`           | PostHog(행동 데이터)와 관리자 통계(DB 데이터)를 함께 조회해 리포트 제공                          |
 | `picake-auth-social-login`     | 구글/카카오/애플 등 소셜 로그인(OAuth) 기능 추가·수정 시 기존 패턴 재사용                        |
 | `picake-link-app-deep-links`   | web-user 도메인 링크를 iOS/Android 네이티브 앱으로 여는 딥링크 설정 추가·수정                    |
 | `picake-legal-terms`           | 통신판매업 신고정보·이용약관·개인정보처리방침 등 법적 고지사항 작성·갱신                         |
@@ -26,7 +25,7 @@
 | `emil-design-eng`              | (외부 skill) UI 디테일·컴포넌트·애니메이션 설계 원칙                                             |
 | `find-skills`                  | (외부 skill) 필요한 agent skill 검색·설치                                                        |
 
-> 카카오 알림톡 템플릿(`picake-notify-kakao-template`), 인프라 모니터링(`picake-infra-monitor`)처럼 backend·인프라 전용 skill은 [picake-engineering-backend](https://github.com/picake-team/picake-engineering-backend) 레포의 `.claude/skills`에 있습니다.
+> 카카오 알림톡 템플릿(`picake-notify-kakao-template`)처럼 backend 전용 skill은 [picake-engineering-backend](https://github.com/picake-team/picake-engineering-backend) 레포에, 인프라 모니터링(`picake-infra-monitor`)·종합 데이터 리포트(`picake-data-report`)처럼 클라우드 루틴이 쓰는 운영 skill은 [picake-engineering-automation](https://github.com/picake-team/picake-engineering-automation) 레포의 `.claude/skills`에 있습니다.
 
 ## 📄 .claude/settings.json
 

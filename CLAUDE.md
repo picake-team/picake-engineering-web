@@ -4,11 +4,12 @@ Picake(디저트 주문 플랫폼)의 **웹 프론트엔드** 레포입니다. Y
 
 ## 레포 구성
 
-| 레포                         | 내용                                        | 로컬 위치(권장)                           |
-| ---------------------------- | ------------------------------------------- | ----------------------------------------- |
-| `picake-engineering-web`     | 웹 프론트엔드 (현재 레포)                   | -                                         |
-| `picake-engineering-backend` | 백엔드 API 서버 (NestJS, AWS EC2)           | 형제 폴더 `../picake-engineering-backend` |
-| `picake-engineering-app`     | Flutter 앱 (`web-user`을 감싸는 WebView 앱) | -                                         |
+| 레포                            | 내용                                                                        | 로컬 위치(권장)                              |
+| ------------------------------- | --------------------------------------------------------------------------- | -------------------------------------------- |
+| `picake-engineering-web`        | 웹 프론트엔드 (현재 레포)                                                   | -                                            |
+| `picake-engineering-backend`    | 백엔드 API 서버 (NestJS, AWS EC2)                                           | 형제 폴더 `../picake-engineering-backend`    |
+| `picake-engineering-app`        | Flutter 앱 (`web-user`을 감싸는 WebView 앱)                                 | -                                            |
+| `picake-engineering-automation` | Claude 클라우드 루틴·운영 자동화 스킬 (인프라 모니터링, 일일 데이터 리포트) | 형제 폴더 `../picake-engineering-automation` |
 
 - 문서에 나오는 `apps/backend/...` 경로와 `deploy-*-backend-ec2.yml`은 backend 레포의 것입니다.
 - 프로젝트 공통 문서는 이 레포 `docs/common`이 정본입니다. 구조는 `docs/common/structure/프로젝트 구조 - 가이드.md`, AI 에이전트 설정은 `docs/common/structure/AI 코딩 에이전트 - 가이드.md`를 참고하세요.
