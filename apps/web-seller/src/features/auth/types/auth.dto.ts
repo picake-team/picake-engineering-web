@@ -1,5 +1,5 @@
 /**
- * 인증 API 타입 — `apps/backend` 판매자 `SellerAuthController` + auth DTO와 정합
+ * 인증 API 타입 — picake-engineering-backend 레포 `apps/backend` 판매자 `SellerAuthController` + auth DTO와 정합
  * Base: `GET|POST /v1/seller/auth/...`
  */
 

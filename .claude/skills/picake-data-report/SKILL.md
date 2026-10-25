@@ -5,6 +5,8 @@ description: 사용자 데이터, 전환율, PostHog 지표, 회원수 등 Picak
 
 # 종합 데이터 리포트
 
+> **이 문서의 `apps/backend/...` 경로와 `deploy-*-backend-ec2.yml` 워크플로우는 별도 레포 [`picake-engineering-backend`](https://github.com/picake-team/picake-engineering-backend)의 것입니다.** 로컬에서는 이 레포의 형제 폴더(`../picake-engineering-backend`)에서 확인하세요. `apps/web-*` 경로는 이 레포입니다.
+
 Picake의 데이터는 두 곳에 나뉘어 있습니다. **행동 데이터(페이지뷰·클릭·전환 퍼널)는 PostHog**, **DB가 원본인 지표(회원수·주문·매출·스토어)는 백엔드 관리자 통계 API**입니다 (`apps/backend/src/apis/admin/controllers/statistics.controller.ts` 주석에 명시된 설계). 이 skill은 둘을 한 번에 모아 예쁜 대시보드로 보여주는 절차입니다.
 
 ## 0. 범위 확인

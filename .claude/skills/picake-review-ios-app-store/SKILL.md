@@ -5,13 +5,15 @@ description: Picake web-user가 겉면만 Flutter로 감싼 웹뷰 앱으로 iOS
 
 # iOS 앱스토어 심사 대응
 
+> **이 문서의 `apps/backend/...` 경로와 `deploy-*-backend-ec2.yml` 워크플로우는 별도 레포 [`picake-engineering-backend`](https://github.com/picake-team/picake-engineering-backend)의 것입니다.** 로컬에서는 이 레포의 형제 폴더(`../picake-engineering-backend`)에서 확인하세요. `apps/web-*` 경로는 이 레포입니다.
+
 > **현재 상태(2026-08-30 기준): 심사 승인 완료, iOS 앱스토어 배포 성공.** 4차 반려(§1의 2.1(a)+1.5, §3-2)까지 대응한 재심사에서 통과됨. 이 문서는 이력 참고용으로 계속 유지하고, 새 반려가 오면 §4 절차대로 대응해 §1에 이어서 기록하세요.
 
 Picake web-user는 겉면만 Flutter로 감싼 **웹뷰 앱**입니다 — 로그인부터 주문·결제까지 대부분의 로직이 `apps/web-user`(Next.js)와 `apps/backend`에 있고, 네이티브 Flutter 쪽은 스플래시, FCM 푸시 토큰, 위치 브릿지(`window.mylocation`), 딥링크 스킴 처리 정도만 담당합니다(`apps/web-user/src/common/utils/webview.bridge.ts` 참고). 이 구조 자체가 Apple 심사에서 반복적으로 걸리는 지점이므로, **반려 메일을 받으면 먼저 이 문서에서 해당 가이드라인 번호를 찾아 이미 구현된 대응이 있는지 확인하고, 없는 부분만 새로 작업하세요.**
 
 ## 0. 이 저장소에서 할 수 있는 일 vs 없는 일
 
-- 네이티브 Flutter iOS 앱은 **별도 저장소**(이 모노레포에 없음, `find`로 확인해도 `.xcodeproj`/`pubspec.yaml`이 없음). 여기서 실제로 고칠 수 있는 건 web-user/backend 코드뿐입니다.
+- 네이티브 Flutter iOS 앱은 **별도 저장소**(이 레포·backend 레포에 없음, `picake-engineering-app` 레포로 옮길 예정, `find`로 확인해도 `.xcodeproj`/`pubspec.yaml`이 없음). 여기서 실제로 고칠 수 있는 건 web-user/backend 코드뿐입니다.
 - 다음 항목은 **앱담당자 확인이 필요** — 임의로 답하거나 추측해서 심사노트에 쓰지 않습니다:
   - Info.plist 권한 사용 설명 문구(위치·알림 등), 앱 아이콘, 스크린샷, 앱 이름/부제
   - App Store Connect의 **App Privacy(개인정보 수집 항목 설문)** — 실제 수집 항목(휴대폰번호, 위치, 소셜 로그인 식별자 등, [[picake-legal-terms]] skill의 개인정보처리방침 항목과 일치해야 함)과 어긋나면 그 자체로 반려 사유가 됨

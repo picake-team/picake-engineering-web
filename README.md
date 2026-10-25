@@ -1,6 +1,16 @@
-# Picake
+# Picake Web
 
-Yarn Berry + Workspace 기반 모노레포 프로젝트로 구성된 디저트 주문 플랫폼입니다.
+Picake(디저트 주문 플랫폼)의 웹 프론트엔드(`web-user`, `web-seller`, `web-admin`)입니다. Yarn Berry + Workspace 기반 모노레포입니다.
+
+## 🧭 레포 구성
+
+Picake 개발 코드는 아래 레포들로 나뉘어 있습니다.
+
+| 레포                                                                                       | 내용                                                  |
+| ------------------------------------------------------------------------------------------ | ----------------------------------------------------- |
+| **[picake-engineering-web](https://github.com/picake-team/picake-engineering-web)** (현재) | 웹 프론트엔드 (`web-user`, `web-seller`, `web-admin`) |
+| [picake-engineering-backend](https://github.com/picake-team/picake-engineering-backend)    | 백엔드 API 서버 (NestJS, EC2 배포)                    |
+| [picake-engineering-app](https://github.com/picake-team/picake-engineering-app)            | Flutter 앱 (`web-user`을 감싸는 WebView 앱, 예정)     |
 
 ## 🚀 시작하기
 
@@ -11,40 +21,36 @@ Yarn Berry + Workspace 기반 모노레포 프로젝트로 구성된 디저트 �
 
 ### 로컬 개발 환경변수 설정
 
-- backend/.env.development 삽입
 - web-seller/.env.development 삽입
 - web-user/.env.development 삽입
 
-### 로컬 개발 환경 데이터베이스 설정
+### 백엔드 실행
 
-- **[로컬 데이터베이스 설정 가이드](./docs/backend/기술%20스택%20-%20가이드.md)**: 로컬 PostgreSQL 및 Prisma ORM 관리
+API 서버는 별도 레포입니다. 이 레포의 **형제 폴더**에 clone해서 실행하세요(web-user e2e 테스트도 이 위치를 기본값으로 씁니다).
+
+```bash
+git clone https://github.com/picake-team/picake-engineering-backend.git ../picake-engineering-backend
+```
+
+실행 방법과 로컬 데이터베이스 설정은 [backend README](https://github.com/picake-team/picake-engineering-backend#readme)를 참고하세요.
 
 ### 로컬 개발 환경 설치 및 실행
 
 ```bash
 # 프로젝트 클론
 git clone <repository-url>
-cd picake
+cd picake-engineering-web
 
 # 의존성 설치(자동으로 postinstall 스크립트 실행, 이름 변경시 자동실행 안됨)
 # 파일 경로에 한글이 존재하면 오류가 발생할 수 있습니다.
 yarn install
 
-# 개발 서버 시작(.env.development 환경변수 필요)
-yarn backend:dev          # 백엔드 개발 서버 (포트: 3000)
+# 개발 서버 시작(.env.development 환경변수 필요, backend는 별도 레포)
 yarn web-user:dev         # 사용자 웹 개발 서버 (포트: 3001)
 yarn web-seller:dev       # 판매자 웹 개발 서버 (포트: 3002)
 yarn web-admin:dev        # 관리자 웹 개발 서버 (포트: 3003)
 
-# 데이터베이스 관리
-yarn db:seed:dev           # 백엔드 개발 데이터베이스 시드 (development)
-yarn db:seed:staging       # 백엔드 스테이징 데이터베이스 시드 (staging)
-yarn db:migrate:dev        # 백엔드 개발 데이터베이스 마이그레이션
-yarn db:migrate:status     # 백엔드 데이터베이스 마이그레이션 상태 확인
-yarn db:studio:dev         # 백엔드 개발 데이터베이스 스튜디오
-
 # 빌드 및 배포
-yarn backend:build             # 백엔드 빌드 (환경은 실행 시 NODE_ENV로 주입)
 yarn web-user:build            # 사용자 웹 빌드
 yarn web-seller:build          # 판매자 웹 빌드
 yarn web-admin:build           # 관리자 웹 빌드
@@ -73,14 +79,13 @@ yarn web-seller:storybook       # 판매자 스토리북 실행
 
 | 프로젝트     | 태그 형식                                          | 배포 플랫폼 | 예시                         |
 | ------------ | -------------------------------------------------- | ----------- | ---------------------------- |
-| `backend`    | `backend/staging-*` · `backend/production-*`       | AWS EC2     | `backend/production-v1.0.0`  |
 | `web-user`   | `web-user/staging-*` · `web-user/production-*`     | Vercel      | `web-user/production-v1.0.0` |
 | `web-seller` | `web-seller/staging-*` · `web-seller/production-*` | Vercel      | `web-seller/staging-v1.0.0`  |
 | `web-admin`  | `web-admin/staging-*` · `web-admin/production-*`   | Vercel      | `web-admin/staging-v1.0.0`   |
 
 **태그 구조:** `{프로젝트명}/{환경}-{버전}`
 
-- **프로젝트명**: `backend`, `web-user`, `web-seller`, `web-admin`
+- **프로젝트명**: `web-user`, `web-seller`, `web-admin`
 - **환경**: `staging`, `production`
 - **버전**: 자유 형식 (예: `v1.0.0`, `v1.0.1`, `2024.01.01`)
 
@@ -88,7 +93,9 @@ yarn web-seller:storybook       # 판매자 스토리북 실행
 
 1. 태그 생성 및 푸시
 2. GitHub Actions 워크플로우 자동 실행
-3. 프로젝트별 배포 플랫폼으로 자동 배포
+3. 프로젝트별 배포 플랫폼(Vercel)으로 자동 배포
+
+backend 배포(`backend/*` 태그, AWS EC2)는 [picake-engineering-backend](https://github.com/picake-team/picake-engineering-backend) 레포에서 합니다.
 
 ## 👥 협업 규칙
 
@@ -163,7 +170,6 @@ hotfix/xxx (긴급 수정 브랜치)
 - `[WEB-SELLER]` - Web Seller
 - `[WEB-USER]` - Web User
 - `[WEB-ADMIN]` - Web Admin
-- `[BE]` - Backend
 
 #### 커밋 타입
 
@@ -184,7 +190,6 @@ hotfix/xxx (긴급 수정 브랜치)
 [COMMON][CHORE]: 의존성 패키지 업데이트
 [WEB-SELLER][UI]: 상품 등록 폼 UI 개선
 [WEB-USER][FEATURE]: 로그인 페이지 구현
-[BE][FIX]: 인증 토큰 만료 처리 수정
 ```
 
 ## 📚 상세 문서
@@ -206,12 +211,6 @@ hotfix/xxx (긴급 수정 브랜치)
 - **[채팅 시스템 가이드](./docs/common/feature/채팅%20시스템%20-%20가이드.md)**: Socket.IO 기반 실시간 채팅 시스템 가이드
 - **[위치 필터 기능 스펙](./docs/location-filter-spec.md)**: 지역(시/도·시/군/구) 기반 상품/스토어 필터링 스펙
 
-### 백엔드 문서
-
-- **[Backend README](./docs/backend/README.md)**: 백엔드 서비스 개요 및 사용법
-- **[Backend 기술 스택 가이드](./docs/backend/기술%20스택%20-%20가이드.md)**: 백엔드 기술 스택 및 아키텍처 (로컬 데이터베이스 설정 포함)
-- **[Backend Sentry 가이드](./docs/backend/Sentry%20에러%20로깅%20통합%20설계%20-%20가이드.md)**: Sentry 에러 로깅 구조 (백엔드·프론트엔드)
-
 ### 프론트엔드 문서
 
 - **[Web User README](./docs/web-user/README.md)**: 사용자 웹 애플리케이션 개요 및 사용법
@@ -226,11 +225,10 @@ hotfix/xxx (긴급 수정 브랜치)
 
 ### 인프라 문서
 
-#### AWS 인프라
-
-- **[EC2 배포 가이드(검증)](<./docs/infra/aws/(검증)EC2_Route53_S3_CloudFront.md>)**: AWS EC2 백엔드 배포 가이드 (PostgreSQL, Nginx, PM2, Route53, S3, CloudFront 포함)
-- **[EC2 배포 가이드(상용)](<./docs/infra/aws/(상용)EC2_Route53_S3_CloudFront.md>)**: 프로덕션 환경 참고 (검증 가이드와 동일한 구성을 staging → production에 적용)
-
 #### 배포 플랫폼
 
 - **[Vercel 배포 가이드](./docs/infra/vercel/Vercel%20배포%20-%20가이드.md)**: Vercel 웹 애플리케이션 배포 가이드
+
+### 백엔드·AWS 인프라 문서 (backend 레포)
+
+백엔드 서비스와 AWS EC2 배포 가이드는 [picake-engineering-backend의 docs](https://github.com/picake-team/picake-engineering-backend/tree/main/docs)에서 관리합니다.

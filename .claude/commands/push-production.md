@@ -1,6 +1,6 @@
 ---
 description: staging을 main에 머지하고 production 태그를 자동 증가시켜 운영 배포합니다
-argument-hint: "[프로젝트 — 예: web-user, backend. 생략 시 변경 파일로 자동 판단]"
+argument-hint: "[프로젝트 — 예: web-user, web-seller, web-admin. 생략 시 변경 파일로 자동 판단]"
 ---
 
 `staging → main` PR을 만들어 머지하고, production 태그를 마지막 버전 +1로 붙여 운영에 배포합니다.
@@ -38,7 +38,7 @@ gh pr create --repo picake-team/picake-engineering-web --base main --head stagin
 
 ## 3. 필수 체크 통과 대기
 
-`main` 브랜치 보호는 **`test-backend`** 체크를 요구합니다.
+``main` 브랜치 보호는 **`test-web (web-user)` · `test-web (web-seller)` · `test-web (web-admin)`** 체크를 요구합니다.
 
 ```bash
 for i in $(seq 1 15); do
@@ -57,7 +57,7 @@ gh pr view <번호> --repo picake-team/picake-engineering-web --json statusCheck
   --template '{{range .statusCheckRollup}}{{.name}}={{.conclusion}} ({{.status}}){{"\n"}}{{end}}'
 ```
 
-웹만 바뀐 PR은 `test-backend`가 백엔드 변경 없음을 감지해 **5초 만에 skip+success** 합니다. 여기서 오래 걸리면 워크플로우 쪽 문제입니다.
+`test-web`은 해당 앱 변경이 없거나 `test` 스크립트가 없으면 **수 초 만에 skip+success** 합니다. 여기서 오래 걸리면 워크플로우 쪽 문제입니다.
 
 `--admin`으로 브랜치 보호를 우회하지 **않습니다.** 막히면 원인을 보고하고 사용자 판단을 받습니다.
 

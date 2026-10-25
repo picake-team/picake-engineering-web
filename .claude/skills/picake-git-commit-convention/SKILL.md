@@ -5,17 +5,18 @@ description: Picake 저장소에 커밋 메시지를 작성할 때 사용합니�
 
 # 커밋 메시지 규칙
 
+이 레포(`picake-engineering-web`)는 웹 전용입니다. backend 레포는 `[BE]`/`[COMMON]`을 씁니다.
+
 ## 형식
 
 ```
 [접두사]: 내용
 ```
 
-- 접두사는 아래 5개 중 변경 범위에 맞는 것 하나를 사용합니다.
+- 접두사는 아래 4개 중 변경 범위에 맞는 것 하나를 사용합니다.
   - `[WEB-USER]`
   - `[WEB-SELLER]`
   - `[WEB-ADMIN]`
-  - `[BE]`
   - `[COMMON]`
 - 내용(본문)은 한국어로 작성합니다.
 
@@ -26,7 +27,6 @@ description: Picake 저장소에 커밋 메시지를 작성할 때 사용합니�
 | `[WEB-USER]`   | `apps/web-user` 변경                                                |
 | `[WEB-SELLER]` | `apps/web-seller` 변경                                              |
 | `[WEB-ADMIN]`  | `apps/web-admin` 변경                                               |
-| `[BE]`         | `apps/backend` 변경                                                 |
 | `[COMMON]`     | 특정 앱에 한정되지 않는 공통 변경 (루트 설정, 여러 앱 동시 변경 등) |
 
 `git status`로 변경된 파일이 어느 앱/영역에 속하는지 먼저 확인한 뒤 접두사를 정합니다.
@@ -35,7 +35,7 @@ description: Picake 저장소에 커밋 메시지를 작성할 때 사용합니�
 
 ```
 [WEB-USER]: 로그인 페이지 접근성 개선
-[BE]: 인증 토큰 만료 처리 수정
+[WEB-SELLER]: 상품 등록 폼 검증 오류 수정
 [COMMON]: ESLint 설정 업데이트
 ```
 

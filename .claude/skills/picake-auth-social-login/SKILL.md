@@ -5,6 +5,8 @@ description: Picake web-user/web-seller의 소셜 로그인(구글·카카오·�
 
 # 소셜 로그인(OAuth) 기능 구현
 
+> **이 문서의 `apps/backend/...` 경로와 `deploy-*-backend-ec2.yml` 워크플로우는 별도 레포 [`picake-engineering-backend`](https://github.com/picake-team/picake-engineering-backend)의 것입니다.** 로컬에서는 이 레포의 형제 폴더(`../picake-engineering-backend`)에서 확인하세요. `apps/web-*` 경로는 이 레포입니다.
+
 Picake는 구글·카카오 로그인을 **브릿지 없이 웹뷰에서 OAuth Authorization Code Flow**로 직접 처리합니다(iOS/Android 네이티브 SDK 연동 아님). 새 provider(예: Apple)를 추가하거나 기존 provider를 수정할 때는 아래 구조를 그대로 따릅니다 — 임의로 다른 패턴을 만들지 않습니다.
 
 ## 0. 전체 구조
@@ -140,4 +142,4 @@ analytics 이벤트는 `request_social_auth` / `success_login` / `fail_social_au
 
 ### 이 저장소에서 npm install을 쓰면 안 됩니다
 
-루트 `package.json`의 `packageManager`는 `yarn@4.9.4`(Berry)입니다. 의존성 추가 시 `npm install`을 쓰면 `postinstall`이 `yarn workspace ... postinstall`을 재귀 호출하면서 실패하고, `yarn.lock`이 대규모로 깨지거나(수천 줄 diff) 불필요한 `package-lock.json`이 생성됩니다. 반드시 `corepack yarn workspace @picake/backend add <pkg>` (또는 `-D`)를 쓰세요.
+루트 `package.json`의 `packageManager`는 `yarn@4.9.4`(Berry)입니다. 의존성 추가 시 `npm install`을 쓰면 `yarn.lock`이 대규모로 깨지거나(수천 줄 diff) 불필요한 `package-lock.json`이 생성됩니다. 반드시 `corepack yarn workspace @picake/<앱> add <pkg>` (또는 `-D`)를 쓰세요. backend 의존성은 backend 레포에서 `corepack yarn workspace @picake/backend add <pkg>`를 씁니다.

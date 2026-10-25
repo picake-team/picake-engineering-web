@@ -1,6 +1,6 @@
 ---
 description: 현재 브랜치를 푸시하고 staging 태그를 자동 증가시켜 스테이징 배포합니다
-argument-hint: "[프로젝트 — 예: web-user, backend. 생략 시 변경 파일로 자동 판단]"
+argument-hint: "[프로젝트 — 예: web-user, web-seller, web-admin. 생략 시 변경 파일로 자동 판단]"
 ---
 
 현재 브랜치를 푸시하고, staging 태그를 마지막 버전 +1로 만들어 배포까지 확인합니다. 이 명령을 실행한 것 자체가 배포 승인이므로 중간에 다시 묻지 않습니다.
@@ -46,7 +46,6 @@ git diff --name-only "$LAST"..HEAD | awk -F/ '/^apps\//{print $2}' | sort -u
 | `apps/web-user/**`   | `web-user`   |
 | `apps/web-seller/**` | `web-seller` |
 | `apps/web-admin/**`  | `web-admin`  |
-| `apps/backend/**`    | `backend`    |
 
 루트 설정만 바뀐 경우엔 어느 앱을 배포할지 사용자에게 확인합니다.
 
@@ -81,7 +80,7 @@ gh run list --repo picake-team/picake-engineering-web --workflow deploy-web.yml 
   --template '{{range .}}{{.databaseId}} {{.headBranch}} {{.status}} {{.conclusion}}{{"\n"}}{{end}}'
 ```
 
-backend면 `deploy-staging-backend-ec2.yml`을 봅니다.
+(backend 배포는 별도 레포 `picake-engineering-backend`의 `/push-staging`을 씁니다.)
 
 **run이 안 생겼으면** 태그를 지우고 다시 푸시합니다.
 
