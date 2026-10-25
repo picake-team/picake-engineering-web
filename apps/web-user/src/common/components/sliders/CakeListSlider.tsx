@@ -10,14 +10,15 @@ interface CakeListSliderProps {
   title: string;
   products: Product[];
   isLoading: boolean;
-  onProductClick: (productId: string) => void;
+  /** 상품 카드의 상세 주소 (진입 경로 쿼리 포함) */
+  getProductHref: (productId: string) => string;
 }
 
 export default function CakeListSlider({
   title,
   products,
   isLoading,
-  onProductClick,
+  getProductHref,
 }: CakeListSliderProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const drag = useRef({ isDown: false, hasDragged: false, startX: 0, scrollLeft: 0 });
@@ -45,9 +46,9 @@ export default function CakeListSlider({
     setIsDragging(false);
   };
 
-  const handleCardClick = (productId: string) => {
-    if (drag.current.hasDragged) return;
-    onProductClick(productId);
+  // 마우스로 끌어서 스크롤한 직후의 클릭은 카드 이동으로 처리하지 않는다 (캡처 단계에서 차단)
+  const handleClickCapture = (e: React.MouseEvent) => {
+    if (drag.current.hasDragged) e.stopPropagation();
   };
 
   return (
@@ -76,9 +77,10 @@ export default function CakeListSlider({
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
+          onClickCapture={handleClickCapture}
         >
           {products.map((product) => (
-            <CakeListItem key={product.id} product={product} onCardClick={handleCardClick} />
+            <CakeListItem key={product.id} product={product} href={getProductHref(product.id)} />
           ))}
           <div className="min-w-[12px] shrink-0" />
         </div>
