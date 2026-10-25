@@ -73,8 +73,6 @@ export const PATHS = {
    * UA에 따라 App Store / Play Store / 웹으로 분기합니다.
    */
   APP_DOWNLOAD: "/app",
-  /** Play Store 미입점 동안 Android가 보게 되는 안내 페이지 */
-  APP_DOWNLOAD_ANDROID: "/app/android",
 
   /**
    * 입점 안내 진입점 — 사장님께 보여주는 QR에 넣는 주소(`https://picakes.com/partner`).
