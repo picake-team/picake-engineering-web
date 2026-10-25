@@ -10,6 +10,7 @@ import { useAddProductLike } from "@/apps/web-user/features/like/hooks/mutations
 import { useRemoveProductLike } from "@/apps/web-user/features/like/hooks/mutations/useRemoveProductLike";
 import { useAuthStore } from "@/apps/web-user/common/store/auth.store";
 import { useLoginSheetStore } from "@/apps/web-user/common/store/login-sheet.store";
+import { usePrefetchOnVisible } from "@/apps/web-user/common/hooks/usePrefetchOnVisible";
 
 interface ProductListProps {
   products: Product[];
@@ -39,8 +40,11 @@ function ProductItem({ product }: ProductItemProps) {
   const { isAuthenticated } = useAuthStore();
   const openLoginSheet = useLoginSheetStore((s) => s.openLoginSheet);
 
+  const detailHref = PATHS.PRODUCT.DETAIL(product.id);
+  const cardRef = usePrefetchOnVisible<HTMLDivElement>(detailHref);
+
   const handleProductClick = () => {
-    router.push(PATHS.PRODUCT.DETAIL(product.id));
+    router.push(detailHref);
   };
 
   const handleLikeClick = (e: React.MouseEvent) => {
@@ -59,7 +63,7 @@ function ProductItem({ product }: ProductItemProps) {
   };
 
   return (
-    <div onClick={handleProductClick} className="bg-white cursor-pointer">
+    <div ref={cardRef} onClick={handleProductClick} className="bg-white cursor-pointer">
       {/* 상품 이미지 */}
       <div className="mb-[10px] w-full relative bg-gray-50">
         {product.images && product.images.length > 0 ? (
