@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { SearchBar } from "@/apps/web-user/common/components/search/SearchBar";
 import BannerSlider from "@/apps/web-user/features/home-banner/components/BannerSlider";
 import CakeListSlider from "@/apps/web-user/common/components/sliders/CakeListSlider";
@@ -20,9 +19,10 @@ import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 /** 지역 복원을 기다리는 최대 시간. 이 시간이 지나면 지역 필터 없이 목록을 조회한다. */
 const REGION_WAIT_TIMEOUT_MS = 3000;
 
-export default function Home() {
-  const router = useRouter();
+const getHomeProductHref = (productId: string) =>
+  `${PATHS.PRODUCT.DETAIL(productId)}?entry_point=home`;
 
+export default function Home() {
   // 홈 화면 노출
   useEffect(() => {
     trackEvent("view_home");
@@ -115,10 +115,6 @@ export default function Home() {
   const latestProducts: Product[] = latestData?.pages?.[0]?.data?.slice(0, 10) || [];
   const popularProducts: Product[] = popularData?.pages?.[0]?.data?.slice(0, 10) || [];
 
-  const handleProductClick = (productId: string) => {
-    router.push(`${PATHS.PRODUCT.DETAIL(productId)}?entry_point=home`);
-  };
-
   return (
     <div className="w-full pb-[110px]">
       {/* 배너 */}
@@ -139,7 +135,7 @@ export default function Home() {
           title="신규케이크"
           products={latestProducts}
           isLoading={!isRegionSettled || isLatestLoading}
-          onProductClick={handleProductClick}
+          getProductHref={getHomeProductHref}
         />
       </div>
 
@@ -148,7 +144,7 @@ export default function Home() {
         title="인기케이크"
         products={popularProducts}
         isLoading={!isRegionSettled || isPopularLoading}
-        onProductClick={handleProductClick}
+        getProductHref={getHomeProductHref}
       />
       <BottomNav />
     </div>

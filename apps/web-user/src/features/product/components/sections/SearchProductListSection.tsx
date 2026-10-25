@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
 import { useProductList } from "@/apps/web-user/features/product/hooks/queries/useProductList";
 import {
   SortBy,
@@ -38,7 +37,6 @@ export function SearchProductListSection({
   onResultCountChange,
 }: SearchProductListSectionProps) {
   const loadMoreRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useProductList({
     search: search?.trim() || undefined,
@@ -73,7 +71,7 @@ export function SearchProductListSection({
           <CakeListItem
             key={product.id}
             product={product}
-            onCardClick={(id) => router.push(`${PATHS.PRODUCT.DETAIL(id)}?entry_point=search`)}
+            href={`${PATHS.PRODUCT.DETAIL(product.id)}?entry_point=search`}
           />
         ))}
       </div>

@@ -11,16 +11,19 @@ import { formatAddress } from "@/apps/web-user/common/utils/address.util";
 import { useAuthStore } from "@/apps/web-user/common/store/auth.store";
 import { useLoginSheetStore } from "@/apps/web-user/common/store/login-sheet.store";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
+import { usePrefetchOnVisible } from "@/apps/web-user/common/hooks/usePrefetchOnVisible";
 
 interface CakeListItemProps {
   product: Product;
-  onCardClick: (productId: string) => void;
+  /** 카드를 눌렀을 때 이동할 상품 상세 주소 (진입 경로 쿼리 포함). 카드가 보이면 미리 받아둔다. */
+  href: string;
 }
 
-export function CakeListItem({ product, onCardClick }: CakeListItemProps) {
+export function CakeListItem({ product, href }: CakeListItemProps) {
   const [isLiked, setIsLiked] = useState(product.isLiked ?? false);
 
   const router = useRouter();
+  const cardRef = usePrefetchOnVisible<HTMLDivElement>(href);
   const { mutate: addLike, isPending: isAddingLike } = useAddProductLike();
   const { mutate: removeLike, isPending: isRemovingLike } = useRemoveProductLike();
   const isLikeLoading = isAddingLike || isRemovingLike;
@@ -48,7 +51,11 @@ export function CakeListItem({ product, onCardClick }: CakeListItemProps) {
   };
 
   return (
-    <div onClick={() => onCardClick(product.id)} className="min-w-[164px] bg-white cursor-pointer">
+    <div
+      ref={cardRef}
+      onClick={() => router.push(href)}
+      className="min-w-[164px] bg-white cursor-pointer"
+    >
       <div className="w-full aspect-square relative overflow-hidden rounded-xl">
         {product.images && product.images.length > 0 ? (
           <Image
@@ -57,7 +64,6 @@ export function CakeListItem({ product, onCardClick }: CakeListItemProps) {
             fill
             sizes="164px"
             className="object-cover"
-            unoptimized
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm font-semibold">

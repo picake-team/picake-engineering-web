@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef } from "react";
-import { useRouter } from "next/navigation";
 import { useLikedProducts } from "@/apps/web-user/features/like/hooks/queries/useLikedProducts";
 import { Product } from "@/apps/web-user/features/product/types/product.type";
 import { CakeListItem } from "@/apps/web-user/features/product/components/cards/CakeListItem";
@@ -12,7 +11,6 @@ import { EmptyState } from "@/apps/web-user/common/components/fallbacks/EmptySta
 
 export function LikedProductListSection() {
   const loadMoreRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useLikedProducts();
 
@@ -33,7 +31,7 @@ export function LikedProductListSection() {
           <CakeListItem
             key={product.id}
             product={product}
-            onCardClick={(id) => router.push(PATHS.PRODUCT.DETAIL(id))}
+            href={PATHS.PRODUCT.DETAIL(product.id)}
           />
         ))}
       </div>

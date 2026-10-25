@@ -60,8 +60,8 @@ function FeedImageCarousel({ images, title }: { images: string[]; title: string 
                 src={image}
                 alt={`${title} - 이미지 ${index + 1}`}
                 fill
+                sizes="(min-width: 640px) 640px, 100vw"
                 className="object-cover"
-                unoptimized
               />
             </div>
           </SwiperSlide>
@@ -110,8 +110,8 @@ function FeedItem({ feed }: FeedItemProps) {
               src={feed.storeLogoImageUrl}
               alt="스토어 로고"
               fill
+              sizes="32px"
               className="object-cover"
-              unoptimized
             />
           </div>
         ) : (

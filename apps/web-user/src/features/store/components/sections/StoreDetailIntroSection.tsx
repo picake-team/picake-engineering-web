@@ -80,9 +80,9 @@ export function StoreDetailIntroSection({ store }: StoreDetailIntroSectionProps)
               src={store.logoImageUrl}
               alt={`${store.name} 로고`}
               fill
+              sizes="48px"
               className="object-cover"
               onError={() => setImageError(true)}
-              unoptimized
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gray-100">
