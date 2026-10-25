@@ -126,7 +126,7 @@ export function isWebViewEnvironment(): boolean {
  */
 const LOCATION_PROMPT_EXCLUDED_PATHS = [
   PATHS.PARTNER, // 입점 안내 (/partner)
-  PATHS.APP_DOWNLOAD, // 앱 다운로드 진입점 (/app, /app/android)
+  PATHS.APP_DOWNLOAD, // 앱 다운로드 진입점 (/app)
 ] as const;
 
 function isLocationPromptExcluded(pathname: string | null): boolean {

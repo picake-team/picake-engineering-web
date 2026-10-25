@@ -2,20 +2,20 @@ import { NextResponse, type NextRequest } from "next/server";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import {
   APP_STORE_URL,
-  getPlayStoreUrl,
+  PLAY_STORE_URL,
 } from "@/apps/web-user/common/constants/app-download.constants";
 
 /**
  * 명함 QR 등 오프라인 인쇄물의 공용 앱 다운로드 진입점 (`https://picakes.com/app`).
  *
  * 인쇄된 QR은 회수할 수 없으므로 QR에는 이 주소만 담고, 실제 목적지는 여기서 정합니다.
- * Play Store에 입점하면 QR·명함은 그대로 두고
- * {@link ../../common/constants/app-download.constants.ts}의 링크만 채우면 됩니다.
+ * 스토어 링크가 바뀌어도 QR·명함은 그대로 두고
+ * {@link ../../common/constants/app-download.constants.ts}의 링크만 고치면 됩니다.
  *
  * | UA      | 이동 대상                                        |
  * | ------- | ------------------------------------------------ |
  * | iOS     | App Store                                        |
- * | Android | Play Store (미입점 시 `/app/android` 안내 페이지) |
+ * | Android | Play Store                                       |
  * | 그 외   | 홈 (모바일 웹)                                    |
  */
 
@@ -29,8 +29,7 @@ function resolveDestination(userAgent: string): string {
   }
 
   if (/Android/i.test(userAgent)) {
-    // 미입점이면 빈 문자열 → 안내 페이지로
-    return getPlayStoreUrl() || PATHS.APP_DOWNLOAD_ANDROID;
+    return PLAY_STORE_URL;
   }
 
   return PATHS.HOME;
@@ -40,7 +39,7 @@ export function GET(request: NextRequest) {
   const destination = resolveDestination(request.headers.get("user-agent") ?? "");
 
   // 302(임시). 301로 보내면 브라우저가 목적지를 영구 캐시해서
-  // Play Store 입점 뒤에도 예전 대상으로 가버립니다 — 인쇄물 QR에는 치명적입니다.
+  // 스토어 링크를 바꾼 뒤에도 예전 대상으로 가버립니다 — 인쇄물 QR에는 치명적입니다.
   const response = NextResponse.redirect(new URL(destination, request.url), 302);
 
   // 같은 URL이 UA마다 다른 곳으로 가므로 중간 캐시가 응답을 재사용하면 안 됩니다.
