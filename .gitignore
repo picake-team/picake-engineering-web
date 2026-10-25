@@ -8,7 +8,6 @@ node_modules/
 out/
 dist/
 build/
-apps/backend/dist/
 
 # Environment variables
 .env.*
@@ -108,9 +107,6 @@ Thumbs.db
 # Yarn Berry
 .yarn/
 
-# Prisma client (backend)
-apps/backend/src/infra/database/prisma/generated/
-apps/backend/src/infra/database/prisma/**/client/
 
 # Database
 *.db

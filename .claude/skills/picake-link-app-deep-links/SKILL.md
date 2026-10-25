@@ -5,6 +5,8 @@ description: Picake web-user 도메인의 링크가 iOS/Android 네이티브 앱
 
 # 앱 딥링크(Universal Links / App Links) 설정
 
+> **이 문서의 `apps/backend/...` 경로와 `deploy-*-backend-ec2.yml` 워크플로우는 별도 레포 [`picake-engineering-backend`](https://github.com/picake-team/picake-engineering-backend)의 것입니다.** 로컬에서는 이 레포의 형제 폴더(`../picake-engineering-backend`)에서 확인하세요. `apps/web-*` 경로는 이 레포입니다.
+
 카카오 알림톡 버튼(`https://#{도메인}/order/...` 등)이나 그 외 `picakes.com` 링크를 눌렀을 때 브라우저가 아니라 네이티브 앱이 바로 열리게 하려면, 앱이 그 도메인의 소유권을 "신뢰 앵커 파일"로 검증해야 합니다. iOS는 Universal Links, Android는 App Links라는 별개 메커니즘이고 파일도 따로입니다 — 하나만 고치고 끝내지 않도록 주의하세요.
 
 ## 0. 전체 그림

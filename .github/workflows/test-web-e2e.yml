@@ -2,6 +2,10 @@ name: Test Web E2E
 
 # web-user의 Playwright 브라우저 E2E(apps/web-user/e2e)는 실제 화면을 클릭/입력하며
 # backend까지 함께 띄워야 해서, vitest만 도는 test-web.yml과 분리했다.
+# backend는 별도 레포(picake-team/picake-engineering-backend)라서 CI에서 checkout해 띄운다.
+# 어느 브랜치를 받을지는 "브랜치 매칭" — PR의 head 브랜치와 같은 이름이 backend 레포에 있으면
+# 그것을, 없으면 PR의 base 브랜치(staging/main)를 쓴다. backend 변경만으로는 이 워크플로우가
+# 돌지 않는다(트리거는 이 레포의 PR뿐).
 # 아직 브랜치 보호 필수 체크로 지정하지 않았다 — 결과만 보고(브라우저 E2E라 unit보다
 # 플레이키할 여지가 있어, 당분간 안정성을 지켜본 뒤 필수 체크로 승격할지 판단한다).
 on:
@@ -9,7 +13,6 @@ on:
     branches: [staging, main]
     paths:
       - "apps/web-user/**"
-      - "apps/backend/**"
       - ".github/workflows/test-web-e2e.yml"
 
 permissions:
@@ -19,8 +22,8 @@ jobs:
   test-web-e2e:
     runs-on: ubuntu-latest
 
-    # apps/web-user/playwright.config.ts의 webServer가 backend를 test:e2e/test:integration과
-    # 동일한 방식(.env.test)으로 직접 기동(마이그레이션 → 픽스처 시딩 → 서버 실행)하므로,
+    # backend(별도 레포, backend-repo/ 로 checkout)를 test:e2e/test:integration과 동일한
+    # 방식(.env.test)으로 직접 기동(마이그레이션 → 픽스처 시딩 → 서버 실행)하므로,
     # 이 job은 Postgres만 띄워주면 된다.
     services:
       postgres:
@@ -64,6 +67,34 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
 
+      # 브랜치 매칭: head 브랜치와 같은 이름이 backend 레포에 있으면 그것, 없으면 base 브랜치.
+      # github.head_ref는 사용자가 정하는 값이라 스크립트에 직접 끼워 넣지 않고 env로만 넘긴다.
+      - name: Resolve backend ref
+        id: backend-ref
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          BACKEND_URL="https://github.com/picake-team/picake-engineering-backend.git"
+          if git ls-remote --exit-code --heads "$BACKEND_URL" "$HEAD_REF" >/dev/null 2>&1; then
+            REF="$HEAD_REF"
+          else
+            REF="$BASE_REF"
+          fi
+          echo "ref=$REF" >> "$GITHUB_OUTPUT"
+          echo "::notice::backend 레포 ref = $REF"
+
+      - name: Checkout backend repo
+        uses: actions/checkout@v4
+        with:
+          repository: picake-team/picake-engineering-backend
+          ref: ${{ steps.backend-ref.outputs.ref }}
+          path: backend-repo
+
+      - name: Install backend dependencies
+        working-directory: backend-repo
+        run: yarn install --immutable
+
       # package.json의 semver range가 아니라 실제로 설치된 버전을 키로 써야 캐시가
       # 항상 딱 맞는 브라우저 빌드를 가리킴 (test-web.yml과 동일 이유)
       - name: Get installed Playwright version
@@ -89,7 +120,7 @@ jobs:
       # 값이 없으면(PORT → Number(undefined) = NaN) app.listen(NaN)이 에러도 안 내고
       # 조용히 응답 없이 멈춰버린다(실제로 겪은 문제 — 로그가 전혀 안 남아서 원인 파악이 오래 걸림).
       - name: Create .env.test for backend
-        working-directory: apps/backend
+        working-directory: backend-repo/apps/backend
         run: |
           cat > .env.test <<EOF
           NODE_ENV=test
@@ -121,11 +152,11 @@ jobs:
           EOF
 
       - name: Migrate test database
-        working-directory: apps/backend
+        working-directory: backend-repo/apps/backend
         run: yarn db:migrate:test
 
       - name: Seed E2E fixture (seller/store/product)
-        working-directory: apps/backend
+        working-directory: backend-repo/apps/backend
         run: yarn seed:e2e-fixture
 
       # playwright.config.ts의 webServer가 backend·web-user 두 프로세스를 병렬로 새로
@@ -135,7 +166,7 @@ jobs:
       # 이미 응답하는지 확인한 뒤에만 Playwright를 돌린다(reuseExistingServer: true라
       # 이미 떠 있으면 Playwright가 새로 안 띄우고 그대로 재사용).
       - name: Start backend (test mode)
-        working-directory: apps/backend
+        working-directory: backend-repo/apps/backend
         run: |
           nohup yarn start:test > /tmp/backend.log 2>&1 &
           for i in $(seq 1 60); do
@@ -165,6 +196,8 @@ jobs:
           exit 1
 
       - name: Run web-user Playwright E2E
+        env:
+          BACKEND_DIR: ${{ github.workspace }}/backend-repo
         run: yarn workspace @picake/web-user test:e2e
 
       - name: Show backend/web-user server logs

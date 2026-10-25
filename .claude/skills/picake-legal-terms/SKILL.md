@@ -5,6 +5,8 @@ description: Picake(운영사 두루랩스)의 통신판매업 신고정보나 �
 
 # 법적 고지사항(약관·사업자정보) 관리
 
+> **이 문서의 `apps/backend/...` 경로와 `deploy-*-backend-ec2.yml` 워크플로우는 별도 레포 [`picake-engineering-backend`](https://github.com/picake-team/picake-engineering-backend)의 것입니다.** 로컬에서는 이 레포의 형제 폴더(`../picake-engineering-backend`)에서 확인하세요. `apps/web-*` 경로는 이 레포입니다.
+
 통신판매업 신고번호 등 사업자정보는 그 자체로 독립된 데이터가 아니라 **약관(주로 이용약관 1조 부근·개인정보처리방침)의 필수 구성요소**로 노출됩니다. 그래서 "사업자정보 반영"과 "약관 반영"을 분리하지 않고 이 skill 하나로 다룹니다.
 
 ## 0. 원칙
