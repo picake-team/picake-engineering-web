@@ -30,6 +30,13 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   images: {
+    /**
+     * 최적화된 이미지 캐시 유지 시간(초, 31일).
+     * 업로드 이미지는 원본에 Cache-Control이 없어 기본값(60초)이 그대로 적용되는데,
+     * 파일명이 `타임스탬프_랜덤.확장자`로 매번 새로 만들어져 같은 URL의 내용이 바뀌지 않으므로 길게 캐시한다.
+     * (백엔드 upload 모듈 file-validator.util.ts의 generateUniqueFilename)
+     */
+    minimumCacheTTL: 2678400,
     remotePatterns: [
       {
         protocol: "https",

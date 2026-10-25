@@ -63,9 +63,9 @@ export function ProductDetailImageGallerySection({
                 src={image}
                 alt={`${productName} - 이미지 ${index + 1}`}
                 fill
+                sizes="(min-width: 640px) 640px, 100vw"
                 className="object-cover"
                 priority={index === 0}
-                unoptimized
               />
             </button>
           </SwiperSlide>
@@ -89,8 +89,8 @@ export function ProductDetailImageGallerySection({
                   src={image}
                   alt={`${productName} - 썸네일 ${index + 1}`}
                   fill
+                  sizes="60px"
                   className="object-cover"
-                  unoptimized
                 />
               </div>
             </SwiperSlide>

@@ -174,7 +174,6 @@ export function MapStoreCardContent({
                 width={imageWidth}
                 height={imageHeight}
                 className="w-full h-full object-cover"
-                unoptimized
               />
             </button>
           ))}

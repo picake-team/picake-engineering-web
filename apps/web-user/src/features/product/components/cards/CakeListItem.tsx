@@ -64,7 +64,6 @@ export function CakeListItem({ product, href }: CakeListItemProps) {
             fill
             sizes="164px"
             className="object-cover"
-            unoptimized
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm font-semibold">

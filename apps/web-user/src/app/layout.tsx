@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
-import localFont from "next/font/local";
 import "@/apps/web-user/common/styles/globals.css";
 import { QueryProvider } from "@/apps/web-user/common/components/providers/QueryProvider";
 import { ErrorBoundaryProvider } from "@/apps/web-user/common/components/providers/ErrorBoundaryProvider";
@@ -12,13 +11,6 @@ import {
   SITE_LOGO_URL,
   SITE_NAME,
 } from "@/apps/web-user/common/constants/site.constants";
-
-const pretendard = localFont({
-  src: "../../public/fonts/PretendardVariable.woff2",
-  variable: "--font-pretendard",
-  display: "swap",
-  weight: "45 920",
-});
 
 /**
  * 루트 레이아웃 메타데이터
@@ -106,7 +98,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body className={pretendard.className}>
+      <body>
         <ErrorBoundaryProvider>
           <PostHogProvider>
             <QueryProvider>

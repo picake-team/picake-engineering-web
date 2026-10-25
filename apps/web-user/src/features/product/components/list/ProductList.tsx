@@ -72,9 +72,8 @@ function ProductItem({ product }: ProductItemProps) {
               src={product.images[0]}
               alt={product.name}
               fill
-              sizes="50vw"
+              sizes="(min-width: 640px) 320px, 50vw"
               className="object-cover"
-              unoptimized
             />
           </span>
         ) : (
