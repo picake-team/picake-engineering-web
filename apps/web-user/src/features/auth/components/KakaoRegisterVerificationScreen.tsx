@@ -253,7 +253,7 @@ export function KakaoRegisterVerificationScreen() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-white pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))]">
+    <div className="flex min-h-dvh flex-col bg-white pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))]">
       <Header variant="back-title" title="회원가입" />
 
       <div className="flex-1 px-5 pt-6">
