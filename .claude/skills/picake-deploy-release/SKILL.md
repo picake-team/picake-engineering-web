@@ -57,7 +57,7 @@ git push origin <새 태그명>
 ```
 
 - 사용자가 명시적으로 요청하지 않으면 애초에 태그를 만들거나 push하지 않습니다 (CLAUDE.md의 "명시적 요청 없이 커밋 금지" 원칙과 동일하게 취급).
-- **⚠️ 태그를 여러 개 동시에 배포할 때는 `git push origin tag1 tag2 tag3 ...`처럼 한 명령에 묶지 말고, 태그마다 개별 `git push origin <태그명>`으로 나눠서 실행하세요.** 실제로 여러 태그를 한 번에 push하면 태그 자체는 정상 생성되는데도(`git ls-remote`로 확인 가능) GitHub Actions가 전혀 트리거되지 않는 현상을 확인했습니다(4개 동시 push → 4개 다 무반응, 개별로 나눠 재시도하니 정상 트리거). push 직후 반드시 `gh run list --repo ServicePlayground/picake --workflow=<워크플로 파일> --limit 3`으로 실제 run이 생성됐는지 확인하고, 안 생겼으면 `git push origin :refs/tags/<태그명>`으로 삭제 후 그 태그만 다시 push하면 트리거됩니다.
+- **⚠️ 태그를 여러 개 동시에 배포할 때는 `git push origin tag1 tag2 tag3 ...`처럼 한 명령에 묶지 말고, 태그마다 개별 `git push origin <태그명>`으로 나눠서 실행하세요.** 실제로 여러 태그를 한 번에 push하면 태그 자체는 정상 생성되는데도(`git ls-remote`로 확인 가능) GitHub Actions가 전혀 트리거되지 않는 현상을 확인했습니다(4개 동시 push → 4개 다 무반응, 개별로 나눠 재시도하니 정상 트리거). push 직후 반드시 `gh run list --repo picake-team/picake --workflow=<워크플로 파일> --limit 3`으로 실제 run이 생성됐는지 확인하고, 안 생겼으면 `git push origin :refs/tags/<태그명>`으로 삭제 후 그 태그만 다시 push하면 트리거됩니다.
 
 ## 5. 트리거되는 워크플로우
 
