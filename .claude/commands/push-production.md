@@ -30,7 +30,7 @@ git log --oneline upstream/main..HEAD
 제목·본문은 [[picake-git-pr-create]] skill의 형식을 따릅니다.
 
 ```bash
-gh pr create --repo picake-team/picake --base main --head staging \
+gh pr create --repo picake-team/picake-engineering --base main --head staging \
   --title "[APP][TYPE]: 설명" --body-file <임시파일>
 ```
 
@@ -42,7 +42,7 @@ gh pr create --repo picake-team/picake --base main --head staging \
 
 ```bash
 for i in $(seq 1 15); do
-  st=$(gh pr view <번호> --repo picake-team/picake --json mergeStateStatus -q '.mergeStateStatus')
+  st=$(gh pr view <번호> --repo picake-team/picake-engineering --json mergeStateStatus -q '.mergeStateStatus')
   echo "[$i] $st"
   case "$st" in CLEAN|UNSTABLE|HAS_HOOKS) break;; esac
   sleep 20
@@ -53,7 +53,7 @@ done
 - `BLOCKED`이 계속되면 어떤 체크가 막고 있는지 확인해 보고합니다
 
 ```bash
-gh pr view <번호> --repo picake-team/picake --json statusCheckRollup \
+gh pr view <번호> --repo picake-team/picake-engineering --json statusCheckRollup \
   --template '{{range .statusCheckRollup}}{{.name}}={{.conclusion}} ({{.status}}){{"\n"}}{{end}}'
 ```
 
@@ -75,10 +75,10 @@ gh pr view <번호> --repo picake-team/picake --json statusCheckRollup \
 **production 태그는 반드시 main의 머지 커밋에 붙입니다** (staging 브랜치 커밋이 아님). 기존 릴리스가 전부 이 방식입니다.
 
 ```bash
-gh pr merge <번호> --repo picake-team/picake --merge
+gh pr merge <번호> --repo picake-team/picake-engineering --merge
 git fetch upstream --quiet
 
-MERGE=$(gh pr view <번호> --repo picake-team/picake --json mergeCommit -q '.mergeCommit.oid')
+MERGE=$(gh pr view <번호> --repo picake-team/picake-engineering --json mergeCommit -q '.mergeCommit.oid')
 
 PREFIX="<프로젝트>/production"
 LAST=$(git tag --list "$PREFIX-v*" --sort=-v:refname | head -1)
@@ -95,9 +95,9 @@ git push upstream "$NEXT"
 
 ```bash
 sleep 15
-gh run list --repo picake-team/picake --workflow deploy-web.yml --limit 1 \
+gh run list --repo picake-team/picake-engineering --workflow deploy-web.yml --limit 1 \
   --json databaseId,headBranch -q '.[0]'
-gh run watch <run-id> --repo picake-team/picake --exit-status
+gh run watch <run-id> --repo picake-team/picake-engineering --exit-status
 ```
 
 run이 안 생겼으면 태그 삭제 후 재푸시합니다 (`push-staging` 5단계와 동일).

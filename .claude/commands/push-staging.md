@@ -12,7 +12,7 @@ argument-hint: "[프로젝트 — 예: web-user, backend. 생략 시 변경 파�
 `origin`에는 push URL이 **두 개**(개인 포크 + picake-team) 걸려 있어서 포크에도 함께 쏩니다. 태그·브랜치 푸시는 전부 `upstream`을 씁니다.
 
 ```bash
-git remote -v   # upstream = picake-team/picake 인지 확인
+git remote -v   # upstream = picake-team/picake-engineering 인지 확인
 ```
 
 ## 1. 사전 확인
@@ -72,7 +72,7 @@ git push upstream "$NEXT"
 
 ```bash
 sleep 15
-gh run list --repo picake-team/picake --workflow deploy-web.yml --limit 3 \
+gh run list --repo picake-team/picake-engineering --workflow deploy-web.yml --limit 3 \
   --json databaseId,headBranch,status,conclusion \
   --template '{{range .}}{{.databaseId}} {{.headBranch}} {{.status}} {{.conclusion}}{{"\n"}}{{end}}'
 ```
@@ -89,7 +89,7 @@ git push upstream "$NEXT"
 ## 6. 완료까지 관찰
 
 ```bash
-gh run watch <run-id> --repo picake-team/picake --exit-status
+gh run watch <run-id> --repo picake-team/picake-engineering --exit-status
 ```
 
 실패하면 로그를 확인해 원인을 보고합니다.
