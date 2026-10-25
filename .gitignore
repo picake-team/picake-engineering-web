@@ -8,7 +8,6 @@ node_modules/
 out/
 dist/
 build/
-apps/backend/dist/
 
 # Environment variables
 .env.*
@@ -108,9 +107,6 @@ Thumbs.db
 # Yarn Berry
 .yarn/
 
-# Prisma client (backend)
-apps/backend/src/infra/database/prisma/generated/
-apps/backend/src/infra/database/prisma/**/client/
 
 # Database
 *.db
@@ -129,7 +125,7 @@ blob-report/
 
 *storybook.log
 
-# Claude Code 파일 기반 텍스트 교환 스크래치 (file-exchange skill)
+# Claude Code 로컬 텍스트 교환 스크래치 (개인 파일, 커밋 금지)
 .claude/exchange.md
 
 # Claude Code 기기별 설정 (공유 설정은 .claude/settings.json)

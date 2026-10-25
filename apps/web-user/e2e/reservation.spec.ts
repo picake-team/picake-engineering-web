@@ -3,7 +3,7 @@ import { expect, test, type APIRequestContext, type Locator } from "@playwright/
 import { reviewLogin } from "./helpers/review-login";
 
 const BACKEND_ORIGIN = "http://localhost:3000";
-// apps/backend/src/test/e2e/fixture-seed.script.ts가 만드는 상품명과 동일
+// picake-engineering-backend 레포 apps/backend/src/test/e2e/fixture-seed.script.ts가 만드는 상품명과 동일
 const FIXTURE_PRODUCT_NAME = "[E2E] 테스트 케이크";
 
 async function findFixtureProductId(request: APIRequestContext) {

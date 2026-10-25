@@ -34,6 +34,7 @@ import {
   buildConsumerTermsDocumentIds,
   mapConsumerActiveTermsToDocIds,
 } from "@/apps/web-user/features/terms/utils/terms-consent.util";
+import { focusElementById, onEnterKey } from "@/apps/web-user/common/utils/enter-next.util";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import { resolvePhoneVerificationFailReason } from "@/apps/web-user/features/auth/utils/phone-verification-error.util";
 
@@ -262,7 +263,7 @@ export function AppleRegisterVerificationScreen() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-white pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))]">
+    <div className="flex min-h-dvh flex-col bg-white pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))]">
       <Header variant="back-title" title="회원가입" />
 
       <div className="flex-1 px-5 pt-6">
@@ -292,6 +293,8 @@ export function AppleRegisterVerificationScreen() {
               placeholder="이름을 입력해주세요."
               maxLength={50}
               autoComplete="name"
+              enterKeyHint="next"
+              onKeyDown={onEnterKey(() => focusElementById("apple-register-phone"))}
               aria-invalid={!!nameError}
             />
           </div>

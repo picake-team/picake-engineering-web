@@ -1,2 +1,0 @@
--- RenameIndex
-ALTER INDEX "orders_order_status_payment_pending_deadline_at_payment_re_idx" RENAME TO "orders_order_status_payment_pending_deadline_at_payment_rem_idx";

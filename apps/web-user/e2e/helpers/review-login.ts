@@ -1,6 +1,6 @@
 import { expect, type Page } from "@playwright/test";
 
-/** apps/backend/src/modules/auth/constants/auth.constants.ts의 REVIEW_LOGIN_CODE와 동일 */
+/** picake-engineering-backend 레포 apps/backend/src/modules/auth/constants/auth.constants.ts의 REVIEW_LOGIN_CODE와 동일 */
 export const REVIEW_LOGIN_CODE = "482915";
 
 /**

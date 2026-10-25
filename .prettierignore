@@ -8,7 +8,6 @@ dist/
 build/
 .next/
 out/
-apps/backend/dist/
 
 # Yarn
 .yarn/
@@ -59,7 +58,6 @@ Thumbs.db
 package-lock.json
 pnpm-lock.yaml
 
-# Prisma client (backend)
-apps/backend/src/infra/database/prisma/generated/
-apps/backend/src/infra/database/prisma/**/client/
-
+# 외부에서 설치한 Claude skill (원본 그대로 유지, skills-lock.json으로 관리)
+.claude/skills/design-taste-frontend/
+.claude/skills/emil-design-eng/
