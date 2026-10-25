@@ -48,7 +48,7 @@ export function LoginBottomSheet() {
   }, [isOpen, entryPoint]);
 
   return (
-    <DragHandleBottomSheet isOpen={isOpen} onClose={closeLoginSheet} draggable={false}>
+    <DragHandleBottomSheet isOpen={isOpen} onClose={closeLoginSheet}>
       <div className="px-5 py-4">
         <h2 className="text-xl font-bold text-gray-900">로그인 / 회원가입 하기</h2>
         <p className="mt-2 text-sm text-gray-500">픽케이크에서 케이크 예약을 쉽고 빠르게</p>
