@@ -66,11 +66,10 @@ yarn workspace @picake/backend exec tsc --noEmit    # backend 변경 시
 
 **본문은 "무엇을 바꿨는지"가 아니라 "왜 그렇게 했는지"를 씁니다.** 무엇을 바꿨는지는 diff에 이미 있습니다. 나중에 이 코드를 의심할 사람이 알아야 할 맥락을 남깁니다.
 
-커밋 메시지 끝에 반드시 붙입니다:
+커밋 메시지 끝에 반드시 붙입니다. 모델명은 **현재 세션의 실제 모델**로 씁니다 (세션마다 다르므로 고정값을 쓰지 않습니다).
 
 ```
-Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_016ScM4roFnvWcR1hmDuw7Zi
+Co-Authored-By: <현재 세션의 모델명> <noreply@anthropic.com>
 ```
 
 ## 6. 커밋

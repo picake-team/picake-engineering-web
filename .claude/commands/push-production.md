@@ -11,18 +11,18 @@ argument-hint: "[프로젝트 — 예: web-user, backend. 생략 시 변경 파�
 
 되돌리기 어려운 작업이므로 **4단계에서 한 번 확인을 받습니다.** 그 외 단계는 묻지 않고 진행합니다.
 
-remote는 `push-staging`과 동일하게 **반드시 `upstream`**입니다 (`origin`은 포크에도 푸시됨).
+remote는 `push-staging`의 "푸시 대상 remote 결정"과 동일하게 `$REMOTE`(`upstream`이 있으면 `upstream`, 없으면 `origin`)를 씁니다. Bash 호출마다 `REMOTE=$(git remote | grep -qx upstream && echo upstream || echo origin)`로 다시 정의합니다.
 
 ## 1. 사전 확인
 
 ```bash
 git status --short
-git fetch upstream --tags --quiet
-git log --oneline upstream/main..HEAD
+git fetch "$REMOTE" --tags --quiet
+git log --oneline "$REMOTE"/main..HEAD
 ```
 
 - 커밋 안 된 변경이 있으면 멈춥니다.
-- `upstream/main..HEAD`가 비어 있으면 배포할 게 없다는 뜻이니 알리고 멈춥니다.
+- `$REMOTE/main..HEAD`가 비어 있으면 배포할 게 없다는 뜻이니 알리고 멈춥니다.
 - **스테이징에 먼저 올라갔는지 확인합니다.** 해당 커밋을 담은 staging 태그가 없으면 사용자에게 알리고 `/push-staging`을 먼저 할지 확인합니다.
 
 ## 2. PR 생성
@@ -30,7 +30,7 @@ git log --oneline upstream/main..HEAD
 제목·본문은 [[picake-git-pr-create]] skill의 형식을 따릅니다.
 
 ```bash
-gh pr create --repo picake-team/picake-engineering --base main --head staging \
+gh pr create --repo picake-team/picake-engineering-web --base main --head staging \
   --title "[APP][TYPE]: 설명" --body-file <임시파일>
 ```
 
@@ -42,7 +42,7 @@ gh pr create --repo picake-team/picake-engineering --base main --head staging \
 
 ```bash
 for i in $(seq 1 15); do
-  st=$(gh pr view <번호> --repo picake-team/picake-engineering --json mergeStateStatus -q '.mergeStateStatus')
+  st=$(gh pr view <번호> --repo picake-team/picake-engineering-web --json mergeStateStatus -q '.mergeStateStatus')
   echo "[$i] $st"
   case "$st" in CLEAN|UNSTABLE|HAS_HOOKS) break;; esac
   sleep 20
@@ -53,7 +53,7 @@ done
 - `BLOCKED`이 계속되면 어떤 체크가 막고 있는지 확인해 보고합니다
 
 ```bash
-gh pr view <번호> --repo picake-team/picake-engineering --json statusCheckRollup \
+gh pr view <번호> --repo picake-team/picake-engineering-web --json statusCheckRollup \
   --template '{{range .statusCheckRollup}}{{.name}}={{.conclusion}} ({{.status}}){{"\n"}}{{end}}'
 ```
 
@@ -75,10 +75,10 @@ gh pr view <번호> --repo picake-team/picake-engineering --json statusCheckRoll
 **production 태그는 반드시 main의 머지 커밋에 붙입니다** (staging 브랜치 커밋이 아님). 기존 릴리스가 전부 이 방식입니다.
 
 ```bash
-gh pr merge <번호> --repo picake-team/picake-engineering --merge
-git fetch upstream --quiet
+gh pr merge <번호> --repo picake-team/picake-engineering-web --merge
+git fetch "$REMOTE" --quiet
 
-MERGE=$(gh pr view <번호> --repo picake-team/picake-engineering --json mergeCommit -q '.mergeCommit.oid')
+MERGE=$(gh pr view <번호> --repo picake-team/picake-engineering-web --json mergeCommit -q '.mergeCommit.oid')
 
 PREFIX="<프로젝트>/production"
 LAST=$(git tag --list "$PREFIX-v*" --sort=-v:refname | head -1)
@@ -86,7 +86,7 @@ VER=${LAST##*-v}
 NEXT="$PREFIX-v${VER%.*}.$(( ${VER##*.} + 1 ))"
 
 git tag -a "$NEXT" "$MERGE" -m "<프로젝트> production <버전> — <핵심 변경 한 줄>"
-git push upstream "$NEXT"
+git push "$REMOTE" "$NEXT"
 ```
 
 태그가 여러 개여도 **하나씩** 푸시합니다.
@@ -95,9 +95,9 @@ git push upstream "$NEXT"
 
 ```bash
 sleep 15
-gh run list --repo picake-team/picake-engineering --workflow deploy-web.yml --limit 1 \
+gh run list --repo picake-team/picake-engineering-web --workflow deploy-web.yml --limit 1 \
   --json databaseId,headBranch -q '.[0]'
-gh run watch <run-id> --repo picake-team/picake-engineering --exit-status
+gh run watch <run-id> --repo picake-team/picake-engineering-web --exit-status
 ```
 
 run이 안 생겼으면 태그 삭제 후 재푸시합니다 (`push-staging` 5단계와 동일).
