@@ -36,7 +36,6 @@ export function ProductDetailInfoSection({ product }: ProductDetailInfoSectionPr
               alt={product.storeName}
               width={14}
               height={14}
-              unoptimized
               className="w-[14px] h-[14px] rounded-full object-cover"
             />
           ) : (

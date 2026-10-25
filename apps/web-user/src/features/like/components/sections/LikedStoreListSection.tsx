@@ -70,7 +70,6 @@ export function LikedStoreListSection() {
                       width={36}
                       height={36}
                       className="object-cover w-full h-full"
-                      unoptimized
                     />
                   ) : (
                     <div className="w-full h-full bg-gray-200" />
