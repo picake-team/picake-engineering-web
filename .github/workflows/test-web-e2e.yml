@@ -112,33 +112,14 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
 
-      # backend를 test:e2e/test:integration과 동일한 방식(.env.test)으로 띄우기 위한 값
-      # (test-backend.yml과 동일 — 실제 값이 필요한 외부 API 호출 경로는 이 E2E도 안 탄다),
-      # PORT·CORS_ORIGIN만 추가로 더 필요하다. test:e2e/test:integration은 Nest 앱을
-      # `Test.createTestingModule().compile()`로 직접 만들어 app.listen()을 안 타서 두
-      # 값이 없어도 되지만, start:test(=main.ts)는 실제로 포트를 열고 CORS를 검사해서
-      # 값이 없으면(PORT → Number(undefined) = NaN) app.listen(NaN)이 에러도 안 내고
-      # 조용히 응답 없이 멈춰버린다(실제로 겪은 문제 — 로그가 전혀 안 남아서 원인 파악이 오래 걸림).
+      # backend의 .env.test는 backend 레포의 CI 스크립트가 만든다 (test-backend.yml과 같은 스크립트).
+      # 필수 env가 바뀌어도 이 파일은 고칠 필요가 없다 — 스크립트는 위에서 매칭된 backend ref의 것을 쓴다.
+      # --with-server: start:test(=main.ts)는 실제로 포트를 열고 CORS를 검사하므로 PORT·CORS_ORIGIN이 추가로 필요하다.
+      # (test:e2e/test:integration은 app.listen()을 안 타서 불필요. PORT가 없으면 app.listen(NaN)이
+      # 에러도 없이 조용히 멈춰 로그가 안 남는 문제가 있었다.)
       - name: Create .env.test for backend
-        working-directory: backend-repo/apps/backend
-        run: |
-          cat > .env.test <<EOF
-          NODE_ENV=test
-          PORT=3000
-          CORS_ORIGIN=http://localhost:3001
-          DATABASE_URL="postgresql://postgres:postgres@localhost:5432/picake_backend_test?schema=public"
-          JWT_SECRET=ci-test-jwt-secret-do-not-use-in-real-env
-          DATA_GO_KR_API_KEY=ci-test-fake-key
-          AWS_REGION=ap-northeast-2
-          AWS_ACCESS_KEY_ID=ci-test-fake-access-key-id
-          AWS_SECRET_ACCESS_KEY=ci-test-fake-secret-access-key
-          S3_BUCKET=ci-test-fake-bucket
-          APPLE_TEAM_ID=ci-test-team-id
-          APPLE_KEY_ID=ci-test-key-id
-          APPLE_PRIVATE_KEY=ci-test-fake-private-key
-          APPLE_CLIENT_ID=ci-test-client-id
-          APPLE_REFRESH_TOKEN_ENCRYPTION_KEY=$(openssl rand -hex 32)
-          EOF
+        working-directory: backend-repo
+        run: bash apps/backend/scripts/ci/create-env-test.sh --with-server
 
       # web-user dev 서버(next dev)가 읽는 값. NEXT_PUBLIC_API_DOMAIN만 있으면 리뷰
       # 로그인·예약 생성 플로우는 충분하고(OAuth 로그인 버튼 등은 이 E2E가 다루지 않음),
