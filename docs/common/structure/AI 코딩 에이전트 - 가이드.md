@@ -20,7 +20,6 @@
 | `picake-link-app-deep-links`   | web-user 도메인 링크를 iOS/Android 네이티브 앱으로 여는 딥링크 설정 추가·수정                    |
 | `picake-legal-terms`           | 통신판매업 신고정보·이용약관·개인정보처리방침 등 법적 고지사항 작성·갱신                         |
 | `picake-review-ios-app-store`  | 웹뷰 앱의 iOS 앱스토어 심사 준비 및 반려 대응                                                    |
-| `picake-util-file-exchange`    | 클립보드 복사/붙여넣기가 어려울 때 파일을 통해 텍스트를 주고받음                                 |
 | `design-taste-frontend`        | (외부 skill) 랜딩·리디자인 등 프론트엔드 디자인 품질 가이드                                      |
 | `emil-design-eng`              | (외부 skill) UI 디테일·컴포넌트·애니메이션 설계 원칙                                             |
 | `find-skills`                  | (외부 skill) 필요한 agent skill 검색·설치                                                        |
