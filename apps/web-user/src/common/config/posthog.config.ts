@@ -1,4 +1,5 @@
 import posthog, { type CaptureResult } from "posthog-js";
+import { isSyntheticBrowser } from "@/apps/web-user/common/utils/synthetic-traffic.util";
 
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 const POSTHOG_HOST = process.env.NEXT_PUBLIC_POSTHOG_HOST ?? "https://us.i.posthog.com";
@@ -67,18 +68,22 @@ function sanitizeEvent(event: CaptureResult | null): CaptureResult | null {
   return event;
 }
 
-/** PostHog 활성화 여부 (키가 설정된 경우만 true) — Sentry의 isSentryEnabled와 동일한 정책 */
+/**
+ * PostHog 활성화 여부 — Sentry의 isSentryEnabled와 동일한 정책
+ * - 키가 설정된 경우만 true
+ * - Lighthouse·브라우저 자동화 같은 합성 접속은 실제 방문자처럼 집계되므로 false (synthetic-traffic.util 참고)
+ */
 export function isPostHogEnabled(): boolean {
-  return !!POSTHOG_KEY;
+  return !!POSTHOG_KEY && !isSyntheticBrowser();
 }
 
 /**
  * PostHog 클라이언트를 초기화합니다.
- * - 키가 없으면(로컬 등 미설정) 초기화를 건너뜁니다.
+ * - 키가 없으면(로컬 등 미설정) 또는 합성 접속이면 초기화를 건너뜁니다.
  * - 페이지뷰는 App Router 특성상 수동 캡처하므로 자동 캡처를 비활성화합니다.
  */
 export function initPostHog(): void {
-  if (typeof window === "undefined" || !POSTHOG_KEY) {
+  if (typeof window === "undefined" || !POSTHOG_KEY || !isPostHogEnabled()) {
     return;
   }
 
