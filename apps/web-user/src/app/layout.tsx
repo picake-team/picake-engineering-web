@@ -18,6 +18,8 @@ import {
  * - OpenGraph / Twitter Card 포함
  */
 export const metadata: Metadata = {
+  // 하위 페이지의 상대경로 canonical(`/product/<id>` 등)을 절대 주소로 해석하는 기준
+  metadataBase: new URL(SITE_BASE_URL),
   title: {
     default: "Picake - 케이크 주문 플랫폼",
     template: "%s | Picake",
