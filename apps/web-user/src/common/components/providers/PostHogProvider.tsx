@@ -4,7 +4,7 @@ import { Suspense, useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import posthog from "posthog-js";
 import { PostHogProvider as PHProvider, usePostHog } from "posthog-js/react";
-import { initPostHog } from "@/apps/web-user/common/config/posthog.config";
+import { initPostHog, isPostHogEnabled } from "@/apps/web-user/common/config/posthog.config";
 
 /**
  * 라우트 변경 시 $pageview 이벤트를 수동 캡처합니다.
@@ -16,7 +16,7 @@ function PostHogPageView() {
   const ph = usePostHog();
 
   useEffect(() => {
-    if (!pathname || !ph) {
+    if (!pathname || !ph || !isPostHogEnabled()) {
       return;
     }
 
@@ -32,7 +32,7 @@ function PostHogPageView() {
   // /auth/* 는 OAuth 콜백·가입 플로우라 화면 녹화(세션 리플레이) 자체를 꺼서
   // 이메일 등 화면에 노출되는 정보가 리플레이로 남지 않게 한다.
   useEffect(() => {
-    if (!ph) return;
+    if (!ph || !isPostHogEnabled()) return;
     if (pathname?.startsWith("/auth")) {
       ph.stopSessionRecording();
     } else {
