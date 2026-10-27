@@ -2,7 +2,7 @@
 
 ## 개요
 
-Picake 프로젝트의 web-user, web-seller, web-admin 애플리케이션을 Vercel에 배포하고 관리하는 가이드입니다.
+Picake 프로젝트의 web-user, web-seller, web-admin, web-info 애플리케이션을 Vercel에 배포하고 관리하는 가이드입니다.
 
 ## Vercel을 선택한 이유
 
@@ -43,7 +43,7 @@ Picake 프로젝트의 web-user, web-seller, web-admin 애플리케이션을 Ver
 
 #### 2.1 프로젝트 구성
 
-총 6개의 Vercel 프로젝트를 생성합니다:
+총 8개의 Vercel 프로젝트를 생성합니다:
 
 | 프로젝트명            | 환경       | 브랜치    | 배포 타입  |
 | --------------------- | ---------- | --------- | ---------- |
@@ -53,6 +53,8 @@ Picake 프로젝트의 web-user, web-seller, web-admin 애플리케이션을 Ver
 | web-seller-production | production | `main`    | Production |
 | web-admin-staging     | staging    | `staging` | Production |
 | web-admin-production  | production | `main`    | Production |
+| web-info-staging      | staging    | `staging` | Production |
+| web-info-production   | production | `main`    | Production |
 
 #### 2.2 프로젝트 생성
 
@@ -69,6 +71,12 @@ Picake 프로젝트의 web-user, web-seller, web-admin 애플리케이션을 Ver
 - `NEXT_PUBLIC_GOOGLE_CLIENT_ID`, `NEXT_PUBLIC_KAKAO_REST_API_KEY`, `NEXT_PUBLIC_KAKAO_JAVASCRIPT_KEY`
 - `NEXT_PUBLIC_SENTRY_DSN` (staging/production)
 - `NEXT_PUBLIC_POSTHOG_KEY`, `NEXT_PUBLIC_POSTHOG_HOST`
+
+**web-info (예시 키)** — web-user와 같은 Next.js 구성이라 키 이름이 같습니다.
+
+- `NEXT_PUBLIC_NODE_ENV` (`staging` / `production`), `NEXT_PUBLIC_SITE_URL` (staging은 `https://info-staging.picakes.com`)
+- `NEXT_PUBLIC_SENTRY_DSN` (staging/production)
+- `NEXT_PUBLIC_POSTHOG_KEY`, `NEXT_PUBLIC_POSTHOG_HOST` (web-user와 같은 PostHog 프로젝트)
 
 **web-seller / web-admin (예시 키)**
 
@@ -93,6 +101,8 @@ Picake 프로젝트의 web-user, web-seller, web-admin 애플리케이션을 Ver
 | `VERCEL_PROJECT_ID_WEB_USER_PRODUCTION`   | web-user-production 프로젝트 ID   |
 | `VERCEL_PROJECT_ID_WEB_SELLER_PRODUCTION` | web-seller-production 프로젝트 ID |
 | `VERCEL_PROJECT_ID_WEB_ADMIN_PRODUCTION`  | web-admin-production 프로젝트 ID  |
+| `VERCEL_PROJECT_ID_WEB_INFO_STAGING`      | web-info-staging 프로젝트 ID      |
+| `VERCEL_PROJECT_ID_WEB_INFO_PRODUCTION`   | web-info-production 프로젝트 ID   |
 | `DISCORD_WEBHOOK_URL_WEB_FE`              | 배포 결과 Discord 알림 웹훅       |
 
 > production 환경으로 배포하려면 해당 프로젝트의 `_PRODUCTION` Secret이 설정돼 있어야 합니다.
@@ -107,6 +117,7 @@ Picake 프로젝트의 web-user, web-seller, web-admin 애플리케이션을 Ver
 - `web-user/staging-*` · `web-user/production-*` 태그 푸시 시 web-user 배포
 - `web-seller/staging-*` · `web-seller/production-*` 태그 푸시 시 web-seller 배포
 - `web-admin/staging-*` · `web-admin/production-*` 태그 푸시 시 web-admin 배포
+- `web-info/staging-*` · `web-info/production-*` 태그 푸시 시 web-info 배포
 
 환경(`staging`/`production`)에 따라 대응하는 Vercel 프로젝트 ID Secret을 자동 선택합니다.
 

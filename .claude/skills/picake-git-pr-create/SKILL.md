@@ -38,7 +38,7 @@ git diff <base>...<head> --stat
 ```
 
 - **APP**: [[picake-git-commit-convention]] skill과 동일한 기준으로 판단 (`git diff <base>...<head> --stat`로 변경 경로 확인)
-  - `WEB-USER` (`apps/web-user`), `WEB-SELLER` (`apps/web-seller`), `WEB-ADMIN` (`apps/web-admin`), `COMMON` (특정 앱에 한정되지 않는 변경)
+  - `WEB-USER` (`apps/web-user`), `WEB-SELLER` (`apps/web-seller`), `WEB-ADMIN` (`apps/web-admin`), `WEB-INFO` (`apps/web-info`), `COMMON` (특정 앱에 한정되지 않는 변경)
   - 여러 앱에 걸친 변경이면 콤마로 나열 (예: `[WEB-USER,WEB-SELLER]`)
 - **TYPE**: 변경 내용의 성격에 맞게 하나 선택
   - `ADD` (새 기능), `UPDATE` (기존 기능 개선/변경), `FIX` (버그 수정), `REFACTOR` (리팩토링), `REMOVE` (삭제), `DOCS` (문서), `CHORE` (빌드/설정/의존성)

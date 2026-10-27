@@ -20,6 +20,7 @@ title: "[WEB-USER][FEATURE]"
 - [ ] web-user
 - [ ] web-seller
 - [ ] web-admin
+- [ ] web-info
 - [ ] 공통 (루트 설정, 워크플로우, 문서)
 - [ ] 기타
 
