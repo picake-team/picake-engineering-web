@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { PARTNER_SURVEY_URL } from "@/apps/web-user/common/constants/partner.constants";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
@@ -56,12 +55,18 @@ export default function PartnerPage() {
           입점 사전 수요조사 참여하기
         </a>
 
-        <Link
+        {/*
+          next/link가 아니라 일반 <a>를 씁니다. 소개 페이지는 정보 사이트(info.picakes.com)로 옮겨졌고
+          /partner/about은 그쪽으로 307 리다이렉트만 합니다. Link는 prefetch·클라이언트 이동으로 RSC를
+          fetch하다가 다른 도메인으로 리다이렉트되어 CORS 에러를 남기므로, 처음부터 브라우저 이동을 시킵니다.
+          목적지는 next.config의 리다이렉트 한 곳에서만 관리합니다.
+        */}
+        <a
           href={PATHS.PARTNER_ABOUT}
           className="w-full h-[52px] flex items-center justify-center bg-white text-gray-900 text-base font-bold border border-gray-100 rounded-lg transition-all duration-200"
         >
           소개페이지 바로가기
-        </Link>
+        </a>
       </div>
     </main>
   );
