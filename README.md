@@ -1,17 +1,17 @@
 # Picake Web
 
-Picake(디저트 주문 플랫폼)의 웹 프론트엔드(`web-user`, `web-seller`, `web-admin`)입니다. Yarn Berry + Workspace 기반 모노레포입니다.
+Picake(디저트 주문 플랫폼)의 웹 프론트엔드(`web-user`, `web-seller`, `web-admin`, `web-info`)입니다. Yarn Berry + Workspace 기반 모노레포입니다.
 
 ## 🧭 레포 구성
 
 Picake 개발 코드는 아래 레포들로 나뉘어 있습니다.
 
-| 레포                                                                                          | 내용                                                  |
-| --------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
-| **[picake-engineering-web](https://github.com/picake-team/picake-engineering-web)** (현재)    | 웹 프론트엔드 (`web-user`, `web-seller`, `web-admin`) |
-| [picake-engineering-backend](https://github.com/picake-team/picake-engineering-backend)       | 백엔드 API 서버 (NestJS, EC2 배포)                    |
-| [picake-engineering-app](https://github.com/picake-team/picake-engineering-app)               | Flutter 앱 (`web-user`을 감싸는 WebView 앱, 예정)     |
-| [picake-engineering-automation](https://github.com/picake-team/picake-engineering-automation) | Claude 클라우드 루틴·운영 자동화 스킬                 |
+| 레포                                                                                          | 내용                                                              |
+| --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| **[picake-engineering-web](https://github.com/picake-team/picake-engineering-web)** (현재)    | 웹 프론트엔드 (`web-user`, `web-seller`, `web-admin`, `web-info`) |
+| [picake-engineering-backend](https://github.com/picake-team/picake-engineering-backend)       | 백엔드 API 서버 (NestJS, EC2 배포)                                |
+| [picake-engineering-app](https://github.com/picake-team/picake-engineering-app)               | Flutter 앱 (`web-user`을 감싸는 WebView 앱, 예정)                 |
+| [picake-engineering-automation](https://github.com/picake-team/picake-engineering-automation) | Claude 클라우드 루틴·운영 자동화 스킬                             |
 
 ## 🚀 시작하기
 
@@ -50,11 +50,13 @@ yarn install
 yarn web-user:dev         # 사용자 웹 개발 서버 (포트: 3001)
 yarn web-seller:dev       # 판매자 웹 개발 서버 (포트: 3002)
 yarn web-admin:dev        # 관리자 웹 개발 서버 (포트: 3003)
+yarn web-info:dev         # 정보(소개) 웹 개발 서버 (포트: 3004)
 
 # 빌드 및 배포
 yarn web-user:build            # 사용자 웹 빌드
 yarn web-seller:build          # 판매자 웹 빌드
 yarn web-admin:build           # 관리자 웹 빌드
+yarn web-info:build            # 정보(소개) 웹 빌드
 
 
 # 코드 품질 검사
@@ -83,10 +85,11 @@ yarn web-seller:storybook       # 판매자 스토리북 실행
 | `web-user`   | `web-user/staging-*` · `web-user/production-*`     | Vercel      | `web-user/production-v1.0.0` |
 | `web-seller` | `web-seller/staging-*` · `web-seller/production-*` | Vercel      | `web-seller/staging-v1.0.0`  |
 | `web-admin`  | `web-admin/staging-*` · `web-admin/production-*`   | Vercel      | `web-admin/staging-v1.0.0`   |
+| `web-info`   | `web-info/staging-*` · `web-info/production-*`     | Vercel      | `web-info/staging-v1.0.0`    |
 
 **태그 구조:** `{프로젝트명}/{환경}-{버전}`
 
-- **프로젝트명**: `web-user`, `web-seller`, `web-admin`
+- **프로젝트명**: `web-user`, `web-seller`, `web-admin`, `web-info`
 - **환경**: `staging`, `production`
 - **버전**: 자유 형식 (예: `v1.0.0`, `v1.0.1`, `2024.01.01`)
 
@@ -223,6 +226,7 @@ hotfix/xxx (긴급 수정 브랜치)
 
 - **[Web Admin README](./docs/web-admin/README.md)**: 관리자 웹 애플리케이션 개요 및 사용법
 - **[Web Admin 기술 스택 가이드](./docs/web-admin/기술%20스택%20-%20가이드.md)**: 관리자 웹 애플리케이션 기술 스택
+- **[Web Info README](./docs/web-info/README.md)**: 정보·소개 사이트(`info.picakes.com`) 개요, 설계 원칙, 배포
 
 ### 인프라 문서
 

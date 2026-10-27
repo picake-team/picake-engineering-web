@@ -1,0 +1,63 @@
+/* 사장님 소개 페이지 전용 모션과 배경. 전역 tailwind 설정을 늘리지 않으려고 여기에 둔다 */
+
+/* 컨퍼런스 페이지 느낌의 격자 배경. 정적 배경이라 스크롤 중 비용이 없다 */
+.gridBackdrop {
+  background-image:
+    linear-gradient(to right, rgba(31, 31, 30, 0.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(31, 31, 30, 0.055) 1px, transparent 1px);
+  background-size: 36px 36px;
+  background-position: center top;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.3) 55%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.3) 55%, transparent 100%);
+}
+
+/* 히어로 뒤에 깔리는 주황 발광. blur 대신 radial-gradient라 저가 기기에서도 가볍다 */
+.heroGlow {
+  background: radial-gradient(
+    60% 46% at 50% 0%,
+    rgba(255, 101, 62, 0.2) 0%,
+    rgba(255, 101, 62, 0.06) 44%,
+    transparent 72%
+  );
+}
+
+/* 손님 질문이 끝없이 흘러가는 띠. 같은 목록을 두 번 이어 붙이고 절반만큼 이동해 이음새 없이 반복 */
+.marquee {
+  animation: marquee 32s linear infinite;
+}
+
+.marqueeReverse {
+  animation: marquee 38s linear infinite reverse;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* 알림 예시가 자동으로 넘어가기까지 남은 시간 */
+.progress {
+  transform-origin: left;
+  animation: progress linear forwards;
+}
+
+@keyframes progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee,
+  .marqueeReverse,
+  .progress {
+    animation: none;
+  }
+}

@@ -1,15 +1,17 @@
 name: Deploy to Vercel
 
-# 트리거: web-user, web-seller, web-admin의 staging / production 태그가 푸시될 때 실행
+# 트리거: web-user, web-seller, web-admin, web-info의 staging / production 태그가 푸시될 때 실행
 on:
   push:
     tags:
       - "web-user/staging-*"
       - "web-seller/staging-*"
       - "web-admin/staging-*"
+      - "web-info/staging-*"
       - "web-user/production-*"
       - "web-seller/production-*"
       - "web-admin/production-*"
+      - "web-info/production-*"
 
 permissions:
   contents: read
@@ -42,7 +44,7 @@ jobs:
           PROJECT=${{ steps.extract-project.outputs.project }}
           ENV=${{ steps.extract-project.outputs.environment }}
 
-          if [[ "$PROJECT" != "web-user" && "$PROJECT" != "web-seller" && "$PROJECT" != "web-admin" ]]; then
+          if [[ "$PROJECT" != "web-user" && "$PROJECT" != "web-seller" && "$PROJECT" != "web-admin" && "$PROJECT" != "web-info" ]]; then
             echo "❌ Invalid project name: $PROJECT"
             exit 1
           fi
@@ -79,6 +81,12 @@ jobs:
               ;;
             web-admin/production)
               PROJECT_ID="${{ secrets.VERCEL_PROJECT_ID_WEB_ADMIN_PRODUCTION }}"
+              ;;
+            web-info/staging)
+              PROJECT_ID="${{ secrets.VERCEL_PROJECT_ID_WEB_INFO_STAGING }}"
+              ;;
+            web-info/production)
+              PROJECT_ID="${{ secrets.VERCEL_PROJECT_ID_WEB_INFO_PRODUCTION }}"
               ;;
           esac
 

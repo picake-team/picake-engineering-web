@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Picake(디저트 주문 플랫폼)의 **웹 프론트엔드** 레포입니다. Yarn Berry Workspace로 `web-user`(Next.js), `web-seller`, `web-admin`을 관리하고 Vercel에 배포합니다.
+Picake(디저트 주문 플랫폼)의 **웹 프론트엔드** 레포입니다. Yarn Berry Workspace로 `web-user`(Next.js), `web-seller`, `web-admin`, `web-info`(Next.js, 정보·소개 사이트 `info.picakes.com`)를 관리하고 Vercel에 배포합니다.
 
 ## 레포 구성
 
@@ -17,8 +17,8 @@ Picake(디저트 주문 플랫폼)의 **웹 프론트엔드** 레포입니다. Y
 ## 자주 쓰는 명령
 
 ```bash
-yarn web-user:dev | yarn web-seller:dev | yarn web-admin:dev
-yarn web-user:build | yarn web-seller:build | yarn web-admin:build
+yarn web-user:dev | yarn web-seller:dev | yarn web-admin:dev | yarn web-info:dev
+yarn web-user:build | yarn web-seller:build | yarn web-admin:build | yarn web-info:build
 yarn web-user:test:unit
 yarn web-user:test:e2e          # 형제 폴더의 backend 레포가 필요 (BACKEND_DIR로 변경 가능)
 yarn common:lint && yarn common:format:check
@@ -28,7 +28,7 @@ yarn common:lint && yarn common:format:check
 
 ## 작업 규칙
 
-- 커밋 메시지: `picake-git-commit-convention` skill (`[WEB-USER]` / `[WEB-SELLER]` / `[WEB-ADMIN]` / `[COMMON]`)
+- 커밋 메시지: `picake-git-commit-convention` skill (`[WEB-USER]` / `[WEB-SELLER]` / `[WEB-ADMIN]` / `[WEB-INFO]` / `[COMMON]`)
 - PR: `picake-git-pr-create` skill. 작업 브랜치 → `staging` → `main`
 - 배포: `<앱>/staging-*`, `<앱>/production-*` 태그 푸시로 Vercel 배포 (`picake-deploy-release` skill, `/push-staging`, `/push-production`)
 - PR 필수 체크는 `test-web (web-user|web-seller|web-admin)`입니다. `test-web-e2e`는 결과만 보고합니다(필수 아님).
