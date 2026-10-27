@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { getFirstOptionImageUrl } from "@/apps/web-user/features/product/utils/custom-option.util";
 import { useInfiniteScroll } from "@/apps/web-user/common/hooks/useInfiniteScroll";
 import Image from "next/image";
 import Link from "next/link";
@@ -82,7 +83,8 @@ function PastOrderItem({ order, isLast }: { order: OrderResponse; isLast: boolea
         {/* 주문 아이템 목록 */}
         <div className="space-y-2 py-2.5">
           {visibleItems.map((item) => {
-            const thumbnailUrl = order.productImages?.[0] || item.imageUrls?.[0];
+            const thumbnailUrl =
+              order.productImages?.[0] || getFirstOptionImageUrl(item.selectedOptions);
             return (
               <div
                 key={item.id}

@@ -47,6 +47,8 @@ interface SelectProps<T = string> {
   className?: string;
   /** 외부에서 드롭다운을 열기 위한 신호 */
   openSignal?: number;
+  /** 라벨 옆에 회색 "(선택)" 표시 (선택 입력 항목) */
+  optional?: boolean;
 }
 
 export const Select = <T extends string | number = string>({
@@ -58,6 +60,7 @@ export const Select = <T extends string | number = string>({
   disabled = false,
   className = "",
   openSignal,
+  optional = false,
 }: SelectProps<T>) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -108,7 +111,11 @@ export const Select = <T extends string | number = string>({
 
   return (
     <div className="w-full" ref={containerRef}>
-      {label && <label className="block mb-[10px] text-sm font-bold text-gray-900">{label}</label>}
+      {label && (
+        <label className="block mb-[10px] text-sm font-bold text-gray-900">
+          {label} {optional && <span className="font-normal text-gray-300">(선택)</span>}
+        </label>
+      )}
       <div className="relative">
         {/* 트리거 버튼 */}
         <button

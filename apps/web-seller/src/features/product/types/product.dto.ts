@@ -67,6 +67,40 @@ export interface CakeFlavorOptionDto {
   price: number;
 }
 
+/** 추가 옵션 형식 (선택형·다중선택형·직접입력형·사진첨부형) */
+export enum CustomOptionType {
+  SINGLE_SELECT = "SINGLE_SELECT",
+  MULTI_SELECT = "MULTI_SELECT",
+  TEXT = "TEXT",
+  IMAGE = "IMAGE",
+}
+
+/** 추가 옵션의 옵션값 (선택형·다중선택형) */
+export interface CustomOptionChoiceDto {
+  id?: string;
+  label: string;
+  price: number;
+  visible: EnableStatus;
+}
+
+/** 추가 옵션 (생성/수정 요청·응답 공용, id는 응답에서 필수) */
+export interface CustomOptionDto {
+  id?: string;
+  type: CustomOptionType;
+  name: string;
+  required: boolean;
+  visible: EnableStatus;
+  choices?: CustomOptionChoiceDto[];
+  /** 다중선택형 최대 선택 개수 (없으면 제한 없음) */
+  maxSelect?: number;
+  /** 직접입력형 최대 글자 수 */
+  maxLength?: number;
+  /** 직접입력형 입력 안내 문구 */
+  placeholder?: string;
+  /** 사진첨부형 최대 사진 수 */
+  maxCount?: number;
+}
+
 export interface CreateProductRequestDto {
   storeId: string;
   name: string;
@@ -75,12 +109,10 @@ export interface CreateProductRequestDto {
   salePrice: number;
   salesStatus: EnableStatus;
   visibilityStatus: EnableStatus;
-  cakeSizeOptions?: CakeSizeOptionDto[];
-  cakeFlavorOptions?: CakeFlavorOptionDto[];
-  letteringVisible: EnableStatus;
-  letteringMaxLength: number;
-  imageUploadEnabled: EnableStatus;
-  productType?: ProductType;
+  cakeSizeOptions: CakeSizeOptionDto[];
+  cakeFlavorOptions: CakeFlavorOptionDto[];
+  customOptions?: CustomOptionDto[];
+  productType: ProductType;
   productCategoryTypes?: ProductCategoryType[];
   searchTags?: string[];
   detailDescription?: string;
@@ -116,9 +148,9 @@ export interface ProductResponseDto {
   visibilityStatus: EnableStatus;
   cakeSizeOptions?: CakeSizeOptionDto[] | null;
   cakeFlavorOptions?: CakeFlavorOptionDto[] | null;
-  letteringVisible: EnableStatus;
-  letteringMaxLength: number;
-  imageUploadEnabled: EnableStatus;
+  /** 추가 옵션 (판매자 상세 응답은 숨김 포함 전체, 목록 응답은 빈 배열) */
+  customOptions: CustomOptionDto[];
+  optionsVersion: number;
   productType: ProductType;
   productCategoryTypes: ProductCategoryType[];
   searchTags: string[];
@@ -185,9 +217,7 @@ export interface UpdateProductRequestDto {
   visibilityStatus?: EnableStatus;
   cakeSizeOptions?: CakeSizeOptionDto[];
   cakeFlavorOptions?: CakeFlavorOptionDto[];
-  letteringVisible?: EnableStatus;
-  letteringMaxLength?: number;
-  imageUploadEnabled?: EnableStatus;
+  customOptions?: CustomOptionDto[];
   productType?: ProductType;
   productCategoryTypes?: ProductCategoryType[];
   searchTags?: string[];

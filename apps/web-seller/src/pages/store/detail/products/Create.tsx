@@ -19,12 +19,13 @@ export const StoreDetailProductCreatePage: React.FC = () => {
   }
 
   const handleSubmit = async (data: ProductForm) => {
+    // validateProductForm에서 가격·상품 유형 입력을 확인한 뒤에만 호출된다
     const request: CreateProductRequestDto = {
       ...data,
       storeId,
       originalPrice: data.originalPrice!,
       salePrice: data.salePrice!,
-      letteringMaxLength: data.letteringMaxLength ?? 1,
+      productType: data.productType!,
     };
 
     await createProductMutation.mutateAsync(request);

@@ -32,6 +32,21 @@ export enum OrderType {
   PAST = "PAST",
 }
 
+/** 추가 옵션 형식 (상품 CustomOptionType과 동일) */
+export type SelectedOptionType = "SINGLE_SELECT" | "MULTI_SELECT" | "TEXT" | "IMAGE";
+
+/** 주문 항목의 추가 옵션 스냅샷 (주문 시점 옵션명·옵션값·금액) */
+export interface SelectedOptionResponseDto {
+  optionId: string;
+  type: SelectedOptionType;
+  name: string;
+  choices?: { id: string; label: string; price: number }[];
+  text?: string;
+  imageUrls?: string[];
+  /** 이 옵션의 금액 합계 (1개 기준) */
+  price: number;
+}
+
 export interface OrderItemResponseDto {
   id: string;
   sizeId?: string;
@@ -42,6 +57,10 @@ export interface OrderItemResponseDto {
   flavorId?: string;
   flavorDisplayName?: string;
   flavorPrice?: number;
+  /** 추가 옵션 선택 내역 (판매자가 정한 옵션 순서) */
+  selectedOptions: SelectedOptionResponseDto[];
+  optionsPrice: number;
+  /** @deprecated selectedOptions 사용 (정리 단계에서 삭제) */
   letteringMessage?: string;
   requestMessage?: string;
   quantity: number;

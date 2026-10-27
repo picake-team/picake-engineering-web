@@ -129,6 +129,9 @@ export const ProductCreationCakeOptionsSection: React.FC<
               </Button>
             </div>
 
+            {errors.cakeSizeOptions && (
+              <p className="text-sm text-destructive mb-2">{errors.cakeSizeOptions}</p>
+            )}
             {sizeOptions.length === 0 ? (
               <p className="text-sm text-muted-foreground py-4">
                 사이즈 옵션이 없습니다. 추가 버튼을 클릭하여 추가하세요.
@@ -253,6 +256,11 @@ export const ProductCreationCakeOptionsSection: React.FC<
               </Button>
             </div>
 
+            {/* 이름 누락 오류는 해당 행에, 그 외(노출 맛 없음)는 목록 위에 표시 */}
+            {errors.cakeFlavorOptions &&
+              !flavorOptions.some((option) => !option.displayName?.trim()) && (
+                <p className="text-sm text-destructive mb-2">{errors.cakeFlavorOptions}</p>
+              )}
             {flavorOptions.length === 0 ? (
               <p className="text-sm text-muted-foreground py-4">
                 맛 옵션이 없습니다. 추가 버튼을 클릭하여 추가하세요.

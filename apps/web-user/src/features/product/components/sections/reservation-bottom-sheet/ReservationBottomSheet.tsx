@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { isAxiosError } from "axios";
+import { useQueryClient } from "@tanstack/react-query";
 import { BottomSheet } from "@/apps/web-user/common/components/bottom-sheets/BottomSheet";
 import { Spinner } from "@/apps/web-user/common/components/spinners/Spinner";
 import { Modal } from "@/apps/web-user/common/components/modals/Modal";
@@ -15,6 +17,9 @@ import { useCreateOrder } from "@/apps/web-user/features/order/hooks/mutations/u
 import { CreateOrderRequest } from "@/apps/web-user/features/order/types/order.type";
 import { useUploadFile } from "@/apps/web-user/features/upload/hooks/mutations/useUploadFile";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
+import { productQueryKeys } from "@/apps/web-user/features/product/constants/productQueryKeys.constant";
+import { CustomOptionType } from "@/apps/web-user/features/product/types/product.type";
+import { toOrderItemOptionInputs } from "@/apps/web-user/features/product/utils/custom-option.util";
 
 export function ReservationBottomSheet({
   isOpen,
@@ -25,7 +30,8 @@ export function ReservationBottomSheet({
   cakeImages = [],
   cakeSizeOptions,
   cakeFlavorOptions,
-  productType,
+  customOptions,
+  optionsVersion,
   storeName,
   pickupAddress,
   pickupRoadAddress,
@@ -33,12 +39,14 @@ export function ReservationBottomSheet({
   pickupZonecode,
   pickupLatitude,
   pickupLongitude,
-  imageUploadEnabled,
-  letteringMaxLength,
   businessCalendar,
   refundCancellationPolicy,
   onClose,
 }: ReservationBottomSheetProps) {
+  const queryClient = useQueryClient();
+  // 시트를 연 시점의 옵션 버전을 고정한다. 시트가 열린 채 상품이 다시 조회돼도(창 복귀 등)
+  // 그 사이 판매자가 옵션을 바꿨다면 서버가 409로 알려 처음부터 다시 고르게 하기 위함
+  const [optionsVersionAtOpen] = useState(optionsVersion);
   const { mutate: createOrder } = useCreateOrder();
   const { mutateAsync: uploadFile } = useUploadFile();
 
@@ -65,14 +73,20 @@ export function ReservationBottomSheet({
     setTempSelectedDate,
     tempSelectedTime,
     setTempSelectedTime,
-    selectedSize,
-    setSelectedSize,
-    selectedFlavor,
-    setSelectedFlavor,
-    letteringMessage,
-    setLetteringMessage,
+    sizeOptions,
+    flavorOptions,
+    visibleCustomOptions,
+    selectedSizeId,
+    setSelectedSizeId,
+    selectedFlavorId,
+    setSelectedFlavorId,
+    selections,
+    setOptionSelection,
     requestMessage,
     setRequestMessage,
+    showValidationErrors,
+    firstInvalidField,
+    invalidFieldSignal,
     reserverName,
     setReserverName,
     reserverPhone,
@@ -85,8 +99,6 @@ export function ReservationBottomSheet({
     setAgreeOptionChange,
     allAgreed,
     handleToggleAllAgreements,
-    imageUrls,
-    fileInputRef,
     orderItems,
     isCancelModalOpen,
     setIsCancelModalOpen,
@@ -95,7 +107,7 @@ export function ReservationBottomSheet({
     totalQuantity,
     totalPrice,
     currentOptionPrice,
-    isOptionsValid,
+    getItemPrice,
     isCalendarValid,
     isAddingFromConfirm,
     isEditingFromConfirm,
@@ -116,16 +128,13 @@ export function ReservationBottomSheet({
     handleConfirmDelete,
     handleEditItem,
     handleAddNewItem,
-    handleUploadClick,
-    handleFileChange,
-    handleRemoveImage,
   } = useReservationBottomSheet({
     isOpen,
     productId,
     price,
-    productType,
     cakeSizeOptions,
     cakeFlavorOptions,
+    customOptions,
     onClose: handleGuardedClose,
   });
 
@@ -140,28 +149,23 @@ export function ReservationBottomSheet({
     trackEvent("request_reservation", { product_count: totalQuantity, product_id: productId });
 
     try {
-      // 각 OrderItem의 이미지를 업로드하고 URL 받기
-      const itemsWithImageUrls = await Promise.all(
+      // 각 항목의 사진첨부형 옵션 사진을 업로드하고 옵션 ID별 URL 받기
+      const itemsWithOptions = await Promise.all(
         orderItems.map(async (item) => {
-          // 각 항목의 이미지 File을 업로드하고 URL 받기
-          let uploadedImageUrls: string[] = [];
-          if (item.imageFiles && item.imageFiles.length > 0) {
-            // 모든 이미지 File을 병렬로 업로드
-            uploadedImageUrls = await Promise.all(
-              item.imageFiles.map(async (file) => {
-                const response = await uploadFile(file);
-                return response.fileUrl;
-              }),
+          const uploadedImageUrls: Record<string, string[]> = {};
+          for (const option of visibleCustomOptions) {
+            const files = item.selections[option.id]?.imageFiles ?? [];
+            if (option.type !== CustomOptionType.IMAGE || files.length === 0) continue;
+            uploadedImageUrls[option.id] = await Promise.all(
+              files.map(async (file) => (await uploadFile(file)).fileUrl),
             );
           }
 
-          // 사이즈 옵션 정보 찾기
-          const sizeOption = cakeSizeOptions?.find((opt) => opt.displayName === item.size);
-          // 맛 옵션 정보 찾기
-          const flavorOption = cakeFlavorOptions?.find((opt) => opt.displayName === item.flavor);
+          const sizeOption = sizeOptions.find((option) => option.id === item.sizeId);
+          const flavorOption = flavorOptions.find((option) => option.id === item.flavorId);
 
           return {
-            // 사이즈 옵션 정보 (있는 경우만)
+            // 사이즈·맛 (이름·가격은 서버가 ID 기준으로 다시 계산)
             ...(sizeOption && {
               sizeId: sizeOption.id,
               sizeDisplayName: sizeOption.displayName,
@@ -169,21 +173,20 @@ export function ReservationBottomSheet({
               sizeDescription: sizeOption.description,
               sizePrice: sizeOption.price,
             }),
-            // 맛 옵션 정보 (있는 경우만)
             ...(flavorOption && {
               flavorId: flavorOption.id,
               flavorDisplayName: flavorOption.displayName,
               flavorPrice: flavorOption.price,
             }),
-            // 기타 옵션
-            ...(item.letteringMessage && {
-              letteringMessage: item.letteringMessage,
-            }),
+            options: toOrderItemOptionInputs(
+              visibleCustomOptions,
+              item.selections,
+              uploadedImageUrls,
+            ),
             ...(item.requestMessage && {
               requestMessage: item.requestMessage,
             }),
             quantity: item.quantity,
-            imageUrls: uploadedImageUrls,
           };
         }),
       );
@@ -196,6 +199,7 @@ export function ReservationBottomSheet({
         productImages: cakeImages.length > 0 ? cakeImages : cakeImageUrl ? [cakeImageUrl] : [],
         totalQuantity,
         totalPrice,
+        productOptionsVersion: optionsVersionAtOpen,
         storeName,
         // 예약자 연락처 (입력된 경우만 전달)
         ...(reserverName.trim() && { reservationContactName: reserverName.trim() }),
@@ -207,12 +211,19 @@ export function ReservationBottomSheet({
         pickupZonecode,
         pickupLatitude,
         pickupLongitude,
-        items: itemsWithImageUrls,
+        items: itemsWithOptions,
       };
 
       // API 호출 (성공 시 완료 페이지로 이동하며 언마운트, 실패 시 락 해제)
       createOrder(orderRequest, {
-        onError: () => setIsSubmitting(false),
+        onError: (error) => {
+          setIsSubmitting(false);
+          // 판매자가 옵션을 바꿈(409): 안내는 useCreateOrder가 띄우고, 최신 옵션으로 처음부터 다시 고르게 한다
+          if (isAxiosError(error) && error.response?.status === 409) {
+            queryClient.invalidateQueries({ queryKey: productQueryKeys.detail(productId) });
+            onClose();
+          }
+        },
       });
     } catch {
       // 이미지 업로드 실패 등 주문 생성 이전 단계에서 실패한 경우 락 해제
@@ -246,9 +257,8 @@ export function ReservationBottomSheet({
               </Button>
             </span>
             <span className="flex-1">
-              <Button onClick={handleGoToConfirm} disabled={!isOptionsValid}>
-                {confirmButtonText}
-              </Button>
+              {/* 비어 있는 필수 항목이 있으면 누를 때 해당 위치로 이동하고 오류를 보여준다 */}
+              <Button onClick={handleGoToConfirm}>{confirmButtonText}</Button>
             </span>
           </div>
         </div>
@@ -293,8 +303,6 @@ export function ReservationBottomSheet({
               <span className="inline-flex items-center justify-center">
                 <Spinner size={20} className="text-white" />
               </span>
-            ) : productType === "BASIC_CAKE" ? (
-              "예약하기"
             ) : (
               "예약신청"
             )}
@@ -307,28 +315,24 @@ export function ReservationBottomSheet({
   const renderOptionsView = () => (
     <ReservationOptionsView
       selectedDate={selectedDate}
-      selectedSize={selectedSize}
-      setSelectedSize={setSelectedSize}
-      selectedFlavor={selectedFlavor}
-      setSelectedFlavor={setSelectedFlavor}
-      letteringMessage={letteringMessage}
-      setLetteringMessage={setLetteringMessage}
+      sizeOptions={sizeOptions}
+      flavorOptions={flavorOptions}
+      customOptions={visibleCustomOptions}
+      selectedSizeId={selectedSizeId}
+      setSelectedSizeId={setSelectedSizeId}
+      selectedFlavorId={selectedFlavorId}
+      setSelectedFlavorId={setSelectedFlavorId}
+      selections={selections}
+      onOptionChange={setOptionSelection}
       requestMessage={requestMessage}
       setRequestMessage={setRequestMessage}
-      cakeSizeOptions={cakeSizeOptions}
-      cakeFlavorOptions={cakeFlavorOptions}
-      imageUrls={imageUrls}
-      fileInputRef={fileInputRef}
       handleOpenCalendar={handleOpenCalendar}
-      handleUploadClick={handleUploadClick}
-      handleFileChange={handleFileChange}
-      handleRemoveImage={handleRemoveImage}
       dateSelectionSignal={dateSelectionSignal}
-      productType={productType}
       isAddingFromConfirm={isAddingFromConfirm && orderItems.length > 0}
       isEditingFromConfirm={isEditingFromConfirm && orderItems.length > 1}
-      imageUploadEnabled={imageUploadEnabled}
-      letteringMaxLength={letteringMaxLength}
+      showValidationErrors={showValidationErrors}
+      firstInvalidField={firstInvalidField}
+      invalidFieldSignal={invalidFieldSignal}
     />
   );
 
@@ -347,7 +351,8 @@ export function ReservationBottomSheet({
       orderItems={orderItems}
       cakeTitle={cakeTitle}
       cakeImageUrl={cakeImageUrl}
-      price={price}
+      customOptions={visibleCustomOptions}
+      getItemPrice={getItemPrice}
       selectedDate={selectedDate}
       formatDateTime={formatDateTime}
       handleEditItem={handleEditItem}

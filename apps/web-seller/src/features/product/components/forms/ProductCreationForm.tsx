@@ -11,13 +11,16 @@ import {
   EnableStatus,
   CakeSizeOptionDto,
   CakeFlavorOptionDto,
+  CustomOptionDto,
   ProductCategoryType,
+  ProductType,
   CakeSizeDisplayName,
 } from "@/apps/web-seller/features/product/types/product.dto";
+import { CUSTOM_OPTION_PRESETS } from "@/apps/web-seller/features/product/constants/product.constant";
 import type { ProductForm } from "@/apps/web-seller/features/product/types/product.ui";
 import { ProductCreationBasicInfoSection } from "@/apps/web-seller/features/product/components/sections/ProductCreationBasicInfoSection";
 import { ProductCreationCakeOptionsSection } from "@/apps/web-seller/features/product/components/sections/ProductCreationCakeOptionsSection";
-import { ProductCreationOptionsSection } from "@/apps/web-seller/features/product/components/sections/ProductCreationOptionsSection";
+import { ProductCreationCustomOptionsSection } from "@/apps/web-seller/features/product/components/sections/ProductCreationCustomOptionsSection";
 import { ProductCreationDetailDescriptionSection } from "@/apps/web-seller/features/product/components/sections/ProductCreationDetailDescriptionSection";
 import { ProductCreationProductNoticeSection } from "@/apps/web-seller/features/product/components/sections/ProductCreationProductNoticeSection";
 import { validateProductForm } from "@/apps/web-seller/features/product/utils/validateProductForm";
@@ -30,6 +33,12 @@ interface Props {
   onDelete?: () => void;
   isDeleting?: boolean;
 }
+
+/** 새 상품에는 '레터링 문구'를 미리 넣어 둔다 (판매자가 지울 수 있음) */
+const buildDefaultCustomOptions = (): CustomOptionDto[] =>
+  CUSTOM_OPTION_PRESETS.filter((preset) => preset.key === "lettering").map((preset) =>
+    preset.build(),
+  );
 
 export const defaultForm: ProductForm = {
   images: [],
@@ -54,9 +63,9 @@ export const defaultForm: ProductForm = {
       price: 0,
     },
   ],
-  letteringVisible: EnableStatus.ENABLE,
-  letteringMaxLength: undefined,
-  imageUploadEnabled: EnableStatus.ENABLE,
+  // 상품 유형은 판매자가 반드시 고르도록 비워 둔다
+  productType: undefined,
+  customOptions: buildDefaultCustomOptions(),
   productCategoryTypes: [],
   searchTags: [],
   detailDescription: "",
@@ -171,21 +180,16 @@ export const ProductCreationForm: React.FC<Props> = ({
     onChange?.(next);
   };
 
-  const handleLetteringVisibleChange = (value: EnableStatus) => {
-    const next = { ...form, letteringVisible: value };
-    setForm(next);
-    onChange?.(next);
-  };
-
-  const handleLetteringMaxLengthChange = (value: number | undefined) => {
+  const handleCustomOptionsChange = (options: CustomOptionDto[]) => {
     if (disabled) return;
-    const next = { ...form, letteringMaxLength: value };
+    const next = { ...form, customOptions: options };
     setForm(next);
     onChange?.(next);
   };
 
-  const handleImageUploadEnabledChange = (value: EnableStatus) => {
-    const next = { ...form, imageUploadEnabled: value };
+  const handleProductTypeChange = (value: ProductType) => {
+    if (disabled) return;
+    const next = { ...form, productType: value };
     setForm(next);
     onChange?.(next);
   };
@@ -214,32 +218,15 @@ export const ProductCreationForm: React.FC<Props> = ({
     e.preventDefault();
     const { isValid, errors: validationErrors } = validate();
     if (!isValid) {
-      // 첫 번째 에러가 있는 탭으로 이동
+      // 탭 순서(기본 정보 → 상세정보 → 상품정보제공고시)대로 첫 번째 에러가 있는 탭으로 이동
       const errorKeys = Object.keys(validationErrors);
-      if (errorKeys.length > 0) {
-        // 에러가 있는 탭으로 이동
-        if (validationErrors.detailDescription) {
-          setActiveTab("detail"); // 상세정보 탭
-        } else if (
-          validationErrors.productNoticeFoodType ||
-          validationErrors.productNoticeProducer ||
-          validationErrors.productNoticeOrigin ||
-          validationErrors.productNoticeAddress ||
-          validationErrors.productNoticeManufactureDate ||
-          validationErrors.productNoticeExpirationDate ||
-          validationErrors.productNoticePackageCapacity ||
-          validationErrors.productNoticePackageQuantity ||
-          validationErrors.productNoticeIngredients ||
-          validationErrors.productNoticeCalories ||
-          validationErrors.productNoticeSafetyNotice ||
-          validationErrors.productNoticeGmoNotice ||
-          validationErrors.productNoticeImportNotice ||
-          validationErrors.productNoticeCustomerService
-        ) {
-          setActiveTab("notice"); // 상품정보제공고시 탭
-        } else {
-          setActiveTab("basic"); // 기본 정보 탭
-        }
+      const isNoticeKey = (key: string) => key.startsWith("productNotice");
+      if (errorKeys.some((key) => key !== "detailDescription" && !isNoticeKey(key))) {
+        setActiveTab("basic"); // 기본 정보 탭
+      } else if (validationErrors.detailDescription) {
+        setActiveTab("detail"); // 상세정보 탭
+      } else if (errorKeys.some(isNoticeKey)) {
+        setActiveTab("notice"); // 상품정보제공고시 탭
       }
       return;
     }
@@ -265,6 +252,7 @@ export const ProductCreationForm: React.FC<Props> = ({
                 errors={errors}
                 onSalesStatusChange={handleSalesStatusChange}
                 onVisibilityStatusChange={handleVisibilityStatusChange}
+                onProductTypeChange={handleProductTypeChange}
                 onProductCategoryTypesChange={handleProductCategoryTypesChange}
                 onSearchTagsChange={handleSearchTagsChange}
                 onMainImageChange={handleMainImageChange}
@@ -283,13 +271,11 @@ export const ProductCreationForm: React.FC<Props> = ({
                 onCakeFlavorOptionsChange={handleCakeFlavorOptionsChange}
               />
 
-              {/* 옵션 섹션 */}
-              <ProductCreationOptionsSection
+              {/* 추가 옵션 섹션 */}
+              <ProductCreationCustomOptionsSection
                 form={form}
                 errors={errors}
-                onLetteringVisibleChange={handleLetteringVisibleChange}
-                onLetteringMaxLengthChange={handleLetteringMaxLengthChange}
-                onImageUploadEnabledChange={handleImageUploadEnabledChange}
+                onCustomOptionsChange={handleCustomOptionsChange}
                 disabled={disabled}
               />
             </TabsContent>
