@@ -19,6 +19,30 @@ export interface MyOrdersResponse {
 }
 
 /**
+ * 주문 항목의 추가 옵션 선택값 (옵션 ID 기준, 이름·가격은 서버가 계산)
+ */
+export interface OrderItemOptionInput {
+  optionId: string;
+  choiceIds?: string[];
+  text?: string;
+  imageUrls?: string[];
+}
+
+/**
+ * 주문 항목의 추가 옵션 스냅샷 (주문 시점 옵션명·옵션값·금액)
+ */
+export interface SelectedOption {
+  optionId: string;
+  type: import("@/apps/web-user/features/product/types/product.type").CustomOptionType;
+  name: string;
+  choices?: { id: string; label: string; price: number }[];
+  text?: string;
+  imageUrls?: string[];
+  /** 이 옵션 금액 합계 (1개 기준) */
+  price: number;
+}
+
+/**
  * 주문 항목 생성 요청
  */
 export interface CreateOrderItemRequest {
@@ -30,10 +54,18 @@ export interface CreateOrderItemRequest {
   flavorId?: string;
   flavorDisplayName?: string;
   flavorPrice?: number;
-  letteringMessage?: string;
+  options: OrderItemOptionInput[];
   requestMessage?: string;
   quantity: number;
-  imageUrls?: string[];
+}
+
+/**
+ * 예약신청 단계 주문 항목 1개 옵션 변경 요청
+ */
+export interface UpdateReservationOrderItemRequest extends CreateOrderItemRequest {
+  /** 변경 후 주문 총 금액 (다른 항목 기존 금액 + 이 항목 새 금액) */
+  totalPrice: number;
+  productOptionsVersion: number;
 }
 
 /**
@@ -47,6 +79,8 @@ export interface CreateOrderRequest {
   items: CreateOrderItemRequest[];
   totalQuantity: number;
   totalPrice: number;
+  /** 옵션을 고를 때 본 상품 optionsVersion (다르면 서버가 409) */
+  productOptionsVersion: number;
   storeName: string;
   /** 예약자명 (선택) */
   reservationContactName?: string;
@@ -94,11 +128,12 @@ export interface OrderItemResponse {
   flavorId?: string;
   flavorDisplayName?: string;
   flavorPrice?: number;
-  letteringMessage?: string;
+  /** 추가 옵션 선택 내역 (판매자가 정한 옵션 순서) */
+  selectedOptions: SelectedOption[];
+  optionsPrice: number;
   requestMessage?: string;
   quantity: number;
   itemPrice: number;
-  imageUrls: string[];
   createdAt: string; // JSON 직렬화 시 ISO 8601 문자열로 변환됨 (백엔드는 Date 타입)
   updatedAt: string; // JSON 직렬화 시 ISO 8601 문자열로 변환됨 (백엔드는 Date 타입)
 }

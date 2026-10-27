@@ -13,6 +13,7 @@ import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { navigateBack } from "@/apps/web-user/common/utils/navigate-back.util";
 import { Toast } from "@/apps/web-user/common/components/toast/Toast";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
+import { formatSelectedOptionValue } from "@/apps/web-user/features/product/utils/custom-option.util";
 
 const formatDateTime = (dateString: string | null) => {
   if (!dateString) return "";
@@ -233,6 +234,17 @@ export default function ReservationCompletePage() {
                           </p>
                         </div>
                       )}
+                      {item.selectedOptions.map((option) => (
+                        <div key={option.optionId} className="flex flex-col">
+                          <span className="text-xs text-gray-500">{option.name}</span>
+                          <p className="flex items-center justify-between text-2sm text-gray-900">
+                            <span className="whitespace-pre-wrap">
+                              {formatSelectedOptionValue(option)}
+                            </span>
+                            {option.price > 0 && <span>+{option.price.toLocaleString()}원</span>}
+                          </p>
+                        </div>
+                      ))}
                     </div>
                   )}
                   <button

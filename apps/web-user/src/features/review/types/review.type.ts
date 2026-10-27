@@ -113,11 +113,12 @@ export interface WritableReviewOrderItem {
   flavorId?: string;
   flavorDisplayName?: string;
   flavorPrice?: number;
-  letteringMessage?: string;
+  /** 추가 옵션 선택 내역 (주문 시점 스냅샷) */
+  selectedOptions: import("@/apps/web-user/features/order/types/order.type").SelectedOption[];
+  optionsPrice: number;
   requestMessage?: string;
   quantity: number;
   itemPrice: number;
-  imageUrls: string[];
   createdAt: string;
   updatedAt: string;
 }

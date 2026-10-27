@@ -2,218 +2,215 @@
 
 import { RefObject, useEffect, useRef, useState } from "react";
 import { DatePickerInput } from "@/apps/web-user/common/components/datepickers/DatePicker";
-import { Icon } from "@/apps/web-user/common/components/icons";
 import { Select } from "@/apps/web-user/common/components/selectboxs/Select";
 import { TextArea } from "@/apps/web-user/common/components/textareas/TextArea";
 import {
   CakeFlavorOption,
   CakeSizeOption,
-  ProductType,
-  ImageUploadEnabled,
+  CustomOption,
+  CustomOptionType,
 } from "@/apps/web-user/features/product/types/product.type";
+import {
+  hasSelectionValue,
+  type OptionSelection,
+  type OptionSelections,
+} from "@/apps/web-user/features/product/utils/custom-option.util";
+import { CustomOptionField } from "./CustomOptionField";
+import type { OptionsFieldKey } from "./types";
 
 interface ReservationOptionsViewProps {
   selectedDate: Date | null;
-  selectedSize: string;
-  setSelectedSize: (value: string) => void;
-  selectedFlavor: string;
-  setSelectedFlavor: (value: string) => void;
-  letteringMessage: string;
-  setLetteringMessage: (value: string) => void;
+  /** 노출 중인 사이즈·맛·추가 옵션 */
+  sizeOptions: CakeSizeOption[];
+  flavorOptions: CakeFlavorOption[];
+  customOptions: CustomOption[];
+  selectedSizeId: string;
+  setSelectedSizeId: (value: string) => void;
+  selectedFlavorId: string;
+  setSelectedFlavorId: (value: string) => void;
+  selections: OptionSelections;
+  onOptionChange: (optionId: string, selection: OptionSelection) => void;
   requestMessage: string;
   setRequestMessage: (value: string) => void;
-  cakeSizeOptions?: CakeSizeOption[];
-  cakeFlavorOptions?: CakeFlavorOption[];
-  imageUrls: string[];
-  fileInputRef: RefObject<HTMLInputElement | null>;
   handleOpenCalendar: () => void;
-  handleUploadClick: () => void;
-  handleFileChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  handleRemoveImage: (index: number) => void;
   dateSelectionSignal: number;
-  productType: ProductType;
   isAddingFromConfirm?: boolean;
   isEditingFromConfirm?: boolean;
-  imageUploadEnabled: ImageUploadEnabled;
-  letteringMaxLength: number;
+  /** '선택완료'를 눌렀는데 비어 있는 필수 항목이 있을 때 오류 표시 */
+  showValidationErrors?: boolean;
+  firstInvalidField?: OptionsFieldKey | null;
+  /** 값이 바뀔 때마다 firstInvalidField 위치로 스크롤 */
+  invalidFieldSignal?: number;
   /** 픽업날짜 입력 영역을 숨김 (옵션 변경 시트 등 날짜 편집이 불필요한 경우) */
   hideDatePicker?: boolean;
 }
 
+const REQUIRED_OPTION_ERROR = "필수 옵션이에요.";
+
 export function ReservationOptionsView({
   selectedDate,
-  selectedSize,
-  setSelectedSize,
-  selectedFlavor,
-  setSelectedFlavor,
-  letteringMessage,
-  setLetteringMessage,
+  sizeOptions,
+  flavorOptions,
+  customOptions,
+  selectedSizeId,
+  setSelectedSizeId,
+  selectedFlavorId,
+  setSelectedFlavorId,
+  selections,
+  onOptionChange,
   requestMessage,
   setRequestMessage,
-  cakeSizeOptions,
-  cakeFlavorOptions,
-  imageUrls,
-  fileInputRef,
   handleOpenCalendar,
-  handleUploadClick,
-  handleFileChange,
-  handleRemoveImage,
   dateSelectionSignal,
-  productType,
   isAddingFromConfirm,
   isEditingFromConfirm,
-  imageUploadEnabled,
-  letteringMaxLength,
+  showValidationErrors = false,
+  firstInvalidField = null,
+  invalidFieldSignal = 0,
   hideDatePicker = false,
 }: ReservationOptionsViewProps) {
+  const dateRef = useRef<HTMLDivElement>(null);
   const sizeRef = useRef<HTMLDivElement>(null);
   const flavorRef = useRef<HTMLDivElement>(null);
-  const letteringRef = useRef<HTMLDivElement>(null);
+  const optionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const [sizeOpenSignal, setSizeOpenSignal] = useState(0);
   const [flavorOpenSignal, setFlavorOpenSignal] = useState(0);
-  const prevSelectedDateRef = useRef<Date | null>(selectedDate);
-  const prevSelectedSizeRef = useRef(selectedSize);
-  const prevSelectedFlavorRef = useRef(selectedFlavor);
+  const prevSelectedSizeRef = useRef(selectedSizeId);
+  const prevSelectedFlavorRef = useRef(selectedFlavorId);
 
   const scrollToRef = (ref: RefObject<HTMLDivElement | null>) => {
     ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
+  const scrollToOption = (option: CustomOption | undefined) => {
+    if (!option) return;
+    const element = optionRefs.current[option.id];
+    element?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (option.type === CustomOptionType.TEXT) {
+      element?.querySelector("textarea")?.focus();
+    }
+  };
+
+  // 날짜 선택 → 사이즈 → 맛 → 첫 추가 옵션 순서로 다음 입력으로 안내
   useEffect(() => {
-    if (dateSelectionSignal > 0 && !selectedSize) {
+    if (dateSelectionSignal > 0 && !selectedSizeId) {
       scrollToRef(sizeRef);
       setSizeOpenSignal((prev) => prev + 1);
     }
-    prevSelectedDateRef.current = selectedDate;
-  }, [dateSelectionSignal, selectedDate, selectedSize]);
+  }, [dateSelectionSignal, selectedSizeId]);
 
   useEffect(() => {
-    if (selectedSize && !prevSelectedSizeRef.current && !selectedFlavor) {
+    if (selectedSizeId && !prevSelectedSizeRef.current && !selectedFlavorId) {
       scrollToRef(flavorRef);
       setFlavorOpenSignal((prev) => prev + 1);
     }
-    prevSelectedSizeRef.current = selectedSize;
-  }, [selectedSize, selectedFlavor]);
+    prevSelectedSizeRef.current = selectedSizeId;
+  }, [selectedSizeId, selectedFlavorId]);
 
   useEffect(() => {
-    if (selectedFlavor && !prevSelectedFlavorRef.current && !letteringMessage) {
-      scrollToRef(letteringRef);
-      const textarea = letteringRef.current?.querySelector("textarea");
-      textarea?.focus();
+    if (selectedFlavorId && !prevSelectedFlavorRef.current) {
+      scrollToOption(customOptions.find((option) => !selections[option.id]));
     }
-    prevSelectedFlavorRef.current = selectedFlavor;
-  }, [selectedFlavor, letteringMessage]);
+    prevSelectedFlavorRef.current = selectedFlavorId;
+    // 맛을 처음 고른 순간에만 동작 (selections 변경에는 반응하지 않음)
+  }, [selectedFlavorId]);
+
+  // '선택완료'에서 막혔을 때 처음 비어 있는 항목으로 이동
+  useEffect(() => {
+    if (!invalidFieldSignal || !firstInvalidField) return;
+    if (firstInvalidField === "date") scrollToRef(dateRef);
+    else if (firstInvalidField === "size") scrollToRef(sizeRef);
+    else if (firstInvalidField === "flavor") scrollToRef(flavorRef);
+    else {
+      const optionId = firstInvalidField.slice("option:".length);
+      scrollToOption(customOptions.find((option) => option.id === optionId));
+    }
+    // 신호가 바뀔 때만 이동
+  }, [invalidFieldSignal]);
+
+  // '선택완료'를 누른 뒤에는 비어 있는 필수 항목을 모두 표시하고, 채우면 바로 사라진다
+  const errorIf = (isEmpty: boolean, message: string) =>
+    showValidationErrors && isEmpty ? message : undefined;
+  const dateError = errorIf(!selectedDate, "픽업 날짜를 선택해주세요.");
+  const optionError = (option: CustomOption) =>
+    showValidationErrors && option.required && !hasSelectionValue(option, selections[option.id])
+      ? REQUIRED_OPTION_ERROR
+      : undefined;
 
   return (
     <div className="px-[20px] py-[24px] flex flex-col gap-[24px]">
       {!hideDatePicker && (
-        <DatePickerInput
-          value={selectedDate}
-          label="픽업날짜 선택"
-          placeholder="픽업할 날짜와 시간을 선택해주세요"
-          onOpen={handleOpenCalendar}
-          hint={
-            isAddingFromConfirm || isEditingFromConfirm
-              ? "*변경 시 주문하는 모든 상품의 픽업날짜도 함께 변경됩니다."
-              : undefined
-          }
-        />
+        <div ref={dateRef}>
+          <DatePickerInput
+            value={selectedDate}
+            label="픽업날짜 선택"
+            placeholder="픽업할 날짜와 시간을 선택해주세요"
+            onOpen={handleOpenCalendar}
+            hint={
+              isAddingFromConfirm || isEditingFromConfirm
+                ? "*변경 시 주문하는 모든 상품의 픽업날짜도 함께 변경됩니다."
+                : undefined
+            }
+          />
+          {dateError && <p className="mt-[6px] text-xs text-red-400">{dateError}</p>}
+        </div>
       )}
       <div ref={sizeRef}>
         <Select
           label="사이즈 선택"
-          value={selectedSize}
-          onChange={setSelectedSize}
+          value={selectedSizeId}
+          onChange={setSelectedSizeId}
           openSignal={sizeOpenSignal}
+          error={errorIf(
+            sizeOptions.length > 0 && !sizeOptions.some((size) => size.id === selectedSizeId),
+            "사이즈를 선택해주세요.",
+          )}
           options={[
             { value: "", label: "사이즈를 선택해주세요" },
-            ...(cakeSizeOptions?.map((size) => ({
-              value: size.displayName,
-              label: `${size.displayName} ${size.description}`,
+            ...sizeOptions.map((size) => ({
+              value: size.id,
+              label: [size.displayName, size.description].filter(Boolean).join(" "),
               subLabel: size.price > 0 ? `+${size.price.toLocaleString()}원` : undefined,
-            })) ?? []),
+            })),
           ]}
         />
       </div>
       <div ref={flavorRef}>
         <Select
           label="맛 선택"
-          value={selectedFlavor}
-          onChange={setSelectedFlavor}
+          value={selectedFlavorId}
+          onChange={setSelectedFlavorId}
           openSignal={flavorOpenSignal}
+          error={errorIf(
+            flavorOptions.length > 0 &&
+              !flavorOptions.some((flavor) => flavor.id === selectedFlavorId),
+            "맛을 선택해주세요.",
+          )}
           options={[
             { value: "", label: "시트를 선택해주세요" },
-            ...(cakeFlavorOptions?.map((flavor) => ({
-              value: flavor.displayName,
+            ...flavorOptions.map((flavor) => ({
+              value: flavor.id,
               label: flavor.displayName,
               subLabel: flavor.price > 0 ? `+${flavor.price.toLocaleString()}원` : undefined,
-            })) ?? []),
+            })),
           ]}
         />
       </div>
-      <div ref={letteringRef}>
-        <TextArea
-          label="레터링 문구"
-          value={letteringMessage}
-          onChange={setLetteringMessage}
-          placeholder="가능한 10자 이내로 적어주세요."
-          maxLength={letteringMaxLength}
-          showCount
-        />
-      </div>
-      {imageUploadEnabled == "ENABLE" && (
-        <div className="flex flex-col gap-[6px]">
-          <div className="block mb-[10px] text-sm font-bold text-gray-900">
-            참고사진{" "}
-            {productType === "BASIC_CAKE" && (
-              <span className="font-normal text-gray-300">(선택)</span>
-            )}
-          </div>
-          <div className="flex gap-[6px] overflow-auto w-full">
-            <button
-              type="button"
-              onClick={handleUploadClick}
-              className={`flex flex-col items-center justify-center border border-dashed border-gray-200 rounded-lg h-[100px] ${
-                imageUrls.length === 0 ? "w-full" : "w-[100px] shrink-0"
-              }`}
-            >
-              <Icon name="addPhoto" width={24} height={24} className="mb-[4px] text-gray-300" />
-              <div className="text-sm text-gray-300">
-                {imageUrls.length === 0 ? "참고할 사진을 업로드해주세요" : "사진 업로드"}
-                <br />({imageUrls.length}/3)
-              </div>
-            </button>
-            {imageUrls.map((url, index) => (
-              <div
-                key={`${url}-${index}`}
-                className="relative h-[100px] w-[100px] rounded-lg shrink-0 border border-gray-100"
-              >
-                <button
-                  type="button"
-                  aria-label="첨부 이미지 삭제"
-                  onClick={() => handleRemoveImage(index)}
-                  className="absolute right-[5px] top-[5px]"
-                >
-                  <Icon name="removePhoto" width={20} height={20} />
-                </button>
-                <img
-                  src={url}
-                  alt="업로드된 이미지 미리보기"
-                  className="h-full w-full rounded-lg object-cover"
-                />
-              </div>
-            ))}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleFileChange}
-              className="hidden"
-            />
-          </div>
+      {customOptions.map((option) => (
+        <div
+          key={option.id}
+          ref={(element) => {
+            optionRefs.current[option.id] = element;
+          }}
+        >
+          <CustomOptionField
+            option={option}
+            selection={selections[option.id]}
+            onChange={(selection) => onOptionChange(option.id, selection)}
+            error={optionError(option)}
+          />
         </div>
-      )}
+      ))}
       <TextArea
         label={
           <>

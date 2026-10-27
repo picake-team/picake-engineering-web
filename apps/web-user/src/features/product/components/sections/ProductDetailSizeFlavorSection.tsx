@@ -25,12 +25,16 @@ export function ProductDetailSizeFlavorSection({
     (option) => option.visible === VisibleStatus.ENABLE,
   );
 
+  const visibleFlavorOptions = cakeFlavorOptions.filter(
+    (option) => option.visible === VisibleStatus.ENABLE,
+  );
+
   const maxSize = getSizePixel(visibleSizeOptions.length - 1);
 
   return (
     <div>
       {/* 사이즈 옵션 */}
-      {cakeSizeOptions.length > 0 && (
+      {visibleSizeOptions.length > 0 && (
         <div className="mt-[4px] mb-[36px]">
           <ProductDetailSubTitle>사이즈</ProductDetailSubTitle>
           <div className="mb-[24px] px-[18px] overflow-x-auto">
@@ -55,7 +59,7 @@ export function ProductDetailSizeFlavorSection({
             </div>
           </div>
           <div className="flex flex-col gap-[4px] py-[16px] px-[20px] bg-gray-50 rounded-lg">
-            {cakeSizeOptions.map((option, index) => {
+            {visibleSizeOptions.map((option, index) => {
               return (
                 <div key={index} className="flex justify-between text-[13px]">
                   <span className="text-gray-700">{option.displayName}</span>
@@ -70,11 +74,11 @@ export function ProductDetailSizeFlavorSection({
         </div>
       )}
       {/* 맛 옵션 */}
-      {cakeFlavorOptions.length > 0 && (
+      {visibleFlavorOptions.length > 0 && (
         <div>
           <ProductDetailSubTitle>케이크 맛</ProductDetailSubTitle>
           <div className="flex flex-col gap-[4px] py-[16px] px-[20px] bg-gray-50 rounded-lg">
-            {cakeFlavorOptions.map((option, index) => {
+            {visibleFlavorOptions.map((option, index) => {
               return (
                 <div key={index} className="flex justify-between text-[13px]">
                   <span className="text-gray-700">{option.displayName}</span>

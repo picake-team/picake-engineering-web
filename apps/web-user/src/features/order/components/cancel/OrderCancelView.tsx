@@ -1,5 +1,6 @@
 "use client";
 
+import { formatOrderItemSummary } from "@/apps/web-user/features/product/utils/custom-option.util";
 import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -164,16 +165,7 @@ export function OrderCancelView({ order }: OrderCancelViewProps) {
                 <div className="flex-1 min-w-0">
                   <p className="mb-0.5 text-xs text-gray-500">{order.storeName}</p>
                   <p className="mb-2 text-sm text-gray-900 truncate">{order.productName}</p>
-                  <p className="text-2xs text-gray-400 truncate">
-                    {[
-                      item.sizeDisplayName &&
-                        `${item.sizeDisplayName}(+${item.sizePrice?.toLocaleString() ?? 0}원)`,
-                      item.flavorDisplayName &&
-                        `${item.flavorDisplayName}(+${item.flavorPrice?.toLocaleString() ?? 0}원)`,
-                    ]
-                      .filter(Boolean)
-                      .join(" / ")}
-                  </p>
+                  <p className="text-2xs text-gray-400 truncate">{formatOrderItemSummary(item)}</p>
                 </div>
               </div>
             ))}

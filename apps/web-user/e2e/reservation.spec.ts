@@ -37,15 +37,17 @@ async function selectDropdownOption(sheet: Locator, triggerLabel: string, option
 }
 
 test("예약(주문) 생성 골든패스", async ({ page, request }) => {
+  // 옵션 입력 단계가 많고, dev 서버가 완료 페이지를 처음 컴파일하는 시간까지 포함돼 기본 30초를 넘길 수 있다
+  test.setTimeout(60_000);
   await reviewLogin(page);
 
   const productId = await findFixtureProductId(request);
   await page.goto(`/product/${productId}`);
 
-  await page.getByRole("button", { name: "예약하기" }).click();
+  await page.getByRole("button", { name: "예약신청" }).click();
 
   // BottomSheet는 열려 있을 때만 마운트되는 단일 인스턴스라, 이 안에서만 찾으면
-  // 상품 상세 페이지 하단에 그대로 남아있는 "예약하기" CTA와 헷갈리지 않는다.
+  // 상품 상세 페이지 하단에 그대로 남아있는 "예약신청" CTA와 헷갈리지 않는다.
   const sheet = page.locator(".animate-slide-up");
   await expect(sheet.getByText("상품 옵션 선택")).toBeVisible();
 
@@ -66,10 +68,19 @@ test("예약(주문) 생성 골든패스", async ({ page, request }) => {
   await selectDropdownOption(sheet, "사이즈 선택", "미니");
   await selectDropdownOption(sheet, "맛 선택", "초콜릿");
 
-  await sheet.getByPlaceholder("가능한 10자 이내로 적어주세요.").fill("생일 축하해");
+  // 필수 추가 옵션(레터링 문구)을 비운 채 넘어가면 막고 오류를 보여준다
+  await sheet.getByRole("button", { name: "선택완료" }).click();
+  await expect(sheet.getByText("필수 옵션이에요.")).toBeVisible();
+
+  // 추가 옵션 (fixture-seed.script.ts의 CUSTOM_OPTIONS와 동일 라벨)
+  await sheet.getByPlaceholder("케이크에 들어갈 문구를 적어주세요.").fill("생일 축하해");
+  await selectDropdownOption(sheet, "초 추가", "큰초");
 
   await sheet.getByRole("button", { name: "선택완료" }).click();
   await expect(sheet.getByText("주문확인")).toBeVisible();
+  // 확인 화면에 추가 옵션과 옵션가가 그대로 보인다
+  await expect(sheet.getByText("레터링 문구 : 생일 축하해")).toBeVisible();
+  await expect(sheet.getByText("초 추가 : 큰초 (+1,000원)")).toBeVisible();
 
   // 심사용 계정 프로필의 전화번호(REVIEW_LOGIN_ACCOUNT_PHONE_MARKER)는 실제 휴대폰 형식이
   // 아니라서 prefill 여부와 무관하게 유효한 값으로 덮어써야 한다.
@@ -78,7 +89,7 @@ test("예약(주문) 생성 골든패스", async ({ page, request }) => {
   // Checkbox의 실제 input은 sr-only(시각적으로 숨김)라 label 텍스트를 클릭해 토글한다
   await sheet.getByText("모두 동의합니다", { exact: true }).click();
 
-  await sheet.getByRole("button", { name: "예약하기" }).click();
+  await sheet.getByRole("button", { name: "예약신청" }).click();
 
   await page.waitForURL(/\/reservation\/complete\?orderId=.+/);
 });

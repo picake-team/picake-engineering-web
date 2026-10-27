@@ -1,6 +1,11 @@
 "use client";
 
 import Image from "next/image";
+import {
+  formatSelectedOptionValue,
+  getFirstOptionImageUrl,
+} from "@/apps/web-user/features/product/utils/custom-option.util";
+import { CustomOptionType } from "@/apps/web-user/features/product/types/product.type";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@/apps/web-user/common/components/icons";
@@ -28,7 +33,7 @@ export function ReservationItemCard({
 }: ReservationItemCardProps) {
   const router = useRouter();
   const [expanded, setExpanded] = useState(false);
-  const thumbnailUrl = order.productImages?.[0] || item.imageUrls?.[0];
+  const thumbnailUrl = order.productImages?.[0] || getFirstOptionImageUrl(item.selectedOptions);
   // 취소/환불 대기 상태에서 흐리게 처리 — 취소 상세 페이지 안에서는 강조해야 하므로 제외
   const isCancelled =
     !hideCancelDetailButton &&
@@ -142,12 +147,28 @@ export function ReservationItemCard({
               </div>
             </div>
           )}
-          {item.letteringMessage && (
-            <div>
-              <p className="text-xs text-gray-500">레터링 문구</p>
-              <p className="text-2sm text-gray-900">{item.letteringMessage}</p>
+          {item.selectedOptions.map((option) => (
+            <div key={option.optionId}>
+              <p className="text-xs text-gray-500">{option.name}</p>
+              {option.type === CustomOptionType.IMAGE ? (
+                <div className="flex gap-1.5 mt-1">
+                  {(option.imageUrls ?? []).map((url, index) => (
+                    <img
+                      key={`${url}-${index}`}
+                      src={url}
+                      alt={`${option.name} ${index + 1}`}
+                      className="w-[44px] h-[44px] rounded object-cover border border-gray-100"
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="flex items-center justify-between text-2sm text-gray-900">
+                  <span className="whitespace-pre-wrap">{formatSelectedOptionValue(option)}</span>
+                  {option.price > 0 && <span>+{option.price.toLocaleString()}원</span>}
+                </div>
+              )}
             </div>
-          )}
+          ))}
           {item.requestMessage && (
             <div>
               <p className="text-xs text-gray-500">요청사항</p>

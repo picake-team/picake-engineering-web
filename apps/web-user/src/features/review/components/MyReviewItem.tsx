@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { MyReview } from "@/apps/web-user/features/review/types/review.type";
 import type { OrderItemResponse } from "@/apps/web-user/features/order/types/order.type";
+import { formatOrderItemSummary } from "@/apps/web-user/features/product/utils/custom-option.util";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { ImageSlider } from "@/apps/web-user/common/components/sliders";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
@@ -16,13 +17,7 @@ interface MyReviewItemProps {
 }
 
 function formatOrderItemOptions(item: OrderItemResponse): string {
-  return [
-    item.sizeDisplayName && `${item.sizeDisplayName}(+${(item.sizePrice ?? 0).toLocaleString()}원)`,
-    item.flavorDisplayName &&
-      `${item.flavorDisplayName}(+${(item.flavorPrice ?? 0).toLocaleString()}원)`,
-  ]
-    .filter(Boolean)
-    .join(" / ");
+  return formatOrderItemSummary(item);
 }
 
 export function MyReviewItem({ review, onDelete, onImageClick }: MyReviewItemProps) {

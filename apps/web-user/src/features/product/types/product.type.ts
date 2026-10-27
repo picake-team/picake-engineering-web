@@ -23,11 +23,6 @@ export enum VisibilityStatus {
   DISABLE = "DISABLE",
 }
 
-export enum ImageUploadEnabled {
-  ENABLE = "ENABLE",
-  DISABLE = "DISABLE",
-}
-
 export enum ProductType {
   BASIC_CAKE = "BASIC_CAKE", // 기본 케이크
   CUSTOM_CAKE = "CUSTOM_CAKE", // 커스텀 케이크
@@ -69,6 +64,35 @@ export interface CakeFlavorOption {
   price: number;
 }
 
+/** 추가 옵션 형식 */
+export enum CustomOptionType {
+  SINGLE_SELECT = "SINGLE_SELECT", // 선택형 (1개)
+  MULTI_SELECT = "MULTI_SELECT", // 다중선택형 (체크박스)
+  TEXT = "TEXT", // 직접입력형
+  IMAGE = "IMAGE", // 사진첨부형
+}
+
+export interface CustomOptionChoice {
+  id: string;
+  label: string;
+  price: number;
+  visible: VisibleStatus;
+}
+
+/** 추가 옵션 (상세 응답은 노출 중인 옵션·옵션값만, 목록 응답은 빈 배열) */
+export interface CustomOption {
+  id: string;
+  type: CustomOptionType;
+  name: string;
+  required: boolean;
+  visible: VisibleStatus;
+  choices?: CustomOptionChoice[];
+  maxSelect?: number;
+  maxLength?: number;
+  placeholder?: string;
+  maxCount?: number;
+}
+
 /**
  * 상품 정보
  */
@@ -87,9 +111,9 @@ export interface Product {
   visibilityStatus: VisibilityStatus;
   cakeSizeOptions: CakeSizeOption[];
   cakeFlavorOptions: CakeFlavorOption[];
-  letteringVisible: VisibleStatus;
-  letteringMaxLength: number;
-  imageUploadEnabled: ImageUploadEnabled;
+  customOptions: CustomOption[];
+  /** 주문 시 productOptionsVersion으로 그대로 전달 (옵션이 바뀌었으면 서버가 409) */
+  optionsVersion: number;
   productType: ProductType;
   productCategoryTypes: ProductCategoryType[]; // 카테고리 (없거나 여러 개)
   searchTags: string[]; // 검색 태그 (없거나 여러 개)

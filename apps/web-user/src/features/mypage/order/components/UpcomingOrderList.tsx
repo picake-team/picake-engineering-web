@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { getFirstOptionImageUrl } from "@/apps/web-user/features/product/utils/custom-option.util";
 import { useInfiniteScroll } from "@/apps/web-user/common/hooks/useInfiniteScroll";
 import Image from "next/image";
 import Link from "next/link";
@@ -74,7 +75,8 @@ function UpcomingOrderItem({ order, isLast }: { order: OrderResponse; isLast: bo
         {/* 주문 아이템 목록 */}
         <div className="space-y-2 py-2.5 mb-2.5">
           {visibleItems.map((item) => {
-            const thumbnailUrl = order.productImages?.[0] || item.imageUrls?.[0];
+            const thumbnailUrl =
+              order.productImages?.[0] || getFirstOptionImageUrl(item.selectedOptions);
             return (
               <div key={item.id} className="flex items-center gap-2.5">
                 <div className="w-[44px] h-[44px] rounded overflow-hidden bg-gray-100 shrink-0">

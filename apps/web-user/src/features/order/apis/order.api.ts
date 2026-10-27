@@ -1,9 +1,9 @@
 import { consumerClient } from "@/apps/web-user/common/config/axios.config";
 import {
-  CreateOrderItemRequest,
   CreateOrderRequest,
   MyOrdersResponse,
   OrderResponse,
+  UpdateReservationOrderItemRequest,
 } from "@/apps/web-user/features/order/types/order.type";
 
 export const orderApi = {
@@ -57,16 +57,13 @@ export const orderApi = {
   updateReservationPickupDate: async (orderId: string, pickupDate: string): Promise<void> => {
     await consumerClient.patch(`/orders/${orderId}/reservation/pickup-date`, { pickupDate });
   },
-  // 주문 항목 옵션 변경 (RESERVATION_REQUESTED 상태에서만)
-  updateReservationOrderItems: async (
+  // 주문 항목 1개 옵션 변경 (RESERVATION_REQUESTED 상태에서만, 다른 항목은 그대로 유지)
+  updateReservationOrderItem: async (
     orderId: string,
-    body: {
-      items: CreateOrderItemRequest[];
-      totalQuantity: number;
-      totalPrice: number;
-    },
+    itemId: string,
+    body: UpdateReservationOrderItemRequest,
   ): Promise<void> => {
-    await consumerClient.patch(`/orders/${orderId}/reservation/items`, body);
+    await consumerClient.patch(`/orders/${orderId}/reservation/items/${itemId}`, body);
   },
   // 결제 후 환불 요청 (PAYMENT_COMPLETED, CONFIRMED, PICKUP_PENDING 상태)
   requestRefund: async (

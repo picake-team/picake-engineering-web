@@ -19,7 +19,6 @@ import {
   ReservationBottomSheet,
   preloadReservationBottomSheet,
 } from "@/apps/web-user/features/product/components/sections/reservation-bottom-sheet";
-import { ProductType } from "@/apps/web-user/features/product/types/product.type";
 import { ProductDetailSkeleton } from "@/apps/web-user/common/components/skeleton/ProductDetailSkeleton";
 import { useStoreDetail } from "@/apps/web-user/features/store/hooks/queries/useStoreDetail";
 import { useAuthStore } from "@/apps/web-user/common/store/auth.store";
@@ -213,7 +212,8 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
               onMouseEnter={preloadReservationBottomSheet}
               onTouchStart={preloadReservationBottomSheet}
             >
-              {data.productType === ProductType.BASIC_CAKE ? "예약하기" : "예약신청"}
+              {/* 모든 상품이 예약신청 → 판매자 확인 순서로 진행되므로 문구를 통일 */}
+              예약신청
             </Button>
           </span>
         </div>
@@ -230,7 +230,8 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
           cakeImages={data.images}
           cakeSizeOptions={data.cakeSizeOptions}
           cakeFlavorOptions={data.cakeFlavorOptions}
-          productType={data.productType}
+          customOptions={data.customOptions}
+          optionsVersion={data.optionsVersion}
           productNoticeProducer={data.productNoticeProducer}
           productNoticeAddress={data.productNoticeAddress}
           storeName={data.storeName}
@@ -240,8 +241,6 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
           pickupZonecode={data.pickupZonecode}
           pickupLatitude={data.pickupLatitude}
           pickupLongitude={data.pickupLongitude}
-          imageUploadEnabled={data.imageUploadEnabled}
-          letteringMaxLength={data.letteringMaxLength}
           businessCalendar={storeDetail?.businessCalendar}
           refundCancellationPolicy={data.storeRefundCancellationPolicy}
           onClose={() => setIsBottomSheetOpen(false)}

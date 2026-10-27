@@ -6,6 +6,7 @@ import Image from "next/image";
 import Header from "@/apps/web-user/common/components/headers/Header";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { Icon } from "@/apps/web-user/common/components/icons";
+import { formatOrderItemSummary } from "@/apps/web-user/features/product/utils/custom-option.util";
 import { useUploadFile } from "@/apps/web-user/features/upload/hooks/mutations/useUploadFile";
 import { useWritableReviews } from "@/apps/web-user/features/review/hooks/queries/useWritableReviews";
 import { useCreateReview } from "@/apps/web-user/features/review/hooks/mutations/useCreateReview";
@@ -87,16 +88,7 @@ function OrderItemCard({
       <div className="flex-1 min-w-0">
         <p className="text-xs text-gray-500">{storeName}</p>
         <p className="text-sm font-bold text-gray-900 truncate">{productName}</p>
-        <p className="text-xs text-gray-500 truncate mt-0.5">
-          {[
-            item.sizeDisplayName &&
-              `${item.sizeDisplayName}(+${item.sizePrice?.toLocaleString()}원)`,
-            item.flavorDisplayName &&
-              `${item.flavorDisplayName}(+${item.flavorPrice?.toLocaleString()}원)`,
-          ]
-            .filter(Boolean)
-            .join(" / ")}
-        </p>
+        <p className="text-xs text-gray-500 truncate mt-0.5">{formatOrderItemSummary(item)}</p>
       </div>
     </div>
   );
