@@ -1,6 +1,6 @@
 ---
 name: picake-deploy-release
-description: Picake web-user/web-seller/web-admin(Vercel)의 태그 기반 배포를 진행할 때 사용합니다. backend 배포는 `picake-engineering-backend` 레포의 같은 skill을 씁니다. "배포해줘", "스테이징에 올려줘", "프로덕션 배포", "태그 만들어서 배포", "release" 같은 요청이나 `/push-staging`·`/push-production` 명령이면 이 skill을 따르세요. 배포 실패 원인 파악이나 배포 상태 확인 요청에도 사용합니다.
+description: Picake web-user/web-seller/web-admin/web-info(Vercel)의 태그 기반 배포를 진행할 때 사용합니다. backend 배포는 `picake-engineering-backend` 레포의 같은 skill을 씁니다. "배포해줘", "스테이징에 올려줘", "프로덕션 배포", "태그 만들어서 배포", "release" 같은 요청이나 `/push-staging`·`/push-production` 명령이면 이 skill을 따르세요. 배포 실패 원인 파악이나 배포 상태 확인 요청에도 사용합니다.
 ---
 
 # 배포 (태그 기반 CI/CD)
@@ -51,6 +51,7 @@ git diff --name-only "$LAST"..HEAD | awk -F/ '/^apps\//{print $2}' | sort -u
 | `apps/web-user/**`   | `web-user`   |
 | `apps/web-seller/**` | `web-seller` |
 | `apps/web-admin/**`  | `web-admin`  |
+| `apps/web-info/**`   | `web-info`   |
 
 `apps/` 밖(루트 설정 등)만 바뀌면 결과가 비어 나옵니다. 이때는 어느 앱을 배포할지 사용자에게 확인합니다.
 
@@ -178,6 +179,7 @@ gh run watch <run-id> --repo picake-team/picake-engineering-web --exit-status
 curl -s -o /dev/null -w "%{http_code}\n" https://staging.picakes.com/          # web-user
 curl -s -o /dev/null -w "%{http_code}\n" https://seller-staging.picakes.com/   # web-seller
 curl -s -o /dev/null -w "%{http_code}\n" https://admin-staging.picakes.com/    # web-admin
+curl -s -o /dev/null -w "%{http_code}\n" https://info-staging.picakes.com/seller/about   # web-info
 ```
 
 화면 변경이면 해당 경로를 직접 열어 눈으로도 확인합니다.
@@ -188,6 +190,7 @@ curl -s -o /dev/null -w "%{http_code}\n" https://admin-staging.picakes.com/    #
 curl -s -o /dev/null -w "%{http_code}\n" https://picakes.com/          # web-user
 curl -s -o /dev/null -w "%{http_code}\n" https://seller.picakes.com/   # web-seller
 curl -s -o /dev/null -w "%{http_code}\n" https://admin.picakes.com/    # web-admin
+curl -s -o /dev/null -w "%{http_code}\n" https://info.picakes.com/seller/about   # web-info
 ```
 
 변경된 화면이 있으면 해당 경로를 직접 요청해 반영 여부를 확인합니다. 리다이렉트나 UA 분기가 있으면 UA별로 확인합니다.

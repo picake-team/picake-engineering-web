@@ -1,0 +1,125 @@
+/*
+ * Pretendard 다이나믹 서브셋 (pretendard@1.3.9 공식 CSS, url 경로만 이 폴더 기준으로 변경).
+ * 글꼴을 글자 범위별 92조각으로 나눠 두고 화면에 나온 글자가 든 조각만 받는다.
+ * 단일 파일(2.0MB)을 첫 실행마다 받던 것을 홈 기준 약 180KB로 줄이기 위함.
+ * font-family 이름은 아래 body의 "Pretendard Variable"과 같다.
+ */
+@import "./pretendard-variable.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Reset and base styles */
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+}
+
+body {
+  font-family:
+    "Pretendard Variable",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Roboto",
+    "Oxygen",
+    "Ubuntu",
+    "Cantarell",
+    "Fira Sans",
+    "Droid Sans",
+    "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #ffffff;
+  color: #000000;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  outline: none;
+}
+
+input,
+textarea {
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: transparent;
+}
+
+/* ------------------------------ 임시 스타일 ------------------------------ */
+/* 로딩 스피너 애니메이션 */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* 로딩 스피너 스타일 */
+.loading-spinner-large {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #f3f4f6;
+  border-top: 4px solid #ff6b6b;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loading-spinner-small {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ffffff;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* 랭킹 애니메이션 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ranking-item {
+  animation: fadeInUp 0.5s ease-out both;
+}
+
+/* 스크롤바 숨김 유틸리티 */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

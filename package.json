@@ -10,6 +10,7 @@
     "apps/web-user",
     "apps/web-seller",
     "apps/web-admin",
+    "apps/web-info",
     "packages/*"
   ],
   "scripts": {
@@ -29,7 +30,9 @@
     "web-seller:storybook": "yarn workspace @picake/web-seller storybook",
     "web-seller:storybook:build": "yarn workspace @picake/web-seller build-storybook",
     "web-admin:dev": "yarn workspace @picake/web-admin dev",
-    "web-admin:build": "yarn workspace @picake/web-admin build"
+    "web-admin:build": "yarn workspace @picake/web-admin build",
+    "web-info:dev": "yarn workspace @picake/web-info dev",
+    "web-info:build": "yarn workspace @picake/web-info build"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
