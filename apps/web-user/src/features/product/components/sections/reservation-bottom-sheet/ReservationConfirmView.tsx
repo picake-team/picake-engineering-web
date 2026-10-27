@@ -11,12 +11,20 @@ import {
   type RefundCancellationPolicy,
 } from "@/apps/web-user/features/store/types/store.type";
 import { EmptyState } from "@/apps/web-user/common/components/fallbacks/EmptyState";
+import type { CustomOption } from "@/apps/web-user/features/product/types/product.type";
+import {
+  formatSelectedOptionValue,
+  toSelectedOptionPreviews,
+} from "@/apps/web-user/features/product/utils/custom-option.util";
 
 interface ReservationConfirmViewProps {
   orderItems: OrderItem[];
   cakeTitle: string;
   cakeImageUrl: string;
-  price: number;
+  /** 노출 중인 추가 옵션 (선택값 표시용) */
+  customOptions: CustomOption[];
+  /** 담은 상품 1개 가격 (판매가 + 사이즈 + 맛 + 추가 옵션) */
+  getItemPrice: (item: OrderItem) => number;
   selectedDate: Date | null;
   formatDateTime: (date: Date | null) => string;
   handleEditItem: (index: number) => void;
@@ -43,7 +51,8 @@ export function ReservationConfirmView({
   orderItems,
   cakeTitle,
   cakeImageUrl,
-  price,
+  customOptions,
+  getItemPrice,
   selectedDate,
   formatDateTime,
   handleEditItem,
@@ -91,12 +100,19 @@ export function ReservationConfirmView({
                       <div className="flex-1 flex flex-col">
                         <div className="text-sm font-bold text-gray-900">{cakeTitle}</div>
                         <div className="text-sm font-bold text-gray-900 mb-[4px]">
-                          {(price + item.sizePrice + item.flavorPrice).toLocaleString()}원
+                          {getItemPrice(item).toLocaleString()}원
                         </div>
                         <ul className="text-xs text-gray-700 pl-[18px] list-disc">
-                          <li>사이즈 : {item.size}</li>
-                          <li>맛 : {item.flavor}</li>
-                          <li>레터링 : {item.letteringMessage}</li>
+                          <li>사이즈 : {item.sizeName}</li>
+                          <li>맛 : {item.flavorName}</li>
+                          {toSelectedOptionPreviews(customOptions, item.selections).map(
+                            (option) => (
+                              <li key={option.optionId}>
+                                {option.name} : {formatSelectedOptionValue(option)}
+                                {option.price > 0 && ` (+${option.price.toLocaleString()}원)`}
+                              </li>
+                            ),
+                          )}
                           {item.requestMessage && <li>요청사항 : {item.requestMessage}</li>}
                         </ul>
                       </div>

@@ -1,10 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { OrderItem, ViewType } from "./types";
+import { OptionsFieldKey, OrderItem, ViewType } from "./types";
 import {
   CakeFlavorOption,
   CakeSizeOption,
-  ProductType,
+  CustomOption,
+  VisibleStatus,
 } from "@/apps/web-user/features/product/types/product.type";
+import {
+  calculateItemPrice,
+  calculateOptionsPrice,
+  findMissingRequiredOption,
+  getVisibleCustomOptions,
+  type OptionSelection,
+  type OptionSelections,
+} from "@/apps/web-user/features/product/utils/custom-option.util";
 import { useMypageProfile } from "@/apps/web-user/features/mypage/hooks/queries/useMypageProfile";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 
@@ -12,9 +21,9 @@ interface UseReservationBottomSheetProps {
   isOpen: boolean;
   productId: string;
   price: number;
-  productType: ProductType;
   cakeSizeOptions?: CakeSizeOption[];
   cakeFlavorOptions?: CakeFlavorOption[];
+  customOptions?: CustomOption[];
   onClose: () => void;
 }
 
@@ -22,7 +31,7 @@ interface UseReservationBottomSheetProps {
  * 예약 바텀시트 로직을 관리하는 커스텀 훅
  *
  * 플로우: options(옵션선택) -> calendar(날짜선택) -> confirm(주문확인)
- * - options: 픽업날짜, 사이즈, 맛, 레터링, 요청사항, 참고사진 선택
+ * - options: 픽업날짜, 사이즈, 맛, 추가 옵션(판매자 설정 순서), 요청사항 선택
  * - calendar: 날짜와 시간 선택 (TimePicker 포함)
  * - confirm: 선택한 상품 목록 확인, 수량 조절, 상품 추가/삭제
  */
@@ -30,11 +39,25 @@ export function useReservationBottomSheet({
   isOpen,
   productId,
   price,
-  productType,
   cakeSizeOptions,
   cakeFlavorOptions,
+  customOptions,
   onClose,
 }: UseReservationBottomSheetProps) {
+  // 구매자에게는 노출 중인 옵션만 보여준다 (서버도 걸러 주지만 한 번 더)
+  const sizeOptions = useMemo(
+    () => (cakeSizeOptions ?? []).filter((option) => option.visible === VisibleStatus.ENABLE),
+    [cakeSizeOptions],
+  );
+  const flavorOptions = useMemo(
+    () => (cakeFlavorOptions ?? []).filter((option) => option.visible === VisibleStatus.ENABLE),
+    [cakeFlavorOptions],
+  );
+  const visibleCustomOptions = useMemo(
+    () => getVisibleCustomOptions(customOptions),
+    [customOptions],
+  );
+
   // ========================================
   // 뷰 상태 관리
   // ========================================
@@ -80,12 +103,13 @@ export function useReservationBottomSheet({
   // 현재 편집 중인 상품 옵션
   // (options 뷰에서 사용자가 선택하는 값들)
   // ========================================
-  const [selectedSize, setSelectedSize] = useState("");
-  const [selectedFlavor, setSelectedFlavor] = useState("");
-  const [selectedCream, setSelectedCream] = useState("");
-  const [letteringMessage, setLetteringMessage] = useState("");
+  const [selectedSizeId, setSelectedSizeId] = useState("");
+  const [selectedFlavorId, setSelectedFlavorId] = useState("");
+  const [selections, setSelections] = useState<OptionSelections>({});
   const [requestMessage, setRequestMessage] = useState("");
-  const [attachedImages, setAttachedImages] = useState<File[]>([]);
+  // '선택완료'를 눌렀는데 비어 있는 항목이 있으면 오류 표시 + 해당 위치로 스크롤
+  const [showValidationErrors, setShowValidationErrors] = useState(false);
+  const [invalidFieldSignal, setInvalidFieldSignal] = useState(0);
 
   // ========================================
   // 모달 상태 관리
@@ -118,14 +142,6 @@ export function useReservationBottomSheet({
     setAgreeOptionChange(next);
   };
 
-  // 파일 업로드 input ref
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-
-  const imageUrls = useMemo(
-    () => attachedImages.map((file) => URL.createObjectURL(file)),
-    [attachedImages],
-  );
-
   // 바텀시트가 닫힐 때 모든 상태 초기화
   useEffect(() => {
     if (!isOpen) {
@@ -135,12 +151,11 @@ export function useReservationBottomSheet({
       setTempSelectedTime(null);
       setOrderItems([]);
       setEditingIndex(null);
-      setSelectedSize("");
-      setSelectedFlavor("");
-      setSelectedCream("");
-      setLetteringMessage("");
+      setSelectedSizeId("");
+      setSelectedFlavorId("");
+      setSelections({});
       setRequestMessage("");
-      setAttachedImages([]);
+      setShowValidationErrors(false);
       setIsAddingFromConfirm(false);
       setIsEditingFromConfirm(false);
       setDateSelectionSignal(0);
@@ -162,23 +177,34 @@ export function useReservationBottomSheet({
     }
   }, [isOpen, profile]);
 
-  // 이미지 URL 정리
-  useEffect(() => {
-    return () => {
-      imageUrls.forEach((url) => URL.revokeObjectURL(url));
-    };
-  }, [imageUrls]);
-
   // 현재 편집 중인 옵션 상태 초기화
   const resetCurrentOptions = () => {
-    setSelectedSize("");
-    setSelectedFlavor("");
-    setSelectedCream("");
-    setLetteringMessage("");
+    setSelectedSizeId("");
+    setSelectedFlavorId("");
+    setSelections({});
     setRequestMessage("");
-    setAttachedImages([]);
+    setShowValidationErrors(false);
     setEditingIndex(null);
   };
+
+  const setOptionSelection = (optionId: string, selection: OptionSelection) => {
+    setSelections((prev) => ({ ...prev, [optionId]: selection }));
+  };
+
+  const selectedSizeOption = sizeOptions.find((option) => option.id === selectedSizeId);
+  const selectedFlavorOption = flavorOptions.find((option) => option.id === selectedFlavorId);
+  const missingRequiredOption = findMissingRequiredOption(visibleCustomOptions, selections);
+
+  // 화면 순서대로 처음 비어 있는 필수 항목
+  const firstInvalidField: OptionsFieldKey | null = !selectedDate
+    ? "date"
+    : sizeOptions.length > 0 && !selectedSizeOption
+      ? "size"
+      : flavorOptions.length > 0 && !selectedFlavorOption
+        ? "flavor"
+        : missingRequiredOption
+          ? `option:${missingRequiredOption.id}`
+          : null;
 
   // 캘린더 뷰로 전환하고 임시 날짜/시간 세팅
   const openCalendar = () => {
@@ -266,23 +292,24 @@ export function useReservationBottomSheet({
     const durationMs = optionsViewEnteredAtRef.current
       ? Date.now() - optionsViewEnteredAtRef.current
       : 0;
+    if (firstInvalidField) {
+      setShowValidationErrors(true);
+      setInvalidFieldSignal((prev) => prev + 1);
+      return;
+    }
     trackEvent("request_option_complete", { duration_ms: durationMs, product_id: productId });
 
-    const sizePrice = cakeSizeOptions?.find((s) => s.displayName === selectedSize)?.price ?? 0;
-    const flavorPrice =
-      cakeFlavorOptions?.find((f) => f.displayName === selectedFlavor)?.price ?? 0;
-
     const newItem: OrderItem = {
-      size: selectedSize,
-      sizePrice,
-      flavor: selectedFlavor,
-      flavorPrice,
-      cream: selectedCream,
-      letteringMessage,
+      sizeId: selectedSizeOption?.id ?? "",
+      sizeName: selectedSizeOption?.displayName ?? "",
+      sizePrice: selectedSizeOption?.price ?? 0,
+      flavorId: selectedFlavorOption?.id ?? "",
+      flavorName: selectedFlavorOption?.displayName ?? "",
+      flavorPrice: selectedFlavorOption?.price ?? 0,
+      selections,
+      optionsPrice: calculateOptionsPrice(visibleCustomOptions, selections),
       requestMessage,
       quantity: 1,
-      imageFiles: [...attachedImages], // 현재 선택된 이미지 File 목록 저장
-      imageUrls: imageUrls, // 미리보기용 로컬 URL 목록 저장
     };
 
     if (editingIndex !== null) {
@@ -330,13 +357,12 @@ export function useReservationBottomSheet({
   const handleEditItem = (index: number) => {
     trackEvent("engage_edit_option");
     const item = orderItems[index];
-    setSelectedSize(item.size);
-    setSelectedFlavor(item.flavor);
-    setSelectedCream(item.cream);
-    setLetteringMessage(item.letteringMessage);
+    setSelectedSizeId(item.sizeId);
+    setSelectedFlavorId(item.flavorId);
+    // 편집 시 기존 선택값(사진 File 포함) 복원
+    setSelections(item.selections);
     setRequestMessage(item.requestMessage);
-    // 편집 시 기존 이미지 File 복원
-    setAttachedImages(item.imageFiles || []);
+    setShowValidationErrors(false);
     setEditingIndex(index);
     setIsAddingFromConfirm(false);
     setIsEditingFromConfirm(true);
@@ -351,29 +377,6 @@ export function useReservationBottomSheet({
     setIsEditingFromConfirm(false);
     setView("options");
     setDateSelectionSignal(0);
-  };
-
-  // 파일 업로드 input 클릭 트리거
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  // 파일 선택 시 이미지 목록 업데이트
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files ?? []);
-    if (!files.length) return;
-
-    setAttachedImages((prev) => {
-      const remaining = 3 - prev.length;
-      if (remaining <= 0) return prev;
-      return [...prev, ...files.slice(0, remaining)];
-    });
-    event.target.value = "";
-  };
-
-  // 첨부 이미지 삭제
-  const handleRemoveImage = (index: number) => {
-    setAttachedImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   // 날짜/시간 표시용 포맷팅
@@ -393,26 +396,26 @@ export function useReservationBottomSheet({
       .padStart(2, "0")}`;
   };
 
+  /** 담은 상품 1개 가격 (서버 itemPrice와 같은 계산) */
+  const getItemPrice = (item: OrderItem) =>
+    calculateItemPrice({
+      basePrice: price,
+      sizePrice: item.sizePrice,
+      flavorPrice: item.flavorPrice,
+      optionsPrice: item.optionsPrice,
+    });
+
   const totalQuantity = orderItems.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = orderItems.reduce(
-    (sum, item) => sum + (price + item.sizePrice + item.flavorPrice) * item.quantity,
-    0,
-  );
+  const totalPrice = orderItems.reduce((sum, item) => sum + getItemPrice(item) * item.quantity, 0);
 
   // 현재 선택 중인 옵션의 가격 계산 (options 뷰에서 사용)
-  const currentOptionPrice = useMemo(() => {
-    const sizePrice = cakeSizeOptions?.find((s) => s.displayName === selectedSize)?.price ?? 0;
-    const flavorPrice =
-      cakeFlavorOptions?.find((f) => f.displayName === selectedFlavor)?.price ?? 0;
-    return price + sizePrice + flavorPrice;
-  }, [price, selectedSize, selectedFlavor, cakeSizeOptions, cakeFlavorOptions]);
+  const currentOptionPrice = calculateItemPrice({
+    basePrice: price,
+    sizePrice: selectedSizeOption?.price,
+    flavorPrice: selectedFlavorOption?.price,
+    optionsPrice: calculateOptionsPrice(visibleCustomOptions, selections),
+  });
 
-  const isOptionsValid =
-    selectedDate &&
-    selectedSize &&
-    selectedFlavor &&
-    letteringMessage &&
-    (productType === "BASIC_CAKE" || attachedImages.length > 0);
   const isCalendarValid = tempSelectedDate && tempSelectedTime;
 
   return {
@@ -428,14 +431,20 @@ export function useReservationBottomSheet({
     setTempSelectedTime,
 
     // Options
-    selectedSize,
-    setSelectedSize,
-    selectedFlavor,
-    setSelectedFlavor,
-    letteringMessage,
-    setLetteringMessage,
+    sizeOptions,
+    flavorOptions,
+    visibleCustomOptions,
+    selectedSizeId,
+    setSelectedSizeId,
+    selectedFlavorId,
+    setSelectedFlavorId,
+    selections,
+    setOptionSelection,
     requestMessage,
     setRequestMessage,
+    showValidationErrors,
+    firstInvalidField,
+    invalidFieldSignal,
 
     // Reserver Info
     reserverName,
@@ -453,11 +462,6 @@ export function useReservationBottomSheet({
     allAgreed,
     handleToggleAllAgreements,
 
-    // Images
-    attachedImages,
-    imageUrls,
-    fileInputRef,
-
     // Order Items
     orderItems,
     editingIndex,
@@ -472,9 +476,9 @@ export function useReservationBottomSheet({
 
     // Computed
     currentOptionPrice,
+    getItemPrice,
     totalQuantity,
     totalPrice,
-    isOptionsValid,
     isCalendarValid,
     isAddingFromConfirm,
     isEditingFromConfirm,
@@ -495,8 +499,5 @@ export function useReservationBottomSheet({
     handleConfirmDelete,
     handleEditItem,
     handleAddNewItem,
-    handleUploadClick,
-    handleFileChange,
-    handleRemoveImage,
   };
 }
