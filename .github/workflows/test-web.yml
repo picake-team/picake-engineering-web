@@ -1,7 +1,8 @@
 name: Test Web
 
 # staging/main으로 향하는 PR에서 실행 (머지 전 게이트).
-# web-user/web-seller/web-admin 중 test 스크립트가 있고 실제로 변경된 앱만 돈다.
+# web-user/web-seller/web-admin/web-info 중 test 스크립트가 있고 실제로 변경된 앱만 돈다.
+# web-info는 로직 없는 정적 사이트라 단위 테스트 대신 `test` 스크립트로 빌드(next build — 타입 검사 포함)를 돈다.
 #
 # ⚠️ 트리거에 `paths:` 필터를 넣지 마세요 — test-backend.yml과 동일한 이유(#165)로,
 # 이 워크플로우를 브랜치 보호 필수 체크로 쓸 경우 paths 필터 때문에 워크플로우 자체가
@@ -20,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        app: [web-user, web-seller, web-admin]
+        app: [web-user, web-seller, web-admin, web-info]
 
     steps:
       # fetch-depth: 0 — 기본 체크아웃은 shallow라 base 브랜치와 diff를 뜰 수 없음
