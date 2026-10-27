@@ -1,5 +1,4 @@
 import type { NextConfig } from "next";
-import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   env: {
@@ -21,12 +20,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withSentryConfig(nextConfig, {
-  // 빌드 로그 최소화 및 Sentry 텔레메트리 비활성화
-  silent: true,
-  telemetry: false,
-  // 번들에서 Sentry 디버그 로그 제거 (번들 크기 최적화)
-  disableLogger: true,
-  // 소스맵 업로드 비활성화 (auth token 불필요) — 필요 시 추후 활성화
-  sourcemaps: { disable: true },
-});
+export default nextConfig;

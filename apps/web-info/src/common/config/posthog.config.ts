@@ -12,7 +12,7 @@ const SUPER_PROPERTIES = {
 };
 
 /**
- * PostHog 활성화 여부 — Sentry의 isSentryEnabled와 동일한 정책
+ * PostHog 활성화 여부
  * - 키가 설정된 경우만 true
  * - Lighthouse·브라우저 자동화 같은 합성 접속은 실제 방문자처럼 집계되므로 false (synthetic-traffic.util 참고)
  */
