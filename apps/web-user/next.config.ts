@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
+/** 정보 사이트 소개 페이지 주소. 검증 환경은 검증용 정보 사이트로 보낸다 (web-info의 SITE_BASE_URL과 같은 규칙) */
+const PARTNER_ABOUT_URL =
+  process.env.NEXT_PUBLIC_NODE_ENV === "production"
+    ? "https://info.picakes.com/seller/about"
+    : "https://info-staging.picakes.com/seller/about";
+
 const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ["swiper", "lucide-react"],
@@ -21,6 +27,9 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      // 사장님 입점 소개 페이지는 정보 사이트(web-info)로 옮겼다. 게이트(`/partner`)의 "소개페이지 바로가기"와
+      // 이미 공유된 링크가 계속 동작하도록 남겨 둔다. 안정화되면 permanent로 올린다.
+      { source: "/partner/about", destination: PARTNER_ABOUT_URL, permanent: false },
       { source: "/chat", destination: "/", permanent: false },
       { source: "/chat/:path*", destination: "/", permanent: false },
     ];
