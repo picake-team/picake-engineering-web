@@ -9,7 +9,6 @@ import {
 import type { ProductForm } from "@/apps/web-seller/features/product/types/product.ui";
 import {
   CUSTOM_OPTION_LIMITS,
-  CUSTOM_OPTION_PRESETS,
   CUSTOM_OPTION_TYPE_META,
   CUSTOM_OPTION_TYPE_ORDER,
   VISIBILITY_STATUS_OPTIONS,
@@ -131,37 +130,13 @@ export const ProductCreationCustomOptionsSection: React.FC<
   return (
     <Card>
       <CardContent className="p-6">
-        <h2 className="text-xl font-semibold mb-1">추가 옵션</h2>
-        <p className="text-sm text-muted-foreground mb-2">
-          레터링 문구, 참고 사진, 초·포장처럼 구매자에게 받을 내용을 설정해요. 정한 순서대로 주문
-          화면에 보여요.
-        </p>
+        <h2 className="text-xl font-semibold mb-2">추가 옵션</h2>
         <div className="border-t mb-6" />
 
         <div className="space-y-4">
           {/* 추가 버튼 */}
           <div className="space-y-3">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-medium w-24">자주 쓰는 옵션</span>
-              {CUSTOM_OPTION_PRESETS.map((preset) => {
-                const option = preset.build();
-                return (
-                  <Button
-                    key={preset.key}
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    disabled={cannotAdd(option.type)}
-                    onClick={() => addOption(preset.build())}
-                  >
-                    <Plus className="h-4 w-4" />
-                    {preset.label}
-                  </Button>
-                );
-              })}
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-medium w-24">직접 만들기</span>
               {CUSTOM_OPTION_TYPE_ORDER.map((type) => (
                 <Button
                   key={type}
@@ -179,8 +154,7 @@ export const ProductCreationCustomOptionsSection: React.FC<
             </div>
             <p className="text-xs text-muted-foreground">
               최대 {CUSTOM_OPTION_LIMITS.MAX_OPTIONS}개 · 사진첨부형은{" "}
-              {CUSTOM_OPTION_LIMITS.MAX_IMAGE_OPTIONS}개까지 · 이미 접수된 주문에는 영향이 없어요
-              (주문 시점 옵션으로 저장됩니다)
+              {CUSTOM_OPTION_LIMITS.MAX_IMAGE_OPTIONS}개까지
             </p>
           </div>
 
@@ -339,11 +313,6 @@ function CustomOptionEditor({
           className="h-9"
         />
       </div>
-      <p className="text-xs text-muted-foreground">
-        형식: {CUSTOM_OPTION_TYPE_META[option.type].label} —{" "}
-        {CUSTOM_OPTION_TYPE_META[option.type].description}
-      </p>
-
       {isSelectType(option.type) && (
         <div className="space-y-3">
           <div className="border rounded-md overflow-hidden bg-background">
@@ -446,9 +415,6 @@ function CustomOptionEditor({
               </div>
             )}
           </div>
-          <p className="text-xs text-muted-foreground">
-            잠시 팔지 않는 옵션값은 삭제하지 말고 &apos;숨김&apos;으로 바꿔 주세요.
-          </p>
         </div>
       )}
 
