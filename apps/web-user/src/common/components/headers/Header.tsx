@@ -25,6 +25,8 @@ import { REGION_STORAGE_KEY } from "@/apps/web-user/common/utils/region-storage.
 
 const showQaButton = !isProduction(process.env.NEXT_PUBLIC_NODE_ENV);
 
+const DEFAULT_ADDRESS = "서울특별시 강남구";
+
 interface HeaderProps {
   variant?: "main" | "product" | "minimal" | "search" | "back-title";
   title?: string;
@@ -51,6 +53,8 @@ export default function Header({
   const [showOpenAlarmToast, setShowOpenAlarmToast] = useState(false);
   const [regionToast, setRegionToast] = useState<"loading" | "done" | null>(null);
   const isRegionChanging = useRef(false);
+  // 사용자가 닫은 비활성 지역 라벨. 앱(WebView)이 위치를 다시 전달해도 같은 지역이면 모달을 재오픈하지 않는다.
+  const dismissedInactiveLabelRef = useRef<string | null>(null);
   const productFetching = useIsFetching({ queryKey: ["product", "list"] });
   const { data: unreadAlarmCount = 0 } = useAlarmUnreadCount();
   const [showRegionSheet, setShowRegionSheet] = useState(false);
@@ -98,6 +102,12 @@ export default function Header({
     if (overrideResult) return;
     if (matchResult.storeCount === 0) {
       const isSeoul = matchResult.depth1Label === "서울";
+      const inactiveLabel = isSeoul ? matchResult.label : matchResult.depth1Label;
+      // 이미 닫은 지역이 재감지된 경우(위치 응답 중복·지연): 모달 대신 기본 지역으로 되돌린다
+      if (dismissedInactiveLabelRef.current === inactiveLabel) {
+        setAddress(DEFAULT_ADDRESS);
+        return;
+      }
       if (isSeoul) {
         const nearest = findNearestActiveRegion(
           regionsData.regions,
@@ -145,6 +155,11 @@ export default function Header({
   // 배경 클릭 비활성화
   const handleInactiveClose = () => {};
 
+  const dismissInactiveModal = () => {
+    dismissedInactiveLabelRef.current = inactiveModal.currentLabel;
+    setInactiveModal((prev) => ({ ...prev, visible: false }));
+  };
+
   // 근처매장보기: 가장 가까운 활성 지역으로 override
   const handleInactiveConfirm = () => {
     if (inactiveModal.nearest) {
@@ -156,7 +171,7 @@ export default function Header({
       }
       setOverrideResult(inactiveModal.nearest);
     }
-    setInactiveModal((prev) => ({ ...prev, visible: false }));
+    dismissInactiveModal();
   };
 
   // RegionSelectSheet에서 "현재 위치로 설정" 클릭 → GPS가 비활성 지역을 잡았을 때 호출.
@@ -164,6 +179,8 @@ export default function Header({
   // 모달을 강제로 띄움.
   const handleGpsInactive = (result: RegionMatchResult) => {
     if (!regionsData?.regions) return;
+    // 사용자가 직접 요청한 경우이므로 이전에 닫은 지역이어도 다시 안내한다
+    dismissedInactiveLabelRef.current = null;
     const isSeoul = result.depth1Label === "서울";
     if (isSeoul) {
       const nearest = findNearestActiveRegion(
@@ -185,17 +202,17 @@ export default function Header({
 
   // 취소: 강남구(디폴트)로 리셋
   const handleInactiveCancel = () => {
-    setAddress("서울특별시 강남구");
+    setAddress(DEFAULT_ADDRESS);
     setOverrideResult(null);
-    setInactiveModal((prev) => ({ ...prev, visible: false }));
+    dismissInactiveModal();
   };
 
   // 우리 동네 오픈알림 (서울 외 지역)
   const handleOutsideConfirm = () => {
     // TODO: 오픈 알림 등록 로직
-    setAddress("서울특별시 강남구");
+    setAddress(DEFAULT_ADDRESS);
     setOverrideResult(null);
-    setInactiveModal((prev) => ({ ...prev, visible: false }));
+    dismissInactiveModal();
     setTimeout(() => setShowOpenAlarmToast(true), 500);
   };
 
