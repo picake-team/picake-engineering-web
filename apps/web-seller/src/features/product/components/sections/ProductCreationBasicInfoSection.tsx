@@ -76,9 +76,6 @@ export const ProductCreationBasicInfoSection: React.FC<ProductCreationBasicInfoS
                 required
                 disabled={disabled}
               />
-              <p className="text-sm text-muted-foreground mt-1">
-                스토어 상세의 &apos;기본/커스텀&apos; 탭에 표시돼요. 추가 옵션 구성과는 관계없어요.
-              </p>
             </div>
             <div>
               <Label className="after:content-['*'] after:ml-0.5 after:text-destructive">
