@@ -31,7 +31,7 @@ yarn common:lint && yarn common:format:check
 - 커밋 메시지: `picake-git-commit-convention` skill (`[WEB-USER]` / `[WEB-SELLER]` / `[WEB-ADMIN]` / `[WEB-INFO]` / `[COMMON]`)
 - PR: `picake-git-pr-create` skill. 작업 브랜치 → `staging` → `main`
 - 배포: `<앱>/staging-*`, `<앱>/production-*` 태그 푸시로 Vercel 배포 (`picake-deploy-release` skill, `/push-staging`, `/push-production`)
-- PR 필수 체크는 `test-web (web-user|web-seller|web-admin)`입니다. `test-web-e2e`는 결과만 보고합니다(필수 아님).
+- PR 필수 체크는 `test-web (web-user|web-seller|web-admin|web-info)`입니다. web-info의 `test`는 빌드(`next build`) 검사입니다. `test-web-e2e`는 결과만 보고합니다(필수 아님).
 
 ## 운영 skill (automation 레포)
 

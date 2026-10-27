@@ -29,6 +29,7 @@ Picake의 정보·소개 사이트(`https://info.picakes.com`)입니다. 서비�
 ```bash
 yarn web-info:dev      # 개발 서버 (포트: 3004)
 yarn web-info:build    # 빌드
+yarn workspace @picake/web-info test   # CI 검사와 동일 (next build, 타입 검사 포함)
 ```
 
 - 배포: `web-info/staging-*`, `web-info/production-*` 태그 푸시 → GitHub Actions → Vercel
