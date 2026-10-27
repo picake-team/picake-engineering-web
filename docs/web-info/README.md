@@ -4,12 +4,12 @@ Picake의 정보·소개 사이트(`https://info.picakes.com`)입니다. 서비�
 
 ## 🔗 주요 페이지
 
-| 경로            | 내용                                                                            |
-| --------------- | ------------------------------------------------------------------------------- |
-| `/`             | `/seller/about`으로 임시(307) 리다이렉트. 고객·사장님 허브를 만들면 걷어냅니다. |
-| `/seller/about` | 사장님 입점 소개 랜딩 (구 web-user `/partner/about`)                            |
-| `/robots.txt`   | 상용 환경만 허용, 검증·개발 환경은 전체 차단                                    |
-| `/sitemap.xml`  | 상용 환경만 노출                                                                |
+| 경로            | 내용                                                                          |
+| --------------- | ----------------------------------------------------------------------------- |
+| `/`, `/seller`  | 페이지 없음(404). 리다이렉트하지 않으며, 고객·사장님 허브를 만들 때 채웁니다. |
+| `/seller/about` | 사장님 입점 소개 랜딩 (구 web-user `/partner/about`)                          |
+| `/robots.txt`   | 상용 환경만 허용, 검증·개발 환경은 전체 차단                                  |
+| `/sitemap.xml`  | 상용 환경만 노출                                                              |
 
 ## 🧭 설계 원칙
 
@@ -33,7 +33,7 @@ yarn web-info:build    # 빌드
 
 - 배포: `web-info/staging-*`, `web-info/production-*` 태그 푸시 → GitHub Actions → Vercel
 - 도메인: 검증 `info-staging.picakes.com`, 상용 `info.picakes.com`
-- 환경변수: `NEXT_PUBLIC_NODE_ENV`, `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SENTRY_DSN`, `NEXT_PUBLIC_POSTHOG_KEY`, `NEXT_PUBLIC_POSTHOG_HOST`
+- 환경변수: `NEXT_PUBLIC_NODE_ENV`, `NEXT_PUBLIC_SENTRY_DSN`, `NEXT_PUBLIC_POSTHOG_KEY`, `NEXT_PUBLIC_POSTHOG_HOST`
 
 자세한 배포 설정은 [Vercel 배포 가이드](../infra/vercel/Vercel%20배포%20-%20가이드.md)를 참고하세요.
 

@@ -6,12 +6,6 @@ const nextConfig: NextConfig = {
     /** GitHub Actions 빌드 커밋 SHA를 클라이언트에 주입합니다. */
     NEXT_PUBLIC_GITHUB_SHA: process.env.GITHUB_SHA ?? "",
   },
-  async redirects() {
-    return [
-      // 홈 허브가 생기기 전까지는 사장님 소개 페이지가 대표 페이지다. 허브를 만들 때 이 규칙을 걷어낸다.
-      { source: "/", destination: "/seller/about", permanent: false },
-    ];
-  },
   eslint: {
     // ESLint 검사를 비활성화하고 루트(yarn run common:lint)에서 별도로 실행
     ignoreDuringBuilds: true,
