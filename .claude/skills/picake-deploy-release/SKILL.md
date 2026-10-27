@@ -104,7 +104,7 @@ gh pr create --repo picake-team/picake-engineering-web --base main --head stagin
 
 ### 6-3. 필수 체크 통과 대기
 
-`main` 브랜치 보호는 `test-web (web-user)` · `test-web (web-seller)` · `test-web (web-admin)` 체크를 요구합니다.
+`main` 브랜치 보호는 `test-web (web-user)` · `test-web (web-seller)` · `test-web (web-admin)` · `test-web (web-info)` 체크를 요구합니다.
 
 ```bash
 for i in $(seq 1 15); do
