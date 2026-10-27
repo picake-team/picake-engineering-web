@@ -3030,7 +3030,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@picake/web-info@workspace:apps/web-info"
   dependencies:
-    "@sentry/nextjs": "npm:^10.63.0"
     "@svgr/webpack": "npm:^8.1.0"
     "@types/node": "npm:^24"
     "@types/react": "npm:19.1.17"

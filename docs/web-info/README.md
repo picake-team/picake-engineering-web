@@ -14,7 +14,7 @@ Picake의 정보·소개 사이트(`https://info.picakes.com`)입니다. 서비�
 ## 🧭 설계 원칙
 
 - **모바일 화면을 그대로 유지합니다.** web-user의 `RootWrapperLayout`과 같은 스크롤 컨테이너(`#root-scroll-container`)를 써서 모바일은 전체 폭, 640px 이상은 가운데 640px 열로 보입니다. PC 전용 레이아웃은 아직 없습니다.
-- **web-user와 같은 구성을 따릅니다.** Sentry, PostHog, 환경 판별(`NEXT_PUBLIC_NODE_ENV`), `robots`/`sitemap` 규칙이 web-user와 같습니다.
+- **web-user와 같은 구성을 따릅니다.** PostHog, 환경 판별(`NEXT_PUBLIC_NODE_ENV`), `robots`/`sitemap` 규칙이 web-user와 같습니다. 정적 소개 페이지라 Sentry는 쓰지 않습니다.
 - **필요한 공용 코드만 복사해 씁니다.** 아이콘, `Reveal`, 폰트 등은 web-user에서 복사한 것이며 web-user를 수정하지 않습니다. 원본이 바뀌어도 자동으로 따라가지 않습니다.
 - **콘텐츠는 코드에 직접 작성합니다.** 문구를 고치려면 PR이 필요합니다.
 
@@ -33,7 +33,7 @@ yarn web-info:build    # 빌드
 
 - 배포: `web-info/staging-*`, `web-info/production-*` 태그 푸시 → GitHub Actions → Vercel
 - 도메인: 검증 `info-staging.picakes.com`, 상용 `info.picakes.com`
-- 환경변수: `NEXT_PUBLIC_NODE_ENV`, `NEXT_PUBLIC_SENTRY_DSN`, `NEXT_PUBLIC_POSTHOG_KEY`, `NEXT_PUBLIC_POSTHOG_HOST`
+- 환경변수: `NEXT_PUBLIC_NODE_ENV`, `NEXT_PUBLIC_POSTHOG_KEY`, `NEXT_PUBLIC_POSTHOG_HOST`
 
 자세한 배포 설정은 [Vercel 배포 가이드](../infra/vercel/Vercel%20배포%20-%20가이드.md)를 참고하세요.
 

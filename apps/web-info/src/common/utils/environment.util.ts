@@ -10,8 +10,3 @@ import { NODE_ENV } from "@/apps/web-info/common/constants/environment.constants
 export function isProduction(nodeEnv?: string | null): boolean {
   return nodeEnv === NODE_ENV.PRODUCTION;
 }
-
-/** 검증(staging) 또는 상용(production) 환경 여부 */
-export function isStagingOrProduction(nodeEnv?: string | null): boolean {
-  return nodeEnv === NODE_ENV.STAGING || nodeEnv === NODE_ENV.PRODUCTION;
-}
