@@ -31,21 +31,27 @@ export function StickySurveyCta({ watchIds }: StickySurveyCtaProps) {
     return () => observer.disconnect();
   }, [watchIds]);
 
+  // fixed 대신 sticky를 쓴다. 페이지는 #root-scroll-container 안에서 스크롤되는데,
+  // fixed 요소 위에서 터치로 드래그하면 스크롤이 그 컨테이너로 전달되지 않아 버튼 위에서 스크롤이 멈춘다.
+  // 바깥 박스는 같은 높이만큼 음수 margin을 줘서 레이아웃 자리를 차지하지 않고,
+  // overflow-hidden으로 숨김 상태(아래로 밀린 버튼)가 스크롤 길이를 늘리지 않게 한다.
   return (
-    <div
-      className={`fixed inset-x-0 bottom-0 z-40 mx-auto w-full sm:w-[640px] bg-gradient-to-t from-white via-white/95 to-white/0 px-5 pt-7 pb-[calc(16px+env(safe-area-inset-bottom))] transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-        show ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-full opacity-0"
-      }`}
-    >
-      <a
-        href={PARTNER_SURVEY_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        tabIndex={show ? 0 : -1}
-        className="flex h-[54px] w-full items-center justify-center rounded-xl bg-primary text-base font-extrabold text-gray-900 shadow-[0_10px_30px_-12px_rgba(255,101,62,0.8)] transition-transform duration-150 active:scale-[0.98]"
+    <div className="pointer-events-none sticky bottom-0 z-40 -mt-[calc(98px+env(safe-area-inset-bottom))] h-[calc(98px+env(safe-area-inset-bottom))] overflow-hidden">
+      <div
+        className={`bg-gradient-to-t from-white via-white/95 to-white/0 px-5 pt-7 pb-[calc(16px+env(safe-area-inset-bottom))] transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          show ? "pointer-events-auto translate-y-0 opacity-100" : "translate-y-full opacity-0"
+        }`}
       >
-        5분 설문 참여하기
-      </a>
+        <a
+          href={PARTNER_SURVEY_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          tabIndex={show ? 0 : -1}
+          className="flex h-[54px] w-full items-center justify-center rounded-xl bg-primary text-base font-extrabold text-gray-900 shadow-[0_10px_30px_-12px_rgba(255,101,62,0.8)] transition-transform duration-150 active:scale-[0.98]"
+        >
+          5분 설문 참여하기
+        </a>
+      </div>
     </div>
   );
 }
