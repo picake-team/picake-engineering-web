@@ -45,16 +45,18 @@ Picake 프로젝트의 web-user, web-seller, web-admin, web-info 애플리케이
 
 총 8개의 Vercel 프로젝트를 생성합니다:
 
-| 프로젝트명            | 환경       | 브랜치    | 배포 타입  |
-| --------------------- | ---------- | --------- | ---------- |
-| web-user-staging      | staging    | `staging` | Production |
-| web-user-production   | production | `main`    | Production |
-| web-seller-staging    | staging    | `staging` | Production |
-| web-seller-production | production | `main`    | Production |
-| web-admin-staging     | staging    | `staging` | Production |
-| web-admin-production  | production | `main`    | Production |
-| web-info-staging      | staging    | `staging` | Production |
-| web-info-production   | production | `main`    | Production |
+| 프로젝트명                  | 환경       | 브랜치    | 배포 타입  |
+| --------------------------- | ---------- | --------- | ---------- |
+| picake-webuser-staging      | staging    | `staging` | Production |
+| picake-webuser-production   | production | `main`    | Production |
+| picake-webseller-staging    | staging    | `staging` | Production |
+| picake-webseller-production | production | `main`    | Production |
+| picake-webadmin-staging     | staging    | `staging` | Production |
+| picake-webadmin-production  | production | `main`    | Production |
+| picake-webinfo-staging      | staging    | `staging` | Production |
+| picake-webinfo-production   | production | `main`    | Production |
+
+> Vercel 실제 프로젝트 이름은 `picake-web<앱>-<환경>` 형식입니다(예: `picake-webuser-staging`). 새 앱도 같은 규칙으로 만들고 Root Directory는 `apps/<앱>`, 프레임워크는 앱에 맞게 지정합니다.
 
 #### 2.2 프로젝트 생성
 
@@ -91,19 +93,19 @@ Picake 프로젝트의 web-user, web-seller, web-admin, web-info 애플리케이
 - Vercel → 팀 선택 → Settings → General → Team ID 복사 및 GitHub `VERCEL_ORG_ID` Secret 설정
 - Vercel → 각 프로젝트 → Settings → General → Project ID 복사 및 GitHub `VERCEL_PROJECT_ID_*` Secret 설정
 
-| Secret                                    | 설명                              |
-| ----------------------------------------- | --------------------------------- |
-| `VERCEL_TOKEN`                            | Vercel API 토큰                   |
-| `VERCEL_ORG_ID`                           | Vercel 팀/개인 Org ID             |
-| `VERCEL_PROJECT_ID_WEB_USER_STAGING`      | web-user-staging 프로젝트 ID      |
-| `VERCEL_PROJECT_ID_WEB_SELLER_STAGING`    | web-seller-staging 프로젝트 ID    |
-| `VERCEL_PROJECT_ID_WEB_ADMIN_STAGING`     | web-admin-staging 프로젝트 ID     |
-| `VERCEL_PROJECT_ID_WEB_USER_PRODUCTION`   | web-user-production 프로젝트 ID   |
-| `VERCEL_PROJECT_ID_WEB_SELLER_PRODUCTION` | web-seller-production 프로젝트 ID |
-| `VERCEL_PROJECT_ID_WEB_ADMIN_PRODUCTION`  | web-admin-production 프로젝트 ID  |
-| `VERCEL_PROJECT_ID_WEB_INFO_STAGING`      | web-info-staging 프로젝트 ID      |
-| `VERCEL_PROJECT_ID_WEB_INFO_PRODUCTION`   | web-info-production 프로젝트 ID   |
-| `DISCORD_WEBHOOK_URL_WEB_FE`              | 배포 결과 Discord 알림 웹훅       |
+| Secret                                    | 설명                                    |
+| ----------------------------------------- | --------------------------------------- |
+| `VERCEL_TOKEN`                            | Vercel API 토큰                         |
+| `VERCEL_ORG_ID`                           | Vercel 팀/개인 Org ID                   |
+| `VERCEL_PROJECT_ID_WEB_USER_STAGING`      | picake-webuser-staging 프로젝트 ID      |
+| `VERCEL_PROJECT_ID_WEB_SELLER_STAGING`    | picake-webseller-staging 프로젝트 ID    |
+| `VERCEL_PROJECT_ID_WEB_ADMIN_STAGING`     | picake-webadmin-staging 프로젝트 ID     |
+| `VERCEL_PROJECT_ID_WEB_USER_PRODUCTION`   | picake-webuser-production 프로젝트 ID   |
+| `VERCEL_PROJECT_ID_WEB_SELLER_PRODUCTION` | picake-webseller-production 프로젝트 ID |
+| `VERCEL_PROJECT_ID_WEB_ADMIN_PRODUCTION`  | picake-webadmin-production 프로젝트 ID  |
+| `VERCEL_PROJECT_ID_WEB_INFO_STAGING`      | picake-webinfo-staging 프로젝트 ID      |
+| `VERCEL_PROJECT_ID_WEB_INFO_PRODUCTION`   | picake-webinfo-production 프로젝트 ID   |
+| `DISCORD_WEBHOOK_URL_WEB_FE`              | 배포 결과 Discord 알림 웹훅             |
 
 > production 환경으로 배포하려면 해당 프로젝트의 `_PRODUCTION` Secret이 설정돼 있어야 합니다.
 > 미설정 상태로 production 태그를 푸시하면 워크플로가 명확한 에러와 함께 중단됩니다.
