@@ -74,10 +74,9 @@ Picake 프로젝트의 web-user, web-seller, web-admin, web-info 애플리케이
 - `NEXT_PUBLIC_SENTRY_DSN` (staging/production)
 - `NEXT_PUBLIC_POSTHOG_KEY`, `NEXT_PUBLIC_POSTHOG_HOST`
 
-**web-info (예시 키)** — web-user와 같은 Next.js 구성이라 키 이름이 같습니다.
+**web-info (예시 키)** — web-user와 같은 Next.js 구성이라 키 이름이 같습니다. 정적 소개 사이트라 Sentry는 쓰지 않습니다.
 
 - `NEXT_PUBLIC_NODE_ENV` (`staging` / `production`)
-- `NEXT_PUBLIC_SENTRY_DSN` (staging/production)
 - `NEXT_PUBLIC_POSTHOG_KEY`, `NEXT_PUBLIC_POSTHOG_HOST` (web-user와 같은 PostHog 프로젝트)
 
 **web-seller / web-admin (예시 키)**
