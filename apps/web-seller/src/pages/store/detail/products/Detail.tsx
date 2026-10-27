@@ -2,8 +2,8 @@ import React from "react";
 import { useParams } from "react-router-dom";
 import { ProductCreationForm } from "@/apps/web-seller/features/product/components/forms/ProductCreationForm";
 import {
+  ProductCategoryType,
   UpdateProductRequestDto,
-  EnableStatus,
 } from "@/apps/web-seller/features/product/types/product.dto";
 import type { ProductForm } from "@/apps/web-seller/features/product/types/product.ui";
 import { useProductDetail } from "@/apps/web-seller/features/product/hooks/queries/useProductQuery";
@@ -57,10 +57,12 @@ export const StoreDetailProductDetailPage: React.FC = () => {
     visibilityStatus: product.visibilityStatus,
     cakeSizeOptions: (product.cakeSizeOptions as any) || [],
     cakeFlavorOptions: (product.cakeFlavorOptions as any) || [],
-    letteringVisible: product.letteringVisible || EnableStatus.ENABLE,
-    letteringMaxLength: product.letteringMaxLength,
-    imageUploadEnabled: product.imageUploadEnabled as any,
-    productCategoryTypes: product.productCategoryTypes ?? [],
+    customOptions: product.customOptions ?? [],
+    productType: product.productType,
+    // '커스텀' 카테고리는 상품 유형을 따라 서버가 관리하므로 폼에서는 뺀다
+    productCategoryTypes: (product.productCategoryTypes ?? []).filter(
+      (category) => category !== ProductCategoryType.LETTERING,
+    ),
     searchTags: product.searchTags ?? [],
     detailDescription: product.detailDescription ?? "",
     productNoticeFoodType: product.productNoticeFoodType,
@@ -89,9 +91,8 @@ export const StoreDetailProductDetailPage: React.FC = () => {
       visibilityStatus: data.visibilityStatus,
       cakeSizeOptions: data.cakeSizeOptions,
       cakeFlavorOptions: data.cakeFlavorOptions,
-      letteringVisible: data.letteringVisible,
-      letteringMaxLength: data.letteringMaxLength ?? 1,
-      imageUploadEnabled: data.imageUploadEnabled,
+      customOptions: data.customOptions,
+      productType: data.productType,
       productCategoryTypes: data.productCategoryTypes,
       searchTags: data.searchTags,
       detailDescription: data.detailDescription,

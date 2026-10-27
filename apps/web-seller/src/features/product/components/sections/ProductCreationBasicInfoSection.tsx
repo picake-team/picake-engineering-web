@@ -2,9 +2,11 @@ import React from "react";
 import {
   EnableStatus,
   ProductCategoryType,
+  ProductType,
 } from "@/apps/web-seller/features/product/types/product.dto";
 import type { ProductForm } from "@/apps/web-seller/features/product/types/product.ui";
 import {
+  PRODUCT_TYPE_OPTIONS,
   SALES_STATUS_OPTIONS,
   VISIBILITY_STATUS_OPTIONS,
 } from "@/apps/web-seller/features/product/constants/product.constant";
@@ -22,6 +24,7 @@ export interface ProductCreationBasicInfoSectionProps {
   errors: Partial<Record<keyof ProductForm, string>>;
   onSalesStatusChange: (value: EnableStatus) => void;
   onVisibilityStatusChange: (value: EnableStatus) => void;
+  onProductTypeChange: (value: ProductType) => void;
   onProductCategoryTypesChange: (value: ProductCategoryType[]) => void;
   onSearchTagsChange: (value: string[]) => void;
   onMainImageChange: (url: string) => void;
@@ -40,6 +43,7 @@ export const ProductCreationBasicInfoSection: React.FC<ProductCreationBasicInfoS
   errors,
   onSalesStatusChange,
   onVisibilityStatusChange,
+  onProductTypeChange,
   onProductCategoryTypesChange,
   onSearchTagsChange,
   onMainImageChange,
@@ -62,6 +66,20 @@ export const ProductCreationBasicInfoSection: React.FC<ProductCreationBasicInfoS
           <div className="border-t mb-6" />
 
           <div className="grid grid-cols-1 gap-6">
+            <div>
+              <SelectBox
+                label="상품 유형"
+                value={form.productType ?? ""}
+                onChange={(value) => onProductTypeChange(value as ProductType)}
+                options={PRODUCT_TYPE_OPTIONS}
+                error={errors.productType}
+                required
+                disabled={disabled}
+              />
+              <p className="text-sm text-muted-foreground mt-1">
+                스토어 상세의 &apos;기본/커스텀&apos; 탭에 표시돼요. 추가 옵션 구성과는 관계없어요.
+              </p>
+            </div>
             <div>
               <Label className="after:content-['*'] after:ml-0.5 after:text-destructive">
                 노출 상품명

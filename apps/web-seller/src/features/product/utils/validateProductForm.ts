@@ -1,5 +1,6 @@
 import { EnableStatus } from "@/apps/web-seller/features/product/types/product.dto";
 import type { ProductForm } from "@/apps/web-seller/features/product/types/product.ui";
+import { getCustomOptionsError } from "@/apps/web-seller/features/product/utils/validateCustomOptions";
 
 export const validateProductForm = (
   form: ProductForm,
@@ -41,13 +42,21 @@ export const validateProductForm = (
     newErrors.salePrice = "판매가는 정가보다 클 수 없습니다.";
   }
 
-  if (
-    form.letteringVisible === EnableStatus.ENABLE &&
-    (form.letteringMaxLength === null ||
-      form.letteringMaxLength === undefined ||
-      form.letteringMaxLength < 1)
-  ) {
-    newErrors.letteringMaxLength = "최대 글자 수는 1 이상 입력해주세요.";
+  if (!form.productType) {
+    newErrors.productType = "상품 유형을 선택해주세요.";
+  }
+
+  if (!form.cakeSizeOptions?.some((option) => option.visible === EnableStatus.ENABLE)) {
+    newErrors.cakeSizeOptions = "노출 중인 사이즈를 1개 이상 등록해주세요.";
+  }
+
+  if (!form.cakeFlavorOptions?.some((option) => option.visible === EnableStatus.ENABLE)) {
+    newErrors.cakeFlavorOptions = "노출 중인 맛을 1개 이상 등록해주세요.";
+  }
+
+  const customOptionsError = getCustomOptionsError(form.customOptions ?? []);
+  if (customOptionsError) {
+    newErrors.customOptions = customOptionsError;
   }
 
   if (

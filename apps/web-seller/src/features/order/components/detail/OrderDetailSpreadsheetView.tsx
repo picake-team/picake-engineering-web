@@ -79,6 +79,18 @@ function formatFlavorLine(item: OrderResponseDto["orderItems"][number]): string 
   return s;
 }
 
+/** 추가 옵션 값 한 줄 (선택형: 옵션값·옵션가, 직접입력형: 입력 문구) */
+function formatSelectedOptionValue(
+  option: OrderResponseDto["orderItems"][number]["selectedOptions"][number],
+): string {
+  if (option.type === "TEXT") return option.text ?? "—";
+  return (option.choices ?? [])
+    .map((choice) =>
+      choice.price > 0 ? `${choice.label} (+${choice.price.toLocaleString()}원)` : choice.label,
+    )
+    .join(", ");
+}
+
 export type OrderDetailSpreadsheetViewProps = {
   order: OrderResponseDto;
   onReferenceImageClick: (images: string[], index: number) => void;
@@ -117,9 +129,8 @@ export const OrderDetailSpreadsheetView: React.FC<OrderDetailSpreadsheetViewProp
                 <th className={cn(ORDER_DETAIL_TH_COL, "text-right")}>수량</th>
                 <th className={cn(ORDER_DETAIL_TH_COL, "text-right")}>단가</th>
                 <th className={cn(ORDER_DETAIL_TH_COL, "text-right")}>소계</th>
-                <th className={ORDER_DETAIL_TH_COL}>레터링</th>
+                <th className={ORDER_DETAIL_TH_COL}>추가 옵션</th>
                 <th className={ORDER_DETAIL_TH_COL}>요청</th>
-                <th className={ORDER_DETAIL_TH_COL}>참고 이미지</th>
               </tr>
             </thead>
             <tbody>
@@ -155,30 +166,44 @@ export const OrderDetailSpreadsheetView: React.FC<OrderDetailSpreadsheetViewProp
                     >
                       {lineTotal.toLocaleString()}원
                     </td>
-                    <td className={cn(ORDER_DETAIL_TD_CELL, "max-w-[180px] whitespace-pre-wrap")}>
-                      {item.letteringMessage?.trim() || "—"}
-                    </td>
-                    <td className={cn(ORDER_DETAIL_TD_CELL, "max-w-[200px] whitespace-pre-wrap")}>
-                      {item.requestMessage?.trim() || "—"}
-                    </td>
-                    <td className={cn(ORDER_DETAIL_TD_CELL, "min-w-[100px]")}>
-                      {item.imageUrls && item.imageUrls.length > 0 ? (
-                        <div className="flex flex-wrap gap-1.5">
-                          {item.imageUrls.map((url, idx) => (
-                            <button
-                              key={`${item.id}-img-${idx}`}
-                              type="button"
-                              onClick={() => onReferenceImageClick(item.imageUrls, idx)}
-                              className="relative h-9 w-9 shrink-0 overflow-hidden rounded border border-slate-200 bg-slate-100 transition hover:border-primary hover:ring-1 hover:ring-primary/30 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1"
-                              aria-label={`참고 이미지 ${idx + 1} 크게 보기`}
-                            >
-                              <img src={url} alt="" className="h-full w-full object-cover" />
-                            </button>
+                    <td className={cn(ORDER_DETAIL_TD_CELL, "min-w-[200px] max-w-[280px]")}>
+                      {item.selectedOptions.length > 0 ? (
+                        <ul className="space-y-1">
+                          {item.selectedOptions.map((option) => (
+                            <li key={option.optionId} className="whitespace-pre-wrap">
+                              <span className="text-slate-500">{option.name}: </span>
+                              {option.type === "IMAGE" ? (
+                                <span className="mt-1 flex flex-wrap gap-1.5">
+                                  {(option.imageUrls ?? []).map((url, idx) => (
+                                    <button
+                                      key={`${item.id}-${option.optionId}-img-${idx}`}
+                                      type="button"
+                                      onClick={() =>
+                                        onReferenceImageClick(option.imageUrls ?? [], idx)
+                                      }
+                                      className="relative h-9 w-9 shrink-0 overflow-hidden rounded border border-slate-200 bg-slate-100 transition hover:border-primary hover:ring-1 hover:ring-primary/30 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1"
+                                      aria-label={`${option.name} ${idx + 1} 크게 보기`}
+                                    >
+                                      <img
+                                        src={url}
+                                        alt=""
+                                        className="h-full w-full object-cover"
+                                      />
+                                    </button>
+                                  ))}
+                                </span>
+                              ) : (
+                                formatSelectedOptionValue(option)
+                              )}
+                            </li>
                           ))}
-                        </div>
+                        </ul>
                       ) : (
                         <span className={ORDER_DETAIL_MUTED}>—</span>
                       )}
+                    </td>
+                    <td className={cn(ORDER_DETAIL_TD_CELL, "max-w-[200px] whitespace-pre-wrap")}>
+                      {item.requestMessage?.trim() || "—"}
                     </td>
                   </tr>
                 );
