@@ -35,6 +35,7 @@ import {
   mapConsumerActiveTermsToDocIds,
 } from "@/apps/web-user/features/terms/utils/terms-consent.util";
 import { focusElementById, onEnterKey } from "@/apps/web-user/common/utils/enter-next.util";
+import { useKeyboardOpen } from "@/apps/web-user/common/hooks/useKeyboardOpen";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import { resolvePhoneVerificationFailReason } from "@/apps/web-user/features/auth/utils/phone-verification-error.util";
 
@@ -62,6 +63,8 @@ export function GoogleRegisterVerificationScreen() {
     trackEvent("view_duplicate_account", { provider: "google", duplicate_type: "phone_number" });
   }, []);
   const { showAlert } = useAlertStore();
+  // 키보드가 올라오면 하단 고정 '가입하기' 바가 키보드 위로 따라 올라와 인증번호 입력을 가리므로 숨긴다
+  const isKeyboardOpen = useKeyboardOpen();
   const googleRegisterMutation = useGoogleRegister({ onDuplicateAccount: handleDuplicateAccount });
 
   const [googleLoginData, setGoogleLoginData] = useState<{
@@ -155,7 +158,16 @@ export function GoogleRegisterVerificationScreen() {
     });
     setCodeExpiresAt(expiresAt);
     setIsCodeSent(true);
+    // 재전송 시 이전 인증번호가 남아 있으면 maxLength(6)에 막혀 문자 자동완성 값이 들어가지 않는다
+    setVerificationCode("");
+    setVerificationCodeError("");
   };
+
+  // 발송(재전송 포함) 직후 인증번호 입력으로 포커스를 옮겨, 문자가 오면 키보드의 인증번호 제안을 바로 누를 수 있게 한다
+  useEffect(() => {
+    if (!isCodeSent || !codeExpiresAt) return;
+    focusElementById("google-register-code");
+  }, [isCodeSent, codeExpiresAt]);
 
   useEffect(() => {
     if (!isCodeSent || !codeExpiresAt) return;
@@ -377,7 +389,9 @@ export function GoogleRegisterVerificationScreen() {
         <TermsAgreementSection value={termsState} onChange={setTermsState} />
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-100 bg-white px-5 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] pt-3 sm:mx-auto sm:max-w-[640px]">
+      <div
+        className={`fixed bottom-0 left-0 right-0 z-40 border-t border-gray-100 bg-white px-5 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] pt-3 sm:mx-auto sm:max-w-[640px] ${isKeyboardOpen ? "hidden" : ""}`}
+      >
         <Button
           type="button"
           disabled={!canSubmit}
