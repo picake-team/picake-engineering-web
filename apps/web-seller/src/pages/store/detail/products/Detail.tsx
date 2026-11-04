@@ -141,6 +141,8 @@ export const StoreDetailProductDetailPage: React.FC = () => {
             disabled={false}
             onDelete={handleDelete}
             isDeleting={deleteProductMutation.isPending || updateProductMutation.isPending}
+            storeId={storeId}
+            productId={productId}
           />
         </CardContent>
       </Card>

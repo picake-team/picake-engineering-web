@@ -100,6 +100,8 @@ export interface StoreResponseDto extends StoreAddressDto {
   accountHolderName?: string | null;
   likeCount: number;
   isLiked?: boolean | null;
+  /** 연결한 네이버 플레이스 (판매자 상세 조회에서만, 연결 안 했으면 null) */
+  naverPlace?: StoreNaverPlaceDto | null;
   averageRating: number;
   totalReviewCount: number;
   /** 해당 스토어의 모든 상품 대표이미지 (상품당 1장) */
@@ -144,6 +146,8 @@ export interface CreateStoreRequestDto extends StoreAddressDto {
   logoImageUrl?: string;
   kakaoChannelId?: string;
   instagramId?: string;
+  /** 판매자가 자기 매장이 맞다고 확인한 네이버 플레이스 ID */
+  naverPlaceId?: string;
   bankAccountNumber: string;
   bankName: StoreBankName;
   accountHolderName: string;
@@ -192,3 +196,45 @@ export interface GetSellerStoresRequestDto {
 }
 
 export type StoreListResponseDto = ListResponseDto<StoreResponseDto>;
+
+/** 스토어에 연결한 네이버 플레이스 */
+export interface StoreNaverPlaceDto {
+  placeId: string;
+  placeUrl: string;
+  connectedAt: string;
+}
+
+/** 네이버에서 가져와 스토어 폼에 채울 수 있는 값 (주소는 참고용) */
+export interface NaverPlaceStorePrefillDto {
+  name: string;
+  description: string | null;
+  phoneNumber: string | null;
+  instagramId: string | null;
+  address: string | null;
+  roadAddress: string | null;
+  latitude: number | null;
+  longitude: number | null;
+}
+
+/** 네이버에 적힌 요일별 영업시간 (참고용) */
+export interface NaverPlaceBusinessDayDto {
+  day: string;
+  open: string | null;
+  close: string | null;
+  endsNextDay: boolean;
+  breakHours: { start: string; end: string }[];
+  description: string | null;
+}
+
+/** 네이버 플레이스 미리보기 응답 */
+export interface NaverPlacePreviewResponseDto {
+  placeId: string;
+  placeUrl: string;
+  category: string | null;
+  /** 네이버에서 정보를 읽은 시각 (ISO) */
+  fetchedAt: string;
+  storePrefill: NaverPlaceStorePrefillDto;
+  businessHours: { days: NaverPlaceBusinessDayDto[]; freeText: string | null };
+  /** 그대로 쓸 수 없거나 확인이 필요한 항목 */
+  warnings: string[];
+}

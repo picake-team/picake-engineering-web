@@ -99,6 +99,7 @@ export const StoreCreatePage: React.FC = () => {
       logoImageUrl: data.logoImageUrl,
       kakaoChannelId: data.kakaoChannelId?.trim(),
       instagramId: data.instagramId?.trim(),
+      naverPlaceId: data.naverPlaceId || undefined,
       bankAccountNumber: data.bankAccountNumber.trim(),
       bankName: data.bankName as StoreBankName,
       accountHolderName: data.accountHolderName.trim(),
@@ -143,6 +144,7 @@ export const StoreCreatePage: React.FC = () => {
             initialValue={stepData.storeForm}
             onChange={(data) => setStepData((prev) => ({ ...prev, storeForm: data }))}
             submitButtonText="등록하기"
+            naverPlace={{}}
           />
         );
       default:

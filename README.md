@@ -11,7 +11,7 @@ Picake 개발 코드는 아래 레포들로 나뉘어 있습니다.
 | **[picake-engineering-web](https://github.com/picake-team/picake-engineering-web)** (현재)    | 웹 프론트엔드 (`web-user`, `web-seller`, `web-admin`, `web-info`) |
 | [picake-engineering-backend](https://github.com/picake-team/picake-engineering-backend)       | 백엔드 API 서버 (NestJS, EC2 배포)                                |
 | [picake-engineering-app](https://github.com/picake-team/picake-engineering-app)               | Flutter 앱 (`web-user`을 감싸는 WebView 앱, 예정)                 |
-| [picake-engineering-automation](https://github.com/picake-team/picake-engineering-automation) | Claude 클라우드 루틴·운영 자동화 스킬                             |
+| picake-hq (비공개)                                                                            | 회사 운영·운영 자동화 (브리핑, 주간 회의, 데이터·인프라 점검)     |
 
 ## 🚀 시작하기
 

@@ -24,7 +24,7 @@
 | `emil-design-eng`              | (외부 skill) UI 디테일·컴포넌트·애니메이션 설계 원칙                                             |
 | `find-skills`                  | (외부 skill) 필요한 agent skill 검색·설치                                                        |
 
-> 카카오 알림톡 템플릿(`picake-notify-kakao-template`)처럼 backend 전용 skill은 [picake-engineering-backend](https://github.com/picake-team/picake-engineering-backend) 레포에, 인프라 모니터링(`picake-infra-monitor`)·종합 데이터 리포트(`picake-data-report`)처럼 클라우드 루틴이 쓰는 운영 skill은 [picake-engineering-automation](https://github.com/picake-team/picake-engineering-automation) 레포의 `.claude/skills`에 있습니다.
+> 카카오 알림톡 템플릿(`picake-notify-kakao-template`)처럼 backend 전용 skill은 [picake-engineering-backend](https://github.com/picake-team/picake-engineering-backend) 레포에, 인프라 모니터링(`picake-infra-monitor`)·종합 데이터 리포트(`picake-data-report`)처럼 운영 skill은 회사 운영 레포 picake-hq(비공개)의 `.claude/skills`에 있습니다.
 
 ## 📄 .claude/settings.json
 
