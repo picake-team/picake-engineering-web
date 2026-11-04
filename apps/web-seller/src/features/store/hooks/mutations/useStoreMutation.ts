@@ -88,3 +88,65 @@ export function useUpdateStoreBusinessCalendar() {
     },
   });
 }
+
+/** 네이버 플레이스 미리보기 (저장하지 않음) */
+export function usePreviewNaverPlace() {
+  const { addAlert } = useAlertStore();
+
+  return useMutation({
+    mutationFn: (url: string) => storeApi.previewNaverPlace(url),
+    onError: (error: unknown) => {
+      addAlert({
+        severity: "error",
+        message: getApiMessage.error(error),
+      });
+    },
+  });
+}
+
+/** 스토어에 네이버 플레이스 연결 (PUT /store/:id/naver-place) */
+export function useConnectNaverPlace() {
+  const { addAlert } = useAlertStore();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ storeId, placeId }: { storeId: string; placeId: string }) =>
+      storeApi.connectNaverPlace(storeId, placeId),
+    onSuccess: (_data, variables) => {
+      addAlert({
+        severity: "success",
+        message: "네이버 매장을 연결했어요.",
+      });
+      queryClient.invalidateQueries({ queryKey: storeQueryKeys.detail(variables.storeId) });
+    },
+    onError: (error: unknown) => {
+      addAlert({
+        severity: "error",
+        message: getApiMessage.error(error),
+      });
+    },
+  });
+}
+
+/** 스토어의 네이버 플레이스 연결 해제 (DELETE /store/:id/naver-place) */
+export function useDisconnectNaverPlace() {
+  const { addAlert } = useAlertStore();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (storeId: string) => storeApi.disconnectNaverPlace(storeId),
+    onSuccess: (_data, storeId) => {
+      addAlert({
+        severity: "success",
+        message: "네이버 매장 연결을 끊었어요. 가져와 저장한 정보는 그대로예요.",
+      });
+      queryClient.invalidateQueries({ queryKey: storeQueryKeys.detail(storeId) });
+    },
+    onError: (error: unknown) => {
+      addAlert({
+        severity: "error",
+        message: getApiMessage.error(error),
+      });
+    },
+  });
+}
