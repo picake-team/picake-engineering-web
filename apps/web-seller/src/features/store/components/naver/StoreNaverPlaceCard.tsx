@@ -270,6 +270,12 @@ export const StoreNaverPlaceCard: React.FC<Props> = ({ storeId, connected, form,
                         {row.naverValue}
                       </p>
                     )}
+                    {row.invalidReason && (
+                      <p className="text-xs text-amber-800">
+                        그대로는 저장할 수 없어요: {row.invalidReason} 채운 뒤 아래 칸에서 고쳐
+                        주세요.
+                      </p>
+                    )}
                     {row.status === "changed" && row.currentValue && (
                       <p className="max-h-24 overflow-y-auto whitespace-pre-line break-words text-sm text-muted-foreground">
                         지금 · {row.currentValue}

@@ -226,6 +226,15 @@ export interface NaverPlaceBusinessDayDto {
   description: string | null;
 }
 
+/** 네이버 영업시간을 정기 휴무·표준 영업시간으로 바꾼 제안값 */
+export interface NaverPlaceCalendarSuggestionDto {
+  weeklyClosedWeekdays: number[] | null;
+  standardOpenTime: string | null;
+  standardCloseTime: string | null;
+  /** 그대로 옮길 수 없어 직접 설정해야 하는 항목 */
+  warnings: string[];
+}
+
 /** 네이버 플레이스 미리보기 응답 */
 export interface NaverPlacePreviewResponseDto {
   placeId: string;
@@ -235,6 +244,8 @@ export interface NaverPlacePreviewResponseDto {
   fetchedAt: string;
   storePrefill: NaverPlaceStorePrefillDto;
   businessHours: { days: NaverPlaceBusinessDayDto[]; freeText: string | null };
+  /** 네이버 영업시간을 영업 캘린더 형식으로 바꾼 제안값 (자동 반영하지 않음) */
+  calendarSuggestion: NaverPlaceCalendarSuggestionDto;
   /** 그대로 쓸 수 없거나 확인이 필요한 항목 */
   warnings: string[];
 }
