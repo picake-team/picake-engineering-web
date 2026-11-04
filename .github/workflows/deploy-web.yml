@@ -216,6 +216,38 @@ jobs:
             DEPLOY_FIELD="[$DEPLOY_URL]($DEPLOY_URL)"
           fi
 
+          # 이번 배포에 담긴 작업: 같은 앱·환경의 이전 배포 태그부터 이번 태그까지의 커밋 제목(머지 커밋 제외).
+          # 실패해도 알림과 배포 결과에는 영향이 없도록 따로 감싼다.
+          export LC_ALL=C.UTF-8
+          rm -f /tmp/deploy-changes.txt /tmp/deploy-compare.txt
+          (
+            set +e +o pipefail
+            git fetch --quiet --tags --unshallow origin 2>/dev/null || git fetch --quiet --tags origin 2>/dev/null
+            PREFIX="${TAG%-v*}"
+            PREV_TAG=$(git tag --list "${PREFIX}-*" --sort=-v:refname | awk -v t="$TAG" 'f{print;exit} $0==t{f=1}')
+            if [ -z "$PREV_TAG" ]; then
+              echo "이전 배포 태그가 없어 비교하지 못했어요(첫 배포)" > /tmp/deploy-changes.txt
+              exit 0
+            fi
+            echo "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/compare/${PREV_TAG}...${TAG}" > /tmp/deploy-compare.txt
+            git log --no-merges --pretty='• %s' "${PREV_TAG}..${TAG}" -- "apps/${PROJECT}" > /tmp/deploy-log.txt
+            TOTAL=$(grep -c . /tmp/deploy-log.txt)
+            if [ "$TOTAL" -eq 0 ]; then
+              echo "이 앱의 코드 변경 없음(같은 코드를 다시 배포)" > /tmp/deploy-changes.txt
+            else
+              sed -n '1,15p' /tmp/deploy-log.txt > /tmp/deploy-changes.txt
+              [ "$TOTAL" -gt 15 ] && echo "…외 $((TOTAL - 15))개" >> /tmp/deploy-changes.txt
+            fi
+          ) || true
+          CHANGES=$(cat /tmp/deploy-changes.txt 2>/dev/null || echo "변경 목록을 만들지 못했어요")
+          CHANGES="${CHANGES:0:1500}"
+          COMPARE_URL=$(cat /tmp/deploy-compare.txt 2>/dev/null || true)
+          if [ "$JOB_STATUS" = "success" ]; then
+            CHANGES_TITLE="이번 배포에 들어간 작업"
+          else
+            CHANGES_TITLE="이번 배포에 담긴 작업(반영되지 않았을 수 있음)"
+          fi
+
           PAYLOAD=$(jq -n \
             --arg title "$STATUS_LABEL — $PROJECT ($ENVIRONMENT)" \
             --argjson color "$COLOR" \
@@ -225,18 +257,24 @@ jobs:
             --arg deploy "$DEPLOY_FIELD" \
             --arg run_url "$RUN_URL" \
             --arg log "$LOG_SNIPPET" \
+            --arg status "$JOB_STATUS" \
+            --arg changes_title "$CHANGES_TITLE" \
+            --arg changes "$CHANGES" \
+            --arg compare "$COMPARE_URL" \
             '{
               embeds: [{
                 title: $title,
                 color: $color,
-                fields: [
+                description: ("**" + $changes_title + "**\n" + $changes),
+                fields: ([
                   { name: "프로젝트", value: $project, inline: true },
                   { name: "환경", value: $environment, inline: true },
                   { name: "태그", value: ("`" + $tag + "`"), inline: false },
-                  { name: "배포 URL", value: $deploy, inline: false },
-                  { name: "GitHub Actions", value: ("[워크플로우 로그](" + $run_url + ")"), inline: false },
-                  { name: "Vercel 로그 (마지막 900자)", value: ("```\n" + $log + "\n```"), inline: false }
-                ],
+                  { name: "배포 URL", value: $deploy, inline: false }
+                ]
+                + (if $compare != "" then [{ name: "전체 변경", value: ("[이전 배포와 비교](" + $compare + ")"), inline: false }] else [] end)
+                + [{ name: "GitHub Actions", value: ("[워크플로우 로그](" + $run_url + ")"), inline: false }]
+                + (if $status == "success" then [] else [{ name: "Vercel 로그 (마지막 900자)", value: ("```\n" + $log + "\n```"), inline: false }] end)),
                 timestamp: (now | strftime("%Y-%m-%dT%H:%M:%SZ"))
               }]
             }')
