@@ -3,6 +3,11 @@ import type {
   NaverPlaceStorePrefillDto,
 } from "@/apps/web-seller/features/store/types/store.dto";
 import type { StoreForm } from "@/apps/web-seller/features/store/types/store.ui";
+import {
+  validateStoreDescription,
+  validateStoreName,
+  validateStorePhoneNumber,
+} from "@/apps/web-seller/features/store/utils/validator.util";
 
 /** 네이버에서 가져와 폼에 채울 수 있는 항목 (주소는 주소 검색으로 확정하므로 넣지 않음) */
 export const NAVER_IMPORT_FIELDS = [
@@ -23,7 +28,16 @@ export interface NaverImportRow {
   currentValue: string;
   /** missing: 네이버에 없음, same: 지금 값과 같음, changed: 다름 */
   status: "missing" | "same" | "changed";
+  /** 네이버 값을 그대로 저장할 수 없는 이유 (판매자 화면 입력 규칙 기준, 없으면 null) */
+  invalidReason: string | null;
 }
+
+/** 판매자 화면과 같은 입력 규칙으로 네이버 값을 검사한다 (자르거나 고치지 않음) */
+const RULES: Partial<Record<NaverImportFieldKey, (value: string) => string | null>> = {
+  name: validateStoreName,
+  description: validateStoreDescription,
+  phoneNumber: validateStorePhoneNumber,
+};
 
 const normalize = (value: string | null | undefined) => (value ?? "").trim();
 
@@ -43,7 +57,8 @@ export function buildNaverImportRows(
       : naverValue === currentValue
         ? "same"
         : "changed";
-    return { key, label, naverValue, currentValue, status };
+    const invalidReason = naverValue ? (RULES[key]?.(naverValue) ?? null) : null;
+    return { key, label, naverValue, currentValue, status, invalidReason };
   });
 }
 
