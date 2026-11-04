@@ -10,7 +10,11 @@ import {
   STORE_DESCRIPTION_MAX_LENGTH,
 } from "@/apps/web-seller/features/store/utils/validator.util";
 import { STORE_BANK_OPTIONS } from "@/apps/web-seller/features/store/constants/store.constants";
-import type { StoreBankName } from "@/apps/web-seller/features/store/types/store.dto";
+import type {
+  StoreBankName,
+  StoreNaverPlaceDto,
+} from "@/apps/web-seller/features/store/types/store.dto";
+import { StoreNaverPlaceCard } from "@/apps/web-seller/features/store/components/naver/StoreNaverPlaceCard";
 import { SelectBox } from "@/apps/web-seller/common/components/selects/SelectBox";
 import { ImageMultiUpload } from "@/apps/web-seller/features/upload/components/ImageMultiUpload";
 import { BaseButton as Button } from "@/apps/web-seller/common/components/buttons/BaseButton";
@@ -30,6 +34,8 @@ interface Props {
   initialValue?: StoreForm;
   onChange?: (data: StoreForm) => void;
   submitButtonText?: string;
+  /** 네이버 플레이스에서 가져오기 카드를 보여 준다. 수정 화면이면 storeId와 연결 정보를 넘긴다 */
+  naverPlace?: { storeId?: string; connected?: StoreNaverPlaceDto | null };
 }
 
 export const defaultForm: StoreForm = {
@@ -57,6 +63,7 @@ export const StoreCreationForm: React.FC<Props> = ({
   initialValue,
   onChange,
   submitButtonText,
+  naverPlace,
 }) => {
   const [form, setForm] = useState<StoreForm>(initialValue || defaultForm);
   const [errors, setErrors] = useState<
@@ -133,6 +140,18 @@ export const StoreCreationForm: React.FC<Props> = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 gap-6">
+        {naverPlace && (
+          <StoreNaverPlaceCard
+            storeId={naverPlace.storeId}
+            connected={naverPlace.connected}
+            form={form}
+            onApply={(patch) => {
+              const next = { ...form, ...patch };
+              setForm(next);
+              onChange?.(next);
+            }}
+          />
+        )}
         <Card>
           <CardContent className="p-6">
             <h2 className="text-xl font-semibold mb-2">스토어 기본 정보</h2>

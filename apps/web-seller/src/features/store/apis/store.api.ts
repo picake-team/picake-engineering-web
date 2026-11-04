@@ -9,6 +9,7 @@ import {
   UpdateStoreResponseDto,
   GetSellerStoresRequestDto,
   StoreListResponseDto,
+  NaverPlacePreviewResponseDto,
 } from "@/apps/web-seller/features/store/types/store.dto";
 
 export const storeApi = {
@@ -44,6 +45,27 @@ export const storeApi = {
     request: StoreBusinessCalendarDto,
   ): Promise<UpdateStoreBusinessCalendarResponseDto> => {
     const response = await sellerClient.put(`/store/${storeId}/business-calendar`, request);
+    return response.data.data;
+  },
+
+  // 네이버 플레이스 링크(또는 플레이스 ID)로 매장 정보 미리보기 (저장하지 않음)
+  previewNaverPlace: async (url: string): Promise<NaverPlacePreviewResponseDto> => {
+    const response = await sellerClient.get("/naver-place/preview", { params: { url } });
+    return response.data.data;
+  },
+
+  // 스토어에 네이버 플레이스 연결 (스토어 정보는 바뀌지 않음)
+  connectNaverPlace: async (
+    storeId: string,
+    placeId: string,
+  ): Promise<NaverPlacePreviewResponseDto> => {
+    const response = await sellerClient.put(`/store/${storeId}/naver-place`, { placeId });
+    return response.data.data;
+  },
+
+  // 스토어의 네이버 플레이스 연결 해제 (스토어 정보는 그대로)
+  disconnectNaverPlace: async (storeId: string): Promise<UpdateStoreResponseDto> => {
+    const response = await sellerClient.delete(`/store/${storeId}/naver-place`);
     return response.data.data;
   },
 };

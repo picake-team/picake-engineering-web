@@ -36,7 +36,7 @@ export const StoreDetailProductCreatePage: React.FC = () => {
       <h1 className="text-3xl font-bold">상품 등록</h1>
       <Card>
         <CardContent className="p-6">
-          <ProductCreationForm onSubmit={handleSubmit} />
+          <ProductCreationForm onSubmit={handleSubmit} storeId={storeId} />
         </CardContent>
       </Card>
     </div>

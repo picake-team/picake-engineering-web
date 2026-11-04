@@ -23,6 +23,7 @@ import { ProductCreationCakeOptionsSection } from "@/apps/web-seller/features/pr
 import { ProductCreationCustomOptionsSection } from "@/apps/web-seller/features/product/components/sections/ProductCreationCustomOptionsSection";
 import { ProductCreationDetailDescriptionSection } from "@/apps/web-seller/features/product/components/sections/ProductCreationDetailDescriptionSection";
 import { ProductCreationProductNoticeSection } from "@/apps/web-seller/features/product/components/sections/ProductCreationProductNoticeSection";
+import type { ProductNoticeValues } from "@/apps/web-seller/features/product/utils/product-notice.util";
 import { validateProductForm } from "@/apps/web-seller/features/product/utils/validateProductForm";
 
 interface Props {
@@ -32,6 +33,10 @@ interface Props {
   disabled?: boolean;
   onDelete?: () => void;
   isDeleting?: boolean;
+  /** 같은 스토어 상품에서 고시를 복사할 때 쓴다 */
+  storeId?: string;
+  /** 수정 중인 상품 (고시 복사 목록에서 뺀다) */
+  productId?: string;
 }
 
 /** 새 상품에는 '레터링 문구'를 미리 넣어 둔다 (판매자가 지울 수 있음) */
@@ -92,17 +97,38 @@ export const ProductCreationForm: React.FC<Props> = ({
   disabled = false,
   onDelete,
   isDeleting = false,
+  storeId,
+  productId,
 }) => {
   const [form, setForm] = useState<ProductForm>(initialValue || defaultForm);
   const [errors, setErrors] = useState<Partial<Record<keyof ProductForm, string>>>({});
   const [activeTab, setActiveTab] = useState("basic");
+  // 다른 상품에서 복사한 고시: 판매자가 이 상품에 맞게 확인해야 저장된다
+  const [noticeCopy, setNoticeCopy] = useState<{ fromName: string; confirmed: boolean } | null>(
+    null,
+  );
+  const [noticeCopyError, setNoticeCopyError] = useState(false);
 
   useEffect(() => {
     if (initialValue) {
       setForm(initialValue);
       setErrors({});
+      setNoticeCopy(null);
+      setNoticeCopyError(false);
     }
   }, [initialValue]);
+
+  const handleCopyNotice = (values: ProductNoticeValues, productName: string) => {
+    if (disabled) return;
+    const next = { ...form, ...values };
+    setForm(next);
+    onChange?.(next);
+    setNoticeCopy({ fromName: productName, confirmed: false });
+    setNoticeCopyError(false);
+    setErrors((prev) =>
+      Object.fromEntries(Object.entries(prev).filter(([key]) => !key.startsWith("productNotice"))),
+    );
+  };
 
   const validate = (): {
     isValid: boolean;
@@ -231,6 +257,12 @@ export const ProductCreationForm: React.FC<Props> = ({
       return;
     }
 
+    if (noticeCopy && !noticeCopy.confirmed) {
+      setNoticeCopyError(true);
+      setActiveTab("notice");
+      return;
+    }
+
     onSubmit(form);
   };
 
@@ -295,6 +327,20 @@ export const ProductCreationForm: React.FC<Props> = ({
                 form={form}
                 errors={errors}
                 onChange={handleChange}
+                copy={
+                  storeId && !disabled
+                    ? {
+                        storeId,
+                        excludeProductId: productId,
+                        copiedFrom: noticeCopy?.fromName ?? null,
+                        confirmed: noticeCopy?.confirmed ?? false,
+                        showConfirmError: noticeCopyError,
+                        onCopy: handleCopyNotice,
+                        onConfirmedChange: (confirmed) =>
+                          setNoticeCopy((prev) => (prev ? { ...prev, confirmed } : prev)),
+                      }
+                    : undefined
+                }
               />
             </TabsContent>
           </Tabs>

@@ -1,5 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import type { ProductForm } from "@/apps/web-seller/features/product/types/product.ui";
+import { BaseButton as Button } from "@/apps/web-seller/common/components/buttons/BaseButton";
+import { Checkbox } from "@/apps/web-seller/common/components/inputs/Checkbox";
+import { ProductNoticeCopyPicker } from "@/apps/web-seller/features/product/components/sections/ProductNoticeCopyPicker";
+import {
+  hasAnyProductNotice,
+  type ProductNoticeValues,
+} from "@/apps/web-seller/features/product/utils/product-notice.util";
 import { BaseInput as Input } from "@/apps/web-seller/common/components/inputs/BaseInput";
 import { Label } from "@/apps/web-seller/common/components/labels/Label";
 
@@ -9,18 +16,77 @@ export interface ProductCreationProductNoticeSectionProps {
   onChange: (
     key: keyof ProductForm,
   ) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  /** 같은 스토어의 다른 상품에서 고시 복사 (없으면 복사 버튼을 숨긴다) */
+  copy?: {
+    storeId: string;
+    excludeProductId?: string;
+    /** 복사한 원본 상품 이름 (복사 전이면 null) */
+    copiedFrom: string | null;
+    /** 복사한 값을 이 상품에 맞게 확인했는지 */
+    confirmed: boolean;
+    showConfirmError: boolean;
+    onCopy: (values: ProductNoticeValues, productName: string) => void;
+    onConfirmedChange: (confirmed: boolean) => void;
+  };
 }
 
 // 상품 등록 폼 - 상품정보제공고시 섹션
 export const ProductCreationProductNoticeSection: React.FC<
   ProductCreationProductNoticeSectionProps
-> = ({ form, errors, onChange }) => {
+> = ({ form, errors, onChange, copy }) => {
+  const [pickerOpen, setPickerOpen] = useState(false);
+
   return (
     <div>
       <h2 className="text-xl font-semibold mb-2">상품정보제공고시</h2>
       <p className="text-sm text-muted-foreground mb-2">
         식품 판매 시 법적으로 입력해야 하는 항목들입니다. 모든 항목은 필수 입력입니다.
       </p>
+
+      {copy && (
+        <div className="mb-6 space-y-3">
+          {pickerOpen ? (
+            <ProductNoticeCopyPicker
+              storeId={copy.storeId}
+              excludeProductId={copy.excludeProductId}
+              hasCurrentValues={hasAnyProductNotice(form)}
+              onCopy={(values, productName) => {
+                copy.onCopy(values, productName);
+                setPickerOpen(false);
+              }}
+              onClose={() => setPickerOpen(false)}
+            />
+          ) : (
+            <Button type="button" size="sm" variant="outline" onClick={() => setPickerOpen(true)}>
+              기존 상품에서 복사
+            </Button>
+          )}
+          {copy.copiedFrom && (
+            <div
+              className={`rounded-md border px-3 py-2 space-y-2 ${
+                copy.showConfirmError && !copy.confirmed
+                  ? "border-destructive"
+                  : "border-amber-200 bg-amber-50"
+              }`}
+            >
+              <p className="text-sm">
+                &apos;{copy.copiedFrom}&apos;의 고시를 복사했어요. 원재료·영양성분·소비기한처럼
+                상품마다 다른 항목이 이 상품에 맞는지 확인하고 고쳐 주세요.
+              </p>
+              <Checkbox
+                checked={copy.confirmed}
+                onChange={copy.onConfirmedChange}
+                label={<span className="text-sm">이 상품에 맞게 확인했어요</span>}
+              />
+              {copy.showConfirmError && !copy.confirmed && (
+                <p className="text-sm text-destructive">
+                  복사한 고시를 확인했다고 체크해야 저장할 수 있어요.
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -20,6 +20,8 @@ export interface StoreForm extends StoreAddressDto {
   instagramId?: string;
   /** 환불·취소 규정 (필수, `rules` 배열) */
   refundCancellationPolicy: RefundCancellationPolicyDto;
+  /** 스토어 등록 때 함께 연결할 네이버 플레이스 ID (등록 화면에서만 사용) */
+  naverPlaceId?: string;
 }
 
 /** 쿼리 키/옵션용 (page 제외, 클라이언트 전용) */
