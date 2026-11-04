@@ -27,6 +27,7 @@ import {
 import { ROUTES } from "@/apps/web-seller/common/constants/paths.constant";
 import { useAlertStore } from "@/apps/web-seller/common/store/alert.store";
 import { useStoreDetail } from "@/apps/web-seller/features/store/hooks/queries/useStoreQuery";
+import { StoreNaverCalendarCard } from "@/apps/web-seller/features/store/components/naver/StoreNaverCalendarCard";
 import { useUpdateStoreBusinessCalendar } from "@/apps/web-seller/features/store/hooks/mutations/useStoreMutation";
 import { useCalendarMonthOrders } from "@/apps/web-seller/features/order/hooks/queries/useOrderQuery";
 import type { OrderResponseDto } from "@/apps/web-seller/features/order/types/order.dto";
@@ -423,6 +424,17 @@ export const StoreCalendarPage: React.FC = () => {
         </TabsList>
 
         <TabsContent value="basic" className="mt-6 space-y-6">
+          <StoreNaverCalendarCard
+            storeId={storeId}
+            connected={store.naverPlace ?? null}
+            current={{ weeklyOff: basicDraftWeeklyOff, start: basicDraftStart, end: basicDraftEnd }}
+            onApply={(patch) => {
+              if (patch.weeklyOff) setBasicDraftWeeklyOff(new Set(patch.weeklyOff));
+              if (patch.start) setBasicDraftStart(patch.start);
+              if (patch.end) setBasicDraftEnd(patch.end);
+            }}
+            disabled={saving}
+          />
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">정기 휴무 설정</CardTitle>
