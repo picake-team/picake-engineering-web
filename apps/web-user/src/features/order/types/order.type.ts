@@ -51,9 +51,6 @@ export interface CreateOrderItemRequest {
   sizeLengthCm?: number;
   sizeDescription?: string;
   sizePrice?: number;
-  flavorId?: string;
-  flavorDisplayName?: string;
-  flavorPrice?: number;
   options: OrderItemOptionInput[];
   requestMessage?: string;
   quantity: number;
@@ -125,9 +122,6 @@ export interface OrderItemResponse {
   sizeLengthCm?: number;
   sizeDescription?: string;
   sizePrice?: number;
-  flavorId?: string;
-  flavorDisplayName?: string;
-  flavorPrice?: number;
   /** 추가 옵션 선택 내역 (판매자가 정한 옵션 순서) */
   selectedOptions: SelectedOption[];
   optionsPrice: number;

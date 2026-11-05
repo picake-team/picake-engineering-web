@@ -138,15 +138,6 @@ export function ReservationItemCard({
               </div>
             </div>
           )}
-          {item.flavorDisplayName && (
-            <div>
-              <p className="text-xs text-gray-500">맛</p>
-              <div className="flex items-center justify-between text-2sm text-gray-900">
-                <span>{item.flavorDisplayName}</span>
-                <span>+{item.flavorPrice?.toLocaleString()}원</span>
-              </div>
-            </div>
-          )}
           {item.selectedOptions.map((option) => (
             <div key={option.optionId}>
               <p className="text-xs text-gray-500">{option.name}</p>

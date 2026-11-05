@@ -24,7 +24,9 @@ import { EmptyState } from "@/apps/web-user/common/components/fallbacks/EmptySta
 function formatItemName(order: OrderResponse, item: OrderItemResponse) {
   const parts: string[] = [order.productName];
   if (item.sizeDisplayName) parts.push(item.sizeDisplayName);
-  if (item.flavorDisplayName) parts.push(item.flavorDisplayName);
+  // 맛은 추가 옵션 '맛'으로 받는다 (예: "케이크 1호 초코")
+  const flavor = item.selectedOptions?.find((option) => option.name === "맛");
+  flavor?.choices?.forEach((choice) => parts.push(choice.label));
   return parts.join(" ");
 }
 

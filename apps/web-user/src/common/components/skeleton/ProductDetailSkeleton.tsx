@@ -24,7 +24,7 @@ export function ProductDetailSkeleton() {
       {/* 탭 */}
       <div className="border-b border-gray-200">
         <div className="flex">
-          {["상세정보", "사이즈·맛", "후기", "이용안내"].map((tab) => (
+          {["상세정보", "사이즈·옵션", "후기", "이용안내"].map((tab) => (
             <div key={tab} className="flex-1 py-3 flex justify-center">
               <SkeletonText className="w-14" />
             </div>

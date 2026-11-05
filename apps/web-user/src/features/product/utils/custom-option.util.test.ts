@@ -67,9 +67,7 @@ describe("calculateOptionsPrice / calculateItemPrice", () => {
       opt_lettering: { text: "축하해" },
     });
     expect(optionsPrice).toBe(5500);
-    expect(
-      calculateItemPrice({ basePrice: 30000, sizePrice: 5000, flavorPrice: 0, optionsPrice }),
-    ).toBe(40500);
+    expect(calculateItemPrice({ basePrice: 30000, sizePrice: 5000, optionsPrice })).toBe(40500);
   });
 
   it("상품에 없는 옵션값은 금액에 넣지 않는다", () => {

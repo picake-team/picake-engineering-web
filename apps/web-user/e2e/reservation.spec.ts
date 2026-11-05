@@ -18,7 +18,7 @@ async function findFixtureProductId(request: APIRequestContext) {
 }
 
 /**
- * 사이즈/맛 Select는 픽업날짜·사이즈를 고르면 다음 단계 Select가 자동으로 열리는
+ * 사이즈 Select는 픽업날짜를 고르면 자동으로 열리는
  * UX가 있어(ReservationOptionsView의 openSignal 이펙트) 이미 열려 있을 수도, 아닐 수도 있다.
  * 열려 있지 않을 때만 트리거를 클릭해 두 경우 모두 안전하게 처리한다.
  */
@@ -64,9 +64,8 @@ test("예약(주문) 생성 골든패스", async ({ page, request }) => {
     .click();
   await sheet.getByRole("button", { name: "선택완료" }).click();
 
-  // 사이즈/맛 선택 (fixture-seed.script.ts가 심는 옵션과 동일 라벨)
+  // 사이즈 선택 (fixture-seed.script.ts가 심는 옵션과 동일 라벨). 맛은 따로 없고 추가 옵션으로 받는다
   await selectDropdownOption(sheet, "사이즈 선택", "미니");
-  await selectDropdownOption(sheet, "맛 선택", "초콜릿");
 
   // 필수 추가 옵션(레터링 문구)을 비운 채 넘어가면 막고 오류를 보여준다
   await sheet.getByRole("button", { name: "선택완료" }).click();

@@ -55,7 +55,6 @@ export function OptionChangeBottomSheet({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [selectedSizeId, setSelectedSizeId] = useState("");
-  const [selectedFlavorId, setSelectedFlavorId] = useState("");
   const [selections, setSelections] = useState<OptionSelections>({});
   const [requestMessage, setRequestMessage] = useState("");
   const [showValidationErrors, setShowValidationErrors] = useState(false);
@@ -65,41 +64,31 @@ export function OptionChangeBottomSheet({
     () => (product?.cakeSizeOptions ?? []).filter((o) => o.visible === VisibleStatus.ENABLE),
     [product?.cakeSizeOptions],
   );
-  const flavorOptions = useMemo(
-    () => (product?.cakeFlavorOptions ?? []).filter((o) => o.visible === VisibleStatus.ENABLE),
-    [product?.cakeFlavorOptions],
-  );
   const customOptions = useMemo(
     () => getVisibleCustomOptions(product?.customOptions),
     [product?.customOptions],
   );
 
   // 시트 오픈(또는 상품 옵션 갱신) 시 현재 주문 항목 값으로 초기화
-  // 판매자가 숨기거나 삭제한 사이즈·맛·옵션값은 비워 두고 다시 고르게 한다
+  // 판매자가 숨기거나 삭제한 사이즈·옵션값은 비워 두고 다시 고르게 한다
   useEffect(() => {
     if (!isOpen || !item) return;
     setSelectedSizeId(sizeOptions.some((o) => o.id === item.sizeId) ? (item.sizeId ?? "") : "");
-    setSelectedFlavorId(
-      flavorOptions.some((o) => o.id === item.flavorId) ? (item.flavorId ?? "") : "",
-    );
     setSelections(selectedOptionsToSelections(item.selectedOptions));
     setRequestMessage(item.requestMessage ?? "");
     setShowValidationErrors(false);
-  }, [isOpen, item, sizeOptions, flavorOptions]);
+  }, [isOpen, item, sizeOptions]);
 
   if (!item) return null;
 
   const selectedSize = sizeOptions.find((o) => o.id === selectedSizeId);
-  const selectedFlavor = flavorOptions.find((o) => o.id === selectedFlavorId);
   const missingRequiredOption = findMissingRequiredOption(customOptions, selections);
   const firstInvalidField: OptionsFieldKey | null =
     sizeOptions.length > 0 && !selectedSize
       ? "size"
-      : flavorOptions.length > 0 && !selectedFlavor
-        ? "flavor"
-        : missingRequiredOption
-          ? `option:${missingRequiredOption.id}`
-          : null;
+      : missingRequiredOption
+        ? `option:${missingRequiredOption.id}`
+        : null;
 
   const handleConfirm = async () => {
     if (!product || isSubmitting) return;
@@ -124,7 +113,6 @@ export function OptionChangeBottomSheet({
       const itemPrice = calculateItemPrice({
         basePrice: product.salePrice,
         sizePrice: selectedSize?.price,
-        flavorPrice: selectedFlavor?.price,
         optionsPrice: calculateOptionsPrice(customOptions, selections),
       });
       // 다른 항목은 저장된 금액 그대로 + 이 항목의 새 금액
@@ -149,11 +137,6 @@ export function OptionChangeBottomSheet({
               sizeLengthCm: selectedSize.lengthCm,
               sizeDescription: selectedSize.description,
               sizePrice: selectedSize.price,
-            }),
-            ...(selectedFlavor && {
-              flavorId: selectedFlavor.id,
-              flavorDisplayName: selectedFlavor.displayName,
-              flavorPrice: selectedFlavor.price,
             }),
             options: toOrderItemOptionInputs(customOptions, selections, uploadedImageUrls),
             ...(requestMessage && { requestMessage }),
@@ -214,12 +197,9 @@ export function OptionChangeBottomSheet({
           hideDatePicker
           selectedDate={null}
           sizeOptions={sizeOptions}
-          flavorOptions={flavorOptions}
           customOptions={customOptions}
           selectedSizeId={selectedSizeId}
           setSelectedSizeId={setSelectedSizeId}
-          selectedFlavorId={selectedFlavorId}
-          setSelectedFlavorId={setSelectedFlavorId}
           selections={selections}
           onOptionChange={(optionId, selection) =>
             setSelections((prev) => ({ ...prev, [optionId]: selection }))

@@ -57,13 +57,6 @@ export interface CakeSizeOption {
   lengthCm: number;
 }
 
-export interface CakeFlavorOption {
-  id: string;
-  visible: VisibleStatus;
-  displayName: string;
-  price: number;
-}
-
 /** 추가 옵션 형식 */
 export enum CustomOptionType {
   SINGLE_SELECT = "SINGLE_SELECT", // 선택형 (1개)
@@ -110,7 +103,6 @@ export interface Product {
   salesStatus: SalesStatus;
   visibilityStatus: VisibilityStatus;
   cakeSizeOptions: CakeSizeOption[];
-  cakeFlavorOptions: CakeFlavorOption[];
   customOptions: CustomOption[];
   /** 주문 시 productOptionsVersion으로 그대로 전달 (옵션이 바뀌었으면 서버가 409) */
   optionsVersion: number;

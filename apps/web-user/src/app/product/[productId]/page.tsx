@@ -12,7 +12,7 @@ import { ProductDetailDescriptionSection } from "@/apps/web-user/features/produc
 import { ProductDetailInformationNoticeSection } from "@/apps/web-user/features/product/components/sections/ProductDetailInformationNoticeSection";
 import { ProductDetailReviewSection } from "@/apps/web-user/features/product/components/sections/ProductDetailReviewSection";
 import { Tabs } from "@/apps/web-user/common/components/tabs/Tabs";
-import { ProductDetailSizeFlavorSection } from "@/apps/web-user/features/product/components/sections/ProductDetailSizeFlavorSection";
+import { ProductDetailSizeOptionSection } from "@/apps/web-user/features/product/components/sections/ProductDetailSizeOptionSection";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { Button } from "@/apps/web-user/common/components/buttons/Button";
 import {
@@ -34,6 +34,7 @@ const PRODUCT_ENTRY_POINTS: ProductEntryPoint[] = ["home", "search", "category",
 /** 탭 id → 텍소노미 tab_name 매핑 */
 const TAB_NAME_MAP: Record<string, ProductTabName> = {
   detail: "detail",
+  // 탭 이름은 '사이즈·옵션'으로 바뀌었지만 분석 이벤트 값은 이어서 보려고 그대로 둔다
   "size-flavor": "size_taste",
   review: "review",
   notice: "info",
@@ -163,11 +164,11 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
           },
           {
             id: "size-flavor",
-            label: "사이즈·맛",
+            label: "사이즈·옵션",
             content: (
-              <ProductDetailSizeFlavorSection
+              <ProductDetailSizeOptionSection
                 cakeSizeOptions={data.cakeSizeOptions}
-                cakeFlavorOptions={data.cakeFlavorOptions}
+                customOptions={data.customOptions}
               />
             ),
           },
@@ -229,7 +230,6 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
           cakeImageUrl={data.images[0] ?? ""}
           cakeImages={data.images}
           cakeSizeOptions={data.cakeSizeOptions}
-          cakeFlavorOptions={data.cakeFlavorOptions}
           customOptions={data.customOptions}
           optionsVersion={data.optionsVersion}
           productNoticeProducer={data.productNoticeProducer}
