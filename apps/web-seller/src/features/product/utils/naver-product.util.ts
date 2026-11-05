@@ -13,6 +13,8 @@ import type {
 
 /** 상품 사진 최대 수 (대표 1 + 추가 7) */
 export const PRODUCT_MAX_IMAGES = 8;
+/** 네이버 사진을 한 번에 가져올 수 있는 수 (서버와 같음) */
+export const NAVER_IMAGE_IMPORT_MAX = 5;
 /** 추가 옵션 이름 최대 글자 수 */
 const CUSTOM_OPTION_NAME_MAX = 20;
 /** 네이버 추가 옵션을 넣을 그룹 기본 이름 */
@@ -142,7 +144,9 @@ export function defaultSelection(
   const room = Math.max(0, PRODUCT_MAX_IMAGES - (form.images?.length ?? 0));
   return {
     textKeys,
-    imageIndexes: detail.imageUrls.map((_, i) => i).slice(0, room),
+    imageIndexes: detail.imageUrls
+      .map((_, i) => i)
+      .slice(0, Math.min(room, NAVER_IMAGE_IMPORT_MAX)),
     optionChoices,
     optionIds: detail.options.filter((o) => o.selectedByDefault).map((o) => o.optionId),
   };
@@ -154,6 +158,9 @@ export function getSelectionProblems(
   selection: NaverImportSelection,
 ): string[] {
   const problems: string[] = [];
+  if (selection.imageIndexes.length > NAVER_IMAGE_IMPORT_MAX) {
+    problems.push(`사진은 한 번에 ${NAVER_IMAGE_IMPORT_MAX}장까지 가져올 수 있어요.`);
+  }
   const picked = pickedOptions(detail, selection);
   const sizes = picked.filter(({ choice }) => choice.use === "SIZE");
   const names = new Set<string>();

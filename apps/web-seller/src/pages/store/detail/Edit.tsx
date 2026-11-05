@@ -65,6 +65,7 @@ export const StoreDetailEditPage: React.FC = () => {
         initialValue={storeForm}
         submitButtonText="저장하기"
         naverPlace={{ storeId, connected: store.naverPlace ?? null }}
+        submitting={updateStoreMutation.isPending}
       />
     </div>
   );

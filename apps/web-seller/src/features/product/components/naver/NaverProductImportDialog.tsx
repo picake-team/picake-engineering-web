@@ -30,6 +30,7 @@ import {
   defaultSelection,
   getSelectionProblems,
   hasNaverOnlyGuide,
+  NAVER_IMAGE_IMPORT_MAX,
   type ImportMode,
   type NaverImportSelection,
   type OptionChoice,
@@ -548,7 +549,14 @@ export function NaverProductImportDialog({
                     checked={selection.imageIndexes.length > 0}
                     onChange={(c) =>
                       setSelection((s) =>
-                        s ? { ...s, imageIndexes: c ? detail.imageUrls.map((_, i) => i) : [] } : s,
+                        s
+                          ? {
+                              ...s,
+                              imageIndexes: c
+                                ? detail.imageUrls.map((_, i) => i).slice(0, NAVER_IMAGE_IMPORT_MAX)
+                                : [],
+                            }
+                          : s,
                       )
                     }
                     className="items-start pt-0.5"
@@ -557,7 +565,7 @@ export function NaverProductImportDialog({
                     <p className="text-sm font-medium">
                       사진{" "}
                       <span className="font-normal text-muted-foreground">
-                        {selection.imageIndexes.length}장 선택
+                        {selection.imageIndexes.length}/{NAVER_IMAGE_IMPORT_MAX}장 선택
                       </span>
                     </p>
                     <div className="mt-2 flex flex-wrap gap-2">
