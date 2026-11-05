@@ -219,7 +219,10 @@ export function ProductPriceSizeSection({ form, errors, onChange, disabled }: Pr
   );
 }
 
-/** 맛. 손님은 반드시 하나를 고른다. 추가금이 있으면 판매가에 더해진다 */
+/**
+ * 맛(선택). 맛을 넣으면 손님은 그중 하나를 꼭 고르고, 비워 두면 맛을 고르지 않는다.
+ * 추가금이 있으면 판매가에 더해진다. 네이버 상품 대부분은 맛 옵션이 없어서 선택으로 둔다.
+ */
 export function ProductFlavorSection({ form, errors, onChange, disabled }: Props) {
   const flavors = form.cakeFlavorOptions ?? [];
   const update = (index: number, patch: Partial<CakeFlavorOptionDto>) =>
@@ -229,7 +232,8 @@ export function ProductFlavorSection({ form, errors, onChange, disabled }: Props
     <FormSection
       id="section-flavor"
       title="맛"
-      description="손님이 하나를 골라요. 맛이 하나뿐이면 그것만 두세요."
+      hint="(선택)"
+      description="맛을 넣으면 손님이 그중 하나를 골라요. 맛이 정해진 케이크면 비워 두세요."
       error={!!errors.cakeFlavorOptions}
       action={
         <Button
@@ -250,7 +254,12 @@ export function ProductFlavorSection({ form, errors, onChange, disabled }: Props
         </Button>
       }
     >
-      <ul className="divide-y rounded-lg border">
+      {flavors.length === 0 && (
+        <p className="text-sm text-muted-foreground">
+          맛을 고르지 않는 상품이에요. 손님이 맛을 고르게 하려면 &apos;맛 추가&apos;를 누르세요.
+        </p>
+      )}
+      <ul className={flavors.length ? "divide-y rounded-lg border" : "hidden"}>
         {flavors.map((flavor, index) => {
           const hidden = flavor.visible !== EnableStatus.ENABLE;
           return (
@@ -290,7 +299,7 @@ export function ProductFlavorSection({ form, errors, onChange, disabled }: Props
                 type="button"
                 aria-label={`${flavor.displayName || "맛"} 삭제`}
                 className="rounded p-1 text-muted-foreground hover:text-destructive disabled:opacity-40"
-                disabled={disabled || flavors.length <= 1}
+                disabled={disabled}
                 onClick={() =>
                   onChange({ cakeFlavorOptions: flavors.filter((_, i) => i !== index) })
                 }
