@@ -11,7 +11,6 @@ import {
   useUpdateProduct,
   useDeleteProduct,
 } from "@/apps/web-seller/features/product/hooks/mutations/useProductMutation";
-import { Card, CardContent } from "@/apps/web-seller/common/components/cards/Card";
 import { ContentLoading } from "@/apps/web-seller/common/components/loading/ContentLoading";
 
 export const StoreDetailProductDetailPage: React.FC = () => {
@@ -136,26 +135,20 @@ export const StoreDetailProductDetailPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">상품 수정</h1>
-      </div>
-      <Card>
-        <CardContent className="p-6">
-          <ProductCreationForm
-            onSubmit={handleUpdate}
-            initialValue={productForm}
-            disabled={false}
-            onDelete={handleDelete}
-            isDeleting={deleteProductMutation.isPending || updateProductMutation.isPending}
-            storeId={storeId}
-            productId={productId}
-            naverLink={{
-              naverBizItemId: product.naverBizItemId,
-              naverLinkedAt: product.naverLinkedAt,
-            }}
-          />
-        </CardContent>
-      </Card>
+      <h1 className="text-2xl font-bold">상품 수정</h1>
+      <ProductCreationForm
+        onSubmit={handleUpdate}
+        initialValue={productForm}
+        disabled={false}
+        onDelete={handleDelete}
+        isDeleting={deleteProductMutation.isPending || updateProductMutation.isPending}
+        storeId={storeId}
+        productId={productId}
+        naverLink={{
+          naverBizItemId: product.naverBizItemId,
+          naverLinkedAt: product.naverLinkedAt,
+        }}
+      />
     </div>
   );
 };

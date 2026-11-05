@@ -9,6 +9,7 @@ import {
 import type { ProductForm } from "@/apps/web-seller/features/product/types/product.ui";
 import {
   CUSTOM_OPTION_LIMITS,
+  CUSTOM_OPTION_PRESETS,
   CUSTOM_OPTION_TYPE_META,
   CUSTOM_OPTION_TYPE_ORDER,
   VISIBILITY_STATUS_OPTIONS,
@@ -21,7 +22,7 @@ import { NumberInput } from "@/apps/web-seller/common/components/inputs/NumberIn
 import { Checkbox } from "@/apps/web-seller/common/components/inputs/Checkbox";
 import { Label } from "@/apps/web-seller/common/components/labels/Label";
 import { Badge } from "@/apps/web-seller/common/components/badges/Badge";
-import { Card, CardContent } from "@/apps/web-seller/common/components/cards/Card";
+import { FormSection } from "@/apps/web-seller/features/product/components/sections/FormSection";
 import {
   Select,
   SelectContent,
@@ -69,6 +70,7 @@ export const ProductCreationCustomOptionsSection: React.FC<
   const options = form.customOptions;
   // 펼쳐진 옵션 인덱스 (순서 변경·삭제 시 함께 갱신)
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
+  const [menuOpen, setMenuOpen] = useState(false);
   const optionErrors = errors.customOptions ? getCustomOptionErrors(options) : [];
 
   const isFull = options.length >= CUSTOM_OPTION_LIMITS.MAX_OPTIONS;
@@ -127,129 +129,173 @@ export const ProductCreationCustomOptionsSection: React.FC<
     updateOption(index, patch);
   };
 
-  return (
-    <Card>
-      <CardContent className="p-6">
-        <h2 className="text-xl font-semibold mb-2">추가 옵션</h2>
-        <div className="border-t mb-6" />
-
-        <div className="space-y-4">
-          {/* 추가 버튼 */}
-          <div className="space-y-3">
-            <div className="flex flex-wrap items-center gap-2">
-              {CUSTOM_OPTION_TYPE_ORDER.map((type) => (
-                <Button
-                  key={type}
+  const usedNames = new Set(options.map((o) => o.name));
+  const addMenu = (
+    <div className="relative">
+      <Button
+        type="button"
+        size="sm"
+        variant="outline"
+        disabled={disabled || isFull}
+        aria-expanded={menuOpen}
+        onClick={() => setMenuOpen((v) => !v)}
+      >
+        <Plus className="h-4 w-4" />
+        옵션 추가
+      </Button>
+      {menuOpen && (
+        <>
+          <div className="fixed inset-0 z-10" aria-hidden onClick={() => setMenuOpen(false)} />
+          <div className="absolute right-0 z-20 mt-1 w-72 rounded-lg border bg-popover p-1 shadow-lg">
+            <p className="px-2 pt-1.5 pb-1 text-xs font-medium text-muted-foreground">
+              자주 쓰는 옵션
+            </p>
+            {CUSTOM_OPTION_PRESETS.map((preset) => {
+              const built = preset.build();
+              const off = usedNames.has(built.name) || cannotAdd(built.type);
+              return (
+                <button
+                  key={preset.key}
                   type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={cannotAdd(type)}
-                  title={CUSTOM_OPTION_TYPE_META[type].description}
-                  onClick={() => addOption(createEmptyCustomOption(type))}
+                  disabled={off}
+                  className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-sm hover:bg-muted disabled:opacity-40"
+                  onClick={() => {
+                    addOption(built);
+                    setMenuOpen(false);
+                  }}
                 >
-                  <Plus className="h-4 w-4" />
-                  {CUSTOM_OPTION_TYPE_META[type].label}
-                </Button>
-              ))}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              최대 {CUSTOM_OPTION_LIMITS.MAX_OPTIONS}개 · 사진첨부형은{" "}
-              {CUSTOM_OPTION_LIMITS.MAX_IMAGE_OPTIONS}개까지
+                  {preset.label}
+                  {usedNames.has(built.name) && (
+                    <span className="text-xs text-muted-foreground">추가됨</span>
+                  )}
+                </button>
+              );
+            })}
+            <p className="mt-1 border-t px-2 pt-2 pb-1 text-xs font-medium text-muted-foreground">
+              직접 만들기
             </p>
+            {CUSTOM_OPTION_TYPE_ORDER.map((type) => (
+              <button
+                key={type}
+                type="button"
+                disabled={cannotAdd(type)}
+                className="w-full rounded-md px-2 py-1.5 text-left hover:bg-muted disabled:opacity-40"
+                onClick={() => {
+                  addOption(createEmptyCustomOption(type));
+                  setMenuOpen(false);
+                }}
+              >
+                <span className="block text-sm">{CUSTOM_OPTION_TYPE_META[type].label}</span>
+                <span className="block text-xs text-muted-foreground">
+                  {CUSTOM_OPTION_TYPE_META[type].description}
+                </span>
+              </button>
+            ))}
           </div>
+        </>
+      )}
+    </div>
+  );
 
-          {/* 옵션 목록 */}
-          {options.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-4">
-              추가 옵션이 없습니다. 사이즈·맛만 고르는 상품이면 그대로 두셔도 돼요.
-            </p>
-          ) : (
-            <ul className="space-y-3">
-              {options.map((option, index) => {
-                const isOpen = expanded.has(index);
-                const error = optionErrors[index];
-                return (
-                  <li
-                    key={option.id ?? `new-${index}`}
-                    className={`border rounded-md ${error ? "border-destructive" : ""}`}
-                  >
-                    {/* 한 줄 요약 */}
-                    <div className="flex items-center gap-2 px-3 py-2">
-                      <div className="flex flex-col">
-                        <button
-                          type="button"
-                          aria-label="위로 이동"
-                          className="text-muted-foreground disabled:opacity-30"
-                          disabled={disabled || index === 0}
-                          onClick={() => moveOption(index, -1)}
-                        >
-                          <ChevronUp className="h-4 w-4" />
-                        </button>
-                        <button
-                          type="button"
-                          aria-label="아래로 이동"
-                          className="text-muted-foreground disabled:opacity-30"
-                          disabled={disabled || index === options.length - 1}
-                          onClick={() => moveOption(index, 1)}
-                        >
-                          <ChevronDown className="h-4 w-4" />
-                        </button>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium truncate">
-                            {option.name.trim() || "(옵션명 없음)"}
-                          </span>
-                          {option.visible === EnableStatus.DISABLE && (
-                            <Badge variant="secondary">숨김</Badge>
-                          )}
-                        </div>
-                        <p className="text-sm text-muted-foreground truncate">
-                          {summarize(option)}
-                        </p>
-                      </div>
-                      <Button
+  return (
+    <FormSection
+      id="section-custom"
+      title="추가 옵션"
+      hint="(선택)"
+      description={`레터링 문구·초·포장처럼 손님이 더 고르는 것. 최대 ${CUSTOM_OPTION_LIMITS.MAX_OPTIONS}개`}
+      action={addMenu}
+      error={!!errors.customOptions}
+    >
+      <div className="space-y-4">
+        {/* 옵션 목록 */}
+        {options.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            추가 옵션이 없어요. 사이즈·맛만 고르는 상품이면 그대로 두세요.
+          </p>
+        ) : (
+          <ul className="space-y-3">
+            {options.map((option, index) => {
+              const isOpen = expanded.has(index);
+              const error = optionErrors[index];
+              return (
+                <li
+                  key={option.id ?? `new-${index}`}
+                  className={`border rounded-md ${error ? "border-destructive" : ""}`}
+                >
+                  {/* 한 줄 요약 */}
+                  <div className="flex items-center gap-2 px-3 py-2">
+                    <div className="flex flex-col">
+                      <button
                         type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => toggleExpanded(index)}
+                        aria-label="위로 이동"
+                        className="text-muted-foreground disabled:opacity-30"
+                        disabled={disabled || index === 0}
+                        onClick={() => moveOption(index, -1)}
                       >
-                        {isOpen ? "접기" : "수정"}
-                      </Button>
-                      <Button
+                        <ChevronUp className="h-4 w-4" />
+                      </button>
+                      <button
                         type="button"
-                        variant="ghost"
-                        size="icon"
-                        aria-label="옵션 삭제"
-                        className="h-8 w-8"
-                        disabled={disabled}
-                        onClick={() => removeOption(index)}
+                        aria-label="아래로 이동"
+                        className="text-muted-foreground disabled:opacity-30"
+                        disabled={disabled || index === options.length - 1}
+                        onClick={() => moveOption(index, 1)}
                       >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
+                        <ChevronDown className="h-4 w-4" />
+                      </button>
                     </div>
-                    {error && <p className="px-3 pb-2 text-sm text-destructive">{error}</p>}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium truncate">
+                          {option.name.trim() || "(옵션명 없음)"}
+                        </span>
+                        {option.visible === EnableStatus.DISABLE && (
+                          <Badge variant="secondary">숨김</Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground truncate">{summarize(option)}</p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => toggleExpanded(index)}
+                    >
+                      {isOpen ? "접기" : "수정"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      aria-label="옵션 삭제"
+                      className="h-8 w-8"
+                      disabled={disabled}
+                      onClick={() => removeOption(index)}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                  {error && <p className="px-3 pb-2 text-sm text-destructive">{error}</p>}
 
-                    {/* 세부 설정 */}
-                    {isOpen && (
-                      <CustomOptionEditor
-                        option={option}
-                        disabled={disabled}
-                        onChange={(patch) => updateOption(index, patch)}
-                        onChoicesChange={(choices) => updateChoices(index, choices)}
-                      />
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-          {errors.customOptions && !optionErrors.some(Boolean) && (
-            <p className="text-sm text-destructive">{errors.customOptions}</p>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+                  {/* 세부 설정 */}
+                  {isOpen && (
+                    <CustomOptionEditor
+                      option={option}
+                      disabled={disabled}
+                      onChange={(patch) => updateOption(index, patch)}
+                      onChoicesChange={(choices) => updateChoices(index, choices)}
+                    />
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+        {errors.customOptions && !optionErrors.some(Boolean) && (
+          <p className="text-sm text-destructive">{errors.customOptions}</p>
+        )}
+      </div>
+    </FormSection>
   );
 };
 

@@ -89,20 +89,20 @@ export const CUSTOM_OPTION_TYPE_META: Record<
   { label: string; description: string }
 > = {
   [CustomOptionType.SINGLE_SELECT]: {
-    label: "선택형",
-    description: "구매자가 목록에서 1개를 고릅니다",
+    label: "하나 고르기",
+    description: "손님이 목록에서 하나를 골라요 (예: 초 종류)",
   },
   [CustomOptionType.MULTI_SELECT]: {
-    label: "다중선택형",
-    description: "구매자가 여러 개를 체크해서 고릅니다",
+    label: "여러 개 고르기",
+    description: "손님이 여러 개를 골라요 (예: 토핑, 추가 구성)",
   },
   [CustomOptionType.TEXT]: {
-    label: "직접입력형",
-    description: "구매자가 글자를 직접 입력합니다",
+    label: "글자 받기",
+    description: "손님이 글자를 적어요 (예: 레터링 문구)",
   },
   [CustomOptionType.IMAGE]: {
-    label: "사진첨부형",
-    description: "구매자가 참고 사진을 첨부합니다",
+    label: "사진 받기",
+    description: "손님이 참고 사진을 올려요 (예: 원하는 디자인)",
   },
 };
 
