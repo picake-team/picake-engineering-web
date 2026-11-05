@@ -404,7 +404,7 @@ export const ProductCreationForm: React.FC<Props> = ({
                   원산지 <span className="text-destructive">*</span>
                 </>
               }
-              description="케이크에 쓴 주요 원료의 원산지예요. 온라인으로 팔 때도 원산지표시법에 따라 표시해야 해요."
+              description="케이크에 쓴 주요 원료의 원산지예요."
               error={sectionHasError("section-notice")}
             >
               <Input
