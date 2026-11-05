@@ -188,8 +188,8 @@ export const StoreCreationForm: React.FC<Props> = ({
               <div>
                 <Label>스토어 설명</Label>
                 <textarea
-                  placeholder="맛있는 케이크를 판매하는 스토어입니다."
-                  rows={4}
+                  placeholder="가게 소개, 주문 방법, 픽업 안내 등을 적어 주세요. 손님 화면에서는 길면 접어서 보여 줘요."
+                  rows={6}
                   maxLength={STORE_DESCRIPTION_MAX_LENGTH}
                   value={form.description || ""}
                   onChange={handleChange("description")}
@@ -204,7 +204,8 @@ export const StoreCreationForm: React.FC<Props> = ({
                     <span />
                   )}
                   <span className="text-xs text-muted-foreground">
-                    [{(form.description || "").length}/{STORE_DESCRIPTION_MAX_LENGTH}]
+                    {(form.description || "").length.toLocaleString()}/
+                    {STORE_DESCRIPTION_MAX_LENGTH.toLocaleString()}자
                   </span>
                 </div>
               </div>

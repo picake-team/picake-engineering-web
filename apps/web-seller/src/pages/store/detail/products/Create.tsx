@@ -4,7 +4,6 @@ import { ProductCreationForm } from "@/apps/web-seller/features/product/componen
 import type { CreateProductRequestDto } from "@/apps/web-seller/features/product/types/product.dto";
 import type { ProductForm } from "@/apps/web-seller/features/product/types/product.ui";
 import { useCreateProduct } from "@/apps/web-seller/features/product/hooks/mutations/useProductMutation";
-import { Card, CardContent } from "@/apps/web-seller/common/components/cards/Card";
 
 export const StoreDetailProductCreatePage: React.FC = () => {
   const { storeId } = useParams();
@@ -33,12 +32,8 @@ export const StoreDetailProductCreatePage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">상품 등록</h1>
-      <Card>
-        <CardContent className="p-6">
-          <ProductCreationForm onSubmit={handleSubmit} storeId={storeId} />
-        </CardContent>
-      </Card>
+      <h1 className="text-2xl font-bold">상품 등록</h1>
+      <ProductCreationForm onSubmit={handleSubmit} storeId={storeId} />
     </div>
   );
 };
