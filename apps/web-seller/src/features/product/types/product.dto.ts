@@ -116,6 +116,8 @@ export interface CreateProductRequestDto {
   productCategoryTypes?: ProductCategoryType[];
   searchTags?: string[];
   detailDescription?: string;
+  /** 네이버에서 가져온 상품이면 네이버 예약 상품 ID (등록할 때 함께 연결) */
+  naverBizItemId?: string;
   productNoticeFoodType: string;
   productNoticeProducer: string;
   productNoticeOrigin: string;
@@ -155,6 +157,10 @@ export interface ProductResponseDto {
   productCategoryTypes: ProductCategoryType[];
   searchTags: string[];
   detailDescription?: string | null;
+  /** 연결한 네이버 예약 상품 ID */
+  naverBizItemId?: string | null;
+  /** 네이버 상품을 연결한 시각 */
+  naverLinkedAt?: string | null;
   productNumber: string;
   productNoticeFoodType: string;
   productNoticeProducer: string;

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { ProductCreationForm } from "@/apps/web-seller/features/product/components/forms/ProductCreationForm";
 import {
@@ -21,6 +21,46 @@ export const StoreDetailProductDetailPage: React.FC = () => {
   const updateProductMutation = useUpdateProduct();
   const deleteProductMutation = useDeleteProduct();
 
+  // ProductResponseDto를 ProductForm으로 변환. 화면이 다시 그려질 때마다 폼이 초기화되지 않게 상품이 바뀔 때만 만든다
+  const productForm = useMemo<ProductForm | null>(
+    () =>
+      product
+        ? {
+            images: product.images || [],
+            name: product.name,
+            originalPrice: product.originalPrice,
+            salePrice: product.salePrice,
+            salesStatus: product.salesStatus,
+            visibilityStatus: product.visibilityStatus,
+            cakeSizeOptions: (product.cakeSizeOptions as any) || [],
+            cakeFlavorOptions: (product.cakeFlavorOptions as any) || [],
+            customOptions: product.customOptions ?? [],
+            productType: product.productType,
+            // '커스텀' 카테고리는 상품 유형을 따라 서버가 관리하므로 폼에서는 뺀다
+            productCategoryTypes: (product.productCategoryTypes ?? []).filter(
+              (category) => category !== ProductCategoryType.LETTERING,
+            ),
+            searchTags: product.searchTags ?? [],
+            detailDescription: product.detailDescription ?? "",
+            productNoticeFoodType: product.productNoticeFoodType,
+            productNoticeProducer: product.productNoticeProducer,
+            productNoticeOrigin: product.productNoticeOrigin,
+            productNoticeAddress: product.productNoticeAddress,
+            productNoticeManufactureDate: product.productNoticeManufactureDate,
+            productNoticeExpirationDate: product.productNoticeExpirationDate,
+            productNoticePackageCapacity: product.productNoticePackageCapacity,
+            productNoticePackageQuantity: product.productNoticePackageQuantity,
+            productNoticeIngredients: product.productNoticeIngredients,
+            productNoticeCalories: product.productNoticeCalories,
+            productNoticeSafetyNotice: product.productNoticeSafetyNotice,
+            productNoticeGmoNotice: product.productNoticeGmoNotice,
+            productNoticeImportNotice: product.productNoticeImportNotice,
+            productNoticeCustomerService: product.productNoticeCustomerService,
+          }
+        : null,
+    [product],
+  );
+
   if (!storeId || !productId) {
     return (
       <div>
@@ -39,47 +79,13 @@ export const StoreDetailProductDetailPage: React.FC = () => {
     );
   }
 
-  if (!product) {
+  if (!product || !productForm) {
     return (
       <div>
         <h2 className="text-xl font-semibold">상품을 찾을 수 없습니다.</h2>
       </div>
     );
   }
-
-  // ProductResponseDto를 ProductForm으로 변환
-  const productForm: ProductForm = {
-    images: product.images || [],
-    name: product.name,
-    originalPrice: product.originalPrice,
-    salePrice: product.salePrice,
-    salesStatus: product.salesStatus,
-    visibilityStatus: product.visibilityStatus,
-    cakeSizeOptions: (product.cakeSizeOptions as any) || [],
-    cakeFlavorOptions: (product.cakeFlavorOptions as any) || [],
-    customOptions: product.customOptions ?? [],
-    productType: product.productType,
-    // '커스텀' 카테고리는 상품 유형을 따라 서버가 관리하므로 폼에서는 뺀다
-    productCategoryTypes: (product.productCategoryTypes ?? []).filter(
-      (category) => category !== ProductCategoryType.LETTERING,
-    ),
-    searchTags: product.searchTags ?? [],
-    detailDescription: product.detailDescription ?? "",
-    productNoticeFoodType: product.productNoticeFoodType,
-    productNoticeProducer: product.productNoticeProducer,
-    productNoticeOrigin: product.productNoticeOrigin,
-    productNoticeAddress: product.productNoticeAddress,
-    productNoticeManufactureDate: product.productNoticeManufactureDate,
-    productNoticeExpirationDate: product.productNoticeExpirationDate,
-    productNoticePackageCapacity: product.productNoticePackageCapacity,
-    productNoticePackageQuantity: product.productNoticePackageQuantity,
-    productNoticeIngredients: product.productNoticeIngredients,
-    productNoticeCalories: product.productNoticeCalories,
-    productNoticeSafetyNotice: product.productNoticeSafetyNotice,
-    productNoticeGmoNotice: product.productNoticeGmoNotice,
-    productNoticeImportNotice: product.productNoticeImportNotice,
-    productNoticeCustomerService: product.productNoticeCustomerService,
-  };
 
   const handleUpdate = async (data: ProductForm) => {
     const request: UpdateProductRequestDto = {
@@ -143,6 +149,10 @@ export const StoreDetailProductDetailPage: React.FC = () => {
             isDeleting={deleteProductMutation.isPending || updateProductMutation.isPending}
             storeId={storeId}
             productId={productId}
+            naverLink={{
+              naverBizItemId: product.naverBizItemId,
+              naverLinkedAt: product.naverLinkedAt,
+            }}
           />
         </CardContent>
       </Card>
