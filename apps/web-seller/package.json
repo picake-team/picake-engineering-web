@@ -12,7 +12,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "storybook": "storybook dev -p 6007",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "test": "vitest run --project=unit",
+    "test:unit": "vitest run --project=unit"
   },
   "dependencies": {
     "@radix-ui/react-label": "^2.1.8",
