@@ -20,6 +20,20 @@ export const PRODUCT_NOTICE_FIELDS = [
 ] as const;
 
 export type ProductNoticeKey = (typeof PRODUCT_NOTICE_FIELDS)[number]["key"];
+
+/**
+ * 받을 고시 항목 (2026-11 법 검토로 원산지만).
+ * - 동네 가게가 근처 손님에게 파는 음식료는 전자상거래법 제3조 ④로 상품정보제공 고시(제13조)가 적용되지 않는다.
+ * - 원산지는 원산지표시법에 따라 통신판매에서도 표시해야 해서 남긴다.
+ * 14개를 다시 받으려면 "ALL"로 바꾼다(화면·검증·고시 복사가 함께 돌아온다. 서버는 원산지만 필수).
+ */
+export const PRODUCT_NOTICE_MODE = "ORIGIN_ONLY" as "ORIGIN_ONLY" | "ALL";
+
+/** 저장할 때 꼭 채워야 하는 고시 항목 */
+export const REQUIRED_PRODUCT_NOTICE_KEYS: readonly ProductNoticeKey[] =
+  PRODUCT_NOTICE_MODE === "ALL"
+    ? PRODUCT_NOTICE_FIELDS.map(({ key }) => key)
+    : ["productNoticeOrigin"];
 export type ProductNoticeValues = Pick<ProductForm, ProductNoticeKey>;
 
 /** 다른 상품의 고시 값을 새 값으로 꺼낸다 (원본 상품과 연결되지 않는 복사본) */

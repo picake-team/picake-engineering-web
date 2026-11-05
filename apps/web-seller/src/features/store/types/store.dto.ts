@@ -91,7 +91,8 @@ export interface StoreResponseDto extends StoreAddressDto {
   businessName: string;
   businessSector: string;
   businessType: string;
-  permissionManagementNumber: string;
+  /** 통신판매업 신고번호 (받지 않았으면 null) */
+  permissionManagementNumber: string | null;
   /** 정산 계좌번호 */
   bankAccountNumber?: string | null;
   /** 정산 계좌 은행 코드 */
@@ -139,7 +140,8 @@ export interface UpdateStoreBusinessCalendarResponseDto {
 /** 스토어 생성 요청 (3단계: 사업자진위 + 통신판매 + 스토어정보) */
 export interface CreateStoreRequestDto extends StoreAddressDto {
   businessValidation: BusinessValidationRequestDto;
-  onlineTradingCompanyDetail: OnlineTradingCompanyDetailRequestDto;
+  /** 선택: REQUIRE_ONLINE_TRADING_REGISTRATION이 켜져 있을 때만 보낸다 */
+  onlineTradingCompanyDetail?: OnlineTradingCompanyDetailRequestDto;
   name: string;
   description?: string;
   phoneNumber: string;

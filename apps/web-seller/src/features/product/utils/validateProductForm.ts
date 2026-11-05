@@ -1,6 +1,28 @@
 import { EnableStatus } from "@/apps/web-seller/features/product/types/product.dto";
+import {
+  REQUIRED_PRODUCT_NOTICE_KEYS,
+  type ProductNoticeKey,
+} from "@/apps/web-seller/features/product/utils/product-notice.util";
 import type { ProductForm } from "@/apps/web-seller/features/product/types/product.ui";
 import { getCustomOptionsError } from "@/apps/web-seller/features/product/utils/validateCustomOptions";
+
+/** 고시 항목이 비었을 때 문구 */
+const PRODUCT_NOTICE_REQUIRED_MESSAGES: Record<ProductNoticeKey, string> = {
+  productNoticeFoodType: "식품의 유형을 입력해주세요.",
+  productNoticeProducer: "제조사를 입력해주세요.",
+  productNoticeOrigin: "원산지를 입력해주세요.",
+  productNoticeAddress: "소재지를 입력해주세요.",
+  productNoticeManufactureDate: "제조연월일을 입력해주세요.",
+  productNoticeExpirationDate: "소비기한 또는 품질유지기한을 입력해주세요.",
+  productNoticePackageCapacity: "포장단위별 용량/수량을 입력해주세요.",
+  productNoticePackageQuantity: "포장 단위별 수량을 입력해주세요.",
+  productNoticeIngredients: "원재료명 및 함량을 입력해주세요.",
+  productNoticeCalories: "영양성분을 입력해주세요.",
+  productNoticeSafetyNotice: "소비자안전을 위한 주의사항을 입력해주세요.",
+  productNoticeGmoNotice: "유전자변형식품에 해당하는 경우의 표시를 입력해주세요.",
+  productNoticeImportNotice: "수입식품의 경우를 입력해주세요.",
+  productNoticeCustomerService: "고객센터를 입력해주세요.",
+};
 
 export const validateProductForm = (
   form: ProductForm,
@@ -62,61 +84,9 @@ export const validateProductForm = (
     newErrors.customOptions = customOptionsError;
   }
 
-  // 상품정보제공고시 검증
-  if (!form.productNoticeFoodType?.trim()) {
-    newErrors.productNoticeFoodType = "식품의 유형을 입력해주세요.";
-  }
-
-  if (!form.productNoticeProducer?.trim()) {
-    newErrors.productNoticeProducer = "제조사를 입력해주세요.";
-  }
-
-  if (!form.productNoticeOrigin?.trim()) {
-    newErrors.productNoticeOrigin = "원산지를 입력해주세요.";
-  }
-
-  if (!form.productNoticeAddress?.trim()) {
-    newErrors.productNoticeAddress = "소재지를 입력해주세요.";
-  }
-
-  if (!form.productNoticeManufactureDate?.trim()) {
-    newErrors.productNoticeManufactureDate = "제조연월일을 입력해주세요.";
-  }
-
-  if (!form.productNoticeExpirationDate?.trim()) {
-    newErrors.productNoticeExpirationDate = "소비기한 또는 품질유지기한을 입력해주세요.";
-  }
-
-  if (!form.productNoticePackageCapacity?.trim()) {
-    newErrors.productNoticePackageCapacity = "포장단위별 용량/수량을 입력해주세요.";
-  }
-
-  if (!form.productNoticePackageQuantity?.trim()) {
-    newErrors.productNoticePackageQuantity = "포장 단위별 수량을 입력해주세요.";
-  }
-
-  if (!form.productNoticeIngredients?.trim()) {
-    newErrors.productNoticeIngredients = "원재료명 및 함량을 입력해주세요.";
-  }
-
-  if (!form.productNoticeCalories?.trim()) {
-    newErrors.productNoticeCalories = "영양성분을 입력해주세요.";
-  }
-
-  if (!form.productNoticeSafetyNotice?.trim()) {
-    newErrors.productNoticeSafetyNotice = "소비자안전을 위한 주의사항을 입력해주세요.";
-  }
-
-  if (!form.productNoticeGmoNotice?.trim()) {
-    newErrors.productNoticeGmoNotice = "유전자변형식품에 해당하는 경우의 표시를 입력해주세요.";
-  }
-
-  if (!form.productNoticeImportNotice?.trim()) {
-    newErrors.productNoticeImportNotice = "수입식품의 경우를 입력해주세요.";
-  }
-
-  if (!form.productNoticeCustomerService?.trim()) {
-    newErrors.productNoticeCustomerService = "고객센터를 입력해주세요.";
+  // 고시: 지금 받는 항목만 검사 (REQUIRED_PRODUCT_NOTICE_KEYS, 법 검토로 원산지만)
+  for (const key of REQUIRED_PRODUCT_NOTICE_KEYS) {
+    if (!form[key]?.trim()) newErrors[key] = PRODUCT_NOTICE_REQUIRED_MESSAGES[key];
   }
 
   return newErrors;
