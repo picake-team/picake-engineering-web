@@ -136,6 +136,16 @@ describe("textToHtml / htmlToText", () => {
 });
 
 describe("defaultSelection", () => {
+  it("사진은 네이버에 10장이 있어도 서버 한도인 5장까지만 고른다", () => {
+    const ten = Array.from({ length: 10 }, (_, i) => `https://a.pstatic.net/${i}.jpg`);
+    const d = detail([], { imageUrls: ten });
+    const sel = defaultSelection(d, emptyForm(), "create");
+    expect(sel.imageIndexes).toEqual([0, 1, 2, 3, 4]);
+    expect(getSelectionProblems(d, { ...sel, imageIndexes: [0, 1, 2, 3, 4, 5] })).toContain(
+      "사진은 한 번에 5장까지 가져올 수 있어요.",
+    );
+  });
+
   it("등록은 바뀐 이름·설명과 사진을 고르고, 주의사항은 고르지 않는다", () => {
     const d = detail(SIZES);
     const s = defaultSelection(d, emptyForm(), "create");

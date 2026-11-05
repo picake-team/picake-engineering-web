@@ -34,7 +34,7 @@ import styles from "@/apps/web-info/features/seller/components/partner.module.cs
  * - 주문서 항목: web-user 주문 화면(픽업 일시·옵션·레터링·참고 사진)
  * - 자동 안내: backend `notification/constants/user-order-alimtalk.constants.ts` 발송 시점
  * - 운영 기능: web-seller 실제 메뉴(주문·캘린더·피드·통계·알림)
- * - 입점 절차: docs/common/feature/스토어 등록(3단계) - 가이드.md
+ * - 입점 절차: docs/common/feature/스토어 등록 - 가이드.md
  * - 초기 혜택: 설문 안내문에 고지된 내용
  * - 실시간 채팅은 아직 열지 않은 기능이라 소개하지 않는다
  */
@@ -73,15 +73,11 @@ const FEATURES: { icon: IconName; title: string; body: string }[] = [
   },
 ];
 
-/** docs/common/feature/스토어 등록(3단계) - 가이드.md 기준 */
+/** docs/common/feature/스토어 등록 - 가이드.md 기준 (지금 2단계: 통신판매업 단계는 받지 않음) */
 const STEPS = [
   {
     label: "사업자등록번호 확인",
     body: "국세청 자료로 바로 확인해요. 서류를 따로 보내실 필요 없어요.",
-  },
-  {
-    label: "통신판매업 신고번호 조회",
-    body: "신고하신 정보가 사업자 정보와 맞는지 확인해요.",
   },
   {
     label: "매장 정보 입력",
@@ -96,7 +92,7 @@ const FAQS = [
   },
   {
     q: "지금 바로 입점할 수 있나요?",
-    a: "사업자등록과 통신판매업 신고가 되어 있으면 가능해요. 준비 중이시라면 설문을 남겨 주세요. 열리는 대로 안내드릴게요.",
+    a: "사업자등록이 되어 있으면 가능해요. 준비 중이시라면 설문을 남겨 주세요. 열리는 대로 안내드릴게요.",
   },
   {
     q: "상품 등록이 어렵지는 않나요?",
@@ -322,7 +318,7 @@ export default function PartnerAboutPage() {
         <Reveal>
           <SectionLabel index={6}>입점 절차</SectionLabel>
           <h2 className={`mt-4 text-gray-900 ${H2}`}>
-            세 단계면
+            두 단계면
             <br />
             매장이 열려요
           </h2>
