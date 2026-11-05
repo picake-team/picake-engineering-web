@@ -35,6 +35,8 @@ interface Props {
   submitButtonText?: string;
   /** 네이버 플레이스에서 가져오기 안내를 보여 준다. 수정 화면이면 storeId와 연결 정보를 넘긴다 */
   naverPlace?: { storeId?: string; connected?: StoreNaverPlaceDto | null };
+  /** 저장 요청 중이면 버튼을 막아 두 번 보내지 않게 한다 */
+  submitting?: boolean;
 }
 
 type Errors = Partial<Record<keyof StoreForm | "refundCancellationPolicy", string>>;
@@ -77,6 +79,10 @@ function validateStoreForm(form: StoreForm): Errors {
   set("name", validateStoreName(form.name));
   set("description", validateStoreDescription(form.description));
   set("phoneNumber", validateStorePhoneNumber(form.phoneNumber));
+  // 주소는 주소 검색으로만 정한다(비어 있으면 서버가 영어 오류를 돌려줘서 여기서 먼저 막는다)
+  if (!form.roadAddress?.trim() && !form.address?.trim()) {
+    errors.address = "주소 검색으로 가게 위치를 정해 주세요.";
+  }
   set("detailAddress", validateDetailAddress(form.detailAddress));
   if (!form.bankName) errors.bankName = "은행을 선택해주세요.";
   set("bankAccountNumber", validateBankAccountNumber(form.bankAccountNumber));
@@ -123,6 +129,7 @@ export const StoreCreationForm: React.FC<Props> = ({
   onChange,
   submitButtonText,
   naverPlace,
+  submitting = false,
 }) => {
   const [form, setForm] = useState<StoreForm>(initialValue || defaultForm);
   const [errors, setErrors] = useState<Errors>({});
@@ -164,6 +171,7 @@ export const StoreCreationForm: React.FC<Props> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
     setSubmitted(true);
     const next = validateStoreForm(form);
     setErrors(next);
@@ -380,7 +388,7 @@ export const StoreCreationForm: React.FC<Props> = ({
             고칠 곳 {errorKeys.length}개 보기
           </button>
         )}
-        <Button type="submit" className="ml-auto">
+        <Button type="submit" className="ml-auto" disabled={submitting}>
           {submitButtonText || (initialValue ? "수정하기" : "등록하기")}
         </Button>
       </div>

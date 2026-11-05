@@ -158,6 +158,7 @@ export const StoreCreatePage: React.FC = () => {
             onChange={(data) => setStepData((prev) => ({ ...prev, storeForm: data }))}
             submitButtonText="등록하기"
             naverPlace={{}}
+            submitting={createStoreMutation.isPending}
           />
         );
       default:
