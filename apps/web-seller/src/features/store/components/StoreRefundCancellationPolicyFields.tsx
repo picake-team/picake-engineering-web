@@ -25,12 +25,6 @@ export const StoreRefundCancellationPolicyFields: React.FC<Props> = ({
 
   return (
     <div className="space-y-4">
-      <div>
-        <Label className="after:content-['*'] after:ml-0.5 after:text-destructive">
-          환불·취소 규정
-        </Label>
-      </div>
-
       <div className="overflow-hidden rounded-lg border border-border bg-muted/10">
         <div className="flex items-center justify-end gap-2 border-b border-border bg-muted/30 px-3 py-2">
           <Button

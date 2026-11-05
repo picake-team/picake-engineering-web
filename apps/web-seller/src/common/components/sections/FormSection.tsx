@@ -14,7 +14,7 @@ interface FormSectionProps {
   children: React.ReactNode;
 }
 
-/** 상품 폼의 한 덩어리. 카드 안에 카드를 겹치지 않도록 이것 하나만 쓴다 */
+/** 판매자 입력 폼(상품·스토어)의 한 덩어리. 카드 안에 카드를 겹치지 않도록 이것 하나만 쓴다 */
 export function FormSection({
   id,
   title,

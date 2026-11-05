@@ -14,7 +14,7 @@ import {
   ProductType,
 } from "@/apps/web-seller/features/product/types/product.dto";
 import type { ProductForm } from "@/apps/web-seller/features/product/types/product.ui";
-import { FormSection } from "@/apps/web-seller/features/product/components/sections/FormSection";
+import { FormSection } from "@/apps/web-seller/common/components/sections/FormSection";
 import { ProductPriceSizeSection } from "@/apps/web-seller/features/product/components/sections/ProductPriceSizeSection";
 import { ProductCreationCustomOptionsSection } from "@/apps/web-seller/features/product/components/sections/ProductCreationCustomOptionsSection";
 import { ProductCreationProductNoticeSection } from "@/apps/web-seller/features/product/components/sections/ProductCreationProductNoticeSection";
@@ -268,7 +268,7 @@ export const ProductCreationForm: React.FC<Props> = ({
   );
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} noValidate>
       {naverBar}
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">

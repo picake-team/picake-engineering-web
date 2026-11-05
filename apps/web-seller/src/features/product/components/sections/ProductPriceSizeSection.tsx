@@ -10,7 +10,7 @@ import {
   type CakeSizeOptionDto,
 } from "@/apps/web-seller/features/product/types/product.dto";
 import type { ProductForm } from "@/apps/web-seller/features/product/types/product.ui";
-import { FormSection } from "@/apps/web-seller/features/product/components/sections/FormSection";
+import { FormSection } from "@/apps/web-seller/common/components/sections/FormSection";
 
 type Errors = Partial<Record<keyof ProductForm, string>>;
 

@@ -21,7 +21,7 @@ import { NumberInput } from "@/apps/web-seller/common/components/inputs/NumberIn
 import { Checkbox } from "@/apps/web-seller/common/components/inputs/Checkbox";
 import { Label } from "@/apps/web-seller/common/components/labels/Label";
 import { Badge } from "@/apps/web-seller/common/components/badges/Badge";
-import { FormSection } from "@/apps/web-seller/features/product/components/sections/FormSection";
+import { FormSection } from "@/apps/web-seller/common/components/sections/FormSection";
 import {
   Select,
   SelectContent,
