@@ -26,7 +26,7 @@ import {
 import {
   applyNaverImport,
   buildTextRows,
-  compareSizePrice,
+  compareOption,
   defaultSelection,
   getSelectionProblems,
   hasNaverOnlyGuide,
@@ -572,10 +572,13 @@ export const ProductNaverImportCard: React.FC<Props> = ({ storeId, product, form
                       (c) => c.optionId === option.optionId,
                     );
                     const checked = selection.optionIds.includes(option.optionId);
-                    const compare =
-                      mode === "refresh" && choice?.use === "SIZE"
-                        ? compareSizePrice(option, choice, form)
-                        : null;
+                    const compare = mode === "refresh" ? compareOption(option, choice, form) : null;
+                    // 포장주문처럼 여러 상품을 묶은 경우 옵션 하나를 상품 하나로 가져온다
+                    const canImportAsProduct =
+                      mode === "create" &&
+                      detail.source === "BOOKING" &&
+                      !detail.itemKey.includes("-o") &&
+                      (option.price ?? 0) > 0;
                     return (
                       <div key={option.optionId} className="flex flex-wrap items-start gap-3 p-3">
                         <Checkbox
@@ -584,6 +587,14 @@ export const ProductNaverImportCard: React.FC<Props> = ({ storeId, product, form
                           disabled={choice?.use === "SKIP"}
                           className="pt-0.5"
                         />
+                        {option.imageUrl && (
+                          <img
+                            src={option.imageUrl}
+                            alt=""
+                            referrerPolicy="no-referrer"
+                            className="h-10 w-10 shrink-0 rounded object-cover"
+                          />
+                        )}
                         <div className="min-w-0 flex-1 space-y-1">
                           <p className="text-sm">
                             <span className="font-medium">{option.name}</span>{" "}
@@ -599,10 +610,21 @@ export const ProductNaverImportCard: React.FC<Props> = ({ storeId, product, form
                               {option.desc}
                             </p>
                           )}
+                          {choice?.use === "EXTRA" && (
+                            <p className="text-xs text-muted-foreground">
+                              추가 옵션 &apos;{option.groupName}&apos; 그룹
+                              {option.groupRequired ? " (필수, 하나 고르기)" : " (선택)"}에 넣어요
+                            </p>
+                          )}
+                          {choice?.use === "BASE" && (
+                            <p className="text-xs text-muted-foreground">
+                              이 가격을 판매가로 넣어요
+                            </p>
+                          )}
                           {compare && (
                             <p className="text-xs text-muted-foreground">
                               {compare.status === "new"
-                                ? "지금 상품에 없는 사이즈 (더해져요)"
+                                ? "지금 상품에 없음 (더해져요)"
                                 : compare.status === "same"
                                   ? `지금 가격과 같음 (${won(compare.current)})`
                                   : `지금 ${won(compare.current)} → 네이버 ${won(option.price)}`}
@@ -611,6 +633,23 @@ export const ProductNaverImportCard: React.FC<Props> = ({ storeId, product, form
                           {option.invalidReason && (
                             <p className="text-xs text-amber-800">{option.invalidReason}</p>
                           )}
+                          {canImportAsProduct &&
+                            (option.linkedProduct ? (
+                              <p className="text-xs text-muted-foreground">
+                                이미 &apos;{option.linkedProduct.name}&apos; 상품으로 가져왔어요
+                              </p>
+                            ) : (
+                              <button
+                                type="button"
+                                className="text-xs text-primary underline-offset-4 hover:underline disabled:opacity-50"
+                                disabled={isBusy}
+                                onClick={() =>
+                                  loadDetail(`${detail.itemKey}-o${option.optionId}`, "create")
+                                }
+                              >
+                                이 옵션만 상품으로 가져오기
+                              </button>
+                            ))}
                         </div>
                         <div className="flex flex-wrap items-center gap-2">
                           <select
@@ -624,6 +663,8 @@ export const ProductNaverImportCard: React.FC<Props> = ({ storeId, product, form
                             }
                           >
                             <option value="SIZE">사이즈</option>
+                            <option value="FLAVOR">맛</option>
+                            <option value="BASE">기본 가격(판매가)</option>
                             <option value="EXTRA">추가 옵션</option>
                             <option value="SKIP">넣지 않음</option>
                           </select>

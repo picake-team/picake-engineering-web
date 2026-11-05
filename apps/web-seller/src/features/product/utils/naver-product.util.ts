@@ -23,7 +23,7 @@ export type ImportMode = "create" | "refresh";
 /** 네이버 옵션 1개를 어떻게 넣을지 (판매자가 바꿀 수 있음) */
 export type OptionChoice = {
   optionId: string;
-  use: "SIZE" | "EXTRA" | "SKIP";
+  use: "SIZE" | "FLAVOR" | "EXTRA" | "BASE" | "SKIP";
   sizeDisplayName: CakeSizeDisplayName | null;
   lengthCm: number | null;
 };
@@ -167,9 +167,20 @@ export function getSelectionProblems(
       problems.push(`'${option.name}'은 네이버 가격이 없어요.`);
   }
   for (const { option, choice } of picked) {
-    if (choice.use === "EXTRA" && option.name.length > 30) {
+    if ((choice.use === "EXTRA" || choice.use === "FLAVOR") && option.name.length > 30) {
       problems.push(`'${option.name.slice(0, 15)}…'은 선택지 이름이 30자를 넘어요.`);
     }
+  }
+  const bases = picked.filter(({ choice }) => choice.use === "BASE");
+  if (bases.length > 1) problems.push("기본 가격은 하나만 고를 수 있어요.");
+  if (bases.length > 0 && sizes.length > 0) {
+    problems.push(
+      "사이즈를 고르면 가장 싼 사이즈가 판매가가 돼요. 기본 가격과 함께 고를 수 없어요.",
+    );
+  }
+  for (const { option } of bases) {
+    if (!option.price || option.price <= 0)
+      problems.push(`'${option.name}'은 네이버 가격이 없어요.`);
   }
   return problems;
 }
@@ -224,7 +235,21 @@ export function applyNaverImport(
 
   const picked = pickedOptions(detail, selection);
   const sizes = picked.filter(({ choice }) => choice.use === "SIZE" && choice.sizeDisplayName);
+  const flavors = picked.filter(({ choice }) => choice.use === "FLAVOR");
   const extras = picked.filter(({ choice }) => choice.use === "EXTRA");
+  const base = picked.find(({ choice }) => choice.use === "BASE");
+
+  const setSalePrice = (salePrice: number) => {
+    next.salePrice = salePrice;
+    // 할인 중이 아니었으면 정가도 판매가와 같게 둔다
+    if (
+      next.originalPrice === undefined ||
+      next.originalPrice === form.salePrice ||
+      next.originalPrice < salePrice
+    ) {
+      next.originalPrice = salePrice;
+    }
+  };
 
   if (sizes.length > 0) {
     // 사이즈별 "손님이 내는 금액" 표를 만든다
@@ -265,36 +290,48 @@ export function applyNaverImport(
         lengthCm: t.lengthCm,
         price: Math.max(0, t.total - salePrice),
       })) as CakeSizeOptionDto[];
-    next.salePrice = salePrice;
-    // 할인 중이 아니었으면 정가도 판매가와 같게 둔다
-    if (
-      next.originalPrice === undefined ||
-      next.originalPrice === form.salePrice ||
-      next.originalPrice < salePrice
-    ) {
-      next.originalPrice = salePrice;
-    }
+    setSalePrice(salePrice);
+  } else if (base?.option.price) {
+    // 사이즈 없이 기본 가격 옵션 하나가 이 상품의 가격
+    setSalePrice(base.option.price);
   } else if (mode === "create" && detail.suggestedSalePrice && !form.salePrice) {
     // 메뉴처럼 옵션이 없으면 가격만 채운다
     next.salePrice = detail.suggestedSalePrice;
     next.originalPrice = detail.suggestedSalePrice;
   }
 
+  if (flavors.length > 0) {
+    // 등록: 네이버 맛으로 바꾼다 / 다시 불러오기: 같은 맛은 가격만 바꾸고 없는 맛은 더한다
+    const list = mode === "refresh" ? [...(form.cakeFlavorOptions ?? [])] : [];
+    for (const { option } of flavors) {
+      const price = Math.max(0, option.price ?? 0);
+      const i = list.findIndex((f) => f.displayName === option.name);
+      if (i >= 0) list[i] = { ...list[i], price };
+      else list.push({ visible: EnableStatus.ENABLE, displayName: option.name, price });
+    }
+    next.cakeFlavorOptions = list;
+  }
+
   if (extras.length > 0) {
     const groups = [...(form.customOptions ?? [])];
     for (const { option } of extras) {
-      const groupName = (option.categoryName ?? NAVER_EXTRA_GROUP_NAME).slice(
+      const groupName = (option.groupName || NAVER_EXTRA_GROUP_NAME).slice(
         0,
         CUSTOM_OPTION_NAME_MAX,
       );
       let index = groups.findIndex(
-        (g) => g.name === groupName && g.type === CustomOptionType.MULTI_SELECT,
+        (g) =>
+          g.name === groupName &&
+          (g.type === CustomOptionType.MULTI_SELECT || g.type === CustomOptionType.SINGLE_SELECT),
       );
       if (index < 0) {
+        // 네이버에서 필수로 고르게 한 분류는 "하나 고르기(필수)", 나머지는 "여러 개 고르기(선택)"
         groups.push({
-          type: CustomOptionType.MULTI_SELECT,
+          type: option.groupRequired
+            ? CustomOptionType.SINGLE_SELECT
+            : CustomOptionType.MULTI_SELECT,
           name: groupName,
-          required: false,
+          required: option.groupRequired,
           visible: EnableStatus.ENABLE,
           choices: [],
         });
@@ -314,6 +351,33 @@ export function applyNaverImport(
   }
 
   return next;
+}
+
+/** 다시 불러오기: 옵션 용도별로 지금 값과 네이버 가격을 비교한다 */
+export function compareOption(
+  option: NaverProductOptionDto,
+  choice: OptionChoice | undefined,
+  form: ProductForm,
+): { current: number | null; status: "new" | "same" | "changed" } | null {
+  const use = choice?.use ?? option.role;
+  const price = option.price ?? 0;
+  const result = (current: number | null) =>
+    current === null
+      ? { current, status: "new" as const }
+      : { current, status: current === price ? ("same" as const) : ("changed" as const) };
+  if (use === "SIZE") return compareSizePrice(option, choice, form);
+  if (use === "BASE") return result(form.salePrice ?? null);
+  if (use === "FLAVOR") {
+    const f = (form.cakeFlavorOptions ?? []).find((x) => x.displayName === option.name);
+    return result(f ? f.price : null);
+  }
+  if (use === "EXTRA") {
+    const c = (form.customOptions ?? [])
+      .flatMap((g) => g.choices ?? [])
+      .find((x) => x.label === option.name);
+    return result(c ? c.price : null);
+  }
+  return null;
 }
 
 /** 다시 불러오기: 사이즈별 지금 가격과 네이버 가격 비교 */

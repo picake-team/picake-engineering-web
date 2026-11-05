@@ -33,7 +33,15 @@ export interface NaverProductOptionDto {
   desc: string | null;
   price: number | null;
   isSoldOut: boolean;
-  role: "SIZE" | "EXTRA";
+  role: "SIZE" | "FLAVOR" | "EXTRA" | "BASE";
+  /** 옵션 사진 (미리보기용) */
+  imageUrl: string | null;
+  /** 추가 옵션으로 넣을 때의 그룹 이름 */
+  groupName: string;
+  /** 네이버에서 필수로 고르게 한 분류인지 */
+  groupRequired: boolean;
+  /** 이 옵션을 상품 하나로 이미 가져온 Picake 상품 */
+  linkedProduct: NaverProductLinkedDto | null;
   sizeDisplayName: CakeSizeDisplayName | null;
   lengthCm: number | null;
   selectedByDefault: boolean;
@@ -52,6 +60,8 @@ export interface NaverProductDetailResponseDto {
   suggestedSalePrice: number | null;
   isClosed: boolean;
   soldOutOptionNames: string[];
+  /** 여러 상품을 옵션으로 묶은 네이버 상품(포장주문 등)으로 보이면 true */
+  menuLike: boolean;
   linkedProduct: NaverProductLinkedDto | null;
   warnings: string[];
 }

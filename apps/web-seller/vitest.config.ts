@@ -28,6 +28,18 @@ export default defineConfig({
           setupFiles: [".storybook/vitest.setup.ts"],
         },
       },
+      {
+        extends: true,
+        // tsconfig의 "@/apps/web-seller/*" 경로 별칭 (순수 로직만 node에서 테스트)
+        resolve: {
+          alias: [{ find: /^@\/apps\/web-seller\//, replacement: path.join(dirname, "src") + "/" }],
+        },
+        test: {
+          name: "unit",
+          environment: "node",
+          include: ["src/**/*.test.ts"],
+        },
+      },
     ],
   },
 });
