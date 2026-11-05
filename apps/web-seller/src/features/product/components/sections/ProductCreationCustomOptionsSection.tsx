@@ -173,7 +173,6 @@ export const ProductCreationCustomOptionsSection: React.FC<
       id="section-custom"
       title="추가 옵션"
       hint="(선택)"
-      description={`맛·레터링 문구·참고 사진처럼 손님이 고르거나 적는 것. 맛은 '하나 고르기'로 이름을 "맛"으로 만드세요. 최대 ${CUSTOM_OPTION_LIMITS.MAX_OPTIONS}개`}
       action={addMenu}
       error={!!errors.customOptions}
     >
