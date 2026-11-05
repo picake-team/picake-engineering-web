@@ -27,12 +27,15 @@ import type { ProductNoticeValues } from "@/apps/web-seller/features/product/uti
 import { validateProductForm } from "@/apps/web-seller/features/product/utils/validateProductForm";
 import { Checkbox } from "@/apps/web-seller/common/components/inputs/Checkbox";
 import {
+  SELLER_CHECK_MARK,
+  hasSellerCheckMark,
+} from "@/apps/web-seller/features/product/utils/ai-draft.util";
+import {
   ProductNaverImportCard,
   type NaverSourceText,
 } from "@/apps/web-seller/features/product/components/naver/ProductNaverImportCard";
 import {
   ProductAiDescriptionDraft,
-  SELLER_CHECK_MARK,
   initialAiDraftPanelState,
   type AiDraftPanelState,
 } from "@/apps/web-seller/features/product/components/naver/ProductAiDescriptionDraft";
@@ -303,7 +306,7 @@ export const ProductCreationForm: React.FC<Props> = ({
       return;
     }
 
-    if (form.detailDescription?.includes(SELLER_CHECK_MARK)) {
+    if (hasSellerCheckMark(form.detailDescription)) {
       setAiDraftError(`상세정보에 ${SELLER_CHECK_MARK}가 남아 있어요. 내용을 확인해 고쳐 주세요.`);
       setActiveTab("detail");
       return;

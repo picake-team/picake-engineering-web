@@ -7,9 +7,10 @@ import {
   buildOptionSummary,
   textToHtml,
 } from "@/apps/web-seller/features/product/utils/naver-product.util";
-
-/** AI가 판매자 확인을 부탁할 때 쓰는 표시 (서버와 같음) */
-export const SELLER_CHECK_MARK = "[판매자 확인 필요]";
+import {
+  SELLER_CHECK_MARK,
+  splitBySellerCheckMark,
+} from "@/apps/web-seller/features/product/utils/ai-draft.util";
 
 /** 패널 상태. 탭을 옮겨도 남도록 폼이 들고 있는다 */
 export type AiDraftPanelState = {
@@ -35,15 +36,14 @@ interface Props {
 }
 
 const highlight = (text: string) =>
-  text.split(SELLER_CHECK_MARK).flatMap((part, i, all) =>
-    i < all.length - 1
-      ? [
-          part,
-          <mark key={i} className="rounded bg-amber-100 px-1 text-amber-900">
-            {SELLER_CHECK_MARK}
-          </mark>,
-        ]
-      : [part],
+  splitBySellerCheckMark(text).map((part, i) =>
+    part.isMark ? (
+      <mark key={i} className="rounded bg-amber-100 px-1 text-amber-900">
+        {part.text}
+      </mark>
+    ) : (
+      <React.Fragment key={i}>{part.text}</React.Fragment>
+    ),
   );
 
 /**
