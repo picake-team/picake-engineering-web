@@ -8,7 +8,6 @@ import {
 } from "@/apps/web-seller/features/store/utils/store-form.mapper";
 import { useStoreDetail } from "@/apps/web-seller/features/store/hooks/queries/useStoreQuery";
 import { useUpdateStore } from "@/apps/web-seller/features/store/hooks/mutations/useStoreMutation";
-import { Card, CardContent } from "@/apps/web-seller/common/components/cards/Card";
 import { ContentLoading } from "@/apps/web-seller/common/components/loading/ContentLoading";
 
 export const StoreDetailEditPage: React.FC = () => {
@@ -60,19 +59,13 @@ export const StoreDetailEditPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">스토어 수정</h1>
-      </div>
-      <Card>
-        <CardContent className="p-6">
-          <StoreCreationForm
-            onSubmit={handleUpdate}
-            initialValue={storeForm}
-            submitButtonText="수정하기"
-            naverPlace={{ storeId, connected: store.naverPlace ?? null }}
-          />
-        </CardContent>
-      </Card>
+      <h1 className="text-2xl font-bold">스토어 수정</h1>
+      <StoreCreationForm
+        onSubmit={handleUpdate}
+        initialValue={storeForm}
+        submitButtonText="저장하기"
+        naverPlace={{ storeId, connected: store.naverPlace ?? null }}
+      />
     </div>
   );
 };

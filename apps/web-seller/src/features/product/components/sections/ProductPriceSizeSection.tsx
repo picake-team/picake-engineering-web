@@ -7,11 +7,10 @@ import { Checkbox } from "@/apps/web-seller/common/components/inputs/Checkbox";
 import {
   CakeSizeDisplayName,
   EnableStatus,
-  type CakeFlavorOptionDto,
   type CakeSizeOptionDto,
 } from "@/apps/web-seller/features/product/types/product.dto";
 import type { ProductForm } from "@/apps/web-seller/features/product/types/product.ui";
-import { FormSection } from "@/apps/web-seller/features/product/components/sections/FormSection";
+import { FormSection } from "@/apps/web-seller/common/components/sections/FormSection";
 
 type Errors = Partial<Record<keyof ProductForm, string>>;
 
@@ -215,104 +214,6 @@ export function ProductPriceSizeSection({ form, errors, onChange, disabled }: Pr
           <p className="mt-1 text-sm text-destructive">{errors.cakeSizeOptions}</p>
         )}
       </div>
-    </FormSection>
-  );
-}
-
-/**
- * 맛(선택). 맛을 넣으면 손님은 그중 하나를 꼭 고르고, 비워 두면 맛을 고르지 않는다.
- * 추가금이 있으면 판매가에 더해진다. 네이버 상품 대부분은 맛 옵션이 없어서 선택으로 둔다.
- */
-export function ProductFlavorSection({ form, errors, onChange, disabled }: Props) {
-  const flavors = form.cakeFlavorOptions ?? [];
-  const update = (index: number, patch: Partial<CakeFlavorOptionDto>) =>
-    onChange({ cakeFlavorOptions: flavors.map((f, i) => (i === index ? { ...f, ...patch } : f)) });
-
-  return (
-    <FormSection
-      id="section-flavor"
-      title="맛"
-      hint="(선택)"
-      description="맛을 넣으면 손님이 그중 하나를 골라요. 맛이 정해진 케이크면 비워 두세요."
-      error={!!errors.cakeFlavorOptions}
-      action={
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          disabled={disabled}
-          onClick={() =>
-            onChange({
-              cakeFlavorOptions: [
-                ...flavors,
-                { visible: EnableStatus.ENABLE, displayName: "", price: 0 },
-              ],
-            })
-          }
-        >
-          <Plus className="h-4 w-4" />맛 추가
-        </Button>
-      }
-    >
-      {flavors.length === 0 && (
-        <p className="text-sm text-muted-foreground">
-          맛을 고르지 않는 상품이에요. 손님이 맛을 고르게 하려면 &apos;맛 추가&apos;를 누르세요.
-        </p>
-      )}
-      <ul className={flavors.length ? "divide-y rounded-lg border" : "hidden"}>
-        {flavors.map((flavor, index) => {
-          const hidden = flavor.visible !== EnableStatus.ENABLE;
-          return (
-            <li
-              key={flavor.id ?? `new-${index}`}
-              className={`flex flex-wrap items-center gap-2 p-3 ${hidden ? "bg-muted/40" : ""}`}
-            >
-              <Input
-                aria-label="맛 이름"
-                className="h-9 min-w-[10rem] flex-1"
-                value={flavor.displayName}
-                onChange={(e) => update(index, { displayName: e.target.value })}
-                placeholder="예: 초콜릿"
-                disabled={disabled}
-              />
-              <div className="flex w-32 items-center gap-1">
-                <span className="text-xs text-muted-foreground">+</span>
-                <NumberInput
-                  aria-label="맛 추가금"
-                  value={flavor.price}
-                  onChange={(v) => update(index, { price: v ?? 0 })}
-                  placeholder="0"
-                  min={0}
-                  disabled={disabled}
-                />
-                <span className="text-xs text-muted-foreground">원</span>
-              </div>
-              <Checkbox
-                checked={!hidden}
-                onChange={(checked) =>
-                  update(index, { visible: checked ? EnableStatus.ENABLE : EnableStatus.DISABLE })
-                }
-                disabled={disabled}
-                label={<span className="text-xs">판매</span>}
-              />
-              <button
-                type="button"
-                aria-label={`${flavor.displayName || "맛"} 삭제`}
-                className="rounded p-1 text-muted-foreground hover:text-destructive disabled:opacity-40"
-                disabled={disabled}
-                onClick={() =>
-                  onChange({ cakeFlavorOptions: flavors.filter((_, i) => i !== index) })
-                }
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-      {errors.cakeFlavorOptions && (
-        <p className="mt-1 text-sm text-destructive">{errors.cakeFlavorOptions}</p>
-      )}
     </FormSection>
   );
 }

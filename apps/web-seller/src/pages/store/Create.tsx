@@ -155,15 +155,20 @@ export const StoreCreatePage: React.FC = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">스토어 만들기</h1>
+        <h1 className="text-2xl font-bold">스토어 만들기</h1>
         <div className="mt-6">
           <ProgressBar activeStep={currentStep - 1} steps={STEPS} />
         </div>
       </div>
 
-      <Card>
-        <CardContent className="p-6">{renderStep()}</CardContent>
-      </Card>
+      {/* 3단계(스토어 정보)는 섹션마다 테두리가 있어 바깥 카드를 씌우지 않는다 */}
+      {currentStep === 3 ? (
+        renderStep()
+      ) : (
+        <Card>
+          <CardContent className="p-6">{renderStep()}</CardContent>
+        </Card>
+      )}
     </div>
   );
 };

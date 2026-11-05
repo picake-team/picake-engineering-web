@@ -1,11 +1,17 @@
 "use client";
 
 import { ProductDetailSubTitle } from "../common/ProductDetailSubTitle";
-import { CakeSizeOption, CakeFlavorOption, VisibleStatus } from "../../types/product.type";
+import {
+  CakeSizeOption,
+  CustomOption,
+  CustomOptionType,
+  VisibleStatus,
+} from "../../types/product.type";
 
-interface ProductDetailSizeFlavorSectionProps {
+interface ProductDetailSizeOptionSectionProps {
   cakeSizeOptions: CakeSizeOption[];
-  cakeFlavorOptions: CakeFlavorOption[];
+  /** 추가 옵션. 고르는 옵션(맛·초 등)만 선택지와 가격을 보여 준다 */
+  customOptions?: CustomOption[];
 }
 
 const SIZE_PIXELS = [40, 60, 84, 96];
@@ -17,17 +23,27 @@ function getSizePixel(index: number): number {
   return SIZE_PIXELS[SIZE_PIXELS.length - 1]; // 96px
 }
 
-export function ProductDetailSizeFlavorSection({
+/** 상품 상세의 '사이즈·옵션' 탭: 사이즈 그림·가격과 고르는 추가 옵션(맛 등)의 선택지·가격 */
+export function ProductDetailSizeOptionSection({
   cakeSizeOptions,
-  cakeFlavorOptions,
-}: ProductDetailSizeFlavorSectionProps) {
+  customOptions = [],
+}: ProductDetailSizeOptionSectionProps) {
   const visibleSizeOptions = cakeSizeOptions.filter(
     (option) => option.visible === VisibleStatus.ENABLE,
   );
 
-  const visibleFlavorOptions = cakeFlavorOptions.filter(
-    (option) => option.visible === VisibleStatus.ENABLE,
-  );
+  const selectOptions = customOptions
+    .filter(
+      (option) =>
+        option.visible === VisibleStatus.ENABLE &&
+        (option.type === CustomOptionType.SINGLE_SELECT ||
+          option.type === CustomOptionType.MULTI_SELECT),
+    )
+    .map((option) => ({
+      ...option,
+      choices: (option.choices ?? []).filter((choice) => choice.visible === VisibleStatus.ENABLE),
+    }))
+    .filter((option) => option.choices.length > 0);
 
   const maxSize = getSizePixel(visibleSizeOptions.length - 1);
 
@@ -73,24 +89,22 @@ export function ProductDetailSizeFlavorSection({
           </div>
         </div>
       )}
-      {/* 맛 옵션 */}
-      {visibleFlavorOptions.length > 0 && (
-        <div>
-          <ProductDetailSubTitle>케이크 맛</ProductDetailSubTitle>
+      {/* 고르는 추가 옵션 (맛·초 등) */}
+      {selectOptions.map((option) => (
+        <div key={option.id} className="mb-[24px]">
+          <ProductDetailSubTitle>{option.name}</ProductDetailSubTitle>
           <div className="flex flex-col gap-[4px] py-[16px] px-[20px] bg-gray-50 rounded-lg">
-            {visibleFlavorOptions.map((option, index) => {
-              return (
-                <div key={index} className="flex justify-between text-[13px]">
-                  <span className="text-gray-700">{option.displayName}</span>
-                  <span className="relative ml-[24px] w-[70px] text-right text-gray-900">
-                    + {option.price.toLocaleString()}원
-                  </span>
-                </div>
-              );
-            })}
+            {option.choices.map((choice) => (
+              <div key={choice.id} className="flex justify-between text-[13px]">
+                <span className="text-gray-700">{choice.label}</span>
+                <span className="relative ml-[24px] w-[70px] text-right text-gray-900">
+                  + {choice.price.toLocaleString()}원
+                </span>
+              </div>
+            ))}
           </div>
         </div>
-      )}
+      ))}
     </div>
   );
 }

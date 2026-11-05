@@ -54,9 +54,6 @@ export interface OrderItemResponseDto {
   sizeLengthCm?: number;
   sizeDescription?: string;
   sizePrice?: number;
-  flavorId?: string;
-  flavorDisplayName?: string;
-  flavorPrice?: number;
   /** 추가 옵션 선택 내역 (판매자가 정한 옵션 순서) */
   selectedOptions: SelectedOptionResponseDto[];
   optionsPrice: number;

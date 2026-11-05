@@ -14,11 +14,8 @@ import {
   ProductType,
 } from "@/apps/web-seller/features/product/types/product.dto";
 import type { ProductForm } from "@/apps/web-seller/features/product/types/product.ui";
-import { FormSection } from "@/apps/web-seller/features/product/components/sections/FormSection";
-import {
-  ProductFlavorSection,
-  ProductPriceSizeSection,
-} from "@/apps/web-seller/features/product/components/sections/ProductPriceSizeSection";
+import { FormSection } from "@/apps/web-seller/common/components/sections/FormSection";
+import { ProductPriceSizeSection } from "@/apps/web-seller/features/product/components/sections/ProductPriceSizeSection";
 import { ProductCreationCustomOptionsSection } from "@/apps/web-seller/features/product/components/sections/ProductCreationCustomOptionsSection";
 import { ProductCreationProductNoticeSection } from "@/apps/web-seller/features/product/components/sections/ProductCreationProductNoticeSection";
 import { ProductCreationCategorySection } from "@/apps/web-seller/features/product/components/sections/ProductCreationCategorySection";
@@ -71,8 +68,6 @@ export const defaultForm: ProductForm = {
       description: "1~2인용",
     },
   ],
-  // 맛은 선택: 맛을 고르게 할 상품만 추가한다
-  cakeFlavorOptions: [],
   // 상품 유형은 판매자가 반드시 고르도록 비워 둔다
   productType: undefined,
   customOptions: [],
@@ -108,7 +103,6 @@ const SECTION_ORDER: { id: string; keys: (k: string) => boolean }[] = [
     id: "section-price",
     keys: (k) => k === "salePrice" || k === "originalPrice" || k === "cakeSizeOptions",
   },
-  { id: "section-flavor", keys: (k) => k === "cakeFlavorOptions" },
   { id: "section-custom", keys: (k) => k === "customOptions" },
   { id: "section-detail", keys: (k) => k === "detailDescription" },
   { id: "section-notice", keys: (k) => k.startsWith("productNotice") },
@@ -120,7 +114,7 @@ const scrollTo = (id: string) =>
 
 /**
  * 상품 등록·수정 폼
- * - 한 화면에 사장님이 입력하는 순서대로: 사진 → 이름 → 가격·사이즈 → 맛 → 추가 옵션 → 설명 → 고시
+ * - 한 화면에 사장님이 입력하는 순서대로: 사진 → 이름 → 가격·사이즈 → 추가 옵션(맛 등) → 설명 → 고시
  * - 판매 상태와 분류·태그는 옆 칸, 저장 버튼은 아래에 붙어 있다
  * - 네이버 가져오기와 AI 설명은 버튼 하나로 여는 창에서 끝난다
  */
@@ -274,7 +268,7 @@ export const ProductCreationForm: React.FC<Props> = ({
   );
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} noValidate>
       {naverBar}
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
@@ -361,7 +355,6 @@ export const ProductCreationForm: React.FC<Props> = ({
             onChange={patch}
             disabled={disabled}
           />
-          <ProductFlavorSection form={form} errors={errors} onChange={patch} disabled={disabled} />
 
           <ProductCreationCustomOptionsSection
             form={form}

@@ -23,7 +23,7 @@ interface ReservationConfirmViewProps {
   cakeImageUrl: string;
   /** 노출 중인 추가 옵션 (선택값 표시용) */
   customOptions: CustomOption[];
-  /** 담은 상품 1개 가격 (판매가 + 사이즈 + 맛 + 추가 옵션) */
+  /** 담은 상품 1개 가격 (판매가 + 사이즈 + 추가 옵션) */
   getItemPrice: (item: OrderItem) => number;
   selectedDate: Date | null;
   formatDateTime: (date: Date | null) => string;
@@ -104,7 +104,6 @@ export function ReservationConfirmView({
                         </div>
                         <ul className="text-xs text-gray-700 pl-[18px] list-disc">
                           <li>사이즈 : {item.sizeName}</li>
-                          <li>맛 : {item.flavorName}</li>
                           {toSelectedOptionPreviews(customOptions, item.selections).map(
                             (option) => (
                               <li key={option.optionId}>

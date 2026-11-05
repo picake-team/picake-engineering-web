@@ -181,7 +181,6 @@ export default function ReservationCompletePage() {
             {orderData.orderItems.map((item, index) => {
               const isOpen = openIndexes.has(index);
               const sizePrice = item.sizePrice || 0;
-              const flavorPrice = item.flavorPrice || 0;
               const itemPrice = item.itemPrice;
               return (
                 <div
@@ -222,15 +221,6 @@ export default function ReservationCompletePage() {
                           <p className="flex items-center justify-between text-2sm text-gray-900">
                             <span>{item.sizeDisplayName}</span>
                             {sizePrice > 0 && <span>+{sizePrice.toLocaleString()}원</span>}
-                          </p>
-                        </div>
-                      )}
-                      {item.flavorDisplayName && (
-                        <div className="flex flex-col">
-                          <span className="text-xs text-gray-500">맛</span>
-                          <p className="flex items-center justify-between text-2sm text-gray-900">
-                            <span>{item.flavorDisplayName}</span>
-                            {flavorPrice > 0 && <span>+{flavorPrice.toLocaleString()}원</span>}
                           </p>
                         </div>
                       )}

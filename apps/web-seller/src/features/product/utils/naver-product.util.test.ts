@@ -80,7 +80,6 @@ const emptyForm = (over: Partial<ProductForm> = {}): ProductForm =>
         description: "1~2인용",
       },
     ],
-    cakeFlavorOptions: [{ visible: EnableStatus.ENABLE, displayName: "초콜릿", price: 0 }],
     customOptions: [],
     detailDescription: "",
     ...over,
@@ -211,14 +210,18 @@ describe("applyNaverImport (등록)", () => {
     ]);
   });
 
-  it("맛 옵션은 기본 맛 대신 네이버 맛으로 바꾼다", () => {
+  it("네이버 맛 분류는 '맛'이라는 하나 고르기(필수) 추가 옵션으로 넣는다", () => {
+    const flavor = { role: "EXTRA" as const, groupName: "맛", groupRequired: true };
     const d = detail([
       ...SIZES,
-      opt({ optionId: "f1", name: "초코", price: 0, role: "FLAVOR" }),
-      opt({ optionId: "f2", name: "얼그레이", price: 2000, role: "FLAVOR" }),
+      opt({ optionId: "f1", name: "초코", price: 0, ...flavor }),
+      opt({ optionId: "f2", name: "얼그레이", price: 2000, ...flavor }),
     ]);
     const next = applyNaverImport(emptyForm(), d, selectAll(d, emptyForm()), "create", []);
-    expect(next.cakeFlavorOptions.map((f) => [f.displayName, f.price])).toEqual([
+    expect(next).not.toHaveProperty("cakeFlavorOptions");
+    const group = next.customOptions.find((o) => o.name === "맛")!;
+    expect([group.type, group.required]).toEqual([CustomOptionType.SINGLE_SELECT, true]);
+    expect(group.choices!.map((c) => [c.label, c.price])).toEqual([
       ["초코", 0],
       ["얼그레이", 2000],
     ]);
@@ -280,10 +283,15 @@ describe("applyNaverImport (다시 불러오기)", () => {
         price: 40000,
       },
     ],
-    cakeFlavorOptions: [
-      { id: "flavor_choco", visible: EnableStatus.ENABLE, displayName: "초코", price: 0 },
-    ],
     customOptions: [
+      {
+        id: "opt_flavor",
+        type: CustomOptionType.SINGLE_SELECT,
+        name: "맛",
+        required: true,
+        visible: EnableStatus.ENABLE,
+        choices: [{ id: "c_choco", label: "초코", price: 0, visible: EnableStatus.ENABLE }],
+      },
       {
         id: "opt_1",
         type: CustomOptionType.MULTI_SELECT,
@@ -330,18 +338,19 @@ describe("applyNaverImport (다시 불러오기)", () => {
   });
 
   it("맛·추가 옵션은 같은 이름이면 가격만 바꾸고 없으면 더한다", () => {
+    const flavor = { groupName: "맛", groupRequired: true };
     const d = detail([
-      opt({ optionId: "f", name: "초코", price: 1000, role: "FLAVOR" }),
-      opt({ optionId: "f2", name: "바닐라", price: 0, role: "FLAVOR" }),
+      opt({ optionId: "f", name: "초코", price: 1000, ...flavor }),
+      opt({ optionId: "f2", name: "바닐라", price: 0, ...flavor }),
       opt({ optionId: "e", name: "보냉백", price: 2000 }),
     ]);
     const sel = { ...defaultSelection(d, existing, "refresh"), optionIds: ["f", "f2", "e"] };
     const next = applyNaverImport(existing, d, sel, "refresh", []);
-    expect(next.cakeFlavorOptions.map((f) => [f.id, f.displayName, f.price])).toEqual([
-      ["flavor_choco", "초코", 1000],
-      [undefined, "바닐라", 0],
-    ]);
     expect(next.customOptions[0].choices).toEqual([
+      { id: "c_choco", label: "초코", price: 1000, visible: EnableStatus.ENABLE },
+      { label: "바닐라", price: 0, visible: EnableStatus.ENABLE },
+    ]);
+    expect(next.customOptions[1].choices).toEqual([
       { id: "c1", label: "보냉백", price: 2000, visible: EnableStatus.ENABLE },
     ]);
   });
@@ -395,6 +404,16 @@ describe("getSelectionProblems", () => {
 
 describe("compareOption / buildTextRows / buildOptionSummary", () => {
   const form = emptyForm({
+    customOptions: [
+      {
+        id: "opt_flavor",
+        type: CustomOptionType.SINGLE_SELECT,
+        name: "맛",
+        required: true,
+        visible: EnableStatus.ENABLE,
+        choices: [{ id: "c_choco", label: "초콜릿", price: 0, visible: EnableStatus.ENABLE }],
+      },
+    ],
     name: "샘플 생크림 케이크",
     salePrice: 38000,
     cakeSizeOptions: [
@@ -420,13 +439,14 @@ describe("compareOption / buildTextRows / buildOptionSummary", () => {
     expect(compareOption(s2, undefined, form)).toEqual({ current: null, status: "new" });
   });
 
-  it("기본 가격은 판매가와, 맛은 맛 가격과 비교한다", () => {
+  it("기본 가격은 판매가와, 맛 같은 추가 옵션은 같은 이름의 선택지 가격과 비교한다", () => {
     expect(compareOption(opt({ role: "BASE", price: 38000 }), undefined, form)?.status).toBe(
       "same",
     );
-    expect(
-      compareOption(opt({ role: "FLAVOR", name: "초콜릿", price: 0 }), undefined, form)?.status,
-    ).toBe("same");
+    expect(compareOption(opt({ name: "초콜릿", price: 0 }), undefined, form)?.status).toBe("same");
+    expect(compareOption(opt({ name: "초콜릿", price: 500 }), undefined, form)?.status).toBe(
+      "changed",
+    );
   });
 
   it("이름이 같으면 '지금 값과 같음', 주의사항이 이미 들어 있으면 같음으로 본다", () => {

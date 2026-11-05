@@ -23,7 +23,7 @@ export type ImportMode = "create" | "refresh";
 /** 네이버 옵션 1개를 어떻게 넣을지 (판매자가 바꿀 수 있음) */
 export type OptionChoice = {
   optionId: string;
-  use: "SIZE" | "FLAVOR" | "EXTRA" | "BASE" | "SKIP";
+  use: "SIZE" | "EXTRA" | "BASE" | "SKIP";
   sizeDisplayName: CakeSizeDisplayName | null;
   lengthCm: number | null;
 };
@@ -167,7 +167,7 @@ export function getSelectionProblems(
       problems.push(`'${option.name}'은 네이버 가격이 없어요.`);
   }
   for (const { option, choice } of picked) {
-    if ((choice.use === "EXTRA" || choice.use === "FLAVOR") && option.name.length > 30) {
+    if (choice.use === "EXTRA" && option.name.length > 30) {
       problems.push(`'${option.name.slice(0, 15)}…'은 선택지 이름이 30자를 넘어요.`);
     }
   }
@@ -235,7 +235,6 @@ export function applyNaverImport(
 
   const picked = pickedOptions(detail, selection);
   const sizes = picked.filter(({ choice }) => choice.use === "SIZE" && choice.sizeDisplayName);
-  const flavors = picked.filter(({ choice }) => choice.use === "FLAVOR");
   const extras = picked.filter(({ choice }) => choice.use === "EXTRA");
   const base = picked.find(({ choice }) => choice.use === "BASE");
 
@@ -300,18 +299,6 @@ export function applyNaverImport(
     next.originalPrice = detail.suggestedSalePrice;
   }
 
-  if (flavors.length > 0) {
-    // 등록: 네이버 맛으로 바꾼다 / 다시 불러오기: 같은 맛은 가격만 바꾸고 없는 맛은 더한다
-    const list = mode === "refresh" ? [...(form.cakeFlavorOptions ?? [])] : [];
-    for (const { option } of flavors) {
-      const price = Math.max(0, option.price ?? 0);
-      const i = list.findIndex((f) => f.displayName === option.name);
-      if (i >= 0) list[i] = { ...list[i], price };
-      else list.push({ visible: EnableStatus.ENABLE, displayName: option.name, price });
-    }
-    next.cakeFlavorOptions = list;
-  }
-
   if (extras.length > 0) {
     const groups = [...(form.customOptions ?? [])];
     for (const { option } of extras) {
@@ -367,10 +354,6 @@ export function compareOption(
       : { current, status: current === price ? ("same" as const) : ("changed" as const) };
   if (use === "SIZE") return compareSizePrice(option, choice, form);
   if (use === "BASE") return result(form.salePrice ?? null);
-  if (use === "FLAVOR") {
-    const f = (form.cakeFlavorOptions ?? []).find((x) => x.displayName === option.name);
-    return result(f ? f.price : null);
-  }
   if (use === "EXTRA") {
     const c = (form.customOptions ?? [])
       .flatMap((g) => g.choices ?? [])
@@ -402,13 +385,20 @@ export function buildOptionSummary(form: ProductForm): string {
       (s) =>
         `${s.displayName}${s.lengthCm ? `(${s.lengthCm}cm)` : ""} ${(base + s.price).toLocaleString()}원`,
     );
-  const flavors = (form.cakeFlavorOptions ?? [])
-    .filter((f) => f.visible === EnableStatus.ENABLE && f.displayName.trim())
-    .map((f) => f.displayName);
-  return [
-    sizes.length ? `사이즈: ${sizes.join(" / ")}` : null,
-    flavors.length ? `맛: ${flavors.join(", ")}` : null,
-  ]
+  // 고르는 추가 옵션(맛 등)도 이름과 선택지를 함께 넘긴다
+  const selects = (form.customOptions ?? [])
+    .filter(
+      (o) =>
+        o.visible === EnableStatus.ENABLE &&
+        (o.type === CustomOptionType.SINGLE_SELECT || o.type === CustomOptionType.MULTI_SELECT),
+    )
+    .map((o) => {
+      const labels = (o.choices ?? [])
+        .filter((c) => c.visible === EnableStatus.ENABLE && c.label.trim())
+        .map((c) => c.label);
+      return labels.length ? `${o.name}: ${labels.join(", ")}` : null;
+    });
+  return [sizes.length ? `사이즈: ${sizes.join(" / ")}` : null, ...selects]
     .filter(Boolean)
     .join("\n");
 }

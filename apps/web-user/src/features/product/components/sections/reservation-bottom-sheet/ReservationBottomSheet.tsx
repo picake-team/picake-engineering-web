@@ -29,7 +29,6 @@ export function ReservationBottomSheet({
   cakeImageUrl,
   cakeImages = [],
   cakeSizeOptions,
-  cakeFlavorOptions,
   customOptions,
   optionsVersion,
   storeName,
@@ -74,12 +73,9 @@ export function ReservationBottomSheet({
     tempSelectedTime,
     setTempSelectedTime,
     sizeOptions,
-    flavorOptions,
     visibleCustomOptions,
     selectedSizeId,
     setSelectedSizeId,
-    selectedFlavorId,
-    setSelectedFlavorId,
     selections,
     setOptionSelection,
     requestMessage,
@@ -133,7 +129,6 @@ export function ReservationBottomSheet({
     productId,
     price,
     cakeSizeOptions,
-    cakeFlavorOptions,
     customOptions,
     onClose: handleGuardedClose,
   });
@@ -162,21 +157,15 @@ export function ReservationBottomSheet({
           }
 
           const sizeOption = sizeOptions.find((option) => option.id === item.sizeId);
-          const flavorOption = flavorOptions.find((option) => option.id === item.flavorId);
 
           return {
-            // 사이즈·맛 (이름·가격은 서버가 ID 기준으로 다시 계산)
+            // 사이즈 (이름·가격은 서버가 ID 기준으로 다시 계산). 맛은 추가 옵션으로 options에 들어간다
             ...(sizeOption && {
               sizeId: sizeOption.id,
               sizeDisplayName: sizeOption.displayName,
               sizeLengthCm: sizeOption.lengthCm,
               sizeDescription: sizeOption.description,
               sizePrice: sizeOption.price,
-            }),
-            ...(flavorOption && {
-              flavorId: flavorOption.id,
-              flavorDisplayName: flavorOption.displayName,
-              flavorPrice: flavorOption.price,
             }),
             options: toOrderItemOptionInputs(
               visibleCustomOptions,
@@ -316,12 +305,9 @@ export function ReservationBottomSheet({
     <ReservationOptionsView
       selectedDate={selectedDate}
       sizeOptions={sizeOptions}
-      flavorOptions={flavorOptions}
       customOptions={visibleCustomOptions}
       selectedSizeId={selectedSizeId}
       setSelectedSizeId={setSelectedSizeId}
-      selectedFlavorId={selectedFlavorId}
-      setSelectedFlavorId={setSelectedFlavorId}
       selections={selections}
       onOptionChange={setOptionSelection}
       requestMessage={requestMessage}

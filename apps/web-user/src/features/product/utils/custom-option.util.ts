@@ -81,19 +81,13 @@ export function calculateOptionsPrice(
   }, 0);
 }
 
-/** 항목 1개 가격 = 판매가 + 사이즈 + 맛 + 추가 옵션 (서버 itemPrice와 같은 계산) */
+/** 항목 1개 가격 = 판매가 + 사이즈 + 추가 옵션(맛 포함) (서버 itemPrice와 같은 계산) */
 export function calculateItemPrice(params: {
   basePrice: number;
   sizePrice?: number;
-  flavorPrice?: number;
   optionsPrice?: number;
 }): number {
-  return (
-    params.basePrice +
-    (params.sizePrice ?? 0) +
-    (params.flavorPrice ?? 0) +
-    (params.optionsPrice ?? 0)
-  );
+  return params.basePrice + (params.sizePrice ?? 0) + (params.optionsPrice ?? 0);
 }
 
 /**
@@ -189,13 +183,11 @@ export function getFirstOptionImageUrl(selectedOptions: SelectedOption[] | undef
 
 /**
  * 주문 항목 한 줄 요약: "1호(+5,000원) / 초코(+0원) / 큰초(+1,000원)"
- * 사이즈·맛과 선택형 옵션값만 넣는다 (문구·사진은 길어서 상세에서만 표시)
+ * 사이즈와 고르는 옵션값(맛 등)만 넣는다 (문구·사진은 길어서 상세에서만 표시)
  */
 export function formatOrderItemSummary(item: {
   sizeDisplayName?: string;
   sizePrice?: number;
-  flavorDisplayName?: string;
-  flavorPrice?: number;
   selectedOptions?: SelectedOption[];
 }): string {
   const withPrice = (label: string, price?: number) =>
@@ -203,11 +195,7 @@ export function formatOrderItemSummary(item: {
   const choiceLabels = (item.selectedOptions ?? []).flatMap((option) =>
     (option.choices ?? []).map((choice) => withPrice(choice.label, choice.price)),
   );
-  return [
-    item.sizeDisplayName && withPrice(item.sizeDisplayName, item.sizePrice),
-    item.flavorDisplayName && withPrice(item.flavorDisplayName, item.flavorPrice),
-    ...choiceLabels,
-  ]
+  return [item.sizeDisplayName && withPrice(item.sizeDisplayName, item.sizePrice), ...choiceLabels]
     .filter(Boolean)
     .join(" / ");
 }

@@ -32,7 +32,6 @@ export const StoreDetailProductDetailPage: React.FC = () => {
             salesStatus: product.salesStatus,
             visibilityStatus: product.visibilityStatus,
             cakeSizeOptions: (product.cakeSizeOptions as any) || [],
-            cakeFlavorOptions: (product.cakeFlavorOptions as any) || [],
             customOptions: product.customOptions ?? [],
             productType: product.productType,
             // '커스텀' 카테고리는 상품 유형을 따라 서버가 관리하므로 폼에서는 뺀다
@@ -95,7 +94,6 @@ export const StoreDetailProductDetailPage: React.FC = () => {
       salesStatus: data.salesStatus,
       visibilityStatus: data.visibilityStatus,
       cakeSizeOptions: data.cakeSizeOptions,
-      cakeFlavorOptions: data.cakeFlavorOptions,
       customOptions: data.customOptions,
       productType: data.productType,
       productCategoryTypes: data.productCategoryTypes,

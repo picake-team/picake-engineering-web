@@ -33,7 +33,7 @@ export interface NaverProductOptionDto {
   desc: string | null;
   price: number | null;
   isSoldOut: boolean;
-  role: "SIZE" | "FLAVOR" | "EXTRA" | "BASE";
+  role: "SIZE" | "EXTRA" | "BASE";
   /** 옵션 사진 (미리보기용) */
   imageUrl: string | null;
   /** 추가 옵션으로 넣을 때의 그룹 이름 */

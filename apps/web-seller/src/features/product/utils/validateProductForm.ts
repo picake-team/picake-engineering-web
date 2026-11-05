@@ -57,25 +57,9 @@ export const validateProductForm = (
     newErrors.cakeSizeOptions = `같은 사이즈(${duplicateSize})가 두 번 있어요. 하나만 남겨 주세요.`;
   }
 
-  // 맛은 선택이다(비우면 손님이 맛을 고르지 않음)
-
   const customOptionsError = getCustomOptionsError(form.customOptions ?? []);
   if (customOptionsError) {
     newErrors.customOptions = customOptionsError;
-  }
-
-  if (
-    form.cakeFlavorOptions &&
-    form.cakeFlavorOptions.length > 0 &&
-    form.cakeFlavorOptions.some((option) => !option.displayName?.trim())
-  ) {
-    newErrors.cakeFlavorOptions = "이름이 비어 있는 맛이 있어요. 이름을 적거나 지워 주세요.";
-  } else {
-    const flavorNames = (form.cakeFlavorOptions ?? []).map((option) => option.displayName.trim());
-    const duplicateFlavor = flavorNames.find((name, i) => flavorNames.indexOf(name) !== i);
-    if (duplicateFlavor) {
-      newErrors.cakeFlavorOptions = `같은 맛(${duplicateFlavor})이 두 번 있어요. 하나만 남겨 주세요.`;
-    }
   }
 
   // 상품정보제공고시 검증

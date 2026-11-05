@@ -21,7 +21,7 @@ import { NumberInput } from "@/apps/web-seller/common/components/inputs/NumberIn
 import { Checkbox } from "@/apps/web-seller/common/components/inputs/Checkbox";
 import { Label } from "@/apps/web-seller/common/components/labels/Label";
 import { Badge } from "@/apps/web-seller/common/components/badges/Badge";
-import { FormSection } from "@/apps/web-seller/features/product/components/sections/FormSection";
+import { FormSection } from "@/apps/web-seller/common/components/sections/FormSection";
 import {
   Select,
   SelectContent,
@@ -173,7 +173,7 @@ export const ProductCreationCustomOptionsSection: React.FC<
       id="section-custom"
       title="추가 옵션"
       hint="(선택)"
-      description={`레터링 문구·참고 사진·초처럼 손님이 더 고르거나 적는 것. 최대 ${CUSTOM_OPTION_LIMITS.MAX_OPTIONS}개`}
+      description={`맛·레터링 문구·참고 사진처럼 손님이 고르거나 적는 것. 맛은 '하나 고르기'로 이름을 "맛"으로 만드세요. 최대 ${CUSTOM_OPTION_LIMITS.MAX_OPTIONS}개`}
       action={addMenu}
       error={!!errors.customOptions}
     >
@@ -181,7 +181,7 @@ export const ProductCreationCustomOptionsSection: React.FC<
         {/* 옵션 목록 */}
         {options.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            추가 옵션이 없어요. 사이즈·맛만 고르는 상품이면 그대로 두세요.
+            추가 옵션이 없어요. 사이즈만 고르는 상품이면 그대로 두세요.
           </p>
         ) : (
           <ul className="space-y-3">
