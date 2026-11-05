@@ -27,3 +27,10 @@ export const STORE_BANK_OPTIONS: readonly SelectOption[] = [
   { value: StoreBankName.CITI, label: "씨티" },
   { value: StoreBankName.KDB, label: "KDB산업" },
 ] as const;
+
+/**
+ * 스토어 만들기에서 통신판매업 신고 정보를 받을지 (2026-11 법 검토로 받지 않음).
+ * 동네 가게가 근처 손님에게 음식료를 파는 거래는 전자상거래법 제3조 ④로 통신판매업 신고(제12조)가
+ * 적용되지 않는다. 다시 받으려면 true로 바꾸면 '통신판매사업자 정보 등록' 단계가 돌아온다(서버는 둘 다 받음).
+ */
+export const REQUIRE_ONLINE_TRADING_REGISTRATION: boolean = false;

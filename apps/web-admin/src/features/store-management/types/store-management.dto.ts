@@ -89,7 +89,7 @@ export interface StoreManagementDetailResponseDto extends StoreManagementItemRes
   openingDate: string;
   businessSector: string;
   businessType: string;
-  permissionManagementNumber: string;
+  permissionManagementNumber: string | null;
   bankAccountNumber: string | null;
   bankName: StoreBankName | null;
   accountHolderName: string | null;

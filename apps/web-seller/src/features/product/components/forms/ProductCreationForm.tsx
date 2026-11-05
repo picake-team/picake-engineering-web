@@ -22,6 +22,7 @@ import { ProductCreationCategorySection } from "@/apps/web-seller/features/produ
 import { ProductCreationSearchTagSection } from "@/apps/web-seller/features/product/components/sections/ProductCreationSearchTagSection";
 import {
   PRODUCT_NOTICE_FIELDS,
+  PRODUCT_NOTICE_MODE,
   type ProductNoticeValues,
 } from "@/apps/web-seller/features/product/utils/product-notice.util";
 import { validateProductForm } from "@/apps/web-seller/features/product/utils/validateProductForm";
@@ -394,58 +395,88 @@ export const ProductCreationForm: React.FC<Props> = ({
             )}
           </FormSection>
 
-          <FormSection
-            id="section-notice"
-            title="상품정보제공고시"
-            hint={`${noticeFilled}/${PRODUCT_NOTICE_FIELDS.length} 입력`}
-            description="식품을 팔 때 법으로 정해진 표시예요. 다른 상품에서 복사할 수 있어요."
-            error={sectionHasError("section-notice") || (noticeCopyError && !noticeCopy?.confirmed)}
-            action={
-              <Button
-                type="button"
-                size="sm"
-                variant="ghost"
-                aria-expanded={noticeOpen}
-                onClick={() => setNoticeOpen((v) => !v)}
-              >
-                {noticeOpen ? (
-                  <ChevronDown className="h-4 w-4" />
-                ) : (
-                  <ChevronRight className="h-4 w-4" />
-                )}
-                {noticeOpen ? "접기" : "펼치기"}
-              </Button>
-            }
-          >
-            {noticeOpen ? (
-              <ProductCreationProductNoticeSection
-                hideHeader
-                form={form}
-                errors={errors}
-                onChange={(key) => (e) => patch({ [key]: e.target.value } as Partial<ProductForm>)}
-                copy={
-                  tools
-                    ? {
-                        storeId: storeId!,
-                        excludeProductId: productId,
-                        copiedFrom: noticeCopy?.fromName ?? null,
-                        confirmed: noticeCopy?.confirmed ?? false,
-                        showConfirmError: noticeCopyError,
-                        onCopy: handleCopyNotice,
-                        onConfirmedChange: (confirmed) =>
-                          setNoticeCopy((prev) => (prev ? { ...prev, confirmed } : prev)),
-                      }
-                    : undefined
-                }
+          {PRODUCT_NOTICE_MODE === "ORIGIN_ONLY" ? (
+            // 고시는 원산지만 받는다(법 검토: product-notice.util의 PRODUCT_NOTICE_MODE)
+            <FormSection
+              id="section-notice"
+              title={
+                <>
+                  원산지 <span className="text-destructive">*</span>
+                </>
+              }
+              description="케이크에 쓴 주요 원료의 원산지예요. 온라인으로 팔 때도 원산지표시법에 따라 표시해야 해요."
+              error={sectionHasError("section-notice")}
+            >
+              <Input
+                aria-label="원산지"
+                value={form.productNoticeOrigin || ""}
+                onChange={(e) => patch({ productNoticeOrigin: e.target.value })}
+                placeholder="예: 밀가루(미국산), 생크림·우유(국산), 딸기(국산)"
+                disabled={disabled}
+                className={errors.productNoticeOrigin ? "border-destructive" : ""}
               />
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                {noticeFilled === PRODUCT_NOTICE_FIELDS.length
-                  ? "모두 입력했어요."
-                  : `${PRODUCT_NOTICE_FIELDS.length - noticeFilled}개가 비어 있어요. 펼쳐서 채워 주세요.`}
-              </p>
-            )}
-          </FormSection>
+              {errors.productNoticeOrigin && (
+                <p className="mt-1 text-sm text-destructive">{errors.productNoticeOrigin}</p>
+              )}
+            </FormSection>
+          ) : (
+            <FormSection
+              id="section-notice"
+              title="상품정보제공고시"
+              hint={`${noticeFilled}/${PRODUCT_NOTICE_FIELDS.length} 입력`}
+              description="식품을 팔 때 법으로 정해진 표시예요. 다른 상품에서 복사할 수 있어요."
+              error={
+                sectionHasError("section-notice") || (noticeCopyError && !noticeCopy?.confirmed)
+              }
+              action={
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  aria-expanded={noticeOpen}
+                  onClick={() => setNoticeOpen((v) => !v)}
+                >
+                  {noticeOpen ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                  {noticeOpen ? "접기" : "펼치기"}
+                </Button>
+              }
+            >
+              {noticeOpen ? (
+                <ProductCreationProductNoticeSection
+                  hideHeader
+                  form={form}
+                  errors={errors}
+                  onChange={(key) => (e) =>
+                    patch({ [key]: e.target.value } as Partial<ProductForm>)
+                  }
+                  copy={
+                    tools
+                      ? {
+                          storeId: storeId!,
+                          excludeProductId: productId,
+                          copiedFrom: noticeCopy?.fromName ?? null,
+                          confirmed: noticeCopy?.confirmed ?? false,
+                          showConfirmError: noticeCopyError,
+                          onCopy: handleCopyNotice,
+                          onConfirmedChange: (confirmed) =>
+                            setNoticeCopy((prev) => (prev ? { ...prev, confirmed } : prev)),
+                        }
+                      : undefined
+                  }
+                />
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  {noticeFilled === PRODUCT_NOTICE_FIELDS.length
+                    ? "모두 입력했어요."
+                    : `${PRODUCT_NOTICE_FIELDS.length - noticeFilled}개가 비어 있어요. 펼쳐서 채워 주세요.`}
+                </p>
+              )}
+            </FormSection>
+          )}
         </div>
 
         {/* 오른쪽: 상태·분류 */}

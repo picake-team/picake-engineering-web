@@ -5,7 +5,10 @@ import {
   ProductType,
 } from "@/apps/web-seller/features/product/types/product.dto";
 import type { ProductForm } from "@/apps/web-seller/features/product/types/product.ui";
-import { PRODUCT_NOTICE_FIELDS } from "@/apps/web-seller/features/product/utils/product-notice.util";
+import {
+  PRODUCT_NOTICE_FIELDS,
+  REQUIRED_PRODUCT_NOTICE_KEYS,
+} from "@/apps/web-seller/features/product/utils/product-notice.util";
 import { validateProductForm } from "@/apps/web-seller/features/product/utils/validateProductForm";
 
 const size = (displayName: CakeSizeDisplayName, price = 0) => ({
@@ -46,6 +49,20 @@ describe("validateProductForm", () => {
       }),
     );
     expect(errors.cakeSizeOptions).toContain("같은 사이즈(1호)");
+  });
+
+  it("고시는 원산지만 채워도 등록할 수 있다 (법 검토로 원산지만 필수)", () => {
+    const onlyOrigin = validForm({
+      ...Object.fromEntries(PRODUCT_NOTICE_FIELDS.map(({ key }) => [key, ""])),
+      productNoticeOrigin: "밀가루(미국산), 생크림(국산)",
+    });
+    expect(validateProductForm(onlyOrigin)).toEqual({});
+  });
+
+  it("원산지가 비어 있으면 막는다", () => {
+    const errors = validateProductForm(validForm({ productNoticeOrigin: " " }));
+    expect(errors.productNoticeOrigin).toBe("원산지를 입력해주세요.");
+    expect(REQUIRED_PRODUCT_NOTICE_KEYS).toEqual(["productNoticeOrigin"]);
   });
 
   it("노출 중인 사이즈는 여전히 1개 이상 필요하다", () => {
