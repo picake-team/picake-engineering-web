@@ -9,6 +9,10 @@ description: Picake web-user가 겉면만 Flutter로 감싼 웹뷰 앱으로 iOS
 
 > **현재 상태(2026-08-30 기준): 심사 승인 완료, iOS 앱스토어 배포 성공.** 4차 반려(§1의 2.1(a)+1.5, §3-2)까지 대응한 재심사에서 통과됨. 이 문서는 이력 참고용으로 계속 유지하고, 새 반려가 오면 §4 절차대로 대응해 §1에 이어서 기록하세요.
 
+> **판매자 앱(2026-11-05~ 준비 중, 기획 I-48)도 이 기록을 기준으로 준비합니다.** 판매자 앱은 `web-seller`를 같은 방식(Flutter 웹뷰)으로 감싼 별도 앱입니다. 2026-11-05 기준 판매자 쪽에는 Apple 로그인(4.8)·심사용 로그인(2.1(a))·미리 채운 심사용 가게(2.1(a) 데모 콘텐츠)가 아직 없어 만들어야 하고, 앱 안 탈퇴(5.1.1(v))는 판매자 마이페이지에 이미 있습니다. Support URL은 손님 앱과 같은 `https://picakes.com/mypage/support`를 씁니다. 스토어 계정(App Store Connect·Play Console)과 Flutter 코드는 앱담당자가 가지고 있습니다.
+
+> **비밀번호·개인 연락처를 이 문서에 적지 마세요.** 이 레포는 공개 레포입니다. 2026-11-05에 §3-2의 구글 데모 계정 비밀번호와 운영자 개인 번호를 지웠습니다. git 기록에는 남아 있으므로 그 계정 비밀번호는 바꿔야 합니다.
+
 Picake web-user는 겉면만 Flutter로 감싼 **웹뷰 앱**입니다 — 로그인부터 주문·결제까지 대부분의 로직이 `apps/web-user`(Next.js)와 `apps/backend`에 있고, 네이티브 Flutter 쪽은 스플래시, FCM 푸시 토큰, 위치 브릿지(`window.mylocation`), 딥링크 스킴 처리 정도만 담당합니다(`apps/web-user/src/common/utils/webview.bridge.ts` 참고). 이 구조 자체가 Apple 심사에서 반복적으로 걸리는 지점이므로, **반려 메일을 받으면 먼저 이 문서에서 해당 가이드라인 번호를 찾아 이미 구현된 대응이 있는지 확인하고, 없는 부분만 새로 작업하세요.**
 
 ## 0. 이 저장소에서 할 수 있는 일 vs 없는 일
@@ -73,7 +77,7 @@ Picake web-user는 겉면만 Flutter로 감싼 **웹뷰 앱**입니다 — 로�
 
 **원인 조사 과정**: 처음엔 백엔드 코드(`auth-apple-oauth.service.ts:240` — 신규 `appleId`는 휴대폰 SMS 인증번호 화면으로 빠짐)가 원인이라 보고 "계정을 미리 가입시켜두면 해결"이라 판단했으나, 사용자가 실제로 신규 Apple ID를 만들어 로그인해보니 **Apple 계정 자체의 2단계 인증(신뢰 기기로만 전송되는 코드)**이 진짜 원인이었음이 확인됨. 동일 문제가 Google 계정에서도 재현됨(새 환경 로그인 시 "인증 방법 선택" 챌린지) — **Google/Apple 둘 다 낯선 기기 로그인 시 계정 소유자에게만 코드/알림을 보내는 구조**라, 어떤 소셜 계정을 제공해도(미리 가입시켜놔도) 심사관은 로그인을 완주할 수 없다. Apple Developer Forums에도 동일 사례가 다수 확인됨(다른 개발자들도 Google 데모 계정이 리뷰어 로그인 시 "suspicious activity"로 막혀 통화로 대응한 사례) — https://developer.apple.com/forums/thread/127987
 
-**최종 대응(2026-08-23, Apple에 회신 완료)**: §2 심사용 로그인(소셜 로그인을 아예 안 거치는 REVIEW_ACCOUNT 바이패스)을 1순위로 안내하되, Google 데모 계정(`picakeee@gmail.com`)도 백업으로 제공하고 Google 2단계 인증 화면이 뜨면 실시간으로 인증코드를 전달해줄 연락처(국제전화 형식 `+82 10-9001-1211`)를 함께 명시해 회신함. App Store Connect의 App Review Information 전화번호 필드는 팀원 번호라 그대로 두고, 실제 연락 가능한 번호는 Notes 텍스트에만 별도로 적음 — 이 경우 Apple의 공식 "call me" 절차가 Notes 속 번호를 쓸 거란 보장은 없다는 점을 사용자에게 안내했고, 그 상태로 진행하기로 함.
+**최종 대응(2026-08-23, Apple에 회신 완료)**: §2 심사용 로그인(소셜 로그인을 아예 안 거치는 REVIEW_ACCOUNT 바이패스)을 1순위로 안내하되, Google 데모 계정(`picakeee@gmail.com`)도 백업으로 제공하고 Google 2단계 인증 화면이 뜨면 실시간으로 인증코드를 전달해줄 연락처(운영자 휴대폰, 국제전화 형식. 번호는 문서에 적지 않음)를 함께 명시해 회신함. App Store Connect의 App Review Information 전화번호 필드는 팀원 번호라 그대로 두고, 실제 연락 가능한 번호는 Notes 텍스트에만 별도로 적음 — 이 경우 Apple의 공식 "call me" 절차가 Notes 속 번호를 쓸 거란 보장은 없다는 점을 사용자에게 안내했고, 그 상태로 진행하기로 함.
 
 **보낸 회신 원문(영문)**은 아래 §3-2에 보관.
 
@@ -164,7 +168,7 @@ If you have any questions, please contact us at picakeee@gmail.com.
 
 ## 3-2. 4차 반려(2.1(a) + 1.5)에 실제로 보낸 회신 (2026-08-23)
 
-Resolution Center에 아래 영문으로 회신 완료. Google 데모 계정 비밀번호는 평문으로 남기지만, 이건 심사용 계정이라 실 서비스 계정과 무관 — Apple 쪽에 계속 유지할 계정이므로 **비밀번호를 바꾸면 이 문서도 같이 갱신**할 것. 연락처(`+82 10-9001-1211`)는 사용자 개인 번호이며 App Store Connect의 App Review Information 필드(팀원 번호)와는 별개로 Notes 텍스트에만 적어 보냄.
+Resolution Center에 아래 영문으로 회신 완료. 구글 데모 계정 비밀번호와 연락처(운영자 개인 번호)는 실제 회신에는 적었지만 이 문서에서는 `{…}`로 가렸습니다. 이 계정(`picakeee@gmail.com`)은 고객센터 이메일과 같은 계정이라 실 서비스 계정입니다. 비밀번호는 운영자가 따로 보관하고, 바꾸면 App Store Connect의 Review Notes도 함께 바꿉니다(앱담당자). 연락처는 App Store Connect의 App Review Information 필드(팀원 번호)와는 별개로 Notes 텍스트에만 적어 보냄.
 
 ```
 Hello,
@@ -180,11 +184,11 @@ our other social login options (Google, etc.).
 2. Social login demo account
 For review purposes, we are providing a Google OAuth demo account:
 - Email: picakeee@gmail.com
-- Password: vlrzpdlzm12
+- Password: {운영자가 따로 보관하는 비밀번호}
 
 Per Google's own policy, the sign-in flow may present a 2-step verification
 screen (asking you to choose a verification method). If you encounter this
-screen, please contact us at any time at +82 10-9001-1211 and we will relay
+screen, please contact us at any time at {운영자 휴대폰, +82 형식} and we will relay
 the verification code to you in real time.
 
 3. Verifying the full app without any social login

@@ -6,12 +6,12 @@ Picake(디저트 주문 플랫폼)의 웹 프론트엔드(`web-user`, `web-selle
 
 Picake 개발 코드는 아래 레포들로 나뉘어 있습니다.
 
-| 레포                                                                                          | 내용                                                              |
-| --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| **[picake-engineering-web](https://github.com/picake-team/picake-engineering-web)** (현재)    | 웹 프론트엔드 (`web-user`, `web-seller`, `web-admin`, `web-info`) |
-| [picake-engineering-backend](https://github.com/picake-team/picake-engineering-backend)       | 백엔드 API 서버 (NestJS, EC2 배포)                                |
-| [picake-engineering-app](https://github.com/picake-team/picake-engineering-app)               | Flutter 앱 (`web-user`을 감싸는 WebView 앱, 예정)                 |
-| picake-hq (비공개)                                                                            | 회사 운영·운영 자동화 (브리핑, 주간 회의, 데이터·인프라 점검)     |
+| 레포                                                                                       | 내용                                                                                          |
+| ------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------- |
+| **[picake-engineering-web](https://github.com/picake-team/picake-engineering-web)** (현재) | 웹 프론트엔드 (`web-user`, `web-seller`, `web-admin`, `web-info`)                             |
+| [picake-engineering-backend](https://github.com/picake-team/picake-engineering-backend)    | 백엔드 API 서버 (NestJS, EC2 배포)                                                            |
+| [picake-engineering-app](https://github.com/picake-team/picake-engineering-app)            | Flutter 웹뷰 앱 (손님 앱이 `web-user`를 감쌈, 판매자 앱 준비 중). 코드는 지금 앱담당자가 보관 |
+| picake-hq (비공개)                                                                         | 회사 운영·운영 자동화 (브리핑, 주간 회의, 데이터·인프라 점검)                                 |
 
 ## 🚀 시작하기
 

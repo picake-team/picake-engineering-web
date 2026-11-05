@@ -48,7 +48,7 @@ Picake 플랫폼을 위한 Next.js 기반 사용자 웹 애플리케이션입니
 - **Kakao 회원가입 콜백**: `/auth/register/kakao`
 - **Apple 회원가입**: `/auth/register/apple`
 
-> 기본 로그인·회원가입은 Flutter WebView 앱에서 처리합니다. Apple 로그인은 Apple Developer 정책상 웹뷰 환경 심사 대응을 위해 web-user에서 직접 처리하며, dev 환경은 별도 지원 없이 staging 도메인으로 대체됩니다.
+> 로그인·회원가입은 앱에서도 web-user(웹뷰 안)가 처리합니다. Flutter 앱은 토큰을 따로 보관하지 않고 푸시 토큰·위치만 주고받습니다([사용자 - 웹뷰 인증 가이드](../common/feature/사용자%20-%20웹뷰%20인증.md)). Apple 로그인의 dev 환경은 별도 지원 없이 staging 도메인으로 대체됩니다.
 > 앱스토어 심사용 로그인(`review-login`)은 심사관 계정으로 로그인해야 하는 요구사항에 대응하기 위한 별도 플로우입니다.
 
 ### 상품 / 스토어
