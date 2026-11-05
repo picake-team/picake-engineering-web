@@ -91,7 +91,7 @@ export function getCustomOptionsError(options: CustomOptionDto[]): string | unde
   }
   const imageCount = options.filter((option) => option.type === CustomOptionType.IMAGE).length;
   if (imageCount > CUSTOM_OPTION_LIMITS.MAX_IMAGE_OPTIONS) {
-    return `사진첨부형 옵션은 ${CUSTOM_OPTION_LIMITS.MAX_IMAGE_OPTIONS}개만 등록할 수 있습니다.`;
+    return `사진 받기 옵션은 ${CUSTOM_OPTION_LIMITS.MAX_IMAGE_OPTIONS}개만 만들 수 있어요.`;
   }
   if (getCustomOptionErrors(options).some(Boolean)) {
     return "추가 옵션에 확인이 필요한 항목이 있습니다.";

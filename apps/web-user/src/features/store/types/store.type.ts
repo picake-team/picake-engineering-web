@@ -86,7 +86,7 @@ export interface StoreInfo {
   businessSector: string;
   businessType: string;
   // 통신판매사업자 정보
-  permissionManagementNumber: string;
+  permissionManagementNumber: string | null;
   // 주소/위치 정보
   address: string;
   roadAddress: string;

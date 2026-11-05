@@ -59,14 +59,6 @@ export interface CakeSizeOptionDto {
   description?: string;
 }
 
-/** 케이크 맛 옵션 (생성/수정 요청·응답 공용) */
-export interface CakeFlavorOptionDto {
-  id?: string;
-  visible: EnableStatus;
-  displayName: string;
-  price: number;
-}
-
 /** 추가 옵션 형식 (선택형·다중선택형·직접입력형·사진첨부형) */
 export enum CustomOptionType {
   SINGLE_SELECT = "SINGLE_SELECT",
@@ -110,12 +102,13 @@ export interface CreateProductRequestDto {
   salesStatus: EnableStatus;
   visibilityStatus: EnableStatus;
   cakeSizeOptions: CakeSizeOptionDto[];
-  cakeFlavorOptions: CakeFlavorOptionDto[];
   customOptions?: CustomOptionDto[];
   productType: ProductType;
   productCategoryTypes?: ProductCategoryType[];
   searchTags?: string[];
   detailDescription?: string;
+  /** 네이버에서 가져온 상품이면 네이버 예약 상품 ID (등록할 때 함께 연결) */
+  naverBizItemId?: string;
   productNoticeFoodType: string;
   productNoticeProducer: string;
   productNoticeOrigin: string;
@@ -147,7 +140,6 @@ export interface ProductResponseDto {
   salesStatus: EnableStatus;
   visibilityStatus: EnableStatus;
   cakeSizeOptions?: CakeSizeOptionDto[] | null;
-  cakeFlavorOptions?: CakeFlavorOptionDto[] | null;
   /** 추가 옵션 (판매자 상세 응답은 숨김 포함 전체, 목록 응답은 빈 배열) */
   customOptions: CustomOptionDto[];
   optionsVersion: number;
@@ -155,6 +147,10 @@ export interface ProductResponseDto {
   productCategoryTypes: ProductCategoryType[];
   searchTags: string[];
   detailDescription?: string | null;
+  /** 연결한 네이버 예약 상품 ID */
+  naverBizItemId?: string | null;
+  /** 네이버 상품을 연결한 시각 */
+  naverLinkedAt?: string | null;
   productNumber: string;
   productNoticeFoodType: string;
   productNoticeProducer: string;
@@ -216,7 +212,6 @@ export interface UpdateProductRequestDto {
   salesStatus?: EnableStatus;
   visibilityStatus?: EnableStatus;
   cakeSizeOptions?: CakeSizeOptionDto[];
-  cakeFlavorOptions?: CakeFlavorOptionDto[];
   customOptions?: CustomOptionDto[];
   productType?: ProductType;
   productCategoryTypes?: ProductCategoryType[];

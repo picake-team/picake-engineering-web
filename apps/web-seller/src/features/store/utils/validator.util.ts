@@ -29,9 +29,10 @@ export const validateStoreName = (name: string): string | null => {
 };
 
 /**
- * 스토어 설명 최대 글자 수
+ * 스토어 설명 최대 글자 수 (P-46). 네이버 플레이스 소개글 한도와 같은 2,000자라
+ * 네이버에서 가져온 소개글이 잘리지 않는다. 손님 화면은 길면 접어서 보여 준다.
  */
-export const STORE_DESCRIPTION_MAX_LENGTH = 250;
+export const STORE_DESCRIPTION_MAX_LENGTH = 2000;
 
 /**
  * 스토어 설명 유효성 검증 및 에러 메시지 반환
@@ -42,7 +43,7 @@ export const validateStoreDescription = (description: string | undefined): strin
     return null;
   }
 
-  // 250자 초과 검증
+  // 최대 글자 수 초과 검증
   if (description.length > STORE_DESCRIPTION_MAX_LENGTH) {
     return `스토어 설명은 ${STORE_DESCRIPTION_MAX_LENGTH}자 이하로 입력해주세요.`;
   }

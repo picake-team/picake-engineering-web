@@ -1,8 +1,4 @@
-import {
-  CakeFlavorOption,
-  CakeSizeOption,
-  CustomOption,
-} from "@/apps/web-user/features/product/types/product.type";
+import { CakeSizeOption, CustomOption } from "@/apps/web-user/features/product/types/product.type";
 import type {
   StoreBusinessCalendar,
   RefundCancellationPolicy,
@@ -14,9 +10,6 @@ export interface OrderItem {
   sizeId: string;
   sizeName: string;
   sizePrice: number;
-  flavorId: string;
-  flavorName: string;
-  flavorPrice: number;
   /** 추가 옵션 선택값 (사진첨부형은 업로드 전 File 포함) */
   selections: OptionSelections;
   optionsPrice: number;
@@ -25,7 +18,7 @@ export interface OrderItem {
 }
 
 /** '선택완료'를 눌렀을 때 처음으로 비어 있는 항목 (스크롤 대상) */
-export type OptionsFieldKey = "date" | "size" | "flavor" | `option:${string}`;
+export type OptionsFieldKey = "date" | "size" | `option:${string}`;
 
 export interface ReservationBottomSheetProps {
   isOpen: boolean;
@@ -35,7 +28,6 @@ export interface ReservationBottomSheetProps {
   cakeImageUrl: string;
   cakeImages?: string[];
   cakeSizeOptions?: CakeSizeOption[];
-  cakeFlavorOptions?: CakeFlavorOption[];
   customOptions?: CustomOption[];
   /** 옵션을 고를 때 본 상품 optionsVersion (주문 시 그대로 전달) */
   optionsVersion: number;

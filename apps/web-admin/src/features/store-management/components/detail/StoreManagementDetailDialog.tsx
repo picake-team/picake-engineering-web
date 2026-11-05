@@ -266,7 +266,10 @@ export function StoreManagementDetailDialog({
                   <DetailRow label="개업일자" value={data.openingDate} />
                   <DetailRow label="업종" value={data.businessSector} />
                   <DetailRow label="업태" value={data.businessType} />
-                  <DetailRow label="통신판매번호" value={data.permissionManagementNumber} />
+                  <DetailRow
+                    label="통신판매번호"
+                    value={data.permissionManagementNumber ?? "없음 (받지 않음)"}
+                  />
                 </dl>
               </section>
 

@@ -80,8 +80,8 @@ export const CUSTOM_OPTION_LIMITS = {
   MAX_IMAGE_OPTIONS: 1,
 } as const;
 
-/** 사이즈·맛과 겹쳐 구매자가 헷갈리는 추가 옵션명 */
-export const RESERVED_CUSTOM_OPTION_NAMES = ["사이즈", "맛"] as const;
+/** 사이즈와 겹쳐 구매자가 헷갈리는 추가 옵션명. 맛은 추가 옵션 "맛"(하나 고르기)으로 받는다 */
+export const RESERVED_CUSTOM_OPTION_NAMES = ["사이즈"] as const;
 
 /** 추가 옵션 형식별 판매자 화면 이름·설명 */
 export const CUSTOM_OPTION_TYPE_META: Record<
@@ -89,20 +89,20 @@ export const CUSTOM_OPTION_TYPE_META: Record<
   { label: string; description: string }
 > = {
   [CustomOptionType.SINGLE_SELECT]: {
-    label: "선택형",
-    description: "구매자가 목록에서 1개를 고릅니다",
+    label: "하나 고르기",
+    description: "손님이 목록에서 하나를 골라요 (예: 초 종류)",
   },
   [CustomOptionType.MULTI_SELECT]: {
-    label: "다중선택형",
-    description: "구매자가 여러 개를 체크해서 고릅니다",
+    label: "여러 개 고르기",
+    description: "손님이 여러 개를 골라요 (예: 토핑, 추가 구성)",
   },
   [CustomOptionType.TEXT]: {
-    label: "직접입력형",
-    description: "구매자가 글자를 직접 입력합니다",
+    label: "글자 받기",
+    description: "손님이 글자를 적어요 (예: 레터링 문구)",
   },
   [CustomOptionType.IMAGE]: {
-    label: "사진첨부형",
-    description: "구매자가 참고 사진을 첨부합니다",
+    label: "사진 받기",
+    description: "손님이 참고 사진을 올려요 (예: 원하는 디자인)",
   },
 };
 
@@ -129,60 +129,3 @@ export function createEmptyCustomOption(type: CustomOptionType): CustomOptionDto
       return { ...base, maxCount: CUSTOM_OPTION_LIMITS.MAX_IMAGE_COUNT };
   }
 }
-
-/** 자주 쓰는 옵션 (한 번 클릭으로 추가) */
-export const CUSTOM_OPTION_PRESETS: { key: string; label: string; build: () => CustomOptionDto }[] =
-  [
-    {
-      key: "lettering",
-      label: "레터링 문구",
-      build: () => ({
-        type: CustomOptionType.TEXT,
-        name: "레터링 문구",
-        required: true,
-        visible: EnableStatus.ENABLE,
-        maxLength: 10,
-        placeholder: "케이크에 들어갈 문구를 적어주세요.",
-      }),
-    },
-    {
-      key: "reference-photo",
-      label: "참고 사진",
-      build: () => ({
-        type: CustomOptionType.IMAGE,
-        name: "참고사진",
-        required: false,
-        visible: EnableStatus.ENABLE,
-        maxCount: CUSTOM_OPTION_LIMITS.MAX_IMAGE_COUNT,
-      }),
-    },
-    {
-      key: "candle",
-      label: "초 추가",
-      build: () => ({
-        type: CustomOptionType.SINGLE_SELECT,
-        name: "초 추가",
-        required: false,
-        visible: EnableStatus.ENABLE,
-        // 선택 옵션은 구매자 화면에 '선택 안 함'이 기본으로 있어 '없음' 옵션값은 넣지 않는다
-        choices: [
-          { label: "숫자초", price: 1000, visible: EnableStatus.ENABLE },
-          { label: "긴초", price: 1000, visible: EnableStatus.ENABLE },
-        ],
-      }),
-    },
-    {
-      key: "packaging",
-      label: "포장",
-      build: () => ({
-        type: CustomOptionType.SINGLE_SELECT,
-        name: "포장",
-        required: false,
-        visible: EnableStatus.ENABLE,
-        choices: [
-          { label: "기본 포장", price: 0, visible: EnableStatus.ENABLE },
-          { label: "선물 포장", price: 3000, visible: EnableStatus.ENABLE },
-        ],
-      }),
-    },
-  ];

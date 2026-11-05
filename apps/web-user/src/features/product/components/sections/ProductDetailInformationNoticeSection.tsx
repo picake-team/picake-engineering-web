@@ -52,7 +52,8 @@ export function ProductDetailInformationNoticeSection({
     { label: "유전자변형식품에 해당하는 경우", value: product.productNoticeGmoNotice },
     { label: "수입식품의 경우", value: product.productNoticeImportNotice },
     { label: "고객센터", value: product.productNoticeCustomerService },
-  ];
+    // 판매자가 적은 항목만 보여 준다 (고시는 원산지만 필수, 나머지는 선택)
+  ].filter((item) => item.value?.trim());
 
   return (
     <div>
@@ -62,13 +63,13 @@ export function ProductDetailInformationNoticeSection({
           value="notice-info"
           style={{ border: "none", scrollMarginTop: "52px" }}
         >
-          <AccordionTrigger className="py-[16px]">상품정보제공고시</AccordionTrigger>
+          <AccordionTrigger className="py-[16px]">상품 정보</AccordionTrigger>
           <AccordionContent>
             <div className="flex flex-col gap-[12px] py-[12px] px-[16px] text-[13px] bg-gray-50 rounded-lg">
               {noticeItems.map((item, index) => (
                 <div key={index} className="flex flex-col gap-[2px]">
                   <p className="text-gray-500">{item.label}</p>
-                  <p className="text-gray-900">{item.value || "-"}</p>
+                  <p className="text-gray-900">{item.value}</p>
                 </div>
               ))}
             </div>

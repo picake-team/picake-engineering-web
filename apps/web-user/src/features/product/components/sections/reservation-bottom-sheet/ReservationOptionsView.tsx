@@ -5,7 +5,6 @@ import { DatePickerInput } from "@/apps/web-user/common/components/datepickers/D
 import { Select } from "@/apps/web-user/common/components/selectboxs/Select";
 import { TextArea } from "@/apps/web-user/common/components/textareas/TextArea";
 import {
-  CakeFlavorOption,
   CakeSizeOption,
   CustomOption,
   CustomOptionType,
@@ -20,14 +19,11 @@ import type { OptionsFieldKey } from "./types";
 
 interface ReservationOptionsViewProps {
   selectedDate: Date | null;
-  /** 노출 중인 사이즈·맛·추가 옵션 */
+  /** 노출 중인 사이즈·추가 옵션(맛 등) */
   sizeOptions: CakeSizeOption[];
-  flavorOptions: CakeFlavorOption[];
   customOptions: CustomOption[];
   selectedSizeId: string;
   setSelectedSizeId: (value: string) => void;
-  selectedFlavorId: string;
-  setSelectedFlavorId: (value: string) => void;
   selections: OptionSelections;
   onOptionChange: (optionId: string, selection: OptionSelection) => void;
   requestMessage: string;
@@ -50,12 +46,9 @@ const REQUIRED_OPTION_ERROR = "필수 옵션이에요.";
 export function ReservationOptionsView({
   selectedDate,
   sizeOptions,
-  flavorOptions,
   customOptions,
   selectedSizeId,
   setSelectedSizeId,
-  selectedFlavorId,
-  setSelectedFlavorId,
   selections,
   onOptionChange,
   requestMessage,
@@ -71,12 +64,9 @@ export function ReservationOptionsView({
 }: ReservationOptionsViewProps) {
   const dateRef = useRef<HTMLDivElement>(null);
   const sizeRef = useRef<HTMLDivElement>(null);
-  const flavorRef = useRef<HTMLDivElement>(null);
   const optionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const [sizeOpenSignal, setSizeOpenSignal] = useState(0);
-  const [flavorOpenSignal, setFlavorOpenSignal] = useState(0);
   const prevSelectedSizeRef = useRef(selectedSizeId);
-  const prevSelectedFlavorRef = useRef(selectedFlavorId);
 
   const scrollToRef = (ref: RefObject<HTMLDivElement | null>) => {
     ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -91,7 +81,7 @@ export function ReservationOptionsView({
     }
   };
 
-  // 날짜 선택 → 사이즈 → 맛 → 첫 추가 옵션 순서로 다음 입력으로 안내
+  // 날짜 선택 → 사이즈 → 첫 추가 옵션(맛 등) 순서로 다음 입력으로 안내
   useEffect(() => {
     if (dateSelectionSignal > 0 && !selectedSizeId) {
       scrollToRef(sizeRef);
@@ -100,27 +90,18 @@ export function ReservationOptionsView({
   }, [dateSelectionSignal, selectedSizeId]);
 
   useEffect(() => {
-    if (selectedSizeId && !prevSelectedSizeRef.current && !selectedFlavorId) {
-      scrollToRef(flavorRef);
-      setFlavorOpenSignal((prev) => prev + 1);
-    }
-    prevSelectedSizeRef.current = selectedSizeId;
-  }, [selectedSizeId, selectedFlavorId]);
-
-  useEffect(() => {
-    if (selectedFlavorId && !prevSelectedFlavorRef.current) {
+    if (selectedSizeId && !prevSelectedSizeRef.current) {
       scrollToOption(customOptions.find((option) => !selections[option.id]));
     }
-    prevSelectedFlavorRef.current = selectedFlavorId;
-    // 맛을 처음 고른 순간에만 동작 (selections 변경에는 반응하지 않음)
-  }, [selectedFlavorId]);
+    prevSelectedSizeRef.current = selectedSizeId;
+    // 사이즈를 처음 고른 순간에만 동작 (selections 변경에는 반응하지 않음)
+  }, [selectedSizeId]);
 
   // '선택완료'에서 막혔을 때 처음 비어 있는 항목으로 이동
   useEffect(() => {
     if (!invalidFieldSignal || !firstInvalidField) return;
     if (firstInvalidField === "date") scrollToRef(dateRef);
     else if (firstInvalidField === "size") scrollToRef(sizeRef);
-    else if (firstInvalidField === "flavor") scrollToRef(flavorRef);
     else {
       const optionId = firstInvalidField.slice("option:".length);
       scrollToOption(customOptions.find((option) => option.id === optionId));
@@ -171,27 +152,6 @@ export function ReservationOptionsView({
               value: size.id,
               label: [size.displayName, size.description].filter(Boolean).join(" "),
               subLabel: size.price > 0 ? `+${size.price.toLocaleString()}원` : undefined,
-            })),
-          ]}
-        />
-      </div>
-      <div ref={flavorRef}>
-        <Select
-          label="맛 선택"
-          value={selectedFlavorId}
-          onChange={setSelectedFlavorId}
-          openSignal={flavorOpenSignal}
-          error={errorIf(
-            flavorOptions.length > 0 &&
-              !flavorOptions.some((flavor) => flavor.id === selectedFlavorId),
-            "맛을 선택해주세요.",
-          )}
-          options={[
-            { value: "", label: "시트를 선택해주세요" },
-            ...flavorOptions.map((flavor) => ({
-              value: flavor.id,
-              label: flavor.displayName,
-              subLabel: flavor.price > 0 ? `+${flavor.price.toLocaleString()}원` : undefined,
             })),
           ]}
         />

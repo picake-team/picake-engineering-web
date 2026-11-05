@@ -18,7 +18,7 @@ async function findFixtureProductId(request: APIRequestContext) {
 }
 
 /**
- * 사이즈/맛 Select는 픽업날짜·사이즈를 고르면 다음 단계 Select가 자동으로 열리는
+ * 사이즈 Select는 픽업날짜를 고르면 자동으로 열리는
  * UX가 있어(ReservationOptionsView의 openSignal 이펙트) 이미 열려 있을 수도, 아닐 수도 있다.
  * 열려 있지 않을 때만 트리거를 클릭해 두 경우 모두 안전하게 처리한다.
  */
@@ -64,21 +64,22 @@ test("예약(주문) 생성 골든패스", async ({ page, request }) => {
     .click();
   await sheet.getByRole("button", { name: "선택완료" }).click();
 
-  // 사이즈/맛 선택 (fixture-seed.script.ts가 심는 옵션과 동일 라벨)
+  // 사이즈 선택 (fixture-seed.script.ts가 심는 옵션과 동일 라벨). 맛은 따로 없고 추가 옵션으로 받는다
   await selectDropdownOption(sheet, "사이즈 선택", "미니");
-  await selectDropdownOption(sheet, "맛 선택", "초콜릿");
 
-  // 필수 추가 옵션(레터링 문구)을 비운 채 넘어가면 막고 오류를 보여준다
+  // 필수 추가 옵션(맛·레터링 문구)을 비운 채 넘어가면 막고 오류를 보여준다
   await sheet.getByRole("button", { name: "선택완료" }).click();
-  await expect(sheet.getByText("필수 옵션이에요.")).toBeVisible();
+  await expect(sheet.getByText("필수 옵션이에요.").first()).toBeVisible();
 
   // 추가 옵션 (fixture-seed.script.ts의 CUSTOM_OPTIONS와 동일 라벨)
+  await selectDropdownOption(sheet, "맛", "바닐라");
   await sheet.getByPlaceholder("케이크에 들어갈 문구를 적어주세요.").fill("생일 축하해");
   await selectDropdownOption(sheet, "초 추가", "큰초");
 
   await sheet.getByRole("button", { name: "선택완료" }).click();
   await expect(sheet.getByText("주문확인")).toBeVisible();
   // 확인 화면에 추가 옵션과 옵션가가 그대로 보인다
+  await expect(sheet.getByText("맛 : 바닐라 (+2,000원)")).toBeVisible();
   await expect(sheet.getByText("레터링 문구 : 생일 축하해")).toBeVisible();
   await expect(sheet.getByText("초 추가 : 큰초 (+1,000원)")).toBeVisible();
 

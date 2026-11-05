@@ -13,6 +13,8 @@ import { Label } from "@/apps/web-seller/common/components/labels/Label";
 export interface ProductCreationProductNoticeSectionProps {
   form: ProductForm;
   errors: Partial<Record<keyof ProductForm, string>>;
+  /** 바깥에서 제목을 그리면 숨긴다 */
+  hideHeader?: boolean;
   onChange: (
     key: keyof ProductForm,
   ) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
@@ -33,15 +35,19 @@ export interface ProductCreationProductNoticeSectionProps {
 // 상품 등록 폼 - 상품정보제공고시 섹션
 export const ProductCreationProductNoticeSection: React.FC<
   ProductCreationProductNoticeSectionProps
-> = ({ form, errors, onChange, copy }) => {
+> = ({ form, errors, onChange, copy, hideHeader }) => {
   const [pickerOpen, setPickerOpen] = useState(false);
 
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-2">상품정보제공고시</h2>
-      <p className="text-sm text-muted-foreground mb-2">
-        식품 판매 시 법적으로 입력해야 하는 항목들입니다. 모든 항목은 필수 입력입니다.
-      </p>
+      {!hideHeader && (
+        <>
+          <h2 className="text-xl font-semibold mb-2">상품정보제공고시</h2>
+          <p className="text-sm text-muted-foreground mb-2">
+            식품 판매 시 법적으로 입력해야 하는 항목들입니다. 모든 항목은 필수 입력입니다.
+          </p>
+        </>
+      )}
 
       {copy && (
         <div className="mb-6 space-y-3">
