@@ -12,9 +12,7 @@ import {
   CakeSizeDisplayName,
   EnableStatus,
   ProductType,
-  type CustomOptionDto,
 } from "@/apps/web-seller/features/product/types/product.dto";
-import { CUSTOM_OPTION_PRESETS } from "@/apps/web-seller/features/product/constants/product.constant";
 import type { ProductForm } from "@/apps/web-seller/features/product/types/product.ui";
 import { FormSection } from "@/apps/web-seller/features/product/components/sections/FormSection";
 import {
@@ -57,12 +55,6 @@ interface Props {
 
 type Errors = Partial<Record<keyof ProductForm, string>>;
 
-/** 새 상품에는 '레터링 문구'를 미리 넣어 둔다 (판매자가 지울 수 있음) */
-const buildDefaultCustomOptions = (): CustomOptionDto[] =>
-  CUSTOM_OPTION_PRESETS.filter((preset) => preset.key === "lettering").map((preset) =>
-    preset.build(),
-  );
-
 export const defaultForm: ProductForm = {
   images: [],
   name: "",
@@ -79,10 +71,11 @@ export const defaultForm: ProductForm = {
       description: "1~2인용",
     },
   ],
-  cakeFlavorOptions: [{ visible: EnableStatus.ENABLE, displayName: "초콜릿", price: 0 }],
+  // 맛은 선택: 맛을 고르게 할 상품만 추가한다
+  cakeFlavorOptions: [],
   // 상품 유형은 판매자가 반드시 고르도록 비워 둔다
   productType: undefined,
-  customOptions: buildDefaultCustomOptions(),
+  customOptions: [],
   productCategoryTypes: [],
   searchTags: [],
   detailDescription: "",

@@ -9,7 +9,6 @@ import {
 import type { ProductForm } from "@/apps/web-seller/features/product/types/product.ui";
 import {
   CUSTOM_OPTION_LIMITS,
-  CUSTOM_OPTION_PRESETS,
   CUSTOM_OPTION_TYPE_META,
   CUSTOM_OPTION_TYPE_ORDER,
   VISIBILITY_STATUS_OPTIONS,
@@ -129,7 +128,6 @@ export const ProductCreationCustomOptionsSection: React.FC<
     updateOption(index, patch);
   };
 
-  const usedNames = new Set(options.map((o) => o.name));
   const addMenu = (
     <div className="relative">
       <Button
@@ -147,33 +145,6 @@ export const ProductCreationCustomOptionsSection: React.FC<
         <>
           <div className="fixed inset-0 z-10" aria-hidden onClick={() => setMenuOpen(false)} />
           <div className="absolute right-0 z-20 mt-1 w-72 rounded-lg border bg-popover p-1 shadow-lg">
-            <p className="px-2 pt-1.5 pb-1 text-xs font-medium text-muted-foreground">
-              자주 쓰는 옵션
-            </p>
-            {CUSTOM_OPTION_PRESETS.map((preset) => {
-              const built = preset.build();
-              const off = usedNames.has(built.name) || cannotAdd(built.type);
-              return (
-                <button
-                  key={preset.key}
-                  type="button"
-                  disabled={off}
-                  className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-sm hover:bg-muted disabled:opacity-40"
-                  onClick={() => {
-                    addOption(built);
-                    setMenuOpen(false);
-                  }}
-                >
-                  {preset.label}
-                  {usedNames.has(built.name) && (
-                    <span className="text-xs text-muted-foreground">추가됨</span>
-                  )}
-                </button>
-              );
-            })}
-            <p className="mt-1 border-t px-2 pt-2 pb-1 text-xs font-medium text-muted-foreground">
-              직접 만들기
-            </p>
             {CUSTOM_OPTION_TYPE_ORDER.map((type) => (
               <button
                 key={type}
@@ -202,7 +173,7 @@ export const ProductCreationCustomOptionsSection: React.FC<
       id="section-custom"
       title="추가 옵션"
       hint="(선택)"
-      description={`레터링 문구·초·포장처럼 손님이 더 고르는 것. 최대 ${CUSTOM_OPTION_LIMITS.MAX_OPTIONS}개`}
+      description={`레터링 문구·참고 사진·초처럼 손님이 더 고르거나 적는 것. 최대 ${CUSTOM_OPTION_LIMITS.MAX_OPTIONS}개`}
       action={addMenu}
       error={!!errors.customOptions}
     >
