@@ -25,6 +25,17 @@ import { ProductCreationDetailDescriptionSection } from "@/apps/web-seller/featu
 import { ProductCreationProductNoticeSection } from "@/apps/web-seller/features/product/components/sections/ProductCreationProductNoticeSection";
 import type { ProductNoticeValues } from "@/apps/web-seller/features/product/utils/product-notice.util";
 import { validateProductForm } from "@/apps/web-seller/features/product/utils/validateProductForm";
+import { Checkbox } from "@/apps/web-seller/common/components/inputs/Checkbox";
+import {
+  ProductNaverImportCard,
+  type NaverSourceText,
+} from "@/apps/web-seller/features/product/components/naver/ProductNaverImportCard";
+import {
+  ProductAiDescriptionDraft,
+  SELLER_CHECK_MARK,
+  initialAiDraftPanelState,
+  type AiDraftPanelState,
+} from "@/apps/web-seller/features/product/components/naver/ProductAiDescriptionDraft";
 
 interface Props {
   onSubmit: (data: ProductForm) => void;
@@ -37,6 +48,8 @@ interface Props {
   storeId?: string;
   /** 수정 중인 상품 (고시 복사 목록에서 뺀다) */
   productId?: string;
+  /** 수정 중인 상품의 네이버 연결 정보 (다시 불러오기용) */
+  naverLink?: { naverBizItemId?: string | null; naverLinkedAt?: string | Date | null };
 }
 
 /** 새 상품에는 '레터링 문구'를 미리 넣어 둔다 (판매자가 지울 수 있음) */
@@ -99,6 +112,7 @@ export const ProductCreationForm: React.FC<Props> = ({
   isDeleting = false,
   storeId,
   productId,
+  naverLink,
 }) => {
   const [form, setForm] = useState<ProductForm>(initialValue || defaultForm);
   const [errors, setErrors] = useState<Partial<Record<keyof ProductForm, string>>>({});
@@ -108,6 +122,11 @@ export const ProductCreationForm: React.FC<Props> = ({
     null,
   );
   const [noticeCopyError, setNoticeCopyError] = useState(false);
+  // AI 초안 패널 (네이버에서 가져온 설명을 참고 자료로 넣는다). 탭을 옮겨도 남게 여기서 들고 있는다
+  const [aiPanel, setAiPanel] = useState<AiDraftPanelState>(initialAiDraftPanelState);
+  // AI 초안을 상세정보에 넣었으면 판매자가 읽고 고쳐 확인해야 저장된다
+  const [aiDraft, setAiDraft] = useState<{ confirmed: boolean } | null>(null);
+  const [aiDraftError, setAiDraftError] = useState<string | null>(null);
 
   useEffect(() => {
     if (initialValue) {
@@ -115,8 +134,35 @@ export const ProductCreationForm: React.FC<Props> = ({
       setErrors({});
       setNoticeCopy(null);
       setNoticeCopyError(false);
+      setAiDraft(null);
+      setAiDraftError(null);
     }
   }, [initialValue]);
+
+  const handleNaverApply = (
+    next: ProductForm,
+    extra: { naverBizItemId?: string; source: NaverSourceText },
+  ) => {
+    if (disabled) return;
+    const merged = extra.naverBizItemId ? { ...next, naverBizItemId: extra.naverBizItemId } : next;
+    setForm(merged);
+    onChange?.(merged);
+    setErrors({});
+    const sourceText = [extra.source.description, extra.source.precautions]
+      .filter(Boolean)
+      .join("\n\n");
+    if (sourceText) setAiPanel((prev) => ({ ...prev, open: true, sourceText }));
+  };
+
+  const handleAiInsert = (html: string, how: "replace" | "append") => {
+    if (disabled) return;
+    const detailDescription = how === "replace" ? html : `${form.detailDescription ?? ""}${html}`;
+    const next = { ...form, detailDescription };
+    setForm(next);
+    onChange?.(next);
+    setAiDraft({ confirmed: false });
+    setAiDraftError(null);
+  };
 
   const handleCopyNotice = (values: ProductNoticeValues, productName: string) => {
     if (disabled) return;
@@ -257,6 +303,17 @@ export const ProductCreationForm: React.FC<Props> = ({
       return;
     }
 
+    if (form.detailDescription?.includes(SELLER_CHECK_MARK)) {
+      setAiDraftError(`상세정보에 ${SELLER_CHECK_MARK}가 남아 있어요. 내용을 확인해 고쳐 주세요.`);
+      setActiveTab("detail");
+      return;
+    }
+    if (aiDraft && !aiDraft.confirmed) {
+      setAiDraftError("AI 초안을 읽고 사실과 맞게 고쳤는지 확인해 주세요.");
+      setActiveTab("detail");
+      return;
+    }
+
     if (noticeCopy && !noticeCopy.confirmed) {
       setNoticeCopyError(true);
       setActiveTab("notice");
@@ -268,6 +325,22 @@ export const ProductCreationForm: React.FC<Props> = ({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {storeId && !disabled && (
+        <ProductNaverImportCard
+          storeId={storeId}
+          product={
+            productId
+              ? {
+                  id: productId,
+                  naverBizItemId: naverLink?.naverBizItemId,
+                  naverLinkedAt: naverLink?.naverLinkedAt,
+                }
+              : undefined
+          }
+          form={form}
+          onApply={handleNaverApply}
+        />
+      )}
       <Card>
         <CardContent className="p-6">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -314,11 +387,37 @@ export const ProductCreationForm: React.FC<Props> = ({
 
             {/* 상세정보 탭 */}
             <TabsContent value="detail" className="mt-6">
+              {storeId && !disabled && (
+                <ProductAiDescriptionDraft
+                  storeId={storeId}
+                  form={form}
+                  state={aiPanel}
+                  onStateChange={setAiPanel}
+                  onInsert={handleAiInsert}
+                />
+              )}
               <ProductCreationDetailDescriptionSection
                 form={form}
                 errors={errors}
                 onChange={handleDetailDescriptionChange}
               />
+              {aiDraft && (
+                <div className="mt-3 space-y-1">
+                  <Checkbox
+                    checked={aiDraft.confirmed}
+                    onChange={(confirmed) => {
+                      setAiDraft({ confirmed });
+                      if (confirmed) setAiDraftError(null);
+                    }}
+                    label={
+                      <span className="text-sm">
+                        AI 초안을 읽고 사실과 맞게 고쳤어요 (재료·알레르기·보관 방법 등)
+                      </span>
+                    }
+                  />
+                </div>
+              )}
+              {aiDraftError && <p className="mt-2 text-sm text-destructive">{aiDraftError}</p>}
             </TabsContent>
 
             {/* 상품정보제공고시 탭 */}
