@@ -67,17 +67,19 @@ test("예약(주문) 생성 골든패스", async ({ page, request }) => {
   // 사이즈 선택 (fixture-seed.script.ts가 심는 옵션과 동일 라벨). 맛은 따로 없고 추가 옵션으로 받는다
   await selectDropdownOption(sheet, "사이즈 선택", "미니");
 
-  // 필수 추가 옵션(레터링 문구)을 비운 채 넘어가면 막고 오류를 보여준다
+  // 필수 추가 옵션(맛·레터링 문구)을 비운 채 넘어가면 막고 오류를 보여준다
   await sheet.getByRole("button", { name: "선택완료" }).click();
-  await expect(sheet.getByText("필수 옵션이에요.")).toBeVisible();
+  await expect(sheet.getByText("필수 옵션이에요.").first()).toBeVisible();
 
   // 추가 옵션 (fixture-seed.script.ts의 CUSTOM_OPTIONS와 동일 라벨)
+  await selectDropdownOption(sheet, "맛", "바닐라");
   await sheet.getByPlaceholder("케이크에 들어갈 문구를 적어주세요.").fill("생일 축하해");
   await selectDropdownOption(sheet, "초 추가", "큰초");
 
   await sheet.getByRole("button", { name: "선택완료" }).click();
   await expect(sheet.getByText("주문확인")).toBeVisible();
   // 확인 화면에 추가 옵션과 옵션가가 그대로 보인다
+  await expect(sheet.getByText("맛 : 바닐라 (+2,000원)")).toBeVisible();
   await expect(sheet.getByText("레터링 문구 : 생일 축하해")).toBeVisible();
   await expect(sheet.getByText("초 추가 : 큰초 (+1,000원)")).toBeVisible();
 
