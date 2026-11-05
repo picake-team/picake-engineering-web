@@ -60,8 +60,7 @@ const selectClass = "h-8 rounded-md border bg-background px-2 text-sm";
 /** 옵션 묶음: 사장님은 옵션 하나하나가 아니라 이 단위로 고른다 */
 const GROUPS: { key: string; title: string; uses: Use[] }[] = [
   { key: "price", title: "가격·사이즈", uses: ["SIZE", "BASE"] },
-  { key: "flavor", title: "맛", uses: ["FLAVOR"] },
-  { key: "extra", title: "추가 옵션", uses: ["EXTRA"] },
+  { key: "extra", title: "추가 옵션 (맛 포함)", uses: ["EXTRA"] },
 ];
 
 /**
@@ -677,7 +676,6 @@ export function NaverProductImportDialog({
                           >
                             <option value="SIZE">사이즈</option>
                             <option value="BASE">판매가</option>
-                            <option value="FLAVOR">맛</option>
                             <option value="EXTRA">추가 옵션</option>
                             <option value="SKIP">넣지 않음</option>
                           </select>

@@ -26,7 +26,6 @@ const validForm = (patch: Partial<ProductForm> = {}): ProductForm =>
     visibilityStatus: EnableStatus.ENABLE,
     productType: ProductType.BASIC_CAKE,
     cakeSizeOptions: [size(CakeSizeDisplayName.MINI), size(CakeSizeDisplayName.SIZE_1, 16000)],
-    cakeFlavorOptions: [],
     customOptions: [],
     productCategoryTypes: [],
     searchTags: [],
@@ -36,23 +35,8 @@ const validForm = (patch: Partial<ProductForm> = {}): ProductForm =>
   }) as ProductForm;
 
 describe("validateProductForm", () => {
-  it("맛이 없어도 등록할 수 있다 (맛은 선택)", () => {
+  it("맛 없이(사이즈만으로) 등록할 수 있다", () => {
     expect(validateProductForm(validForm())).toEqual({});
-  });
-
-  it("맛을 넣었으면 이름이 비어 있으면 안 된다", () => {
-    const errors = validateProductForm(
-      validForm({
-        cakeFlavorOptions: [{ visible: EnableStatus.ENABLE, displayName: " ", price: 0 }],
-      }),
-    );
-    expect(errors.cakeFlavorOptions).toContain("이름이 비어 있는 맛");
-  });
-
-  it("같은 맛을 두 번 넣으면 막는다", () => {
-    const flavor = { visible: EnableStatus.ENABLE, displayName: "초코", price: 0 };
-    const errors = validateProductForm(validForm({ cakeFlavorOptions: [flavor, { ...flavor }] }));
-    expect(errors.cakeFlavorOptions).toContain("같은 맛(초코)");
   });
 
   it("같은 사이즈를 두 번 넣으면 막는다", () => {

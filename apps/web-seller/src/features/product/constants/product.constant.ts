@@ -80,8 +80,8 @@ export const CUSTOM_OPTION_LIMITS = {
   MAX_IMAGE_OPTIONS: 1,
 } as const;
 
-/** 사이즈·맛과 겹쳐 구매자가 헷갈리는 추가 옵션명 */
-export const RESERVED_CUSTOM_OPTION_NAMES = ["사이즈", "맛"] as const;
+/** 사이즈와 겹쳐 구매자가 헷갈리는 추가 옵션명. 맛은 추가 옵션 "맛"(하나 고르기)으로 받는다 */
+export const RESERVED_CUSTOM_OPTION_NAMES = ["사이즈"] as const;
 
 /** 추가 옵션 형식별 판매자 화면 이름·설명 */
 export const CUSTOM_OPTION_TYPE_META: Record<

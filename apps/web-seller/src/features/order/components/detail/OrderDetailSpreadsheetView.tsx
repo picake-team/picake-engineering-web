@@ -72,13 +72,6 @@ function formatSizeLine(item: OrderResponseDto["orderItems"][number]): string {
   return s;
 }
 
-function formatFlavorLine(item: OrderResponseDto["orderItems"][number]): string {
-  if (!item.flavorDisplayName) return "—";
-  let s = item.flavorDisplayName;
-  if (item.flavorPrice && item.flavorPrice > 0) s += ` (+${item.flavorPrice.toLocaleString()}원)`;
-  return s;
-}
-
 /** 추가 옵션 값 한 줄 (선택형: 옵션값·옵션가, 직접입력형: 입력 문구) */
 function formatSelectedOptionValue(
   option: OrderResponseDto["orderItems"][number]["selectedOptions"][number],
@@ -125,7 +118,6 @@ export const OrderDetailSpreadsheetView: React.FC<OrderDetailSpreadsheetViewProp
               <tr>
                 <th className={ORDER_DETAIL_TH_COL}>#</th>
                 <th className={ORDER_DETAIL_TH_COL}>사이즈</th>
-                <th className={ORDER_DETAIL_TH_COL}>맛</th>
                 <th className={cn(ORDER_DETAIL_TH_COL, "text-right")}>수량</th>
                 <th className={cn(ORDER_DETAIL_TH_COL, "text-right")}>단가</th>
                 <th className={cn(ORDER_DETAIL_TH_COL, "text-right")}>소계</th>
@@ -148,9 +140,6 @@ export const OrderDetailSpreadsheetView: React.FC<OrderDetailSpreadsheetViewProp
                     </td>
                     <td className={cn(ORDER_DETAIL_TD_CELL, "min-w-[120px] whitespace-pre-wrap")}>
                       {formatSizeLine(item)}
-                    </td>
-                    <td className={cn(ORDER_DETAIL_TD_CELL, "min-w-[100px] whitespace-pre-wrap")}>
-                      {formatFlavorLine(item)}
                     </td>
                     <td className={cn(ORDER_DETAIL_TD_CELL, "text-right tabular-nums")}>
                       {item.quantity}
