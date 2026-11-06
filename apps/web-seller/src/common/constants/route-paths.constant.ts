@@ -29,6 +29,8 @@ export const ROUTES = {
     `/stores/${storeId}/notifications/settings`,
   STORE_DETAIL_EDIT: (storeId: string) => `/stores/${storeId}/edit`,
   STORE_DETAIL_CALENDAR: (storeId: string) => `/stores/${storeId}/calendar`,
+  /** 휴대폰 앱 처음 사용 안내(SC-69, 앱에서만). PC 폭·휴대폰 브라우저에서는 스토어 홈으로 */
+  STORE_DETAIL_WELCOME: (storeId: string) => `/stores/${storeId}/welcome`,
   /** 휴대폰 화면 날짜 상세(그날 영업 바꾸기, SC-80). PC 폭에서는 캘린더로 */
   STORE_DETAIL_CALENDAR_DAY: (storeId: string, dateKey: string) =>
     `/stores/${storeId}/calendar/${dateKey}`,

@@ -86,11 +86,14 @@ export function OrderActionSheet({
   order,
   target,
   onClose,
+  fromList = false,
 }: {
   order: OrderResponseDto | null;
   /** 바꿀 상태. null이면 닫힘 */
   target: OrderStatus | null;
   onClose: () => void;
+  /** 주문 목록에서 바로 처리(분석용) */
+  fromList?: boolean;
 }) {
   const queryClient = useQueryClient();
   const mutation = useUpdateOrderStatus();
@@ -133,7 +136,7 @@ export function OrderActionSheet({
       request.sellerCancelRefundPendingReason = reasonText.trim();
     }
     mutation.mutate(
-      { orderId: order.id, request },
+      { orderId: order.id, request, meta: { fromStatus: order.orderStatus, fromList } },
       {
         onSettled: () => {
           // 그사이 상태가 바뀌어 처리하지 못했어도 바뀐 상태를 다시 보여 준다(SC-77 ④)

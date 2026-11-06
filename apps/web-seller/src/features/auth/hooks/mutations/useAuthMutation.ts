@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/apps/web-seller/features/auth/store/auth.store";
 import { authApi } from "@/apps/web-seller/features/auth/apis/auth.api";
 import { useAlertStore } from "@/apps/web-seller/common/store/alert.store";
+import { logoutWithDevice } from "@/apps/web-seller/common/components/providers/SellerAppBridgeProvider";
 import getApiMessage from "@/apps/web-seller/common/utils/getApiMessage";
 import type {
   FindAccountRequestDto,
@@ -16,7 +17,8 @@ export function useLogout() {
   return useMutation({
     mutationFn: async () => Promise.resolve(),
     onSuccess: () => {
-      logout(navigate);
+      // 판매자 앱이면 이 휴대폰의 알림 토큰을 먼저 해제한다(손님 앱과 같은 흐름)
+      logoutWithDevice(() => logout(navigate));
     },
   });
 }

@@ -6,6 +6,7 @@ import { BottomSheet } from "@/apps/web-seller/common/ui/Sheet";
 import { Button, ButtonPair, CircleIconButton } from "@/apps/web-seller/common/ui/Button";
 import { Thumb } from "@/apps/web-seller/common/ui/Surface";
 import { copyWithToast } from "@/apps/web-seller/common/utils/clipboard.util";
+import { externalHref, shareViaDevice } from "@/apps/web-seller/common/utils/webview.bridge";
 import {
   customerProductUrl,
   customerStoreUrl,
@@ -17,17 +18,9 @@ import {
   type ProductResponseDto,
 } from "@/apps/web-seller/features/product/types/product.dto";
 
-/** 휴대폰 공유 창(없거나 취소하면 복사로) */
+/** 휴대폰 공유 창(앱 → 휴대폰 브라우저), 둘 다 안 되면 복사 */
 export async function shareLink(title: string, url: string) {
-  if (typeof navigator.share === "function") {
-    try {
-      await navigator.share({ title, url });
-      return;
-    } catch (e) {
-      // 사용자가 공유 창을 닫은 경우는 그대로 끝
-      if (e instanceof DOMException && e.name === "AbortError") return;
-    }
-  }
+  if (await shareViaDevice(title, url)) return;
   await copyWithToast(url, "주소를 복사했어요. 카톡·인스타에 붙여 넣어 보내 주세요");
 }
 
@@ -73,7 +66,7 @@ export function ShareLinkSheet({
           </Button>
         </ButtonPair>
         <a
-          href={storeUrl}
+          href={externalHref(storeUrl)}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex min-h-11 items-center self-start px-0 text-sub font-bold text-brand-ink"

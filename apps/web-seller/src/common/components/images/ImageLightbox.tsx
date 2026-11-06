@@ -19,6 +19,11 @@ export interface ImageLightboxProps {
   initialIndex?: number;
   alt?: string;
   onClose: () => void;
+  /**
+   * 사진 저장을 대신할 함수(판매자 앱: 휴대폰 사진첩). true를 돌려주면 브라우저 다운로드를 하지 않는다.
+   * 있으면 버튼 이름도 "사진 저장"이 된다.
+   */
+  onSave?: (src: string) => boolean;
 }
 
 const ZOOM_MIN = 1;
@@ -43,6 +48,7 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
   initialIndex = 0,
   alt = "이미지",
   onClose,
+  onSave,
 }) => {
   const total = images.length;
   const [index, setIndex] = useState(() =>
@@ -177,6 +183,7 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
 
   const handleDownload = useCallback(async () => {
     if (!currentSrc) return;
+    if (onSave?.(currentSrc)) return;
     try {
       const res = await fetch(currentSrc, { mode: "cors" });
       const blob = await res.blob();
@@ -192,7 +199,7 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
       // CORS 등으로 fetch 실패 시 새 탭으로 열기
       window.open(currentSrc, "_blank", "noopener,noreferrer");
     }
-  }, [currentSrc]);
+  }, [currentSrc, onSave]);
 
   const imageStyle = useMemo<React.CSSProperties>(
     () => ({
@@ -303,7 +310,7 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
           >
             <RefreshCw className="h-5 w-5" />
           </ToolbarButton>
-          <ToolbarButton onClick={handleDownload} label="다운로드">
+          <ToolbarButton onClick={handleDownload} label={onSave ? "사진 저장" : "다운로드"}>
             <Download className="h-5 w-5" />
           </ToolbarButton>
         </div>

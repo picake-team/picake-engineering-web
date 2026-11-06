@@ -11,6 +11,7 @@ import {
 import { AuthInitializerProvider } from "@/apps/web-seller/features/auth/components/providers/AuthInitializer";
 import { useShowMobileScreens } from "@/apps/web-seller/common/hooks/useShowMobileScreens";
 import { ToastHost } from "@/apps/web-seller/common/ui/ToastHost";
+import { SellerAppBridgeProvider } from "@/apps/web-seller/common/components/providers/SellerAppBridgeProvider";
 import { ErrorBoundaryProvider } from "./common/components/providers/ErrorBoundaryProvider";
 import { QueryProvider } from "./common/components/providers/QueryProvider";
 import { PostHogProvider, PostHogPageView } from "./common/components/providers/PostHogProvider";
@@ -96,7 +97,9 @@ const App: React.FC = () => {
           <BuildInfoLogger />
           <Router>
             <PostHogPageView />
-            <AppRoutes />
+            <SellerAppBridgeProvider>
+              <AppRoutes />
+            </SellerAppBridgeProvider>
           </Router>
         </PostHogProvider>
       </QueryProvider>
