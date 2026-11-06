@@ -7,6 +7,7 @@ import {
 } from "@/apps/web-seller/features/order/utils/order-status-ui.util";
 import { StatusBadge } from "@/apps/web-seller/common/components/badges/StatusBadge";
 import { cn } from "@/apps/web-seller/common/utils/classname.util";
+import { storeBankLabel } from "@/apps/web-seller/features/store/constants/store.constants";
 import {
   ORDER_DETAIL_MONO,
   ORDER_DETAIL_MUTED,
@@ -55,7 +56,11 @@ function buildNotesRows(order: OrderResponseDto): NotesRow[] {
   if (order.refundBankName || order.refundBankAccountNumber || order.refundAccountHolderName) {
     rows.push({
       key: "환불 계좌 (고객 요청 시)",
-      value: [order.refundBankName, order.refundBankAccountNumber, order.refundAccountHolderName]
+      value: [
+        storeBankLabel(order.refundBankName),
+        order.refundBankAccountNumber,
+        order.refundAccountHolderName,
+      ]
         .filter(Boolean)
         .join(" · "),
     });

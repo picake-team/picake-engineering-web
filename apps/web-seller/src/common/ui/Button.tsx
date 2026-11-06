@@ -158,6 +158,35 @@ export const CircleIconButton = React.forwardRef<
   );
 });
 
+/** 동그라미 아이콘 링크(전화 tel:·문자 sms:처럼 휴대폰 앱을 여는 곳) */
+export function CircleIconLink({
+  icon,
+  label,
+  href,
+  className,
+}: {
+  icon: React.ComponentProps<typeof Icon>["name"];
+  label: string;
+  href: string;
+  className?: string;
+}) {
+  return (
+    <a
+      href={href}
+      aria-label={label}
+      title={label}
+      className={cx(
+        "group inline-flex size-11 shrink-0 items-center justify-center rounded-full",
+        className,
+      )}
+    >
+      <span className="inline-flex size-10 items-center justify-center rounded-full border border-ink-200 bg-white text-ink-700 group-active:bg-ink-50">
+        <Icon name={icon} size={18} strokeWidth={1.9} />
+      </span>
+    </a>
+  );
+}
+
 /** 위쪽 줄의 아이콘 버튼(44). count가 있으면 오른쪽 위 주황 숫자 */
 export const HeaderIconButton = React.forwardRef<
   HTMLButtonElement,

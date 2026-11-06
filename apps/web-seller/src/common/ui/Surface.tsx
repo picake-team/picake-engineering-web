@@ -101,12 +101,23 @@ export interface StepItem {
   label: string;
 }
 
-/** 주문 상세 단계 막대. current는 지금 단계 번호(0부터) */
-export function StepBar({ steps, current }: { steps: StepItem[]; current: number }) {
+/**
+ * 주문 상세 단계 막대. filledThrough까지 주황으로 칠하고, current가 있으면 그 단계를 굵게 + 연한 주황 테두리.
+ * 정상 단계 밖 상태(취소·환불·노쇼)는 current 없이 지나온 단계까지만 칠한다.
+ */
+export function StepBar({
+  steps,
+  current = null,
+  filledThrough,
+}: {
+  steps: StepItem[];
+  current?: number | null;
+  filledThrough: number;
+}) {
   return (
     <ol className="flex items-start font-app" aria-label="주문 단계">
       {steps.map((s, i) => {
-        const done = i < current;
+        const filled = i <= filledThrough;
         const now = i === current;
         const last = i === steps.length - 1;
         return (
@@ -118,14 +129,14 @@ export function StepBar({ steps, current }: { steps: StepItem[]; current: number
             <span
               className={cx(
                 "relative z-[1] mt-1 size-3 rounded-full",
-                done || now ? "bg-brand" : "bg-ink-200",
+                filled ? "bg-brand" : "bg-ink-200",
                 now && "shadow-[0_0_0_4px_#FFEFEB]",
               )}
             />
             <span
               className={cx(
                 "whitespace-nowrap text-tab",
-                now ? "font-bold text-ink-900" : done ? "text-ink-600" : "text-ink-500",
+                now ? "font-bold text-ink-900" : filled ? "text-ink-600" : "text-ink-500",
               )}
             >
               {s.label}
@@ -135,7 +146,7 @@ export function StepBar({ steps, current }: { steps: StepItem[]; current: number
                 aria-hidden="true"
                 className={cx(
                   "absolute left-1/2 top-[7px] h-0.5 w-full",
-                  done ? "bg-brand" : "bg-ink-100",
+                  i < filledThrough ? "bg-brand" : "bg-ink-100",
                 )}
               />
             ) : null}

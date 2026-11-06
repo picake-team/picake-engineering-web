@@ -48,7 +48,7 @@ const StoreCreatePage = lazyPage(
   "StoreCreatePage",
 );
 const StoreDetailHomePage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/Home"),
+  () => import("@/apps/web-seller/pages/store/detail/Home.desktop"),
   "StoreDetailHomePage",
 );
 const StoreDetailProductListPage = lazyPage(
@@ -83,16 +83,41 @@ const StoreDetailFeedDetailPage = lazyPage(
   () => import("@/apps/web-seller/pages/store/detail/feed/Detail"),
   "StoreDetailFeedDetailPage",
 );
+// 휴대폰 화면(판매자 앱 I-48). 같은 주소의 PC 화면 옆에 둔다
+const StoreDetailHomeMobilePage = lazyPage(
+  () => import("@/apps/web-seller/pages/store/detail/Home.mobile"),
+  "StoreDetailHomeMobilePage",
+);
+const StoreDetailOrderListMobilePage = lazyPage(
+  () => import("@/apps/web-seller/pages/store/detail/orders/List.mobile"),
+  "StoreDetailOrderListMobilePage",
+);
+const StoreDetailOrderDetailMobilePage = lazyPage(
+  () => import("@/apps/web-seller/pages/store/detail/orders/Detail.mobile"),
+  "StoreDetailOrderDetailMobilePage",
+);
+const StoreDetailNotificationsListMobilePage = lazyPage(
+  () => import("@/apps/web-seller/pages/store/detail/notifications/List.mobile"),
+  "StoreDetailNotificationsListMobilePage",
+);
+const StoreDetailMenuPage = lazyPage(
+  () => import("@/apps/web-seller/pages/store/detail/Menu.desktop"),
+  "StoreDetailMenuPage",
+);
+const StoreDetailMenuMobilePage = lazyPage(
+  () => import("@/apps/web-seller/pages/store/detail/Menu.mobile"),
+  "StoreDetailMenuMobilePage",
+);
 const StoreDetailOrderListPage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/orders/List"),
+  () => import("@/apps/web-seller/pages/store/detail/orders/List.desktop"),
   "StoreDetailOrderListPage",
 );
 const StoreDetailOrderDetailPage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/orders/Detail"),
+  () => import("@/apps/web-seller/pages/store/detail/orders/Detail.desktop"),
   "StoreDetailOrderDetailPage",
 );
 const StoreDetailNotificationsListPage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/notifications/List"),
+  () => import("@/apps/web-seller/pages/store/detail/notifications/List.desktop"),
   "StoreDetailNotificationsListPage",
 );
 const StoreDetailNotificationsSettingsPage = lazyPage(
@@ -120,7 +145,11 @@ export const ADMIN_ROUTE_CONFIG: AppRouteConfig[] = [
   { path: ROUTES.MYPAGE, element: MypageIndexPage },
   // 스토어 관련 경로
   { path: ROUTES.STORE_CREATE, element: StoreCreatePage },
-  { path: ROUTES.STORE_DETAIL_HOME(":storeId"), element: StoreDetailHomePage },
+  {
+    path: ROUTES.STORE_DETAIL_HOME(":storeId"),
+    element: StoreDetailHomePage,
+    mobile: StoreDetailHomeMobilePage,
+  },
   { path: ROUTES.STORE_DETAIL_PRODUCTS(":storeId"), element: StoreDetailProductListPage },
   { path: ROUTES.STORE_DETAIL_PRODUCTS_LIST(":storeId"), element: StoreDetailProductListPage },
   { path: ROUTES.STORE_DETAIL_PRODUCTS_CREATE(":storeId"), element: StoreDetailProductCreatePage },
@@ -134,10 +163,15 @@ export const ADMIN_ROUTE_CONFIG: AppRouteConfig[] = [
     path: ROUTES.STORE_DETAIL_FEED_DETAIL(":storeId", ":feedId"),
     element: StoreDetailFeedDetailPage,
   },
-  { path: ROUTES.STORE_DETAIL_ORDERS_LIST(":storeId"), element: StoreDetailOrderListPage },
+  {
+    path: ROUTES.STORE_DETAIL_ORDERS_LIST(":storeId"),
+    element: StoreDetailOrderListPage,
+    mobile: StoreDetailOrderListMobilePage,
+  },
   {
     path: ROUTES.STORE_DETAIL_ORDERS_DETAIL(":storeId", ":orderId"),
     element: StoreDetailOrderDetailPage,
+    mobile: StoreDetailOrderDetailMobilePage,
   },
   {
     path: ROUTES.STORE_DETAIL_STATISTICS_ORDERS(":storeId"),
@@ -146,6 +180,7 @@ export const ADMIN_ROUTE_CONFIG: AppRouteConfig[] = [
   {
     path: ROUTES.STORE_DETAIL_NOTIFICATIONS_LIST(":storeId"),
     element: StoreDetailNotificationsListPage,
+    mobile: StoreDetailNotificationsListMobilePage,
   },
   {
     path: ROUTES.STORE_DETAIL_NOTIFICATIONS_SETTINGS(":storeId"),
@@ -153,4 +188,9 @@ export const ADMIN_ROUTE_CONFIG: AppRouteConfig[] = [
   },
   { path: ROUTES.STORE_DETAIL_EDIT(":storeId"), element: StoreDetailEditPage },
   { path: ROUTES.STORE_DETAIL_CALENDAR(":storeId"), element: StoreDetailCalendarPage },
+  {
+    path: ROUTES.STORE_DETAIL_MENU(":storeId"),
+    element: StoreDetailMenuPage,
+    mobile: StoreDetailMenuMobilePage,
+  },
 ];

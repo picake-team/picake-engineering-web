@@ -7,6 +7,7 @@ import {
 } from "@/apps/web-seller/features/order/types/order.dto";
 import getApiMessage from "@/apps/web-seller/common/utils/getApiMessage";
 import { useAlertStore } from "@/apps/web-seller/common/store/alert.store";
+import { markOrderChangedHere } from "@/apps/web-seller/features/order/utils/recent-order-change.util";
 
 // 주문 상태 변경 뮤테이션
 export function useUpdateOrderStatus() {
@@ -19,6 +20,10 @@ export function useUpdateOrderStatus() {
     { orderId: string; request: UpdateOrderStatusRequestDto }
   >({
     mutationFn: ({ orderId, request }) => orderApi.updateOrderStatus(orderId, request),
+    onMutate: ({ orderId }) => {
+      // 같은 주문의 실시간 알림이 곧 오므로 안내 띠를 겹쳐 띄우지 않게 표시
+      markOrderChangedHere(orderId);
+    },
     onSuccess: () => {
       addAlert({
         severity: "success",

@@ -314,6 +314,7 @@ export const 목록과_칸: Story = {
         </Card>
         <StepBar
           current={2}
+          filledThrough={2}
           steps={["예약신청", "입금대기", "입금완료", "예약확정", "픽업대기", "픽업완료"].map(
             (label) => ({ label }),
           )}
