@@ -1,4 +1,5 @@
 import React from "react";
+import { PageTitle } from "@/apps/web-seller/common/components/layouts/MobileFrame";
 import { useParams } from "react-router-dom";
 import { ProductCreationForm } from "@/apps/web-seller/features/product/components/forms/ProductCreationForm";
 import type { CreateProductRequestDto } from "@/apps/web-seller/features/product/types/product.dto";
@@ -32,7 +33,7 @@ export const StoreDetailProductCreatePage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">상품 등록</h1>
+      <PageTitle className="text-2xl font-bold">상품 등록</PageTitle>
       <ProductCreationForm onSubmit={handleSubmit} storeId={storeId} />
     </div>
   );

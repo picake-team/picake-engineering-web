@@ -52,7 +52,7 @@ const StoreDetailHomePage = lazyPage(
   "StoreDetailHomePage",
 );
 const StoreDetailProductListPage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/products/List"),
+  () => import("@/apps/web-seller/pages/store/detail/products/List.desktop"),
   "StoreDetailProductListPage",
 );
 const StoreDetailProductCreatePage = lazyPage(
@@ -148,6 +148,17 @@ const MypageSubPage = lazyPage(
   () => import("@/apps/web-seller/pages/mypage/Sub.desktop"),
   "MypageSubPage",
 );
+const StoreDetailProductListMobilePage = lazyPage(
+  () => import("@/apps/web-seller/pages/store/detail/products/List.mobile"),
+  "StoreDetailProductListMobilePage",
+);
+const framed = () => import("@/apps/web-seller/pages/store/detail/Framed.mobile");
+const StoreDetailProductCreateMobilePage = lazyPage(framed, "StoreDetailProductCreateMobilePage");
+const StoreDetailProductDetailMobilePage = lazyPage(framed, "StoreDetailProductDetailMobilePage");
+const StoreDetailFeedListMobilePage = lazyPage(framed, "StoreDetailFeedListMobilePage");
+const StoreDetailFeedCreateMobilePage = lazyPage(framed, "StoreDetailFeedCreateMobilePage");
+const StoreDetailFeedDetailMobilePage = lazyPage(framed, "StoreDetailFeedDetailMobilePage");
+const StoreDetailEditMobilePage = lazyPage(framed, "StoreDetailEditMobilePage");
 const StoreDetailOrderListPage = lazyPage(
   () => import("@/apps/web-seller/pages/store/detail/orders/List.desktop"),
   "StoreDetailOrderListPage",
@@ -192,18 +203,40 @@ export const ADMIN_ROUTE_CONFIG: AppRouteConfig[] = [
     element: StoreDetailHomePage,
     mobile: StoreDetailHomeMobilePage,
   },
-  { path: ROUTES.STORE_DETAIL_PRODUCTS(":storeId"), element: StoreDetailProductListPage },
-  { path: ROUTES.STORE_DETAIL_PRODUCTS_LIST(":storeId"), element: StoreDetailProductListPage },
-  { path: ROUTES.STORE_DETAIL_PRODUCTS_CREATE(":storeId"), element: StoreDetailProductCreatePage },
+  {
+    path: ROUTES.STORE_DETAIL_PRODUCTS(":storeId"),
+    element: StoreDetailProductListPage,
+    mobile: StoreDetailProductListMobilePage,
+  },
+  {
+    path: ROUTES.STORE_DETAIL_PRODUCTS_LIST(":storeId"),
+    element: StoreDetailProductListPage,
+    mobile: StoreDetailProductListMobilePage,
+  },
+  {
+    path: ROUTES.STORE_DETAIL_PRODUCTS_CREATE(":storeId"),
+    element: StoreDetailProductCreatePage,
+    mobile: StoreDetailProductCreateMobilePage,
+  },
   {
     path: ROUTES.STORE_DETAIL_PRODUCTS_DETAIL(":storeId", ":productId"),
     element: StoreDetailProductDetailPage,
+    mobile: StoreDetailProductDetailMobilePage,
   },
-  { path: ROUTES.STORE_DETAIL_FEED_LIST(":storeId"), element: StoreDetailFeedListPage },
-  { path: ROUTES.STORE_DETAIL_FEED_CREATE(":storeId"), element: StoreDetailFeedCreatePage },
+  {
+    path: ROUTES.STORE_DETAIL_FEED_LIST(":storeId"),
+    element: StoreDetailFeedListPage,
+    mobile: StoreDetailFeedListMobilePage,
+  },
+  {
+    path: ROUTES.STORE_DETAIL_FEED_CREATE(":storeId"),
+    element: StoreDetailFeedCreatePage,
+    mobile: StoreDetailFeedCreateMobilePage,
+  },
   {
     path: ROUTES.STORE_DETAIL_FEED_DETAIL(":storeId", ":feedId"),
     element: StoreDetailFeedDetailPage,
+    mobile: StoreDetailFeedDetailMobilePage,
   },
   {
     path: ROUTES.STORE_DETAIL_ORDERS_LIST(":storeId"),
@@ -230,7 +263,11 @@ export const ADMIN_ROUTE_CONFIG: AppRouteConfig[] = [
     element: StoreDetailNotificationsSettingsPage,
     mobile: StoreDetailNotificationSettingsMobilePage,
   },
-  { path: ROUTES.STORE_DETAIL_EDIT(":storeId"), element: StoreDetailEditPage },
+  {
+    path: ROUTES.STORE_DETAIL_EDIT(":storeId"),
+    element: StoreDetailEditPage,
+    mobile: StoreDetailEditMobilePage,
+  },
   {
     path: ROUTES.STORE_DETAIL_CALENDAR(":storeId"),
     element: StoreDetailCalendarPage,
