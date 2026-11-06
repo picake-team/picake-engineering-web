@@ -9,7 +9,7 @@ description: Picake web-user가 겉면만 Flutter로 감싼 웹뷰 앱으로 iOS
 
 > **현재 상태(2026-08-30 기준): 심사 승인 완료, iOS 앱스토어 배포 성공.** 4차 반려(§1의 2.1(a)+1.5, §3-2)까지 대응한 재심사에서 통과됨. 이 문서는 이력 참고용으로 계속 유지하고, 새 반려가 오면 §4 절차대로 대응해 §1에 이어서 기록하세요.
 
-> **판매자 앱(2026-11-05~ 준비 중, 기획 I-48)도 이 기록을 기준으로 준비합니다.** 판매자 앱은 `web-seller`를 같은 방식(Flutter 웹뷰)으로 감싼 별도 앱입니다. 2026-11-05 기준 판매자 쪽에는 Apple 로그인(4.8)·심사용 로그인(2.1(a))·미리 채운 심사용 가게(2.1(a) 데모 콘텐츠)가 아직 없어 만들어야 하고, 앱 안 탈퇴(5.1.1(v))는 판매자 마이페이지에 이미 있습니다. Support URL은 손님 앱과 같은 `https://picakes.com/mypage/support`를 씁니다. 스토어 계정(App Store Connect·Play Console)과 Flutter 코드는 앱담당자가 가지고 있습니다.
+> **판매자 앱(2026-11-05~ 준비 중, 기획 I-48)도 이 기록을 기준으로 준비합니다.** 판매자 앱은 `web-seller`를 같은 방식(Flutter 웹뷰)으로 감싼 별도 앱입니다. 2026-11-05 기준 판매자 쪽에는 Apple 로그인(4.8)·심사용 로그인(2.1(a))·미리 채운 심사용 가게(2.1(a) 데모 콘텐츠)가 없었고, 앱 안 탈퇴(5.1.1(v))는 판매자 마이페이지에 이미 있습니다. 심사용 로그인·심사용 가게는 2026-11-07에 만들었습니다(§2-1). Apple 로그인은 앱담당자의 Apple 설정 뒤에 켭니다. Support URL은 손님 앱과 같은 `https://picakes.com/mypage/support`를 씁니다. 스토어 계정(App Store Connect·Play Console)과 Flutter 코드는 앱담당자가 가지고 있습니다.
 
 > **비밀번호·개인 연락처를 이 문서에 적지 마세요.** 이 레포는 공개 레포입니다. 2026-11-05에 §3-2의 구글 데모 계정 비밀번호와 운영자 개인 번호를 지웠습니다. git 기록에는 남아 있으므로 그 계정 비밀번호는 바꿔야 합니다.
 
@@ -116,6 +116,30 @@ Picake web-user는 겉면만 Flutter로 감싼 **웹뷰 앱**입니다 — 로�
 3. 6자리 코드 입력 → `POST /v1/consumer/auth/review-login` 호출 → 심사용 계정(`phone: "REVIEW_ACCOUNT"`, 최초 호출 시 자동 생성)으로 로그인
 
 **코드 값은 반드시 실제 사용 시점에 `apps/backend/src/modules/auth/constants/auth.constants.ts`의 `REVIEW_LOGIN_CODE`를 grep해서 확인하세요** — 기억이나 이 문서에 적힌 값을 그대로 믿지 않습니다. 소스 주석에 "심사가 끝나면 다른 값으로 교체하거나 라우트 자체를 제거하는 걸 권장"이라고 돼 있어 리젝-재제출을 반복하는 동안에도 값이 바뀌었을 수 있습니다. 코드를 바꾸면 §3 심사노트 초안의 값도 같이 갱신하세요.
+
+## 2-1. 판매자 앱 심사용 로그인 (픽케이크 사장님, 기획 I-48)
+
+손님 앱 §2와 같은 방식이지만 **코드를 레포에 두지 않습니다.**
+
+1. 판매자 앱 로그인 화면(`/auth/login` 휴대폰 화면, `Login.mobile.tsx`)에서 **로고를 2초 안에 10번** 누름 → "심사용 로그인" 창(`ReviewLoginSheet`, SC-62)
+2. 6자리 코드 입력 → `POST /v1/seller/auth/review-login` → 심사용 사장님 계정(`Seller.phone = "REVIEW_SELLER_ACCOUNT"`)으로 로그인, 홈이 열림
+3. 들어가면 손님 화면(목록·검색·지도·지역별 수·사이트맵)에 보이지 않는 **"픽케이크 심사용 가게"**(`Store.businessNo = "REVIEW-STORE"`)에 예시 상품 2개와 상태별 예시 주문 8건(예약신청·입금대기·입금완료·예약확정·픽업대기·취소환불대기·픽업완료·취소완료)이 있음. **심사용 로그인을 할 때마다 예시 주문만 처음 상태로 되돌림**(가게·상품은 그대로라, 심사 제출 전에 운영자가 한 번 들어가 예시 상품 사진을 올려 두면 남음)
+4. 심사관이 회원 탈퇴까지 확인할 수 있게 **심사용 계정은 예시 주문이 진행 중이어도 탈퇴**되고 심사용 가게는 지워짐. 다음 심사용 로그인 때 새로 만듦
+5. 예시 주문의 손님은 휴대폰 번호가 없는 예시 계정이라 알림톡이 나가지 않음. 휴대폰 알림 확인은 스토어 탭 위 톱니(설정) → 알림 설정 → "테스트 알림 보내기"
+
+**코드 관리**: 코드는 운영자 비밀번호 관리자에만 두고, 서버는 GitHub Actions 비밀값 `SELLER_REVIEW_LOGIN_CODE_SHA256`(코드의 SHA-256 16진수)과 비교합니다. 비밀값이 없으면 심사용 로그인은 꺼져 있습니다(항상 "심사용 로그인 코드가 올바르지 않습니다."). 6자리라 해시만 보여도 바로 풀리므로 해시도 레포·문서에 적지 않습니다. IP당 1시간에 5번까지라, 확인하다 막히면 1시간 기다립니다.
+
+코드를 바꿀 때: `printf '<새 6자리>' | shasum -a 256`의 값을 `gh secret set SELLER_REVIEW_LOGIN_CODE_SHA256 --repo picake-team/picake-engineering-backend`로 넣고 backend를 다시 배포(staging·production 태그)합니다. 심사노트에는 아래처럼 `{SELLER_REVIEW_CODE}`로 쓰고 App Store Connect에 붙일 때만 채웁니다.
+
+```
+To review the seller app without social login: on the login screen, tap the Picake
+logo 10 times within 2 seconds. A "심사용 로그인" (review login) sheet opens; enter the
+code {SELLER_REVIEW_CODE} and tap 로그인. You will be signed in to a sample store that
+is hidden from customers, with sample orders in every status. The orders reset each
+time you use the review login, so you can process them from the beginning.
+To check push notifications: 스토어 (Store) tab → gear icon → 알림 설정 → 테스트 알림 보내기.
+Account deletion: 마이페이지 → 회원 탈퇴 (the review account can always be deleted).
+```
 
 ## 3. App Store Connect 심사노트(App Review Information → Notes) 문구 초안
 
@@ -225,6 +249,7 @@ Thank you.
 ## 5. 제출 전 체크리스트
 
 - [ ] §2 심사용 로그인 코드가 `auth.constants.ts`의 현재 값과 일치하는지 확인 (grep)
+- [ ] (판매자 앱) §2-1 비밀값 `SELLER_REVIEW_LOGIN_CODE_SHA256`이 들어간 뒤 배포됐고, 운영자 비밀번호 관리자의 코드로 production 판매자 앱에서 심사용 로그인이 되는지 확인. 심사노트의 `{SELLER_REVIEW_CODE}`를 채웠는지 확인
 - [ ] Apple 로그인이 스테이징/프로덕션에서 실제로 끝까지 되는지 실기기로 검증 (Vercel env, Apple Return URL 등록)
 - [ ] Apple 로그인 최초 인가 시 "이름" 필드가 실제로 미리 채워지는지 검증 (Apple ID 설정에서 Picake 연결 해제 후 재인가해야 재현 가능 — §1의 4.8 항목 참고)
 - [ ] 프로덕션에 `visibilityStatus: ENABLE` 상품을 가진 스토어가 실제로 존재하고, 심사관이 자동/기본으로 도달하는 지역(기본값: 강남구)에 그 상품이 보이는지 확인 (§1의 2.1(a) 항목 참고) — 활성 지역이 1곳뿐이면 심사관이 지역을 바꿔볼 경우를 대비해 늘리는 것을 권장

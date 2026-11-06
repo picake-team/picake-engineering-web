@@ -2,9 +2,10 @@
  * 휴대폰 로그인 (SC-61, 디자인 8-B): 로고 + 큰 문장 + 카카오·구글(·Apple)로 시작하기, 계정 찾기.
  * 버튼 문구·순서는 손님 앱과 같게(I-48 "로그인·가입은 손님 앱처럼"). 로고는 손님 웹과 같은 것.
  * 약관·개인정보 처리방침·버전은 이 화면에 두지 않는다(운영자 결정 2026-11-06). 처리방침은 가입 화면 약관 동의와
- * 마이페이지에서, 버전은 마이페이지에서 본다. 심사용 로그인 입구는 버전 대신 로고(2초 안에 10번)로 심사용 로그인 단계에서 붙인다.
+ * 마이페이지에서, 버전은 마이페이지에서 본다. 심사용 로그인 입구는 버전 대신 로고: 2초 안에 10번 누르면
+ * 심사용 로그인 창(SC-62)이 열린다. 사장님에게는 보이지 않는 입구라 누른 표시도 내지 않는다.
  */
-import React from "react";
+import React, { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
 import { APP_COLUMN_CLASS } from "@/apps/web-seller/common/ui/Screen";
@@ -17,11 +18,30 @@ import {
   googleAuthorizeUrl,
   kakaoAuthorizeUrl,
 } from "@/apps/web-seller/features/auth/components/mobile/socialLogin";
+import { ReviewLoginSheet } from "@/apps/web-seller/features/auth/components/mobile/ReviewLoginSheet";
 
 const BTN =
   "flex h-12 w-full items-center justify-center gap-2 rounded-control text-body font-bold";
 
+/** 심사용 로그인 입구: 로고를 이 시간 안에 이만큼 누르면 연다(손님 앱의 버전 10번과 같은 수) */
+const REVIEW_TAP_COUNT = 10;
+const REVIEW_TAP_WINDOW_MS = 2000;
+
 export const LoginMobilePage: React.FC = () => {
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const tapTimesRef = useRef<number[]>([]);
+
+  const onLogoTap = () => {
+    const now = Date.now();
+    const recent = [...tapTimesRef.current, now].filter((t) => now - t <= REVIEW_TAP_WINDOW_MS);
+    if (recent.length >= REVIEW_TAP_COUNT) {
+      tapTimesRef.current = [];
+      setReviewOpen(true);
+      return;
+    }
+    tapTimesRef.current = recent;
+  };
+
   return (
     <div
       className={cx(
@@ -30,14 +50,21 @@ export const LoginMobilePage: React.FC = () => {
       )}
     >
       <div className="flex flex-col gap-3">
-        <img
-          src={logoUrl}
-          alt="Picake"
-          width={64}
-          height={64}
-          className="mb-2 size-16 select-none"
-          draggable={false}
-        />
+        {/* 빠르게 눌러도 확대되지 않게(touch-manipulation), 누른 표시 없이 */}
+        <button
+          type="button"
+          onClick={onLogoTap}
+          className="mb-2 size-16 touch-manipulation select-none self-start [-webkit-tap-highlight-color:transparent]"
+        >
+          <img
+            src={logoUrl}
+            alt="Picake"
+            width={64}
+            height={64}
+            className="size-16"
+            draggable={false}
+          />
+        </button>
         <h1 className="text-title font-bold">
           새 예약을
           <br />
@@ -74,6 +101,7 @@ export const LoginMobilePage: React.FC = () => {
           계정을 잊으셨나요?
         </Link>
       </div>
+      <ReviewLoginSheet open={reviewOpen} onClose={() => setReviewOpen(false)} />
     </div>
   );
 };
