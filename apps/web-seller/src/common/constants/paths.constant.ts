@@ -180,24 +180,52 @@ const StoreDetailStatisticsPage = lazyPage(
   "StoreDetailStatisticsPage",
 );
 
+const LoginMobilePage = lazyPage(
+  () => import("@/apps/web-seller/pages/auth/Login.mobile"),
+  "LoginMobilePage",
+);
+const FindAccountMobilePage = lazyPage(
+  () => import("@/apps/web-seller/pages/auth/FindAccount.mobile"),
+  "FindAccountMobilePage",
+);
+const oauthMobile = () => import("@/apps/web-seller/pages/auth/OAuthCallback.mobile");
+const GoogleAuthCallbackMobilePage = lazyPage(oauthMobile, "GoogleAuthCallbackMobilePage");
+const KakaoAuthCallbackMobilePage = lazyPage(oauthMobile, "KakaoAuthCallbackMobilePage");
+const RootMobilePage = lazyPage(
+  () => import("@/apps/web-seller/pages/Root.mobile"),
+  "RootMobilePage",
+);
+const StoreCreateMobilePage = lazyPage(
+  () => import("@/apps/web-seller/pages/store/detail/Framed.mobile"),
+  "StoreCreateMobilePage",
+);
+
 // 인증 관련 경로 (AdminLayout 밖)
 export const AUTH_ROUTE_CONFIG: AppRouteConfig[] = [
-  { path: ROUTES.AUTH.LOGIN, element: LoginPage },
-  { path: ROUTES.AUTH.FIND_ACCOUNT, element: FindAccountPage },
-  { path: ROUTES.AUTH.GOOGLE_REDIRECT_URI, element: GoogleAuthCallbackPage },
-  { path: ROUTES.AUTH.KAKAO_REDIRECT_URI, element: KakaoAuthCallbackPage },
+  { path: ROUTES.AUTH.LOGIN, element: LoginPage, mobile: LoginMobilePage },
+  { path: ROUTES.AUTH.FIND_ACCOUNT, element: FindAccountPage, mobile: FindAccountMobilePage },
+  {
+    path: ROUTES.AUTH.GOOGLE_REDIRECT_URI,
+    element: GoogleAuthCallbackPage,
+    mobile: GoogleAuthCallbackMobilePage,
+  },
+  {
+    path: ROUTES.AUTH.KAKAO_REDIRECT_URI,
+    element: KakaoAuthCallbackPage,
+    mobile: KakaoAuthCallbackMobilePage,
+  },
   { path: ROUTES.TERMS.TERMS_OF_SERVICE, element: TermsOfServicePage },
   { path: ROUTES.TERMS.PRIVACY_POLICY, element: PrivacyPolicyPage },
 ];
 
 // 로그인한 뒤의 경로 (PC: AdminLayout 안, 휴대폰: MobileLayout 안)
 export const ADMIN_ROUTE_CONFIG: AppRouteConfig[] = [
-  { path: ROUTES.ROOT, element: RootPage },
+  { path: ROUTES.ROOT, element: RootPage, mobile: RootMobilePage },
   { path: ROUTES.MYPAGE, element: MypageIndexPage, mobile: MypageIndexMobilePage },
   { path: ROUTES.MYPAGE_PHONE, element: MypageSubPage, mobile: MypagePhoneMobilePage },
   { path: ROUTES.MYPAGE_WITHDRAW, element: MypageSubPage, mobile: MypageWithdrawMobilePage },
   // 스토어 관련 경로
-  { path: ROUTES.STORE_CREATE, element: StoreCreatePage },
+  { path: ROUTES.STORE_CREATE, element: StoreCreatePage, mobile: StoreCreateMobilePage },
   {
     path: ROUTES.STORE_DETAIL_HOME(":storeId"),
     element: StoreDetailHomePage,

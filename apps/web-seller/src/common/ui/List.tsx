@@ -175,16 +175,19 @@ export function InfoRow({
   important = true,
   action,
   className,
+  labelClassName,
 }: {
   label: React.ReactNode;
   value: React.ReactNode;
   important?: boolean;
   action?: React.ReactNode;
   className?: string;
+  /** 이름 칸 너비(기본 64, "휴대폰 번호"처럼 긴 이름은 88) */
+  labelClassName?: string;
 }) {
   return (
     <div className={cx("flex min-h-11 items-center gap-3 font-app", className)}>
-      <span className="w-16 shrink-0 text-sub text-ink-600">{label}</span>
+      <span className={cx("w-16 shrink-0 text-sub text-ink-600", labelClassName)}>{label}</span>
       <span
         className={cx(
           "flex min-w-0 flex-1 flex-col gap-1 break-words font-semibold text-ink-900",
