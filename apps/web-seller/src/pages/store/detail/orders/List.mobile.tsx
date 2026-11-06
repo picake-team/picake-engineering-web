@@ -446,6 +446,7 @@ export const StoreDetailOrderListMobilePage: React.FC = () => {
         order={action?.order ?? null}
         target={action?.to ?? null}
         onClose={() => setAction(null)}
+        fromList
       />
     </AppScreen>
   );

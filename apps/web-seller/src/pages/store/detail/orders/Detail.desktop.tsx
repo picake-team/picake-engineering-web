@@ -103,7 +103,7 @@ export const StoreDetailOrderDetailPage: React.FC = () => {
         request.sellerCancelRefundPendingReason = trimmed;
       }
       updateOrderStatusMutation.mutate(
-        { orderId, request },
+        { orderId, request, meta: { fromStatus: order.orderStatus, fromList: false } },
         {
           onSuccess: () => {
             setReasonTarget(null);
@@ -123,6 +123,7 @@ export const StoreDetailOrderDetailPage: React.FC = () => {
           orderStatus: OrderStatus.CANCEL_COMPLETED,
           sellerCancelReason: reason,
         },
+        meta: { fromStatus: order.orderStatus, fromList: false },
       },
       {
         onSuccess: () => setCancelModalOpen(false),
@@ -253,6 +254,7 @@ export const StoreDetailOrderDetailPage: React.FC = () => {
                     updateOrderStatusMutation.mutate({
                       orderId: order.id,
                       request: { orderStatus: OrderStatus.PAYMENT_PENDING },
+                      meta: { fromStatus: status, fromList: false },
                     }),
                   )
                 }
@@ -269,6 +271,7 @@ export const StoreDetailOrderDetailPage: React.FC = () => {
                     updateOrderStatusMutation.mutate({
                       orderId: order.id,
                       request: { orderStatus: OrderStatus.CONFIRMED },
+                      meta: { fromStatus: status, fromList: false },
                     }),
                   )
                 }
@@ -285,6 +288,7 @@ export const StoreDetailOrderDetailPage: React.FC = () => {
                     updateOrderStatusMutation.mutate({
                       orderId: order.id,
                       request: { orderStatus: OrderStatus.PICKUP_COMPLETED },
+                      meta: { fromStatus: status, fromList: false },
                     }),
                   )
                 }
@@ -301,6 +305,7 @@ export const StoreDetailOrderDetailPage: React.FC = () => {
                     updateOrderStatusMutation.mutate({
                       orderId: order.id,
                       request: { orderStatus: OrderStatus.CANCEL_REFUND_COMPLETED },
+                      meta: { fromStatus: status, fromList: false },
                     }),
                   )
                 }

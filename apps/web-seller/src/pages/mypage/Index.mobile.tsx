@@ -2,6 +2,7 @@
  * 휴대폰 마이페이지 (SC-94, 디자인 7-E · 로그아웃 창 7-F): 프로필, 계정 정보, 휴대폰 번호 변경, 약관, 앱 버전, 로그아웃, 회원 탈퇴.
  */
 import React, { useRef, useState } from "react";
+import { appVersion } from "@/apps/web-seller/common/utils/webview.bridge";
 import { Link } from "react-router-dom";
 import { AppScreen, BackHeader } from "@/apps/web-seller/common/ui/Screen";
 import { Button, ButtonPair } from "@/apps/web-seller/common/ui/Button";
@@ -244,7 +245,9 @@ export const MypageIndexMobilePage: React.FC = () => {
             />
             <div className="flex min-h-14 items-center gap-3 py-2">
               <span className="flex-1 text-body font-semibold text-ink-900">앱 버전</span>
-              <span className="text-sub text-ink-600">웹{sha ? ` ${sha.slice(0, 7)}` : ""}</span>
+              <span className="text-sub text-ink-600">
+                {appVersion() ?? `웹${sha ? ` ${sha.slice(0, 7)}` : ""}`}
+              </span>
             </div>
           </div>
           <GrayBand />

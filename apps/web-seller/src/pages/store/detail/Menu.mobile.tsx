@@ -10,6 +10,7 @@ import { ListRowButton, ListRowLink } from "@/apps/web-seller/common/ui/List";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
 import { CUSTOMER_SUPPORT_URL } from "@/apps/web-seller/common/constants/customer-web.constant";
+import { externalHref } from "@/apps/web-seller/common/utils/webview.bridge";
 import { useStoreDetail } from "@/apps/web-seller/features/store/hooks/queries/useStoreQuery";
 import { useMyStores } from "@/apps/web-seller/features/store/hooks/queries/useMyStores";
 import { StoreSwitchSheet } from "@/apps/web-seller/features/store/components/mobile/StoreSwitchSheet";
@@ -153,7 +154,7 @@ export const StoreDetailMenuMobilePage: React.FC = () => {
           divider={false}
         />
         <a
-          href={CUSTOMER_SUPPORT_URL}
+          href={externalHref(CUSTOMER_SUPPORT_URL)}
           target="_blank"
           rel="noopener noreferrer"
           className="flex min-h-14 w-full items-center gap-3 py-2 active:bg-ink-50"

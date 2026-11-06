@@ -3,6 +3,7 @@
  * 버튼 문구·순서는 손님 앱과 같게(I-48 "로그인·가입은 손님 앱처럼"). 심사용 입구(버전 10번)는 심사용 로그인 단계에서.
  */
 import React from "react";
+import { appVersion } from "@/apps/web-seller/common/utils/webview.bridge";
 import { Link } from "react-router-dom";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
 import { APP_COLUMN_CLASS } from "@/apps/web-seller/common/ui/Screen";
@@ -72,7 +73,9 @@ export const LoginMobilePage: React.FC = () => {
             개인정보 처리방침
           </Link>
         </div>
-        <span className="text-caption text-ink-600">버전 웹{sha ? ` ${sha.slice(0, 7)}` : ""}</span>
+        <span className="text-caption text-ink-600">
+          버전 {appVersion() ?? `웹${sha ? ` ${sha.slice(0, 7)}` : ""}`}
+        </span>
       </div>
     </div>
   );

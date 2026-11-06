@@ -1,7 +1,7 @@
 /**
  * 휴대폰 알림 설정 (SC-93, 디자인 A93). 스토어마다: 주문 알림 받기(끌 때 한 번 묻기), 주문 알림 소리, 아침 요약.
  * "테스트 알림 보내기"로 내 휴대폰에 오는지 확인한다(심사관도 이 버튼으로 확인).
- * "이 휴대폰 알림" 상태 칸은 앱에서만 보여 앱 연결 PR에서 붙인다.
+ * 맨 위 "이 휴대폰 알림" 칸은 앱에서만 보인다(허용 상태, 꺼져 있으면 허용하기·휴대폰 설정 열기).
  */
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
@@ -20,6 +20,7 @@ import { useNotificationPreferences } from "@/apps/web-seller/features/notificat
 import { useUpdateNotificationPreferences } from "@/apps/web-seller/features/notification/hooks/mutations/useNotificationMutation";
 import { sellerPushApi } from "@/apps/web-seller/features/notification/apis/notification.api";
 import { DEFAULT_SELLER_NOTIFICATION_SETTINGS } from "@/apps/web-seller/features/notification/types/notification.dto";
+import { DevicePushStatusCard } from "@/apps/web-seller/features/notification/components/mobile/PushOffBanner";
 
 const TIPS = [
   "휴대폰 설정 > 알림에서 '픽케이크 사장님' 알림이 켜져 있는지",
@@ -56,6 +57,7 @@ export const StoreDetailNotificationSettingsMobilePage: React.FC = () => {
 
   return (
     <AppScreen header={<BackHeader title="알림 설정" />} bodyClassName="pt-2">
+      <DevicePushStatusCard />
       <h2 className="text-sub font-bold text-ink-700">{store?.name ?? "스토어"} 알림</h2>
       <div className="-mt-2">
         <ListRow

@@ -159,6 +159,10 @@ const StoreDetailFeedListMobilePage = lazyPage(framed, "StoreDetailFeedListMobil
 const StoreDetailFeedCreateMobilePage = lazyPage(framed, "StoreDetailFeedCreateMobilePage");
 const StoreDetailFeedDetailMobilePage = lazyPage(framed, "StoreDetailFeedDetailMobilePage");
 const StoreDetailEditMobilePage = lazyPage(framed, "StoreDetailEditMobilePage");
+const StoreWelcomeMobilePage = lazyPage(
+  () => import("@/apps/web-seller/pages/store/detail/Welcome.mobile"),
+  "StoreWelcomeMobilePage",
+);
 const StoreDetailOrderListPage = lazyPage(
   () => import("@/apps/web-seller/pages/store/detail/orders/List.desktop"),
   "StoreDetailOrderListPage",
@@ -315,5 +319,10 @@ export const ADMIN_ROUTE_CONFIG: AppRouteConfig[] = [
     path: ROUTES.STORE_DETAIL_MENU(":storeId"),
     element: StoreDetailMenuPage,
     mobile: StoreDetailMenuMobilePage,
+  },
+  {
+    path: ROUTES.STORE_DETAIL_WELCOME(":storeId"),
+    element: StoreDetailMenuPage,
+    mobile: StoreWelcomeMobilePage,
   },
 ];

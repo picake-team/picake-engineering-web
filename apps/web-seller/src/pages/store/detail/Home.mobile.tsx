@@ -2,7 +2,7 @@
  * 휴대폰 홈 (SC-70, 디자인 1-A · A70e): 주간 달력 → 처리할 주문 → 고른 날 픽업 → 이번 주 매출.
  * 홈은 무엇을 할지(숫자와 한 줄 안내), 주문 탭은 주문을 보고 처리하는 곳이다(운영자 결정 2026-11-06).
  */
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { AppScreen, HomeHeader } from "@/apps/web-seller/common/ui/Screen";
@@ -42,6 +42,11 @@ import { useMyStores } from "@/apps/web-seller/features/store/hooks/queries/useM
 import { StoreSwitchSheet } from "@/apps/web-seller/features/store/components/mobile/StoreSwitchSheet";
 import { useSellerNotifications } from "@/apps/web-seller/features/notification/components/providers/SellerNotificationProvider";
 import type { OrderResponseDto } from "@/apps/web-seller/features/order/types/order.dto";
+import { PushOffBanner } from "@/apps/web-seller/features/notification/components/mobile/PushOffBanner";
+import { useNotificationPreferences } from "@/apps/web-seller/features/notification/hooks/queries/useNotificationQuery";
+import { usePushPermissionStore } from "@/apps/web-seller/common/store/push-permission.store";
+import { isSellerAppWebView } from "@/apps/web-seller/common/utils/webview.bridge";
+import { hasSeenWelcome } from "@/apps/web-seller/features/notification/utils/welcome.util";
 
 const TODO_GROUPS = groupsForTab("todo");
 
@@ -145,6 +150,15 @@ export const StoreDetailHomeMobilePage: React.FC = () => {
     endDate: todayKey,
   });
 
+  const prefs = useNotificationPreferences(storeId);
+  const pushStatus = usePushPermissionStore((st) => st.status);
+  // 앱에서 처음이면(알림을 아직 묻지 않았고 안내를 안 봤으면) 처음 사용 안내(SC-69)로
+  useEffect(() => {
+    if (isSellerAppWebView() && pushStatus === "notDetermined" && !hasSeenWelcome()) {
+      navigate(ROUTES.STORE_DETAIL_WELCOME(storeId), { replace: true });
+    }
+  }, [pushStatus, storeId, navigate]);
+
   const products = useProductList({ storeId, limit: 1 });
   const noProducts = products.data?.pages[0]?.meta.totalItems === 0;
 
@@ -175,6 +189,10 @@ export const StoreDetailHomeMobilePage: React.FC = () => {
       }
     >
       <PullToRefresh onRefresh={refresh}>
+        <PushOffBanner
+          storeId={storeId}
+          orderNotificationsEnabled={prefs.data?.orderNotificationsEnabled}
+        />
         {noProducts ? <FirstProductCard storeId={storeId} /> : null}
 
         <WeekStrip

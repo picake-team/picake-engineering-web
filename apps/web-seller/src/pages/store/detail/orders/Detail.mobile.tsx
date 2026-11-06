@@ -16,6 +16,10 @@ import {
 import { InfoRow } from "@/apps/web-seller/common/ui/List";
 import { EmptyState, LoadErrorState, StepBar, Thumb } from "@/apps/web-seller/common/ui/Surface";
 import { ImageLightbox } from "@/apps/web-seller/common/components/images/ImageLightbox";
+import {
+  isSellerAppWebView,
+  saveImageToDevice,
+} from "@/apps/web-seller/common/utils/webview.bridge";
 import { useNow } from "@/apps/web-seller/common/hooks/useNow";
 import { copyWithToast } from "@/apps/web-seller/common/utils/clipboard.util";
 import {
@@ -453,6 +457,7 @@ export const StoreDetailOrderDetailMobilePage: React.FC = () => {
           initialIndex={lightbox.index}
           alt="참고 사진"
           onClose={() => setLightbox(null)}
+          onSave={isSellerAppWebView() ? (src) => saveImageToDevice(src) : undefined}
         />
       ) : null}
     </AppScreen>
