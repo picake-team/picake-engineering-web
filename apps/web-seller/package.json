@@ -26,6 +26,7 @@
     "@tanstack/react-query-devtools": "^5.90.2",
     "@types/react-router-dom": "^5.3.3",
     "axios": "1.18.1",
+    "clsx": "^2.1.1",
     "he": "^1.2.0",
     "lucide-react": "^0.555.0",
     "posthog-js": "^1.396.6",
@@ -35,6 +36,7 @@
     "react-quill": "^2.0.0",
     "react-router-dom": "^7.18.1",
     "socket.io-client": "^4.8.3",
+    "tailwind-merge": "^2.6.0",
     "zustand": "5.0.8"
   },
   "devDependencies": {

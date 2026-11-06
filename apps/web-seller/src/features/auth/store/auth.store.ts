@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { consumeReturnTo } from "@/apps/web-seller/common/utils/return-to.util";
 import { ROUTES } from "@/apps/web-seller/common/constants/paths.constant";
 import {
   setAccessToken as setTokenToStorage,
@@ -35,7 +36,8 @@ export const useAuthStore = create<AuthState>()((set) => ({
     }
 
     if (navigate && typeof window !== "undefined") {
-      navigate(ROUTES.ROOT);
+      // 로그인이 풀려 들어온 주소가 있으면 그곳으로(휴대폰 알림으로 연 주문 등)
+      navigate(consumeReturnTo() ?? ROUTES.ROOT);
     }
   },
 

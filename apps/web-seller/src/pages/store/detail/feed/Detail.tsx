@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { PageTitle } from "@/apps/web-seller/common/components/layouts/MobileFrame";
 import { useParams } from "react-router-dom";
 import { useFeedDetail } from "@/apps/web-seller/features/feed/hooks/queries/useFeedQuery";
 import {
@@ -103,7 +104,7 @@ export const StoreDetailFeedDetailPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">피드 수정</h1>
+      <PageTitle className="text-3xl font-bold">피드 수정</PageTitle>
 
       <Card>
         <CardContent className="p-6">

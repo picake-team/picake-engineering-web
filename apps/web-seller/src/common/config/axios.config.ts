@@ -1,4 +1,5 @@
 import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from "axios";
+import { rememberReturnTo } from "@/apps/web-seller/common/utils/return-to.util";
 import { getAccessToken, removeAccessToken } from "@/apps/web-seller/common/utils/token.util";
 import { ROUTES } from "@/apps/web-seller/common/constants/paths.constant";
 import { captureSentryApiError } from "@/apps/web-seller/common/utils/sentry.util";
@@ -43,6 +44,8 @@ const responseErrorHandler = async (error: AxiosError<any>) => {
   // 401 && ACCESS_TOKEN_INVALID 오류 처리
   if (status === 401 && message?.includes("ACCESS_TOKEN_INVALID")) {
     removeAccessToken();
+    // 로그인 뒤 이 주소(예: 휴대폰 알림으로 연 주문)로 돌아오게 기억
+    rememberReturnTo(`${window.location.pathname}${window.location.search}`);
     window.location.href = ROUTES.AUTH.LOGIN;
     // 페이지 이동 전까지 코드가 계속 실행되므로, resolve 하면 호출부가 성공으로 오인해
     // 응답(undefined)을 참조하다 터진다. 반드시 reject 로 요청 체인을 끊는다.

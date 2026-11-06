@@ -75,11 +75,12 @@ analytics 이벤트는 `request_social_auth` / `success_login` / `fail_social_au
 5. 백엔드: `auth-withdraw.service.ts`에 anonymize 필드 추가, `mypage-profile.dto.ts` + `consumer-mapper.util.ts`에 마이페이지 응답 필드 추가 (바로 위 섹션 참고)
 6. 프론트: paths → oauth-login-url util → 버튼 컴포넌트 → LoginBottomSheet → 콜백 page → register page/screen → api/dto/mutation → 마이페이지 화면(`profile.type.ts` + `getLoginInfo`/`getLoginProviderLabel` 3곳)
 7. **실제 API로 가입까지 검증** — Apple/Google처럼 code 교환이 외부 provider에 의존하는 provider는 로그인 전체를 로컬에서 재현할 수 없지만, 가입(`/register`) 이후 로직은 curl로 완전히 검증 가능합니다: `send-verification-code` → `verify-phone-code`(dev 환경 전용 우회 인증번호 `777777` — `auth-phone.service.ts` 참고, 실제 SMS 발송 없이 통과됨) → `{provider}/register`. 응답의 `accessToken`으로 `mypage/profile`까지 호출해 새 필드가 제대로 나오는지 확인하세요. 테스트로 만든 데이터는 끝나면 지우세요.
-8. `docs-sync` 스킬 흐름대로 관련 문서 갱신
+8. `picake-docs-refresh` skill 흐름대로 관련 문서 갱신
 
 ## 5. Apple 로그인 — 확정된 결정 사항 (2026-08 기준)
 
 - **범위: web-user(소비자)만.** web-seller는 이번 대상 아님 — `Seller` 테이블/셀러 컨트롤러는 건드리지 않습니다. Google처럼 seller용 별도 Client 분리 불필요.
+  - **2026-11-05 바뀜: 판매자에도 Apple 로그인을 넣기로 함**(판매자 앱 심사 4.8 대비, 기획 I-48). 작업할 때 주의: `web-seller`는 Vite 정적 앱이라 Apple이 `form_post`로 보내는 응답을 받을 서버 경로(web-user의 `route.ts` 같은 것)가 없습니다. 백엔드가 받아 `code`만 판매자 웹 콜백으로 넘기는 방식을 검토하세요. Services ID에 판매자 도메인·Return URL을 추가하는 일은 Apple 계정을 가진 앱담당자가 합니다.
 - **환경: dev는 별도 지원 안 함, staging 도메인으로 대체.** Apple Services ID의 Return URL은 HTTPS 도메인만 등록 가능해 `localhost`를 쓸 수 없습니다. 그래서 dev(로컬)에서도 Apple 버튼의 redirect_uri는 항상 `https://staging.picakes.com`으로 고정합니다 — 즉 dev에서 Apple 로그인을 누르면 실제 콜백 처리는 **스테이징에 배포된 프론트/백엔드가 담당**합니다(로컬로 돌아오지 않음). 별도 "dev용 Return URL"을 Apple에 등록할 필요가 없습니다.
 - **등록된 자격 정보** (Apple Developer 계정 소유, dev/staging/prod 구분 없이 공용 — Kakao의 `KAKAO_CLIENT_ID`/Firebase의 `FIREBASE_PRIVATE_KEY`와 동일한 "환경 무관 공용 시크릿" 패턴):
   - Services ID(=client_id): `com.product.picake.web`

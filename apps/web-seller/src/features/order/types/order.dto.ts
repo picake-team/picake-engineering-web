@@ -25,11 +25,17 @@ export enum OrderSortBy {
   OLDEST = "OLDEST",
   PRICE_DESC = "PRICE_DESC",
   PRICE_ASC = "PRICE_ASC",
+  /** 픽업 가까운 순(픽업 일시 오름차순). 휴대폰 화면 처리할 것·진행 중 */
+  PICKUP_ASC = "PICKUP_ASC",
+  /** 픽업 최근 순(픽업 일시 내림차순). 휴대폰 화면 지난 주문 */
+  PICKUP_DESC = "PICKUP_DESC",
 }
 
 export enum OrderType {
   UPCOMING = "UPCOMING",
   PAST = "PAST",
+  /** 끝난 주문(픽업완료·노쇼·취소완료·취소환불완료만). 휴대폰 화면 지난 주문 탭 */
+  FINISHED = "FINISHED",
 }
 
 /** 추가 옵션 형식 (상품 CustomOptionType과 동일) */

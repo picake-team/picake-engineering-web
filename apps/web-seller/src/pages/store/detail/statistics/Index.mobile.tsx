@@ -1,0 +1,290 @@
+/**
+ * 휴대폰 주문 통계 (SC-92, 디자인 A92). 기간 빠른 선택(오늘·이번주·이번달·최근 90일 = PC "누적")과 직접 고르기,
+ * 매출·주문건수, 잘 팔린 상품(매출 순·주문건수 순), 요일·시간대 그래프는 접어 둔다.
+ * 세는 기준은 지금 PC와 같다(주문 접수일 기준, 픽업 완료한 주문만).
+ */
+import React, { useState } from "react";
+import { useParams, useSearchParams } from "react-router-dom";
+import { AppScreen, BackHeader } from "@/apps/web-seller/common/ui/Screen";
+import { ChipGroup, SegmentedTabs } from "@/apps/web-seller/common/ui/Choice";
+import { GroupTitle } from "@/apps/web-seller/common/ui/List";
+import { EmptyState, LoadErrorState } from "@/apps/web-seller/common/ui/Surface";
+import { Icon } from "@/apps/web-seller/common/ui/icons";
+import { cx } from "@/apps/web-seller/common/ui/cx";
+import {
+  addDaysToKey,
+  formatKeyMonthDayWeek,
+  kstDateKey,
+  mondayOfKey,
+} from "@/apps/web-seller/common/utils/kst-date.util";
+import { useStatisticsOverviewQuery } from "@/apps/web-seller/features/statistics/hooks/queries/useStatisticsOverviewQuery";
+import {
+  STATISTICS_ACCUMULATED_DAY_OFFSET,
+  STATISTICS_DEFAULT_DAY_OFFSET,
+} from "@/apps/web-seller/features/statistics/constants/statistics.constant";
+import type {
+  OrderStatisticsHourlyDto,
+  OrderStatisticsWeekdayDto,
+} from "@/apps/web-seller/features/statistics/types/statistics.dto";
+import { formatWon } from "@/apps/web-seller/features/order/utils/order-mobile.util";
+
+type Preset = "today" | "week" | "month" | "recent90" | "custom";
+
+function rangeFor(preset: Exclude<Preset, "custom">, today: string) {
+  switch (preset) {
+    case "today":
+      return { start: today, end: today };
+    case "week":
+      return { start: mondayOfKey(today), end: today };
+    case "month":
+      return { start: `${today.slice(0, 8)}01`, end: today };
+    case "recent90":
+      return { start: addDaysToKey(today, STATISTICS_ACCUMULATED_DAY_OFFSET), end: today };
+  }
+}
+
+function Bars({
+  rows,
+  format,
+}: {
+  rows: { key: string; label: string; value: number }[];
+  format: (v: number) => string;
+}) {
+  const max = Math.max(1, ...rows.map((r) => r.value));
+  return (
+    <div className="flex flex-col gap-3">
+      {rows.map((r) => (
+        <div key={r.key} className="flex flex-col gap-2">
+          <span className="flex justify-between gap-3 text-body text-ink-900">
+            <span className="min-w-0 truncate">{r.label}</span>
+            <b className="shrink-0 tabular-nums">{format(r.value)}</b>
+          </span>
+          <span className="block h-2 overflow-hidden rounded-check bg-ink-50" aria-hidden="true">
+            <span
+              className="block h-full bg-brand"
+              style={{ width: `${(r.value / max) * 100}%` }}
+            />
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ColumnChart({
+  title,
+  values,
+  labels,
+}: {
+  title: string;
+  values: number[];
+  labels: string[];
+}) {
+  const max = Math.max(1, ...values);
+  return (
+    <figure className="flex flex-col gap-2">
+      <figcaption className="text-sub font-bold text-ink-700">{title}</figcaption>
+      <div
+        className="flex h-24 items-end gap-0.5"
+        role="img"
+        aria-label={`${title}: ${labels.map((l, i) => `${l} ${values[i]}`).join(", ")}`}
+      >
+        {values.map((v, i) => (
+          <span key={i} className="flex h-full min-w-0 flex-1 items-end">
+            <span
+              className={cx("block w-full rounded-t-[3px]", v > 0 ? "bg-brand" : "bg-ink-100")}
+              style={{ height: `${Math.max(4, (v / max) * 100)}%` }}
+            />
+          </span>
+        ))}
+      </div>
+      <div className="flex justify-between text-tab text-ink-600" aria-hidden="true">
+        {labels.length === 7 ? (
+          labels.map((l) => <span key={l}>{l}</span>)
+        ) : (
+          <>
+            <span>0시</span>
+            <span>12시</span>
+            <span>23시</span>
+          </>
+        )}
+      </div>
+    </figure>
+  );
+}
+
+function weekdayValues(rows: OrderStatisticsWeekdayDto[]) {
+  const sorted = [...rows].sort((a, b) => a.weekday - b.weekday);
+  return { values: sorted.map((r) => r.total), labels: sorted.map((r) => r.label.slice(0, 1)) };
+}
+
+function hourlyValues(rows: OrderStatisticsHourlyDto[]) {
+  const out = Array.from({ length: 24 }, () => 0);
+  for (const r of rows) if (r.hour >= 0 && r.hour < 24) out[r.hour] = r.count;
+  return out;
+}
+
+export const StoreDetailStatisticsMobilePage: React.FC = () => {
+  const { storeId = "" } = useParams<{ storeId: string }>();
+  const [params] = useSearchParams();
+  const [today] = useState(() => kstDateKey(new Date()));
+  // 처음엔 오늘 포함 최근 7일(지금 PC와 같음), 홈 "이번 주 매출"에서 오면 이번주
+  const [preset, setPreset] = useState<Preset>(params.get("range") === "week" ? "week" : "custom");
+  const [range, setRange] = useState(() =>
+    params.get("range") === "week"
+      ? rangeFor("week", today)
+      : { start: addDaysToKey(today, STATISTICS_DEFAULT_DAY_OFFSET), end: today },
+  );
+  const [customOpen, setCustomOpen] = useState(false);
+  const [rankBy, setRankBy] = useState<"revenue" | "orders">("revenue");
+  const [chartsOpen, setChartsOpen] = useState(false);
+
+  const q = useStatisticsOverviewQuery({ storeId, startDate: range.start, endDate: range.end });
+  const data = q.data;
+  const empty = data && data.totalOrders === 0;
+
+  const pick = (p: Preset) => {
+    if (p === "custom") {
+      setPreset("custom");
+      setCustomOpen(true);
+      return;
+    }
+    setPreset(p);
+    setCustomOpen(false);
+    setRange(rangeFor(p, today));
+  };
+
+  const products = rankBy === "revenue" ? data?.topProductsByRevenue : data?.topProductsByOrders;
+
+  return (
+    <AppScreen header={<BackHeader title="주문 통계" />} bodyClassName="pt-2">
+      <ChipGroup
+        label="기간"
+        value={customOpen ? "custom" : preset}
+        onChange={pick}
+        options={[
+          { value: "today", label: "오늘" },
+          { value: "week", label: "이번주" },
+          { value: "month", label: "이번달" },
+          { value: "recent90", label: "최근 90일" },
+          { value: "custom", label: "직접 고르기" },
+        ]}
+      />
+      {customOpen ? (
+        <div className="flex items-center gap-2">
+          {(["start", "end"] as const).map((k, i) => (
+            <React.Fragment key={k}>
+              {i === 1 ? <span className="text-ink-600">~</span> : null}
+              <input
+                type="date"
+                aria-label={k === "start" ? "시작일" : "종료일"}
+                value={range[k]}
+                max={k === "start" ? range.end : today}
+                min={k === "end" ? range.start : undefined}
+                onChange={(e) => e.target.value && setRange((r) => ({ ...r, [k]: e.target.value }))}
+                className="h-12 min-w-0 flex-1 rounded-control border border-ink-200 bg-white px-3 text-body text-ink-900"
+              />
+            </React.Fragment>
+          ))}
+        </div>
+      ) : null}
+      <p className="text-caption leading-normal text-ink-600">
+        {formatKeyMonthDayWeek(range.start)}~{formatKeyMonthDayWeek(range.end)} · 픽업 완료한 주문만
+        세요(주문 접수일 기준)
+      </p>
+
+      {q.isError ? (
+        <LoadErrorState onRetry={() => void q.refetch()} />
+      ) : (
+        <>
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { label: "매출", value: data ? formatWon(data.totalSales) : "–" },
+              {
+                label: "주문건수",
+                value: data ? `${data.totalOrders.toLocaleString("ko-KR")}건` : "–",
+              },
+            ].map((s) => (
+              <div
+                key={s.label}
+                className="flex flex-col gap-1 rounded-card border border-ink-100 p-4"
+              >
+                <span className="text-sub text-ink-600">{s.label}</span>
+                <span className="text-title font-bold tabular-nums text-ink-900">{s.value}</span>
+              </div>
+            ))}
+          </div>
+          {empty ? (
+            <EmptyState title="해당 기간에 집계된 데이터가 없습니다." />
+          ) : data ? (
+            <>
+              <GroupTitle>잘 팔린 상품</GroupTitle>
+              <SegmentedTabs
+                label="상품 순위 기준"
+                value={rankBy}
+                onChange={setRankBy}
+                options={[
+                  { value: "revenue", label: "매출 순" },
+                  { value: "orders", label: "주문건수 순" },
+                ]}
+              />
+              <Bars
+                rows={(products ?? []).map((p) => ({
+                  key: p.productId,
+                  label: p.productName,
+                  value: rankBy === "revenue" ? p.revenue : p.orderCount,
+                }))}
+                format={(v) => (rankBy === "revenue" ? formatWon(v) : `${v}건`)}
+              />
+              <button
+                type="button"
+                aria-expanded={chartsOpen}
+                onClick={() => setChartsOpen((v) => !v)}
+                className="flex min-h-13 items-center gap-3 border-b border-ink-100 text-left"
+              >
+                <span className="flex min-w-0 flex-1 flex-col gap-1">
+                  <span className="text-body font-semibold text-ink-900">
+                    언제 주문·픽업이 많은지
+                  </span>
+                  <span className="text-caption text-ink-600">요일별·시간대별 주문과 픽업</span>
+                </span>
+                <span
+                  className={cx(
+                    "shrink-0 text-ink-400 transition-transform",
+                    chartsOpen && "rotate-180",
+                  )}
+                >
+                  <Icon name="chevronDown" size={18} strokeWidth={2} />
+                </span>
+              </button>
+              {chartsOpen ? (
+                <div className="flex flex-col gap-6">
+                  <ColumnChart
+                    title="요일별 주문(접수 기준)"
+                    {...weekdayValues(data.weekdayOrders)}
+                  />
+                  <ColumnChart
+                    title="시간대별 주문(접수 기준)"
+                    values={hourlyValues(data.hourlyOrders)}
+                    labels={[]}
+                  />
+                  <ColumnChart
+                    title="요일별 픽업(픽업 예정 기준)"
+                    {...weekdayValues(data.weekdayPickupOrders)}
+                  />
+                  <ColumnChart
+                    title="시간대별 픽업(픽업 예정 기준)"
+                    values={hourlyValues(data.hourlyPickupOrders)}
+                    labels={[]}
+                  />
+                </div>
+              ) : null}
+            </>
+          ) : (
+            <span className="block h-40 animate-pulse rounded-card bg-ink-50" aria-busy="true" />
+          )}
+        </>
+      )}
+    </AppScreen>
+  );
+};

@@ -1,4 +1,11 @@
 import type { Config } from "tailwindcss";
+import {
+  appColors,
+  appFontFamily,
+  appFontSize,
+  appRadius,
+  appSpacing,
+} from "./src/common/ui/tokens";
 
 const config: Config = {
   darkMode: ["class"],
@@ -9,8 +16,15 @@ const config: Config = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        // 휴대폰 화면(디자인 기준 B)
+        ...appRadius,
       },
+      fontSize: { ...appFontSize },
+      fontFamily: { app: appFontFamily },
+      spacing: { ...appSpacing },
       colors: {
+        // 휴대폰 화면(디자인 기준 B): ink-*, brand-*, kakao
+        ...appColors,
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {

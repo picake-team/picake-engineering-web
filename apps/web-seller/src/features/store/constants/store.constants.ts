@@ -34,3 +34,9 @@ export const STORE_BANK_OPTIONS: readonly SelectOption[] = [
  * 적용되지 않는다. 다시 받으려면 true로 바꾸면 '통신판매사업자 정보 등록' 단계가 돌아온다(서버는 둘 다 받음).
  */
 export const REQUIRE_ONLINE_TRADING_REGISTRATION: boolean = false;
+
+/** 은행 코드(KB_KOOKMIN 등) → 화면 이름(KB국민). 모르는 값은 그대로 */
+export function storeBankLabel(code: string | null | undefined): string {
+  if (!code) return "";
+  return STORE_BANK_OPTIONS.find((o) => o.value === code)?.label ?? code;
+}

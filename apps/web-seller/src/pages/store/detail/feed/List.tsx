@@ -1,4 +1,5 @@
 import React, { useRef } from "react";
+import { PageTitle } from "@/apps/web-seller/common/components/layouts/MobileFrame";
 import { useParams } from "react-router-dom";
 import { useFeedList } from "@/apps/web-seller/features/feed/hooks/queries/useFeedQuery";
 import { useInfiniteScroll } from "@/apps/web-seller/common/hooks/useInfiniteScroll";
@@ -38,7 +39,7 @@ export const StoreDetailFeedListPage: React.FC = () => {
     <div className="space-y-6">
       {/* 헤더 */}
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">피드 목록</h1>
+        <PageTitle className="text-3xl font-bold">피드 목록</PageTitle>
       </div>
 
       {/* 통계 카드 (정렬/필터 없음) */}

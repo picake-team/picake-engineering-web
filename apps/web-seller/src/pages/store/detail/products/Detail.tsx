@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+import { PageTitle } from "@/apps/web-seller/common/components/layouts/MobileFrame";
 import { useParams } from "react-router-dom";
 import { ProductCreationForm } from "@/apps/web-seller/features/product/components/forms/ProductCreationForm";
 import {
@@ -133,7 +134,7 @@ export const StoreDetailProductDetailPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">상품 수정</h1>
+      <PageTitle className="text-2xl font-bold">상품 수정</PageTitle>
       <ProductCreationForm
         onSubmit={handleUpdate}
         initialValue={productForm}

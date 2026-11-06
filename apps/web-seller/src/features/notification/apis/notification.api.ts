@@ -4,6 +4,16 @@ import type {
   SellerNotificationSettings,
 } from "@/apps/web-seller/features/notification/types/notification.dto";
 
+function toSettings(row: SellerNotificationSettings): SellerNotificationSettings {
+  return {
+    orderNotificationsEnabled: row.orderNotificationsEnabled,
+    orderNotificationSoundEnabled: row.orderNotificationSoundEnabled ?? true,
+    ...(typeof row.morningSummaryEnabled === "boolean"
+      ? { morningSummaryEnabled: row.morningSummaryEnabled }
+      : {}),
+  };
+}
+
 export const notificationApi = {
   // 스토어 단위 알림 목록 (페이지네이션)
   getNotifications: async (params: {
@@ -37,10 +47,7 @@ export const notificationApi = {
       params: { storeId },
     });
     const row = response.data.data as SellerNotificationSettings & { appSurface?: string };
-    return {
-      orderNotificationsEnabled: row.orderNotificationsEnabled,
-      orderNotificationSoundEnabled: row.orderNotificationSoundEnabled ?? true,
-    };
+    return toSettings(row);
   },
 
   // 알림 설정 저장 (body에 storeId 포함)
@@ -50,10 +57,7 @@ export const notificationApi = {
   ): Promise<SellerNotificationSettings> => {
     const response = await sellerClient.put("/notifications/preferences", { storeId, ...patch });
     const row = response.data.data as SellerNotificationSettings & { appSurface?: string };
-    return {
-      orderNotificationsEnabled: row.orderNotificationsEnabled,
-      orderNotificationSoundEnabled: row.orderNotificationSoundEnabled ?? true,
-    };
+    return toSettings(row);
   },
 
   // 단일 알림 읽음
@@ -64,5 +68,14 @@ export const notificationApi = {
   // 스토어 알림 전체 읽음
   markAllRead: async (storeId: string): Promise<void> => {
     await sellerClient.patch("/notifications/read-all", { storeId });
+  },
+};
+
+/** 휴대폰 알림(FCM) — backend #32 `POST /v1/seller/fcm-tokens/test` */
+export const sellerPushApi = {
+  /** 로그인한 내 휴대폰 모두에 테스트 알림. 보낸 기기 수(0이면 앱에서 알림을 켠 기기가 없음) */
+  sendTestPush: async (): Promise<number> => {
+    const response = await sellerClient.post("/fcm-tokens/test");
+    return (response.data.data?.deviceCount as number) ?? 0;
   },
 };
