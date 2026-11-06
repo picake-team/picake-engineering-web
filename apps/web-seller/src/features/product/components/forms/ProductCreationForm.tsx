@@ -8,7 +8,6 @@ import {
   useInMobileFrame,
 } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
 import { Switch } from "@/apps/web-seller/common/ui/Toggle";
-import { Icon } from "@/apps/web-seller/common/ui/icons";
 import { cn } from "@/apps/web-seller/common/utils/classname.util";
 
 import { BaseInput as Input } from "@/apps/web-seller/common/components/inputs/BaseInput";
@@ -369,9 +368,12 @@ export const ProductCreationForm: React.FC<Props> = ({
                         onClick={() => patch({ productType: t.value })}
                         className={
                           inFrame
-                            ? cn(
+                            ? // 고른 카드: 얇은 주황 테두리 + 주황 점만(바탕은 흰색, 운영자 의견 2026-11-07 "주황 테두리에 주황 바탕 과해")
+                              cn(
                                 "relative flex flex-col gap-1 rounded-control bg-white p-4 text-left font-app",
-                                on ? "border-2 border-brand p-[15px]" : "border border-ink-200",
+                                on
+                                  ? "border-[1.5px] border-brand p-[15.5px]"
+                                  : "border border-ink-200",
                               )
                             : `rounded-lg border px-3 py-2.5 text-left transition-colors ${
                                 on
@@ -398,10 +400,14 @@ export const ProductCreationForm: React.FC<Props> = ({
                         >
                           {t.desc}
                         </span>
-                        {inFrame && on ? (
-                          <span className="absolute right-2.5 top-2.5 inline-flex size-5 items-center justify-center rounded-full bg-brand text-white">
-                            <Icon name="check" size={13} strokeWidth={3} />
-                          </span>
+                        {inFrame ? (
+                          <span
+                            aria-hidden="true"
+                            className={cn(
+                              "absolute right-3 top-3 inline-block size-5 rounded-full bg-white",
+                              on ? "border-[6px] border-brand" : "border-[1.5px] border-ink-200",
+                            )}
+                          />
                         ) : null}
                       </button>
                     );
