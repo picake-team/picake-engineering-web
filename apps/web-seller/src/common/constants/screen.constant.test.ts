@@ -1,18 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
-  screenModeFor,
+  SCREEN_MODE,
   shouldShowMobileScreens,
 } from "@/apps/web-seller/common/constants/screen.constant";
 
-describe("screenModeFor", () => {
-  it("production은 출시 전까지 지금 PC 화면만", () => {
-    expect(screenModeFor("production")).toBe("desktop-only");
-  });
-
-  it("개발·staging(값 없음 포함)은 휴대폰 폭에서 휴대폰 화면", () => {
-    expect(screenModeFor("development")).toBe("mobile-on-phone");
-    expect(screenModeFor("staging")).toBe("mobile-on-phone");
-    expect(screenModeFor(undefined)).toBe("mobile-on-phone");
+describe("SCREEN_MODE", () => {
+  it("모든 환경(production 포함)에서 휴대폰 폭이면 휴대폰 화면, PC 폭은 지금 PC 화면", () => {
+    expect(SCREEN_MODE).toBe("mobile-on-phone");
   });
 });
 
