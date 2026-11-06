@@ -108,13 +108,13 @@ const StoreDetailMenuMobilePage = lazyPage(
   () => import("@/apps/web-seller/pages/store/detail/Menu.mobile"),
   "StoreDetailMenuMobilePage",
 );
+const StoreSettingsMobilePage = lazyPage(
+  () => import("@/apps/web-seller/pages/store/detail/Settings.mobile"),
+  "StoreSettingsMobilePage",
+);
 const StoreDetailCalendarMobilePage = lazyPage(
   () => import("@/apps/web-seller/pages/store/detail/Calendar.mobile"),
   "StoreDetailCalendarMobilePage",
-);
-const StoreDetailCalendarDayMobilePage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/CalendarDay.mobile"),
-  "StoreDetailCalendarDayMobilePage",
 );
 const StoreDetailHoursMobilePage = lazyPage(
   () => import("@/apps/web-seller/pages/store/detail/Hours.mobile"),
@@ -306,11 +306,6 @@ export const ADMIN_ROUTE_CONFIG: AppRouteConfig[] = [
     mobile: StoreDetailCalendarMobilePage,
   },
   {
-    path: ROUTES.STORE_DETAIL_CALENDAR_DAY(":storeId", ":dateKey"),
-    element: StoreDetailCalendarSubPage,
-    mobile: StoreDetailCalendarDayMobilePage,
-  },
-  {
     path: ROUTES.STORE_DETAIL_HOURS(":storeId"),
     element: StoreDetailCalendarSubPage,
     mobile: StoreDetailHoursMobilePage,
@@ -319,6 +314,11 @@ export const ADMIN_ROUTE_CONFIG: AppRouteConfig[] = [
     path: ROUTES.STORE_DETAIL_MENU(":storeId"),
     element: StoreDetailMenuPage,
     mobile: StoreDetailMenuMobilePage,
+  },
+  {
+    path: ROUTES.STORE_DETAIL_SETTINGS(":storeId"),
+    element: StoreDetailMenuPage,
+    mobile: StoreSettingsMobilePage,
   },
   {
     path: ROUTES.STORE_DETAIL_WELCOME(":storeId"),

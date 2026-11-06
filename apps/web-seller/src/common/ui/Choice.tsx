@@ -1,8 +1,9 @@
 /**
  * 고르는 부품 (디자인 기준 B-3).
- * - SegmentedTabs: 위쪽 탭(회색 칸 안 흰 버튼, 안쪽 3, 버튼 40). 고른 탭 14/700 진한 글씨, 안 고른 탭 14/400 #686864
+ * - SegmentedTabs: 위쪽 탭(연한 주황 칸 안에서 고른 탭만 주황 채움 + 흰 글씨 13/700, 안 고른 탭 13/400 #4E4E4B,
+ *   안쪽 3, 버튼 36). 2026-11-06 운영자 의견("너무 다 회색")으로 회색 칸·흰 버튼에서 바꿈. 칩·네모 고르기와 같이 "고른 것 = 주황 채움"
  * - Chip: 거르기·정렬처럼 여러 개(40, 둥근 끝). 줄이 넘치면 다음 줄로
- * - ChoiceGrid: 선택지가 2~7개로 정해진 것(44 네모 버튼, 쉬는 요일·이 날 영업). 고른 것은 주황 채움
+ * - ChoiceGrid: 선택지가 2~7개로 정해진 것(44 네모 버튼, 쉬는 요일). 고른 것은 주황 채움
  */
 import React, { useRef } from "react";
 import { cx } from "@/apps/web-seller/common/ui/cx";
@@ -49,7 +50,7 @@ export function SegmentedTabs<T extends string>({
     <div
       role="tablist"
       aria-label={label}
-      className={cx("grid rounded-control bg-ink-50 p-[3px]", className)}
+      className={cx("grid rounded-control bg-brand-tint p-[3px]", className)}
       style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))` }}
     >
       {options.map((o, i) => {
@@ -73,8 +74,8 @@ export function SegmentedTabs<T extends string>({
             className={cx(
               "h-9 min-w-0 truncate rounded-[10px] px-1 font-app text-sub",
               selected
-                ? "bg-white font-bold text-ink-900 shadow-[0_1px_3px_rgba(0,0,0,0.12)]"
-                : "font-normal text-ink-600",
+                ? "bg-brand font-bold text-white shadow-[0_1px_2px_rgba(181,64,28,0.25)]"
+                : "font-normal text-ink-700",
             )}
           >
             {withCount(o.label, o.count)}

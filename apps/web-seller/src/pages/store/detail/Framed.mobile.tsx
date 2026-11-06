@@ -3,9 +3,10 @@
  * 지금 PC 화면을 휴대폰 틀(뒤로 + 제목) 안에 담아 휴대폰에서도 모든 기능을 쓴다.
  */
 import React from "react";
-import { Link, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
 import { MobileFrame } from "@/apps/web-seller/common/components/layouts/MobileFrame";
+import { HeaderIconButton } from "@/apps/web-seller/common/ui/Button";
 import { StoreDetailProductCreatePage } from "@/apps/web-seller/pages/store/detail/products/Create";
 import { StoreDetailProductDetailPage } from "@/apps/web-seller/pages/store/detail/products/Detail";
 import { StoreDetailFeedListPage } from "@/apps/web-seller/pages/store/detail/feed/List";
@@ -28,16 +29,16 @@ export const StoreDetailProductDetailMobilePage: React.FC = () => (
 
 export const StoreDetailFeedListMobilePage: React.FC = () => {
   const { storeId = "" } = useParams<{ storeId: string }>();
+  const navigate = useNavigate();
   return (
     <MobileFrame
       title="피드"
       actions={
-        <Link
-          to={ROUTES.STORE_DETAIL_FEED_CREATE(storeId)}
-          className="mr-1 inline-flex min-h-11 items-center px-2 text-sub font-bold text-brand-ink"
-        >
-          + 피드 등록
-        </Link>
+        <HeaderIconButton
+          icon="plus"
+          label="피드 등록"
+          onClick={() => navigate(ROUTES.STORE_DETAIL_FEED_CREATE(storeId))}
+        />
       }
     >
       <StoreDetailFeedListPage />

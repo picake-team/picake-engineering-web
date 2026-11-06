@@ -263,7 +263,12 @@ export const StoreDetailHoursMobilePage: React.FC = () => {
               <TimeBox large label="끝" value={draft.end} onClick={() => setPicking("end")} />
             </div>
             {placeId ? (
-              <Button variant="link" className="self-start" onClick={() => setNaverOpen(true)}>
+              <Button
+                variant="secondary"
+                size="md"
+                className="self-start"
+                onClick={() => setNaverOpen(true)}
+              >
                 네이버 영업시간으로 채우기
               </Button>
             ) : null}

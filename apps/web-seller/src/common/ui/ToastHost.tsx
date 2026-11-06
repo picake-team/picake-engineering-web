@@ -65,7 +65,7 @@ export function ToastHost() {
                   a.action?.onClick();
                   removeAlert(a.id);
                 }}
-                className="-my-3 inline-flex min-h-11 shrink-0 items-center px-1 text-body font-bold text-brand-ink"
+                className="relative -my-1.5 inline-flex h-9 shrink-0 items-center rounded-full border border-ink-200 bg-white px-3 text-sub font-bold text-ink-900 before:absolute before:-inset-1 before:content-[''] active:bg-ink-50"
               >
                 {a.action.label}
               </button>

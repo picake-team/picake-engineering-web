@@ -150,7 +150,7 @@ export const SelectInput = React.forwardRef<
   );
 });
 
-/** 검색 칸: 회색 채움 · 높이 44 · 테두리 없음 */
+/** 검색 칸: 회색 채움 · 높이 40 · 테두리 없음. 옆 아이콘 버튼은 FieldIconButton(같은 높이·모양) */
 export const SearchInput = React.forwardRef<
   HTMLInputElement,
   Omit<React.InputHTMLAttributes<HTMLInputElement>, "type"> & { label: string }

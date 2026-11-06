@@ -1,5 +1,10 @@
 import React, { useState } from "react";
 import { PageTitle } from "@/apps/web-seller/common/components/layouts/MobileFrame";
+import {
+  FRAME_SUBMIT_BUTTON_CLASS,
+  useInMobileFrame,
+} from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
+
 import { useParams } from "react-router-dom";
 import { useFeedDetail } from "@/apps/web-seller/features/feed/hooks/queries/useFeedQuery";
 import {
@@ -18,6 +23,7 @@ import { ContentLoading } from "@/apps/web-seller/common/components/loading/Cont
 const FEED_MAX_IMAGES = 5;
 
 export const StoreDetailFeedDetailPage: React.FC = () => {
+  const inFrame = useInMobileFrame();
   const { storeId, feedId } = useParams<{ storeId: string; feedId: string }>();
   const updateFeedMutation = useUpdateFeed();
   const deleteFeedMutation = useDeleteFeed();
@@ -157,16 +163,21 @@ export const StoreDetailFeedDetailPage: React.FC = () => {
             </div>
 
             {/* 버튼 */}
-            <div className="flex justify-center gap-4 pt-6">
+            <div className={inFrame ? "flex gap-2 pt-6" : "flex justify-center gap-4 pt-6"}>
               <Button
                 type="button"
-                variant="destructive"
+                variant={inFrame ? "outline" : "destructive"}
                 onClick={handleDelete}
                 disabled={deleteFeedMutation.isPending || updateFeedMutation.isPending}
+                className={inFrame ? FRAME_SUBMIT_BUTTON_CLASS : undefined}
               >
                 삭제하기
               </Button>
-              <Button type="submit" disabled={updateFeedMutation.isPending}>
+              <Button
+                type="submit"
+                disabled={updateFeedMutation.isPending}
+                className={inFrame ? FRAME_SUBMIT_BUTTON_CLASS : undefined}
+              >
                 {updateFeedMutation.isPending ? "수정 중..." : "수정하기"}
               </Button>
             </div>

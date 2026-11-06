@@ -65,7 +65,9 @@ export function DevicePushStatusCard() {
       </span>
       {!on && status !== "unknown" ? (
         <Button
-          variant="link"
+          variant="secondary"
+          size="md"
+          className="shrink-0"
           onClick={() => (status === "notDetermined" ? requestPushPermission() : openAppSettings())}
         >
           {status === "notDetermined" ? "허용하기" : "휴대폰 설정 열기"}

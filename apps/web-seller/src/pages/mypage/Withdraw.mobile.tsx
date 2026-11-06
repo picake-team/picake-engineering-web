@@ -73,15 +73,17 @@ export const MypageWithdrawMobilePage: React.FC = () => {
       </div>
       {activeCount > 0 ? (
         <WarningBox className="rounded-control">
-          진행 중인 주문이 있어 탈퇴할 수 없어요.{" "}
-          {activeStoreId ? (
-            <Link
-              to={`${ROUTES.STORE_DETAIL_ORDERS_LIST(activeStoreId)}?tab=todo`}
-              className="inline-flex min-h-11 items-center font-bold text-brand-ink"
-            >
-              주문 보기
-            </Link>
-          ) : null}
+          <span className="flex flex-col items-start gap-2">
+            진행 중인 주문이 있어 탈퇴할 수 없어요.
+            {activeStoreId ? (
+              <Link
+                to={`${ROUTES.STORE_DETAIL_ORDERS_LIST(activeStoreId)}?tab=todo`}
+                className="inline-flex h-10 items-center rounded-control border border-ink-200 bg-white px-4 text-sub font-bold text-ink-700 active:bg-ink-50"
+              >
+                주문 보기
+              </Link>
+            ) : null}
+          </span>
         </WarningBox>
       ) : null}
       <div className="flex flex-col gap-1">

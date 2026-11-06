@@ -2,6 +2,13 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronDown, ChevronRight, Sparkles } from "lucide-react";
 import { BaseButton as Button } from "@/apps/web-seller/common/components/buttons/BaseButton";
+import {
+  FRAME_REASON_CLASS,
+  FRAME_SUBMIT_BAR_CLASS,
+  FRAME_SUBMIT_BUTTON_CLASS,
+  useInMobileFrame,
+} from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
+
 import { BaseInput as Input } from "@/apps/web-seller/common/components/inputs/BaseInput";
 import { Checkbox } from "@/apps/web-seller/common/components/inputs/Checkbox";
 import { RichTextEditor } from "@/apps/web-seller/common/components/editors/RichTextEditor";
@@ -131,6 +138,7 @@ export const ProductCreationForm: React.FC<Props> = ({
   naverLink,
 }) => {
   const isEdit = !!initialValue;
+  const inFrame = useInMobileFrame();
   const [form, setForm] = useState<ProductForm>(initialValue || defaultForm);
   const [errors, setErrors] = useState<Errors>({});
   const [submitted, setSubmitted] = useState(false);
@@ -539,31 +547,48 @@ export const ProductCreationForm: React.FC<Props> = ({
 
       {/* 저장 버튼은 항상 화면 아래에 */}
       {!disabled && (
-        <div className="sticky bottom-0 z-10 mt-6 flex items-center gap-3 border-t bg-background/95 px-1 py-3 backdrop-blur">
+        <div
+          className={
+            inFrame
+              ? FRAME_SUBMIT_BAR_CLASS
+              : "sticky bottom-0 z-10 mt-6 flex items-center gap-3 border-t bg-background/95 px-1 py-3 backdrop-blur"
+          }
+        >
           {blockingCount > 0 && (
             <button
               type="button"
-              className="text-sm text-destructive underline-offset-4 hover:underline"
+              className={
+                inFrame
+                  ? FRAME_REASON_CLASS
+                  : "text-sm text-destructive underline-offset-4 hover:underline"
+              }
               onClick={() =>
                 errorKeys.length ? goToFirstError(errorKeys) : scrollTo("section-detail")
               }
             >
               고칠 곳 {blockingCount}개 보기
+              {inFrame ? <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" /> : null}
             </button>
           )}
-          <div className="ml-auto flex gap-2">
+          <div className={inFrame ? "flex gap-2" : "ml-auto flex gap-2"}>
             {isEdit && onDelete && (
               <Button
                 type="button"
-                variant="ghost"
-                className="text-destructive hover:text-destructive"
+                variant={inFrame ? "outline" : "ghost"}
+                className={
+                  inFrame ? FRAME_SUBMIT_BUTTON_CLASS : "text-destructive hover:text-destructive"
+                }
                 onClick={onDelete}
                 disabled={isDeleting}
               >
                 삭제
               </Button>
             )}
-            <Button type="submit" disabled={isDeleting}>
+            <Button
+              type="submit"
+              disabled={isDeleting}
+              className={inFrame ? FRAME_SUBMIT_BUTTON_CLASS : undefined}
+            >
               {isEdit ? "저장하기" : "등록하기"}
             </Button>
           </div>
