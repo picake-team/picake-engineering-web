@@ -62,7 +62,7 @@ function ProductRow({
         to={ROUTES.STORE_DETAIL_PRODUCTS_DETAIL(storeId, product.id)}
         className="flex min-w-0 flex-1 items-center gap-3 active:bg-ink-50"
       >
-        <span className="flex size-[52px] shrink-0 items-center justify-center overflow-hidden rounded-control bg-ink-50 text-ink-400">
+        <span className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-control bg-ink-50 text-ink-400">
           {product.images?.[0] ? (
             <img src={product.images[0]} alt="" loading="lazy" className="size-full object-cover" />
           ) : (
@@ -156,7 +156,7 @@ export const StoreDetailProductListMobilePage: React.FC = () => {
       >
         {noProductsAtAll ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-4 pb-16 text-center">
-            <span className="flex size-[72px] items-center justify-center rounded-card bg-brand-tint text-brand">
+            <span className="flex size-16 items-center justify-center rounded-card bg-brand-tint text-brand">
               <Icon name="cake" size={34} strokeWidth={1.6} />
             </span>
             <p className="text-group font-bold text-ink-900">등록된 상품이 없습니다.</p>

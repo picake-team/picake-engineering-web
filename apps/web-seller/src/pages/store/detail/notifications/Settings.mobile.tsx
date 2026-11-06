@@ -118,7 +118,7 @@ export const StoreDetailNotificationSettingsMobilePage: React.FC = () => {
         type="button"
         aria-expanded={tipsOpen}
         onClick={() => setTipsOpen((v) => !v)}
-        className="flex min-h-14 items-center gap-3 border-b border-ink-100 text-left"
+        className="flex min-h-13 items-center gap-3 border-b border-ink-100 text-left"
       >
         <span className="flex min-w-0 flex-1 flex-col gap-1">
           <span className="text-body font-semibold text-ink-900">알림이 안 와요</span>

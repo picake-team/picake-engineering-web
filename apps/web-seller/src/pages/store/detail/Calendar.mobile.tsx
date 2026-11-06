@@ -235,7 +235,7 @@ export const StoreDetailCalendarMobilePage: React.FC = () => {
           )}
           <Link
             to={ROUTES.STORE_DETAIL_CALENDAR_DAY(storeId, selectedKey)}
-            className="flex min-h-14 items-center gap-3 border-b border-ink-100 active:bg-ink-50"
+            className="flex min-h-13 items-center gap-3 border-b border-ink-100 active:bg-ink-50"
           >
             <span className="flex min-w-0 flex-1 flex-col gap-1">
               <span className="text-body font-semibold text-ink-900">이 날 영업</span>

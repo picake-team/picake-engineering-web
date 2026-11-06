@@ -61,7 +61,7 @@ export function StoreSwitchSheet({
                   navigate(ROUTES.STORE_DETAIL_HOME(s.id));
                 }
               }}
-              className="flex min-h-16 items-center gap-3 border-b border-ink-100 text-left active:bg-ink-50"
+              className="flex min-h-14 items-center gap-3 border-b border-ink-100 text-left active:bg-ink-50"
             >
               <StoreLogo store={s} />
               <span
@@ -89,7 +89,7 @@ export function StoreSwitchSheet({
           onClose();
           navigate(ROUTES.STORE_CREATE);
         }}
-        className="flex min-h-13 items-center gap-3 text-left text-body font-semibold text-ink-900 active:bg-ink-50"
+        className="flex min-h-12 items-center gap-3 text-left text-body font-semibold text-ink-900 active:bg-ink-50"
       >
         <span className="flex size-10 items-center justify-center rounded-full border border-ink-200 text-ink-700">
           <Icon name="plus" size={18} strokeWidth={1.9} />

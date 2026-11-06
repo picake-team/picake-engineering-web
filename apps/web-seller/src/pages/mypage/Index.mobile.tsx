@@ -243,7 +243,7 @@ export const MypageIndexMobilePage: React.FC = () => {
               }
               divider={false}
             />
-            <div className="flex min-h-14 items-center gap-3 py-2">
+            <div className="flex min-h-13 items-center gap-3 py-2">
               <span className="flex-1 text-body font-semibold text-ink-900">앱 버전</span>
               <span className="text-sub text-ink-600">
                 {appVersion() ?? `웹${sha ? ` ${sha.slice(0, 7)}` : ""}`}

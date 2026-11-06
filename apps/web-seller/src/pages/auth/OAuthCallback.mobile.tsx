@@ -99,7 +99,7 @@ function existingAccountFrom(error: unknown): ExistingAccount | null {
 function SocialLoginButton({ via }: { via: ExistingAccount["via"] }) {
   if (via === "apple") {
     return (
-      <span className="flex h-13 items-center justify-center rounded-control bg-black text-body font-bold text-white">
+      <span className="flex h-12 items-center justify-center rounded-control bg-black text-body font-bold text-white">
         Apple 계정으로 가입돼 있어요
       </span>
     );
@@ -109,7 +109,7 @@ function SocialLoginButton({ via }: { via: ExistingAccount["via"] }) {
     <a
       href={google ? googleAuthorizeUrl() : kakaoAuthorizeUrl()}
       className={cx(
-        "flex h-13 w-full items-center justify-center gap-2 rounded-control text-body font-bold text-ink-900",
+        "flex h-12 w-full items-center justify-center gap-2 rounded-control text-body font-bold text-ink-900",
         google ? "border border-ink-100 bg-white" : "bg-kakao",
       )}
     >

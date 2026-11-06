@@ -61,7 +61,7 @@ function DateBox({
   onChange: (v: string | undefined) => void;
 }) {
   return (
-    <label className="relative flex h-13 min-w-0 flex-1 items-center justify-between rounded-control border border-ink-200 bg-white px-4 text-body focus-within:border-[1.5px] focus-within:border-ink-900">
+    <label className="relative flex h-12 min-w-0 flex-1 items-center justify-between rounded-control border border-ink-200 bg-white px-4 text-body focus-within:border-[1.5px] focus-within:border-ink-900">
       <span className={cx("truncate", value ? "text-ink-900" : "text-ink-500")}>
         {value ? value.replace(/-/g, ".") : placeholder}
       </span>
@@ -179,7 +179,7 @@ export function OrderFindSheet({
           placeholder="주문번호나 상품명"
           value={draft.query}
           onChange={(e) => setDraft((d) => ({ ...d, query: e.target.value }))}
-          className="h-13 min-w-0 flex-1 rounded-control border border-ink-200 bg-white px-4 text-body text-ink-900 outline-none placeholder:text-ink-500 focus:border-[1.5px] focus:border-ink-900 [&::-webkit-search-cancel-button]:hidden"
+          className="h-12 min-w-0 flex-1 rounded-control border border-ink-200 bg-white px-4 text-body text-ink-900 outline-none placeholder:text-ink-500 focus:border-[1.5px] focus:border-ink-900 [&::-webkit-search-cancel-button]:hidden"
         />
         <CircleIconButton icon="search" label="검색" type="submit" />
       </form>

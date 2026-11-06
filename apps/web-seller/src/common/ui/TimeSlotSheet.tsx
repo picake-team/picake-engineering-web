@@ -49,7 +49,7 @@ export function TimeSlotSheet({
                 onClose();
               }}
               className={cx(
-                "flex min-h-12 items-center justify-between border-b border-ink-100 text-left text-body tabular-nums active:bg-ink-50",
+                "flex min-h-11 items-center justify-between border-b border-ink-100 text-left text-body tabular-nums active:bg-ink-50",
                 on ? "font-bold text-ink-900" : "text-ink-900",
               )}
             >
@@ -86,7 +86,7 @@ export function TimeBox({
       aria-label={`${label} ${value}`}
       onClick={onClick}
       className={cx(
-        "flex h-13 min-w-0 flex-1 items-center justify-between rounded-control border border-ink-200 bg-white px-4 tabular-nums text-ink-900 active:bg-ink-50",
+        "flex h-12 min-w-0 flex-1 items-center justify-between rounded-control border border-ink-200 bg-white px-4 tabular-nums text-ink-900 active:bg-ink-50",
         large ? "text-group font-bold" : "text-body",
       )}
     >

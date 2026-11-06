@@ -15,7 +15,7 @@ type ButtonSize = "lg" | "md";
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
-  /** lg = 52(주 버튼·입력 칸 옆 버튼), md = 44(작은 버튼) */
+  /** lg = 48(주 버튼·입력 칸 옆 버튼), md = 40(작은 버튼). 누르는 영역은 44 이상 */
   size?: ButtonSize;
   /** 가로 가득 */
   block?: boolean;
@@ -25,8 +25,8 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 const BOX: Record<ButtonSize, string> = {
-  lg: "h-13 px-4 text-body font-bold",
-  md: "h-11 px-4 text-sub font-bold",
+  lg: "h-12 px-4 text-body font-bold",
+  md: "h-10 px-4 text-sub font-bold",
 };
 
 function variantClass(variant: ButtonVariant, size: ButtonSize, disabled: boolean): string {
@@ -151,7 +151,7 @@ export const CircleIconButton = React.forwardRef<
       )}
       {...rest}
     >
-      <span className="inline-flex size-10 items-center justify-center rounded-full border border-ink-200 bg-white text-ink-700 group-active:bg-ink-50">
+      <span className="inline-flex size-9 items-center justify-center rounded-full border border-ink-200 bg-white text-ink-700 group-active:bg-ink-50">
         <Icon name={icon} size={18} strokeWidth={1.9} />
       </span>
     </button>
@@ -180,7 +180,7 @@ export function CircleIconLink({
         className,
       )}
     >
-      <span className="inline-flex size-10 items-center justify-center rounded-full border border-ink-200 bg-white text-ink-700 group-active:bg-ink-50">
+      <span className="inline-flex size-9 items-center justify-center rounded-full border border-ink-200 bg-white text-ink-700 group-active:bg-ink-50">
         <Icon name={icon} size={18} strokeWidth={1.9} />
       </span>
     </a>

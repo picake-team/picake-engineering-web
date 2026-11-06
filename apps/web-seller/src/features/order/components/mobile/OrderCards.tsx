@@ -124,7 +124,7 @@ export function PickupRow({ order, last }: { order: OrderResponseDto; last?: boo
     <Link
       to={orderDetailPath(order)}
       className={cx(
-        "flex min-h-16 items-center gap-3 active:bg-ink-50",
+        "flex min-h-14 items-center gap-3 active:bg-ink-50",
         !last && "border-b border-ink-100",
       )}
     >
