@@ -64,7 +64,7 @@ export const StoreDetailEditMobilePage: React.FC = () => (
   </MobileFrame>
 );
 
-/** 스토어 만들기(SC-65·66). 디자인 8-E·8-F로 다시 그리는 것은 다음 단계 */
+/** 스토어 만들기(SC-65·66, 디자인 8-E·8-F): 휴대폰 틀 안에서 진행 막대·단계 제목·가득 찬 버튼으로 그린다 */
 export const StoreCreateMobilePage: React.FC = () => (
   <MobileFrame title="스토어 만들기">
     <StoreCreatePage />

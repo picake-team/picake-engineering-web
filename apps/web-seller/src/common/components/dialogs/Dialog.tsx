@@ -2,6 +2,7 @@ import React, { useEffect, useId, useRef } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { cn } from "@/apps/web-seller/common/utils/classname.util";
+import { useInMobileFrame } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
 
 interface DialogProps {
   open: boolean;
@@ -18,6 +19,7 @@ interface DialogProps {
 /**
  * 가벼운 팝업 창. Esc·바깥 클릭으로 닫히고, 열려 있는 동안 뒤 화면은 스크롤되지 않는다.
  * 휴대폰에서는 아래에서 올라오는 시트처럼 화면을 꽉 채운다.
+ * 휴대폰 틀(MobileFrame) 안에서는 판매자 앱 창 모양(손잡이, 제목 18/700, 모서리 22, 안전 영역)으로 그린다(디자인 6-G·6-H·A87).
  */
 export function Dialog({
   open,
@@ -30,6 +32,7 @@ export function Dialog({
 }: DialogProps) {
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
+  const inFrame = useInMobileFrame();
 
   useEffect(() => {
     if (!open) return;
@@ -52,7 +55,11 @@ export function Dialog({
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-6">
-      <div className="absolute inset-0 bg-black/40" aria-hidden onClick={onClose} />
+      <div
+        className={cn("absolute inset-0", inFrame ? "bg-[rgba(31,31,30,0.4)]" : "bg-black/40")}
+        aria-hidden
+        onClick={onClose}
+      />
       <div
         ref={panelRef}
         role="dialog"
@@ -62,26 +69,61 @@ export function Dialog({
         className={cn(
           "relative flex max-h-[92vh] w-full flex-col rounded-t-2xl bg-background shadow-xl outline-none sm:rounded-2xl",
           size === "lg" ? "sm:max-w-3xl" : "sm:max-w-xl",
+          inFrame &&
+            "max-h-[92dvh] max-w-[640px] rounded-t-sheet font-app text-ink-900 shadow-none",
         )}
       >
-        <div className="flex items-start gap-3 border-b px-5 py-4">
-          <div className="min-w-0 flex-1">
-            <h2 id={titleId} className="text-lg font-semibold">
-              {title}
-            </h2>
-            {description && <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>}
+        {inFrame ? (
+          <div className="px-5 pt-3">
+            <div className="mx-auto mb-2 h-1 w-9 rounded-full bg-ink-200" aria-hidden />
+            <div className="flex items-start gap-2">
+              <div className="min-w-0 flex-1 pt-2">
+                <h2 id={titleId} className="text-heading font-bold text-ink-900">
+                  {title}
+                </h2>
+                {description && <p className="mt-1 text-sub text-ink-600">{description}</p>}
+              </div>
+              <button
+                type="button"
+                aria-label="닫기"
+                className="-mr-2 inline-flex size-11 shrink-0 items-center justify-center rounded-full text-ink-700 active:bg-ink-50"
+                onClick={onClose}
+              >
+                <X className="h-6 w-6" strokeWidth={1.8} />
+              </button>
+            </div>
           </div>
-          <button
-            type="button"
-            aria-label="닫기"
-            className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
-            onClick={onClose}
-          >
-            <X className="h-5 w-5" />
-          </button>
+        ) : (
+          <div className="flex items-start gap-3 border-b px-5 py-4">
+            <div className="min-w-0 flex-1">
+              <h2 id={titleId} className="text-lg font-semibold">
+                {title}
+              </h2>
+              {description && <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>}
+            </div>
+            <button
+              type="button"
+              aria-label="닫기"
+              className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+              onClick={onClose}
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+        )}
+        <div className={cn("flex-1 overflow-y-auto px-5", inFrame ? "pb-4 pt-3" : "py-4")}>
+          {children}
         </div>
-        <div className="flex-1 overflow-y-auto px-5 py-4">{children}</div>
-        {footer && <div className="border-t px-5 py-3">{footer}</div>}
+        {footer && (
+          <div
+            className={cn(
+              "border-t px-5 py-3",
+              inFrame && "border-ink-100 pb-[max(12px,env(safe-area-inset-bottom))]",
+            )}
+          >
+            {footer}
+          </div>
+        )}
       </div>
     </div>,
     document.body,

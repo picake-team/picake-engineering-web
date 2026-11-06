@@ -12,6 +12,11 @@ import { BaseButton as Button } from "@/apps/web-seller/common/components/button
 import { BaseInput as Input } from "@/apps/web-seller/common/components/inputs/BaseInput";
 import { NumberInput } from "@/apps/web-seller/common/components/inputs/NumberInput";
 import { Label } from "@/apps/web-seller/common/components/labels/Label";
+import {
+  FRAME_SUBMIT_BAR_CLASS,
+  FRAME_SUBMIT_BUTTON_CLASS,
+  useInMobileFrame,
+} from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
 
 interface Props {
   onSubmit: (data: BusinessRegistrationFormValues) => void;
@@ -37,6 +42,7 @@ const numericStringToValue = (s: string): number | undefined => {
 const BUSINESS_NO_MAX_LENGTH = 10;
 
 export const BusinessRegistrationForm: React.FC<Props> = ({ onSubmit, initialValue, onChange }) => {
+  const inFrame = useInMobileFrame();
   const [form, setForm] = useState<BusinessRegistrationFormValues>(initialValue || defaultForm);
   const [errors, setErrors] = useState<
     Partial<Record<keyof BusinessRegistrationFormValues, string>>
@@ -186,9 +192,17 @@ export const BusinessRegistrationForm: React.FC<Props> = ({ onSubmit, initialVal
         </div>
       </div>
 
-      <div className="flex justify-center pt-6">
-        <Button type="submit">다음 단계</Button>
-      </div>
+      {inFrame ? (
+        <div className={FRAME_SUBMIT_BAR_CLASS}>
+          <Button type="submit" className={FRAME_SUBMIT_BUTTON_CLASS}>
+            다음
+          </Button>
+        </div>
+      ) : (
+        <div className="flex justify-center pt-6">
+          <Button type="submit">다음 단계</Button>
+        </div>
+      )}
     </form>
   );
 };

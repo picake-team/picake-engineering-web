@@ -152,3 +152,30 @@ textarea {
 .app-form .text-amber-900 {
   color: #b5401c;
 }
+/* 휴대폰 틀 안 상세 설명 편집기(react-quill): 입력 칸과 같은 테두리·모서리·글자(디자인 6-F) */
+.app-form .ql-toolbar.ql-snow {
+  border-color: #d4d4d3;
+  border-radius: 12px 12px 0 0;
+  font-family:
+    "Pretendard Variable",
+    Pretendard,
+    -apple-system,
+    "Apple SD Gothic Neo",
+    sans-serif;
+}
+.app-form .ql-container.ql-snow {
+  border-color: #d4d4d3;
+  border-radius: 0 0 12px 12px;
+  font-family:
+    "Pretendard Variable",
+    Pretendard,
+    -apple-system,
+    "Apple SD Gothic Neo",
+    sans-serif;
+  font-size: 15px;
+  color: #1f1f1e;
+}
+.app-form .ql-editor.ql-blank::before {
+  color: #767672;
+  font-style: normal;
+}

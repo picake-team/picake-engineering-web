@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { ChevronRight } from "lucide-react";
+import { cn } from "@/apps/web-seller/common/utils/classname.util";
 import type { StoreForm } from "@/apps/web-seller/features/store/types/store.ui";
 import {
   validateStoreName,
@@ -20,7 +20,6 @@ import { SelectBox } from "@/apps/web-seller/common/components/selects/SelectBox
 import { ImageMultiUpload } from "@/apps/web-seller/features/upload/components/ImageMultiUpload";
 import { BaseButton as Button } from "@/apps/web-seller/common/components/buttons/BaseButton";
 import {
-  FRAME_REASON_CLASS,
   FRAME_SUBMIT_BAR_CLASS,
   FRAME_SUBMIT_BUTTON_CLASS,
   useInMobileFrame,
@@ -383,17 +382,8 @@ export const StoreCreationForm: React.FC<Props> = ({
 
       {/* 저장 버튼은 항상 화면 아래에 */}
       {inFrame ? (
+        // 휴대폰(디자인 8-F·A66b): 이전 | 고칠 곳 n개(누르면 첫 고칠 곳으로) | 등록하기·저장하기
         <div className={FRAME_SUBMIT_BAR_CLASS}>
-          {errorKeys.length > 0 && (
-            <button
-              type="button"
-              className={FRAME_REASON_CLASS}
-              onClick={() => goToFirstError(errorKeys)}
-            >
-              고칠 곳 {errorKeys.length}개 보기
-              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
-            </button>
-          )}
           <div className="flex gap-2">
             {onPrevious && (
               <Button
@@ -405,8 +395,25 @@ export const StoreCreationForm: React.FC<Props> = ({
                 이전
               </Button>
             )}
-            <Button type="submit" className={FRAME_SUBMIT_BUTTON_CLASS} disabled={submitting}>
-              {submitButtonText || (initialValue ? "수정하기" : "등록하기")}
+            {errorKeys.length > 0 && (
+              <Button
+                type="button"
+                variant="outline"
+                className={FRAME_SUBMIT_BUTTON_CLASS}
+                onClick={() => goToFirstError(errorKeys)}
+              >
+                고칠 곳 {errorKeys.length}개
+              </Button>
+            )}
+            <Button
+              type="submit"
+              className={cn(
+                FRAME_SUBMIT_BUTTON_CLASS,
+                (onPrevious || errorKeys.length > 0) && "flex-[2]",
+              )}
+              disabled={submitting}
+            >
+              {submitButtonText || (initialValue ? "저장하기" : "등록하기")}
             </Button>
           </div>
         </div>

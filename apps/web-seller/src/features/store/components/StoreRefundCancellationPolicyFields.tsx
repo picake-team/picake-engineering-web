@@ -3,6 +3,8 @@ import { Plus, Trash2 } from "lucide-react";
 import { Label } from "@/apps/web-seller/common/components/labels/Label";
 import { BaseInput as Input } from "@/apps/web-seller/common/components/inputs/BaseInput";
 import { BaseButton as Button } from "@/apps/web-seller/common/components/buttons/BaseButton";
+import { useInMobileFrame } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
+import { Icon } from "@/apps/web-seller/common/ui/icons";
 import type { RefundCancellationPolicyDto } from "@/apps/web-seller/features/store/types/store.dto";
 import {
   appendRefundRule,
@@ -22,6 +24,72 @@ export const StoreRefundCancellationPolicyFields: React.FC<Props> = ({
   sectionError,
 }) => {
   const rules = policy.rules ?? [];
+  const inFrame = useInMobileFrame();
+
+  const daysChange = (index: number, value: string) => {
+    // type="text"에서도 숫자 검증이 동작하도록 숫자만 추출해 파싱한다.
+    const raw = value.replace(/[^\d]/g, "");
+    const n = raw === "" ? undefined : Number.parseInt(raw, 10);
+    onChange(
+      updateRefundRuleAt(policy, index, {
+        daysBeforePickup: Number.isFinite(n) ? (n as number) : 0,
+      }),
+    );
+  };
+
+  if (inFrame) {
+    // 휴대폰(디자인 A66b): 상자 없이 "픽업 [n] 일 전 [조건] ×" 줄 + 아래 점선 "+ 추가"
+    return (
+      <div className="flex flex-col gap-2 font-app">
+        {rules.map((row, index) => (
+          <div key={index} className="flex items-center gap-2">
+            <span className="shrink-0 text-body text-ink-900">픽업</span>
+            <Input
+              type="text"
+              inputMode="numeric"
+              maxLength={3}
+              required
+              aria-label={`픽업 며칠 전 (${index + 1}번째)`}
+              value={row.daysBeforePickup ?? ""}
+              onChange={(e) => daysChange(index, e.target.value)}
+              className="w-14 shrink-0 px-0 text-center"
+            />
+            <span className="shrink-0 text-body text-ink-900">일 전</span>
+            <Input
+              required
+              aria-label={`환불·취소 조건 (${index + 1}번째)`}
+              placeholder="예: 결제액의 50% 환불"
+              value={row.refundDescription}
+              onChange={(e) =>
+                onChange(updateRefundRuleAt(policy, index, { refundDescription: e.target.value }))
+              }
+              className="min-w-0 flex-1"
+            />
+            <button
+              type="button"
+              aria-label={`${index + 1}번째 규칙 삭제`}
+              disabled={rules.length <= 1}
+              onClick={() => onChange(removeRefundRuleAt(policy, index))}
+              className="relative inline-flex size-9 shrink-0 items-center justify-center rounded-full border border-ink-200 bg-white text-ink-700 before:absolute before:-inset-1 before:content-[''] disabled:opacity-40"
+            >
+              <Icon name="close" size={16} strokeWidth={2} />
+            </button>
+          </div>
+        ))}
+        <button
+          type="button"
+          disabled={rules.length >= 30}
+          onClick={() => onChange(appendRefundRule(policy))}
+          className="h-12 rounded-control border border-dashed border-ink-200 bg-white text-sub font-bold text-ink-700 active:bg-ink-50 disabled:opacity-40"
+        >
+          + 추가
+        </button>
+        {sectionError && (
+          <p className="text-caption font-semibold text-brand-ink">{sectionError}</p>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -54,16 +122,7 @@ export const StoreRefundCancellationPolicyFields: React.FC<Props> = ({
                   required
                   aria-label={`픽업 며칠 전 (${index + 1}번째)`}
                   value={row.daysBeforePickup ?? ""}
-                  onChange={(e) => {
-                    // type="text"에서도 숫자 검증이 동작하도록 숫자만 추출해 파싱한다.
-                    const raw = e.target.value.replace(/[^\d]/g, "");
-                    const n = raw === "" ? undefined : Number.parseInt(raw, 10);
-                    onChange(
-                      updateRefundRuleAt(policy, index, {
-                        daysBeforePickup: Number.isFinite(n) ? (n as number) : 0,
-                      }),
-                    );
-                  }}
+                  onChange={(e) => daysChange(index, e.target.value)}
                 />
               </div>
               <span className="text-sm text-muted-foreground shrink-0">일 전</span>
