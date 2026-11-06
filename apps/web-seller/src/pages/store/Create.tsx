@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { PageTitle } from "@/apps/web-seller/common/components/layouts/MobileFrame";
 import { Card, CardContent } from "@/apps/web-seller/common/components/cards/Card";
 import { ProgressBar } from "@/apps/web-seller/common/components/progressbars";
 import { BusinessRegistrationForm } from "@/apps/web-seller/features/business/components/forms/BusinessRegistrationForm";
@@ -169,7 +170,7 @@ export const StoreCreatePage: React.FC = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">스토어 만들기</h1>
+        <PageTitle className="text-2xl font-bold">스토어 만들기</PageTitle>
         <div className="mt-6">
           <ProgressBar activeStep={currentStep - 1} steps={STEPS} />
         </div>

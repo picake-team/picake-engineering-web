@@ -12,6 +12,7 @@ import { StoreDetailFeedListPage } from "@/apps/web-seller/pages/store/detail/fe
 import { StoreDetailFeedCreatePage } from "@/apps/web-seller/pages/store/detail/feed/Create";
 import { StoreDetailFeedDetailPage } from "@/apps/web-seller/pages/store/detail/feed/Detail";
 import { StoreDetailEditPage } from "@/apps/web-seller/pages/store/detail/Edit";
+import { StoreCreatePage } from "@/apps/web-seller/pages/store/Create";
 
 export const StoreDetailProductCreateMobilePage: React.FC = () => (
   <MobileFrame title="상품 등록">
@@ -59,5 +60,12 @@ export const StoreDetailFeedDetailMobilePage: React.FC = () => (
 export const StoreDetailEditMobilePage: React.FC = () => (
   <MobileFrame title="스토어 정보">
     <StoreDetailEditPage />
+  </MobileFrame>
+);
+
+/** 스토어 만들기(SC-65·66). 디자인 8-E·8-F로 다시 그리는 것은 다음 단계 */
+export const StoreCreateMobilePage: React.FC = () => (
+  <MobileFrame title="스토어 만들기">
+    <StoreCreatePage />
   </MobileFrame>
 );
