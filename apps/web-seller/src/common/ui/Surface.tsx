@@ -47,7 +47,7 @@ export function CardFooterButton({
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       className={cx(
-        "flex h-13 w-full items-center justify-center gap-2 bg-brand font-app text-body font-bold text-white disabled:cursor-not-allowed",
+        "flex h-12 w-full items-center justify-center gap-2 bg-brand font-app text-body font-bold text-white disabled:cursor-not-allowed",
         disabled && !loading ? "opacity-40" : "active:brightness-95",
       )}
     >
@@ -186,7 +186,7 @@ export function EmptyState({
       <span
         className={cx(
           "flex items-center justify-center rounded-card bg-ink-50 text-ink-600",
-          big ? "size-[72px]" : "size-16",
+          big ? "size-16" : "size-14",
         )}
       >
         <Icon name={icon} size={big ? 34 : 27} strokeWidth={icon === "cake" ? 1.6 : 1.7} />

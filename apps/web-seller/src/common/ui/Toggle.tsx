@@ -29,7 +29,7 @@ export function Switch({
       aria-label={label}
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className={cx("inline-flex h-11 shrink-0 items-center disabled:opacity-40", className)}
+      className={cx("inline-flex h-10 shrink-0 items-center disabled:opacity-40", className)}
     >
       <span
         className={cx(

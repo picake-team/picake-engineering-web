@@ -1,14 +1,16 @@
 /**
- * 휴대폰 로그인 (SC-61, 디자인 8-B): 큰 문장 + 카카오·구글(·Apple)로 시작하기, 계정 찾기, 약관, 버전.
- * 버튼 문구·순서는 손님 앱과 같게(I-48 "로그인·가입은 손님 앱처럼"). 심사용 입구(버전 10번)는 심사용 로그인 단계에서.
+ * 휴대폰 로그인 (SC-61, 디자인 8-B): 로고 + 큰 문장 + 카카오·구글(·Apple)로 시작하기, 계정 찾기.
+ * 버튼 문구·순서는 손님 앱과 같게(I-48 "로그인·가입은 손님 앱처럼"). 로고는 손님 웹과 같은 것.
+ * 약관·개인정보 처리방침·버전은 이 화면에 두지 않는다(운영자 결정 2026-11-06). 처리방침은 가입 화면 약관 동의와
+ * 마이페이지에서, 버전은 마이페이지에서 본다. 심사용 로그인 입구는 버전 대신 로고(2초 안에 10번)로 심사용 로그인 단계에서 붙인다.
  */
 import React from "react";
-import { appVersion } from "@/apps/web-seller/common/utils/webview.bridge";
 import { Link } from "react-router-dom";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
 import { APP_COLUMN_CLASS } from "@/apps/web-seller/common/ui/Screen";
 import { cx } from "@/apps/web-seller/common/ui/cx";
 import googleIcon from "@/apps/web-seller/assets/images/google.png";
+import logoUrl from "@/apps/web-seller/assets/images/logo_picake.svg";
 import kakaoIcon from "@/apps/web-seller/assets/images/kakaotalk.png";
 import {
   SELLER_APPLE_LOGIN_ENABLED,
@@ -17,18 +19,25 @@ import {
 } from "@/apps/web-seller/features/auth/components/mobile/socialLogin";
 
 const BTN =
-  "flex h-13 w-full items-center justify-center gap-2 rounded-control text-body font-bold";
+  "flex h-12 w-full items-center justify-center gap-2 rounded-control text-body font-bold";
 
 export const LoginMobilePage: React.FC = () => {
-  const sha = import.meta.env.VITE_PUBLIC_GITHUB_SHA?.trim();
   return (
     <div
       className={cx(
         APP_COLUMN_CLASS,
-        "flex min-h-dvh flex-col bg-white px-5 pt-[calc(env(safe-area-inset-top)+56px)] font-app text-ink-900",
+        "flex min-h-dvh flex-col bg-white px-5 pt-[calc(env(safe-area-inset-top)+48px)] font-app text-ink-900",
       )}
     >
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-3">
+        <img
+          src={logoUrl}
+          alt="Picake"
+          width={64}
+          height={64}
+          className="mb-2 size-16 select-none"
+          draggable={false}
+        />
         <h1 className="text-title font-bold">
           새 예약을
           <br />
@@ -64,18 +73,6 @@ export const LoginMobilePage: React.FC = () => {
         >
           계정을 잊으셨나요?
         </Link>
-        <div className="flex items-center justify-center gap-2 text-caption text-ink-600">
-          <Link to={ROUTES.TERMS.TERMS_OF_SERVICE} className="inline-flex min-h-11 items-center">
-            서비스 이용약관
-          </Link>
-          <span aria-hidden="true">·</span>
-          <Link to={ROUTES.TERMS.PRIVACY_POLICY} className="inline-flex min-h-11 items-center">
-            개인정보 처리방침
-          </Link>
-        </div>
-        <span className="text-caption text-ink-600">
-          버전 {appVersion() ?? `웹${sha ? ` ${sha.slice(0, 7)}` : ""}`}
-        </span>
       </div>
     </div>
   );

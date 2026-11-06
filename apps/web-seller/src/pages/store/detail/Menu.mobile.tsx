@@ -157,7 +157,7 @@ export const StoreDetailMenuMobilePage: React.FC = () => {
           href={externalHref(CUSTOMER_SUPPORT_URL)}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex min-h-14 w-full items-center gap-3 py-2 active:bg-ink-50"
+          className="flex min-h-13 w-full items-center gap-3 py-2 active:bg-ink-50"
         >
           <span className="flex min-w-0 flex-1 flex-col gap-1">
             <span className="text-body font-semibold text-ink-900">문의하기</span>

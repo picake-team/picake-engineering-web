@@ -68,8 +68,8 @@ export const StoreWelcomeMobilePage: React.FC = () => {
       )}
     >
       <div className="flex flex-col gap-3">
-        <span className="flex size-16 items-center justify-center rounded-card bg-brand-tint text-brand">
-          <Icon name="bell" size={32} strokeWidth={1.8} />
+        <span className="flex size-14 items-center justify-center rounded-card bg-brand-tint text-brand">
+          <Icon name="bell" size={28} strokeWidth={1.8} />
         </span>
         <h1 className="text-title font-bold">
           새 예약을 놓치지 않게

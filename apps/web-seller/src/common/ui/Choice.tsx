@@ -71,7 +71,7 @@ export function SegmentedTabs<T extends string>({
               if (e.key === "ArrowLeft") move(i, -1);
             }}
             className={cx(
-              "h-10 min-w-0 truncate rounded-[10px] px-1 font-app text-sub",
+              "h-9 min-w-0 truncate rounded-[10px] px-1 font-app text-sub",
               selected
                 ? "bg-white font-bold text-ink-900 shadow-[0_1px_3px_rgba(0,0,0,0.12)]"
                 : "font-normal text-ink-600",
@@ -97,7 +97,7 @@ export function Chip({
       aria-pressed={selected}
       className={cx(
         // 보이는 높이 40, 위아래 2씩 더해 누르는 칸 44
-        "relative inline-flex h-10 shrink-0 items-center whitespace-nowrap rounded-full px-4 font-app text-sub font-bold",
+        "relative inline-flex h-9 shrink-0 items-center whitespace-nowrap rounded-full px-4 font-app text-sub font-bold",
         "before:absolute before:-inset-y-0.5 before:inset-x-0 before:content-['']",
         selected ? "bg-brand text-white" : "border border-ink-200 bg-white text-ink-700",
         className,
@@ -176,7 +176,7 @@ export function ChoiceGrid<T extends string>({
             disabled={o.disabled}
             onClick={() => onToggle(o.value)}
             className={cx(
-              "h-11 min-w-0 truncate rounded-control px-1 font-app font-bold disabled:opacity-40",
+              "h-10 min-w-0 truncate rounded-control px-1 font-app font-bold disabled:opacity-40",
               large ? "text-body" : "text-sub",
               on ? "bg-brand text-white" : "border border-ink-200 bg-white text-ink-900",
             )}

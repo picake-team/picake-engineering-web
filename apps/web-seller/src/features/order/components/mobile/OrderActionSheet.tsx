@@ -184,7 +184,7 @@ export function OrderActionSheet({
                 <label
                   key={r}
                   className={cx(
-                    "flex min-h-12 cursor-pointer items-center gap-3 border-b border-ink-100 text-body text-ink-900",
+                    "flex min-h-11 cursor-pointer items-center gap-3 border-b border-ink-100 text-body text-ink-900",
                     on ? "font-bold" : "font-normal",
                   )}
                 >
@@ -214,7 +214,7 @@ export function OrderActionSheet({
                 id={p.id}
                 aria-label="상세 사유 (선택)"
                 rows={3}
-                className="min-h-[76px]"
+                className="min-h-[68px]"
                 maxLength={500}
                 value={detail}
                 onChange={(e) => setDetail(e.target.value)}
@@ -231,7 +231,7 @@ export function OrderActionSheet({
             <TextArea
               id={p.id}
               rows={3}
-              className="min-h-[76px]"
+              className="min-h-[68px]"
               maxLength={500}
               value={reasonText}
               onChange={(e) => setReasonText(e.target.value)}

@@ -85,7 +85,7 @@ export const TextInput = React.forwardRef<
     <input
       ref={ref}
       aria-invalid={invalid || undefined}
-      className={cx(BOX, READ_ONLY, "h-13 px-4", stateClass(invalid), className)}
+      className={cx(BOX, READ_ONLY, "h-12 px-4", stateClass(invalid), className)}
       {...rest}
     />
   );
@@ -129,7 +129,7 @@ export const SelectInput = React.forwardRef<
         aria-invalid={invalid || undefined}
         className={cx(
           BOX,
-          "h-13 appearance-none pl-4 pr-11",
+          "h-12 appearance-none pl-4 pr-11",
           stateClass(invalid),
           empty && "text-ink-500",
           className,
@@ -158,7 +158,7 @@ export const SearchInput = React.forwardRef<
   return (
     <label
       className={cx(
-        "flex h-11 w-full items-center gap-2 rounded-control bg-ink-50 px-3.5 font-app text-ink-600 focus-within:ring-[1.5px] focus-within:ring-ink-900",
+        "flex h-10 w-full items-center gap-2 rounded-control bg-ink-50 px-3.5 font-app text-ink-600 focus-within:ring-[1.5px] focus-within:ring-ink-900",
         className,
       )}
     >

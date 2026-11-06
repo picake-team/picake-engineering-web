@@ -27,16 +27,19 @@ export const appColors = {
   kakao: "#FFEB00",
 } as const;
 
-/** 글자 스타일 (B-2·B-6). 굵기는 화면에서 font-bold(700)·font-semibold(600)·font-normal(400)로 */
+/**
+ * 글자 스타일 (B-2·B-6). 굵기는 화면에서 font-bold(700)·font-semibold(600)·font-normal(400)로.
+ * 2026-11-06 운영자 의견("전체적으로 커 보인다, 손님 웹은 적당")으로 한 단계씩 줄였다(손님 웹 본문 14·제목 18~20에 맞춤).
+ */
 export const appFontSize = {
-  title: ["24px", { lineHeight: "1.35", letterSpacing: "-0.02em" }], // 화면 제목(아래 탭 화면)
-  heading: ["20px", { lineHeight: "1.4", letterSpacing: "-0.01em" }], // 창 제목·할 일 한 줄·큰 숫자
-  group: ["18px", { lineHeight: "1.35" }], // 묶음 제목
-  body: ["16px", { lineHeight: "1.5" }], // 본문·목록 이름·버튼
-  sub: ["14px", { lineHeight: "1.5" }], // 칸 이름·보조 정보·작은 버튼
-  caption: ["13px", { lineHeight: "1.5" }], // 설명 글·도움말·고칠 곳
-  badge: ["12px", { lineHeight: "1.4" }], // 배지
-  tab: ["11px", { lineHeight: "1.3" }], // 아래 탭 이름·단계 이름
+  title: ["20px", { lineHeight: "1.4", letterSpacing: "-0.02em" }], // 화면 제목(아래 탭 화면)·큰 숫자
+  heading: ["18px", { lineHeight: "1.4", letterSpacing: "-0.01em" }], // 창 제목·할 일 한 줄
+  group: ["16px", { lineHeight: "1.4" }], // 묶음 제목
+  body: ["15px", { lineHeight: "1.5" }], // 본문·목록 이름·버튼
+  sub: ["13px", { lineHeight: "1.5" }], // 칸 이름·보조 정보·작은 버튼
+  caption: ["12px", { lineHeight: "1.5" }], // 설명 글·도움말·고칠 곳
+  badge: ["11px", { lineHeight: "1.4" }], // 배지
+  tab: ["11px", { lineHeight: "1.3" }], // 아래 탭 이름·단계 이름(손님 웹 아래 탭과 같음)
 } as const;
 
 /** 모서리 (B-1): 체크 6, 버튼·입력 12, 카드·칸·안내 16, 창 22, 칩·배지·토글은 rounded-full */
@@ -47,7 +50,7 @@ export const appRadius = {
   sheet: "22px",
 } as const;
 
-/** 높이 (B-1): 주 버튼·입력 52(h-13), 작은 버튼·검색 44(h-11), 칩·동그라미 40(h-10) */
+/** 높이 (B-1, 2026-11-06 한 단계 줄임): 주 버튼·입력·위쪽 줄 48(h-12), 작은 버튼·검색 40(h-10), 칩·동그라미 36(h-9), 목록 한 줄 52(min-h-13). 누르는 영역은 44(size-11·min-h-11) 유지 */
 export const appSpacing = {
   13: "3.25rem",
 } as const;

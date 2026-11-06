@@ -27,7 +27,7 @@ interface RowContentProps {
 function rowClass({ divider = true, tall = false }: RowContentProps) {
   return cx(
     "flex w-full items-center gap-3 py-2 text-left font-app",
-    tall ? "min-h-16" : "min-h-14",
+    tall ? "min-h-14" : "min-h-13",
     divider && "border-b border-ink-100",
   );
 }

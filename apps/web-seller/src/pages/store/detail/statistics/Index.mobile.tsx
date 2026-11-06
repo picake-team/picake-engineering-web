@@ -182,7 +182,7 @@ export const StoreDetailStatisticsMobilePage: React.FC = () => {
                 max={k === "start" ? range.end : today}
                 min={k === "end" ? range.start : undefined}
                 onChange={(e) => e.target.value && setRange((r) => ({ ...r, [k]: e.target.value }))}
-                className="h-13 min-w-0 flex-1 rounded-control border border-ink-200 bg-white px-3 text-body text-ink-900"
+                className="h-12 min-w-0 flex-1 rounded-control border border-ink-200 bg-white px-3 text-body text-ink-900"
               />
             </React.Fragment>
           ))}
@@ -240,7 +240,7 @@ export const StoreDetailStatisticsMobilePage: React.FC = () => {
                 type="button"
                 aria-expanded={chartsOpen}
                 onClick={() => setChartsOpen((v) => !v)}
-                className="flex min-h-14 items-center gap-3 border-b border-ink-100 text-left"
+                className="flex min-h-13 items-center gap-3 border-b border-ink-100 text-left"
               >
                 <span className="flex min-w-0 flex-1 flex-col gap-1">
                   <span className="text-body font-semibold text-ink-900">

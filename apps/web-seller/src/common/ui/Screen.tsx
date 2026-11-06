@@ -100,7 +100,7 @@ export function BackHeader({
 }) {
   const navigate = useNavigate();
   return (
-    <div className="flex h-13 items-center px-2">
+    <div className="flex h-12 items-center px-2">
       <button
         type="button"
         aria-label={backLabel}
@@ -161,7 +161,7 @@ export function HomeHeader({
   onOpenNotifications: () => void;
 }) {
   return (
-    <div className="flex h-13 items-center justify-between gap-2 pl-5 pr-3 pt-2">
+    <div className="flex h-12 items-center justify-between gap-2 pl-5 pr-3 pt-2">
       <StoreNameButton name={storeName} switchable={switchable} onClick={onSwitchStore} />
       <HeaderIconButton
         icon="bell"
