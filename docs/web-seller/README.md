@@ -34,6 +34,7 @@ Picake 플랫폼을 위한 React + Vite 기반 판매자 관리 시스템입니�
 
 - 채팅 시스템 활성화
 - 재고 관리
+- **휴대폰 화면(판매자 앱 "픽케이크 사장님", 기획 I-48)**: 같은 주소에 휴대폰 화면을 더하는 중. 개발·staging에서 폭 767px 이하일 때만 보이고 production은 지금 PC 화면만(`common/constants/screen.constant.ts`). 부품은 `common/ui/`(디자인 기준 B, Storybook "판매자 앱/부품"), 구조는 [프로젝트 구조 가이드](../common/structure/프로젝트%20구조%20-%20가이드.md#판매자-웹의-휴대폰-화면-2026-11-06-판매자-앱-i-48)
 
 ## 🔗 주요 페이지
 

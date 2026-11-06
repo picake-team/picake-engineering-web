@@ -25,6 +25,8 @@ export const ROUTES = {
     `/stores/${storeId}/notifications/settings`,
   STORE_DETAIL_EDIT: (storeId: string) => `/stores/${storeId}/edit`,
   STORE_DETAIL_CALENDAR: (storeId: string) => `/stores/${storeId}/calendar`,
+  /** 휴대폰 화면 "스토어" 탭(내 스토어·설정 메뉴). PC 화면에는 없어 PC 폭에서는 스토어 홈으로 */
+  STORE_DETAIL_MENU: (storeId: string) => `/stores/${storeId}/menu`,
   AUTH: {
     LOGIN: "/auth/login",
     FIND_ACCOUNT: "/auth/login/find-account",
