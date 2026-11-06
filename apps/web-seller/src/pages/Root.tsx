@@ -5,6 +5,7 @@ import { flattenAndDeduplicateInfiniteData } from "@/apps/web-seller/common/util
 import type { StoreResponseDto } from "@/apps/web-seller/features/store/types/store.dto";
 import { ROUTES } from "@/apps/web-seller/common/constants/paths.constant";
 import { ContentLoading } from "@/apps/web-seller/common/components/loading/ContentLoading";
+import { readLastStoreId } from "@/apps/web-seller/common/utils/last-store.util";
 
 export const RootPage: React.FC = () => {
   const navigate = useNavigate();
@@ -16,7 +17,10 @@ export const RootPage: React.FC = () => {
 
   useEffect(() => {
     if (stores.length > 0) {
-      navigate(ROUTES.STORE_DETAIL_HOME(stores[0].id), { replace: true });
+      // 마지막으로 고른 스토어가 아직 내 스토어면 그곳으로(휴대폰 화면 SC-72 "다시 켜도 남는다")
+      const last = readLastStoreId();
+      const target = stores.find((s) => s.id === last) ?? stores[0];
+      navigate(ROUTES.STORE_DETAIL_HOME(target.id), { replace: true });
     }
   }, [stores, navigate]);
 

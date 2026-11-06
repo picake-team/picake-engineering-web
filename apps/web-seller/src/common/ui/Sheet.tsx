@@ -133,7 +133,7 @@ export function BottomSheet({
                 type="button"
                 aria-label="닫기"
                 onClick={onClose}
-                className="-mr-2 -mt-2 inline-flex size-11 shrink-0 items-center justify-center rounded-full text-ink-900 active:bg-ink-50"
+                className="-mr-2 -mt-2 inline-flex size-11 shrink-0 items-center justify-center rounded-full text-ink-700 active:bg-ink-50"
               >
                 <Icon name="close" size={24} strokeWidth={1.8} />
               </button>

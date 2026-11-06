@@ -20,6 +20,8 @@ import {
 } from "@/apps/web-seller/features/notification/hooks/mutations/useNotificationMutation";
 import { playNotificationChime } from "@/apps/web-seller/features/notification/utils/play-notification-sound.util";
 import { useAlertStore } from "@/apps/web-seller/common/store/alert.store";
+import { orderQueryKeys } from "@/apps/web-seller/features/order/constants/orderQueryKeys.constant";
+import { wasOrderChangedHere } from "@/apps/web-seller/features/order/utils/recent-order-change.util";
 
 /**
  * 스토어 컨텍스트 안에서 알림 목록·설정·미읽음 수를 React Query로 묶고,
@@ -70,8 +72,14 @@ export const SellerNotificationProvider: React.FC<{
       onNotification: (item) => {
         void queryClient.invalidateQueries({ queryKey: notificationQueryKeys.list(storeId) });
         void queryClient.invalidateQueries({ queryKey: notificationQueryKeys.unread(storeId) });
+        // 주문 알림이면 주문 목록·상세·홈 숫자도 새로(앱을 켜 둔 채 새 예약이 오면 바로 보이게)
+        void queryClient.invalidateQueries({ queryKey: orderQueryKeys.all });
         // 소켓은 계정 단위로 붙으므로, 현재 라우트 스토어와 일치할 때만 UI 반응
         if (item.storeId !== storeId) {
+          return;
+        }
+        // 이 화면에서 방금 바꾼 주문이면 "주문 상태가 변경되었습니다." 하나만 보이게
+        if (wasOrderChangedHere(item.orderId)) {
           return;
         }
         // 캐시에 prefs가 없으면 기본값으로 동작 (설정 페이지 미방문 등)

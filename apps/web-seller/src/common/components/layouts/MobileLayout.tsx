@@ -1,5 +1,6 @@
-import { Suspense } from "react";
-import { Outlet } from "react-router-dom";
+import { Suspense, useEffect } from "react";
+import { Outlet, useLocation } from "react-router-dom";
+import { rememberLastStoreId } from "@/apps/web-seller/common/utils/last-store.util";
 import { SellerNotificationScope } from "@/apps/web-seller/features/notification/components/providers/SellerNotificationProvider";
 
 /** 휴대폰 화면이 열리는 동안 잠깐 보이는 빈 화면(위쪽 줄 높이만큼 비움) */
@@ -21,6 +22,11 @@ function MobileScreenLoading() {
  * 여기서는 PC 화면(AdminLayout)과 같은 스토어 알림(실시간 알림·소리)만 붙인다.
  */
 export function MobileLayout() {
+  const { pathname } = useLocation();
+  const storeId = pathname.match(/^\/stores\/([^/]+)/)?.[1];
+  useEffect(() => {
+    if (storeId) rememberLastStoreId(storeId);
+  }, [storeId]);
   return (
     <SellerNotificationScope>
       <div className="min-h-dvh bg-white">
