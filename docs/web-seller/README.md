@@ -49,6 +49,7 @@ Picake 플랫폼을 위한 React + Vite 기반 판매자 관리 시스템입니�
 ### 인증 관련
 
 - **로그인**: `/auth/login` - Google/Kakao 소셜 로그인
+- **심사용 로그인 창**(휴대폰 로그인 화면의 로고를 2초 안에 10번, SC-62, `ReviewLoginSheet`): 6자리 코드 → `POST /v1/seller/auth/review-login`. 코드는 레포에 두지 않는다(서버 비밀값 `SELLER_REVIEW_LOGIN_CODE_SHA256`에 해시만). 들어가면 손님 목록에 보이지 않는 심사용 가게와 상태별 예시 주문
 - **계정 찾기**: `/auth/login/find-account` - 계정 정보 찾기
 - **Google 콜백**: `/auth/login/google` - Google OAuth 콜백
 - **Kakao 콜백**: `/auth/login/kakao` - Kakao OAuth 콜백
