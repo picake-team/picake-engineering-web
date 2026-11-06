@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { PageTitle } from "@/apps/web-seller/common/components/layouts/MobileFrame";
 import { useParams } from "react-router-dom";
 import { useCreateFeed } from "@/apps/web-seller/features/feed/hooks/mutations/useFeedMutation";
 import type { CreateFeedRequestDto } from "@/apps/web-seller/features/feed/types/feed.dto";
@@ -62,7 +63,7 @@ export const StoreDetailFeedCreatePage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">피드 등록</h1>
+      <PageTitle className="text-3xl font-bold">피드 등록</PageTitle>
 
       <Card>
         <CardContent className="p-6">
