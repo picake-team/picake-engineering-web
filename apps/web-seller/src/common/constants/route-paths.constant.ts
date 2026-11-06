@@ -5,6 +5,10 @@
 export const ROUTES = {
   ROOT: "/",
   MYPAGE: "/mypage",
+  /** 휴대폰 화면 휴대폰 번호 변경(SC-94 ③). PC 폭에서는 마이페이지로 */
+  MYPAGE_PHONE: "/mypage/phone",
+  /** 휴대폰 화면 회원 탈퇴(SC-95). PC 폭에서는 마이페이지로 */
+  MYPAGE_WITHDRAW: "/mypage/withdraw",
   STORE_CREATE: "/store/create",
   STORE_DETAIL_HOME: (storeId: string) => `/stores/${storeId}`,
   STORE_DETAIL_PRODUCTS: (storeId: string) => `/stores/${storeId}/products`,
@@ -25,6 +29,11 @@ export const ROUTES = {
     `/stores/${storeId}/notifications/settings`,
   STORE_DETAIL_EDIT: (storeId: string) => `/stores/${storeId}/edit`,
   STORE_DETAIL_CALENDAR: (storeId: string) => `/stores/${storeId}/calendar`,
+  /** 휴대폰 화면 날짜 상세(그날 영업 바꾸기, SC-80). PC 폭에서는 캘린더로 */
+  STORE_DETAIL_CALENDAR_DAY: (storeId: string, dateKey: string) =>
+    `/stores/${storeId}/calendar/${dateKey}`,
+  /** 휴대폰 화면 영업시간(쉬는 요일·영업시간, SC-81). PC 폭에서는 캘린더("기본 운영 관리")로 */
+  STORE_DETAIL_HOURS: (storeId: string) => `/stores/${storeId}/hours`,
   /** 휴대폰 화면 "스토어" 탭(내 스토어·설정 메뉴). PC 화면에는 없어 PC 폭에서는 스토어 홈으로 */
   STORE_DETAIL_MENU: (storeId: string) => `/stores/${storeId}/menu`,
   AUTH: {

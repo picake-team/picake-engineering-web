@@ -43,7 +43,7 @@ export function ToastHost() {
           <div
             key={a.id}
             role={isProblem ? "alert" : "status"}
-            className="pointer-events-auto flex items-center gap-2 rounded-card border border-ink-100 bg-white p-4 text-body text-ink-900 shadow-[0_6px_20px_rgba(31,31,30,0.14)] animate-in fade-in-0 slide-in-from-bottom-2 duration-200"
+            className="pointer-events-auto flex items-start gap-2 rounded-card border border-ink-100 bg-white p-4 text-body text-ink-900 shadow-[0_6px_20px_rgba(31,31,30,0.14)] animate-in fade-in-0 slide-in-from-bottom-2 duration-200"
           >
             {a.action ? null : (
               <span className="shrink-0 text-brand">
@@ -52,7 +52,11 @@ export function ToastHost() {
             )}
             <div className="flex min-w-0 flex-1 flex-col gap-0.5">
               {title ? <p className="font-bold">{title}</p> : null}
-              <p className={cx(title && "text-sub text-ink-600")}>{a.message}</p>
+              <p
+                className={cx("whitespace-pre-line break-words", title && "text-sub text-ink-600")}
+              >
+                {a.message}
+              </p>
             </div>
             {a.action ? (
               <button
@@ -64,6 +68,16 @@ export function ToastHost() {
                 className="-my-3 inline-flex min-h-11 shrink-0 items-center px-1 text-body font-bold text-brand-ink"
               >
                 {a.action.label}
+              </button>
+            ) : a.autoHideDuration === null ? (
+              // 저절로 사라지지 않는 안내(겹친 예약 등)는 닫기
+              <button
+                type="button"
+                aria-label="안내 닫기"
+                onClick={() => removeAlert(a.id)}
+                className="-my-3 -mr-2 inline-flex size-11 shrink-0 items-center justify-center rounded-full text-ink-600 active:bg-ink-50"
+              >
+                <Icon name="close" size={18} strokeWidth={2} />
               </button>
             ) : null}
           </div>

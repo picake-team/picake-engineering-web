@@ -1,0 +1,164 @@
+/**
+ * 휴대폰 알림 설정 (SC-93, 디자인 A93). 스토어마다: 주문 알림 받기(끌 때 한 번 묻기), 주문 알림 소리, 아침 요약.
+ * "테스트 알림 보내기"로 내 휴대폰에 오는지 확인한다(심사관도 이 버튼으로 확인).
+ * "이 휴대폰 알림" 상태 칸은 앱에서만 보여 앱 연결 PR에서 붙인다.
+ */
+import React, { useState } from "react";
+import { useParams } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import { AppScreen, BackHeader } from "@/apps/web-seller/common/ui/Screen";
+import { Button, ButtonPair } from "@/apps/web-seller/common/ui/Button";
+import { ListRow } from "@/apps/web-seller/common/ui/List";
+import { Switch } from "@/apps/web-seller/common/ui/Toggle";
+import { BottomSheet } from "@/apps/web-seller/common/ui/Sheet";
+import { Icon } from "@/apps/web-seller/common/ui/icons";
+import { cx } from "@/apps/web-seller/common/ui/cx";
+import { useAlertStore } from "@/apps/web-seller/common/store/alert.store";
+import getApiMessage from "@/apps/web-seller/common/utils/getApiMessage";
+import { useStoreDetail } from "@/apps/web-seller/features/store/hooks/queries/useStoreQuery";
+import { useNotificationPreferences } from "@/apps/web-seller/features/notification/hooks/queries/useNotificationQuery";
+import { useUpdateNotificationPreferences } from "@/apps/web-seller/features/notification/hooks/mutations/useNotificationMutation";
+import { sellerPushApi } from "@/apps/web-seller/features/notification/apis/notification.api";
+import { DEFAULT_SELLER_NOTIFICATION_SETTINGS } from "@/apps/web-seller/features/notification/types/notification.dto";
+
+const TIPS = [
+  "휴대폰 설정 > 알림에서 '픽케이크 사장님' 알림이 켜져 있는지",
+  "방해 금지 모드·집중 모드가 켜져 있지 않은지",
+  "배터리 절약 모드가 앱을 멈추게 하지 않는지(안드로이드는 배터리 사용 '제한 없음')",
+  "이 화면 위 '주문 알림 받기'가 켜져 있는지",
+  "앱에서 로그아웃하면 그 휴대폰에는 알림이 가지 않아요",
+];
+
+export const StoreDetailNotificationSettingsMobilePage: React.FC = () => {
+  const { storeId = "" } = useParams<{ storeId: string }>();
+  const { data: store } = useStoreDetail(storeId);
+  const prefsQuery = useNotificationPreferences(storeId);
+  const update = useUpdateNotificationPreferences(storeId);
+  const addAlert = useAlertStore((s) => s.addAlert);
+  const [confirmOff, setConfirmOff] = useState(false);
+  const [tipsOpen, setTipsOpen] = useState(false);
+
+  const prefs = prefsQuery.data ?? DEFAULT_SELLER_NOTIFICATION_SETTINGS;
+  const loaded = Boolean(prefsQuery.data);
+
+  const testPush = useMutation({
+    mutationFn: sellerPushApi.sendTestPush,
+    onSuccess: (count) =>
+      addAlert({
+        severity: count > 0 ? "success" : "warning",
+        message:
+          count > 0
+            ? "알림을 보냈어요. 휴대폰에 왔는지 확인해 주세요."
+            : "알림을 받을 휴대폰이 없어요. 앱에서 로그인해 주세요.",
+      }),
+    onError: (e) => addAlert({ severity: "error", message: getApiMessage.error(e) }),
+  });
+
+  return (
+    <AppScreen header={<BackHeader title="알림 설정" />} bodyClassName="pt-2">
+      <h2 className="text-sub font-bold text-ink-700">{store?.name ?? "스토어"} 알림</h2>
+      <div className="-mt-2">
+        <ListRow
+          title="주문 알림 받기"
+          description="예약 신청, 입금·확정, 픽업, 취소·환불 알림"
+          trailing={
+            <Switch
+              label="주문 알림 받기"
+              disabled={!loaded || update.isPending}
+              checked={prefs.orderNotificationsEnabled}
+              onChange={(next) => {
+                if (!next) setConfirmOff(true);
+                else update.mutate({ orderNotificationsEnabled: true });
+              }}
+            />
+          }
+        />
+        <ListRow
+          title="주문 알림 소리"
+          description="앱을 켜 두었을 때 화면 안 알림 소리"
+          dimmed={!prefs.orderNotificationsEnabled}
+          trailing={
+            <Switch
+              label="주문 알림 소리"
+              disabled={!loaded || update.isPending || !prefs.orderNotificationsEnabled}
+              checked={prefs.orderNotificationSoundEnabled}
+              onChange={(next) => update.mutate({ orderNotificationSoundEnabled: next })}
+            />
+          }
+        />
+        {typeof prefs.morningSummaryEnabled === "boolean" ? (
+          <ListRow
+            title="아침 요약 알림"
+            description="매일 아침 8시, 오늘 픽업이 있을 때만"
+            trailing={
+              <Switch
+                label="아침 요약 알림"
+                disabled={!loaded || update.isPending}
+                checked={prefs.morningSummaryEnabled}
+                onChange={(next) => update.mutate({ morningSummaryEnabled: next })}
+              />
+            }
+          />
+        ) : null}
+      </div>
+
+      <Button
+        variant="secondary"
+        block
+        loading={testPush.isPending}
+        loadingLabel="보내는 중"
+        onClick={() => testPush.mutate()}
+      >
+        테스트 알림 보내기
+      </Button>
+
+      <button
+        type="button"
+        aria-expanded={tipsOpen}
+        onClick={() => setTipsOpen((v) => !v)}
+        className="flex min-h-14 items-center gap-3 border-b border-ink-100 text-left"
+      >
+        <span className="flex min-w-0 flex-1 flex-col gap-1">
+          <span className="text-body font-semibold text-ink-900">알림이 안 와요</span>
+          <span className="text-caption text-ink-600">
+            휴대폰 설정, 방해 금지 모드, 배터리 절약
+          </span>
+        </span>
+        <span
+          className={cx("shrink-0 text-ink-400 transition-transform", tipsOpen && "rotate-180")}
+        >
+          <Icon name="chevronDown" size={18} strokeWidth={2} />
+        </span>
+      </button>
+      {tipsOpen ? (
+        <ul className="list-disc pl-5 text-sub leading-normal text-ink-700">
+          {TIPS.map((t) => (
+            <li key={t}>{t}</li>
+          ))}
+        </ul>
+      ) : null}
+
+      <BottomSheet
+        open={confirmOff}
+        onClose={() => setConfirmOff(false)}
+        title="끄면 새 예약을 알 수 없어요. 끌까요?"
+        description="새 주문 알림이 알림 목록에도 저장되지 않고 화면 안 알림·휴대폰 알림도 가지 않아요."
+        footer={
+          <ButtonPair>
+            <Button variant="secondary" onClick={() => setConfirmOff(false)}>
+              돌아가기
+            </Button>
+            <Button
+              onClick={() => {
+                update.mutate({ orderNotificationsEnabled: false });
+                setConfirmOff(false);
+              }}
+            >
+              끄기
+            </Button>
+          </ButtonPair>
+        }
+      />
+    </AppScreen>
+  );
+};

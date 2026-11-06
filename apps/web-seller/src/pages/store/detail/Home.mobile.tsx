@@ -228,7 +228,7 @@ export const StoreDetailHomeMobilePage: React.FC = () => {
 
         <GrayBand />
         <Link
-          to={ROUTES.STORE_DETAIL_STATISTICS_ORDERS(storeId)}
+          to={`${ROUTES.STORE_DETAIL_STATISTICS_ORDERS(storeId)}?range=week`}
           className="-mt-3 flex min-h-16 items-center gap-3 active:bg-ink-50"
         >
           <span className="flex min-w-0 flex-1 flex-col gap-1">

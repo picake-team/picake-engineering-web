@@ -40,7 +40,7 @@ const PrivacyPolicyPage = lazyPage(
 
 const RootPage = lazyPage(() => import("@/apps/web-seller/pages/Root"), "RootPage");
 const MypageIndexPage = lazyPage(
-  () => import("@/apps/web-seller/pages/mypage/Index"),
+  () => import("@/apps/web-seller/pages/mypage/Index.desktop"),
   "MypageIndexPage",
 );
 const StoreCreatePage = lazyPage(
@@ -68,7 +68,7 @@ const StoreDetailEditPage = lazyPage(
   "StoreDetailEditPage",
 );
 const StoreDetailCalendarPage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/Calendar"),
+  () => import("@/apps/web-seller/pages/store/detail/Calendar.desktop"),
   "StoreDetailCalendarPage",
 );
 const StoreDetailFeedListPage = lazyPage(
@@ -108,6 +108,46 @@ const StoreDetailMenuMobilePage = lazyPage(
   () => import("@/apps/web-seller/pages/store/detail/Menu.mobile"),
   "StoreDetailMenuMobilePage",
 );
+const StoreDetailCalendarMobilePage = lazyPage(
+  () => import("@/apps/web-seller/pages/store/detail/Calendar.mobile"),
+  "StoreDetailCalendarMobilePage",
+);
+const StoreDetailCalendarDayMobilePage = lazyPage(
+  () => import("@/apps/web-seller/pages/store/detail/CalendarDay.mobile"),
+  "StoreDetailCalendarDayMobilePage",
+);
+const StoreDetailHoursMobilePage = lazyPage(
+  () => import("@/apps/web-seller/pages/store/detail/Hours.mobile"),
+  "StoreDetailHoursMobilePage",
+);
+const StoreDetailCalendarSubPage = lazyPage(
+  () => import("@/apps/web-seller/pages/store/detail/CalendarSub.desktop"),
+  "StoreDetailCalendarSubPage",
+);
+const StoreDetailStatisticsMobilePage = lazyPage(
+  () => import("@/apps/web-seller/pages/store/detail/statistics/Index.mobile"),
+  "StoreDetailStatisticsMobilePage",
+);
+const StoreDetailNotificationSettingsMobilePage = lazyPage(
+  () => import("@/apps/web-seller/pages/store/detail/notifications/Settings.mobile"),
+  "StoreDetailNotificationSettingsMobilePage",
+);
+const MypageIndexMobilePage = lazyPage(
+  () => import("@/apps/web-seller/pages/mypage/Index.mobile"),
+  "MypageIndexMobilePage",
+);
+const MypagePhoneMobilePage = lazyPage(
+  () => import("@/apps/web-seller/pages/mypage/Phone.mobile"),
+  "MypagePhoneMobilePage",
+);
+const MypageWithdrawMobilePage = lazyPage(
+  () => import("@/apps/web-seller/pages/mypage/Withdraw.mobile"),
+  "MypageWithdrawMobilePage",
+);
+const MypageSubPage = lazyPage(
+  () => import("@/apps/web-seller/pages/mypage/Sub.desktop"),
+  "MypageSubPage",
+);
 const StoreDetailOrderListPage = lazyPage(
   () => import("@/apps/web-seller/pages/store/detail/orders/List.desktop"),
   "StoreDetailOrderListPage",
@@ -121,11 +161,11 @@ const StoreDetailNotificationsListPage = lazyPage(
   "StoreDetailNotificationsListPage",
 );
 const StoreDetailNotificationsSettingsPage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/notifications/Settings"),
+  () => import("@/apps/web-seller/pages/store/detail/notifications/Settings.desktop"),
   "StoreDetailNotificationsSettingsPage",
 );
 const StoreDetailStatisticsPage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/statistics/Index"),
+  () => import("@/apps/web-seller/pages/store/detail/statistics/Index.desktop"),
   "StoreDetailStatisticsPage",
 );
 
@@ -142,7 +182,9 @@ export const AUTH_ROUTE_CONFIG: AppRouteConfig[] = [
 // 로그인한 뒤의 경로 (PC: AdminLayout 안, 휴대폰: MobileLayout 안)
 export const ADMIN_ROUTE_CONFIG: AppRouteConfig[] = [
   { path: ROUTES.ROOT, element: RootPage },
-  { path: ROUTES.MYPAGE, element: MypageIndexPage },
+  { path: ROUTES.MYPAGE, element: MypageIndexPage, mobile: MypageIndexMobilePage },
+  { path: ROUTES.MYPAGE_PHONE, element: MypageSubPage, mobile: MypagePhoneMobilePage },
+  { path: ROUTES.MYPAGE_WITHDRAW, element: MypageSubPage, mobile: MypageWithdrawMobilePage },
   // 스토어 관련 경로
   { path: ROUTES.STORE_CREATE, element: StoreCreatePage },
   {
@@ -176,6 +218,7 @@ export const ADMIN_ROUTE_CONFIG: AppRouteConfig[] = [
   {
     path: ROUTES.STORE_DETAIL_STATISTICS_ORDERS(":storeId"),
     element: StoreDetailStatisticsPage,
+    mobile: StoreDetailStatisticsMobilePage,
   },
   {
     path: ROUTES.STORE_DETAIL_NOTIFICATIONS_LIST(":storeId"),
@@ -185,9 +228,24 @@ export const ADMIN_ROUTE_CONFIG: AppRouteConfig[] = [
   {
     path: ROUTES.STORE_DETAIL_NOTIFICATIONS_SETTINGS(":storeId"),
     element: StoreDetailNotificationsSettingsPage,
+    mobile: StoreDetailNotificationSettingsMobilePage,
   },
   { path: ROUTES.STORE_DETAIL_EDIT(":storeId"), element: StoreDetailEditPage },
-  { path: ROUTES.STORE_DETAIL_CALENDAR(":storeId"), element: StoreDetailCalendarPage },
+  {
+    path: ROUTES.STORE_DETAIL_CALENDAR(":storeId"),
+    element: StoreDetailCalendarPage,
+    mobile: StoreDetailCalendarMobilePage,
+  },
+  {
+    path: ROUTES.STORE_DETAIL_CALENDAR_DAY(":storeId", ":dateKey"),
+    element: StoreDetailCalendarSubPage,
+    mobile: StoreDetailCalendarDayMobilePage,
+  },
+  {
+    path: ROUTES.STORE_DETAIL_HOURS(":storeId"),
+    element: StoreDetailCalendarSubPage,
+    mobile: StoreDetailHoursMobilePage,
+  },
   {
     path: ROUTES.STORE_DETAIL_MENU(":storeId"),
     element: StoreDetailMenuPage,
