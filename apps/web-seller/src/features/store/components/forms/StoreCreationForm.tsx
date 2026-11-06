@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { ChevronRight } from "lucide-react";
 import type { StoreForm } from "@/apps/web-seller/features/store/types/store.ui";
 import {
   validateStoreName,
@@ -18,6 +19,13 @@ import { StoreNaverPlaceCard } from "@/apps/web-seller/features/store/components
 import { SelectBox } from "@/apps/web-seller/common/components/selects/SelectBox";
 import { ImageMultiUpload } from "@/apps/web-seller/features/upload/components/ImageMultiUpload";
 import { BaseButton as Button } from "@/apps/web-seller/common/components/buttons/BaseButton";
+import {
+  FRAME_REASON_CLASS,
+  FRAME_SUBMIT_BAR_CLASS,
+  FRAME_SUBMIT_BUTTON_CLASS,
+  useInMobileFrame,
+} from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
+
 import { BaseInput as Input } from "@/apps/web-seller/common/components/inputs/BaseInput";
 import { AddressInput } from "@/apps/web-seller/common/components/inputs/AddressInput";
 import { FormSection } from "@/apps/web-seller/common/components/sections/FormSection";
@@ -131,6 +139,7 @@ export const StoreCreationForm: React.FC<Props> = ({
   naverPlace,
   submitting = false,
 }) => {
+  const inFrame = useInMobileFrame();
   const [form, setForm] = useState<StoreForm>(initialValue || defaultForm);
   const [errors, setErrors] = useState<Errors>({});
   const [submitted, setSubmitted] = useState(false);
@@ -373,25 +382,55 @@ export const StoreCreationForm: React.FC<Props> = ({
       </FormSection>
 
       {/* 저장 버튼은 항상 화면 아래에 */}
-      <div className="sticky bottom-0 z-10 flex items-center gap-3 border-t bg-background/95 px-1 py-3 backdrop-blur">
-        {onPrevious && (
-          <Button type="button" variant="outline" onClick={onPrevious}>
-            이전
+      {inFrame ? (
+        <div className={FRAME_SUBMIT_BAR_CLASS}>
+          {errorKeys.length > 0 && (
+            <button
+              type="button"
+              className={FRAME_REASON_CLASS}
+              onClick={() => goToFirstError(errorKeys)}
+            >
+              고칠 곳 {errorKeys.length}개 보기
+              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+            </button>
+          )}
+          <div className="flex gap-2">
+            {onPrevious && (
+              <Button
+                type="button"
+                variant="outline"
+                className={FRAME_SUBMIT_BUTTON_CLASS}
+                onClick={onPrevious}
+              >
+                이전
+              </Button>
+            )}
+            <Button type="submit" className={FRAME_SUBMIT_BUTTON_CLASS} disabled={submitting}>
+              {submitButtonText || (initialValue ? "수정하기" : "등록하기")}
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="sticky bottom-0 z-10 flex items-center gap-3 border-t bg-background/95 px-1 py-3 backdrop-blur">
+          {onPrevious && (
+            <Button type="button" variant="outline" onClick={onPrevious}>
+              이전
+            </Button>
+          )}
+          {errorKeys.length > 0 && (
+            <button
+              type="button"
+              className="text-sm text-destructive underline-offset-4 hover:underline"
+              onClick={() => goToFirstError(errorKeys)}
+            >
+              고칠 곳 {errorKeys.length}개 보기
+            </button>
+          )}
+          <Button type="submit" className="ml-auto" disabled={submitting}>
+            {submitButtonText || (initialValue ? "수정하기" : "등록하기")}
           </Button>
-        )}
-        {errorKeys.length > 0 && (
-          <button
-            type="button"
-            className="text-sm text-destructive underline-offset-4 hover:underline"
-            onClick={() => goToFirstError(errorKeys)}
-          >
-            고칠 곳 {errorKeys.length}개 보기
-          </button>
-        )}
-        <Button type="submit" className="ml-auto" disabled={submitting}>
-          {submitButtonText || (initialValue ? "수정하기" : "등록하기")}
-        </Button>
-      </div>
+        </div>
+      )}
     </form>
   );
 };

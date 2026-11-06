@@ -1,16 +1,15 @@
 /**
- * 휴대폰 스토어 탭 (SC-88, 디자인 7-D): 스토어 카드(좋아요·평점·리뷰, 링크 보내기) + 내 스토어 + 설정.
- * 가끔 쓰는 기능을 이 탭에 모은다. 로그아웃과 앱 버전은 마이페이지 안.
+ * 휴대폰 스토어 탭 (SC-88, 디자인 7-D): 스토어 카드(좋아요·평점·리뷰, 링크 보내기) + 내 스토어.
+ * 스토어와 관계없는 설정(알림 설정·마이페이지·문의하기)은 위쪽 오른쪽 톱니(설정, SC-98)로 옮겼다(운영자 결정 2026-11-06).
+ * 로그아웃과 앱 버전은 마이페이지 안.
  */
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { AppScreen, TabHeader } from "@/apps/web-seller/common/ui/Screen";
-import { CircleIconButton } from "@/apps/web-seller/common/ui/Button";
+import { CircleIconButton, HeaderIconButton } from "@/apps/web-seller/common/ui/Button";
 import { ListRowButton, ListRowLink } from "@/apps/web-seller/common/ui/List";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
-import { CUSTOMER_SUPPORT_URL } from "@/apps/web-seller/common/constants/customer-web.constant";
-import { externalHref } from "@/apps/web-seller/common/utils/webview.bridge";
 import { useStoreDetail } from "@/apps/web-seller/features/store/hooks/queries/useStoreQuery";
 import { useMyStores } from "@/apps/web-seller/features/store/hooks/queries/useMyStores";
 import { StoreSwitchSheet } from "@/apps/web-seller/features/store/components/mobile/StoreSwitchSheet";
@@ -87,6 +86,7 @@ function GroupLabel({ children }: { children: React.ReactNode }) {
 }
 
 export const StoreDetailMenuMobilePage: React.FC = () => {
+  const navigate = useNavigate();
   const { storeId = "" } = useParams<{ storeId: string }>();
   const { data: store } = useStoreDetail(storeId);
   const { stores } = useMyStores();
@@ -94,7 +94,22 @@ export const StoreDetailMenuMobilePage: React.FC = () => {
   const [shareOpen, setShareOpen] = useState(false);
 
   return (
-    <AppScreen tab="store" storeId={storeId} header={<TabHeader title="스토어" />}>
+    <AppScreen
+      tab="store"
+      storeId={storeId}
+      header={
+        <TabHeader
+          title="스토어"
+          actions={
+            <HeaderIconButton
+              icon="settings"
+              label="설정"
+              onClick={() => navigate(ROUTES.STORE_DETAIL_SETTINGS(storeId))}
+            />
+          }
+        />
+      }
+    >
       {store ? (
         <StoreCard
           store={store}
@@ -132,41 +147,12 @@ export const StoreDetailMenuMobilePage: React.FC = () => {
           description="매출·주문 수·잘 팔리는 상품"
           divider={false}
         />
-      </div>
-
-      <GroupLabel>설정</GroupLabel>
-      <div className="-mt-2">
-        <ListRowLink
-          to={ROUTES.STORE_DETAIL_NOTIFICATIONS_SETTINGS(storeId)}
-          title="알림 설정"
-          divider={false}
-        />
         <ListRowButton
           onClick={() => setSwitchOpen(true)}
           title="스토어 바꾸기·새로 만들기"
           chevron
           divider={false}
         />
-        <ListRowLink
-          to={ROUTES.MYPAGE}
-          title="마이페이지"
-          description="프로필·휴대폰 번호·약관·로그아웃"
-          divider={false}
-        />
-        <a
-          href={externalHref(CUSTOMER_SUPPORT_URL)}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex min-h-13 w-full items-center gap-3 py-2 active:bg-ink-50"
-        >
-          <span className="flex min-w-0 flex-1 flex-col gap-1">
-            <span className="text-body font-semibold text-ink-900">문의하기</span>
-            <span className="text-caption text-ink-600">손님 앱 고객센터로 열려요</span>
-          </span>
-          <span className="shrink-0 text-ink-400">
-            <Icon name="external" size={18} strokeWidth={1.9} />
-          </span>
-        </a>
       </div>
 
       <StoreSwitchSheet

@@ -1,12 +1,13 @@
 /**
  * 손님에게 링크 보내기 창 (SC-89, 디자인 A89). 손님 화면의 스토어·상품 주소를 복사하거나 휴대폰 공유 창으로 보낸다.
- * 앱 안 화면에서 공유 창은 앱 껍데기가 맡는다(앱 연결 PR). 지금은 휴대폰 브라우저 공유 창, 없으면 복사.
+ * 공유 창은 앱이면 앱 껍데기(shareLink), 휴대폰 브라우저면 브라우저 공유 창, 둘 다 없으면 복사.
+ * 손님 화면을 "열어 보기"하는 링크는 두지 않는다(운영자 결정 2026-11-06).
  */
 import { BottomSheet } from "@/apps/web-seller/common/ui/Sheet";
 import { Button, ButtonPair, CircleIconButton } from "@/apps/web-seller/common/ui/Button";
 import { Thumb } from "@/apps/web-seller/common/ui/Surface";
 import { copyWithToast } from "@/apps/web-seller/common/utils/clipboard.util";
-import { externalHref, shareViaDevice } from "@/apps/web-seller/common/utils/webview.bridge";
+import { shareViaDevice } from "@/apps/web-seller/common/utils/webview.bridge";
 import {
   customerProductUrl,
   customerStoreUrl,
@@ -65,14 +66,6 @@ export function ShareLinkSheet({
             공유하기
           </Button>
         </ButtonPair>
-        <a
-          href={externalHref(storeUrl)}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex min-h-11 items-center self-start px-0 text-sub font-bold text-brand-ink"
-        >
-          열어 보기
-        </a>
       </div>
       {list.length > 0 ? (
         <>

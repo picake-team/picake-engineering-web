@@ -31,13 +31,12 @@ export const ROUTES = {
   STORE_DETAIL_CALENDAR: (storeId: string) => `/stores/${storeId}/calendar`,
   /** 휴대폰 앱 처음 사용 안내(SC-69, 앱에서만). PC 폭·휴대폰 브라우저에서는 스토어 홈으로 */
   STORE_DETAIL_WELCOME: (storeId: string) => `/stores/${storeId}/welcome`,
-  /** 휴대폰 화면 날짜 상세(그날 영업 바꾸기, SC-80). PC 폭에서는 캘린더로 */
-  STORE_DETAIL_CALENDAR_DAY: (storeId: string, dateKey: string) =>
-    `/stores/${storeId}/calendar/${dateKey}`,
   /** 휴대폰 화면 영업시간(쉬는 요일·영업시간, SC-81). PC 폭에서는 캘린더("기본 운영 관리")로 */
   STORE_DETAIL_HOURS: (storeId: string) => `/stores/${storeId}/hours`,
   /** 휴대폰 화면 "스토어" 탭(내 스토어·설정 메뉴). PC 화면에는 없어 PC 폭에서는 스토어 홈으로 */
   STORE_DETAIL_MENU: (storeId: string) => `/stores/${storeId}/menu`,
+  /** 휴대폰 화면 설정(SC-98, 스토어 탭 위쪽 톱니): 알림 설정·마이페이지·문의하기. PC 폭에서는 스토어 홈으로 */
+  STORE_DETAIL_SETTINGS: (storeId: string) => `/stores/${storeId}/settings`,
   AUTH: {
     LOGIN: "/auth/login",
     FIND_ACCOUNT: "/auth/login/find-account",

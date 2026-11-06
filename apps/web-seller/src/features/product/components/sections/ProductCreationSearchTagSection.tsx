@@ -110,7 +110,6 @@ export const ProductCreationSearchTagSection: React.FC<ProductCreationSearchTagS
             type="button"
             onClick={() => handleAddTag()}
             disabled={disabled || !inputValue.trim()}
-            className="bg-green-500 hover:bg-green-600 text-white"
           >
             확인
           </Button>

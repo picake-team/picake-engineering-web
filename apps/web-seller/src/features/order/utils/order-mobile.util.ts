@@ -171,20 +171,6 @@ export function orderStepState(order: Pick<OrderResponseDto, "orderStatus" | "pa
   }
 }
 
-/** 주문 상세 맨 위 할 일 한 줄(SC-76 ①, 제안) */
-export const ORDER_TASK_LINE: Record<OrderStatus, string> = {
-  [OrderStatus.RESERVATION_REQUESTED]: "케이크를 만들 수 있으면 예약 확인을 눌러 주세요",
-  [OrderStatus.PAYMENT_PENDING]: "손님 입금을 기다려요",
-  [OrderStatus.PAYMENT_COMPLETED]: "통장을 보고 예약 확정을 눌러 주세요",
-  [OrderStatus.CONFIRMED]: "픽업 날 손님이 오면 픽업 완료를 눌러 주세요",
-  [OrderStatus.PICKUP_PENDING]: "손님이 가져갔으면 픽업 완료를 눌러 주세요",
-  [OrderStatus.CANCEL_REFUND_PENDING]: "환불 계좌로 송금하고 취소환불 완료를 눌러 주세요",
-  [OrderStatus.PICKUP_COMPLETED]: "픽업을 마친 주문이에요",
-  [OrderStatus.NO_SHOW]: "손님이 오지 않은 주문이에요",
-  [OrderStatus.CANCEL_COMPLETED]: "취소된 주문이에요",
-  [OrderStatus.CANCEL_REFUND_COMPLETED]: "환불까지 마친 주문이에요",
-};
-
 /** 처리 버튼(바꿀 상태) 이름 — 지금 PC 버튼 이름 그대로 */
 export const ORDER_ACTION_LABEL: Partial<Record<OrderStatus, string>> = {
   [OrderStatus.PAYMENT_PENDING]: "예약 확인",

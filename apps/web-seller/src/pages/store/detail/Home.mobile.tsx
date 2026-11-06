@@ -245,16 +245,15 @@ export const StoreDetailHomeMobilePage: React.FC = () => {
         </div>
 
         <GrayBand />
+        <GroupTitle>이번 주 매출</GroupTitle>
         <Link
           to={`${ROUTES.STORE_DETAIL_STATISTICS_ORDERS(storeId)}?range=week`}
-          className="-mt-3 flex min-h-14 items-center gap-3 active:bg-ink-50"
+          aria-label={`이번 주 매출 ${sales.data ? formatWon(sales.data.totalSales) : ""}, 주문 통계 보기`}
+          className="-mt-3 flex min-h-13 items-center gap-3 active:bg-ink-50"
         >
-          <span className="flex min-w-0 flex-1 flex-col gap-1">
-            <span className="text-body font-semibold text-ink-900">이번 주 매출</span>
-            <span className="text-sub text-ink-600">
-              픽업 완료 {sales.data ? sales.data.totalOrders.toLocaleString("ko-KR") : "–"}건 ·
-              월요일부터 오늘까지
-            </span>
+          <span className="min-w-0 flex-1 text-sub text-ink-600">
+            픽업 완료 {sales.data ? sales.data.totalOrders.toLocaleString("ko-KR") : "–"}건 ·
+            월요일부터 오늘까지
           </span>
           <span className="shrink-0 text-heading font-bold tabular-nums text-ink-900">
             {sales.data ? formatWon(sales.data.totalSales) : "–"}
