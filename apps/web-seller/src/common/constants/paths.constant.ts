@@ -1,8 +1,20 @@
 export { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
 
+import type { ComponentType } from "react";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
 import { lazyPage } from "@/apps/web-seller/common/utils/lazy-page.util";
 import { LoginPage } from "@/apps/web-seller/pages/auth/Login";
+
+/**
+ * 경로 하나 = 화면 하나. 같은 주소에 PC 화면(`element`)과 휴대폰 화면(`mobile`, 판매자 앱 I-48)을 둔다.
+ * 휴대폰 화면이 아직 없는 주소는 휴대폰 폭에서도 PC 화면을 그린다(`SCREEN_MODE`, `useShowMobileScreens`).
+ * 파일은 `Home.desktop.tsx` / `Home.mobile.tsx`처럼 화면 파일만 나눈다(프로젝트 구조 가이드 "앱 구조 원칙").
+ */
+export interface AppRouteConfig {
+  path: string;
+  element: ComponentType<object>;
+  mobile?: ComponentType<object>;
+}
 
 // 로그인은 첫 진입점 — static import 유지
 const FindAccountPage = lazyPage(
@@ -93,17 +105,17 @@ const StoreDetailStatisticsPage = lazyPage(
 );
 
 // 인증 관련 경로 (AdminLayout 밖)
-export const AUTH_ROUTE_CONFIG = [
+export const AUTH_ROUTE_CONFIG: AppRouteConfig[] = [
   { path: ROUTES.AUTH.LOGIN, element: LoginPage },
   { path: ROUTES.AUTH.FIND_ACCOUNT, element: FindAccountPage },
   { path: ROUTES.AUTH.GOOGLE_REDIRECT_URI, element: GoogleAuthCallbackPage },
   { path: ROUTES.AUTH.KAKAO_REDIRECT_URI, element: KakaoAuthCallbackPage },
   { path: ROUTES.TERMS.TERMS_OF_SERVICE, element: TermsOfServicePage },
   { path: ROUTES.TERMS.PRIVACY_POLICY, element: PrivacyPolicyPage },
-] as const;
+];
 
-// 관리자 관련 경로 (AdminLayout 안)
-export const ADMIN_ROUTE_CONFIG = [
+// 로그인한 뒤의 경로 (PC: AdminLayout 안, 휴대폰: MobileLayout 안)
+export const ADMIN_ROUTE_CONFIG: AppRouteConfig[] = [
   { path: ROUTES.ROOT, element: RootPage },
   { path: ROUTES.MYPAGE, element: MypageIndexPage },
   // 스토어 관련 경로
@@ -141,4 +153,4 @@ export const ADMIN_ROUTE_CONFIG = [
   },
   { path: ROUTES.STORE_DETAIL_EDIT(":storeId"), element: StoreDetailEditPage },
   { path: ROUTES.STORE_DETAIL_CALENDAR(":storeId"), element: StoreDetailCalendarPage },
-] as const;
+];

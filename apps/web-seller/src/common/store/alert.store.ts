@@ -9,6 +9,8 @@ export interface AlertItem {
   severity: "error" | "warning" | "info" | "success";
   variant?: "filled" | "outlined" | "standard";
   autoHideDuration?: number | null; // null이면 자동으로 사라지지 않음
+  /** 안내 오른쪽 글자 버튼(휴대폰 화면 "되돌리기" 등). 누르면 안내를 닫는다 */
+  action?: { label: string; onClick: () => void };
 }
 
 interface AlertStore {
