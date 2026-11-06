@@ -1,5 +1,5 @@
 /**
- * 휴대폰 스토어 탭 (SC-88, 디자인 7-D): 스토어 카드(좋아요·평점·리뷰, 링크 보내기) + 내 스토어.
+ * 휴대폰 스토어 탭 (SC-88, 디자인 7-D): 스토어 카드(좋아요·평점·리뷰, 링크 보내기) + 회색 띠 + 내 스토어(홈과 같은 묶음 제목).
  * 스토어와 관계없는 설정(알림 설정·마이페이지·문의하기)은 위쪽 오른쪽 톱니(설정, SC-98)로 옮겼다(운영자 결정 2026-11-06).
  * 로그아웃과 앱 버전은 마이페이지 안.
  */
@@ -7,7 +7,7 @@ import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AppScreen, TabHeader } from "@/apps/web-seller/common/ui/Screen";
 import { CircleIconButton, HeaderIconButton } from "@/apps/web-seller/common/ui/Button";
-import { ListRowButton, ListRowLink } from "@/apps/web-seller/common/ui/List";
+import { GrayBand, GroupTitle, ListRowButton, ListRowLink } from "@/apps/web-seller/common/ui/List";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
 import { useStoreDetail } from "@/apps/web-seller/features/store/hooks/queries/useStoreQuery";
@@ -81,10 +81,6 @@ function StoreCard({
   );
 }
 
-function GroupLabel({ children }: { children: React.ReactNode }) {
-  return <h2 className="mt-1 text-sub font-bold text-ink-700">{children}</h2>;
-}
-
 export const StoreDetailMenuMobilePage: React.FC = () => {
   const navigate = useNavigate();
   const { storeId = "" } = useParams<{ storeId: string }>();
@@ -121,8 +117,10 @@ export const StoreDetailMenuMobilePage: React.FC = () => {
         <span className="block h-[150px] animate-pulse rounded-card bg-ink-50" aria-busy="true" />
       )}
 
-      <GroupLabel>내 스토어</GroupLabel>
-      <div className="-mt-2">
+      {/* 스토어 카드와 내 스토어 사이는 홈처럼 회색 띠 + 묶음 제목으로 나눈다(운영자 의견 2026-11-07) */}
+      <GrayBand />
+      <GroupTitle>내 스토어</GroupTitle>
+      <div className="-mt-3">
         <ListRowLink
           to={ROUTES.STORE_DETAIL_EDIT(storeId)}
           title="스토어 정보"
