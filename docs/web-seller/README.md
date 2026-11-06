@@ -42,6 +42,7 @@ Picake 플랫폼을 위한 React + Vite 기반 판매자 관리 시스템입니�
   - 앱 연결(`common/utils/webview.bridge.ts`, `SellerAppBridgeProvider`): 로그인하면 이 휴대폰을 알림 받을 곳으로 등록, 로그아웃하면 해제, 알림 허용 상태·허용 창·휴대폰 설정, 처음 사용 안내(`/welcome`, 앱에서만), 홈 "휴대폰 알림이 꺼져 있어요", 알림 설정 "이 휴대폰 알림", 공유 창·사진 저장·바깥 링크(`apps://`)·앱 버전. 앱이 채널을 넣지 않으면 휴대폰 브라우저처럼 동작. 약속은 [판매자 앱 - 앱담당자 요청서](../common/feature/판매자%20앱%20-%20앱담당자%20요청서.md)
   - 로그인이 풀린 채 연 주소(알림으로 연 주문 등)는 기억했다가 로그인 뒤 그곳으로(`return-to.util.ts`). 주문 상태를 바꾸면 PostHog `success_order_status_change`(앱·휴대폰 브라우저·PC 구분)
   - 실시간 알림(소켓)이 오면 주문 목록·홈 숫자도 새로 불러오고, 이 화면에서 방금 바꾼 주문의 알림 띠는 겹쳐 띄우지 않음(`recent-order-change.util.ts`)
+  - 주소 검색(스토어 정보·만들기): 앱(웹뷰)은 새 창을 열지 못해 휴대폰 틀 안에서는 아래에서 올라오는 창 안에 카카오 우편번호 검색을 그린다(`AddressSearchSheet`, `embedAddressSearch`, SC-67). PC는 지금처럼 새 창
 
 ## 🔗 주요 페이지
 
