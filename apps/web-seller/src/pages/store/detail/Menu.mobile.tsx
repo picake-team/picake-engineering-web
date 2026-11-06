@@ -114,7 +114,7 @@ export const StoreDetailMenuMobilePage: React.FC = () => {
           divider={false}
         />
         <ListRowLink
-          to={ROUTES.STORE_DETAIL_CALENDAR(storeId)}
+          to={ROUTES.STORE_DETAIL_HOURS(storeId)}
           title="영업시간"
           description={businessHoursSummary(store)}
           divider={false}

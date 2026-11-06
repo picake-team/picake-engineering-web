@@ -28,6 +28,11 @@ export interface SellerNotificationSettings {
   orderNotificationsEnabled: boolean;
   /** 주문 알림 도착 시 알림음 */
   orderNotificationSoundEnabled: boolean;
+  /**
+   * 아침 요약 휴대폰 알림(판매자 앱 I-48, backend #32). 서버가 아직 주지 않으면 undefined라
+   * 휴대폰 화면 알림 설정에서 그 줄을 숨긴다.
+   */
+  morningSummaryEnabled?: boolean;
 }
 
 export const DEFAULT_SELLER_NOTIFICATION_SETTINGS: SellerNotificationSettings = {

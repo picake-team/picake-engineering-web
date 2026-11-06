@@ -145,6 +145,7 @@ export function ChoiceGrid<T extends string>({
   onToggle,
   label,
   columns,
+  large = false,
   className,
 }: {
   options: ChoiceOption<T>[];
@@ -154,13 +155,15 @@ export function ChoiceGrid<T extends string>({
   label: string;
   /** 한 줄에 놓을 개수(기본 = 선택지 수) */
   columns?: number;
+  /** 요일처럼 한 글자는 16/700(디자인 4-D) */
+  large?: boolean;
   className?: string;
 }) {
   return (
     <div
       role="group"
       aria-label={label}
-      className={cx("grid gap-1.5", className)}
+      className={cx("grid", large ? "gap-2" : "gap-1.5", className)}
       style={{ gridTemplateColumns: `repeat(${columns ?? options.length}, minmax(0, 1fr))` }}
     >
       {options.map((o) => {
@@ -173,7 +176,8 @@ export function ChoiceGrid<T extends string>({
             disabled={o.disabled}
             onClick={() => onToggle(o.value)}
             className={cx(
-              "h-11 min-w-0 truncate rounded-control px-1 font-app text-sub font-bold disabled:opacity-40",
+              "h-11 min-w-0 truncate rounded-control px-1 font-app font-bold disabled:opacity-40",
+              large ? "text-body" : "text-sub",
               on ? "bg-brand text-white" : "border border-ink-200 bg-white text-ink-900",
             )}
           >
