@@ -1,6 +1,7 @@
 /**
  * 휴대폰 주문 상세 (SC-76, 디자인 3-B·3-G·A76c·A76d·A76s, 처리 창 SC-77).
- * 상태와 단계 → 할 일 한 줄 → (입금 마감) → (취소환불대기면 취소·환불) → 픽업 → 예약자 → 주문 항목 → 주문 정보 → 취소·사유.
+ * 단계 막대 → (입금 마감) → (취소환불대기면 취소·환불) → 픽업 → 예약자 → 주문 항목 → 주문 정보 → 취소·사유.
+ * 맨 위 할 일 안내 문장과 참고 사진 안내 문장은 두지 않는다(운영자 결정 2026-11-06).
  * 휴대폰 알림을 누르면 여기로 온다. 다른 스토어의 주문이면 그 스토어 주소로 바꿔 연다.
  */
 import React, { useEffect, useState } from "react";
@@ -37,7 +38,6 @@ import {
 import {
   ORDER_ACTION_LABEL,
   ORDER_STEP_LABELS,
-  ORDER_TASK_LINE,
   detailActionsFor,
   formatWon,
   orderStepState,
@@ -192,9 +192,6 @@ function OrderItemBlock({
               </button>
             ))}
           </div>
-          <span className="text-caption text-ink-600">
-            누르면 크게 보고 사진첩에 저장할 수 있어요
-          </span>
         </div>
       ) : null}
       {item.requestMessage?.trim() ? (
@@ -378,7 +375,6 @@ export const StoreDetailOrderDetailMobilePage: React.FC = () => {
         current={step.current}
         filledThrough={step.filledThrough}
       />
-      <p className="text-heading font-bold text-ink-900">{ORDER_TASK_LINE[status]}</p>
       {status === OrderStatus.PAYMENT_PENDING ? <PaymentDeadline order={order} /> : null}
 
       {refundFirst ? <CancelSection order={order} /> : null}

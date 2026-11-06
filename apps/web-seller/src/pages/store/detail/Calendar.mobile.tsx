@@ -1,16 +1,16 @@
 /**
  * 휴대폰 캘린더 탭 (SC-79, 디자인 4-A · 4-B): 달력 하나(안쪽 탭 없음).
  * 날짜 아래 점 = 그날 픽업 수(3개까지, 취소 빼고), "휴무", 그날만 바꾼 날 "바꿈".
- * 날짜를 누르면 아래가 그날 픽업으로, "이 날 영업 · 바꾸기"는 날짜 상세(SC-80)로.
+ * 날짜를 누르면 아래가 그날 픽업으로 바뀐다. 그날만 영업을 바꾸는 것은 휴대폰에서 하지 않는다(운영자 결정
+ * 2026-11-06, PC 캘린더에서). 쉬는 요일·영업시간은 스토어 탭 "영업시간".
  */
 import React, { useMemo, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { AppScreen, TabHeader } from "@/apps/web-seller/common/ui/Screen";
 import { Button } from "@/apps/web-seller/common/ui/Button";
 import { LoadErrorState } from "@/apps/web-seller/common/ui/Surface";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
 import { cx } from "@/apps/web-seller/common/ui/cx";
-import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
 import {
   addDaysToKey,
   formatKeyMonthDayWeek,
@@ -26,7 +26,6 @@ import { useStoreDetail } from "@/apps/web-seller/features/store/hooks/queries/u
 import {
   calendarOrDefault,
   dayMark,
-  dayRuleSummary,
   effectiveRule,
 } from "@/apps/web-seller/features/store/utils/business-day.util";
 
@@ -233,16 +232,6 @@ export const StoreDetailCalendarMobilePage: React.FC = () => {
                   : "쉬는 날이라 픽업이 없어요"}
             </p>
           )}
-          <Link
-            to={ROUTES.STORE_DETAIL_CALENDAR_DAY(storeId, selectedKey)}
-            className="flex min-h-13 items-center gap-3 border-b border-ink-100 active:bg-ink-50"
-          >
-            <span className="flex min-w-0 flex-1 flex-col gap-1">
-              <span className="text-body font-semibold text-ink-900">이 날 영업</span>
-              <span className="text-caption text-ink-600">{dayRuleSummary(selectedKey, cal)}</span>
-            </span>
-            <span className="shrink-0 text-sub font-bold text-brand-ink">바꾸기</span>
-          </Link>
         </>
       ) : null}
     </AppScreen>

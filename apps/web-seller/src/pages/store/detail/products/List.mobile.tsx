@@ -6,7 +6,7 @@ import React, { useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { AppScreen, TabHeader } from "@/apps/web-seller/common/ui/Screen";
-import { Button, CircleIconButton } from "@/apps/web-seller/common/ui/Button";
+import { Button, FieldIconButton, HeaderIconButton } from "@/apps/web-seller/common/ui/Button";
 import { ChipGroup } from "@/apps/web-seller/common/ui/Choice";
 import { SearchInput } from "@/apps/web-seller/common/ui/Field";
 import { LoadErrorState } from "@/apps/web-seller/common/ui/Surface";
@@ -140,13 +140,11 @@ export const StoreDetailProductListMobilePage: React.FC = () => {
         <TabHeader
           title="상품"
           actions={
-            <Button
-              variant="link"
-              className="mr-3 px-2"
+            <HeaderIconButton
+              icon="plus"
+              label="상품 등록"
               onClick={() => navigate(ROUTES.STORE_DETAIL_PRODUCTS_CREATE(storeId))}
-            >
-              상품 등록
-            </Button>
+            />
           }
         />
       }
@@ -176,10 +174,10 @@ export const StoreDetailProductListMobilePage: React.FC = () => {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
-              <CircleIconButton
+              <FieldIconButton
                 icon="filter"
                 label="정렬과 거르기"
-                className="-m-0.5"
+                active={Boolean(summary)}
                 onClick={() => setFilterOpen(true)}
               />
             </div>

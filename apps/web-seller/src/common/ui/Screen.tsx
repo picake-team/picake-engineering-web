@@ -48,7 +48,7 @@ export function AppTabBar({ storeId, current }: { storeId: string; current: AppT
             <span
               className={cx(
                 "text-tab",
-                active ? "font-bold text-brand-ink" : "font-normal text-ink-600",
+                active ? "font-bold text-brand" : "font-normal text-ink-600",
               )}
             >
               {label}
@@ -247,12 +247,24 @@ export function BottomActionBar({
           <button
             type="button"
             onClick={onReasonClick}
-            className="-my-3 min-h-11 self-start text-left text-caption font-semibold text-brand-ink"
+            className="-my-2 flex min-h-11 items-center gap-1.5 self-start text-left text-caption font-semibold text-ink-900"
           >
+            <span className="shrink-0 text-brand">
+              <Icon name="warning" size={16} strokeWidth={2} />
+            </span>
             {reason}
+            <span className="shrink-0 text-ink-400">
+              <Icon name="chevronRight" size={14} strokeWidth={2} />
+            </span>
           </button>
         ) : (
-          <p role="status" className="text-caption font-semibold text-brand-ink">
+          <p
+            role="status"
+            className="flex items-center gap-1.5 text-caption font-semibold text-ink-900"
+          >
+            <span className="shrink-0 text-brand">
+              <Icon name="warning" size={16} strokeWidth={2} />
+            </span>
             {reason}
           </p>
         )

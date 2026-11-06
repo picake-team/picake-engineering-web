@@ -1,5 +1,10 @@
 import React, { useState } from "react";
 import { PageTitle } from "@/apps/web-seller/common/components/layouts/MobileFrame";
+import {
+  FRAME_SUBMIT_BUTTON_CLASS,
+  useInMobileFrame,
+} from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
+
 import { useParams } from "react-router-dom";
 import { useCreateFeed } from "@/apps/web-seller/features/feed/hooks/mutations/useFeedMutation";
 import type { CreateFeedRequestDto } from "@/apps/web-seller/features/feed/types/feed.dto";
@@ -13,6 +18,7 @@ import { ImageMultiUpload } from "@/apps/web-seller/features/upload/components/I
 const FEED_MAX_IMAGES = 5;
 
 export const StoreDetailFeedCreatePage: React.FC = () => {
+  const inFrame = useInMobileFrame();
   const { storeId } = useParams<{ storeId: string }>();
   const createFeedMutation = useCreateFeed();
 
@@ -116,8 +122,12 @@ export const StoreDetailFeedCreatePage: React.FC = () => {
             </div>
 
             {/* 버튼 */}
-            <div className="flex justify-center gap-4 pt-6">
-              <Button type="submit" disabled={createFeedMutation.isPending}>
+            <div className={inFrame ? "flex gap-2 pt-6" : "flex justify-center gap-4 pt-6"}>
+              <Button
+                type="submit"
+                disabled={createFeedMutation.isPending}
+                className={inFrame ? FRAME_SUBMIT_BUTTON_CLASS : undefined}
+              >
                 {createFeedMutation.isPending ? "등록 중..." : "등록하기"}
               </Button>
             </div>

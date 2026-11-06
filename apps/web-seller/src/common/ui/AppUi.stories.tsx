@@ -5,7 +5,7 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { MemoryRouter } from "react-router-dom";
-import { Button, ButtonPair, CircleIconButton, HeaderIconButton } from "./Button";
+import { Button, ButtonPair, CircleIconButton, FieldIconButton, HeaderIconButton } from "./Button";
 import { CountBubble, StatusPill } from "./Badge";
 import { ChipGroup, ChoiceGrid, SegmentedTabs } from "./Choice";
 import { Checkbox, Radio, Switch } from "./Toggle";
@@ -81,23 +81,27 @@ export const 버튼: Story = {
           예약 확정
         </Button>
       </Section>
-      <Section title="작은 버튼 44 · 글자 버튼">
+      <Section title="작은 버튼 40 · 회색 글자 버튼(갈색 글자 버튼은 쓰지 않음)">
         <div className="flex flex-wrap items-center gap-3">
           <Button variant="secondary" size="md">
             다시 시도
           </Button>
           <Button size="md">켜기</Button>
-          <Button variant="link">네이버 영업시간으로 채우기</Button>
+          <Button variant="secondary" size="md">
+            네이버 영업시간으로 채우기
+          </Button>
           <Button variant="quiet">나중에 할게요</Button>
         </div>
       </Section>
-      <Section title="동그라미 아이콘 40(누르는 칸 44) · 숫자">
+      <Section title="동그라미 아이콘 36(누르는 칸 44) · 위쪽 줄 아이콘 · 숫자">
         <div className="flex items-center gap-1">
           <CircleIconButton icon="phone" label="전화" />
           <CircleIconButton icon="message" label="문자" />
           <CircleIconButton icon="copy" label="복사" />
           <CircleIconButton icon="share" label="링크 보내기" />
           <HeaderIconButton icon="bell" label="알림" count={3} />
+          <HeaderIconButton icon="plus" label="상품 등록" />
+          <HeaderIconButton icon="settings" label="설정" />
           <CountBubble count={3} />
         </div>
       </Section>
@@ -110,7 +114,6 @@ export const 배지와_고르기: Story = {
     const [tab, setTab] = useState<"todo" | "doing" | "past">("todo");
     const [chip, setChip] = useState<"all" | "on" | "off" | "hidden">("all");
     const [days, setDays] = useState<string[]>(["0"]);
-    const [day, setDay] = useState<"normal" | "open" | "closed">("open");
     return (
       <>
         <Section title="상태 배지 · 사장님 차례 / 기다림 / 끝">
@@ -154,16 +157,6 @@ export const 배지와_고르기: Story = {
               value: String(i),
               label: l,
             }))}
-          />
-          <ChoiceGrid
-            label="이 날 영업"
-            selected={[day]}
-            onToggle={setDay}
-            options={[
-              { value: "normal", label: "정상영업" },
-              { value: "open", label: "영업" },
-              { value: "closed", label: "휴무" },
-            ]}
           />
         </Section>
       </>
@@ -233,7 +226,10 @@ export const 입력_칸: Story = {
               />
             )}
           </Field>
-          <SearchInput label="상품 찾기" placeholder="상품명 검색" />
+          <div className="flex gap-2">
+            <SearchInput label="상품 찾기" placeholder="상품명 검색" />
+            <FieldIconButton icon="filter" label="정렬과 거르기" active />
+          </div>
         </Section>
         <Section title="켜고 끄기 · 체크 · 하나 고르기">
           <div className="flex items-center gap-4">
@@ -298,7 +294,9 @@ export const 목록과_칸: Story = {
           />
         </div>
         <GrayBand />
-        <GroupTitle action={<Button variant="link">전체 보기</Button>}>처리할 주문 4건</GroupTitle>
+        <GroupTitle action={<span className="text-sub text-ink-600">11월 6일(금)</span>}>
+          처리할 주문 4건
+        </GroupTitle>
         <SectionTitle title="가격과 사이즈" description="손님이 고를 사이즈와 가격이에요" />
         <InfoRow label="연락처" value="010-0000-0000" />
       </Section>
