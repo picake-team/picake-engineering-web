@@ -5,6 +5,8 @@ import he from "he";
 import type { FeedResponseDto } from "@/apps/web-seller/features/feed/types/feed.dto";
 import { ROUTES } from "@/apps/web-seller/common/constants/paths.constant";
 import { EmptyState } from "@/apps/web-seller/common/components/fallbacks/EmptyState";
+import { useInMobileFrame } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
+import { Icon } from "@/apps/web-seller/common/ui/icons";
 
 function getContentPreview(content: string, maxLength = 80): string {
   const sanitized = DOMPurify.sanitize(content, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
@@ -19,9 +21,59 @@ interface FeedListProps {
 export const FeedList: React.FC<FeedListProps> = ({ feeds }) => {
   const navigate = useNavigate();
   const { storeId } = useParams<{ storeId: string }>();
+  const inFrame = useInMobileFrame();
 
   if (feeds.length === 0) {
+    if (inFrame) {
+      return (
+        <p className="py-16 text-center font-app text-sub text-ink-600">등록된 피드가 없습니다.</p>
+      );
+    }
     return <EmptyState message="등록된 피드가 없습니다." />;
+  }
+
+  if (inFrame) {
+    // 휴대폰(디자인 A90): 72 사진 + 제목·두 줄 미리보기·날짜, 줄마다 아래 선
+    return (
+      <div className="-mt-2 flex flex-col font-app">
+        {feeds.map((feed) => {
+          const createdAt =
+            feed.createdAt instanceof Date ? feed.createdAt : new Date(feed.createdAt);
+          const thumbnailUrl = feed.imageUrls?.[0] ?? feed.storeLogoImageUrl;
+          return (
+            <button
+              key={feed.id}
+              type="button"
+              onClick={() => storeId && navigate(ROUTES.STORE_DETAIL_FEED_DETAIL(storeId, feed.id))}
+              className="flex w-full gap-3 border-b border-ink-100 py-4 text-left active:bg-ink-50"
+            >
+              <span className="flex size-[72px] shrink-0 items-center justify-center overflow-hidden rounded-control bg-ink-50 text-ink-400">
+                {thumbnailUrl ? (
+                  <img
+                    src={thumbnailUrl}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    className="size-full object-cover"
+                  />
+                ) : (
+                  <Icon name="cake" size={24} strokeWidth={1.6} />
+                )}
+              </span>
+              <span className="flex min-w-0 flex-1 flex-col gap-1">
+                <span className="line-clamp-1 text-body font-bold text-ink-900">{feed.title}</span>
+                <span className="line-clamp-2 text-sub leading-normal text-ink-600">
+                  {getContentPreview(feed.content)}
+                </span>
+                <span className="text-caption text-ink-600">
+                  {createdAt.toLocaleDateString("ko-KR", { month: "long", day: "numeric" })}
+                </span>
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    );
   }
 
   const handleFeedClick = (feedId: string) => {

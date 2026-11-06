@@ -5,6 +5,8 @@ import { cn } from "@/apps/web-seller/common/utils/classname.util";
 import { LoadingSpinner } from "@/apps/web-seller/common/components/loading/LoadingSpinner";
 import { useUploadFile } from "@/apps/web-seller/features/upload/hooks/mutations/useUploadMutation";
 import { ImagePreview } from "@/apps/web-seller/common/components/images/ImagePreview";
+import { useInMobileFrame } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
+import { Icon } from "@/apps/web-seller/common/ui/icons";
 import {
   validateFileSize,
   validateMaxImages,
@@ -40,6 +42,7 @@ export const ImageMultiUpload: React.FC<ImageMultiUploadProps> = ({
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadMutation = useUploadFile();
+  const inFrame = useInMobileFrame();
 
   const isSingleMode = maxImages === 1;
 
@@ -206,6 +209,83 @@ export const ImageMultiUpload: React.FC<ImageMultiUploadProps> = ({
 
   const canAddMore = value.length < maxImages;
   const isUploading = uploadMutation.isPending && uploadingIndex !== null;
+
+  // 휴대폰 틀 안(판매자 앱 디자인 6-E·A91·8-F): 80 사진 칸 + 점선 "사진" 칸. 첫 장은 "대표", 지우기는 ×.
+  // 긴 파일 형식 안내 대신 오류가 있을 때만 한 줄로 알린다.
+  if (inFrame) {
+    const frameError =
+      singleImageError ??
+      uploadErrors[value.length] ??
+      Object.values(uploadErrors).find(Boolean) ??
+      null;
+    return (
+      <div className="w-full font-app">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={accept}
+          multiple={!isSingleMode}
+          onChange={handleFileSelect}
+          className="hidden"
+        />
+        <div className="flex flex-wrap gap-2">
+          {value.map((url, index) => (
+            <div
+              key={index}
+              className={cn(
+                "relative size-20 shrink-0 overflow-hidden rounded-control border bg-ink-50",
+                uploadErrors[index] ? "border-brand" : "border-ink-100",
+              )}
+            >
+              <ImagePreview src={url} />
+              {uploadingIndex === index && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                  <LoadingSpinner size="sm" className="text-white" aria-hidden />
+                </div>
+              )}
+              {index === 0 && !isSingleMode ? (
+                <span className="absolute bottom-1 left-1 rounded-full bg-[rgba(31,31,30,0.7)] px-1.5 text-tab font-bold leading-4 text-white">
+                  대표
+                </span>
+              ) : null}
+              <button
+                type="button"
+                aria-label={isSingleMode ? "사진 지우기" : `사진 ${index + 1} 지우기`}
+                onClick={(e) => handleDelete(e, index)}
+                disabled={uploadingIndex === index}
+                className="absolute right-1 top-1 inline-flex size-6 items-center justify-center rounded-full bg-white text-ink-700 shadow-[0_1px_2px_rgba(0,0,0,0.25)] before:absolute before:-inset-2.5 before:content-[''] disabled:opacity-50"
+              >
+                <Icon name="close" size={14} strokeWidth={2.2} />
+              </button>
+            </div>
+          ))}
+          {canAddMore && (
+            <button
+              type="button"
+              onClick={handleButtonClick}
+              disabled={isUploading}
+              className="flex size-20 shrink-0 flex-col items-center justify-center gap-1 rounded-control border border-dashed border-ink-200 bg-white text-caption text-ink-600 active:bg-ink-50 disabled:opacity-60"
+            >
+              {isUploading ? (
+                <LoadingSpinner size="sm" className="text-ink-400" aria-hidden />
+              ) : (
+                <Icon name="camera" size={22} strokeWidth={1.8} />
+              )}
+              {isUploading ? "올리는 중" : "사진"}
+            </button>
+          )}
+        </div>
+        {frameError ? (
+          <p className="mt-2 text-caption font-semibold text-brand-ink">{frameError}</p>
+        ) : null}
+        {!isSingleMode ? (
+          <p className="mt-2 text-caption text-ink-600">
+            {value.length}/{maxImages}장 · {maxSize / (1024 * 1024)}MB 이하
+          </p>
+        ) : null}
+      </div>
+    );
+  }
 
   // 단일 이미지 모드인 경우 (maxImages === 1)
   if (isSingleMode && width && height) {

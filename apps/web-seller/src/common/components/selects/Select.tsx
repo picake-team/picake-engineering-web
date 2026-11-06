@@ -3,6 +3,7 @@ import * as SelectPrimitive from "@radix-ui/react-select";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
 
 import { cn } from "@/apps/web-seller/common/utils/classname.util";
+import { useInMobileFrame } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
 
 const Select = SelectPrimitive.Root;
 
@@ -14,21 +15,32 @@ const SelectTrigger = React.forwardRef<
     className?: string;
     children?: React.ReactNode;
   }
->(({ className, children, ...props }, ref) => (
-  <SelectPrimitive.Trigger
-    ref={ref}
-    className={cn(
-      "flex h-9 w-full items-center justify-between gap-2 rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
-      className,
-    )}
-    {...props}
-  >
-    {children}
-    <SelectPrimitive.Icon asChild>
-      <ChevronDown className="h-4 w-4 opacity-50" />
-    </SelectPrimitive.Icon>
-  </SelectPrimitive.Trigger>
-));
+>(({ className, children, ...props }, ref) => {
+  // 휴대폰 틀 안: 고르는 칸도 입력 칸과 같은 48 · 모서리 12 · 15(디자인 A66b 은행·환불 규정)
+  const inFrame = useInMobileFrame();
+  return (
+    <SelectPrimitive.Trigger
+      ref={ref}
+      className={cn(
+        "flex h-9 w-full items-center justify-between gap-2 rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
+        inFrame &&
+          "h-12 rounded-control border-ink-200 bg-white px-4 font-app text-body text-ink-900 shadow-none focus:border-ink-700 focus:ring-0",
+        className,
+      )}
+      {...props}
+    >
+      {children}
+      <SelectPrimitive.Icon asChild>
+        <ChevronDown
+          className={cn(
+            "h-4 w-4 opacity-50",
+            inFrame && "h-[18px] w-[18px] text-ink-600 opacity-100",
+          )}
+        />
+      </SelectPrimitive.Icon>
+    </SelectPrimitive.Trigger>
+  );
+});
 SelectTrigger.displayName = SelectPrimitive.Trigger.displayName;
 
 const SelectScrollUpButton = React.forwardRef<

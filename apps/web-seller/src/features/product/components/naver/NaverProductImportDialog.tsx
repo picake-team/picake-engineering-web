@@ -36,6 +36,7 @@ import {
   type OptionChoice,
   type TextRowKey,
 } from "@/apps/web-seller/features/product/utils/naver-product.util";
+import { useInMobileFrame } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
 
 /** 네이버에서 가져온 설명 (AI 초안 참고 자료로 넘긴다) */
 export type NaverSourceText = { description: string | null; precautions: string | null };
@@ -88,6 +89,7 @@ export function NaverProductImportDialog({
   const linkMutation = useLinkNaverItem();
   const unlinkMutation = useUnlinkNaverItem();
 
+  const inFrame = useInMobileFrame();
   const [view, setView] = useState<View>("list");
   const [list, setList] = useState<NaverProductListResponseDto | null>(null);
   const [detail, setDetail] = useState<NaverProductDetailResponseDto | null>(null);
@@ -309,7 +311,12 @@ export function NaverProductImportDialog({
                     linkOnly ? setPickKey(item.itemKey) : loadDetail(item.itemKey, "create")
                   }
                   className={`flex w-full items-center gap-3 p-3 text-left hover:bg-muted/50 disabled:cursor-not-allowed disabled:opacity-50 ${
-                    picked ? "bg-primary/5 ring-1 ring-inset ring-primary" : ""
+                    picked
+                      ? // 휴대폰 틀 안: 고른 줄은 연한 주황 바탕 하나만(테두리와 겹치지 않음, 운영자 의견 2026-11-07)
+                        inFrame
+                        ? "bg-brand-tint"
+                        : "bg-primary/5 ring-1 ring-inset ring-primary"
+                      : ""
                   }`}
                 >
                   {item.imageUrl ? (

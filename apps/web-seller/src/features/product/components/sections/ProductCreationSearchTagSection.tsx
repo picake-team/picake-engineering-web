@@ -2,6 +2,7 @@ import React, { useState, useRef, KeyboardEvent } from "react";
 import { BaseInput as Input } from "@/apps/web-seller/common/components/inputs/BaseInput";
 import { BaseButton as Button } from "@/apps/web-seller/common/components/buttons/BaseButton";
 import { X } from "lucide-react";
+import { useInMobileFrame } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
 
 export interface ProductCreationSearchTagSectionProps {
   value: string[];
@@ -15,6 +16,7 @@ export const ProductCreationSearchTagSection: React.FC<ProductCreationSearchTagS
   onChange,
   disabled = false,
 }) => {
+  const inFrame = useInMobileFrame();
   const [inputValue, setInputValue] = useState("");
   const pendingAddRef = useRef(false);
 
@@ -110,6 +112,7 @@ export const ProductCreationSearchTagSection: React.FC<ProductCreationSearchTagS
             type="button"
             onClick={() => handleAddTag()}
             disabled={disabled || !inputValue.trim()}
+            size={inFrame ? "lg" : undefined}
           >
             확인
           </Button>

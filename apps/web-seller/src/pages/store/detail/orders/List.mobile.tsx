@@ -386,7 +386,13 @@ export const StoreDetailOrderListMobilePage: React.FC = () => {
               value={tab}
               onChange={setTab}
               options={[
-                { value: "todo", label: "처리할 것", count: todo.loading ? undefined : todo.total },
+                {
+                  value: "todo",
+                  label: "처리할 것",
+                  count: todo.loading ? undefined : todo.total,
+                  // 주황은 사장님이 할 일이 있을 때만(운영자 의견 2026-11-07 "너무 다 주황")
+                  countAccent: true,
+                },
                 {
                   value: "doing",
                   label: "진행 중",

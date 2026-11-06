@@ -62,6 +62,12 @@ export const authApi = {
     return response.data.data;
   },
 
+  /** 판매자 앱 심사용 로그인 (SC-62) — 6자리 코드 */
+  reviewLogin: async (code: string): Promise<TokenResponseDto> => {
+    const response = await sellerClient.post("/auth/review-login", { code });
+    return response.data.data;
+  },
+
   kakaoRegister: async (data: KakaoRegisterRequestDto): Promise<TokenResponseDto> => {
     const response = await sellerClient.post("/auth/kakao/register", data);
     return response.data.data;

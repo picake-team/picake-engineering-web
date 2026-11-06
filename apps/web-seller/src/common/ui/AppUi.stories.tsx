@@ -129,7 +129,7 @@ export const 배지와_고르기: Story = {
             value={tab}
             onChange={setTab}
             options={[
-              { value: "todo", label: "처리할 것", count: 4 },
+              { value: "todo", label: "처리할 것", count: 4, countAccent: true },
               { value: "doing", label: "진행 중", count: 5 },
               { value: "past", label: "지난 주문" },
             ]}

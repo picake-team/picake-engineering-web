@@ -61,6 +61,31 @@ export function useVerifyPhoneCode() {
   });
 }
 
+/**
+ * 판매자 앱 심사용 로그인 (SC-62) — 코드가 맞으면 심사용 사장님 계정으로 들어가 홈을 연다.
+ * 틀리면 서버 문구("심사용 로그인 코드가 올바르지 않습니다.")를 알림으로 보여 준다(손님 앱과 같은 방식).
+ */
+export function useReviewLogin() {
+  const { login } = useAuthStore();
+  const navigate = useNavigate();
+  const { addAlert, clearAllAlerts } = useAlertStore();
+
+  return useMutation({
+    mutationFn: authApi.reviewLogin,
+    onSuccess: (data) => {
+      // 앞서 틀린 코드의 오류 알림이 홈까지 남지 않게 지운다
+      clearAllAlerts();
+      login({ navigate, accessToken: data.accessToken });
+    },
+    onError: (error) => {
+      addAlert({
+        message: getApiMessage.error(error),
+        severity: "error",
+      });
+    },
+  });
+}
+
 // 구글 회원가입 `GOOGLE_REGISTRATION` 인증 완료 후 POST /auth/google/register
 export function useGoogleRegister() {
   const { login } = useAuthStore();

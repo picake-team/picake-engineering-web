@@ -3,11 +3,12 @@ import { Link } from "react-router-dom";
 import { ChevronDown, ChevronRight, Sparkles } from "lucide-react";
 import { BaseButton as Button } from "@/apps/web-seller/common/components/buttons/BaseButton";
 import {
-  FRAME_REASON_CLASS,
   FRAME_SUBMIT_BAR_CLASS,
   FRAME_SUBMIT_BUTTON_CLASS,
   useInMobileFrame,
 } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
+import { Switch } from "@/apps/web-seller/common/ui/Toggle";
+import { cn } from "@/apps/web-seller/common/utils/classname.util";
 
 import { BaseInput as Input } from "@/apps/web-seller/common/components/inputs/BaseInput";
 import { Checkbox } from "@/apps/web-seller/common/components/inputs/Checkbox";
@@ -247,8 +248,20 @@ export const ProductCreationForm: React.FC<Props> = ({
       })
     : null;
   const naverBar = tools && (
-    <div className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border bg-muted/40 px-4 py-3">
-      <p className="min-w-0 flex-1 text-sm text-muted-foreground">
+    <div
+      className={
+        inFrame
+          ? "mb-6 flex items-center gap-3 rounded-card border border-ink-100 p-4 font-app"
+          : "mb-4 flex flex-wrap items-center gap-3 rounded-xl border bg-muted/40 px-4 py-3"
+      }
+    >
+      <p
+        className={
+          inFrame
+            ? "min-w-0 flex-1 text-sub leading-normal text-ink-600"
+            : "min-w-0 flex-1 text-sm text-muted-foreground"
+        }
+      >
         {!storeConnected
           ? "스토어에 네이버 매장을 연결하면 네이버 예약에 올린 상품을 불러올 수 있어요."
           : !isEdit
@@ -268,7 +281,11 @@ export const ProductCreationForm: React.FC<Props> = ({
       ) : (
         <Link
           to={ROUTES.STORE_DETAIL_EDIT(storeId!)}
-          className="text-sm text-primary underline-offset-4 hover:underline"
+          className={
+            inFrame
+              ? "inline-flex h-10 shrink-0 items-center rounded-control border border-ink-200 px-3 text-sub font-bold text-ink-700 active:bg-ink-50"
+              : "text-sm text-primary underline-offset-4 hover:underline"
+          }
         >
           스토어에서 연결하기
         </Link>
@@ -325,10 +342,20 @@ export const ProductCreationForm: React.FC<Props> = ({
                 {errors.name && <p className="mt-1 text-sm text-destructive">{errors.name}</p>}
               </div>
               <div>
-                <p className="mb-1 text-sm font-medium">
+                <p
+                  className={
+                    inFrame
+                      ? "mb-2 font-app text-sub font-bold text-ink-700"
+                      : "mb-1 text-sm font-medium"
+                  }
+                >
                   종류 <span className="text-destructive">*</span>
                 </p>
-                <div className="grid gap-2 sm:grid-cols-2" role="radiogroup" aria-label="상품 종류">
+                <div
+                  className={inFrame ? "grid grid-cols-2 gap-2" : "grid gap-2 sm:grid-cols-2"}
+                  role="radiogroup"
+                  aria-label="상품 종류"
+                >
                   {PRODUCT_TYPES.map((t) => {
                     const on = form.productType === t.value;
                     return (
@@ -339,14 +366,49 @@ export const ProductCreationForm: React.FC<Props> = ({
                         aria-checked={on}
                         disabled={disabled}
                         onClick={() => patch({ productType: t.value })}
-                        className={`rounded-lg border px-3 py-2.5 text-left transition-colors ${
-                          on
-                            ? "border-primary bg-primary/5 ring-1 ring-primary"
-                            : "hover:bg-muted/50"
-                        }`}
+                        className={
+                          inFrame
+                            ? // 고른 카드: 얇은 주황 테두리 + 주황 점만(바탕은 흰색, 운영자 의견 2026-11-07 "주황 테두리에 주황 바탕 과해")
+                              cn(
+                                "relative flex flex-col gap-1 rounded-control bg-white p-4 text-left font-app",
+                                on
+                                  ? "border-[1.5px] border-brand p-[15.5px]"
+                                  : "border border-ink-200",
+                              )
+                            : `rounded-lg border px-3 py-2.5 text-left transition-colors ${
+                                on
+                                  ? "border-primary bg-primary/5 ring-1 ring-primary"
+                                  : "hover:bg-muted/50"
+                              }`
+                        }
                       >
-                        <span className="block text-sm font-medium">{t.label}</span>
-                        <span className="block text-xs text-muted-foreground">{t.desc}</span>
+                        <span
+                          className={
+                            inFrame
+                              ? "pr-6 text-body font-bold text-ink-900"
+                              : "block text-sm font-medium"
+                          }
+                        >
+                          {t.label}
+                        </span>
+                        <span
+                          className={
+                            inFrame
+                              ? "text-caption text-ink-600"
+                              : "block text-xs text-muted-foreground"
+                          }
+                        >
+                          {t.desc}
+                        </span>
+                        {inFrame ? (
+                          <span
+                            aria-hidden="true"
+                            className={cn(
+                              "absolute right-3 top-3 inline-block size-5 rounded-full bg-white",
+                              on ? "border-[6px] border-brand" : "border-[1.5px] border-ink-200",
+                            )}
+                          />
+                        ) : null}
                       </button>
                     );
                   })}
@@ -490,38 +552,77 @@ export const ProductCreationForm: React.FC<Props> = ({
         {/* 오른쪽: 상태·분류 */}
         <aside className="space-y-6 lg:sticky lg:top-6 lg:self-start">
           <FormSection id="section-status" title="판매 상태">
-            <div className="space-y-3">
-              <Checkbox
-                checked={form.salesStatus === EnableStatus.ENABLE}
-                onChange={(on) =>
-                  patch({ salesStatus: on ? EnableStatus.ENABLE : EnableStatus.DISABLE })
-                }
-                disabled={disabled}
-                label={
-                  <span className="text-sm">
-                    판매 중
-                    <span className="block text-xs text-muted-foreground">
-                      끄면 손님이 주문할 수 없어요
+            {inFrame ? (
+              <div className="-mt-2">
+                {[
+                  {
+                    key: "sales",
+                    title: "판매 중",
+                    desc: "끄면 손님이 주문할 수 없어요",
+                    on: form.salesStatus === EnableStatus.ENABLE,
+                    set: (on: boolean) =>
+                      patch({ salesStatus: on ? EnableStatus.ENABLE : EnableStatus.DISABLE }),
+                  },
+                  {
+                    key: "visible",
+                    title: "손님에게 보이기",
+                    desc: "끄면 목록·검색에서 숨겨요",
+                    on: form.visibilityStatus === EnableStatus.ENABLE,
+                    set: (on: boolean) =>
+                      patch({ visibilityStatus: on ? EnableStatus.ENABLE : EnableStatus.DISABLE }),
+                  },
+                ].map((row) => (
+                  <div
+                    key={row.key}
+                    className="flex min-h-14 items-center gap-3 border-b border-ink-100 py-2 font-app last:border-b-0"
+                  >
+                    <span className="flex min-w-0 flex-1 flex-col gap-1">
+                      <span className="text-body font-semibold text-ink-900">{row.title}</span>
+                      <span className="text-caption text-ink-600">{row.desc}</span>
                     </span>
-                  </span>
-                }
-              />
-              <Checkbox
-                checked={form.visibilityStatus === EnableStatus.ENABLE}
-                onChange={(on) =>
-                  patch({ visibilityStatus: on ? EnableStatus.ENABLE : EnableStatus.DISABLE })
-                }
-                disabled={disabled}
-                label={
-                  <span className="text-sm">
-                    손님에게 보이기
-                    <span className="block text-xs text-muted-foreground">
-                      끄면 목록·검색에서 숨겨요
+                    <Switch
+                      label={row.title}
+                      checked={row.on}
+                      disabled={disabled}
+                      onChange={row.set}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <Checkbox
+                  checked={form.salesStatus === EnableStatus.ENABLE}
+                  onChange={(on) =>
+                    patch({ salesStatus: on ? EnableStatus.ENABLE : EnableStatus.DISABLE })
+                  }
+                  disabled={disabled}
+                  label={
+                    <span className="text-sm">
+                      판매 중
+                      <span className="block text-xs text-muted-foreground">
+                        끄면 손님이 주문할 수 없어요
+                      </span>
                     </span>
-                  </span>
-                }
-              />
-            </div>
+                  }
+                />
+                <Checkbox
+                  checked={form.visibilityStatus === EnableStatus.ENABLE}
+                  onChange={(on) =>
+                    patch({ visibilityStatus: on ? EnableStatus.ENABLE : EnableStatus.DISABLE })
+                  }
+                  disabled={disabled}
+                  label={
+                    <span className="text-sm">
+                      손님에게 보이기
+                      <span className="block text-xs text-muted-foreground">
+                        끄면 목록·검색에서 숨겨요
+                      </span>
+                    </span>
+                  }
+                />
+              </div>
+            )}
           </FormSection>
 
           <FormSection
@@ -546,49 +647,66 @@ export const ProductCreationForm: React.FC<Props> = ({
       </div>
 
       {/* 저장 버튼은 항상 화면 아래에 */}
-      {!disabled && (
-        <div
-          className={
-            inFrame
-              ? FRAME_SUBMIT_BAR_CLASS
-              : "sticky bottom-0 z-10 mt-6 flex items-center gap-3 border-t bg-background/95 px-1 py-3 backdrop-blur"
-          }
-        >
+      {!disabled && inFrame && isEdit && onDelete ? (
+        // 휴대폰: 삭제는 아래 버튼 줄이 아니라 폼 맨 아래 흰 테두리 작은 버튼으로(약한 행동, 실수로 누르지 않게)
+        <div className="mt-8 flex justify-center">
+          <Button type="button" variant="outline" onClick={onDelete} disabled={isDeleting}>
+            상품 삭제
+          </Button>
+        </div>
+      ) : null}
+      {!disabled && inFrame ? (
+        // 휴대폰(디자인 6-E): 고칠 곳이 있으면 "고칠 곳 n개"(누르면 첫 고칠 곳으로) | 등록하기
+        <div className={FRAME_SUBMIT_BAR_CLASS}>
+          <div className="flex gap-2">
+            {blockingCount > 0 && (
+              <Button
+                type="button"
+                variant="outline"
+                className={FRAME_SUBMIT_BUTTON_CLASS}
+                onClick={() =>
+                  errorKeys.length ? goToFirstError(errorKeys) : scrollTo("section-detail")
+                }
+              >
+                고칠 곳 {blockingCount}개
+              </Button>
+            )}
+            <Button
+              type="submit"
+              disabled={isDeleting}
+              className={cn(FRAME_SUBMIT_BUTTON_CLASS, blockingCount > 0 && "flex-[2]")}
+            >
+              {isEdit ? "저장하기" : "등록하기"}
+            </Button>
+          </div>
+        </div>
+      ) : null}
+      {!disabled && !inFrame && (
+        <div className="sticky bottom-0 z-10 mt-6 flex items-center gap-3 border-t bg-background/95 px-1 py-3 backdrop-blur">
           {blockingCount > 0 && (
             <button
               type="button"
-              className={
-                inFrame
-                  ? FRAME_REASON_CLASS
-                  : "text-sm text-destructive underline-offset-4 hover:underline"
-              }
+              className="text-sm text-destructive underline-offset-4 hover:underline"
               onClick={() =>
                 errorKeys.length ? goToFirstError(errorKeys) : scrollTo("section-detail")
               }
             >
               고칠 곳 {blockingCount}개 보기
-              {inFrame ? <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" /> : null}
             </button>
           )}
-          <div className={inFrame ? "flex gap-2" : "ml-auto flex gap-2"}>
+          <div className="ml-auto flex gap-2">
             {isEdit && onDelete && (
               <Button
                 type="button"
-                variant={inFrame ? "outline" : "ghost"}
-                className={
-                  inFrame ? FRAME_SUBMIT_BUTTON_CLASS : "text-destructive hover:text-destructive"
-                }
+                variant="ghost"
+                className="text-destructive hover:text-destructive"
                 onClick={onDelete}
                 disabled={isDeleting}
               >
                 삭제
               </Button>
             )}
-            <Button
-              type="submit"
-              disabled={isDeleting}
-              className={inFrame ? FRAME_SUBMIT_BUTTON_CLASS : undefined}
-            >
+            <Button type="submit" disabled={isDeleting}>
               {isEdit ? "저장하기" : "등록하기"}
             </Button>
           </div>
