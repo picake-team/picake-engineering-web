@@ -22,6 +22,8 @@ import { Checkbox } from "@/apps/web-seller/common/components/inputs/Checkbox";
 import { Label } from "@/apps/web-seller/common/components/labels/Label";
 import { Badge } from "@/apps/web-seller/common/components/badges/Badge";
 import { FormSection } from "@/apps/web-seller/common/components/sections/FormSection";
+import { useInMobileFrame } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
+import { Icon } from "@/apps/web-seller/common/ui/icons";
 import {
   Select,
   SelectContent,
@@ -285,6 +287,7 @@ function CustomOptionEditor({
 }: CustomOptionEditorProps) {
   const choices = option.choices ?? [];
 
+  const inFrame = useInMobileFrame();
   const updateChoice = (index: number, patch: Partial<CustomOptionChoiceDto>) => {
     onChoicesChange(choices.map((choice, i) => (i === index ? { ...choice, ...patch } : choice)));
   };
@@ -331,22 +334,17 @@ function CustomOptionEditor({
       </div>
       {isSelectType(option.type) && (
         <div className="space-y-3">
-          <div className="border rounded-md overflow-hidden bg-background">
-            <table className="w-full">
-              <thead className="bg-muted">
-                <tr>
-                  <th className="px-3 py-2 text-left text-sm font-medium">
-                    옵션값 <span className="text-destructive">*</span>
-                  </th>
-                  <th className="px-3 py-2 text-left text-sm font-medium w-40">옵션가 (원)</th>
-                  <th className="px-3 py-2 text-left text-sm font-medium w-32">노출 여부</th>
-                  <th className="px-3 py-2 text-center text-sm font-medium w-16">삭제</th>
-                </tr>
-              </thead>
-              <tbody>
-                {choices.map((choice, index) => (
-                  <tr key={choice.id ?? `new-${index}`} className="border-t">
-                    <td className="px-3 py-2">
+          {inFrame ? (
+            // 휴대폰 폭: 표 대신 옵션값마다 [이름 | 추가금 | ×] + 노출 여부 두 줄(디자인 6-G)
+            <div className="flex flex-col gap-2">
+              {choices.map((choice, index) => (
+                <div
+                  key={choice.id ?? `new-${index}`}
+                  className="flex flex-col gap-2 rounded-control border border-ink-100 p-3"
+                >
+                  <div className="flex items-end gap-2">
+                    <label className="flex min-w-0 flex-[2] flex-col gap-1">
+                      <span className="text-caption text-ink-600">옵션값 {index + 1}</span>
                       <Input
                         value={choice.label}
                         maxLength={CUSTOM_OPTION_LIMITS.MAX_CHOICE_LABEL_LENGTH}
@@ -354,8 +352,9 @@ function CustomOptionEditor({
                         disabled={disabled}
                         onChange={(e) => updateChoice(index, { label: e.target.value })}
                       />
-                    </td>
-                    <td className="px-3 py-2">
+                    </label>
+                    <label className="flex min-w-0 flex-1 flex-col gap-1">
+                      <span className="text-caption text-ink-600">추가금(원)</span>
                       <NumberInput
                         value={choice.price}
                         min={0}
@@ -364,45 +363,115 @@ function CustomOptionEditor({
                         disabled={disabled}
                         onChange={(value) => updateChoice(index, { price: value ?? 0 })}
                       />
-                    </td>
-                    <td className="px-3 py-2">
-                      <Select
-                        value={choice.visible}
-                        onValueChange={(value) =>
-                          updateChoice(index, { visible: value as EnableStatus })
-                        }
-                        disabled={disabled}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {VISIBILITY_STATUS_OPTIONS.map((opt) => (
-                            <SelectItem key={opt.value} value={opt.value}>
-                              {opt.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </td>
-                    <td className="px-3 py-2 text-center">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        aria-label="옵션값 삭제"
-                        className="h-8 w-8"
-                        disabled={disabled}
-                        onClick={() => onChoicesChange(choices.filter((_, i) => i !== index))}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </td>
+                    </label>
+                    <button
+                      type="button"
+                      aria-label={`옵션값 ${index + 1} 삭제`}
+                      disabled={disabled}
+                      onClick={() => onChoicesChange(choices.filter((_, i) => i !== index))}
+                      className="relative mb-1.5 inline-flex size-9 shrink-0 items-center justify-center rounded-full border border-ink-200 bg-white text-ink-700 before:absolute before:-inset-1 before:content-[''] disabled:opacity-40"
+                    >
+                      <Icon name="close" size={16} strokeWidth={2} />
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sub text-ink-700">노출 여부</span>
+                    <Select
+                      value={choice.visible}
+                      onValueChange={(value) =>
+                        updateChoice(index, { visible: value as EnableStatus })
+                      }
+                      disabled={disabled}
+                    >
+                      <SelectTrigger className="h-10 w-28">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {VISIBILITY_STATUS_OPTIONS.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="border rounded-md overflow-hidden bg-background">
+              <table className="w-full">
+                <thead className="bg-muted">
+                  <tr>
+                    <th className="px-3 py-2 text-left text-sm font-medium">
+                      옵션값 <span className="text-destructive">*</span>
+                    </th>
+                    <th className="px-3 py-2 text-left text-sm font-medium w-40">옵션가 (원)</th>
+                    <th className="px-3 py-2 text-left text-sm font-medium w-32">노출 여부</th>
+                    <th className="px-3 py-2 text-center text-sm font-medium w-16">삭제</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {choices.map((choice, index) => (
+                    <tr key={choice.id ?? `new-${index}`} className="border-t">
+                      <td className="px-3 py-2">
+                        <Input
+                          value={choice.label}
+                          maxLength={CUSTOM_OPTION_LIMITS.MAX_CHOICE_LABEL_LENGTH}
+                          placeholder="예: 큰초"
+                          disabled={disabled}
+                          onChange={(e) => updateChoice(index, { label: e.target.value })}
+                        />
+                      </td>
+                      <td className="px-3 py-2">
+                        <NumberInput
+                          value={choice.price}
+                          min={0}
+                          max={CUSTOM_OPTION_LIMITS.MAX_CHOICE_PRICE}
+                          placeholder="0"
+                          disabled={disabled}
+                          onChange={(value) => updateChoice(index, { price: value ?? 0 })}
+                        />
+                      </td>
+                      <td className="px-3 py-2">
+                        <Select
+                          value={choice.visible}
+                          onValueChange={(value) =>
+                            updateChoice(index, { visible: value as EnableStatus })
+                          }
+                          disabled={disabled}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {VISIBILITY_STATUS_OPTIONS.map((opt) => (
+                              <SelectItem key={opt.value} value={opt.value}>
+                                {opt.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </td>
+                      <td className="px-3 py-2 text-center">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          aria-label="옵션값 삭제"
+                          className="h-8 w-8"
+                          disabled={disabled}
+                          onClick={() => onChoicesChange(choices.filter((_, i) => i !== index))}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <Button
               type="button"

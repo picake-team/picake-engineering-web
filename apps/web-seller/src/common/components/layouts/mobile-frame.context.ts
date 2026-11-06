@@ -15,9 +15,8 @@ export function useInMobileFrame(): boolean {
 export const FRAME_SUBMIT_BAR_CLASS =
   "sticky bottom-0 z-10 mt-6 flex flex-col gap-2 border-t border-ink-100 bg-white pb-[max(12px,env(safe-area-inset-bottom))] pt-3 font-app";
 
-/** 저장 줄 버튼(가득 찬 48, 15/700, 모서리 12). 주 버튼은 주황, 보조는 흰 바탕 + 테두리(variant="outline") */
+/**
+ * 저장 줄 버튼(가득 찬 48, 15/700, 모서리 12). 주 버튼은 주황, 보조는 흰 바탕 + 테두리(variant="outline").
+ * 고칠 곳이 있으면 "고칠 곳 n개"(보조) | 주 버튼(flex-[2]) — 디자인 6-E·8-F.
+ */
 export const FRAME_SUBMIT_BUTTON_CLASS = "h-12 flex-1 rounded-control text-[15px] font-bold";
-
-/** 저장 줄 위 "고칠 곳 n개 보기"(진한 글씨 + 오른쪽 꺾쇠, 갈색 글자 버튼 대신) */
-export const FRAME_REASON_CLASS =
-  "flex min-h-11 items-center gap-1 self-start text-[12px] font-semibold text-ink-900";

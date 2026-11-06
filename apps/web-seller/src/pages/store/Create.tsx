@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { PageTitle } from "@/apps/web-seller/common/components/layouts/MobileFrame";
+import { useInMobileFrame } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
 import { Card, CardContent } from "@/apps/web-seller/common/components/cards/Card";
 import { ProgressBar } from "@/apps/web-seller/common/components/progressbars";
 import { BusinessRegistrationForm } from "@/apps/web-seller/features/business/components/forms/BusinessRegistrationForm";
@@ -41,6 +42,7 @@ const STEPS = STEP_KEYS.map((key) => STEP_LABELS[key]);
 const TOTAL_STEPS = STEP_KEYS.length;
 
 export const StoreCreatePage: React.FC = () => {
+  const inFrame = useInMobileFrame();
   const verifyBusinessRegistrationMutation = useVerifyBusinessRegistration();
   const getOnlineTradingCompanyDetailMutation = useGetOnlineTradingCompanyDetail();
   const createStoreMutation = useCreateStore();
@@ -166,6 +168,43 @@ export const StoreCreatePage: React.FC = () => {
         return null;
     }
   };
+
+  if (inFrame) {
+    const key = STEP_KEYS[currentStep - 1];
+    return (
+      <div className="flex flex-col gap-4 font-app">
+        <div className="-mx-5 -mt-2 flex flex-col gap-3">
+          <div
+            className="h-[3px] bg-ink-100"
+            role="progressbar"
+            aria-valuemin={1}
+            aria-valuemax={STEP_KEYS.length}
+            aria-valuenow={currentStep}
+            aria-label={`스토어 만들기 ${currentStep}/${STEP_KEYS.length}단계`}
+          >
+            <div
+              className="h-full bg-brand transition-[width]"
+              style={{ width: `${(currentStep / STEP_KEYS.length) * 100}%` }}
+            />
+          </div>
+        </div>
+        {key === "business" ? (
+          <div className="flex flex-col gap-1">
+            <span className="text-caption text-ink-600">
+              {currentStep}/{STEP_KEYS.length}
+            </span>
+            <h2 className="text-title font-bold text-ink-900">사업자 정보를 알려 주세요</h2>
+            <p className="text-sub text-ink-600">국세청에서 정상 영업인지 확인해요</p>
+          </div>
+        ) : (
+          <span className="text-caption text-ink-600">
+            {currentStep}/{STEP_KEYS.length} · {STEP_LABELS[key]}
+          </span>
+        )}
+        {renderStep()}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

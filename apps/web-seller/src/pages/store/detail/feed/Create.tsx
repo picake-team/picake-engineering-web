@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { PageTitle } from "@/apps/web-seller/common/components/layouts/MobileFrame";
 import {
+  FRAME_SUBMIT_BAR_CLASS,
   FRAME_SUBMIT_BUTTON_CLASS,
   useInMobileFrame,
 } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
+import { cn } from "@/apps/web-seller/common/utils/classname.util";
 
 import { useParams } from "react-router-dom";
 import { useCreateFeed } from "@/apps/web-seller/features/feed/hooks/mutations/useFeedMutation";
@@ -68,12 +70,16 @@ export const StoreDetailFeedCreatePage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className={inFrame ? "flex flex-1 flex-col" : "space-y-6"}>
       <PageTitle className="text-3xl font-bold">피드 등록</PageTitle>
 
-      <Card>
-        <CardContent className="p-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
+      <Card className={inFrame ? "flex flex-1 flex-col" : undefined}>
+        <CardContent className={inFrame ? "flex flex-1 flex-col" : "p-6"}>
+          {/* 휴대폰 틀 안: 내용이 짧아도 등록 버튼 줄이 화면 아래에 붙게(디자인 A91) */}
+          <form
+            onSubmit={handleSubmit}
+            className={inFrame ? "flex flex-1 flex-col gap-6" : "space-y-6"}
+          >
             {/* 제목 */}
             <div className="space-y-2">
               <Label htmlFor="title">제목</Label>
@@ -122,7 +128,13 @@ export const StoreDetailFeedCreatePage: React.FC = () => {
             </div>
 
             {/* 버튼 */}
-            <div className={inFrame ? "flex gap-2 pt-6" : "flex justify-center gap-4 pt-6"}>
+            <div
+              className={
+                inFrame
+                  ? cn(FRAME_SUBMIT_BAR_CLASS, "mt-auto flex-row")
+                  : "flex justify-center gap-4 pt-6"
+              }
+            >
               <Button
                 type="submit"
                 disabled={createFeedMutation.isPending}

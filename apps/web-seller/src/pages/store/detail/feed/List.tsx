@@ -8,8 +8,10 @@ import type { FeedResponseDto } from "@/apps/web-seller/features/feed/types/feed
 import { FeedList } from "@/apps/web-seller/features/feed/components/list/FeedList";
 import { ContentLoading } from "@/apps/web-seller/common/components/loading/ContentLoading";
 import { InfiniteScrollLoading } from "@/apps/web-seller/common/components/loading/InfiniteScrollLoading";
+import { useInMobileFrame } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
 
 export const StoreDetailFeedListPage: React.FC = () => {
+  const inFrame = useInMobileFrame();
   const { storeId } = useParams<{ storeId: string }>();
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
@@ -36,14 +38,14 @@ export const StoreDetailFeedListPage: React.FC = () => {
   const totalItems = data?.pages?.[0]?.meta?.totalItems ?? feeds.length ?? 0;
 
   return (
-    <div className="space-y-6">
+    <div className={inFrame ? "flex flex-col" : "space-y-6"}>
       {/* 헤더 */}
       <div className="flex items-center justify-between">
         <PageTitle className="text-3xl font-bold">피드 목록</PageTitle>
       </div>
 
-      {/* 통계 카드 (정렬/필터 없음) */}
-      <div className="rounded-lg border bg-card p-4">
+      {/* 통계 카드 (정렬/필터 없음). 휴대폰 틀 안에서는 디자인 A90처럼 두지 않는다 */}
+      <div className={inFrame ? "hidden" : "rounded-lg border bg-card p-4"}>
         <div className="text-sm text-muted-foreground">
           총 <span className="font-semibold text-foreground">{totalItems}</span>개의 피드
         </div>
