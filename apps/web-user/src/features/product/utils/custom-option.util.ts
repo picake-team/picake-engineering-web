@@ -154,11 +154,26 @@ export function toSelectedOptionPreviews(
   return previews;
 }
 
+const formatImageCount = (count: number) => `사진 ${count}장`;
+
 /** 주문 스냅샷 → 화면에 그대로 쓸 한 줄 값 (사진은 "사진 N장") */
 export function formatSelectedOptionValue(option: SelectedOption): string {
   if (option.type === CustomOptionType.TEXT) return option.text ?? "";
-  if (option.type === CustomOptionType.IMAGE) return `사진 ${option.imageUrls?.length ?? 0}장`;
+  if (option.type === CustomOptionType.IMAGE)
+    return formatImageCount(option.imageUrls?.length ?? 0);
   return (option.choices ?? []).map((choice) => choice.label).join(", ");
+}
+
+/**
+ * 주문 전(확인 화면) 한 줄 값. 사진은 아직 올리지 않은 새 사진(imageFiles)까지 센다.
+ * 새 사진은 "예약신청"을 누를 때 올라가므로, 미리보기 URL 없이 만든 미리보기(imageUrls)에는 들어 있지 않다.
+ */
+export function formatPreviewOptionValue(
+  preview: SelectedOption,
+  selection: OptionSelection | undefined,
+): string {
+  if (preview.type === CustomOptionType.IMAGE) return formatImageCount(getImageCount(selection));
+  return formatSelectedOptionValue(preview);
 }
 
 /** 주문 스냅샷 → 옵션 변경 화면의 초기 선택값 */

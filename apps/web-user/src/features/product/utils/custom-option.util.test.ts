@@ -10,6 +10,7 @@ import {
   calculateItemPrice,
   calculateOptionsPrice,
   findMissingRequiredOption,
+  formatPreviewOptionValue,
   formatSelectedOptionValue,
   getVisibleCustomOptions,
   selectedOptionsToSelections,
@@ -121,6 +122,23 @@ describe("toSelectedOptionPreviews / formatSelectedOptionValue", () => {
       ["참고사진", "사진 1장"],
     ]);
     expect(previews[0].price).toBe(1000);
+  });
+
+  it("확인 화면은 아직 올리지 않은 새 사진도 장수에 센다 (미리보기 URL 없이)", () => {
+    const selections = {
+      opt_lettering: { text: "축하해" },
+      opt_image: { imageUrls: ["https://cdn/old.png"], imageFiles: [new File([""], "a.png")] },
+    };
+    const previews = toSelectedOptionPreviews(OPTIONS, selections);
+    expect(
+      previews.map((option) => [
+        option.name,
+        formatPreviewOptionValue(option, selections[option.optionId as keyof typeof selections]),
+      ]),
+    ).toEqual([
+      ["레터링 문구", "축하해"],
+      ["참고사진", "사진 2장"],
+    ]);
   });
 });
 
