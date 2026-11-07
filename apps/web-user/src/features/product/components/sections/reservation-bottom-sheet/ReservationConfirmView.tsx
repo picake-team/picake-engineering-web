@@ -13,7 +13,7 @@ import {
 import { EmptyState } from "@/apps/web-user/common/components/fallbacks/EmptyState";
 import type { CustomOption } from "@/apps/web-user/features/product/types/product.type";
 import {
-  formatSelectedOptionValue,
+  formatPreviewOptionValue,
   toSelectedOptionPreviews,
 } from "@/apps/web-user/features/product/utils/custom-option.util";
 
@@ -107,7 +107,8 @@ export function ReservationConfirmView({
                           {toSelectedOptionPreviews(customOptions, item.selections).map(
                             (option) => (
                               <li key={option.optionId}>
-                                {option.name} : {formatSelectedOptionValue(option)}
+                                {option.name} :{" "}
+                                {formatPreviewOptionValue(option, item.selections[option.optionId])}
                                 {option.price > 0 && ` (+${option.price.toLocaleString()}원)`}
                               </li>
                             ),
