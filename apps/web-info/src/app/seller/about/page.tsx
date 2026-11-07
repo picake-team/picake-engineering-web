@@ -35,7 +35,7 @@ import styles from "@/apps/web-info/features/seller/components/partner.module.cs
  * - 자동 안내: backend `notification/constants/user-order-alimtalk.constants.ts` 발송 시점
  * - 운영 기능: web-seller 실제 메뉴(주문·캘린더·피드·통계·알림)
  * - 입점 절차: docs/common/feature/스토어 등록 - 가이드.md
- * - 초기 혜택: 설문 안내문에 고지된 내용
+ * - 초기 혜택: 2026-11-07 운영자가 정한 입점 혜택(기획 P-60). 영업 DM과 같은 말로 쓴다
  * - 실시간 채팅은 아직 열지 않은 기능이라 소개하지 않는다
  */
 export const metadata: Metadata = {
@@ -96,7 +96,11 @@ const FAQS = [
   },
   {
     q: "상품 등록이 어렵지는 않나요?",
-    a: "초기에는 저희가 함께 올려 드려요. 사진과 가격만 주시면 사이즈, 맛 옵션까지 맞춰 세팅해 드려요.",
+    a: "처음 올리실 상품은 저희가 대신 올려 드려요. 사진과 가격만 주시면 사이즈, 맛 옵션까지 맞춰 세팅해 드려요.",
+  },
+  {
+    q: "1년이 지나면 비용이 생기나요?",
+    a: "아직 정하지 않았어요. 먼저 함께하시는 사장님들 의견을 듣고 정할게요. 비용을 받게 되더라도 최소 3개월 전에 먼저 알려 드리고, 원치 않으시면 언제든 그만두실 수 있어요.",
   },
   {
     q: "픽업만 되나요?",
@@ -198,7 +202,7 @@ export default function PartnerAboutPage() {
           <Reveal delay={200} className="mt-7">
             <SurveyButton id={HERO_CTA_ID} />
             <p className="mt-3.5 text-center text-xs text-gray-600">
-              설문에 참여하신 매장에는 출시 초기 혜택을 먼저 안내드려요
+              설문에 참여하신 매장부터 입점을 안내드려요
             </p>
           </Reveal>
         </div>
@@ -295,19 +299,30 @@ export default function PartnerAboutPage() {
         <Reveal delay={100} className="mt-6">
           <div className="overflow-hidden rounded-2xl bg-primary p-6 shadow-[0_18px_44px_-20px_rgba(255,101,62,0.9)]">
             <p className="text-[34px] leading-none font-extrabold tracking-[-0.035em] text-gray-900">
-              수수료 0원
+              1년간 0원
             </p>
             <p className="mt-2.5 text-sm font-medium text-gray-900">
-              출시 초기, 자리 잡는 동안은 받지 않아요
+              입점하신 날부터 1년 동안 이용료·수수료를 받지 않아요
             </p>
-            <div className="mt-6 rounded-xl bg-white p-4">
-              <p className="flex items-center gap-1.5 text-base font-bold text-gray-900">
-                <Icon name="checkCircle" width={20} height={20} className="text-primary" />
-                상품 등록 대행
-              </p>
-              <p className="mt-1 pl-[26px] text-2sm leading-[1.55] text-gray-600">
-                사진과 가격만 주시면 사이즈, 맛 옵션까지 맞춰 올려 드려요
-              </p>
+            <div className="mt-6 flex flex-col gap-4 rounded-xl bg-white p-4">
+              <div>
+                <p className="flex items-center gap-1.5 text-base font-bold text-gray-900">
+                  <Icon name="checkCircle" width={20} height={20} className="text-primary" />
+                  상품 등록 대행
+                </p>
+                <p className="mt-1 pl-[26px] text-2sm leading-[1.55] text-gray-600">
+                  처음 올리실 상품은 사진과 가격만 주시면 사이즈, 맛 옵션까지 맞춰 올려 드려요
+                </p>
+              </div>
+              <div>
+                <p className="flex items-center gap-1.5 text-base font-bold text-gray-900">
+                  <Icon name="checkCircle" width={20} height={20} className="text-primary" />
+                  미리 알려 드려요
+                </p>
+                <p className="mt-1 pl-[26px] text-2sm leading-[1.55] text-gray-600">
+                  그 뒤 비용을 받게 되더라도 최소 3개월 전에 알려 드리고, 언제든 그만두실 수 있어요
+                </p>
+              </div>
             </div>
           </div>
         </Reveal>
