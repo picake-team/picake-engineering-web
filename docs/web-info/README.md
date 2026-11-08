@@ -16,6 +16,7 @@ Picake의 정보·소개 사이트(`https://info.picakes.com`)입니다. 서비�
 - **모바일 화면을 그대로 유지합니다.** web-user의 `RootWrapperLayout`과 같은 스크롤 컨테이너(`#root-scroll-container`)를 써서 모바일은 전체 폭, 640px 이상은 가운데 640px 열로 보입니다. PC 전용 레이아웃은 아직 없습니다.
 - **web-user와 같은 구성을 따릅니다.** PostHog, 환경 판별(`NEXT_PUBLIC_NODE_ENV`), `robots`/`sitemap` 규칙이 web-user와 같습니다. 정적 소개 페이지라 Sentry는 쓰지 않습니다.
 - **필요한 공용 코드만 복사해 씁니다.** 아이콘, `Reveal`, 폰트 등은 web-user에서 복사한 것이며 web-user를 수정하지 않습니다. 원본이 바뀌어도 자동으로 따라가지 않습니다.
+- **디자인 값은 web-user와 같이 씁니다.** 색·글자 크기·모서리·움직임은 공통 패키지 `@picake/design-tokens`의 손님 화면 preset입니다(`tailwind.config.ts`의 `presets`, 2026-11-08 복사본에서 바꿈). 패키지 값이 바뀌면 web-info도 따라 바뀝니다.
 - **콘텐츠는 코드에 직접 작성합니다.** 문구를 고치려면 PR이 필요합니다.
 
 ## 📊 분석·모니터링

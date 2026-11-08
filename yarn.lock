@@ -2992,6 +2992,14 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@picake/design-tokens@workspace:*, @picake/design-tokens@workspace:packages/design-tokens":
+  version: 0.0.0-use.local
+  resolution: "@picake/design-tokens@workspace:packages/design-tokens"
+  peerDependencies:
+    tailwindcss: ^3.4.0
+  languageName: unknown
+  linkType: soft
+
 "@picake/web-admin@workspace:apps/web-admin":
   version: 0.0.0-use.local
   resolution: "@picake/web-admin@workspace:apps/web-admin"
@@ -3030,6 +3038,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@picake/web-info@workspace:apps/web-info"
   dependencies:
+    "@picake/design-tokens": "workspace:*"
     "@svgr/webpack": "npm:^8.1.0"
     "@types/node": "npm:^24"
     "@types/react": "npm:19.1.17"
@@ -3052,6 +3061,7 @@ __metadata:
   resolution: "@picake/web-seller@workspace:apps/web-seller"
   dependencies:
     "@chromatic-com/storybook": "npm:^4.1.3"
+    "@picake/design-tokens": "workspace:*"
     "@radix-ui/react-label": "npm:^2.1.8"
     "@radix-ui/react-select": "npm:^2.2.6"
     "@radix-ui/react-slot": "npm:^1.2.4"
@@ -3099,6 +3109,7 @@ __metadata:
   resolution: "@picake/web-user@workspace:apps/web-user"
   dependencies:
     "@chromatic-com/storybook": "npm:^4.1.3"
+    "@picake/design-tokens": "workspace:*"
     "@playwright/test": "npm:^1.62.1"
     "@radix-ui/react-accordion": "npm:^1.2.12"
     "@radix-ui/react-slot": "npm:^1.2.4"

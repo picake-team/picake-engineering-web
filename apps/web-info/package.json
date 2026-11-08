@@ -12,6 +12,7 @@
     "test": "next build"
   },
   "dependencies": {
+    "@picake/design-tokens": "workspace:*",
     "clsx": "^2.1.1",
     "next": "15.5.18",
     "posthog-js": "^1.396.6",
