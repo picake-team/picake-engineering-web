@@ -1,6 +1,8 @@
 /**
  * 휴대폰 화면의 안내 띠 (디자인 기준 B-3 "안내 · 처리 성공 / 되돌리기").
- * 흰 바탕 + 그림자, 화면 아래쪽(아래 탭·버튼 띠 위)에 잠깐 보인다.
+ * 흰 바탕 + 그림자, 모든 화면에서 같은 자리 — 화면 위쪽(상태 표시줄 + 제목 줄 아래)에 잠깐 보인다.
+ * 아래 탭·저장 줄·키보드와 겹치지 않고, 제목 줄의 뒤로 버튼도 가리지 않는다(운영자 의견 2026-11-08,
+ * 그전에는 아래에서 96px 위라 아래 탭·버튼이 없는 화면에서 어중간하게 떠 보였다). 새 안내가 맨 위.
  *
  * PC 화면과 같은 알림 저장소(`useAlertStore`)를 읽어, 서버 오류·실시간 주문 알림·처리 결과가
  * 휴대폰 화면에서도 같은 곳에 뜬다. PC 화면에서는 기존 `Alert`가 그대로 그린다.
@@ -33,7 +35,8 @@ export function ToastHost() {
       aria-live="polite"
       className={cx(
         APP_COLUMN_CLASS,
-        "pointer-events-none fixed inset-x-0 bottom-[calc(96px+env(safe-area-inset-bottom))] z-[60] flex flex-col gap-2 px-5 font-app",
+        // 제목 줄 높이(48~56)보다 조금 아래. 제목 줄이 없는 화면(로그인 등)도 같은 자리
+        "pointer-events-none fixed inset-x-0 top-[calc(64px+env(safe-area-inset-top))] z-[60] flex flex-col-reverse gap-2 px-5 font-app",
       )}
     >
       {visible.map((a) => {
@@ -43,7 +46,7 @@ export function ToastHost() {
           <div
             key={a.id}
             role={isProblem ? "alert" : "status"}
-            className="pointer-events-auto flex items-start gap-2 rounded-card border border-ink-100 bg-white p-4 text-body text-ink-900 shadow-[0_6px_20px_rgba(31,31,30,0.14)] animate-in fade-in-0 slide-in-from-bottom-2 duration-200"
+            className="pointer-events-auto flex items-start gap-2 rounded-card border border-ink-100 bg-white p-4 text-body text-ink-900 shadow-[0_6px_20px_rgba(31,31,30,0.14)] animate-in fade-in-0 slide-in-from-top-2 duration-200"
           >
             {a.action ? null : (
               <span className="shrink-0 text-brand">
