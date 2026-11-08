@@ -25,6 +25,7 @@ Picake 플랫폼을 위한 Next.js 기반 사용자 웹 애플리케이션입니
 - **에러 처리**: Error Boundary, global-error, Sentry 연동
 - **분석**: PostHog (환경 변수 설정 시)
 - **반응형 UI**: 모바일 우선 반응형 디자인 (Flutter WebView 환경 최적화)
+- **디자인 값**: 색·글자 크기·모서리·움직임은 공통 패키지 `@picake/design-tokens`의 손님 화면 preset(web-info와 같이 씀, `tailwind.config.ts`의 `presets`). 값과 tailwind 이름은 Storybook "Common/디자인 값"(`yarn web-user:storybook`)에서 보고, 새 화면은 숫자·색 코드를 클래스에 직접 쓰지 않고 이 이름을 씁니다([공통 디자인 값](../common/structure/프로젝트%20구조%20-%20가이드.md#공통-디자인-값-packagesdesign-tokens-2026-11-08))
 - **SEO 최적화**: Next.js 메타데이터 API 활용
 
 ### 🔄 개발 중

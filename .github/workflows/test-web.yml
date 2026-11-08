@@ -41,7 +41,8 @@ jobs:
             HAS_TEST_SCRIPT=true
           fi
 
-          if echo "$CHANGED" | grep -qE "^apps/${{ matrix.app }}/|^\.github/workflows/test-web\.yml$" && [ "$HAS_TEST_SCRIPT" = "true" ]; then
+          # packages/(공통 디자인 값 등)가 바뀌면 그 패키지를 쓰는 앱이 있으므로 test가 있는 모든 앱을 돈다
+          if echo "$CHANGED" | grep -qE "^apps/${{ matrix.app }}/|^packages/|^\.github/workflows/test-web\.yml$" && [ "$HAS_TEST_SCRIPT" = "true" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"

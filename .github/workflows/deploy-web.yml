@@ -230,7 +230,10 @@ jobs:
               exit 0
             fi
             echo "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/compare/${PREV_TAG}...${TAG}" > /tmp/deploy-compare.txt
-            git log --no-merges --pretty='• %s' "${PREV_TAG}..${TAG}" -- "apps/${PROJECT}" > /tmp/deploy-log.txt
+            # 앱이 packages/의 공통 패키지(workspace:)를 쓰면 그 변경도 앱에 들어가므로 같이 센다
+            PATHS=("apps/${PROJECT}")
+            grep -q '"workspace:' "apps/${PROJECT}/package.json" && PATHS+=("packages")
+            git log --no-merges --pretty='• %s' "${PREV_TAG}..${TAG}" -- "${PATHS[@]}" > /tmp/deploy-log.txt
             TOTAL=$(grep -c . /tmp/deploy-log.txt)
             if [ "$TOTAL" -eq 0 ]; then
               echo "이 앱의 코드 변경 없음(같은 코드를 다시 배포)" > /tmp/deploy-changes.txt
