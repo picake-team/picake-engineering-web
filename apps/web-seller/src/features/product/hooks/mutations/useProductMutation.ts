@@ -83,8 +83,12 @@ export function useDeleteProduct() {
         severity: "success",
         message: "상품이 삭제되었습니다.",
       });
-      // 상품 쿼리 무효화
-      queryClient.invalidateQueries({ queryKey: productQueryKeys.all });
+      // 상품 쿼리 무효화. 지운 상품의 상세는 다시 부르지 않는다(열려 있던 상세 화면이 다시 불러
+      // "상품을 찾을 수 없습니다" 오류 안내가 함께 뜨던 것)
+      queryClient.invalidateQueries({
+        queryKey: productQueryKeys.all,
+        predicate: (query) => query.queryKey[2] !== variables.productId,
+      });
       navigate(ROUTES.STORE_DETAIL_PRODUCTS_LIST(variables.storeId));
     },
     onError: (error) => {

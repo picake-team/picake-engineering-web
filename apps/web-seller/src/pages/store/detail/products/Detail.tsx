@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { PageTitle } from "@/apps/web-seller/common/components/layouts/MobileFrame";
+import { useFrameConfirm } from "@/apps/web-seller/common/components/layouts/useFrameConfirm";
 import { useParams } from "react-router-dom";
 import { ProductCreationForm } from "@/apps/web-seller/features/product/components/forms/ProductCreationForm";
 import {
@@ -20,6 +21,11 @@ export const StoreDetailProductDetailPage: React.FC = () => {
   const { data: product, isLoading } = useProductDetail(productId || "");
   const updateProductMutation = useUpdateProduct();
   const deleteProductMutation = useDeleteProduct();
+  const { confirm: confirmDelete, sheet: confirmDeleteSheet } = useFrameConfirm({
+    pcMessage: "정말 이 상품을 삭제하시겠습니까?",
+    title: "이 상품을 삭제할까요?",
+    confirmLabel: "삭제하기",
+  });
 
   // ProductResponseDto를 ProductForm으로 변환. 화면이 다시 그려질 때마다 폼이 초기화되지 않게 상품이 바뀔 때만 만든다
   const productForm = useMemo<ProductForm | null>(
@@ -124,7 +130,7 @@ export const StoreDetailProductDetailPage: React.FC = () => {
   };
 
   const handleDelete = async () => {
-    if (window.confirm("정말 이 상품을 삭제하시겠습니까?")) {
+    if (await confirmDelete()) {
       await deleteProductMutation.mutateAsync({
         productId,
         storeId,
@@ -148,6 +154,7 @@ export const StoreDetailProductDetailPage: React.FC = () => {
           naverLinkedAt: product.naverLinkedAt,
         }}
       />
+      {confirmDeleteSheet}
     </div>
   );
 };

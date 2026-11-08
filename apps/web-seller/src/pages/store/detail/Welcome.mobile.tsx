@@ -2,7 +2,7 @@
  * 처음 사용 안내 (SC-69, 디자인 8-G · A69b, 앱에서만). 알림이 왜 필요한지 알리고 휴대폰 알림 허용을 한 번 묻는다.
  * 허용하면 "테스트 알림 보내기"로 확인, 허용하지 않으면 홈에 "알림 켜기" 안내가 남는다.
  */
-import React, { useEffect } from "react";
+import React from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { APP_COLUMN_CLASS } from "@/apps/web-seller/common/ui/Screen";
@@ -15,7 +15,6 @@ import { usePushPermissionStore } from "@/apps/web-seller/common/store/push-perm
 import getApiMessage from "@/apps/web-seller/common/utils/getApiMessage";
 import {
   isSellerAppWebView,
-  requestFcmTokenUpsert,
   requestPushPermission,
 } from "@/apps/web-seller/common/utils/webview.bridge";
 import { sellerPushApi } from "@/apps/web-seller/features/notification/apis/notification.api";
@@ -34,11 +33,7 @@ export const StoreWelcomeMobilePage: React.FC = () => {
   const status = usePushPermissionStore((s) => s.status);
   const addAlert = useAlertStore((s) => s.addAlert);
   const granted = status === "granted";
-
-  // 허용하면 이 휴대폰을 알림 받을 곳으로 다시 등록(허용 전에는 토큰이 없을 수 있다)
-  useEffect(() => {
-    if (granted) requestFcmTokenUpsert();
-  }, [granted]);
+  // 허용하면 이 휴대폰을 알림 받을 곳으로 다시 등록하는 것은 SellerAppBridgeProvider가 한다(어디서 허용해도 같게)
 
   const testPush = useMutation({
     mutationFn: sellerPushApi.sendTestPush,
