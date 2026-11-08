@@ -85,8 +85,12 @@ export function useDeleteFeed() {
         severity: "success",
         message: "피드가 삭제되었습니다.",
       });
-      // 피드 쿼리 무효화
-      queryClient.invalidateQueries({ queryKey: feedQueryKeys.all });
+      // 피드 쿼리 무효화. 지운 피드의 상세는 다시 부르지 않는다(열려 있던 상세 화면이 다시 불러
+      // 오류 안내가 함께 뜨지 않게)
+      queryClient.invalidateQueries({
+        queryKey: feedQueryKeys.all,
+        predicate: (query) => query.queryKey[2] !== variables.feedId,
+      });
       navigate(ROUTES.STORE_DETAIL_FEED_LIST(variables.storeId));
     },
     onError: (error) => {

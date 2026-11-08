@@ -230,7 +230,7 @@ export const StoreDetailHoursMobilePage: React.FC = () => {
       }
     >
       <p className="text-sub leading-normal text-ink-600">
-        매주 똑같이 적용돼요. 특정 날만 바꾸려면 캘린더에서 그 날을 눌러요.
+        매주 똑같이 적용돼요. 특정 날만 바꾸는 것은 PC 캘린더에서 할 수 있어요.
       </p>
       {draft ? (
         <>

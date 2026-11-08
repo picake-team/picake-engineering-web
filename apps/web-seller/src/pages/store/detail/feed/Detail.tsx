@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { PageTitle } from "@/apps/web-seller/common/components/layouts/MobileFrame";
+import { useFrameConfirm } from "@/apps/web-seller/common/components/layouts/useFrameConfirm";
 import {
   FRAME_SUBMIT_BAR_CLASS,
   FRAME_SUBMIT_BUTTON_CLASS,
@@ -29,6 +30,11 @@ export const StoreDetailFeedDetailPage: React.FC = () => {
   const { storeId, feedId } = useParams<{ storeId: string; feedId: string }>();
   const updateFeedMutation = useUpdateFeed();
   const deleteFeedMutation = useDeleteFeed();
+  const { confirm: confirmDelete, sheet: confirmDeleteSheet } = useFrameConfirm({
+    pcMessage: "정말 이 피드를 삭제하시겠습니까?",
+    title: "이 피드를 삭제할까요?",
+    confirmLabel: "삭제하기",
+  });
 
   const { data: feed, isLoading } = useFeedDetail(storeId || "", feedId || "");
   const [title, setTitle] = useState("");
@@ -103,7 +109,7 @@ export const StoreDetailFeedDetailPage: React.FC = () => {
   };
 
   const handleDelete = async () => {
-    if (!window.confirm("정말 이 피드를 삭제하시겠습니까?")) {
+    if (!(await confirmDelete())) {
       return;
     }
 
@@ -196,6 +202,7 @@ export const StoreDetailFeedDetailPage: React.FC = () => {
           </form>
         </CardContent>
       </Card>
+      {confirmDeleteSheet}
     </div>
   );
 };

@@ -89,5 +89,18 @@ export function SellerAppBridgeProvider({ children }: { children: React.ReactNod
     requestFcmTokenUpsert();
   }, [isAuthenticated]);
 
+  // 알림을 나중에 허용하면(처음 사용 안내, 홈 "켜기", 휴대폰 설정에서 켜고 돌아옴) 이 휴대폰을 다시 등록한다.
+  // 앱이 허용 전에는 토큰을 주지 않을 수 있어서다. 앱을 열 때 처음 알려 준 상태(unknown → granted)는 위 로그인 등록이 맡는다
+  const pushStatus = usePushPermissionStore((s) => s.status);
+  const prevPushStatus = useRef(pushStatus);
+  useEffect(() => {
+    const prev = prevPushStatus.current;
+    prevPushStatus.current = pushStatus;
+    if (!isAuthenticated || !isSellerAppWebView()) return;
+    if (pushStatus === "granted" && (prev === "denied" || prev === "notDetermined")) {
+      requestFcmTokenUpsert();
+    }
+  }, [pushStatus, isAuthenticated]);
+
   return <>{children}</>;
 }
