@@ -1,0 +1,12 @@
+{
+  // 공통 디자인 값 패키지. 빌드하지 않고 쓰는 앱(tailwind 설정, Vite, Storybook)이 TS 그대로 읽는다
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "target": "ES2017",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "isolatedModules": true
+  },
+  "include": ["src/**/*"]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "@picake/design-tokens",
+  "version": "0.0.0",
+  "description": "Picake 웹 공통 디자인 값 (색, 손님 화면 tailwind preset)",
+  "private": true,
+  "sideEffects": false,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "peerDependencies": {
+    "tailwindcss": "^3.4.0"
+  }
+}
