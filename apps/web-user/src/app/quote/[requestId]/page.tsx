@@ -14,12 +14,13 @@ import {
 } from "@/apps/web-user/features/quote/hooks/useQuoteRequests";
 import { QuoteStatusBadge } from "@/apps/web-user/features/quote/components/QuoteRequestCard";
 import { NoticeBox } from "@/apps/web-user/features/quote/components/form/QuoteFormParts";
+import { QuoteLoginGate } from "@/apps/web-user/features/quote/components/QuoteLoginGate";
 
 /**
  * 요청 상세(SC-18). 1단계 ①에서는 요청 내용과 "물어보는 중"을 보여 주고,
  * 견적 카드·고르기는 ②에서 붙는다. 이 주소는 카카오 알림톡 [견적 보기] 버튼에 고정돼 있다.
  */
-export default function QuoteRequestDetailPage() {
+function QuoteRequestDetailContent() {
   const router = useRouter();
   const { requestId } = useParams<{ requestId: string }>();
   const { data, isLoading, isError } = useQuoteRequestDetail(requestId ?? null);
@@ -207,5 +208,28 @@ export default function QuoteRequestDetailPage() {
         </p>
       </BottomSheet>
     </div>
+  );
+}
+
+export default function QuoteRequestDetailPage() {
+  const router = useRouter();
+  return (
+    <QuoteLoginGate
+      fallbackHeader={
+        <header className="sticky top-0 z-10 flex h-[52px] items-center bg-white px-[16px]">
+          <button
+            type="button"
+            aria-label="뒤로"
+            onClick={() => navigateBack(router, { fallbackPath: PATHS.HOME })}
+          >
+            <Icon name="chevronLeft" width={24} height={24} />
+          </button>
+          <span className="flex-1 text-center text-sm font-bold text-gray-900">견적 요청</span>
+          <span className="w-[24px]" />
+        </header>
+      }
+    >
+      <QuoteRequestDetailContent />
+    </QuoteLoginGate>
   );
 }
