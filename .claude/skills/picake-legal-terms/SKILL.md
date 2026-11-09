@@ -31,7 +31,7 @@ description: Picake(운영사 두루랩스)의 통신판매업 신고정보나 �
 | 고객센터 이메일    | picakeee@gmail.com                                                            | 위와 동일 출처                                                                          |
 | 도메인             | production: `picakes.com` / staging: `staging.picakes.com`                    |                                                                                         |
 
-**참고**: `apps/web-admin/src/features/terms/samples/consumer/`, `apps/web-admin/src/features/terms/samples/seller/`에 6종 약관의 "샘플약관" HTML이 이미 존재한다 (관리자 페이지 약관 등록 폼의 초안 채우기용, `terms-content-samples.util.ts`가 로드). 사업자정보나 약관 갱신 작업을 시작하기 전에 **먼저 이 폴더를 확인**하라 — 매번 새로 작성하지 말고 여기 있는 내용을 기준으로 보정하는 것이 원칙이다 (2026-08-04: 통신판매업신고번호 placeholder 채움, 신고증 기준 주소 보정, 애플 로그인 추가 반영 후 v1.2로 스테이징·프로덕션에 반영 완료).
+**참고**: `apps/web-admin/src/features/terms/samples/consumer/`, `apps/web-admin/src/features/terms/samples/seller/`에 6종 약관의 "샘플약관" HTML이 이미 존재한다 (관리자 페이지 약관 등록 폼의 초안 채우기용, `terms-content-samples.util.ts`가 로드). 사업자정보나 약관 갱신 작업을 시작하기 전에 **먼저 이 폴더를 확인**하라 — 매번 새로 작성하지 말고 여기 있는 내용을 기준으로 보정하는 것이 원칙이다 (2026-08-04: 통신판매업신고번호 placeholder 채움, 신고증 기준 주소 보정, 애플 로그인 추가 반영 후 v1.2로 스테이징·프로덕션에 반영 완료. 구매자 개인정보 처리방침 v1.3(견적 요청 제3자 제공, 기획 I-46)은 2026-11-09 공지, 11-17 시행 — 원문은 picake-hq `legal/drafts/`).
 
 ## 2. 문서 타입별 법정 최소 요건
 
@@ -53,6 +53,14 @@ description: Picake(운영사 두루랩스)의 통신판매업 신고정보나 �
 3. **누락된 내용** — 2번 체크리스트 대비 빠진 법정 필수 항목이 없는지 (특히 개인정보처리방침의 9개 필수 항목, 이용약관의 사업자정보 고지).
 
 ## 4. DB 반영
+
+**상용(picakes.com) 반영은 picake-hq 워크플로 `법무 · 공지와 약관 올리기`로 한다(2026-11-09부터).** 관리자 API 키(GitHub 비밀값)를 써서 토큰을 묻지 않는다.
+
+1. 새 버전 글을 picake-hq `legal/drafts/`에 HTML로 두고(파일 이름은 `legal/terms/`와 같게) `legal/drafts/schedule.json`에 한 줄(종류·버전·시행일·불리한 변경인지·공지 글) 더한다.
+2. 시행일 7일 전(불리한 변경은 30일 전)에 `step=notice`로 손님 앱 공지를 올린다. 시행일에 `step=register`로 새 버전을 등록·적용한다. 둘 다 먼저 `dry=true`로 보낼 내용을 확인하고, 운영자 허락을 받은 뒤 `dry=false`로 돌린다. 시행일은 picake-hq `today/todo.md`에 AI 할 일로 남긴다.
+3. 다음 날 `법무 · 매일 확인`이 `legal/terms/`에 새 버전을 기록했는지 본다.
+
+staging에 먼저 넣어 보거나 이 워크플로가 다루지 않는 경우에만 아래처럼 직접 API를 부른다.
 
 - 약관은 **수정이 아니라 항상 새 버전 등록**이다 (`terms-write.service.ts` 정책 — 기존 레코드는 절대 변경하지 않음). 첫 실 데이터 반영이라도 스테이징/프로덕션에 이미 placeholder 시드(버전 1.0, "시드 데이터용 약관 본문입니다")가 들어있을 수 있으므로, 반영 전 `GET /v1/admin/terms/versions?type=<TYPE>`로 기존 버전을 확인하고 다음 버전 번호(예: 1.0이 있으면 1.1)를 정한다.
 - 엔드포인트: `POST /v1/admin/terms` — body `{ type, version, title, content, effectiveAt, activateNow: true }`. `activateNow: true`면 같은 타입의 기존 활성 버전이 자동 비활성화된다.

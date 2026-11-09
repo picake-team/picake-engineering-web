@@ -27,9 +27,9 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
-      // 사장님 입점 소개 페이지는 정보 사이트(web-info)로 옮겼다. 게이트(`/partner`)의 "소개페이지 바로가기"와
-      // 이미 공유된 링크가 계속 동작하도록 남겨 둔다. 안정화되면 permanent로 올린다.
-      { source: "/partner/about", destination: PARTNER_ABOUT_URL, permanent: false },
+      // 사장님 입점 소개 페이지는 정보 사이트(web-info)로 옮겼다(2026-10-27). 게이트(`/partner`)의 "소개페이지 바로가기"와
+      // 이미 공유된 링크가 계속 동작하도록 남겨 둔다. 2주 동안 문제가 없어 2026-11-10 영구(308)로 올렸다.
+      { source: "/partner/about", destination: PARTNER_ABOUT_URL, permanent: true },
       { source: "/chat", destination: "/", permanent: false },
       { source: "/chat/:path*", destination: "/", permanent: false },
     ];
