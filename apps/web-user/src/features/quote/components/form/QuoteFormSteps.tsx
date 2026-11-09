@@ -103,6 +103,8 @@ export function StepWhen({ now }: { now: Date }) {
           selectedDate={draft.pickupDate ? fromYmd(draft.pickupDate) : null}
           minDate={minDate}
           maxDate={maxDate}
+          // 손님이 직접 고르게 한다(예약 달력처럼 오늘을 자동으로 고르지 않음)
+          autoSelectToday={false}
           onDateSelect={(date) => update({ pickupDate: toYmd(date) })}
         />
       </Field>

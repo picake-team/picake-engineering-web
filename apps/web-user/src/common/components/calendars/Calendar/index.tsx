@@ -35,6 +35,11 @@ export interface CalendarProps {
    * 영업 캘린더 — 정의되면 휴무일/요일이 자동으로 disable 처리됨
    */
   businessCalendar?: StoreBusinessCalendar;
+  /**
+   * 고른 날짜가 없을 때 오늘(고를 수 있으면)을 자동으로 고를지(기본: 고름, 예약 달력).
+   * 손님이 직접 날짜를 골라야 하는 곳(견적 요청서)은 false
+   */
+  autoSelectToday?: boolean;
 }
 
 const DAYS_OF_WEEK = ["일", "월", "화", "수", "목", "금", "토"];
@@ -51,6 +56,7 @@ export const Calendar: React.FC<CalendarProps> = ({
   className,
   initialMonth,
   businessCalendar,
+  autoSelectToday = true,
 }) => {
   const displayMonthSource = initialMonth ?? selectedDate ?? null;
 
@@ -151,10 +157,10 @@ export const Calendar: React.FC<CalendarProps> = ({
   };
 
   useEffect(() => {
-    if (!selectedDate && onDateSelect && !isDateDisabled(today)) {
+    if (autoSelectToday && !selectedDate && onDateSelect && !isDateDisabled(today)) {
       onDateSelect(new Date(today));
     }
-  }, [selectedDate, onDateSelect, minDate, maxDate, today]);
+  }, [autoSelectToday, selectedDate, onDateSelect, minDate, maxDate, today]);
 
   // minDate/maxDate가 속한 "월"의 시작일 (월 이동 제한 기준)
   const minMonthStart = minDate ? new Date(minDate.getFullYear(), minDate.getMonth(), 1) : null;
