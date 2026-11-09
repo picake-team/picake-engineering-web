@@ -95,8 +95,14 @@ function QuoteNewContent() {
   }, []);
 
   // 쓰던 요청서를 기기에서 읽은 뒤 입구 값을 반영한다
+  // 저장돼 있던 요청서가 있는지는 불러온 그 순간 기준으로 본다(화면이 그린 뒤 바뀐 값으로 판단하지 않게)
+  const hadDraftRef = useRef(false);
   useEffect(() => {
-    const done = () => setHydrated(true);
+    const done = () => {
+      const s = useQuoteDraftStore.getState();
+      hadDraftRef.current = s.started && hasContent(s.draft);
+      setHydrated(true);
+    };
     const unsub = useQuoteDraftStore.persist.onFinishHydration(done);
     if (useQuoteDraftStore.persist.hasHydrated()) done();
     return unsub;
@@ -106,8 +112,7 @@ function QuoteNewContent() {
     if (!hydrated) return;
     const init = readInit(new URLSearchParams(params.toString()));
     if (!init) return;
-    const current = useQuoteDraftStore.getState();
-    if (current.started && hasContent(current.draft)) setPendingInit(init);
+    if (hadDraftRef.current) setPendingInit(init);
     else {
       start(init);
       fillAreaFromStore(init);
