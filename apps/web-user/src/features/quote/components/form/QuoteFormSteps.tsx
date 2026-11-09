@@ -666,11 +666,16 @@ export function StepConfirm({ now, onEdit }: { now: Date; onEdit: (step: number)
           }
         />
         {detailOpen && (
-          <p className="mt-[8px] rounded-lg bg-gray-50 px-[12px] py-[10px] text-xs leading-[18px] text-gray-700">
-            받는 곳: 고른 지역의 케이크 가게(Picake 입점 전 가게 포함)와 넣은 가게 · 목적: 케이크
-            견적 · 항목: 요청 내용(픽업 날짜·시간, 동네, 케이크, 예산, 요청 사항)과 참고 사진 ·
-            이름·연락처는 보내지 않아요.
-          </p>
+          <ul className="mt-[8px] flex flex-col gap-[4px] rounded-lg bg-gray-50 px-[12px] py-[10px] text-xs leading-[18px] text-gray-700">
+            <li>받는 곳: 고른 지역의 케이크 가게(Picake 입점 전 가게 포함)와 직접 넣은 가게</li>
+            <li>목적: 케이크 견적을 받기 위해</li>
+            <li>
+              항목: 픽업 날짜·시간, 받을 동네, 설명·요청 사항, 크기·개수·맛, 예산, 참고 사진
+              (이름·연락처는 보내지 않아요)
+            </li>
+            <li>기간: 견적 요청이 마감될 때까지</li>
+            <li>동의하지 않을 수 있어요. 동의하지 않으면 견적 요청만 보낼 수 없어요.</li>
+          </ul>
         )}
       </div>
       <DeadlineNotice draft={draft} now={now} />
