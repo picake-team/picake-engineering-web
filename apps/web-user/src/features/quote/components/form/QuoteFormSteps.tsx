@@ -10,6 +10,7 @@ import { cn } from "@/apps/web-user/common/lib/utils";
 import {
   QUOTE_CREAM_OPTIONS,
   QUOTE_LIMITS,
+  QUOTE_NO_REPLAY,
   QUOTE_SIZE_OPTIONS,
 } from "@/apps/web-user/features/quote/constants/quote.constant";
 import {
@@ -447,7 +448,10 @@ export function StepCake() {
           {draft.photos.map((p) => (
             <div
               key={p.id}
-              className="relative h-[100px] w-[100px] shrink-0 rounded-lg border border-gray-100"
+              className={cn(
+                "relative h-[100px] w-[100px] shrink-0 rounded-lg border border-gray-100",
+                QUOTE_NO_REPLAY,
+              )}
             >
               <button
                 type="button"
@@ -643,6 +647,7 @@ export function StepConfirm({ now, onEdit }: { now: Date; onEdit: (step: number)
         ? `${formatHour(kstHour(w.start))} 이후`
         : "아무 때나";
 
+  // clamp = 손님이 직접 쓴 글(설명·요청 사항): 두 줄로 줄이고 화면 녹화에서 가린다
   const rows: { label: string; value: string; step: number; clamp?: boolean }[] = [
     {
       label: "픽업",
@@ -679,7 +684,12 @@ export function StepConfirm({ now, onEdit }: { now: Date; onEdit: (step: number)
             className="flex items-start gap-[12px] border-b border-gray-50 py-[12px] text-sm last:border-b-0"
           >
             <span className="w-[64px] shrink-0 text-gray-500">{r.label}</span>
-            <span className={cn("min-w-0 flex-1 text-gray-900", r.clamp && "line-clamp-2")}>
+            <span
+              className={cn(
+                "min-w-0 flex-1 text-gray-900",
+                r.clamp && ["line-clamp-2", QUOTE_NO_REPLAY],
+              )}
+            >
               {r.value}
             </span>
             <button
