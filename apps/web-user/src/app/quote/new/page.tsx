@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { Button } from "@/apps/web-user/common/components/buttons/Button";
@@ -148,7 +148,11 @@ function QuoteNewContent() {
     else setStep(order[position - 1]);
   };
 
+  // 보내기를 빠르게 두 번 눌러도 요청이 두 개 생기지 않게
+  const sendingRef = useRef(false);
+
   const send = () => {
+    if (sendingRef.current) return;
     if (!isAuthenticated) {
       openLoginSheet("quote_request");
       return;
@@ -163,6 +167,7 @@ function QuoteNewContent() {
       setStep(1);
       return;
     }
+    sendingRef.current = true;
     create.mutate(
       {
         photos: draft.photos,
@@ -211,6 +216,9 @@ function QuoteNewContent() {
         onSuccess: (res) => {
           reset();
           router.replace(PATHS.QUOTE.SENT(res.id));
+        },
+        onSettled: () => {
+          sendingRef.current = false;
         },
         onError: (error) => {
           showAlert({
