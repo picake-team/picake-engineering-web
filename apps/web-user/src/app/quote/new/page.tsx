@@ -28,6 +28,7 @@ import {
   StepWhere,
 } from "@/apps/web-user/features/quote/components/form/QuoteFormSteps";
 import { useCreateQuoteRequest } from "@/apps/web-user/features/quote/hooks/useQuoteRequests";
+import { quoteLocalApi } from "@/apps/web-user/features/quote/apis/quote.api";
 import { pickupWindow } from "@/apps/web-user/features/quote/utils/quote-time.util";
 
 const ENTRIES: QuoteRequestEntry[] = ["HOME", "SEARCH", "MAP", "STORE", "MYPAGE"];
@@ -107,10 +108,25 @@ function QuoteNewContent() {
     if (!init) return;
     const current = useQuoteDraftStore.getState();
     if (current.started && hasContent(current.draft)) setPendingInit(init);
-    else start(init);
+    else {
+      start(init);
+      fillAreaFromStore(init);
+    }
     router.replace(PATHS.QUOTE.NEW);
     // 처음 한 번만
   }, [hydrated]);
+
+  /** "다른 가게에도 물어보기"로 들어오면 받을 동네를 그 가게 위치로 채운다(손님이 바꿀 수 있음) */
+  function fillAreaFromStore(init: Partial<QuoteDraft>) {
+    const store = init.stores?.[0];
+    if (init.onlyDesignatedStores || !store?.latitude || !store?.longitude) return;
+    quoteLocalApi
+      .areaFromCoords(store.latitude, store.longitude)
+      .then((area) => {
+        if (area && !useQuoteDraftStore.getState().draft.area) update({ area });
+      })
+      .catch(() => undefined);
+  }
 
   const only = draft.onlyDesignatedStores;
   const order = useMemo(() => (only ? [1, 4, 5, 6] : [1, 2, 3, 4, 5, 6]), [only]);
@@ -270,6 +286,7 @@ function QuoteNewContent() {
             className="flex-1"
             onClick={() => {
               start(pendingInit ?? undefined);
+              if (pendingInit) fillAreaFromStore(pendingInit);
               setPendingInit(null);
             }}
           >

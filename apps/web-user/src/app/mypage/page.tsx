@@ -59,6 +59,8 @@ const QUICK_LINKS = [
   { icon: "review", label: "내 후기", href: PATHS.MY_REVIEWS },
   { icon: "saved", label: "저장", href: PATHS.MY_SAVED },
   { icon: "recent", label: "최근 본", href: PATHS.RECENT },
+  // 견적 요청(기획 I-46 SC-13 4). 아직 보지 않은 견적 수는 견적 기능(1단계 ②)과 함께 띄운다
+  { icon: "list", label: "내 견적", href: PATHS.MY_QUOTES },
 ] as const;
 
 const TERMS_MENU = [

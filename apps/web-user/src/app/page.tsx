@@ -10,6 +10,7 @@ import { SortBy, Product } from "@/apps/web-user/features/product/types/product.
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { useHeaderStore } from "@/apps/web-user/common/store/header.store";
 import { BottomNav } from "@/apps/web-user/common/components/navigation/BottomNav";
+import { QuoteHomeCard } from "@/apps/web-user/features/quote/components/entry/QuoteEntry";
 import { useUserCurrentLocationStore } from "@/apps/web-user/common/store/user-current-location.store";
 import { useStoreRegions } from "@/apps/web-user/features/store/hooks/queries/useStoreRegions";
 import { buildRegionsParam } from "@/apps/web-user/common/utils/region-match.util";
@@ -131,6 +132,10 @@ export default function Home() {
 
       {/* 신규케이크 (최신순) */}
       <div className="relative z-20 bg-white">
+        {/* 견적 요청 카드(기획 I-46 SC-12): 카테고리 아래, 항상 같은 자리 */}
+        <div className="px-[20px] pb-[8px]">
+          <QuoteHomeCard />
+        </div>
         <CakeListSlider
           title="신규케이크"
           products={latestProducts}
