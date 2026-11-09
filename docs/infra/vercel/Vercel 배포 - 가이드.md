@@ -135,7 +135,7 @@ Picake 프로젝트의 web-user, web-seller, web-admin, web-info 애플리케이
 
 ### 4. 도메인 구성 (선택사항)
 
-커스텀 도메인 설정은 [EC2 배포 가이드(검증)](<../aws/(검증)EC2_Route53_S3_CloudFront.md>)의 Route53 섹션을 참고하세요.
+커스텀 도메인 설정은 [EC2 배포 가이드(검증)](<https://github.com/picake-team/picake-engineering-backend/blob/main/docs/infra/aws/(검증)EC2_Route53_S3_CloudFront.md>)(backend 레포)의 Route53 섹션을 참고하세요.
 
 ## 참고 자료
 
