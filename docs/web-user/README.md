@@ -20,6 +20,7 @@ Picake 플랫폼을 위한 Next.js 기반 사용자 웹 애플리케이션입니
 - **지도**: 위치 기반 스토어 검색 (Map)
 - **검색**: 통합 검색 기능
 - **Q&A**: 상품/스토어 문의
+- **견적 요청**(기획 I-46 1단계 ①, 2026-11-09): 요청서 6단계(`/quote/new`, 쓰던 내용은 기기에 남아 로그인을 다녀와도 이어짐, 사진은 보낼 때 업로드), 보낸 뒤, 요청 상세, MY 내 견적 요청. 입구는 홈 카드·검색 결과/스토어 상세 아래 칸·지도 미입점 카드·MY 바로가기. 동네·가게 찾기는 `app/api/kakao-local`(카카오 로컬, 키는 서버에만)
 - **상태 관리**: Zustand를 활용한 전역 상태 관리
 - **API 통신**: TanStack Query + Axios를 활용한 서버 상태 관리
 - **에러 처리**: Error Boundary, global-error, Sentry 연동
@@ -62,6 +63,13 @@ Picake 플랫폼을 위한 Next.js 기반 사용자 웹 애플리케이션입니
 - **주문 목록**: `/mypage/order` - 주문 내역
 - **주문 상세**: `/order/:orderId` - 주문 상세
 - **예약 완료**: `/reservation/complete` - 예약 완료
+
+### 견적 요청
+
+- **요청서**: `/quote/new` - `?entry=HOME|SEARCH|MAP|STORE|MYPAGE`, 가게 화면에서는 `storeId`·`kakaoPlaceId`·`only=1`
+- **보낸 뒤**: `/quote/sent?requestId=`
+- **요청 상세**: `/quote/:requestId` - 카카오 알림톡 [견적 보기] 버튼에 고정된 주소라 바꾸지 않는다
+- **내 견적 요청**: `/mypage/quote` - 진행 중 / 지난 요청
 
 ### 마이페이지
 

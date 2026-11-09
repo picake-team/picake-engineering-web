@@ -13,6 +13,7 @@ Picake 플랫폼을 위한 React + Vite 기반 내부 관리자 시스템입니�
 - **소비자 관리**: 회원 목록, 홈 배너, 공지사항, Q&A, 약관 관리
 - **판매자 관리**: 회원(판매자) 목록, 스토어 목록, 판매자 세그먼트, 약관 관리
 - **입점 요청 관리**: 비입점 카카오 장소에 대한 소비자 등록 요청 처리
+- **견적 요청 관리**(기획 I-46, 2026-11-09): 상태별 목록·상세. 상세 주소는 디스코드 새 요청 알림의 링크와 같다
 - **상태 관리**: Zustand를 활용한 전역 상태 관리
 - **API 통신**: TanStack Query + Axios를 활용한 서버 상태 관리
 - **에러 처리**: Error Boundary 기반 에러 핸들링
@@ -42,6 +43,7 @@ Picake 플랫폼을 위한 React + Vite 기반 내부 관리자 시스템입니�
 ### 소비자 앱 관리
 
 - **회원 목록**: `/consumer/members`
+- **견적 요청**: `/consumer/quote-requests`, 상세 `/consumer/quote-requests/:requestId`
 - **홈 배너**: `/consumer/home-banners`
 - **약관**: `/consumer/terms`
 - **공지사항**: `/consumer/notices`
