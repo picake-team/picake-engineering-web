@@ -10,6 +10,7 @@ import { cn } from "@/apps/web-user/common/lib/utils";
 import {
   QUOTE_CREAM_OPTIONS,
   QUOTE_LIMITS,
+  QUOTE_NO_REPLAY,
   QUOTE_SIZE_OPTIONS,
 } from "@/apps/web-user/features/quote/constants/quote.constant";
 import {
@@ -39,6 +40,8 @@ import {
   formatShortDate,
   fromYmd,
   pickupWindow,
+  kstHour,
+  todayKstYmd,
   toYmd,
 } from "@/apps/web-user/features/quote/utils/quote-time.util";
 import { distanceKm, formatKm } from "@/apps/web-user/features/quote/utils/quote-geo.util";
@@ -60,7 +63,7 @@ export function DeadlineNotice({ draft, now }: { draft: QuoteDraft; now: Date })
 export function StepWhen({ now }: { now: Date }) {
   const { draft, update } = useQuoteDraftStore();
   const [sheetOpen, setSheetOpen] = useState(false);
-  const todayYmd = toYmd(now);
+  const todayYmd = todayKstYmd(now);
   const minDate = useMemo(() => {
     const d = fromYmd(todayYmd);
     if (firstSelectableHour(todayYmd, now) === null) d.setDate(d.getDate() + 1);
@@ -101,6 +104,8 @@ export function StepWhen({ now }: { now: Date }) {
           selectedDate={draft.pickupDate ? fromYmd(draft.pickupDate) : null}
           minDate={minDate}
           maxDate={maxDate}
+          // 손님이 직접 고르게 한다(예약 달력처럼 오늘을 자동으로 고르지 않음)
+          autoSelectToday={false}
           onDateSelect={(date) => update({ pickupDate: toYmd(date) })}
         />
       </Field>
@@ -155,13 +160,19 @@ export function StepWhere() {
       setCount(null);
       return;
     }
+    // 거리 막대를 끄는 동안 칸마다 검색하지 않게 잠깐(0.3초) 멈췄을 때만 센다
     let cancelled = false;
-    quoteLocalApi
-      .countPlaces(draft.area.latitude, draft.area.longitude, draft.distance)
-      .then((n) => !cancelled && setCount(n))
-      .catch(() => !cancelled && setCount(null));
+    const { latitude, longitude } = draft.area;
+    const km = draft.distance;
+    const t = setTimeout(() => {
+      quoteLocalApi
+        .countPlaces(latitude, longitude, km)
+        .then((n) => !cancelled && setCount(n))
+        .catch(() => !cancelled && setCount(null));
+    }, 300);
     return () => {
       cancelled = true;
+      clearTimeout(t);
     };
   }, [draft.area, draft.distance]);
 
@@ -437,7 +448,10 @@ export function StepCake() {
           {draft.photos.map((p) => (
             <div
               key={p.id}
-              className="relative h-[100px] w-[100px] shrink-0 rounded-lg border border-gray-100"
+              className={cn(
+                "relative h-[100px] w-[100px] shrink-0 rounded-lg border border-gray-100",
+                QUOTE_NO_REPLAY,
+              )}
             >
               <button
                 type="button"
@@ -630,9 +644,10 @@ export function StepConfirm({ now, onEdit }: { now: Date; onEdit: (step: number)
     draft.hourFrom !== null && draft.hourTo !== null
       ? formatHourRange(draft.hourFrom, draft.hourTo)
       : w?.shifted
-        ? `${formatHour(w.start.getHours())} 이후`
+        ? `${formatHour(kstHour(w.start))} 이후`
         : "아무 때나";
 
+  // clamp = 손님이 직접 쓴 글(설명·요청 사항): 두 줄로 줄이고 화면 녹화에서 가린다
   const rows: { label: string; value: string; step: number; clamp?: boolean }[] = [
     {
       label: "픽업",
@@ -669,7 +684,12 @@ export function StepConfirm({ now, onEdit }: { now: Date; onEdit: (step: number)
             className="flex items-start gap-[12px] border-b border-gray-50 py-[12px] text-sm last:border-b-0"
           >
             <span className="w-[64px] shrink-0 text-gray-500">{r.label}</span>
-            <span className={cn("min-w-0 flex-1 text-gray-900", r.clamp && "line-clamp-2")}>
+            <span
+              className={cn(
+                "min-w-0 flex-1 text-gray-900",
+                r.clamp && ["line-clamp-2", QUOTE_NO_REPLAY],
+              )}
+            >
               {r.value}
             </span>
             <button

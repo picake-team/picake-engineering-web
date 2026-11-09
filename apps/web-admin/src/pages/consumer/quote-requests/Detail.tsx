@@ -1,3 +1,4 @@
+import { safeHttpUrl } from "@/apps/web-admin/common/utils/safe-url.util";
 import React from "react";
 import { Link, useParams } from "react-router-dom";
 import { BaseButton as Button } from "@/apps/web-admin/common/components/buttons/BaseButton";
@@ -106,9 +107,9 @@ export const QuoteRequestDetailPage: React.FC = () => {
                     <div className="text-xs text-muted-foreground">
                       {[s.address, s.phone].filter(Boolean).join(" · ") || "-"}
                     </div>
-                    {s.placeUrl && (
+                    {safeHttpUrl(s.placeUrl) && (
                       <a
-                        href={s.placeUrl}
+                        href={safeHttpUrl(s.placeUrl)!}
                         target="_blank"
                         rel="noreferrer"
                         className="text-xs text-primary underline"

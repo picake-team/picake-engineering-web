@@ -8,6 +8,11 @@ import { Button } from "@/apps/web-user/common/components/buttons/Button";
 import { BottomSheet } from "@/apps/web-user/common/components/bottom-sheets/BottomSheet";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { navigateBack } from "@/apps/web-user/common/utils/navigate-back.util";
+import { cn } from "@/apps/web-user/common/lib/utils";
+import { QUOTE_NO_REPLAY } from "@/apps/web-user/features/quote/constants/quote.constant";
+
+/** 손님이 직접 쓴 글이라 화면 녹화에서 가리는 줄 */
+const FREE_TEXT_ROWS = ["설명", "요청 사항"];
 import {
   useCloseQuoteRequest,
   useQuoteRequestDetail,
@@ -83,7 +88,7 @@ function QuoteRequestDetailContent() {
                 <img
                   src={data.photoUrls[0]}
                   alt="참고 사진"
-                  className="h-full w-full object-cover"
+                  className={cn("h-full w-full object-cover", QUOTE_NO_REPLAY)}
                 />
               ) : (
                 <div className="flex h-full items-center justify-center">
@@ -149,7 +154,7 @@ function QuoteRequestDetailContent() {
       <BottomSheet isOpen={formOpen} onClose={() => setFormOpen(false)} title="요청서">
         <div className="px-[20px] pb-[24px]">
           {data.photoUrls.length > 0 && (
-            <div className="mb-[12px] flex gap-[6px] overflow-auto">
+            <div className={cn("mb-[12px] flex gap-[6px] overflow-auto", QUOTE_NO_REPLAY)}>
               {data.photoUrls.map((url) => (
                 <img
                   key={url}
@@ -168,7 +173,14 @@ function QuoteRequestDetailContent() {
                 className="flex gap-[12px] border-b border-gray-50 py-[12px] text-sm last:border-b-0"
               >
                 <span className="w-[64px] shrink-0 text-gray-500">{label}</span>
-                <span className="min-w-0 flex-1 whitespace-pre-wrap text-gray-900">{value}</span>
+                <span
+                  className={cn(
+                    "min-w-0 flex-1 whitespace-pre-wrap text-gray-900",
+                    FREE_TEXT_ROWS.includes(label) && QUOTE_NO_REPLAY,
+                  )}
+                >
+                  {value}
+                </span>
               </div>
             ))}
         </div>

@@ -1,3 +1,4 @@
+import { safeHttpUrl } from "@/apps/web-admin/common/utils/safe-url.util";
 import type { ReactNode } from "react";
 import { ContentLoading } from "@/apps/web-admin/common/components/loading/ContentLoading";
 import { LIST_CARD_TITLE } from "@/apps/web-admin/common/constants/list-typography.constant";
@@ -82,9 +83,9 @@ export function StoreEntryRequestDetailDialog({
                   <DetailRow
                     label="카카오 링크"
                     value={
-                      data.placeUrl ? (
+                      safeHttpUrl(data.placeUrl) ? (
                         <a
-                          href={data.placeUrl}
+                          href={safeHttpUrl(data.placeUrl)!}
                           target="_blank"
                           rel="noreferrer"
                           className="text-primary underline-offset-2 hover:underline"

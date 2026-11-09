@@ -6,7 +6,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { Button } from "@/apps/web-user/common/components/buttons/Button";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
+import { cn } from "@/apps/web-user/common/lib/utils";
+import { QUOTE_NO_REPLAY } from "@/apps/web-user/features/quote/constants/quote.constant";
 import { useQuoteRequestDetail } from "@/apps/web-user/features/quote/hooks/useQuoteRequests";
+import { QuoteLoginGate } from "@/apps/web-user/features/quote/components/QuoteLoginGate";
 
 /**
  * 견적 요청을 보낸 뒤(SC-17 1) — 지금 예약 완료 화면과 같은 모양.
@@ -47,7 +50,10 @@ function QuoteSentContent() {
           <img
             src={photo}
             alt=""
-            className="h-full w-full max-w-none scale-110 object-cover blur-sm"
+            className={cn(
+              "h-full w-full max-w-none scale-110 object-cover blur-sm",
+              QUOTE_NO_REPLAY,
+            )}
           />
         )}
         <button
@@ -62,7 +68,11 @@ function QuoteSentContent() {
       <div className="absolute bottom-[76px] left-0 right-0 h-[calc(70%-48px)] rounded-t-4xl bg-white px-[20px] pt-[56px]">
         <div className="absolute left-1/2 top-[-72px] h-[106px] w-[106px] -translate-x-1/2 overflow-hidden rounded-2xl border-[2px] border-white bg-gray-100">
           {photo ? (
-            <img src={photo} alt="참고 사진" className="h-full w-full object-cover" />
+            <img
+              src={photo}
+              alt="참고 사진"
+              className={cn("h-full w-full object-cover", QUOTE_NO_REPLAY)}
+            />
           ) : (
             <div className="flex h-full items-center justify-center">
               <Icon name="logoPicake" width={48} height={48} />
@@ -110,7 +120,9 @@ function QuoteSentContent() {
 export default function QuoteSentPage() {
   return (
     <Suspense fallback={null}>
-      <QuoteSentContent />
+      <QuoteLoginGate>
+        <QuoteSentContent />
+      </QuoteLoginGate>
     </Suspense>
   );
 }
