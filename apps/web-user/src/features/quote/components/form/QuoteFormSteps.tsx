@@ -43,6 +43,8 @@ import {
 } from "@/apps/web-user/features/quote/utils/quote-time.util";
 import { distanceKm, formatKm } from "@/apps/web-user/features/quote/utils/quote-geo.util";
 import { shrinkPhoto } from "@/apps/web-user/features/quote/utils/quote-photo.util";
+import { useUserLocation } from "@/apps/web-user/common/hooks/useUserLocation";
+import { useAlertStore } from "@/apps/web-user/common/store/alert.store";
 
 const won = (v: number) => `${v / 10_000}만원`;
 
@@ -64,6 +66,11 @@ export function StepWhen({ now }: { now: Date }) {
     if (firstSelectableHour(todayYmd, now) === null) d.setDate(d.getDate() + 1);
     return d;
   }, [todayYmd, now]);
+  const maxDate = useMemo(() => {
+    const d = fromYmd(todayYmd);
+    d.setDate(d.getDate() + 364);
+    return d;
+  }, [todayYmd]);
   const firstHour = draft.pickupDate ? (firstSelectableHour(draft.pickupDate, now) ?? 0) : 0;
   const [tempFrom, setTempFrom] = useState(14);
   const [tempTo, setTempTo] = useState(17);
@@ -71,7 +78,7 @@ export function StepWhen({ now }: { now: Date }) {
   const openSheet = () => {
     const from = Math.max(draft.hourFrom ?? 14, firstHour);
     setTempFrom(from);
-    setTempTo(Math.max(draft.hourTo ?? from + 3, from + 1));
+    setTempTo(Math.min(24, Math.max(draft.hourTo ?? from + 3, from + 1)));
     setSheetOpen(true);
   };
 
@@ -93,6 +100,7 @@ export function StepWhen({ now }: { now: Date }) {
         <Calendar
           selectedDate={draft.pickupDate ? fromYmd(draft.pickupDate) : null}
           minDate={minDate}
+          maxDate={maxDate}
           onDateSelect={(date) => update({ pickupDate: toYmd(date) })}
         />
       </Field>
@@ -157,25 +165,41 @@ export function StepWhere() {
     };
   }, [draft.area, draft.distance]);
 
+  // 현재 위치: 앱이면 앱을 거쳐, 웹이면 브라우저에서 받는다(지도·홈과 같은 방법, useUserLocation).
+  // 이미 받아 둔 위치가 있으면 바로 쓴다. 기기 좌표는 동네로 바꾸는 데만 쓰고 요청서에 저장하지 않는다
+  const { location, refresh } = useUserLocation();
+  const [locateFailed, setLocateFailed] = useState(false);
+
+  useEffect(() => {
+    if (!locating || !location) return;
+    let cancelled = false;
+    quoteLocalApi
+      .areaFromCoords(location.latitude, location.longitude)
+      .then((area) => {
+        if (cancelled) return;
+        if (area) update({ area });
+        else setLocateFailed(true);
+      })
+      .catch(() => !cancelled && setLocateFailed(true))
+      .finally(() => !cancelled && setLocating(false));
+    return () => {
+      cancelled = true;
+    };
+  }, [locating, location, update]);
+
+  useEffect(() => {
+    if (!locating) return;
+    const t = setTimeout(() => {
+      setLocating(false);
+      setLocateFailed(true);
+    }, 10_000);
+    return () => clearTimeout(t);
+  }, [locating]);
+
   const useCurrentLocation = () => {
-    if (!navigator.geolocation) return;
+    setLocateFailed(false);
     setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        try {
-          // 기기 좌표는 동네로 바꾸는 데만 쓰고 저장하지 않는다
-          const area = await quoteLocalApi.areaFromCoords(
-            pos.coords.latitude,
-            pos.coords.longitude,
-          );
-          if (area) update({ area });
-        } finally {
-          setLocating(false);
-        }
-      },
-      () => setLocating(false),
-      { timeout: 10_000 },
-    );
+    if (!location) refresh();
   };
 
   const sido = draft.area?.sido ?? "시·도";
@@ -206,6 +230,11 @@ export function StepWhere() {
             {locating ? "찾는 중" : "현재 위치"}
           </button>
         </div>
+        {locateFailed && (
+          <p className="mt-[6px] text-xs text-gray-500">
+            현재 위치를 찾지 못했어요. 동 이름으로 찾아 주세요.
+          </p>
+        )}
       </Field>
       {draft.area && (
         <Field
@@ -347,6 +376,7 @@ export function StepCake() {
   const { draft, update } = useQuoteDraftStore();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [adding, setAdding] = useState(false);
+  const { showAlert } = useAlertStore();
   const hasPhoto = draft.photos.length > 0;
 
   const onPick = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -356,7 +386,15 @@ export function StepCake() {
     if (!picked.length || remaining <= 0) return;
     setAdding(true);
     try {
-      const shrunk = await Promise.all(picked.slice(0, remaining).map(shrinkPhoto));
+      const results = await Promise.allSettled(picked.slice(0, remaining).map(shrinkPhoto));
+      const shrunk = results.flatMap((r) => (r.status === "fulfilled" ? [r.value] : []));
+      if (shrunk.length < results.length) {
+        showAlert({
+          type: "warning",
+          title: "사진을 올리지 못했어요",
+          message: "열 수 없는 사진이 있어요. 다른 사진(JPG·PNG)으로 올려 주세요.",
+        });
+      }
       const current = useQuoteDraftStore.getState().draft.photos;
       update({
         photos: [

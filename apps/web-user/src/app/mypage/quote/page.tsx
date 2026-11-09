@@ -9,6 +9,7 @@ import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { useMyQuoteRequests } from "@/apps/web-user/features/quote/hooks/useQuoteRequests";
 import { QuoteRequestCard } from "@/apps/web-user/features/quote/components/QuoteRequestCard";
 import type { QuoteRequestListTab } from "@/apps/web-user/features/quote/types/quote.type";
+import { QuoteLoginGate } from "@/apps/web-user/features/quote/components/QuoteLoginGate";
 
 function QuoteList({ tab }: { tab: QuoteRequestListTab }) {
   const { data, isLoading } = useMyQuoteRequests(tab);
@@ -44,11 +45,21 @@ function QuoteList({ tab }: { tab: QuoteRequestListTab }) {
 
 /** MY > 내 견적 요청(SC-17 2): 진행 중 / 지난 요청 */
 export default function MyQuotesPage() {
-  const { data } = useMyQuoteRequests("ONGOING");
-  const counts = data?.counts ?? { ongoing: 0, past: 0 };
   return (
     <div>
       <Header variant="back-title" title="내 견적 요청" backFallbackPath={PATHS.MYPAGE} />
+      <QuoteLoginGate>
+        <QuoteTabs />
+      </QuoteLoginGate>
+    </div>
+  );
+}
+
+function QuoteTabs() {
+  const { data } = useMyQuoteRequests("ONGOING");
+  const counts = data?.counts ?? { ongoing: 0, past: 0 };
+  return (
+    <>
       <Tabs
         defaultTab="ongoing"
         tabs={[
@@ -60,6 +71,6 @@ export default function MyQuotesPage() {
           { id: "past", label: `지난 요청 ${counts.past}`, content: <QuoteList tab="PAST" /> },
         ]}
       />
-    </div>
+    </>
   );
 }

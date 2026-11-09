@@ -81,13 +81,21 @@ type KakaoPlaceDoc = {
   place_url: string;
 };
 
+/** 검색어는 50자까지, 좌표는 한국 근처 숫자만 받는다(키를 다른 용도로 쓰지 못하게) */
+const cleanQuery = (q: string | null) => (q || "").trim().slice(0, 50);
+const isCoord = (lat: string | null, lng: string | null) => {
+  const a = Number(lat);
+  const b = Number(lng);
+  return Number.isFinite(a) && Number.isFinite(b) && a > 30 && a < 45 && b > 120 && b < 135;
+};
+
 export async function GET(request: NextRequest) {
   const p = request.nextUrl.searchParams;
   const type = p.get("type");
 
   try {
     if (type === "area") {
-      const query = (p.get("query") || "").trim();
+      const query = cleanQuery(p.get("query"));
       if (!query) return NextResponse.json({ items: [] });
       const data = await kakao("/search/address.json", { query, size: "10" });
       const items = (data.documents as KakaoAddressDoc[])
@@ -110,8 +118,8 @@ export async function GET(request: NextRequest) {
     if (type === "coord") {
       const latitude = p.get("latitude");
       const longitude = p.get("longitude");
-      if (!latitude || !longitude) return NextResponse.json({ items: [] }, { status: 400 });
-      const data = await kakao("/geo/coord2regioncode.json", { x: longitude, y: latitude });
+      if (!isCoord(latitude, longitude)) return NextResponse.json({ items: [] }, { status: 400 });
+      const data = await kakao("/geo/coord2regioncode.json", { x: longitude!, y: latitude! });
       const doc = (data.documents as KakaoRegionDoc[]).find((d) => d.region_type === "B");
       const items = doc
         ? [
@@ -128,14 +136,14 @@ export async function GET(request: NextRequest) {
     }
 
     if (type === "place") {
-      const query = (p.get("query") || "").trim();
+      const query = cleanQuery(p.get("query"));
       if (!query) return NextResponse.json({ items: [] });
       const latitude = p.get("latitude");
       const longitude = p.get("longitude");
       const params: Record<string, string> = { query, size: "15" };
-      if (latitude && longitude) {
-        params.x = longitude;
-        params.y = latitude;
+      if (isCoord(latitude, longitude)) {
+        params.x = longitude!;
+        params.y = latitude!;
         params.sort = "distance";
       }
       const data = await kakao("/search/keyword.json", params);
@@ -154,13 +162,13 @@ export async function GET(request: NextRequest) {
     if (type === "count") {
       const latitude = p.get("latitude");
       const longitude = p.get("longitude");
-      const radius = Math.min(Number(p.get("radius") || "3000"), 20000);
-      if (!latitude || !longitude) return NextResponse.json({ count: null }, { status: 400 });
+      const radius = Math.min(Math.max(Number(p.get("radius")) || 3000, 100), 20000);
+      if (!isCoord(latitude, longitude)) return NextResponse.json({ count: null }, { status: 400 });
       const data = await kakao("/search/keyword.json", {
         query: PLACE_KEYWORD,
-        x: longitude,
-        y: latitude,
-        radius: String(radius),
+        x: longitude!,
+        y: latitude!,
+        radius: String(Math.round(radius)),
         size: "1",
       });
       return NextResponse.json({ count: data.meta?.total_count ?? null });

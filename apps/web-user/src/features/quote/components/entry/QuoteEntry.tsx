@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { BottomSheet } from "@/apps/web-user/common/components/bottom-sheets/BottomSheet";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
@@ -155,8 +157,17 @@ export function QuoteAskSheet({
       <span className="text-xs text-gray-500">{desc}</span>
     </button>
   );
-  return (
-    <BottomSheet isOpen={isOpen} onClose={onClose} title="어디에 물어볼까요?">
+  // 지도 카드처럼 쌓임 순서가 낮은 곳 안에서 열려도 아래 탭에 가리지 않게 body에 띄운다
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
+  return createPortal(
+    <BottomSheet
+      isOpen={isOpen}
+      onClose={onClose}
+      title="어디에 물어볼까요?"
+      zIndexClassName="z-[60]"
+    >
       <div className="flex flex-col gap-[8px] px-[20px] pb-[24px] pt-[4px]">
         <p className="mb-[8px] text-center text-sm text-gray-500">
           이 가게에만 물을 수도, 다른 가게와 비교할 수도 있어요
@@ -170,6 +181,7 @@ export function QuoteAskSheet({
         )}
         {option(false, "다른 가게에도 물어보기", "원하는 동네의 다른 가게 견적도 받아 비교해요")}
       </div>
-    </BottomSheet>
+    </BottomSheet>,
+    document.body,
   );
 }
