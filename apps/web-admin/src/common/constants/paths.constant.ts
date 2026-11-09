@@ -9,6 +9,8 @@ import { StatisticsStoresPage } from "@/apps/web-admin/pages/statistics/stores/I
 import { StatisticsStoreEntryRequestsPage } from "@/apps/web-admin/pages/statistics/store-entry-requests/Index";
 import { ConsumerMembersListPage } from "@/apps/web-admin/pages/consumer/members/List";
 import { RefundCandidatesListPage } from "@/apps/web-admin/pages/consumer/refund-candidates/List";
+import { QuoteRequestsListPage } from "@/apps/web-admin/pages/consumer/quote-requests/List";
+import { QuoteRequestDetailPage } from "@/apps/web-admin/pages/consumer/quote-requests/Detail";
 import { SellerMembersListPage } from "@/apps/web-admin/pages/seller/members/List";
 import { SellerStoresListPage } from "@/apps/web-admin/pages/seller/stores/List";
 import { SellerSegmentsListPage } from "@/apps/web-admin/pages/seller/segments/List";
@@ -50,6 +52,8 @@ export const ROUTES = {
     QNAS: "/consumer/qnas",
     MEMBERS: "/consumer/members",
     REFUND_CANDIDATES: "/consumer/refund-candidates",
+    QUOTE_REQUESTS: "/consumer/quote-requests",
+    QUOTE_REQUEST_DETAIL: (requestId: string) => `/consumer/quote-requests/${requestId}`,
   },
   SELLER: {
     TERMS: "/seller/terms",
@@ -86,6 +90,8 @@ export const ADMIN_ROUTE_CONFIG = [
   { path: ROUTES.CONSUMER.QNAS, element: QnasListPage },
   { path: ROUTES.CONSUMER.MEMBERS, element: ConsumerMembersListPage },
   { path: ROUTES.CONSUMER.REFUND_CANDIDATES, element: RefundCandidatesListPage },
+  { path: ROUTES.CONSUMER.QUOTE_REQUESTS, element: QuoteRequestsListPage },
+  { path: "/consumer/quote-requests/:requestId", element: QuoteRequestDetailPage },
   // 판매자 앱
   { path: ROUTES.SELLER.TERMS, element: SellerTermsListPage },
   { path: ROUTES.SELLER.MEMBERS, element: SellerMembersListPage },

@@ -69,6 +69,8 @@ export default function RootWrapperLayout({ children }: RootWrapperLayoutProps) 
     if (pathname?.startsWith("/auth/")) return { variant: "minimal" };
     if (pathname?.startsWith("/mypage/")) return { variant: "minimal" };
     if (pathname?.startsWith("/order/")) return { variant: "minimal" };
+    // 견적 요청(요청서·보낸 뒤·요청 상세)은 자체 머리줄을 쓴다
+    if (pathname?.startsWith("/quote/")) return { variant: "minimal" };
     if (pathname === "/mypage") return { variant: "minimal" };
     if (pathname === "/saved") return { variant: "minimal" };
     if (pathname?.startsWith("/product/")) return { variant: "product" };
