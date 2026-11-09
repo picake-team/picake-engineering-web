@@ -27,11 +27,17 @@ export function PageTitle({
 export function MobileFrame({
   title,
   actions,
+  onBack,
+  noBack,
   children,
 }: {
   title: string;
   /** 위쪽 줄 오른쪽(예: 피드 목록의 + 아이콘 "피드 등록") */
   actions?: React.ReactNode;
+  /** 왼쪽 위 뒤로(없으면 브라우저 뒤로) */
+  onBack?: () => void;
+  /** 뒤로를 그리지 않는다(돌아갈 곳이 없는 화면) */
+  noBack?: boolean;
   children: React.ReactNode;
 }) {
   useEffect(() => {
@@ -41,7 +47,10 @@ export function MobileFrame({
   }, []);
   return (
     <InMobileFrame.Provider value>
-      <AppScreen header={<BackHeader title={title} actions={actions} />} bodyClassName={cx("pt-2")}>
+      <AppScreen
+        header={<BackHeader title={title} actions={actions} onBack={onBack} noBack={noBack} />}
+        bodyClassName={cx("pt-2")}
+      >
         {children}
       </AppScreen>
     </InMobileFrame.Provider>

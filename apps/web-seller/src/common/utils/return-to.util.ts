@@ -3,16 +3,23 @@
  * (I-48 휴대폰 알림 "로그인이 풀려 있으면 로그인한 뒤 그 주문으로 간다"). 소셜 로그인으로 밖에 다녀와도
  * 같은 탭이면 남도록 sessionStorage에 둔다.
  */
+import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
+
 const KEY = "picake.seller.returnTo";
 
-/** 기억해도 되는 주소인지(우리 사이트 안, 로그인·약관 화면이 아님) */
+/**
+ * 기억해도 되는 주소인지(우리 사이트 안, 로그인·약관 화면이 아님).
+ * 스토어 만들기도 빼서 로그인 뒤에는 첫 화면이 스토어가 있는지 보고 정하게 한다(운영자 확인 2026-11-09)
+ */
 export function isReturnablePath(path: string): boolean {
+  const pathname = path.split(/[?#]/)[0];
   return (
     path.startsWith("/") &&
     !path.startsWith("//") &&
     !path.startsWith("/auth") &&
     !path.startsWith("/terms") &&
-    path !== "/"
+    path !== "/" &&
+    pathname !== ROUTES.STORE_CREATE
   );
 }
 

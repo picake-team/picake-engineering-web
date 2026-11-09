@@ -41,13 +41,24 @@ const STEP_LABELS: Record<StepKey, string> = {
 const STEPS = STEP_KEYS.map((key) => STEP_LABELS[key]);
 const TOTAL_STEPS = STEP_KEYS.length;
 
-export const StoreCreatePage: React.FC = () => {
+interface StoreCreatePageProps {
+  /**
+   * 지금 단계(1부터). 휴대폰 틀은 위쪽 줄 "←"로 앞 단계에 가야 해서 단계를 밖에서 들고 넘긴다(SC-66
+   * "2단계에서 ←로 돌아와도 넣은 값이 남는다"). 넘기지 않으면(PC) 이 화면이 직접 든다.
+   */
+  step?: number;
+  onStepChange?: (step: number) => void;
+}
+
+export const StoreCreatePage: React.FC<StoreCreatePageProps> = ({ step, onStepChange }) => {
   const inFrame = useInMobileFrame();
   const verifyBusinessRegistrationMutation = useVerifyBusinessRegistration();
   const getOnlineTradingCompanyDetailMutation = useGetOnlineTradingCompanyDetail();
   const createStoreMutation = useCreateStore();
 
-  const [currentStep, setCurrentStep] = useState(1);
+  const [ownStep, setOwnStep] = useState(1);
+  const currentStep = step ?? ownStep;
+  const setCurrentStep = onStepChange ?? setOwnStep;
   const [stepData, setStepData] = useState<StepData>({
     businessRegistrationForm: defaultBusinessRegistrationForm,
     onlineTradingCompanyDetailForm: defaultOnlineTradingCompanyDetailForm,
