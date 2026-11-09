@@ -1,7 +1,9 @@
 /**
  * PostHog 커스텀 이벤트 텍소노미 타입 정의
  * 이벤트명·속성은 기획팀 데이터 이벤트 텍소노미 문서를 그대로 반영합니다.
- * 도메인이 추가될 때마다 이 맵에 이벤트를 추가합니다. (현재: 주문과정, 로그인/회원가입, 마이페이지, 홈/검색, 지도 도메인)
+ * 도메인이 추가될 때마다 이 맵에 이벤트를 추가합니다. (현재: 주문과정, 로그인/회원가입, 마이페이지, 홈/검색, 지도, 견적 요청 도메인)
+ *
+ * 모든 이벤트에 붙는 속성(posthog.config): app, environment, surface(app = 손님 앱 웹뷰, web = 브라우저)
  *
  * 예외:
  * - fail_reservation_timeout(입금 시간 초과 자동취소)은 백엔드 스케줄러가 발생시키는
@@ -71,6 +73,15 @@ export type ReservationFilterName = "all" | "pickup_waiting" | "pickup_complete"
 /** 지도 재검색을 유발한 원인 */
 export type MapAreaSearchTrigger = "drag" | "zoom" | "current_location";
 
+/** 견적 요청서로 들어온 곳(서버 QuoteRequest.entry를 소문자로, 주소로 바로 열면 direct) */
+export type QuoteEntryPoint = "home" | "search" | "map" | "store" | "mypage" | "direct";
+
+/** 견적 요청서 단계(이 가게에만 물어보면 where·stores 없이 4단계) */
+export type QuoteStepName = "when" | "where" | "stores" | "cake" | "size_budget" | "confirm";
+
+/** 견적 요청을 보내지 못한 이유 */
+export type QuoteRequestFailReason = "pickup_time" | "api_error";
+
 export interface AnalyticsEventMap {
   // ── 주문과정 ──
   /** 상품 상세 페이지 노출 (일반/주문제작 분기) */
@@ -104,7 +115,7 @@ export interface AnalyticsEventMap {
   };
 
   // ── 로그인/회원가입 ──
-  /** 로그인/회원가입 진입 화면 노출 (4가지 트리거 지점에서 진입) */
+  /** 로그인/회원가입 진입 화면 노출 (entry_point의 트리거 지점에서 진입) */
   view_login_entry: { entry_point: LoginEntryPoint };
   /** 소셜 로그인/가입 버튼 클릭 → 외부 인증 화면 전환 */
   engage_social_select: { provider: OAuthProvider };
@@ -260,6 +271,27 @@ export interface AnalyticsEventMap {
     type_filter?: string;
     result_count: number;
   };
+
+  // ── 견적 요청(I-46) ──
+  /** 견적 요청서의 한 단계가 보임(단계별 이탈: step_number 1 → total_steps → success_quote_request) */
+  view_quote_step: {
+    step_name: QuoteStepName;
+    step_number: number;
+    total_steps: number;
+    entry_point: QuoteEntryPoint;
+    only_store: boolean;
+  };
+  /** 확인 단계에서 '견적 요청 보내기'를 누름(로그인한 상태, 사진 올리기 전) */
+  request_quote_request: {
+    entry_point: QuoteEntryPoint;
+    only_store: boolean;
+    photo_count: number;
+    store_count: number;
+  };
+  /** 견적 요청이 만들어짐(서버 응답) */
+  success_quote_request: { quote_request_id: string; entry_point: QuoteEntryPoint };
+  /** 견적 요청을 보내지 못함(pickup_time = 그새 3시간 안이 됨, api_error = 사진 올리기·서버 오류) */
+  fail_quote_request: { entry_point: QuoteEntryPoint; fail_reason: QuoteRequestFailReason };
 }
 
 export type AnalyticsEventName = keyof AnalyticsEventMap;

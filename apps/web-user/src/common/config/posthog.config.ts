@@ -52,13 +52,20 @@ function sanitizeUrl(rawUrl: string): string {
 
 /**
  * 전송 직전의 모든 이벤트(수동 $pageview + trackEvent 커스텀 이벤트 전부)에서
- * $current_url/$referrer에 남은 OAuth 코드·이메일 같은 민감정보를 제거합니다.
+ * $current_url/$referrer에 남은 OAuth 코드·이메일 같은 민감정보를 제거하고, surface(app|web)를 붙입니다.
  * posthog-js가 모든 이벤트에 $current_url을 자동으로 붙이기 때문에, PostHogPageView의
  * 캡처 호출만 고쳐서는 부족합니다(예: /auth/register/google?...&googleEmail=... 페이지에
  * 머무는 동안 발생한 success_signup 같은 커스텀 이벤트에도 같은 URL이 자동으로 붙음).
  */
 function sanitizeEvent(event: CaptureResult | null): CaptureResult | null {
   if (!event?.properties) return event;
+  // 손님 앱(웹뷰)인지 브라우저인지. Flutter가 브리지를 늦게 넣을 수 있어 보낼 때마다 본다
+  // (webview.bridge의 isWebViewEnvironment와 같은 기준, 저장소를 불러오지 않으려고 여기서 직접 봄)
+  event.properties.surface =
+    typeof window !== "undefined" &&
+    typeof (window as { mylocation?: unknown }).mylocation !== "undefined"
+      ? "app"
+      : "web";
   if (typeof event.properties.$current_url === "string") {
     event.properties.$current_url = sanitizeUrl(event.properties.$current_url);
   }

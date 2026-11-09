@@ -11,6 +11,8 @@ import { useAuthStore } from "@/apps/web-user/common/store/auth.store";
 import { useAlertStore } from "@/apps/web-user/common/store/alert.store";
 import { useLoginSheetStore } from "@/apps/web-user/common/store/login-sheet.store";
 import getApiMessage from "@/apps/web-user/common/utils/getApiMessage";
+import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
+import type { QuoteEntryPoint, QuoteStepName } from "@/apps/web-user/common/types/analytics.type";
 import { QUOTE_LIMITS } from "@/apps/web-user/features/quote/constants/quote.constant";
 import {
   useQuoteDraftStore,
@@ -32,6 +34,18 @@ import { quoteLocalApi } from "@/apps/web-user/features/quote/apis/quote.api";
 import { pickupWindow } from "@/apps/web-user/features/quote/utils/quote-time.util";
 
 const ENTRIES: QuoteRequestEntry[] = ["HOME", "SEARCH", "MAP", "STORE", "MYPAGE"];
+
+const STEP_NAMES: Record<number, QuoteStepName> = {
+  1: "when",
+  2: "where",
+  3: "stores",
+  4: "cake",
+  5: "size_budget",
+  6: "confirm",
+};
+
+const entryPoint = (entry: QuoteRequestEntry | null): QuoteEntryPoint =>
+  entry ? (entry.toLowerCase() as QuoteEntryPoint) : "direct";
 
 /** 입구에서 넘겨준 값(?entry=STORE&only=1&storeId=… 또는 kakaoPlaceId=…&name=…, ?q=검색어) */
 function readInit(params: URLSearchParams): Partial<QuoteDraft> | null {
@@ -108,8 +122,11 @@ function QuoteNewContent() {
     return unsub;
   }, []);
 
+  // 입구 값까지 반영한 뒤에 단계 이벤트를 보낸다(먼저 보내면 entry_point가 비거나 예전 값)
+  const [initDone, setInitDone] = useState(false);
   useEffect(() => {
     if (!hydrated) return;
+    setInitDone(true);
     const init = readInit(new URLSearchParams(params.toString()));
     if (!init) return;
     if (hadDraftRef.current) setPendingInit(init);
@@ -148,6 +165,24 @@ function QuoteNewContent() {
     return true;
   })();
 
+  // 단계별 이탈을 보려고 단계가 보일 때마다 한 번(같은 단계를 다시 그려도 한 번)
+  const lastStepRef = useRef<string | null>(null);
+  // 보낸 뒤 요청서를 비우면 1단계로 돌아가 보이지만 손님이 본 단계가 아니다
+  const sentRef = useRef(false);
+  useEffect(() => {
+    if (!initDone || pendingInit || sentRef.current) return;
+    const key = `${current}/${order.length}`;
+    if (lastStepRef.current === key) return;
+    lastStepRef.current = key;
+    trackEvent("view_quote_step", {
+      step_name: STEP_NAMES[current],
+      step_number: position + 1,
+      total_steps: order.length,
+      entry_point: entryPoint(draft.entry),
+      only_store: draft.onlyDesignatedStores,
+    });
+  }, [initDone, pendingInit, current, position, order.length]);
+
   const goBack = () => {
     if (position === 0) navigateBack(router, { fallbackPath: PATHS.HOME });
     else setStep(order[position - 1]);
@@ -169,10 +204,21 @@ function QuoteNewContent() {
         title: "시간을 다시 골라 주세요",
         message: "지금부터 3시간 안의 시각은 고를 수 없어요.",
       });
+      trackEvent("fail_quote_request", {
+        entry_point: entryPoint(draft.entry),
+        fail_reason: "pickup_time",
+      });
       setStep(1);
       return;
     }
     sendingRef.current = true;
+    const entry = entryPoint(draft.entry);
+    trackEvent("request_quote_request", {
+      entry_point: entry,
+      only_store: draft.onlyDesignatedStores,
+      photo_count: draft.photos.length,
+      store_count: draft.stores.length,
+    });
     create.mutate(
       {
         photos: draft.photos,
@@ -219,6 +265,8 @@ function QuoteNewContent() {
       },
       {
         onSuccess: (res) => {
+          trackEvent("success_quote_request", { quote_request_id: res.id, entry_point: entry });
+          sentRef.current = true;
           reset();
           router.replace(PATHS.QUOTE.SENT(res.id));
         },
@@ -226,6 +274,7 @@ function QuoteNewContent() {
           sendingRef.current = false;
         },
         onError: (error) => {
+          trackEvent("fail_quote_request", { entry_point: entry, fail_reason: "api_error" });
           showAlert({
             type: "error",
             title: "보내지 못했어요",
