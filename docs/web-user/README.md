@@ -24,7 +24,7 @@ Picake 플랫폼을 위한 Next.js 기반 사용자 웹 애플리케이션입니
 - **상태 관리**: Zustand를 활용한 전역 상태 관리
 - **API 통신**: TanStack Query + Axios를 활용한 서버 상태 관리
 - **에러 처리**: Error Boundary, global-error, Sentry 연동
-- **분석**: PostHog (환경 변수 설정 시)
+- **분석**: PostHog (환경 변수 설정 시). 이벤트 정의는 `common/types/analytics.type.ts`(기획팀 Data Taxonomy 시트와 같게), 모든 이벤트에 `app`·`environment`·`surface`(app = 손님 앱 웹뷰, web = 브라우저). 견적 요청서는 `view_quote_step` → `request_quote_request` → `success_quote_request`·`fail_quote_request`
 - **반응형 UI**: 모바일 우선 반응형 디자인 (Flutter WebView 환경 최적화)
 - **디자인 값**: 색·글자 크기·모서리·움직임은 공통 패키지 `@picake/design-tokens`의 손님 화면 preset(web-info와 같이 씀, `tailwind.config.ts`의 `presets`). 값과 tailwind 이름은 Storybook "Common/디자인 값"(`yarn web-user:storybook`)에서 보고, 새 화면은 숫자·색 코드를 클래스에 직접 쓰지 않고 이 이름을 씁니다([공통 디자인 값](../common/structure/프로젝트%20구조%20-%20가이드.md#공통-디자인-값-packagesdesign-tokens-2026-11-08))
 - **SEO 최적화**: Next.js 메타데이터 API 활용

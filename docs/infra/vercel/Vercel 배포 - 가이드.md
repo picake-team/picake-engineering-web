@@ -84,7 +84,7 @@ Picake 프로젝트의 web-user, web-seller, web-admin, web-info 애플리케이
 - `VITE_PUBLIC_NODE_ENV`, `VITE_PUBLIC_API_DOMAIN`
 - `VITE_PUBLIC_GOOGLE_CLIENT_ID`, `VITE_PUBLIC_KAKAO_RESTAPI_KEY`
 - `VITE_PUBLIC_SENTRY_DSN` (staging/production)
-- `VITE_PUBLIC_POSTHOG_KEY`, `VITE_PUBLIC_POSTHOG_HOST`
+- `VITE_PUBLIC_POSTHOG_KEY`, `VITE_PUBLIC_POSTHOG_HOST` (Vite는 `VITE_`로 시작하는 값만 읽는다. `NEXT_PUBLIC_POSTHOG_*`로 넣으면 판매자 화면이 PostHog를 켜지 못한다 — 2026-11-10까지 그래서 판매자 상용·staging 이벤트가 0건이었다)
 
 **GitHub Actions Secrets (배포용)**
 
