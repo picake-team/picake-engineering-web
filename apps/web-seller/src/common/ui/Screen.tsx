@@ -89,27 +89,37 @@ export function BackHeader({
   actions,
   backLabel = "뒤로",
   icon = "back",
+  noBack = false,
 }: {
   title: React.ReactNode;
-  /** 없으면 브라우저 뒤로(처음 연 화면이면 대신 갈 곳 fallbackTo) */
+  /** 없으면 브라우저 뒤로 */
   onBack?: () => void;
   actions?: React.ReactNode;
   backLabel?: string;
   /** 창처럼 닫는 화면은 close */
   icon?: "back" | "close";
+  /** 돌아갈 곳이 없는 화면(스토어가 없을 때의 스토어 만들기 SC-65)은 뒤로를 그리지 않는다 */
+  noBack?: boolean;
 }) {
   const navigate = useNavigate();
   return (
     <div className="flex h-12 items-center px-2">
-      <button
-        type="button"
-        aria-label={backLabel}
-        onClick={onBack ?? (() => navigate(-1))}
-        className="inline-flex size-11 shrink-0 items-center justify-center rounded-full text-ink-900 active:bg-ink-50"
+      {noBack ? null : (
+        <button
+          type="button"
+          aria-label={backLabel}
+          onClick={onBack ?? (() => navigate(-1))}
+          className="inline-flex size-11 shrink-0 items-center justify-center rounded-full text-ink-900 active:bg-ink-50"
+        >
+          <Icon name={icon} size={24} strokeWidth={1.8} />
+        </button>
+      )}
+      <h1
+        className={cx(
+          "min-w-0 flex-1 truncate font-app text-body font-bold text-ink-900",
+          noBack ? "ml-3" : "ml-0.5",
+        )}
       >
-        <Icon name={icon} size={24} strokeWidth={1.8} />
-      </button>
-      <h1 className="ml-0.5 min-w-0 flex-1 truncate font-app text-body font-bold text-ink-900">
         {title}
       </h1>
       {actions ? <div className="flex shrink-0 items-center">{actions}</div> : null}
