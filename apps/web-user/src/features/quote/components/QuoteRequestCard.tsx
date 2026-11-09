@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { cn } from "@/apps/web-user/common/lib/utils";
+import { QUOTE_NO_REPLAY } from "@/apps/web-user/features/quote/constants/quote.constant";
 import type { QuoteRequestListItem } from "@/apps/web-user/features/quote/types/quote.type";
 
 /** 카드 위 작은 표시(SC-17 2): 진행 중은 주황, 지난 요청은 회색 */
@@ -41,7 +42,11 @@ export function QuoteRequestCard({ item }: { item: QuoteRequestListItem }) {
       <div className="h-[64px] w-[64px] shrink-0 overflow-hidden rounded-lg bg-gray-50">
         {item.thumbnailUrl ? (
           // 참고 사진(손님이 올린 사진)
-          <img src={item.thumbnailUrl} alt="참고 사진" className="h-full w-full object-cover" />
+          <img
+            src={item.thumbnailUrl}
+            alt="참고 사진"
+            className={cn("h-full w-full object-cover", QUOTE_NO_REPLAY)}
+          />
         ) : (
           <div className="flex h-full items-center justify-center">
             <Icon name="logoPicake" width={32} height={32} />

@@ -47,3 +47,10 @@ export const quoteQueryKeys = {
 };
 
 export const QUOTE_DRAFT_STORAGE_KEY = "picake:quoteDraft";
+
+/**
+ * PostHog 화면 녹화(세션 리플레이)에서 가리는 class. 손님이 올린 참고 사진(얼굴·이름이 있을 수 있음)과
+ * 직접 쓴 설명·요청 사항은 가게에 주려고 받은 것이라 이용 통계(PostHog)에 남기지 않는다. 녹화에는 빈 상자로 보인다.
+ * 입력칸은 PostHog가 원래 가린다.
+ */
+export const QUOTE_NO_REPLAY = "ph-no-capture";
