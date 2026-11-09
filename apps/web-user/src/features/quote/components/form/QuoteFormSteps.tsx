@@ -157,13 +157,19 @@ export function StepWhere() {
       setCount(null);
       return;
     }
+    // 거리 막대를 끄는 동안 칸마다 검색하지 않게 잠깐(0.3초) 멈췄을 때만 센다
     let cancelled = false;
-    quoteLocalApi
-      .countPlaces(draft.area.latitude, draft.area.longitude, draft.distance)
-      .then((n) => !cancelled && setCount(n))
-      .catch(() => !cancelled && setCount(null));
+    const { latitude, longitude } = draft.area;
+    const km = draft.distance;
+    const t = setTimeout(() => {
+      quoteLocalApi
+        .countPlaces(latitude, longitude, km)
+        .then((n) => !cancelled && setCount(n))
+        .catch(() => !cancelled && setCount(null));
+    }, 300);
     return () => {
       cancelled = true;
+      clearTimeout(t);
     };
   }, [draft.area, draft.distance]);
 
