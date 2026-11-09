@@ -22,6 +22,9 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
   const currentPath = location.pathname;
+  // 상세 화면(예: /consumer/quote-requests/:id)에서도 그 메뉴를 고른 것으로 보인다
+  const isActivePath = (path?: string) =>
+    !!path && (currentPath === path || currentPath.startsWith(`${path}/`));
 
   const menuItems = React.useMemo(() => getMenuItems(), []);
 
@@ -63,7 +66,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                 const hasChildren = Array.isArray(item.children) && item.children.length > 0;
                 const isParentSelected =
                   currentPath === (item.path ?? "") ||
-                  (hasChildren && item.children!.some((c) => c.path === currentPath));
+                  (hasChildren && item.children!.some((c) => isActivePath(c.path)));
 
                 return (
                   <li key={item.text}>
@@ -96,7 +99,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                               onClick={() => onNavigate(child.path)}
                               className={cn(
                                 "w-full flex items-center px-3 py-2 rounded-md text-sm transition-colors",
-                                currentPath === child.path
+                                isActivePath(child.path)
                                   ? "bg-zinc-700 text-zinc-50"
                                   : "text-zinc-300 hover:bg-zinc-800 hover:text-zinc-50",
                               )}

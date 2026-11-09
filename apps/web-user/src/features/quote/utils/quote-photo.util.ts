@@ -1,9 +1,9 @@
 /**
- * 참고 사진을 긴 쪽 1600px·JPEG로 줄여 data URL로 만든다(로그인 전에 기기에 잠깐 두려고).
+ * 참고 사진을 긴 쪽 1280px·JPEG로 줄여 data URL로 만든다(로그인 전에 기기에 잠깐 두려고).
  * 보낼 때 다시 File로 바꿔 업로드 API로 올린다.
  */
-const MAX_SIDE = 1600;
-const QUALITY = 0.82;
+const MAX_SIDE = 1280;
+const QUALITY = 0.8;
 
 export async function shrinkPhoto(file: File): Promise<string> {
   const bitmapUrl = URL.createObjectURL(file);
