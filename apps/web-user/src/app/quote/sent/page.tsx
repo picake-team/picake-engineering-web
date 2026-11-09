@@ -7,6 +7,7 @@ import { Icon } from "@/apps/web-user/common/components/icons";
 import { Button } from "@/apps/web-user/common/components/buttons/Button";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { useQuoteRequestDetail } from "@/apps/web-user/features/quote/hooks/useQuoteRequests";
+import { QuoteLoginGate } from "@/apps/web-user/features/quote/components/QuoteLoginGate";
 
 /**
  * 견적 요청을 보낸 뒤(SC-17 1) — 지금 예약 완료 화면과 같은 모양.
@@ -110,7 +111,9 @@ function QuoteSentContent() {
 export default function QuoteSentPage() {
   return (
     <Suspense fallback={null}>
-      <QuoteSentContent />
+      <QuoteLoginGate>
+        <QuoteSentContent />
+      </QuoteLoginGate>
     </Suspense>
   );
 }
