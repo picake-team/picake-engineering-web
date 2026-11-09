@@ -40,11 +40,6 @@ export function firstSelectableHour(ymd: string, now: Date): number | null {
   return null;
 }
 
-/** 오늘을 고를 수 있는지(저녁 8시가 지나면 못 고름) */
-export function isDateSelectable(ymd: string, now: Date): boolean {
-  return firstSelectableHour(ymd, now) !== null;
-}
-
 /** 픽업 시작 시각과 견적 마감 */
 export function pickupWindow(
   ymd: string,
