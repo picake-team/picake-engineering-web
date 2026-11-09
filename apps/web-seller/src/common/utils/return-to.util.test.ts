@@ -13,4 +13,9 @@ describe("isReturnablePath", () => {
     expect(isReturnablePath("//evil.example.com")).toBe(false);
     expect(isReturnablePath("https://evil.example.com")).toBe(false);
   });
+  it("스토어 만들기는 기억하지 않는다(로그인 뒤 첫 화면이 스토어가 있는지 보고 정한다)", () => {
+    expect(isReturnablePath("/store/create")).toBe(false);
+    expect(isReturnablePath("/store/create?step=2")).toBe(false);
+    expect(isReturnablePath("/store/create#top")).toBe(false);
+  });
 });
