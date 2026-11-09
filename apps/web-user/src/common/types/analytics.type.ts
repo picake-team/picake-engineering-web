@@ -28,7 +28,8 @@ export type LoginEntryPoint =
   | "save_menu"
   | "mypage"
   | "like_button"
-  | "session_expired";
+  | "session_expired"
+  | "quote_request";
 
 /** 소셜 로그인 제공자 */
 export type OAuthProvider = "kakao" | "google" | "apple";

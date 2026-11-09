@@ -11,6 +11,7 @@ import { StoreDetailFeedSection } from "@/apps/web-user/features/store/component
 import { Tabs } from "@/apps/web-user/common/components/tabs/Tabs";
 import { StoreDetailSkeleton } from "@/apps/web-user/common/components/skeleton/StoreDetailSkeleton";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
+import { StoreQuoteEntry } from "@/apps/web-user/features/quote/components/entry/StoreQuoteEntry";
 
 interface StoreDetailPageProps {
   params: Promise<{ storeId: string }>;
@@ -43,7 +44,7 @@ export default function StoreDetailPage({ params }: StoreDetailPageProps) {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full pb-[100px]">
       <div className="px-[20px]">
         <StoreDetailIntroSection store={data} />
       </div>
@@ -68,6 +69,8 @@ export default function StoreDetailPage({ params }: StoreDetailPageProps) {
           },
         ]}
       />
+      {/* 견적 요청 입구(기획 I-46 SC-13 3): 상품·후기·피드 탭 모두 같은 자리 */}
+      <StoreQuoteEntry store={data} />
     </div>
   );
 }

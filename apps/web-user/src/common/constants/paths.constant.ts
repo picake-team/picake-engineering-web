@@ -41,9 +41,17 @@ export const PATHS = {
     REFUND_ACCOUNT: (orderId: string) => `/order/${orderId}/refund-account`,
   },
 
+  // 견적 요청(기획 I-46). 요청 상세 주소는 카카오 알림톡 버튼에 고정돼 있어 바꾸지 않는다
+  QUOTE: {
+    NEW: "/quote/new",
+    SENT: (requestId: string) => `/quote/sent?requestId=${requestId}`,
+    DETAIL: (requestId: string) => `/quote/${requestId}`,
+  },
+
   // 마이페이지
   MYPAGE: "/mypage",
   MY_ORDERS: "/mypage/order",
+  MY_QUOTES: "/mypage/quote",
   MY_REVIEWS: "/mypage/reviews",
   REVIEW_LIST: "/mypage/reviews/list",
   REVIEW_WRITE: (orderId: string) => `/mypage/reviews/write?orderId=${orderId}`,

@@ -1,11 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Toast } from "@/apps/web-user/common/components/toast/Toast";
 import { useAuthStore } from "@/apps/web-user/common/store/auth.store";
 import { useLoginSheetStore } from "@/apps/web-user/common/store/login-sheet.store";
 import { useRequestStoreEntry } from "@/apps/web-user/features/store/hooks/mutations/useRequestStoreEntry";
 import { useStoreEntryRequestExists } from "@/apps/web-user/features/store/hooks/queries/useStoreEntryRequestExists";
+import {
+  QuoteAskSheet,
+  buildQuoteNewHref,
+} from "@/apps/web-user/features/quote/components/entry/QuoteEntry";
 
 /** 지도에서 클릭한 미입점 스토어(카카오 장소) */
 export interface MapUnenteredStore {
@@ -31,6 +36,8 @@ export function MapUnenteredStoreCard({ store }: MapUnenteredStoreCardProps) {
   const { mutate: requestEntry, isPending } = useRequestStoreEntry();
   const { data: existsData } = useStoreEntryRequestExists(store.kakaoPlaceId, isAuthenticated);
 
+  const router = useRouter();
+  const [askOpen, setAskOpen] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [requestedLocally, setRequestedLocally] = useState(false);
 
@@ -100,18 +107,51 @@ export function MapUnenteredStoreCard({ store }: MapUnenteredStoreCardProps) {
           </span>
         </div>
 
-        <button
-          type="button"
-          onClick={handleRequestEntry}
-          disabled={disabled}
-          className={`w-full font-bold text-white ${
-            alreadyRequested ? "bg-gray-300" : "bg-primary"
-          } ${isPending ? "opacity-60" : ""}`}
-          style={{ height: 52, borderRadius: 12, fontSize: 16, lineHeight: "140%" }}
-        >
-          {buttonLabel}
-        </button>
+        <div className="flex gap-[8px]">
+          <button
+            type="button"
+            onClick={handleRequestEntry}
+            disabled={disabled}
+            className={`flex-1 border font-bold ${
+              alreadyRequested
+                ? "border-gray-100 bg-gray-50 text-gray-400"
+                : "border-gray-100 bg-white text-gray-900"
+            } ${isPending ? "opacity-60" : ""}`}
+            style={{ height: 52, borderRadius: 12, fontSize: 16, lineHeight: "140%" }}
+          >
+            {buttonLabel}
+          </button>
+          {/* 견적 요청 입구(기획 I-46 SC-13 2) */}
+          <button
+            type="button"
+            onClick={() => setAskOpen(true)}
+            className="flex-1 bg-primary font-bold text-white"
+            style={{ height: 52, borderRadius: 12, fontSize: 16, lineHeight: "140%" }}
+          >
+            견적 물어보기
+          </button>
+        </div>
       </div>
+      <QuoteAskSheet
+        isOpen={askOpen}
+        onClose={() => setAskOpen(false)}
+        storeName={store.name}
+        isUnlisted
+        onSelect={(only) =>
+          router.push(
+            buildQuoteNewHref("MAP", {
+              kakaoPlaceId: store.kakaoPlaceId,
+              name: store.name,
+              address: store.roadAddress || store.address,
+              lat: store.latitude,
+              lng: store.longitude,
+              phone: store.phone,
+              placeUrl: store.placeUrl,
+              only: only ? 1 : undefined,
+            }),
+          )
+        }
+      />
 
       {showToast && (
         <Toast
