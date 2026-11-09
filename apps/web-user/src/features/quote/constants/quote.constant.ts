@@ -2,7 +2,6 @@ import type { QuoteCakeSize, QuoteCream } from "@/apps/web-user/features/quote/t
 
 /** 요청서 규칙(기획 I-46 요청서 표, backend와 같은 숫자) */
 export const QUOTE_LIMITS = {
-  STEPS: 6,
   MIN_LEAD_HOURS: 3,
   MAX_PHOTOS: 3,
   DESCRIPTION_MAX: 500,
@@ -40,9 +39,6 @@ export const QUOTE_CREAM_OPTIONS: { value: QuoteCream; label: string }[] = [
 export const QUOTE_DISTANCE_STOPS = [1, 2, 3, 4, 5, 10, 20, "SIDO"] as const;
 export type QuoteDistance = (typeof QUOTE_DISTANCE_STOPS)[number];
 export const QUOTE_DEFAULT_DISTANCE: QuoteDistance = 3;
-
-/** "근처 가게 약 N곳"을 셀 때 쓰는 카카오 검색어(지도 입점 전 마커와 같음) */
-export const QUOTE_PLACE_KEYWORD = "주문제작 케이크";
 
 export const quoteQueryKeys = {
   all: ["quote-requests"] as const,
