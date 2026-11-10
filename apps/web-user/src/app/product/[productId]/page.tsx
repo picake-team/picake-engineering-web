@@ -180,12 +180,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
           {
             id: "notice",
             label: "이용안내",
-            content: (
-              <ProductDetailInformationNoticeSection
-                product={data}
-                cancellationRefundDetailDescription="취소 및 환불규정의 내용이 들어갑니다."
-              />
-            ),
+            content: <ProductDetailInformationNoticeSection product={data} />,
           },
         ]}
       />

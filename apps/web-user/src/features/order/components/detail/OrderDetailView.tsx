@@ -99,7 +99,7 @@ export function OrderDetailView({ order }: OrderDetailViewProps) {
             <div className="rounded-lg border border-primary/30 bg-primary/5 px-4 py-3.5">
               <p className="text-sm font-bold text-gray-900">환불받으실 계좌를 알려주세요</p>
               <p className="mt-1 text-xs text-gray-500">
-                입금이 확인되어 환불을 진행하고 있어요. 계좌를 입력해야 환불이 시작됩니다.
+                입금이 확인되어 환불을 진행하고 있어요. 계좌를 입력해야 환불이 시작돼요.
               </p>
               <button
                 type="button"

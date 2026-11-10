@@ -54,7 +54,7 @@ export function OrderStatusNotice({ order }: OrderStatusNoticeProps) {
           tone="red"
           className="mt-1 mb-4"
           message="노쇼로 처리된 예약이에요."
-          description={`${order.storeName}입니다. 노쇼로 인해 케이크는 폐기처리하였습니다.`}
+          description={`${order.storeName}에서 알려 드려요. 노쇼로 처리되어 케이크는 폐기했어요.`}
         />
       );
 

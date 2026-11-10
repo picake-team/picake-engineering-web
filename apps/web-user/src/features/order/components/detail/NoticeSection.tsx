@@ -1,6 +1,7 @@
 import { OrderDetailSectionTitle } from "./OrderDetailSectionTitle";
 import {
   formatRefundRulePeriodLabel,
+  visibleRefundRules,
   type RefundCancellationPolicy,
 } from "@/apps/web-user/features/store/types/store.type";
 
@@ -10,7 +11,7 @@ interface NoticeSectionProps {
 }
 
 export function NoticeSection({ refundCancellationPolicy }: NoticeSectionProps) {
-  const refundRules = refundCancellationPolicy?.rules ?? [];
+  const refundRules = visibleRefundRules(refundCancellationPolicy);
   return (
     <section className="px-5">
       <OrderDetailSectionTitle>안내 사항</OrderDetailSectionTitle>
@@ -41,7 +42,7 @@ export function NoticeSection({ refundCancellationPolicy }: NoticeSectionProps) 
         </div>
         <div>
           <h3 className="text-2sm font-bold text-gray-900 mb-1">날짜 및 옵션 변경 규정</h3>
-          <p className="text-2sm text-gray-900">옵션 변경은 예약신청 상태에서만 가능합니다.</p>
+          <p className="text-2sm text-gray-900">옵션은 예약신청 상태에서만 바꿀 수 있어요.</p>
           <p className="text-2sm text-gray-900">
             예약 상태: 예약신청 → 입금대기 → 입금완료 → 예약확정
           </p>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
+import { withEulReul } from "@/apps/web-user/common/utils/josa.util";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { Select } from "@/apps/web-user/common/components/selectboxs/Select";
 import { TextArea } from "@/apps/web-user/common/components/textareas/TextArea";
@@ -50,7 +51,7 @@ export function CustomOptionField({ option, selection, onChange, error }: Custom
         options={[
           {
             value: "",
-            label: option.required ? `${option.name}을(를) 선택해주세요` : "선택 안 함",
+            label: option.required ? `${withEulReul(option.name)} 선택해주세요` : "선택 안 함",
           },
           ...choices.map((choice) => ({
             value: choice.id,

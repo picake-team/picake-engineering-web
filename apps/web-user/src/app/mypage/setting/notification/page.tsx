@@ -31,7 +31,7 @@ export default function SettingNotificationPage() {
 
   const handlePushToggle = (next: boolean) => {
     updatePreferences({ pushNotificationsEnabled: next });
-    setToastMessage(`푸쉬 알림 수신 ${next ? "동의" : "거부"}하셨습니다.`);
+    setToastMessage(next ? "푸시 알림을 켰어요" : "푸시 알림을 껐어요");
   };
 
   return (

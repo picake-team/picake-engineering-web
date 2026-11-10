@@ -5,7 +5,7 @@ export const APP_ONLY_MODAL = {
   description: createElement(
     Fragment,
     null,
-    "해당 서비스는 앱 다운로드가 필요합니다.",
+    "이 기능은 Picake 앱에서 쓸 수 있어요.",
     createElement("br"),
     "더욱 편리한 이용을 위해 다운로드해주세요.",
   ),

@@ -13,6 +13,14 @@ export interface RefundCancellationPolicy {
   rules: RefundRuleItem[];
 }
 
+/**
+ * 화면에 보일 환불·취소 규정 줄. 내용을 적지 않은 줄은 뺀다
+ * (새 가게 기본값이 "픽업 당일 · 빈칸" 한 줄이라 그대로 그리면 빈 줄이 보인다)
+ */
+export function visibleRefundRules(policy?: RefundCancellationPolicy | null): RefundRuleItem[] {
+  return (policy?.rules ?? []).filter((rule) => (rule.refundDescription ?? "").trim() !== "");
+}
+
 /** "픽업 당일" / "픽업 N일 전" 라벨 */
 export function formatRefundRulePeriodLabel(daysBeforePickup: number): string {
   return daysBeforePickup === 0 ? "픽업 당일" : `픽업 ${daysBeforePickup}일 전`;
