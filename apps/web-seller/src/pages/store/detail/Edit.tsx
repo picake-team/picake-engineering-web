@@ -25,7 +25,7 @@ export const StoreDetailEditPage: React.FC = () => {
   if (!storeId) {
     return (
       <div>
-        <h2 className="text-xl font-semibold">스토어가 선택되지 않았습니다.</h2>
+        <h2 className="text-xl font-semibold">스토어를 고르지 않았어요.</h2>
       </div>
     );
   }
@@ -44,7 +44,7 @@ export const StoreDetailEditPage: React.FC = () => {
   if (!store) {
     return (
       <div>
-        <h2 className="text-xl font-semibold">스토어를 찾을 수 없습니다.</h2>
+        <h2 className="text-xl font-semibold">스토어를 찾을 수 없어요.</h2>
       </div>
     );
   }

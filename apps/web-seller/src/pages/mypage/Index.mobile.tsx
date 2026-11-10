@@ -3,6 +3,7 @@
  */
 import React, { useRef, useState } from "react";
 import { appVersion } from "@/apps/web-seller/common/utils/webview.bridge";
+import { formatPhoneDisplay } from "@/apps/web-seller/common/utils/phone-display.util";
 import { Link } from "react-router-dom";
 import { AppScreen, BackHeader } from "@/apps/web-seller/common/ui/Screen";
 import { Button, ButtonPair } from "@/apps/web-seller/common/ui/Button";
@@ -20,11 +21,8 @@ import type { SellerMypageProfileResponseDto } from "@/apps/web-seller/features/
 import { useLogout } from "@/apps/web-seller/features/auth/hooks/mutations/useAuthMutation";
 
 function formatPhone(phone: string) {
-  const d = phone.replace(/\D/g, "");
-  if (d.length === 11) return `${d.slice(0, 3)}-${d.slice(3, 7)}-${d.slice(7)}`;
-  if (d.length === 10) return `${d.slice(0, 3)}-${d.slice(3, 6)}-${d.slice(6)}`;
   // 휴대폰 번호가 아닌 값(심사용 계정 표시 등)은 그대로 보여 주지 않는다
-  return d.length >= 9 ? phone : "–";
+  return phone.replace(/\D/g, "").length >= 9 ? formatPhoneDisplay(phone) : "–";
 }
 
 function formatDay(iso: string | null | undefined) {

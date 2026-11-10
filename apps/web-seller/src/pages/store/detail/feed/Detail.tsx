@@ -30,7 +30,7 @@ export const StoreDetailFeedDetailPage: React.FC = () => {
   const updateFeedMutation = useUpdateFeed();
   const deleteFeedMutation = useDeleteFeed();
   const { confirm: confirmDelete, sheet: confirmDeleteSheet } = useFrameConfirm({
-    pcMessage: "정말 이 피드를 삭제하시겠습니까?",
+    pcMessage: "이 피드를 삭제할까요?",
     title: "이 피드를 삭제할까요?",
     confirmLabel: "삭제하기",
   });
@@ -54,7 +54,7 @@ export const StoreDetailFeedDetailPage: React.FC = () => {
   if (!storeId || !feedId) {
     return (
       <div>
-        <h2 className="text-xl font-semibold">스토어 또는 피드가 선택되지 않았습니다.</h2>
+        <h2 className="text-xl font-semibold">스토어나 피드를 고르지 않았어요.</h2>
       </div>
     );
   }
@@ -72,7 +72,7 @@ export const StoreDetailFeedDetailPage: React.FC = () => {
   if (!feed) {
     return (
       <div>
-        <h2 className="text-xl font-semibold">피드를 찾을 수 없습니다.</h2>
+        <h2 className="text-xl font-semibold">피드를 찾을 수 없어요.</h2>
       </div>
     );
   }

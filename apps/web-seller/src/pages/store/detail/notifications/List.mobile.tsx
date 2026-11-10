@@ -135,7 +135,7 @@ export const StoreDetailNotificationsListMobilePage: React.FC = () => {
           <EmptyState
             big
             icon="bell"
-            title={unreadOnly ? "읽지 않은 알림이 없습니다." : "알림이 없습니다."}
+            title={unreadOnly ? "읽지 않은 알림이 없어요" : "알림이 없어요"}
           />
         ) : (
           sections.map((s) => (

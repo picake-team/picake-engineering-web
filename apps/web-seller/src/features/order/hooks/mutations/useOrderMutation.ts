@@ -35,7 +35,7 @@ export function useUpdateOrderStatus() {
     onSuccess: (_res, variables) => {
       addAlert({
         severity: "success",
-        message: "주문 상태가 변경되었습니다.",
+        message: "주문 상태를 바꿨어요.",
       });
       trackSellerEvent("success_order_status_change", {
         from_status: variables.meta?.fromStatus ?? "unknown",

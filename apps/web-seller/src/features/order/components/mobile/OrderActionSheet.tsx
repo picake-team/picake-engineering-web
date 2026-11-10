@@ -22,10 +22,10 @@ import { OrderSummaryBox } from "@/apps/web-seller/features/order/components/mob
 import { formatWon } from "@/apps/web-seller/features/order/utils/order-mobile.util";
 import { storeBankLabel } from "@/apps/web-seller/features/store/constants/store.constants";
 
-const IRREVERSIBLE = "이 작업은 처리 후 되돌릴 수 없습니다. 계속하시겠습니까?";
+const IRREVERSIBLE = "처리하면 되돌릴 수 없어요.";
 
 /** 예약 취소 사유(지금 PC와 같음) */
-const CANCEL_REASONS = ["재료 소진", "매장 사정 (휴무)", "고객요청", "기타"] as const;
+const CANCEL_REASONS = ["재료 소진", "매장 사정 (휴무)", "손님 요청", "기타"] as const;
 
 interface ActionCopy {
   title: string;
@@ -37,33 +37,33 @@ interface ActionCopy {
 
 const COPY: Partial<Record<OrderStatus, ActionCopy>> = {
   [OrderStatus.PAYMENT_PENDING]: {
-    title: "예약을 확인하시겠습니까?",
+    title: "예약을 확인할까요?",
     button: "예약 확인",
     note: IRREVERSIBLE,
   },
   [OrderStatus.CONFIRMED]: {
-    title: "예약을 확정하시겠습니까?",
+    title: "예약을 확정할까요?",
     button: "예약 확정",
     note: IRREVERSIBLE,
   },
   [OrderStatus.PICKUP_COMPLETED]: {
-    title: "픽업을 완료하시겠습니까?",
+    title: "픽업을 완료할까요?",
     button: "픽업 완료",
     note: IRREVERSIBLE,
   },
   [OrderStatus.CANCEL_COMPLETED]: {
-    title: "주문을 취소하시겠습니까?",
+    title: "주문을 취소할까요?",
     button: "주문 취소 확정",
-    note: "취소된 주문은 다시 되돌릴 수 없습니다. 확인 부탁드립니다.",
+    note: "취소한 주문은 되돌릴 수 없어요.",
   },
   [OrderStatus.NO_SHOW]: {
-    title: "노쇼 처리하시겠습니까?",
+    title: "노쇼로 처리할까요?",
     button: "노쇼 처리",
     note: IRREVERSIBLE,
     reasonLabel: "노쇼 사유 (필수)",
   },
   [OrderStatus.CANCEL_REFUND_PENDING]: {
-    title: "취소환불대기로 변경하시겠습니까?",
+    title: "취소환불대기로 바꿀까요?",
     button: "취소환불대기로 변경",
     note: IRREVERSIBLE,
     reasonLabel: "취소환불대기 전환 사유 (필수)",
@@ -218,7 +218,7 @@ export function OrderActionSheet({
                 maxLength={500}
                 value={detail}
                 onChange={(e) => setDetail(e.target.value)}
-                placeholder="고객에게 안내할 상세 사유를 입력해주세요 (선택)"
+                placeholder="손님에게 안내할 사유를 적어 주세요(선택)"
               />
             )}
           </Field>

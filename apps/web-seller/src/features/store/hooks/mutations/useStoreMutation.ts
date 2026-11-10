@@ -22,7 +22,7 @@ export function useCreateStore() {
     onSuccess: (response) => {
       addAlert({
         severity: "success",
-        message: "스토어 등록이 완료되었습니다.",
+        message: "스토어를 만들었어요.",
       });
       // 스토어 쿼리 무효화
       queryClient.invalidateQueries({ queryKey: storeQueryKeys.all });
@@ -49,7 +49,7 @@ export function useUpdateStore() {
     onSuccess: (_response, variables) => {
       addAlert({
         severity: "success",
-        message: "스토어 수정이 완료되었습니다.",
+        message: "스토어 정보를 저장했어요.",
       });
       queryClient.invalidateQueries({ queryKey: storeQueryKeys.all });
       navigate(ROUTES.STORE_DETAIL_HOME(variables.storeId));
@@ -74,7 +74,7 @@ export function useUpdateStoreBusinessCalendar() {
     onSuccess: (_data, variables) => {
       addAlert({
         severity: "success",
-        message: "영업 캘린더가 저장되었습니다.",
+        message: "영업 캘린더를 저장했어요.",
       });
       queryClient.invalidateQueries({ queryKey: storeQueryKeys.detail(variables.storeId) });
       queryClient.invalidateQueries({ queryKey: storeQueryKeys.all });

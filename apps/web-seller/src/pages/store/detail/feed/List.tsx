@@ -18,7 +18,7 @@ export const StoreDetailFeedListPage: React.FC = () => {
   if (!storeId) {
     return (
       <div>
-        <h2 className="text-xl font-semibold">스토어가 선택되지 않았습니다.</h2>
+        <h2 className="text-xl font-semibold">스토어를 고르지 않았어요.</h2>
       </div>
     );
   }
@@ -38,7 +38,7 @@ export const StoreDetailFeedListPage: React.FC = () => {
   const totalItems = data?.pages?.[0]?.meta?.totalItems ?? feeds.length ?? 0;
 
   return (
-    <div className={inFrame ? "flex flex-col" : "space-y-6"}>
+    <div className={inFrame ? "flex flex-1 flex-col" : "space-y-6"}>
       {/* 헤더 */}
       <div className="flex items-center justify-between">
         <PageTitle className="text-3xl font-bold">피드 목록</PageTitle>

@@ -156,13 +156,18 @@ export const StoreDetailStatisticsMobilePage: React.FC = () => {
     setPreset(p);
     setRange(rangeFor(p, today));
   };
-  const rangeText = `${formatKeyMonthDayWeek(range.start)} ~ ${formatKeyMonthDayWeek(range.end)}`;
+  // 하루면 날짜 하나만(설명 줄이 두 줄로 꺾이지 않게)
+  const rangeText =
+    range.start === range.end
+      ? formatKeyMonthDayWeek(range.start)
+      : `${formatKeyMonthDayWeek(range.start)} ~ ${formatKeyMonthDayWeek(range.end)}`;
 
   const products = rankBy === "revenue" ? data?.topProductsByRevenue : data?.topProductsByOrders;
 
   return (
     <AppScreen header={<BackHeader title="주문 통계" />} bodyClassName="pt-2">
       <ChipGroup
+        scroll
         label="기간"
         value={preset}
         onChange={pick}

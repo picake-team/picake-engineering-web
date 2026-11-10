@@ -4,6 +4,7 @@
  * 맨 위 할 일 안내 문장과 참고 사진 안내 문장은 두지 않는다(운영자 결정 2026-11-06).
  * 휴대폰 알림을 누르면 여기로 온다. 다른 스토어의 주문이면 그 스토어 주소로 바꿔 연다.
  */
+import { formatPhoneDisplay } from "@/apps/web-seller/common/utils/phone-display.util";
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { AppScreen, BackHeader, BottomActionBar } from "@/apps/web-seller/common/ui/Screen";
@@ -93,7 +94,7 @@ function PaymentDeadline({ order }: { order: OrderResponseDto }) {
         </span>
       ) : (
         <span className="max-w-[60%] text-right text-sub font-semibold text-brand-ink">
-          유효 시간이 지났습니다. 서버에서는 자동으로 취소완료 처리될 수 있어요.
+          입금 시간이 지났어요. 곧 자동으로 취소완료될 수 있어요.
         </span>
       )}
     </div>
@@ -213,13 +214,13 @@ function CancelSection({ order }: { order: OrderResponseDto }) {
   if (order.paymentPendingExpiredAt) {
     rows.push({
       label: "경위",
-      value: "입금 기한 만료로 자동 취소됨",
-      sub: `${formatKstMonthDayTime(order.paymentPendingExpiredAt)} · 고객이 입금했는지 통장 내역 확인이 필요할 수 있습니다`,
+      value: "입금 기한이 지나 자동으로 취소됐어요",
+      sub: `${formatKstMonthDayTime(order.paymentPendingExpiredAt)} · 손님이 입금했는지 통장 내역을 확인해 주세요`,
     });
   }
-  reason("손님이 입금 전에 취소함", order.userCancelReason);
-  reason("사장님이 예약을 취소함", order.sellerCancelReason);
-  reason("손님이 환불을 요청함", order.refundRequestReason);
+  reason("손님이 입금 전에 취소했어요", order.userCancelReason);
+  reason("사장님이 예약을 취소했어요", order.sellerCancelReason);
+  reason("손님이 환불을 요청했어요", order.refundRequestReason);
   reason("사장님이 취소환불대기로 바꿈", order.sellerCancelRefundPendingReason);
   if (order.sellerNoShowReason?.trim()) {
     rows.push({ label: "노쇼 사유", value: order.sellerNoShowReason.trim() });
@@ -324,7 +325,7 @@ export const StoreDetailOrderDetailMobilePage: React.FC = () => {
         {isError ? (
           <LoadErrorState big onRetry={() => void refetch()} />
         ) : (
-          <EmptyState big icon="search" title="주문을 찾을 수 없습니다." />
+          <EmptyState big icon="search" title="주문을 찾을 수 없어요" />
         )}
       </AppScreen>
     );
@@ -390,7 +391,7 @@ export const StoreDetailOrderDetailMobilePage: React.FC = () => {
       {phone ? (
         <InfoRow
           label="연락처"
-          value={<span className="select-all">{phone}</span>}
+          value={<span className="select-all">{formatPhoneDisplay(phone)}</span>}
           action={<ContactActions phone={phone} />}
         />
       ) : null}

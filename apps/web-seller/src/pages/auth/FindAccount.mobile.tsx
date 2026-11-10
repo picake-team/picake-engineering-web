@@ -54,7 +54,7 @@ export const FindAccountMobilePage: React.FC = () => {
       }
     >
       <p className="text-sub leading-normal text-ink-600">
-        가입 시 사용한 휴대폰 번호로 인증하면, 연결된 소셜 계정 정보를 확인할 수 있습니다.
+        가입할 때 쓴 휴대폰 번호로 인증하면 연결된 소셜 계정을 알려 드려요.
       </p>
       {result ? (
         <div className="flex flex-col gap-2 rounded-card border border-ink-100 p-4">
@@ -66,7 +66,7 @@ export const FindAccountMobilePage: React.FC = () => {
             />
           ) : (
             <p className="text-sub leading-normal text-ink-700">
-              해당 번호로 등록된 계정은 있으나, 이메일 정보가 연동되어 있지 않습니다.
+              이 번호로 가입한 계정은 있지만 연결된 이메일이 없어요.
             </p>
           )}
         </div>
