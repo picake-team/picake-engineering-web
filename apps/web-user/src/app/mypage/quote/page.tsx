@@ -10,9 +10,12 @@ import { useMyQuoteRequests } from "@/apps/web-user/features/quote/hooks/useQuot
 import { QuoteRequestCard } from "@/apps/web-user/features/quote/components/QuoteRequestCard";
 import type { QuoteRequestListTab } from "@/apps/web-user/features/quote/types/quote.type";
 import { QuoteLoginGate } from "@/apps/web-user/features/quote/components/QuoteLoginGate";
+import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
 
 function QuoteList({ tab }: { tab: QuoteRequestListTab }) {
-  const { data, isLoading } = useMyQuoteRequests(tab);
+  const { data, isLoading, isError, refetch } = useMyQuoteRequests(tab);
+  if (isError && !data)
+    return <LoadErrorState className="px-[20px] py-[60px]" onRetry={() => void refetch()} />;
   if (isLoading) return <p className="py-[40px] text-center text-sm text-gray-400">불러오는 중…</p>;
   const items = data?.data ?? [];
   if (items.length === 0) {

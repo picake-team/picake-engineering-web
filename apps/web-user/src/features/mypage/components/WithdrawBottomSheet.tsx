@@ -79,10 +79,7 @@ export function WithdrawBottomSheet({ isOpen, onClose }: WithdrawBottomSheetProp
         }
       >
         <div className="px-5 pt-5 pb-10 flex flex-col gap-6">
-          <InfoNotice
-            tone="red"
-            message="고객님의 계정 정보는 모두 삭제 되며, 복구할 수 없습니다."
-          />
+          <InfoNotice tone="red" message="계정 정보가 모두 지워지고 되돌릴 수 없어요." />
           <div>
             <RadioGroup<WithdrawReason>
               label="탈퇴사유"

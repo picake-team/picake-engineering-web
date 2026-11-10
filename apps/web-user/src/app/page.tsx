@@ -82,14 +82,24 @@ export default function Home() {
   if (isRegionSettledNow) hasRegionSettledRef.current = true;
   const isRegionSettled = hasRegionSettledRef.current;
 
-  const { data: latestData, isLoading: isLatestLoading } = useProductList({
+  const {
+    data: latestData,
+    isLoading: isLatestLoading,
+    isError: isLatestError,
+    refetch: refetchLatest,
+  } = useProductList({
     sortBy: SortBy.LATEST,
     limit: 10,
     regions,
     enabled: isRegionSettled,
   });
 
-  const { data: popularData, isLoading: isPopularLoading } = useProductList({
+  const {
+    data: popularData,
+    isLoading: isPopularLoading,
+    isError: isPopularError,
+    refetch: refetchPopular,
+  } = useProductList({
     sortBy: SortBy.POPULAR,
     limit: 10,
     regions,
@@ -140,6 +150,7 @@ export default function Home() {
           title="신규케이크"
           products={latestProducts}
           isLoading={!isRegionSettled || isLatestLoading}
+          onRetry={isLatestError && !latestData ? () => void refetchLatest() : undefined}
           getProductHref={getHomeProductHref}
         />
       </div>
@@ -149,6 +160,7 @@ export default function Home() {
         title="인기케이크"
         products={popularProducts}
         isLoading={!isRegionSettled || isPopularLoading}
+        onRetry={isPopularError && !popularData ? () => void refetchPopular() : undefined}
         getProductHref={getHomeProductHref}
       />
       <BottomNav />

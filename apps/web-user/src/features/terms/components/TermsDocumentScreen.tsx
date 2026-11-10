@@ -40,7 +40,7 @@ export function TermsDocumentScreen({ termsType }: TermsDocumentScreenProps) {
         />
       ) : (
         <p className="px-5 py-10 text-center text-sm text-[var(--grayscale-gr-500,#82817D)]">
-          {isPending ? "문서를 불러오는 중…" : "약관을 불러오지 못했습니다."}
+          {isPending ? "문서를 불러오는 중…" : "약관을 불러오지 못했어요."}
         </p>
       )}
     </div>

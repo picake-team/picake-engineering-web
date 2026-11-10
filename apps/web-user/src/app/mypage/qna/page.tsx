@@ -23,7 +23,7 @@ export default function QnaPage() {
         </div>
       )}
       {!isLoading && (!sections || sections.length === 0) && (
-        <EmptyState message="등록된 Q&A가 없습니다." fill />
+        <EmptyState message="등록된 Q&A가 없어요." fill />
       )}
       {!isLoading && sections && sections.length > 0 && (
         <div className="pt-4">

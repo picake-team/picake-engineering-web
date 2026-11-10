@@ -74,7 +74,7 @@ export default function ReviewListPage() {
           </div>
         ))}
 
-        {data && orders.length === 0 && <EmptyState message="작성 가능한 후기가 없습니다." fill />}
+        {data && orders.length === 0 && <EmptyState message="쓸 수 있는 후기가 없어요." fill />}
       </div>
     </div>
   );

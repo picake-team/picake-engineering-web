@@ -71,7 +71,7 @@ export function BottomNav() {
             <div className="w-10 h-1 bg-gray-200 rounded-full mb-2" />
             <span className="text-6xl">🚧</span>
             <div className="flex flex-col items-center gap-2">
-              <p className="text-xl font-bold text-gray-900">준비중입니다</p>
+              <p className="text-xl font-bold text-gray-900">준비 중이에요</p>
               <p className="text-sm text-gray-400 text-center">더 나은 서비스로 곧 찾아올게요!</p>
             </div>
             <button

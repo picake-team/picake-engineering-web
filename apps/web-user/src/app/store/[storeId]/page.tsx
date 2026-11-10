@@ -40,7 +40,7 @@ export default function StoreDetailPage({ params }: StoreDetailPageProps) {
   }
 
   if (!data) {
-    return <div>스토어 정보를 불러오지 못했습니다.</div>;
+    return <div>스토어 정보를 불러오지 못했어요.</div>;
   }
 
   return (

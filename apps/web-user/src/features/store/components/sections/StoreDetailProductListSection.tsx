@@ -8,6 +8,7 @@ import { PillTabs } from "@/apps/web-user/common/components/tabs/PillTabs";
 import { useInfiniteScroll } from "@/apps/web-user/common/hooks/useInfiniteScroll";
 import { flattenAndDeduplicateInfiniteData } from "@/apps/web-user/common/utils/pagination.util";
 import { EmptyState } from "@/apps/web-user/common/components/fallbacks/EmptyState";
+import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
 
 type ProductTypeFilter = "ALL" | ProductType.BASIC_CAKE | ProductType.CUSTOM_CAKE;
 
@@ -25,11 +26,12 @@ export function StoreDetailProductListSection({ storeId }: StoreDetailProductLis
   const [productTypeFilter, setProductTypeFilter] = useState<ProductTypeFilter>("ALL");
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useProductList({
-    storeId,
-    productType: productTypeFilter === "ALL" ? undefined : productTypeFilter,
-    limit: 20,
-  });
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError, refetch } =
+    useProductList({
+      storeId,
+      productType: productTypeFilter === "ALL" ? undefined : productTypeFilter,
+      limit: 20,
+    });
 
   useInfiniteScroll({
     hasNextPage,
@@ -39,6 +41,10 @@ export function StoreDetailProductListSection({ storeId }: StoreDetailProductLis
   });
 
   const products = flattenAndDeduplicateInfiniteData<Product>(data);
+
+  if (isError && !data) {
+    return <LoadErrorState fill onRetry={() => void refetch()} />;
+  }
 
   if (isLoading) {
     return <></>;
@@ -57,7 +63,7 @@ export function StoreDetailProductListSection({ storeId }: StoreDetailProductLis
 
       {/* 상품 그리드 */}
       {products.length === 0 ? (
-        <EmptyState message="등록된 상품이 없습니다." fill />
+        <EmptyState message="등록된 상품이 없어요." fill />
       ) : (
         <ProductList products={products} />
       )}

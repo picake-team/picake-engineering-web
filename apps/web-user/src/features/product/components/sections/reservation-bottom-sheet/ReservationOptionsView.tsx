@@ -129,7 +129,7 @@ export function ReservationOptionsView({
             onOpen={handleOpenCalendar}
             hint={
               isAddingFromConfirm || isEditingFromConfirm
-                ? "*변경 시 주문하는 모든 상품의 픽업날짜도 함께 변경됩니다."
+                ? "*바꾸면 함께 주문하는 모든 상품의 픽업 날짜도 같이 바뀌어요."
                 : undefined
             }
           />

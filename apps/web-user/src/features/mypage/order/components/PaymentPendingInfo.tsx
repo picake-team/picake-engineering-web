@@ -49,7 +49,9 @@ export function PaymentPendingInfo({ order }: { order: OrderResponse }) {
       </div>
 
       <div className="py-3.5 px-4">
-        <p className="text-2xs text-gray-500 mb-2.5">* 시간 내 미입금 시 예약이 취소됩니다.</p>
+        <p className="text-2xs text-gray-500 mb-2.5">
+          * 시간 안에 입금하지 않으면 예약이 취소돼요.
+        </p>
 
         {/* 총 금액 */}
         <div className="flex items-center mb-3 gap-8">
@@ -174,7 +176,7 @@ export function PaymentPendingInfo({ order }: { order: OrderResponse }) {
 
       {showCopyToast && (
         <Toast
-          message="복사되었습니다"
+          message="복사했어요"
           iconName="checkCircle"
           iconClassName="text-green-400"
           variant="row"
@@ -184,7 +186,7 @@ export function PaymentPendingInfo({ order }: { order: OrderResponse }) {
 
       {showSuccessToast && (
         <Toast
-          message="입금 확인 후 예약이 확정됩니다."
+          message="입금을 확인하면 예약이 확정돼요."
           iconName="checkCircle"
           iconClassName="text-green-400"
           variant="row"

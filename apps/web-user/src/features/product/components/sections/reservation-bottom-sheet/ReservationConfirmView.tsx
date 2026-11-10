@@ -189,11 +189,7 @@ export function ReservationConfirmView({
       </div>
       <div className="px-5 py-10 flex flex-col border-b-[14px] border-gray-50">
         <h2 className="mb-1 py-2.5 text-lg font-bold text-gray-900">예약정보 확인</h2>
-        <InfoNotice
-          message="예약 관련 연락을 위해 판매자에게 전달되는 정보입니다."
-          tone="gray"
-          className="mb-1"
-        />
+        <InfoNotice message="예약 연락을 위해 판매자에게 전달돼요." tone="gray" className="mb-1" />
         <div className="flex flex-col gap-4">
           <div className="py-3">
             <LabeledInput
@@ -251,7 +247,7 @@ export function ReservationConfirmView({
           <div>
             <h3 className="text-2sm font-bold text-gray-900 mb-2.5">환불/취소 규정</h3>
             {refundRules.length === 0 ? (
-              <p className="text-2sm text-gray-500">등록된 환불/취소 규정이 없습니다.</p>
+              <p className="text-2sm text-gray-500">등록된 환불·취소 규정이 없어요.</p>
             ) : (
               <div className="rounded-lg border border-gray-100 bg-white overflow-hidden">
                 {refundRules.map(({ daysBeforePickup, refundDescription }, index) => (
@@ -270,7 +266,7 @@ export function ReservationConfirmView({
           </div>
           <div>
             <h3 className="text-2sm font-bold text-gray-900 mb-1">노쇼 정책</h3>
-            <p className="text-2sm text-gray-900">노쇼 시 서비스 이용에 제한이 있을 수 있습니다.</p>
+            <p className="text-2sm text-gray-900">노쇼하면 서비스 이용이 제한될 수 있어요.</p>
           </div>
           <div>
             <h3 className="text-2sm font-bold text-gray-900 mb-1">날짜 및 옵션 변경 규정</h3>

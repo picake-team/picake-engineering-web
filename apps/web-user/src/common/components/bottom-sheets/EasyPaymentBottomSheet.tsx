@@ -174,7 +174,7 @@ export function EasyPaymentBottomSheet({
 
       {isNotInstalledToastOpen && (
         <Toast
-          message="해당 앱이 존재하지 않습니다."
+          message="앱이 설치되어 있지 않아요."
           iconName="alertCircle"
           iconClassName="text-red-400"
           onClose={() => setIsNotInstalledToastOpen(false)}

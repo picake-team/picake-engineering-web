@@ -115,7 +115,7 @@ export default function MyReviewsPage() {
       <Modal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
-        title="삭제 이후 다시 작성할 수 없습니다."
+        title="삭제하면 다시 쓸 수 없어요."
         description="후기를 삭제하시겠습니까?"
         confirmText="취소"
         cancelText="삭제"
@@ -124,7 +124,7 @@ export default function MyReviewsPage() {
 
       {showDeleteToast && (
         <Toast
-          message="후기가 삭제되었습니다!"
+          message="후기를 삭제했어요"
           iconName="checkCircle"
           iconClassName="text-green-400"
           onClose={() => setShowDeleteToast(false)}

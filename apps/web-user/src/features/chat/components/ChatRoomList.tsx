@@ -12,7 +12,7 @@ interface ChatRoomListProps {
 
 export const ChatRoomList: React.FC<ChatRoomListProps> = ({ chatRooms }) => {
   if (chatRooms.length === 0) {
-    return <EmptyState message="채팅방이 없습니다." fill />;
+    return <EmptyState message="채팅방이 없어요." fill />;
   }
 
   return (
@@ -50,7 +50,7 @@ export const ChatRoomList: React.FC<ChatRoomListProps> = ({ chatRooms }) => {
             </div>
             <div className="flex items-center justify-between gap-2">
               <p className="truncate text-sm text-muted-foreground">
-                {room.lastMessage || "메시지가 없습니다."}
+                {room.lastMessage || "메시지가 없어요."}
               </p>
               {room.userUnread > 0 && (
                 <span className="shrink-0 rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-primary-foreground">

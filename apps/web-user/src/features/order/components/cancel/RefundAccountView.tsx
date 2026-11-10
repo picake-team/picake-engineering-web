@@ -167,8 +167,8 @@ export function RefundAccountView({ order }: RefundAccountViewProps) {
         </section>
 
         <ul className="text-xs text-gray-400 space-y-1 list-disc pl-4">
-          <li>환불까지 영업일 기준 1-2일 소요될 수 있습니다.</li>
-          <li>정확한 환불 정보를 입력하지 않을 시 환불 절차가 지연될 수 있습니다.</li>
+          <li>환불까지 영업일 기준 1~2일 걸릴 수 있어요.</li>
+          <li>환불 정보가 정확하지 않으면 환불이 늦어질 수 있어요.</li>
         </ul>
       </div>
 

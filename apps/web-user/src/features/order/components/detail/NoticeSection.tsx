@@ -18,7 +18,7 @@ export function NoticeSection({ refundCancellationPolicy }: NoticeSectionProps) 
         <div>
           <h3 className="text-2sm font-bold text-gray-900 mb-2.5">환불/취소 규정</h3>
           {refundRules.length === 0 ? (
-            <p className="text-2sm text-gray-500">등록된 환불/취소 규정이 없습니다.</p>
+            <p className="text-2sm text-gray-500">등록된 환불·취소 규정이 없어요.</p>
           ) : (
             <div className="rounded-lg border border-gray-100 bg-white overflow-hidden">
               {refundRules.map(({ daysBeforePickup, refundDescription }, index) => (
@@ -37,7 +37,7 @@ export function NoticeSection({ refundCancellationPolicy }: NoticeSectionProps) 
         </div>
         <div>
           <h3 className="text-2sm font-bold text-gray-900 mb-1">노쇼 정책</h3>
-          <p className="text-2sm text-gray-900">노쇼 시 서비스 이용에 제한이 있을 수 있습니다.</p>
+          <p className="text-2sm text-gray-900">노쇼하면 서비스 이용이 제한될 수 있어요.</p>
         </div>
         <div>
           <h3 className="text-2sm font-bold text-gray-900 mb-1">날짜 및 옵션 변경 규정</h3>

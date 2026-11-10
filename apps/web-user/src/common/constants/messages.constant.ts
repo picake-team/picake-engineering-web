@@ -19,6 +19,6 @@ export const PAYMENT_COMPLETE_MODAL = {
     "판매자에게 확인 알림이 전달되며,",
     createElement("br"),
     createElement("span", { className: "text-primary font-bold" }, "입금 확인 후 예약이 확정"),
-    "됩니다.",
+    "돼요.",
   ),
 } as const;

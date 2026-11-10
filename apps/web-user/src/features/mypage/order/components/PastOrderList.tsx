@@ -22,6 +22,7 @@ import { StoreInquiryBottomSheet } from "@/apps/web-user/common/components/botto
 import { OrderReviewPrompt } from "./OrderReviewPrompt";
 import { PastOrderFilterBar, type PastFilter } from "./PastOrderFilterBar";
 import { EmptyState } from "@/apps/web-user/common/components/fallbacks/EmptyState";
+import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
 
 function formatItemName(order: OrderResponse, item: OrderItemResponse) {
   const parts: string[] = [order.productName];
@@ -205,9 +206,10 @@ function filterByTab(order: OrderResponse, filter: PastFilter): boolean {
 
 export function PastOrderList() {
   const [activeFilter, setActiveFilter] = useState<PastFilter>("ALL");
-  const { data, isLoading, hasNextPage, isFetchingNextPage, fetchNextPage } = useMyOrders({
-    type: "PAST",
-  });
+  const { data, isLoading, isError, refetch, hasNextPage, isFetchingNextPage, fetchNextPage } =
+    useMyOrders({
+      type: "PAST",
+    });
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
   useInfiniteScroll({
@@ -220,6 +222,10 @@ export function PastOrderList() {
   const orders = [...(data?.pages.flatMap((p) => p.data) ?? [])]
     .sort((a, b) => new Date(b.pickupDate).getTime() - new Date(a.pickupDate).getTime())
     .filter((o) => filterByTab(o, activeFilter));
+
+  if (isError && !data) {
+    return <LoadErrorState fill onRetry={() => void refetch()} />;
+  }
 
   if (isLoading) {
     return (

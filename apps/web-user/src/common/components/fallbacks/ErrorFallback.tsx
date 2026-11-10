@@ -13,7 +13,7 @@ export function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps)
   };
 
   // error를 Error 타입으로 안전하게 변환
-  const errorMessage = error instanceof Error ? error.message : "알 수 없는 오류가 발생했습니다.";
+  const errorMessage = error instanceof Error ? error.message : "알 수 없는 오류가 생겼어요.";
 
   return (
     <div
@@ -57,7 +57,7 @@ export function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps)
             color: "#dc2626",
           }}
         >
-          예상치 못한 오류가 발생했습니다
+          예상치 못한 오류가 생겼어요
         </h2>
         <p
           style={{
