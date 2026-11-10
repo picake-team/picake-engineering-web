@@ -39,9 +39,10 @@ function saveRecentSearch(term: string) {
 }
 
 export default function SearchPage() {
-  // 뒤로 오면 보던 자리 그대로(새로 들어오면 맨 위부터)
-  useScrollRestoration();
   const searchParams = useSearchParams();
+  // 뒤로 오면 보던 자리 그대로(새로 들어오면 맨 위부터). 검색어를 바꿔도 이 화면이 그대로 남아 있어
+  // 저장 이름에 검색어를 넣는다(넣지 않으면 처음 검색어 이름으로 저장돼 돌아왔을 때 못 찾는다)
+  useScrollRestoration(`/search?q=${searchParams.get("q") ?? ""}`);
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [searchTerm, setSearchTerm] = useState(searchParams.get("q") || "");
