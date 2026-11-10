@@ -197,7 +197,8 @@ function HourWheel({
           onScroll={onScroll}
           role="listbox"
           aria-label={label}
-          className="relative h-[132px] snap-y snap-mandatory overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          data-no-sheet-drag
+          className="relative h-[132px] snap-y snap-mandatory overflow-y-auto overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           <div style={{ height: WHEEL_ROW }} />
           {hours.map((h) => (
@@ -257,7 +258,7 @@ export function HourRangeSheet({
       onClose={onClose}
       title="몇 시에 받을 수 있어요?"
       footer={
-        <div className="flex gap-[8px]">
+        <div className="flex gap-2 px-5 py-3">
           <Button variant="outline" size="lg" className="flex-1" onClick={onClear}>
             상관없어요
           </Button>
@@ -268,7 +269,6 @@ export function HourRangeSheet({
       }
     >
       <div className="px-[20px] pb-[16px] pt-[8px]">
-        <p className="mb-[16px] text-center text-sm text-gray-500">위아래로 돌려서 골라요</p>
         <div className="flex items-center gap-[12px]">
           <HourWheel
             label="부터"
