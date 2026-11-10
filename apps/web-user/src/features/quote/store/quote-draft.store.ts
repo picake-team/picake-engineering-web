@@ -52,7 +52,6 @@ export interface QuoteDraft {
   flavorNote: string;
   budgetMin: number;
   budgetMax: number;
-  agreed: boolean;
 }
 
 export const EMPTY_QUOTE_DRAFT: QuoteDraft = {
@@ -73,7 +72,6 @@ export const EMPTY_QUOTE_DRAFT: QuoteDraft = {
   flavorNote: "",
   budgetMin: 30_000,
   budgetMax: 50_000,
-  agreed: false,
 };
 
 interface QuoteDraftState {
