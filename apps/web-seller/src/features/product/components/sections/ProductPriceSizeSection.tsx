@@ -138,18 +138,36 @@ export function ProductPriceSizeSection({ form, errors, onChange, disabled }: Pr
           </div>
         )}
       </div>
-      <div className="mt-2">
-        <Checkbox
-          checked={discount}
-          onChange={toggleDiscount}
-          disabled={disabled}
-          label={
-            <span className={inFrame ? undefined : "text-sm"}>
-              할인해서 팔기 (손님 화면에 할인 전 가격이 함께 보여요)
+      {inFrame ? (
+        // 휴대폰 틀 안: 켜고 끄는 설정은 스위치 줄(판매 상태와 같은 모양)
+        <div className="mt-2 flex min-h-14 items-center gap-3 font-app">
+          <span className="flex min-w-0 flex-1 flex-col gap-1">
+            <span className="text-body font-semibold text-ink-900">할인해서 팔기</span>
+            <span className="text-caption text-ink-600">
+              손님 화면에 할인 전 가격이 함께 보여요
             </span>
-          }
-        />
-      </div>
+          </span>
+          <Switch
+            label="할인해서 팔기"
+            checked={discount}
+            disabled={disabled}
+            onChange={toggleDiscount}
+          />
+        </div>
+      ) : (
+        <div className="mt-2">
+          <Checkbox
+            checked={discount}
+            onChange={toggleDiscount}
+            disabled={disabled}
+            label={
+              <span className="text-sm">
+                할인해서 팔기 (손님 화면에 할인 전 가격이 함께 보여요)
+              </span>
+            }
+          />
+        </div>
+      )}
       {priceError && <p className="mt-1 text-sm text-destructive">{priceError}</p>}
 
       <div className="mt-6">

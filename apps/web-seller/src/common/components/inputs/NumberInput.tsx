@@ -13,10 +13,12 @@ export interface NumberInputProps extends Omit<
   max?: number;
   step?: number;
   integer?: boolean;
+  /** 금액처럼 천 단위 쉼표로 보이기(입력한 쉼표는 지우고 숫자만 넘긴다) */
+  thousands?: boolean;
 }
 
 const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
-  ({ value, onChange, className, integer = true, inputMode, ...props }, ref) => {
+  ({ value, onChange, className, integer = true, thousands = false, inputMode, ...props }, ref) => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const rawValue = e.target.value;
       if (rawValue.trim() === "") {
@@ -37,7 +39,12 @@ const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
       onChange(parsed); // 숫자 값은 그대로 전달
     };
 
-    const displayValue = value === undefined ? "" : String(value);
+    const displayValue =
+      value === undefined
+        ? ""
+        : thousands && integer
+          ? value.toLocaleString("ko-KR")
+          : String(value);
 
     return (
       <BaseInput

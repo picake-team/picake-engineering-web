@@ -183,6 +183,7 @@ export const StoreDetailProductListMobilePage: React.FC = () => {
               />
             </div>
             <ChipGroup
+              scroll
               label="판매 상태"
               value={bucket}
               onChange={setBucket}
