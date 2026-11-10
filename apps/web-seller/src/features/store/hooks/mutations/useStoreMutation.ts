@@ -74,7 +74,7 @@ export function useUpdateStoreBusinessCalendar() {
     onSuccess: (_data, variables) => {
       addAlert({
         severity: "success",
-        message: "영업 캘린더를 저장했어요.",
+        message: "영업시간을 저장했어요.",
       });
       queryClient.invalidateQueries({ queryKey: storeQueryKeys.detail(variables.storeId) });
       queryClient.invalidateQueries({ queryKey: storeQueryKeys.all });

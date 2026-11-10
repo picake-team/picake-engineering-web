@@ -7,6 +7,7 @@ import {
   useInMobileFrame,
 } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
 import { FrameSubmitBar } from "@/apps/web-seller/common/components/layouts/FrameSubmitBar";
+import { Button as AppButton } from "@/apps/web-seller/common/ui/Button";
 import { Switch } from "@/apps/web-seller/common/ui/Toggle";
 import { cn } from "@/apps/web-seller/common/utils/classname.util";
 
@@ -652,17 +653,18 @@ export const ProductCreationForm: React.FC<Props> = ({
       </div>
 
       {/* 저장 버튼은 항상 화면 아래에 */}
-      {!disabled && inFrame && isEdit && onDelete ? (
-        // 휴대폰: 삭제는 아래 버튼 줄이 아니라 폼 맨 아래 흰 테두리 작은 버튼으로(약한 행동, 실수로 누르지 않게)
-        <div className="mt-8 flex justify-center">
-          <Button type="button" variant="outline" onClick={onDelete} disabled={isDeleting}>
-            상품 삭제
-          </Button>
-        </div>
-      ) : null}
       {!disabled && inFrame ? (
         // 휴대폰(디자인 6-E): 고칠 곳이 있으면 "고칠 곳 n개"(누르면 첫 고칠 곳으로) | 등록하기
-        <FrameSubmitBar>
+        <FrameSubmitBar
+          below={
+            // 삭제는 약한 행동: 저장하기 바로 아래 회색 글자(누르면 한 번 더 묻는다)
+            isEdit && onDelete ? (
+              <AppButton variant="quiet" onClick={onDelete} disabled={isDeleting || saving}>
+                상품 삭제
+              </AppButton>
+            ) : undefined
+          }
+        >
           {blockingCount > 0 && (
             <Button
               type="button"

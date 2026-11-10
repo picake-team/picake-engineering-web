@@ -37,10 +37,10 @@ export const DEFAULT_PRODUCT_FILTER: ProductFilter = {
 export const PRODUCT_SORT_LABEL: Partial<Record<SortBy, string>> = {
   [SortBy.LATEST]: "최신순",
   [SortBy.POPULAR]: "인기순",
-  [SortBy.PRICE_ASC]: "가격 낮은순",
-  [SortBy.PRICE_DESC]: "가격 높은순",
+  [SortBy.PRICE_ASC]: "가격 낮은 순",
+  [SortBy.PRICE_DESC]: "가격 높은 순",
   [SortBy.REVIEW_COUNT]: "후기 많은순",
-  [SortBy.RATING_AVG]: "별점 높은순",
+  [SortBy.RATING_AVG]: "별점 높은 순",
 };
 
 const SORTS = [

@@ -68,7 +68,7 @@ export const MypageWithdrawMobilePage: React.FC = () => {
       }
     >
       <div className="rounded-card border border-ink-100 p-4 text-sub leading-normal text-ink-600">
-        탈퇴 시 계정·스토어·상품 등 모든 정보가 삭제되며, 같은 카카오·구글·애플 계정과 휴대폰 번호로
+        탈퇴하면 계정·스토어·상품 정보가 모두 지워져요. 같은 카카오·구글·애플 계정과 휴대폰 번호로
         다시 가입할 수 있어요.
       </div>
       {activeCount > 0 ? (
@@ -88,9 +88,9 @@ export const MypageWithdrawMobilePage: React.FC = () => {
       ) : null}
       <div className="flex flex-col gap-1">
         <h2 className="text-body font-bold text-ink-900">탈퇴 사유</h2>
-        <p className="text-caption text-ink-600">남겨주시면 서비스 개선에 활용됩니다</p>
+        <p className="text-caption text-ink-600">남겨 주시면 서비스를 고치는 데 써요</p>
       </div>
-      <Field counter={`${trimmed.length}/${MAX_REASON}`}>
+      <Field counter={`${trimmed.length.toLocaleString()}/${MAX_REASON.toLocaleString()}자`}>
         {(p) => (
           <TextArea
             id={p.id}
@@ -105,7 +105,7 @@ export const MypageWithdrawMobilePage: React.FC = () => {
         )}
       </Field>
       <Checkbox checked={agreed} onChange={setAgreed}>
-        회원 탈퇴 시 계정 정보가 삭제되는 것에 동의합니다.
+        탈퇴하면 계정 정보가 지워지는 것에 동의해요.
       </Checkbox>
 
       <BottomSheet

@@ -156,7 +156,7 @@ export function BottomSheet({
             {children}
           </div>
         ) : null}
-        <div className="px-5 pb-[max(12px,env(safe-area-inset-bottom))] pt-5">{footer}</div>
+        <div className="px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-5">{footer}</div>
       </div>
     </div>,
     document.body,

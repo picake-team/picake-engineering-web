@@ -122,7 +122,7 @@ export function Dialog({
           <div
             className={cn(
               "border-t px-5 py-3",
-              inFrame && "border-ink-100 pb-[max(12px,env(safe-area-inset-bottom))]",
+              inFrame && "border-t-0 pb-[max(20px,env(safe-area-inset-bottom))] pt-4",
             )}
           >
             {footer}
