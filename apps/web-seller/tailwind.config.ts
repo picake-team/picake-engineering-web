@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import { motionPreset } from "@picake/design-tokens";
 import {
   appColors,
   appFontFamily,
@@ -8,6 +9,8 @@ import {
 } from "./src/common/ui/tokens";
 
 const config: Config = {
+  // 움직임 시간·곡선·프리셋은 공용 기초(packages/design-tokens). 손님 앱과 같은 값
+  presets: [motionPreset],
   // hover: 꾸밈은 마우스가 있는 기기에서만. 휴대폰은 누른 뒤에도 hover가 남아 버튼이 회색으로 보인다(2026-11-10)
   future: { hoverOnlyWhenSupported: true },
   // 어두운 화면은 쓰지 않는다. "class"로 두어 PC 부품의 dark: 값이 휴대폰 어두운 모드에서 켜지지 않게 한다
