@@ -11,6 +11,7 @@ import {
 import { AuthInitializerProvider } from "@/apps/web-seller/features/auth/components/providers/AuthInitializer";
 import { useShowMobileScreens } from "@/apps/web-seller/common/hooks/useShowMobileScreens";
 import { ToastHost } from "@/apps/web-seller/common/ui/ToastHost";
+import { SnackbarHost } from "@/apps/web-seller/common/ui/Snackbar";
 import { SellerAppBridgeProvider } from "@/apps/web-seller/common/components/providers/SellerAppBridgeProvider";
 import { ErrorBoundaryProvider } from "./common/components/providers/ErrorBoundaryProvider";
 import { QueryProvider } from "./common/components/providers/QueryProvider";
@@ -65,8 +66,16 @@ function AppRoutes() {
   const showMobile = useShowMobileScreens();
   return (
     <>
-      {/* 서버 오류·실시간 알림 안내: 휴대폰 화면은 위쪽 흰 안내 띠(ToastHost), PC는 지금 모양 */}
-      {showMobile ? <ToastHost /> : <Alert />}
+      {/* 서버 오류·실시간 알림 안내: 휴대폰 화면은 위쪽 알림 배너(ToastHost), PC는 지금 모양.
+          한 일 + 되돌리기는 휴대폰 화면 아래 스낵바(SnackbarHost) */}
+      {showMobile ? (
+        <>
+          <ToastHost />
+          <SnackbarHost />
+        </>
+      ) : (
+        <Alert />
+      )}
       <ConfirmAlert />
       <Suspense fallback={<LoadingFallback />}>
         <Routes>

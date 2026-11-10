@@ -1,13 +1,15 @@
 /**
  * 스낵바: 한 일을 알리면서 바로 되돌릴 수 있게 버튼 하나를 둔 띠(예: "판매중지로 바꿨어요 · 되돌리기").
  * 화면 아래(아래 탭·저장 줄 위)에서 위로 올라오고(slide in, ease out), 나갈 때는 아래로 내려간다(ease in).
- * 짧은 안내만이면 토스트, 실시간 주문 알림은 위쪽 알림 배너(ToastHost)를 쓴다(2026-11-11 운영자 결정: 세 가지로 나눔).
+ * 짧은 안내·서버 오류·실시간 주문 알림은 위쪽 알림 배너(ToastHost)를 쓴다(2026-11-11 운영자 결정: 토스트·스낵바·알림 배너 세 가지).
+ * 화면에서는 `useSnackbarStore().showSnackbar(...)`로 띄우고 `SnackbarHost`가 그린다.
  *
  * 움직임 값은 공용 기초(packages/design-tokens `animate-snackbar-in|out`)에서 가져온다.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cx } from "@/apps/web-seller/common/ui/cx";
 import { APP_COLUMN_CLASS } from "@/apps/web-seller/common/ui/Screen";
+import { useSnackbarStore } from "@/apps/web-seller/common/store/snackbar.store";
 
 /** 나갈 때 움직임 시간(motionDuration.base) */
 const LEAVE_MS = 200;
@@ -31,17 +33,19 @@ export function Snackbar({
   onAction,
   onClose,
   duration = 6000,
-  bottomOffset = 72,
+  bottomOffset = 76,
 }: SnackbarProps) {
   const [leaving, setLeaving] = useState(false);
   const closed = useRef(false);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   const close = useCallback(() => {
     if (closed.current) return;
     closed.current = true;
     setLeaving(true);
-    window.setTimeout(onClose, LEAVE_MS);
-  }, [onClose]);
+    window.setTimeout(() => onCloseRef.current(), LEAVE_MS);
+  }, []);
 
   useEffect(() => {
     const t = window.setTimeout(close, duration);
@@ -71,12 +75,29 @@ export function Snackbar({
               onAction?.();
               close();
             }}
-            className="-my-1 inline-flex h-10 shrink-0 items-center rounded-[8px] px-3 text-body font-bold text-[#FF8A66] active:bg-white/10"
+            className="-my-1 inline-flex h-10 shrink-0 items-center rounded-[8px] px-3 text-body font-bold text-brand active:bg-white/10"
           >
             {actionLabel}
           </button>
         ) : null}
       </div>
     </div>
+  );
+}
+
+/** 스낵바 저장소(`useSnackbarStore`)에 띄운 것을 그린다. 휴대폰 화면에서 한 번만 둔다(App) */
+export function SnackbarHost() {
+  const current = useSnackbarStore((s) => s.current);
+  const hideSnackbar = useSnackbarStore((s) => s.hideSnackbar);
+  if (!current) return null;
+  return (
+    <Snackbar
+      key={current.id}
+      message={current.message}
+      actionLabel={current.actionLabel}
+      onAction={current.onAction}
+      duration={current.duration}
+      onClose={() => hideSnackbar(current.id)}
+    />
   );
 }

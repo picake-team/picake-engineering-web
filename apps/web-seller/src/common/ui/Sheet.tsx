@@ -11,6 +11,10 @@ import { useSheetDrag } from "@/apps/web-seller/common/ui/useSheetDrag";
 import { createPortal } from "react-dom";
 import { cx } from "@/apps/web-seller/common/ui/cx";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
+import { usePresence } from "@/apps/web-seller/common/ui/usePresence";
+
+/** 닫힐 때 내려가는 시간(공용 움직임 값 sheet-out = medium) */
+const SHEET_EXIT_MS = 250;
 
 let openSheetCount = 0;
 /** 열린 창 차례(창 위에 창을 열면 Esc·Tab은 맨 위 창만) */
@@ -69,6 +73,13 @@ export function BottomSheet({
 
   useEffect(() => {
     if (!open) return;
+    // 끌어내려 닫히던 중에 다시 열리면 끌던 자리를 지운다
+    for (const el of [panelRef.current, backdropRef.current]) {
+      if (!el) continue;
+      el.style.transition = "";
+      el.style.transform = "";
+      el.style.opacity = "";
+    }
     restoreRef.current = document.activeElement as HTMLElement | null;
     const me = Symbol("sheet");
     sheetStack.push(me);
@@ -107,14 +118,26 @@ export function BottomSheet({
 
   const dragHandle = useSheetDrag({ panelRef, backdropRef, onClose, enabled: dismissible });
 
-  if (!open) return null;
+  // 닫힐 때도 내려가는 움직임이 끝날 때까지 그린다(그동안 내용은 마지막으로 열려 있던 때 그대로)
+  const presence = usePresence(open, SHEET_EXIT_MS, { title, description, children, footer });
+  if (!presence.present) return null;
+  const { leaving } = presence;
+  const shown = presence.content;
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex flex-col justify-end font-app">
+    <div
+      className={cx(
+        "fixed inset-0 z-50 flex flex-col justify-end font-app",
+        leaving && "pointer-events-none",
+      )}
+    >
       <div
         ref={backdropRef}
         aria-hidden="true"
-        className="absolute inset-0 bg-[rgba(31,31,30,0.4)] animate-in fade-in-0 duration-200"
+        className={cx(
+          "absolute inset-0 bg-[rgba(31,31,30,0.4)]",
+          leaving ? "animate-scrim-out" : "animate-scrim-in",
+        )}
         onClick={() => {
           if (dismissible) onClose();
         }}
@@ -126,7 +149,10 @@ export function BottomSheet({
         aria-labelledby={titleId}
         tabIndex={-1}
         className={cx(
-          "relative mx-auto flex max-h-[90dvh] w-full max-w-[640px] flex-col rounded-t-sheet bg-white text-ink-900 outline-none animate-in slide-in-from-bottom duration-200",
+          "relative mx-auto flex max-h-[90dvh] w-full max-w-[640px] flex-col rounded-t-sheet bg-white text-ink-900 outline-none",
+          leaving
+            ? "animate-sheet-out motion-reduce:animate-fade-out"
+            : "animate-sheet-in motion-reduce:animate-fade-in",
           className,
         )}
       >
@@ -135,9 +161,11 @@ export function BottomSheet({
           <div className="flex items-start justify-between gap-2">
             <div className="flex min-w-0 flex-col gap-2">
               <h2 id={titleId} className="text-heading font-bold">
-                {title}
+                {shown.title}
               </h2>
-              {description ? <p className="text-sub text-ink-600">{description}</p> : null}
+              {shown.description ? (
+                <p className="text-sub text-ink-600">{shown.description}</p>
+              ) : null}
             </div>
             {showClose ? (
               <button
@@ -151,12 +179,12 @@ export function BottomSheet({
             ) : null}
           </div>
         </div>
-        {children ? (
+        {shown.children ? (
           <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-contain px-5 pt-4">
-            {children}
+            {shown.children}
           </div>
         ) : null}
-        <div className="px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-5">{footer}</div>
+        <div className="px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-5">{shown.footer}</div>
       </div>
     </div>,
     document.body,
