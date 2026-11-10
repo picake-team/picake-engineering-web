@@ -46,9 +46,9 @@ test("예약(주문) 생성 골든패스", async ({ page, request }) => {
 
   await page.getByRole("button", { name: "예약신청" }).click();
 
-  // BottomSheet는 열려 있을 때만 마운트되는 단일 인스턴스라, 이 안에서만 찾으면
+  // 열린 창(아래 창·확인 창은 role="dialog") 안에서만 찾으면
   // 상품 상세 페이지 하단에 그대로 남아있는 "예약신청" CTA와 헷갈리지 않는다.
-  const sheet = page.locator(".animate-slide-up");
+  const sheet = page.getByRole("dialog");
   await expect(sheet.getByText("상품 옵션 선택")).toBeVisible();
 
   // 픽업날짜: 캘린더로 진입해 "내일"을 명시적으로 선택

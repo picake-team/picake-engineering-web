@@ -17,6 +17,8 @@ interface DragHandleBottomSheetProps {
   draggable?: boolean;
   /** 드래그 닫힘 임계값(px). 끌어내린 거리가 이 값보다 크면 onClose. 기본 80 */
   closeThresholdPx?: number;
+  /** 화면 읽기용 창 이름(제목 줄이 없어서 따로 받는다) */
+  ariaLabel?: string;
 }
 
 /**
@@ -35,6 +37,7 @@ export function DragHandleBottomSheet({
   zIndexClassName,
   draggable = true,
   closeThresholdPx = 80,
+  ariaLabel,
 }: DragHandleBottomSheetProps) {
   const sheetRef = useRef<HTMLDivElement>(null);
 
@@ -141,6 +144,9 @@ export function DragHandleBottomSheet({
     >
       <div
         ref={sheetRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={ariaLabel}
         className={clsx(
           "fixed bottom-0 left-0 right-0 max-w-[638px] mx-auto bg-white rounded-t-3xl flex flex-col",
           leaving

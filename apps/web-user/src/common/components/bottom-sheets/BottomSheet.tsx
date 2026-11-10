@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useId, useRef, type ReactNode } from "react";
 import clsx from "clsx";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { usePresence } from "@/apps/web-user/common/hooks/usePresence";
@@ -59,6 +59,7 @@ export function BottomSheet({
 }: BottomSheetProps) {
   const sheetRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
 
   // scrollResetKey 변경 시 콘텐츠 스크롤을 맨 위로 리셋
   useEffect(() => {
@@ -185,6 +186,9 @@ export function BottomSheet({
     >
       <div
         ref={sheetRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
         className={clsx(
           "fixed bottom-0 left-0 right-0 max-w-[638px] mx-auto bg-white flex flex-col",
           leaving
@@ -202,6 +206,7 @@ export function BottomSheet({
           )}
         >
           <h2
+            id={titleId}
             className={clsx(
               "flex items-center justify-center text-base font-bold text-center text-gray-900",
               fullScreen ? "h-[52px]" : "h-[64px]",
@@ -212,6 +217,7 @@ export function BottomSheet({
           <button
             type="button"
             onClick={onClose}
+            aria-label="닫기"
             className="absolute top-1/2 -translate-y-1/2 right-[20px] w-[24px] h-[24px] flex items-center justify-center"
           >
             <Icon name="close" width={24} height={24} className="text-gray-900" />

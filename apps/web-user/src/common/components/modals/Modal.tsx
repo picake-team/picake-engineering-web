@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useId } from "react";
 import clsx from "clsx";
 import { Button } from "@/apps/web-user/common/components/buttons/Button";
 import { usePresence } from "@/apps/web-user/common/hooks/usePresence";
@@ -91,6 +91,7 @@ export const Modal: React.FC<ModalProps> = ({
     };
   }, [isOpen, onClose]);
 
+  const titleId = useId();
   // 살짝 커지며 나오고(popup-in), 닫힐 때는 살짝 작아지며 사라진다(그동안 글은 열려 있던 때 그대로)
   const presence = usePresence(isOpen, MODAL_EXIT_MS, {
     title,
@@ -131,6 +132,9 @@ export const Modal: React.FC<ModalProps> = ({
 
       {/* 모달 컨텐츠 */}
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
         className={clsx(
           "relative z-10 w-[calc(100%-40px)] max-w-[320px] bg-white rounded-2xl px-[20px] pt-[36px]",
           leaving
@@ -139,7 +143,9 @@ export const Modal: React.FC<ModalProps> = ({
         )}
       >
         <div className="text-center py-[12px]">
-          <h2 className="text-base font-bold text-gray-900 mb-[8px] break-keep">{shown.title}</h2>
+          <h2 id={titleId} className="text-base font-bold text-gray-900 mb-[8px] break-keep">
+            {shown.title}
+          </h2>
           {shown.description && (
             <div className="text-sm text-gray-700 break-keep">{shown.description}</div>
           )}
