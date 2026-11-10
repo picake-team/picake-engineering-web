@@ -11,6 +11,7 @@ import { QuoteRequestCard } from "@/apps/web-user/features/quote/components/Quot
 import type { QuoteRequestListTab } from "@/apps/web-user/features/quote/types/quote.type";
 import { QuoteLoginGate } from "@/apps/web-user/features/quote/components/QuoteLoginGate";
 import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
+import { useScrollRestoration } from "@/apps/web-user/common/hooks/useScrollRestoration";
 
 function QuoteList({ tab }: { tab: QuoteRequestListTab }) {
   const { data, isLoading, isError, refetch } = useMyQuoteRequests(tab);
@@ -48,6 +49,8 @@ function QuoteList({ tab }: { tab: QuoteRequestListTab }) {
 
 /** MY > 내 견적 요청(SC-17 2): 진행 중 / 지난 요청 */
 export default function MyQuotesPage() {
+  // 뒤로 오면 보던 자리 그대로(새로 들어오면 맨 위부터)
+  useScrollRestoration();
   return (
     <div>
       <Header variant="back-title" title="내 견적 요청" backFallbackPath={PATHS.MYPAGE} />

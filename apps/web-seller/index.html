@@ -6,7 +6,11 @@
     <link rel="icon" href="/src/assets/images/favicon.ico" sizes="any" />
     <!-- viewport-fit=cover: 노치·홈 막대 안전 영역 값(env(safe-area-inset-*))을 받아 휴대폰 화면의 위쪽 줄·아래 탭을 띄운다 -->
     <meta name="color-scheme" content="only light" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- maximum-scale=1: 아이폰이 16px보다 작은 입력 칸(앱 본문 15)을 누를 때 화면을 확대하지 않게. 손님 웹과 같음. 사파리 두 손가락 확대는 그대로 된다 -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover"
+    />
     <meta name="theme-color" content="#FFFFFF" />
     <title>Picake - 판매자 센터</title>
   </head>

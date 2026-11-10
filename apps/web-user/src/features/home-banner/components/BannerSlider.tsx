@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { FadeInImage } from "@/apps/web-user/common/components/motion/FadeInImage";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay } from "swiper/modules";
@@ -50,7 +50,7 @@ function BannerSlideImage({
   priority?: boolean;
 }) {
   return (
-    <Image
+    <FadeInImage
       src={src}
       alt={alt}
       fill
@@ -78,7 +78,7 @@ export default function BannerSlider() {
   }
 
   return (
-    <div className="h-[246px]">
+    <div className="h-[246px] bg-gray-50">
       <Swiper
         modules={[Pagination, Autoplay]}
         pagination={{

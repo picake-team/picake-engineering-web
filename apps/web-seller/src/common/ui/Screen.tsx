@@ -7,7 +7,7 @@
  * - 입력 중(키보드가 올라옴)에는 아래 탭과 아래 붙은 버튼을 숨긴다(손님 앱과 같게)
  * - 화면은 문서 스크롤을 쓴다(위쪽 줄은 sticky). PC에서는 가운데 640 칸에 둔다
  */
-import React from "react";
+import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { cx } from "@/apps/web-seller/common/ui/cx";
 import { Icon, TabIcon, type TabIconName } from "@/apps/web-seller/common/ui/icons";
@@ -30,6 +30,9 @@ const TABS: { tab: AppTab; label: string; to: (storeId: string) => string }[] = 
 
 /** 아래 탭(탭 첫 화면 5개에만). 고른 탭 11/700 #B5401C, 아닌 탭 11/400 #686864 */
 export function AppTabBar({ storeId, current }: { storeId: string; current: AppTab }) {
+  // 누른 탭은 다음 화면이 그려지기 전에도 바로 고른 탭으로 보인다(느린 인터넷에서 0.15~0.25초 빈틈)
+  const [tapped, setTapped] = useState<AppTab | null>(null);
+  const shownTab = tapped ?? current;
   return (
     <nav
       aria-label="아래 탭"
@@ -37,19 +40,28 @@ export function AppTabBar({ storeId, current }: { storeId: string; current: AppT
     >
       {TABS.map(({ tab, label, to }) => {
         const active = tab === current;
+        const on = tab === shownTab;
         return (
           <NavLink
             key={tab}
             to={to(storeId)}
-            aria-current={active ? "page" : undefined}
+            // NavLink는 홈(/stores/:id)을 모든 하위 주소에서 "지금 화면"으로 보므로 직접 정한다
+            aria-current={active ? "page" : "false"}
+            onClick={(e) => {
+              if (!active) {
+                setTapped(tab);
+                return;
+              }
+              // 보고 있는 탭을 다시 누르면 맨 위로
+              e.preventDefault();
+              const smooth = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+              window.scrollTo({ top: 0, behavior: smooth ? "smooth" : "auto" });
+            }}
             className="flex min-h-11 flex-col items-center gap-1 pb-1 pt-2 font-app"
           >
-            <TabIcon name={tab} active={active} />
+            <TabIcon name={tab} active={on} />
             <span
-              className={cx(
-                "text-tab",
-                active ? "font-bold text-brand" : "font-normal text-ink-600",
-              )}
+              className={cx("text-tab", on ? "font-bold text-brand" : "font-normal text-ink-600")}
             >
               {label}
             </span>

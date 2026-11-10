@@ -9,8 +9,11 @@ import { AlarmSkeleton } from "@/apps/web-user/common/components/skeleton/AlarmS
 import { useAuthStore, useAuthHasHydrated } from "@/apps/web-user/common/store/auth.store";
 import { EmptyState } from "@/apps/web-user/common/components/fallbacks/EmptyState";
 import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
+import { useScrollRestoration } from "@/apps/web-user/common/hooks/useScrollRestoration";
 
 export default function AlarmPage() {
+  // 뒤로 오면 보던 자리 그대로(새로 들어오면 맨 위부터)
+  useScrollRestoration();
   const hasHydrated = useAuthHasHydrated();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const { data, isLoading, isError, refetch } = useAlarmList();

@@ -12,12 +12,15 @@ import { Tabs } from "@/apps/web-user/common/components/tabs/Tabs";
 import { StoreDetailSkeleton } from "@/apps/web-user/common/components/skeleton/StoreDetailSkeleton";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import { StoreQuoteEntry } from "@/apps/web-user/features/quote/components/entry/StoreQuoteEntry";
+import { useScrollRestoration } from "@/apps/web-user/common/hooks/useScrollRestoration";
 
 interface StoreDetailPageProps {
   params: Promise<{ storeId: string }>;
 }
 
 export default function StoreDetailPage({ params }: StoreDetailPageProps) {
+  // 뒤로 오면 보던 자리 그대로(새로 들어오면 맨 위부터)
+  useScrollRestoration();
   const { storeId } = use(params);
   const { data, isLoading } = useStoreDetail(storeId);
   const { data: productData } = useProductList({ storeId });

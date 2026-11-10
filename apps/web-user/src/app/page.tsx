@@ -16,6 +16,7 @@ import { useStoreRegions } from "@/apps/web-user/features/store/hooks/queries/us
 import { buildRegionsParam } from "@/apps/web-user/common/utils/region-match.util";
 import { hasStoredRegion } from "@/apps/web-user/common/utils/region-storage.util";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
+import { useScrollRestoration } from "@/apps/web-user/common/hooks/useScrollRestoration";
 
 /** 지역 복원을 기다리는 최대 시간. 이 시간이 지나면 지역 필터 없이 목록을 조회한다. */
 const REGION_WAIT_TIMEOUT_MS = 3000;
@@ -24,6 +25,8 @@ const getHomeProductHref = (productId: string) =>
   `${PATHS.PRODUCT.DETAIL(productId)}?entry_point=home`;
 
 export default function Home() {
+  // 뒤로 오면 보던 자리 그대로(새로 들어오면 맨 위부터)
+  useScrollRestoration();
   // 홈 화면 노출
   useEffect(() => {
     trackEvent("view_home");

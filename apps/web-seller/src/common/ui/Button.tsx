@@ -35,14 +35,14 @@ function variantClass(variant: ButtonVariant, size: ButtonSize, disabled: boolea
     case "primary":
       return cx(
         "rounded-control",
-        disabled ? "bg-ink-100 text-ink-400" : "bg-brand text-white active:brightness-95",
+        disabled ? "bg-ink-100 text-ink-400" : "press bg-brand text-white",
       );
     case "secondary":
       return cx(
         "rounded-control border bg-white",
         disabled
           ? "border-ink-100 text-ink-400"
-          : cx("border-ink-200 active:bg-ink-50", size === "lg" ? "text-ink-900" : "text-ink-700"),
+          : cx("press border-ink-200", size === "lg" ? "text-ink-900" : "text-ink-700"),
       );
     case "quiet":
       return cx(
@@ -85,7 +85,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function 
       disabled={isDisabled}
       aria-busy={loading || undefined}
       className={cx(
-        "inline-flex shrink-0 select-none items-center justify-center gap-2 whitespace-nowrap font-app transition-[filter,opacity,background-color] disabled:cursor-not-allowed",
+        "inline-flex shrink-0 select-none items-center justify-center gap-2 whitespace-nowrap font-app disabled:cursor-not-allowed",
         isText ? "bg-transparent" : BOX[size],
         // 처리 중에는 흐리게 하지 않는다(주황 그대로 + 동그라미)
         variantClass(variant, size, Boolean(disabled) && !loading),
