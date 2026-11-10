@@ -317,7 +317,7 @@ export function NaverProductImportDialog({
                   }
                   className={`flex w-full items-center gap-3 p-3 text-left hover:bg-muted/50 disabled:cursor-not-allowed disabled:opacity-50 ${
                     picked
-                      ? // 휴대폰 틀 안: 고른 줄은 회색 바탕 + 오른쪽 주황 체크(연한 주황 바탕은 분홍으로 보여 쓰지 않음, 2026-11-10)
+                      ? // 휴대폰 틀 안: 고른 줄은 회색 바탕 + 오른쪽 주황 체크
                         inFrame
                         ? "bg-ink-50"
                         : "bg-primary/5 ring-1 ring-inset ring-primary"

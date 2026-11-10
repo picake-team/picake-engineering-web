@@ -1,5 +1,6 @@
 /**
- * 판매자 앱 휴대폰 화면 부품 모음 (디자인 기준 B-1~B-6). `yarn web-seller:storybook`으로 본다.
+ * 판매자 앱 휴대폰 화면 부품 모음. `yarn web-seller:storybook`으로 본다.
+ * 어느 부품을 어떤 크기로 쓰는지는 docs/web-seller/판매자 앱 디자인 기준.md.
  * 휴대폰 폭(390)으로 보려면 Storybook 위쪽의 화면 크기에서 "Small mobile"이나 직접 390을 고른다.
  */
 import { useState } from "react";
@@ -72,7 +73,7 @@ export const 버튼: Story = {
           <Button>예약 확정</Button>
         </ButtonPair>
       </Section>
-      <Section title="누를 수 없을 때(회색 채움, 흐린 주황은 분홍으로 보여 쓰지 않음) · 처리 중">
+      <Section title="누를 수 없을 때(회색 채움) · 처리 중">
         <ButtonPair>
           <Button variant="secondary" disabled>
             돌아가기

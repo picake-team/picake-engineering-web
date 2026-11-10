@@ -1,6 +1,6 @@
 /**
  * 휴대폰 홈 (SC-70, 디자인 1-A · A70e): 주간 달력 → 처리할 주문 → 고른 날 픽업 → 이번 주 매출.
- * 홈은 무엇을 할지(숫자와 한 줄 안내), 주문 탭은 주문을 보고 처리하는 곳이다(운영자 결정 2026-11-06).
+ * 홈은 무엇을 할지(숫자와 한 줄 안내), 주문 탭은 주문을 보고 처리하는 곳이다(운영자 결정).
  */
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";

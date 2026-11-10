@@ -89,12 +89,6 @@ export function formatKstMonthDayTime(date: Date | string): string {
   return `${yearPrefix(p.year)}${p.month}월 ${p.day}일 ${pad2(p.hour)}:${pad2(p.minute)}`;
 }
 
-/** "2026년 11월 6일 09:12" (주문 정보처럼 해가 필요한 곳) */
-export function formatKstFullDateTime(date: Date | string): string {
-  const p = kstParts(date);
-  return `${p.year}년 ${p.month}월 ${p.day}일 ${pad2(p.hour)}:${pad2(p.minute)}`;
-}
-
 function keyToUtc(key: string): Date {
   const [y, m, d] = key.split("-").map(Number);
   return new Date(Date.UTC(y, m - 1, d));

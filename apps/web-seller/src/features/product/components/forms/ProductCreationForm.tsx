@@ -368,7 +368,7 @@ export const ProductCreationForm: React.FC<Props> = ({
                         onClick={() => patch({ productType: t.value })}
                         className={
                           inFrame
-                            ? // 고른 카드: 얇은 주황 테두리 + 주황 점만(바탕은 흰색, 운영자 의견 2026-11-07 "주황 테두리에 주황 바탕 과해")
+                            ? // 고른 카드: 얇은 주황 테두리 + 주황 점만(바탕은 흰색)
                               cn(
                                 "relative flex flex-col gap-1 rounded-control bg-white p-4 text-left font-app",
                                 on

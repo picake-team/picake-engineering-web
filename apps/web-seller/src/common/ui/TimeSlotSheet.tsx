@@ -87,7 +87,7 @@ export function TimeBox({
       aria-invalid={invalid || undefined}
       onClick={onClick}
       className={cx(
-        // 다른 고르는 칸(SelectInput·PickerButton)과 같은 48 · 15 보통 글씨(2026-11-10, 전엔 영업시간만 16 굵게)
+        // 다른 고르는 칸(SelectInput·PickerButton)과 같은 48 · 15 보통 글씨
         "flex h-12 min-w-0 flex-1 items-center justify-between rounded-control bg-white px-4 text-body tabular-nums text-ink-900 active:bg-ink-50",
         invalid ? "border-[1.5px] border-brand" : "border border-ink-200",
       )}

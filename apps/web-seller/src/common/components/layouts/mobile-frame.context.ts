@@ -1,6 +1,6 @@
 /**
  * 휴대폰 틀(MobileFrame) 안에 담긴 PC 화면이 버튼 모양을 앱 디자인 기준에 맞출 때 쓰는 값.
- * 아래 저장 줄(FrameSubmitBar)은 앱의 아래 버튼 줄처럼 늘 화면 맨 아래, 가득 찬 버튼(48)으로 그린다(운영자 의견 2026-11-06·11-10).
+ * 아래 저장 줄(FrameSubmitBar)은 앱의 아래 버튼 줄처럼 늘 화면 맨 아래, 가득 찬 버튼(48)으로 그린다.
  */
 import { createContext, useContext } from "react";
 

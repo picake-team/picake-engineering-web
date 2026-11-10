@@ -30,7 +30,6 @@ export const ProductCreationCategorySection: React.FC<ProductCreationCategorySec
 
   if (inFrame) {
     // 휴대폰 틀 안: 앱 칩(Chip)과 같다. 고른 칩은 주황 채움 + 흰 글씨, 안 고른 칩은 흰 바탕 + 회색 테두리.
-    // 연한 주황 바탕은 분홍으로 보여 쓰지 않는다(운영자 의견 2026-11-10)
     return (
       <div className="flex flex-col gap-4 font-app">
         {PRODUCT_CATEGORY_GROUPS.map((group) => (

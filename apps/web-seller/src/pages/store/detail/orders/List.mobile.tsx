@@ -390,7 +390,7 @@ export const StoreDetailOrderListMobilePage: React.FC = () => {
                   value: "todo",
                   label: "처리할 것",
                   count: todo.loading || todo.error ? undefined : todo.total,
-                  // 주황은 사장님이 할 일이 있을 때만(운영자 의견 2026-11-07 "너무 다 주황")
+                  // 주황은 사장님이 할 일이 있을 때만
                   countAccent: true,
                 },
                 {

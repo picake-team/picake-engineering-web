@@ -46,7 +46,7 @@ export const SORT_LABEL: Record<OrderSortBy, string> = {
 
 /**
  * 기간 칸: 고르는 칸(PickerButton)을 누르면 앱 달력 창(DateRangeSheet)이 이 창 위에 열린다.
- * 휴대폰 기본 날짜 창은 앱 디자인과 너무 달라 쓰지 않는다(2026-11-10). 고른 기간은 오른쪽 "지우기"로 뺀다.
+ * 휴대폰 기본 날짜 창은 앱 디자인과 달라 쓰지 않는다. 고른 기간은 오른쪽 "지우기"로 뺀다.
  */
 function DateRange({
   title,

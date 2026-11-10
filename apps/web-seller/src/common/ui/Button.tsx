@@ -1,10 +1,9 @@
 /**
- * 버튼 (디자인 기준 B-3·B-6).
+ * 버튼.
  * - primary: 주황 채움, 화면에 하나(버튼 둘이면 오른쪽). 못 누르면 회색 채움(#EBEBEA + #8C8C88) + 이유 문구는 버튼 위 한 줄.
- *   흐린 주황(투명도)은 분홍으로 보여 쓰지 않는다(운영자 의견 2026-11-10)
  * - secondary: 흰 바탕 + 테두리. 48은 15/700 진한 글씨, 40은 13/700 #4E4E4B
  * - quiet: 회색 글자 버튼(약한 행동: 그만두기·나중에·로그아웃) 13/400 #686864
- * 갈색(#B5401C) 글자 버튼은 쓰지 않는다(운영자 결정 2026-11-06). 위쪽 줄의 행동은 아이콘 버튼(HeaderIconButton),
+ * 갈색(#B5401C) 글자 버튼은 쓰지 않는다(운영자 결정). 위쪽 줄의 행동은 아이콘 버튼(HeaderIconButton),
  * 화면 안의 작은 행동은 secondary md로 한다. #B5401C는 배지·고칠 곳·경고 글씨에만 쓴다.
  * 누르는 칸은 모두 44 × 44 이상. 서버를 기다리는 동안(loading)은 "처리 중"으로 다시 눌리지 않게 한다.
  */
@@ -88,7 +87,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function 
       className={cx(
         "inline-flex shrink-0 select-none items-center justify-center gap-2 whitespace-nowrap font-app transition-[filter,opacity,background-color] disabled:cursor-not-allowed",
         isText ? "bg-transparent" : BOX[size],
-        // 처리 중에는 흐리게 하지 않는다(B-3: 주황 그대로 + 동그라미)
+        // 처리 중에는 흐리게 하지 않는다(주황 그대로 + 동그라미)
         variantClass(variant, size, Boolean(disabled) && !loading),
         block && "w-full",
         className,
@@ -186,7 +185,7 @@ export function CircleIconLink({
 
 /**
  * 검색 칸 옆 아이콘 버튼(정렬·거르기). 검색 칸과 같은 높이 40·회색 칸·모서리로 나란히 두어 화면 양쪽 여백이
- * 같아 보이게 한다(동그라미 테두리 버튼은 오른쪽 끝에 붙어 보였음, 2026-11-06). 누르는 칸은 44.
+ * 같아 보이게 한다(동그라미 테두리 버튼은 오른쪽 끝에 붙어 보였음). 누르는 칸은 44.
  * active면 거르기를 쓰는 중이라 주황 점을 단다.
  */
 export function FieldIconButton({

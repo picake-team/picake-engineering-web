@@ -18,7 +18,7 @@ export const queryClient = new QueryClient({
       // 에러 발생 시 재시도 횟수
       retry: 0,
       // 인터넷이 끊겨도 멈춰 두지 않고 바로 실패시킨다. 멈춰 두면 데이터 없이 "없어요" 빈 화면이 떠서
-      // 주문이 없는 것처럼 보였다(2026-11-10). 실패하면 "인터넷 연결을 확인해 주세요", 연결되면 다시 불러온다
+      // 주문이 없는 것처럼 보였다. 실패하면 "인터넷 연결을 확인해 주세요", 연결되면 다시 불러온다
       networkMode: "always",
       // 가장 가까운 상위 error boundary컴포넌트에서 캐치
       // throwOnError: true,
