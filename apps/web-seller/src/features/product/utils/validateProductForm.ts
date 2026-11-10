@@ -31,7 +31,7 @@ export const validateProductForm = (
 
   // 기본 정보 검증 - 대표 이미지 (images 배열의 첫 번째 요소) 필수
   if (!form.images || form.images.length === 0 || !form.images[0]?.trim()) {
-    newErrors.images = "상품 대표 이미지를 등록해주세요.";
+    newErrors.images = "사진을 1장 이상 올려 주세요.";
   }
 
   if (!form.name.trim()) {
@@ -65,7 +65,7 @@ export const validateProductForm = (
   }
 
   if (!form.productType) {
-    newErrors.productType = "상품 유형을 선택해주세요.";
+    newErrors.productType = "종류를 골라 주세요.";
   }
 
   if (!form.cakeSizeOptions?.some((option) => option.visible === EnableStatus.ENABLE)) {

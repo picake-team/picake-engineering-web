@@ -258,9 +258,9 @@ export const StoreDetailHoursMobilePage: React.FC = () => {
               <p className="-mt-1 text-sub text-ink-600">손님이 고르는 픽업 시간이에요</p>
             </div>
             <div className="flex items-center gap-3">
-              <TimeBox large label="시작" value={draft.start} onClick={() => setPicking("start")} />
+              <TimeBox label="시작" value={draft.start} onClick={() => setPicking("start")} />
               <span className="text-ink-900">~</span>
-              <TimeBox large label="끝" value={draft.end} onClick={() => setPicking("end")} />
+              <TimeBox label="끝" value={draft.end} onClick={() => setPicking("end")} />
             </div>
             {placeId ? (
               <Button

@@ -58,7 +58,7 @@ function Divider() {
 }
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <h2 className="mt-1 text-body font-bold text-ink-900">{children}</h2>;
+  return <h2 className="mt-1 text-group font-bold text-ink-900">{children}</h2>;
 }
 
 function ContactActions({ phone }: { phone: string }) {

@@ -68,6 +68,7 @@ function summarize(option: CustomOptionDto): string {
 export const ProductCreationCustomOptionsSection: React.FC<
   ProductCreationCustomOptionsSectionProps
 > = ({ form, errors, onCustomOptionsChange, disabled = false }) => {
+  const inFrame = useInMobileFrame();
   const options = form.customOptions;
   // 펼쳐진 옵션 인덱스 (순서 변경·삭제 시 함께 갱신)
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
@@ -200,7 +201,12 @@ export const ProductCreationCustomOptionsSection: React.FC<
                       <button
                         type="button"
                         aria-label="위로 이동"
-                        className="text-muted-foreground disabled:opacity-30"
+                        className={
+                          inFrame
+                            ? // 휴대폰 틀 안: 누르는 칸을 넓게(36 × 24, 화살표 모양은 그대로)
+                              "flex h-6 w-9 items-center justify-center rounded-check text-ink-600 active:bg-ink-50 disabled:text-ink-200"
+                            : "text-muted-foreground disabled:opacity-30"
+                        }
                         disabled={disabled || index === 0}
                         onClick={() => moveOption(index, -1)}
                       >
@@ -209,7 +215,12 @@ export const ProductCreationCustomOptionsSection: React.FC<
                       <button
                         type="button"
                         aria-label="아래로 이동"
-                        className="text-muted-foreground disabled:opacity-30"
+                        className={
+                          inFrame
+                            ? // 휴대폰 틀 안: 누르는 칸을 넓게(36 × 24, 화살표 모양은 그대로)
+                              "flex h-6 w-9 items-center justify-center rounded-check text-ink-600 active:bg-ink-50 disabled:text-ink-200"
+                            : "text-muted-foreground disabled:opacity-30"
+                        }
                         disabled={disabled || index === options.length - 1}
                         onClick={() => moveOption(index, 1)}
                       >

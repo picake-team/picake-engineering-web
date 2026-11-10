@@ -208,17 +208,24 @@ export function ProductPriceSizeSection({ form, errors, onChange, disabled }: Pr
                       disabled={disabled}
                       label={<span className="text-xs">판매</span>}
                     />
-                    <button
+                    {/* 휴대폰 틀 안: 옵션 삭제와 같은 36 동그라미(누르는 칸을 넓게). PC는 작은 아이콘 그대로 */}
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="icon"
                       aria-label={`${size.displayName} 사이즈 삭제`}
-                      className="rounded p-1 text-muted-foreground hover:text-destructive disabled:opacity-40"
+                      className={
+                        inFrame
+                          ? "h-8 w-8"
+                          : "h-auto w-auto rounded p-1 text-muted-foreground shadow-none hover:bg-transparent hover:text-destructive disabled:opacity-40"
+                      }
                       disabled={disabled || sizes.length <= 1}
                       onClick={() =>
                         onChange({ cakeSizeOptions: sizes.filter((_, i) => i !== index) })
                       }
                     >
                       <Trash2 className="h-4 w-4" />
-                    </button>
+                    </Button>
                   </div>
                 </div>
                 <Input

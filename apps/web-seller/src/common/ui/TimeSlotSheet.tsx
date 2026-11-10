@@ -72,13 +72,10 @@ export function TimeBox({
   label,
   value,
   onClick,
-  large = false,
 }: {
   label: string;
   value: string;
   onClick: () => void;
-  /** 영업시간 화면은 18/700(디자인 4-D) */
-  large?: boolean;
 }) {
   return (
     <button
@@ -86,8 +83,8 @@ export function TimeBox({
       aria-label={`${label} ${value}`}
       onClick={onClick}
       className={cx(
-        "flex h-12 min-w-0 flex-1 items-center justify-between rounded-control border border-ink-200 bg-white px-4 tabular-nums text-ink-900 active:bg-ink-50",
-        large ? "text-group font-bold" : "text-body",
+        // 다른 고르는 칸(SelectInput·PickerButton)과 같은 48 · 15 보통 글씨(2026-11-10, 전엔 영업시간만 16 굵게)
+        "flex h-12 min-w-0 flex-1 items-center justify-between rounded-control border border-ink-200 bg-white px-4 text-body tabular-nums text-ink-900 active:bg-ink-50",
       )}
     >
       {value}

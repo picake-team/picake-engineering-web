@@ -58,7 +58,7 @@ export const StoreDetailNotificationSettingsMobilePage: React.FC = () => {
   return (
     <AppScreen header={<BackHeader title="알림 설정" />} bodyClassName="pt-2">
       <DevicePushStatusCard />
-      <h2 className="text-sub font-bold text-ink-700">{store?.name ?? "스토어"} 알림</h2>
+      <h2 className="text-group font-bold text-ink-900">{store?.name ?? "스토어"} 알림</h2>
       <div className="-mt-2">
         <ListRow
           title="주문 알림 받기"

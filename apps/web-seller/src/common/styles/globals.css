@@ -110,6 +110,19 @@ textarea {
   --ring: 60 2% 30%;
   --radius: 0.75rem;
 }
+/* 고칠 곳: 앱 입력 칸(Field)과 같게 주황 테두리 1.5 + 아래 문구 12/600 #B5401C(PC는 갈색 1px·14/400) */
+.app-form input.border-destructive,
+.app-form textarea.border-destructive,
+.app-form button.border-destructive,
+.app-form [role="combobox"].border-destructive {
+  border-color: #ff653e;
+  border-width: 1.5px;
+}
+.app-form p.text-destructive {
+  font-size: 12px;
+  line-height: 1.5;
+  font-weight: 600;
+}
 /* PC 화면의 노란 안내 칸은 앱 주의 안내(WarningBox)처럼 흰 바탕 + 주황 테두리 1.5 + 진한 글씨 */
 .app-form .bg-amber-50 {
   background-color: #ffffff;
