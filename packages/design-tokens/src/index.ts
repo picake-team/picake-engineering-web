@@ -198,35 +198,29 @@ const ms = (key: keyof typeof motionDuration) => `${motionDuration[key]}ms`;
  * - 로딩: 일정한 속도로 한 바퀴 800ms(linear)
  * - 제목·설명 순서대로: rise(fade + 8px 위로, slow·enter) + 줄마다 animation-delay 80ms
  * - 제안: 입력 오류 흔들림(shake), 스켈레톤 흐르는 빛(shimmer)
- * 휴대폰 "동작 줄이기"를 켠 사람에게는 `motion-reduce:animate-none` 등으로 이동·확대를 끈다.
+ * 휴대폰 "동작 줄이기"를 켠 사람에게는 `motion-reduce:animate-fade-in|out`으로 이동·확대 없이 나타나고 사라지게 한다.
+ *
+ * 나가는 움직임(-out)은 시작점을 적지 않는다: 손으로 끌어내리던 아래 창처럼 지금 자리에서 그대로 이어서 나간다.
+ * 들어오는 움직임(-in)은 끝난 뒤 값을 남기지 않는다(backwards): 끝난 뒤 손으로 끄는 움직임(inline transform)을 막지 않게.
  */
 const motionKeyframes = {
   "motion-fade-in": { from: { opacity: "0" }, to: { opacity: "1" } },
-  "motion-fade-out": { from: { opacity: "1" }, to: { opacity: "0" } },
+  "motion-fade-out": { to: { opacity: "0" } },
   "motion-snackbar-in": {
     from: { opacity: "0", transform: "translateY(100%)" },
     to: { opacity: "1", transform: "translateY(0)" },
   },
-  "motion-snackbar-out": {
-    from: { opacity: "1", transform: "translateY(0)" },
-    to: { opacity: "0", transform: "translateY(100%)" },
-  },
+  "motion-snackbar-out": { to: { opacity: "0", transform: "translateY(100%)" } },
   "motion-popup-in": {
     from: { opacity: "0", transform: "scale(0.92)" },
     to: { opacity: "1", transform: "scale(1)" },
   },
-  "motion-popup-out": {
-    from: { opacity: "1", transform: "scale(1)" },
-    to: { opacity: "0", transform: "scale(0.96)" },
-  },
+  "motion-popup-out": { to: { opacity: "0", transform: "scale(0.96)" } },
   "motion-sheet-in": {
     from: { transform: "translateY(100%)" },
     to: { transform: "translateY(0)" },
   },
-  "motion-sheet-out": {
-    from: { transform: "translateY(0)" },
-    to: { transform: "translateY(100%)" },
-  },
+  "motion-sheet-out": { to: { transform: "translateY(100%)" } },
   "motion-like-pop": {
     "0%": { transform: "scale(1)" },
     "40%": { transform: "scale(1.3)" },
@@ -250,23 +244,28 @@ const motionKeyframes = {
 };
 
 const motionAnimation = {
-  "toast-in": `motion-fade-in ${ms("base")} ${motionEasing.enter} both`,
-  "toast-out": `motion-fade-out ${ms("fast")} ${motionEasing.exit} both`,
-  "snackbar-in": `motion-snackbar-in ${ms("medium")} ${motionEasing.enter} both`,
-  "snackbar-out": `motion-snackbar-out ${ms("base")} ${motionEasing.exit} both`,
-  "popup-in": `motion-popup-in ${ms("base")} ${motionEasing.enter} both`,
-  "popup-out": `motion-popup-out ${ms("fast")} ${motionEasing.exit} both`,
-  "sheet-in": `motion-sheet-in ${ms("slow")} ${motionEasing.enter} both`,
-  "sheet-out": `motion-sheet-out ${ms("medium")} ${motionEasing.exit} both`,
-  "scrim-in": `motion-fade-in ${ms("base")} ${motionEasing.enter} both`,
-  "scrim-out": `motion-fade-out ${ms("base")} ${motionEasing.exit} both`,
+  "fade-in": `motion-fade-in ${ms("base")} ${motionEasing.enter} backwards`,
+  "fade-out": `motion-fade-out ${ms("fast")} ${motionEasing.exit} forwards`,
+  "toast-in": `motion-fade-in ${ms("base")} ${motionEasing.enter} backwards`,
+  "toast-out": `motion-fade-out ${ms("fast")} ${motionEasing.exit} forwards`,
+  "snackbar-in": `motion-snackbar-in ${ms("medium")} ${motionEasing.enter} backwards`,
+  "snackbar-out": `motion-snackbar-out ${ms("base")} ${motionEasing.exit} forwards`,
+  "popup-in": `motion-popup-in ${ms("base")} ${motionEasing.enter} backwards`,
+  "popup-out": `motion-popup-out ${ms("fast")} ${motionEasing.exit} forwards`,
+  "sheet-in": `motion-sheet-in ${ms("slow")} ${motionEasing.enter} backwards`,
+  "sheet-out": `motion-sheet-out ${ms("medium")} ${motionEasing.exit} forwards`,
+  "scrim-in": `motion-fade-in ${ms("base")} ${motionEasing.enter} backwards`,
+  "scrim-out": `motion-fade-out ${ms("medium")} ${motionEasing.exit} forwards`,
   "like-pop": `motion-like-pop ${ms("slower")} ${motionEasing.spring}`,
-  "check-draw": `motion-check-draw ${ms("slow")} ${motionEasing.move} both`,
+  "check-draw": `motion-check-draw ${ms("slow")} ${motionEasing.move} backwards`,
   "spin-steady": `motion-spin 800ms ${motionEasing.linear} infinite`,
-  rise: `motion-rise ${ms("slow")} ${motionEasing.enter} both`,
+  rise: `motion-rise ${ms("slow")} ${motionEasing.enter} backwards`,
   shake: `motion-shake ${ms("slow")} ${motionEasing.enter}`,
   shimmer: `motion-shimmer 1.2s ${motionEasing.linear} infinite`,
 };
+
+/** 제목·설명을 한 줄씩 차례로 띄울 때 줄 사이 간격(ms). `animate-rise`와 같이 쓴다 */
+export const motionStaggerMs = 80;
 
 /** 그림자(지금 화면에서 쓰는 값을 이름으로 모음. 화면에는 아직 이 이름으로 바꾸지 않았다) */
 export const shadow = {
