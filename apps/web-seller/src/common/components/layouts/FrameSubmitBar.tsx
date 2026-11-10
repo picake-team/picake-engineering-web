@@ -17,7 +17,7 @@ export function FrameSubmitBar({ children }: { children: React.ReactNode }) {
       {/* 아래에 붙은 줄이 마지막 칸을 가리지 않게 같은 높이만큼 비워 둔다 */}
       <div
         aria-hidden="true"
-        className="h-[calc(61px+max(12px,env(safe-area-inset-bottom)))] shrink-0"
+        className="h-[calc(64px+max(20px,env(safe-area-inset-bottom)))] shrink-0"
       />
       {keyboardOpen ? null : (
         <div className={cx(APP_COLUMN_CLASS, "fixed inset-x-0 bottom-0 z-20")}>

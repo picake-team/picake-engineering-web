@@ -16,7 +16,7 @@ export interface RichTextEditorProps {
 export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   value,
   onChange,
-  placeholder = "내용을 입력해주세요.",
+  placeholder = "내용을 입력해 주세요.",
   minHeight = 400,
   error = false,
 }) => {

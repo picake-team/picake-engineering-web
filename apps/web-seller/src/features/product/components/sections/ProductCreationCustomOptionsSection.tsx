@@ -361,6 +361,7 @@ function CustomOptionEditor({
         <div className="w-32">
           <Label>노출 여부</Label>
           <Select
+            sheetTitle="노출 여부"
             value={option.visible}
             onValueChange={(value) => onChange({ visible: value as EnableStatus })}
             disabled={disabled}
@@ -430,6 +431,7 @@ function CustomOptionEditor({
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-sub text-ink-700">노출 여부</span>
                     <Select
+                      sheetTitle="노출 여부"
                       value={choice.visible}
                       onValueChange={(value) =>
                         updateChoice(index, { visible: value as EnableStatus })
@@ -488,6 +490,7 @@ function CustomOptionEditor({
                       </td>
                       <td className="px-3 py-2">
                         <Select
+                          sheetTitle="노출 여부"
                           value={choice.visible}
                           onValueChange={(value) =>
                             updateChoice(index, { visible: value as EnableStatus })
@@ -576,7 +579,7 @@ function CustomOptionEditor({
             <Input
               value={option.placeholder ?? ""}
               maxLength={CUSTOM_OPTION_LIMITS.MAX_PLACEHOLDER_LENGTH}
-              placeholder="예: 케이크에 들어갈 문구를 적어주세요."
+              placeholder="예: 케이크에 들어갈 문구를 적어 주세요."
               disabled={disabled}
               onChange={(e) => onChange({ placeholder: e.target.value || undefined })}
             />
@@ -590,6 +593,7 @@ function CustomOptionEditor({
             최대 사진 수
           </Label>
           <Select
+            sheetTitle="최대 사진 수"
             value={String(option.maxCount ?? CUSTOM_OPTION_LIMITS.MAX_IMAGE_COUNT)}
             onValueChange={(value) => onChange({ maxCount: Number(value) })}
             disabled={disabled}

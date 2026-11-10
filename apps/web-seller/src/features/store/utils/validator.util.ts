@@ -4,14 +4,14 @@
 export const validateStoreName = (name: string): string | null => {
   // 미입력 검증
   if (!name || !name.trim()) {
-    return "스토어 이름을 입력해주세요.";
+    return "스토어 이름을 입력해 주세요.";
   }
 
   const trimmedName = name.trim();
 
   // 2자 미만 검증
   if (trimmedName.length < 2) {
-    return "스토어 이름을 2자 이상 입력해주세요.";
+    return "스토어 이름을 2자 이상 입력해 주세요.";
   }
 
   // 30자 초과 검증
@@ -45,7 +45,7 @@ export const validateStoreDescription = (description: string | undefined): strin
 
   // 최대 글자 수 초과 검증
   if (description.length > STORE_DESCRIPTION_MAX_LENGTH) {
-    return `스토어 설명은 ${STORE_DESCRIPTION_MAX_LENGTH}자 이하로 입력해주세요.`;
+    return `스토어 설명은 ${STORE_DESCRIPTION_MAX_LENGTH}자 이하로 입력해 주세요.`;
   }
 
   // HTML 태그 검증 (< > 태그가 포함되어 있는지 확인)
@@ -63,7 +63,7 @@ export const validateStoreDescription = (description: string | undefined): strin
 export const validateStorePhoneNumber = (value: string | undefined): string | null => {
   const trimmed = (value ?? "").trim();
   if (!trimmed) {
-    return "스토어 연락처를 입력해주세요.";
+    return "스토어 연락처를 입력해 주세요.";
   }
   if (trimmed.length < 8 || trimmed.length > 20) {
     return "스토어 연락처는 8자 이상 20자 이하여야 합니다.";
@@ -80,14 +80,14 @@ export const validateStorePhoneNumber = (value: string | undefined): string | nu
 export const validateDetailAddress = (detailAddress: string): string | null => {
   // 미입력 검증
   if (!detailAddress || !detailAddress.trim()) {
-    return "상세주소를 입력해주세요.";
+    return "상세주소를 입력해 주세요.";
   }
 
   const trimmedAddress = detailAddress.trim();
 
   // 2자 미만 검증
   if (trimmedAddress.length < 2) {
-    return "상세주소를 2자 이상 입력해주세요.";
+    return "상세주소를 2자 이상 입력해 주세요.";
   }
 
   // 1000자 초과 검증
@@ -103,7 +103,7 @@ export const validateDetailAddress = (detailAddress: string): string | null => {
  */
 export const validateBankAccountNumber = (value: string): string | null => {
   if (!value || !value.trim()) {
-    return "계좌번호를 입력해주세요.";
+    return "계좌번호를 입력해 주세요.";
   }
   const trimmed = value.trim();
   if (trimmed.length < 4 || trimmed.length > 30) {
@@ -120,7 +120,7 @@ export const validateBankAccountNumber = (value: string): string | null => {
  */
 export const validateAccountHolderName = (value: string): string | null => {
   if (!value || !value.trim()) {
-    return "예금주명을 입력해주세요.";
+    return "예금주명을 입력해 주세요.";
   }
   const trimmed = value.trim();
   if (trimmed.length < 2 || trimmed.length > 30) {

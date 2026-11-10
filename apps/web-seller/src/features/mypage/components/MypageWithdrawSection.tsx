@@ -53,7 +53,7 @@ export const MypageWithdrawSection: React.FC = () => {
             id="withdraw-reason"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            placeholder="탈퇴 사유를 입력해주세요."
+            placeholder="탈퇴 사유를 입력해 주세요."
             maxLength={MAX_REASON_LENGTH}
             rows={5}
           />

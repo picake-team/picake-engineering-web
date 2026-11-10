@@ -45,7 +45,7 @@ import {
 import { AiDescriptionDialog } from "@/apps/web-seller/features/product/components/naver/AiDescriptionDialog";
 
 interface Props {
-  onSubmit: (data: ProductForm) => void;
+  onSubmit: (data: ProductForm) => void | Promise<unknown>;
   initialValue?: ProductForm;
   onChange?: (data: ProductForm) => void;
   disabled?: boolean;
@@ -72,9 +72,10 @@ export const defaultForm: ProductForm = {
     {
       visible: EnableStatus.ENABLE,
       displayName: CakeSizeDisplayName.DOSIRAK,
+      // 지름·설명은 비워 두고 사장님이 넣게 한다(손님 화면에 "도시락 0cm"로 보이지 않게)
       lengthCm: 0,
       price: 0,
-      description: "1~2인용",
+      description: "",
     },
   ],
   // 상품 유형은 판매자가 반드시 고르도록 비워 둔다
@@ -223,8 +224,11 @@ export const ProductCreationForm: React.FC<Props> = ({
     setTimeout(() => scrollTo(first.id), 0);
   };
 
+  // 서버 답을 기다리는 동안 다시 누르면 상품이 두 번 만들어지지 않게
+  const [saving, setSaving] = useState(false);
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (saving) return;
     setSubmitted(true);
     const next = validateProductForm(form);
     setErrors(next);
@@ -235,7 +239,8 @@ export const ProductCreationForm: React.FC<Props> = ({
       setNoticeOpen(true);
       return setTimeout(() => scrollTo("section-notice"), 0);
     }
-    onSubmit(form);
+    setSaving(true);
+    Promise.resolve(onSubmit(form)).finally(() => setSaving(false));
   };
 
   const blockingCount = errorKeys.length + (submitted && checkMarkLeft ? 1 : 0);
@@ -672,10 +677,10 @@ export const ProductCreationForm: React.FC<Props> = ({
           )}
           <Button
             type="submit"
-            disabled={isDeleting}
+            disabled={isDeleting || saving}
             className={cn(FRAME_SUBMIT_BUTTON_CLASS, blockingCount > 0 && "flex-[2]")}
           >
-            {isEdit ? "저장하기" : "등록하기"}
+            {saving ? (isEdit ? "저장하는 중…" : "등록하는 중…") : isEdit ? "저장하기" : "등록하기"}
           </Button>
         </FrameSubmitBar>
       ) : null}

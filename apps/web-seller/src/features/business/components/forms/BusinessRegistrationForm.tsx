@@ -126,7 +126,7 @@ export const BusinessRegistrationForm: React.FC<Props> = ({ onSubmit, initialVal
           <NumberInput
             value={numericStringToValue(form.b_no)}
             onChange={handleBNoChange}
-            placeholder="하이픈(-) 없이 10자리 숫자로 입력해주세요."
+            placeholder="하이픈(-) 없이 10자리 숫자로 입력해 주세요."
             min={0}
             max={9999999999}
             className={errors.b_no ? "border-destructive" : ""}

@@ -8,7 +8,7 @@ export const validateFileSize = (file: File, maxSize: number): string | null => 
 
   if (file.size > maxSize) {
     const maxSizeMB = maxSize / (1024 * 1024);
-    return `파일 용량은 ${maxSizeMB}MB 이하로 업로드해주세요.`;
+    return `파일 용량은 ${maxSizeMB}MB 이하로 업로드해 주세요.`;
   }
 
   return null;

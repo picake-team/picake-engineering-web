@@ -14,7 +14,7 @@ import { validateProductForm } from "@/apps/web-seller/features/product/utils/va
 const size = (displayName: CakeSizeDisplayName, price = 0) => ({
   visible: EnableStatus.ENABLE,
   displayName,
-  lengthCm: 0,
+  lengthCm: 15,
   price,
   description: "",
 });
@@ -51,6 +51,15 @@ describe("validateProductForm", () => {
     expect(errors.cakeSizeOptions).toContain("같은 사이즈(1호)");
   });
 
+  it("파는 사이즈는 지름을 넣어야 한다(손님 화면에 0cm로 보이지 않게)", () => {
+    const errors = validateProductForm(
+      validForm({
+        cakeSizeOptions: [{ ...size(CakeSizeDisplayName.DOSIRAK), lengthCm: 0 }],
+      }),
+    );
+    expect(errors.cakeSizeOptions).toContain("도시락 사이즈의 지름");
+  });
+
   it("고시는 원산지만 채워도 등록할 수 있다 (법 검토로 원산지만 필수)", () => {
     const onlyOrigin = validForm({
       ...Object.fromEntries(PRODUCT_NOTICE_FIELDS.map(({ key }) => [key, ""])),
@@ -61,7 +70,7 @@ describe("validateProductForm", () => {
 
   it("원산지가 비어 있으면 막는다", () => {
     const errors = validateProductForm(validForm({ productNoticeOrigin: " " }));
-    expect(errors.productNoticeOrigin).toBe("원산지를 입력해주세요.");
+    expect(errors.productNoticeOrigin).toBe("원산지를 입력해 주세요.");
     expect(REQUIRED_PRODUCT_NOTICE_KEYS).toEqual(["productNoticeOrigin"]);
   });
 

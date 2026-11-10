@@ -3,10 +3,11 @@
  * - 뒤 어둡게 rgba(31,31,30,0.4), 위 모서리 22, 손잡이 36 × 4, 안쪽 12·20·아래 안전 영역
  * - 제목 20/700. 버튼 둘이면 왼쪽 흰 보조("돌아가기") · 오른쪽 주황 주 버튼
  * - 내용이 길면 창 안에서 스크롤하고 버튼 줄은 아래에 둔다
- * - 뒤를 누르거나 Esc로 닫는다(처리 중에는 닫지 않음). 열린 동안 화면 스크롤을 멈춘다
+ * - 뒤를 누르거나 Esc로, 손잡이·제목 부분을 아래로 끌어 닫는다(처리 중에는 닫지 않음). 열린 동안 화면 스크롤을 멈춘다
  * - 안드로이드 뒤로 버튼은 기본 동작만(I-48 "뒤로 가기" 결정)
  */
 import React, { useEffect, useId, useRef } from "react";
+import { useSheetDrag } from "@/apps/web-seller/common/ui/useSheetDrag";
 import { createPortal } from "react-dom";
 import { cx } from "@/apps/web-seller/common/ui/cx";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
@@ -59,6 +60,7 @@ export function BottomSheet({
 }) {
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
+  const backdropRef = useRef<HTMLDivElement>(null);
   const restoreRef = useRef<HTMLElement | null>(null);
   const closeRef = useRef(onClose);
   closeRef.current = onClose;
@@ -103,11 +105,14 @@ export function BottomSheet({
     };
   }, [open]);
 
+  const dragHandle = useSheetDrag({ panelRef, backdropRef, onClose, enabled: dismissible });
+
   if (!open) return null;
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex flex-col justify-end font-app">
       <div
+        ref={backdropRef}
         aria-hidden="true"
         className="absolute inset-0 bg-[rgba(31,31,30,0.4)] animate-in fade-in-0 duration-200"
         onClick={() => {
@@ -125,7 +130,7 @@ export function BottomSheet({
           className,
         )}
       >
-        <div className="flex flex-col gap-4 px-5 pt-3">
+        <div className="flex flex-col gap-4 px-5 pt-3" {...dragHandle}>
           <span aria-hidden="true" className="mx-auto mb-1 h-1 w-9 rounded-sm bg-ink-200" />
           <div className="flex items-start justify-between gap-2">
             <div className="flex min-w-0 flex-col gap-2">
