@@ -77,8 +77,13 @@ export function useUpdateOrderStatus() {
   return mutation;
 }
 
-/** 그사이 주문 상태가 바뀌어 처리하지 못했을 때 서버가 주는 말(백엔드 ORDER_ERROR_MESSAGES) */
+/**
+ * 그사이 주문 상태가 바뀌어 처리하지 못했을 때 서버가 주는 말(백엔드 ORDER_ERROR_MESSAGES).
+ * 서버 문구를 해요체로 바꾼 뒤 글(backend #65)과 그 전 글을 둘 다 알아본다(어느 쪽이 먼저 나가도 되게)
+ */
 const STALE_ORDER_STATUS_MESSAGES = new Set([
+  "이미 해당 상태예요.",
+  "현재 주문 상태에서 요청한 상태로 변경할 수 없어요.",
   "이미 해당 상태입니다.",
   "현재 주문 상태에서 요청한 상태로 변경할 수 없습니다.",
 ]);
