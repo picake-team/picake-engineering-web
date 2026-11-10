@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import Header from "@/apps/web-user/common/components/headers/Header";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { Alert } from "@/apps/web-user/common/components/alerts/Alert";
-import { ConfirmAlert } from "@/apps/web-user/common/components/alerts/ConfirmAlert";
 import BuildInfoLogger from "@/apps/web-user/common/components/debug/BuildInfoLogger";
 import { AuthProvider } from "@/apps/web-user/common/components/providers/AuthProvider";
 import { AlarmRealtimeListener } from "@/apps/web-user/features/alarm/components/AlarmRealtimeListener";
@@ -91,7 +90,6 @@ export default function RootWrapperLayout({ children }: RootWrapperLayoutProps) 
         <Header variant={headerVariant} title={headerTitle} backFallbackPath={backFallbackPath} />
         <div>{children}</div>
         <Alert />
-        <ConfirmAlert />
         <LoginBottomSheet />
         <PaymentPendingLaunchSheetGate />
       </div>

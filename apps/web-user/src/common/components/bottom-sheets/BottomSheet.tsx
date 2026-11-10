@@ -1,5 +1,6 @@
 "use client";
 
+import { motionDuration, motionEasing } from "@picake/design-tokens";
 import { useEffect, useId, useRef, type ReactNode } from "react";
 import clsx from "clsx";
 import { Icon } from "@/apps/web-user/common/components/icons";
@@ -83,7 +84,9 @@ export function BottomSheet({
     let delta = 0;
 
     const setTransform = (y: number, animate: boolean) => {
-      sheet.style.transition = animate ? "transform 0.2s ease-out" : "none";
+      sheet.style.transition = animate
+        ? `transform ${motionDuration.base}ms ${motionEasing.enter}`
+        : "none";
       sheet.style.transform = y ? `translateY(${y}px)` : "";
     };
 

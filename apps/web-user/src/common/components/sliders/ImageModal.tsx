@@ -84,7 +84,7 @@ export const ImageModal: React.FC<ImageModalProps> = ({
   if (!isOpen || images.length === 0) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black">
+    <div className="fixed inset-0 z-modal flex items-center justify-center bg-black">
       {/* 닫기 버튼 */}
       <button
         type="button"
@@ -165,7 +165,7 @@ export const ImageModal: React.FC<ImageModalProps> = ({
           <button
             type="button"
             onClick={() => swiper?.slidePrev()}
-            className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 w-[40px] h-[56px] rounded-r-[8px] bg-black/30 flex items-center justify-center text-white transition-opacity duration-300 ${
+            className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 w-[40px] h-[56px] rounded-r-[8px] bg-black/30 flex items-center justify-center text-white transition-opacity duration-slow ${
               !isSliding ? "opacity-0" : currentIndex === 0 ? "opacity-30" : "opacity-100"
             } ${currentIndex === 0 ? "md:opacity-30" : "md:opacity-100"}`}
             disabled={currentIndex === 0}
@@ -175,7 +175,7 @@ export const ImageModal: React.FC<ImageModalProps> = ({
           <button
             type="button"
             onClick={() => swiper?.slideNext()}
-            className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 w-[40px] h-[56px] rounded-l-[8px] bg-black/30 flex items-center justify-center text-white transition-opacity duration-300 ${
+            className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 w-[40px] h-[56px] rounded-l-[8px] bg-black/30 flex items-center justify-center text-white transition-opacity duration-slow ${
               !isSliding
                 ? "opacity-0"
                 : currentIndex === images.length - 1

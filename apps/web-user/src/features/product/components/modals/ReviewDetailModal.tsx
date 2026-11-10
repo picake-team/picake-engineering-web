@@ -150,7 +150,7 @@ export const ReviewDetailModal: React.FC<ReviewDetailModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[110] bg-gray-900 max-w-[640px] mx-auto">
+    <div className="fixed inset-0 z-modal-over bg-gray-900 max-w-[640px] mx-auto">
       {/* 헤더 */}
       <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-[20px] py-[14px]">
         <button type="button" onClick={onClose} className="text-white h-[24px] w-[24px]">
@@ -200,7 +200,7 @@ export const ReviewDetailModal: React.FC<ReviewDetailModalProps> = ({
             <button
               type="button"
               onClick={() => swiper?.slidePrev()}
-              className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 w-[40px] h-[56px] rounded-r-[8px] bg-black/30 flex items-center justify-center text-white transition-opacity duration-300 ${
+              className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 w-[40px] h-[56px] rounded-r-[8px] bg-black/30 flex items-center justify-center text-white transition-opacity duration-slow ${
                 !isSliding ? "opacity-0" : currentIndex === 0 ? "opacity-30" : "opacity-100"
               } ${currentIndex === 0 ? "md:opacity-30" : "md:opacity-100"}`}
               disabled={currentIndex === 0}
@@ -210,7 +210,7 @@ export const ReviewDetailModal: React.FC<ReviewDetailModalProps> = ({
             <button
               type="button"
               onClick={() => swiper?.slideNext()}
-              className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 w-[40px] h-[56px] rounded-l-[8px] bg-black/30 flex items-center justify-center text-white transition-opacity duration-300 ${
+              className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 w-[40px] h-[56px] rounded-l-[8px] bg-black/30 flex items-center justify-center text-white transition-opacity duration-slow ${
                 !isSliding
                   ? "opacity-0"
                   : currentIndex === allImages.length - 1
@@ -230,7 +230,7 @@ export const ReviewDetailModal: React.FC<ReviewDetailModalProps> = ({
         onClick={handleReviewClick}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
-        className={`absolute bottom-0 left-0 right-0 z-30 transition-all duration-300 ease-out overflow-y-auto ${isTruncated ? "cursor-pointer" : ""}`}
+        className={`absolute bottom-0 left-0 right-0 z-30 transition-all duration-slow ease-enter motion-reduce:transition-none overflow-y-auto ${isTruncated ? "cursor-pointer" : ""}`}
         style={{
           height: isExpanded && isTruncated && expandedHeight ? `${expandedHeight}px` : "25vh",
           background:

@@ -37,7 +37,7 @@ interface ModalProps {
   cancelFlex?: number;
   /** 취소 버튼 숨김 (기본값: false) */
   hideCancel?: boolean;
-  /** 오버레이·모달 스택 순서 (기본 z-[100]) */
+  /** 오버레이·모달 스택 순서 (기본 z-modal) */
   zIndexClassName?: string;
 }
 
@@ -117,7 +117,7 @@ export const Modal: React.FC<ModalProps> = ({
       className={clsx(
         "fixed inset-0 flex items-center justify-center",
         leaving && "pointer-events-none",
-        zIndexClassName ?? "z-[100]",
+        zIndexClassName ?? "z-modal",
       )}
     >
       {/* 배경 오버레이 */}

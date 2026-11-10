@@ -152,7 +152,7 @@ export function MapStoreListSection({
                     <div ref={sortDropdownListRef}>
                       <ul
                         role="listbox"
-                        className="fixed z-[9999] overflow-hidden"
+                        className="fixed z-top overflow-hidden"
                         style={{
                           left: sortDropdownRect.left,
                           top: sortDropdownRect.top,

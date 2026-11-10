@@ -99,7 +99,7 @@ export default function BannerSlider() {
           if (!bullets) return;
           updateBullets(bullets as unknown as HTMLElement[], swiper.realIndex);
         }}
-        className="h-full [&_.swiper-pagination]:!bottom-[42px] [&_.swiper-pagination-bullet]:opacity-100 [&_.swiper-pagination-bullet]:transition-all [&_.swiper-pagination-bullet]:duration-200 [&_.swiper-pagination-bullet]:[filter:drop-shadow(0px_2px_7px_rgba(0,0,0,0.45))] [&_.swiper-pagination-bullet]:bg-[length:100%_100%] [&_.swiper-pagination-bullet]:bg-no-repeat [&_.swiper-pagination-bullet]:[background-color:transparent]"
+        className="h-full [&_.swiper-pagination]:!bottom-[42px] [&_.swiper-pagination-bullet]:opacity-100 [&_.swiper-pagination-bullet]:transition-all [&_.swiper-pagination-bullet]:duration-base [&_.swiper-pagination-bullet]:[filter:drop-shadow(0px_2px_7px_rgba(0,0,0,0.45))] [&_.swiper-pagination-bullet]:bg-[length:100%_100%] [&_.swiper-pagination-bullet]:bg-no-repeat [&_.swiper-pagination-bullet]:[background-color:transparent]"
       >
         {banners.map((banner, idx) => {
           const slideContent = (

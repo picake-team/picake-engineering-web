@@ -50,7 +50,7 @@ export default function PartnerPage() {
           href={PARTNER_SURVEY_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="w-full h-[52px] flex items-center justify-center bg-primary text-white text-base font-bold rounded-lg transition-all duration-200"
+          className="w-full h-[52px] flex items-center justify-center bg-primary text-white text-base font-bold rounded-lg transition-all duration-base"
         >
           입점 사전 수요조사 참여하기
         </a>
@@ -63,7 +63,7 @@ export default function PartnerPage() {
         */}
         <a
           href={PATHS.PARTNER_ABOUT}
-          className="w-full h-[52px] flex items-center justify-center bg-white text-gray-900 text-base font-bold border border-gray-100 rounded-lg transition-all duration-200"
+          className="w-full h-[52px] flex items-center justify-center bg-white text-gray-900 text-base font-bold border border-gray-100 rounded-lg transition-all duration-base"
         >
           소개페이지 바로가기
         </a>

@@ -315,7 +315,7 @@ export function MapStoreListFilter({
         createPortal(
           <div
             id={MAP_STORE_LIST_FILTER_MODAL_ID}
-            className="fixed inset-0 z-[100]"
+            className="fixed inset-0 z-modal"
             onTouchStart={(e) => e.stopPropagation()}
             onTouchMove={(e) => e.stopPropagation()}
             onTouchEnd={(e) => e.stopPropagation()}

@@ -19,7 +19,6 @@ interface StoreDetailIntroSectionProps {
 }
 
 export function StoreDetailIntroSection({ store }: StoreDetailIntroSectionProps) {
-  const [imageError, setImageError] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isAddressExpanded, setIsAddressExpanded] = useState(false);
   const [showCopyToast, setShowCopyToast] = useState(false);
@@ -83,7 +82,6 @@ export function StoreDetailIntroSection({ store }: StoreDetailIntroSectionProps)
               fill
               sizes="48px"
               className="object-cover"
-              onError={() => setImageError(true)}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gray-100">

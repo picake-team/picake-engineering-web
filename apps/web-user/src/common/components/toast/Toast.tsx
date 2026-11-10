@@ -2,26 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Icon, iconTypes } from "@/apps/web-user/common/components/icons";
-
-function Spinner({ size = 24, className = "text-primary" }: { size?: number; className?: string }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      className={`animate-spin ${className}`}
-    >
-      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity="0.25" />
-      <path
-        d="M12 2a10 10 0 0 1 10 10"
-        stroke="currentColor"
-        strokeWidth="3"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
+import { Spinner } from "@/apps/web-user/common/components/spinners/Spinner";
 
 interface ToastProps {
   message: string;

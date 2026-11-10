@@ -51,7 +51,7 @@ export function ProductDetailInfoSection({ product }: ProductDetailInfoSectionPr
             </span>
           )}
           <p className="flex items-center gap-[4px] text-xl font-bold text-gray-900">
-            {discountRate != null && <span className="text-[#FF653E]">{discountRate}%</span>}
+            {discountRate != null && <span className="text-primary">{discountRate}%</span>}
             {product.salePrice.toLocaleString()}원~
           </p>
         </div>

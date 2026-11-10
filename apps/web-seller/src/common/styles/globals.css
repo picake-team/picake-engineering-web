@@ -191,7 +191,7 @@ textarea {
   font-style: normal;
 }
 
-/* 휴대폰 안내 띠(ToastHost): 남은 시간 막대가 줄어든다. 길이는 안내마다 style로 */
+/* 휴대폰 안내 띠(AlertBannerHost): 남은 시간 막대가 줄어든다. 길이는 안내마다 style로 */
 @keyframes toast-progress {
   from {
     transform: scaleX(1);

@@ -1,3 +1,4 @@
+import { motionDuration } from "@picake/design-tokens";
 import React from "react";
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -33,7 +34,7 @@ export const Input: React.FC<InputProps> = ({
         fontWeight: 400,
         color: "var(--grayscale-gr-900, #1F1F1E)",
         outline: "none",
-        transition: "border-color 0.2s ease",
+        transition: `border-color ${motionDuration.base}ms`,
         ...styleProp,
       }
     : {
@@ -44,7 +45,7 @@ export const Input: React.FC<InputProps> = ({
         borderRadius: "6px",
         fontSize: "16px",
         outline: "none",
-        transition: "border-color 0.2s ease",
+        transition: `border-color ${motionDuration.base}ms`,
         ...styleProp,
       };
 

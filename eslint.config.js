@@ -8,6 +8,8 @@ module.exports = [
   {
     ignores: [
       "**/node_modules/**",
+      // Playwright MCP에 함수식 그대로 넣는 점검 스크립트(브라우저 안에서 돌고, 끝에 ;가 붙으면 안 됨)
+      ".claude/skills/**/*.js",
       "**/dist/**",
       "**/build/**",
       "**/*.d.ts",

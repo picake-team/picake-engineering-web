@@ -153,6 +153,7 @@ export function PhoneEditBottomSheet({ isOpen, onClose, onSuccess }: PhoneEditBo
                   setVerificationCode(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))
                 }
                 inputMode="numeric"
+                autoComplete="one-time-code"
               />
               {remainingSeconds > 0 ? (
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-primary font-bold">

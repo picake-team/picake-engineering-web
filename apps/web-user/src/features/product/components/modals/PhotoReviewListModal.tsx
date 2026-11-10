@@ -44,7 +44,7 @@ export const PhotoReviewListModal: React.FC<PhotoReviewListModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] bg-white max-w-[640px] mx-auto flex flex-col">
+    <div className="fixed inset-0 z-modal bg-white max-w-[640px] mx-auto flex flex-col">
       {/* 헤더 */}
       <div className="flex-shrink-0 flex items-center px-[20px] py-[14px] bg-white border-b border-gray-100">
         <button type="button" onClick={onClose} className="text-gray-900 h-[24px] w-[24px]">

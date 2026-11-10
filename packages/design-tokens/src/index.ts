@@ -120,14 +120,6 @@ const customerKeyframes = {
       height: "0",
     },
   },
-  "slide-up": {
-    from: {
-      transform: "translateY(100%)",
-    },
-    to: {
-      transform: "translateY(0)",
-    },
-  },
   // 탭 전환: 진행 방향 쪽에서 살짝 밀려 들어오며 나타남
   "tab-in-forward": {
     from: {
@@ -149,14 +141,6 @@ const customerKeyframes = {
       transform: "translateX(0)",
     },
   },
-};
-
-const customerAnimation = {
-  "accordion-down": "accordion-down 0.2s ease-out",
-  "accordion-up": "accordion-up 0.2s ease-out",
-  "slide-up": "slide-up 0.3s ease-out",
-  "tab-in-forward": "tab-in-forward 0.22s ease-out",
-  "tab-in-backward": "tab-in-backward 0.22s ease-out",
 };
 
 // ── 움직임 (공용 기초, 손님 앱·판매자 앱이 같이 씀) ─────────────
@@ -311,6 +295,14 @@ const pressPlugin = plugin(({ addComponents }) => {
   });
 });
 
+/** 손님 화면 전용 움직임(펼치기·탭 전환). 시간·곡선은 공용 값(0.2초 → base, 0.22초 → base) */
+const customerAnimation = {
+  "accordion-down": `accordion-down ${ms("base")} ${motionEasing.enter}`,
+  "accordion-up": `accordion-up ${ms("base")} ${motionEasing.exit}`,
+  "tab-in-forward": `tab-in-forward ${ms("base")} ${motionEasing.enter}`,
+  "tab-in-backward": `tab-in-backward ${ms("base")} ${motionEasing.enter}`,
+};
+
 /**
  * 움직임 tailwind preset. 손님 화면은 customerPreset 안에 들어 있고, 판매자 앱은 `presets: [motionPreset]`로 쓴다.
  * 이름: `duration-instant|fast|base|medium|slow|slower`, `ease-enter|exit|move|spring`, `animate-toast-in` 등.
@@ -336,6 +328,25 @@ export const motionPreset = {
 } satisfies Partial<Config>;
 
 /**
+ * 손님 화면 겹침 순서(z-index). 화면 위에 뜨는 것끼리의 순서만 이름으로 둔다(값은 옮기기 전과 같다).
+ * 아래 창·위쪽 줄 같은 보통 순서는 tailwind 기본 z-10~z-50을 쓴다.
+ * - sheet-over 60: 아래 창 위에 다시 뜨는 아래 창(입금 대기 안내, 견적 이어 쓰기, 프로필 사진 고르기)
+ * - modal 100: 확인 창·사진 크게 보기·지도 거르기 창(`Modal` 기본)
+ * - modal-over 110: 창 위에 다시 뜨는 창(사진 후기 목록 → 후기 하나)
+ * - sheet-top 200: 다른 창 위에서도 보여야 하는 아래 창(지역 고르기, 지도 픽업 날짜)
+ * - permission 300: 위치 권한 안내(지역 창 위)
+ * - top 9999: 맨 위(오류 창, 지도 정렬 펼침 목록)
+ */
+export const customerZIndex = {
+  "sheet-over": "60",
+  modal: "100",
+  "modal-over": "110",
+  "sheet-top": "200",
+  permission: "300",
+  top: "9999",
+};
+
+/**
  * 손님 화면 tailwind preset. 앱 tailwind 설정에서 `presets: [customerPreset]`로 쓴다.
  * 어떤 파일을 읽을지(content)·safelist·plugins는 앱마다 다르니 앱 설정에 둔다.
  */
@@ -345,6 +356,7 @@ export const customerPreset = {
     fontSize: customerFontSize,
     extend: {
       borderRadius: customerRadius,
+      zIndex: customerZIndex,
       colors,
       keyframes: customerKeyframes,
       animation: customerAnimation,
