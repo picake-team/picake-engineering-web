@@ -229,7 +229,7 @@ export const StoreDetailHomeMobilePage: React.FC = () => {
           {dayTitle}
         </GroupTitle>
         <div className="-mt-3">
-          {weekQuery.isError ? (
+          {weekQuery.isError && !weekQuery.data ? (
             <LoadErrorState onRetry={() => void weekQuery.refetch()} />
           ) : weekQuery.isLoading ? (
             <span className="block h-16 animate-pulse rounded-card bg-ink-50" aria-busy="true" />

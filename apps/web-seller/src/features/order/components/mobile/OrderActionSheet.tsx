@@ -52,9 +52,9 @@ const COPY: Partial<Record<OrderStatus, ActionCopy>> = {
     note: IRREVERSIBLE,
   },
   [OrderStatus.CANCEL_COMPLETED]: {
-    title: "주문을 취소할까요?",
-    button: "주문 취소 확정",
-    note: "취소한 주문은 되돌릴 수 없어요.",
+    title: "예약을 취소할까요?",
+    button: "예약 취소",
+    note: "취소한 예약은 되돌릴 수 없어요.",
   },
   [OrderStatus.NO_SHOW]: {
     title: "노쇼로 처리할까요?",
@@ -63,10 +63,11 @@ const COPY: Partial<Record<OrderStatus, ActionCopy>> = {
     reasonLabel: "노쇼 사유 (필수)",
   },
   [OrderStatus.CANCEL_REFUND_PENDING]: {
-    title: "취소환불대기로 바꿀까요?",
-    button: "취소환불대기로 변경",
-    note: IRREVERSIBLE,
-    reasonLabel: "취소환불대기 전환 사유 (필수)",
+    // 입금한 주문의 취소. 상태 이름(취소환불대기) 대신 하는 일로 말한다
+    title: "예약을 취소하고 환불할까요?",
+    button: "예약 취소",
+    note: `입금한 예약이라 취소하면 환불할 주문으로 넘어가요. 송금한 뒤 '취소환불 완료'를 눌러 주세요. ${IRREVERSIBLE}`,
+    reasonLabel: "취소 사유 (필수)",
   },
   [OrderStatus.CANCEL_REFUND_COMPLETED]: {
     title: "환불을 마쳤나요?",
@@ -279,7 +280,7 @@ export function OrderActionSheet({
 /** 다른 처리 창(SC-76 ⑧: 보조 버튼이 둘 이상이면 접는다, 디자인 3-L) */
 const MORE_HINT: Partial<Record<OrderStatus, string>> = {
   [OrderStatus.NO_SHOW]: "손님이 오지 않았어요",
-  [OrderStatus.CANCEL_REFUND_PENDING]: "손님에게 환불해야 해요",
+  [OrderStatus.CANCEL_REFUND_PENDING]: "취소하고 손님에게 환불해요",
   [OrderStatus.CANCEL_COMPLETED]: "예약을 받을 수 없어요",
 };
 

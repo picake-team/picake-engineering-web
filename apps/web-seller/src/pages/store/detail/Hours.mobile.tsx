@@ -216,6 +216,9 @@ export const StoreDetailHoursMobilePage: React.FC = () => {
   };
 
   const placeId = store?.naverPlace?.placeId;
+  // 00:00 ~ 00:00은 하루 종일. 그 밖엔 끝이 시작보다 늦어야 서버가 받는다(저장 전에 바로 알림)
+  const allDay = draft ? draft.start === "00:00" && draft.end === "00:00" : false;
+  const endTooEarly = draft ? !allDay && draft.end <= draft.start : false;
 
   return (
     <AppScreen
@@ -223,7 +226,7 @@ export const StoreDetailHoursMobilePage: React.FC = () => {
       bodyClassName="gap-5 pt-2"
       footer={
         <BottomActionBar>
-          <Button block onClick={submit} loading={save.isPending} disabled={!draft}>
+          <Button block onClick={submit} loading={save.isPending} disabled={!draft || endTooEarly}>
             저장
           </Button>
         </BottomActionBar>
@@ -260,8 +263,20 @@ export const StoreDetailHoursMobilePage: React.FC = () => {
             <div className="flex items-center gap-3">
               <TimeBox label="시작" value={draft.start} onClick={() => setPicking("start")} />
               <span className="text-ink-900">~</span>
-              <TimeBox label="끝" value={draft.end} onClick={() => setPicking("end")} />
+              <TimeBox
+                label="끝"
+                value={draft.end}
+                invalid={endTooEarly}
+                onClick={() => setPicking("end")}
+              />
             </div>
+            {endTooEarly ? (
+              <p role="alert" className="-mt-1 text-caption font-semibold text-brand-ink">
+                끝나는 시각을 시작 시각보다 늦게 골라 주세요
+              </p>
+            ) : allDay ? (
+              <p className="-mt-1 text-caption text-ink-600">00:00 ~ 00:00은 하루 종일이에요</p>
+            ) : null}
             {placeId ? (
               <Button
                 variant="secondary"

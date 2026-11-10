@@ -13,6 +13,9 @@ export function useMe() {
     queryFn: authApi.me,
     throwOnError: false,
     refetchOnWindowFocus: true,
+    // 앱 전체는 끊기면 바로 실패(networkMode always)지만, 로그인 확인은 연결될 때까지 기다린다.
+    // 실패로 끝내면 "확인 끝·로그인 안 됨"이 돼 첫 화면이 새로고침 안내로 가고, 끊긴 채 새로고침하면 웹뷰 오류 화면이 뜬다
+    networkMode: "online",
   });
 
   // 쿼리 결과 처리. 서버 답(성공·실패)이 온 뒤에만 "확인 끝"으로 둔다 — 답 전에 화면을 그리면 로그인 안 된 채로

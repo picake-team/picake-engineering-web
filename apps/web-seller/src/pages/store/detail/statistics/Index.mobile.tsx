@@ -1,5 +1,5 @@
 /**
- * 휴대폰 주문 통계 (SC-92, 디자인 A92). 기간 빠른 선택(오늘·이번주·이번달·최근 90일 = PC "누적")과 직접 고르기,
+ * 휴대폰 주문 통계 (SC-92, 디자인 A92). 기간 빠른 선택(오늘·최근 7일·이번주·이번달·최근 90일 = PC "누적")과 직접 고르기,
  * 매출·주문건수, 잘 팔린 상품(매출 순·주문건수 순), 요일·시간대 그래프는 접어 둔다.
  * 고른 기간은 늘 고르는 칸(PickerButton)에 보이고, 누르면 앱 달력 창(DateRangeSheet)에서 직접 고른다(휴대폰 기본 날짜 창은 앱 디자인과 달라 쓰지 않음).
  * 집계된 주문이 없으면 남은 칸 가운데에 빈 화면(주문 탭과 같은 모양).
@@ -32,12 +32,14 @@ import type {
 } from "@/apps/web-seller/features/statistics/types/statistics.dto";
 import { formatWon } from "@/apps/web-seller/features/order/utils/order-mobile.util";
 
-type Preset = "today" | "week" | "month" | "recent90" | "custom";
+type Preset = "today" | "recent7" | "week" | "month" | "recent90" | "custom";
 
 function rangeFor(preset: Exclude<Preset, "custom">, today: string) {
   switch (preset) {
     case "today":
       return { start: today, end: today };
+    case "recent7":
+      return { start: addDaysToKey(today, STATISTICS_DEFAULT_DAY_OFFSET), end: today };
     case "week":
       return { start: mondayOfKey(today), end: today };
     case "month":
@@ -132,12 +134,10 @@ export const StoreDetailStatisticsMobilePage: React.FC = () => {
   const { storeId = "" } = useParams<{ storeId: string }>();
   const [params] = useSearchParams();
   const [today] = useState(() => kstDateKey(new Date()));
-  // 처음엔 오늘 포함 최근 7일(지금 PC와 같음), 홈 "이번 주 매출"에서 오면 이번주
-  const [preset, setPreset] = useState<Preset>(params.get("range") === "week" ? "week" : "custom");
+  // 처음엔 오늘 포함 최근 7일(지금 PC와 같음, 칩 "최근 7일"이 켜짐), 홈 "이번 주 매출"에서 오면 이번주
+  const [preset, setPreset] = useState<Preset>(params.get("range") === "week" ? "week" : "recent7");
   const [range, setRange] = useState(() =>
-    params.get("range") === "week"
-      ? rangeFor("week", today)
-      : { start: addDaysToKey(today, STATISTICS_DEFAULT_DAY_OFFSET), end: today },
+    rangeFor(params.get("range") === "week" ? "week" : "recent7", today),
   );
   const [sheetOpen, setSheetOpen] = useState(false);
   const [rankBy, setRankBy] = useState<"revenue" | "orders">("revenue");
@@ -173,6 +173,7 @@ export const StoreDetailStatisticsMobilePage: React.FC = () => {
         onChange={pick}
         options={[
           { value: "today", label: "오늘" },
+          { value: "recent7", label: "최근 7일" },
           { value: "week", label: "이번주" },
           { value: "month", label: "이번달" },
           { value: "recent90", label: "최근 90일" },
@@ -197,7 +198,7 @@ export const StoreDetailStatisticsMobilePage: React.FC = () => {
         }}
       />
 
-      {q.isError ? (
+      {q.isError && !q.data ? (
         <LoadErrorState big onRetry={() => void q.refetch()} />
       ) : (
         <>

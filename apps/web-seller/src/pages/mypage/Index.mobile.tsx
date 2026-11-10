@@ -174,7 +174,7 @@ export const MypageIndexMobilePage: React.FC = () => {
 
   return (
     <AppScreen header={<BackHeader title="마이페이지" />} bodyClassName="pt-2">
-      {isError ? (
+      {isError && !profile ? (
         <LoadErrorState big onRetry={() => void refetch()} />
       ) : isLoading || !profile ? (
         <span className="block h-48 animate-pulse rounded-card bg-ink-50" aria-busy="true" />

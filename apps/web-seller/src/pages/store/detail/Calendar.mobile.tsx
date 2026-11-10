@@ -202,7 +202,7 @@ export const StoreDetailCalendarMobilePage: React.FC = () => {
             {formatKeyMonthDayWeek(selectedKey)} ·{" "}
             {selectedRule.isOpen ? `픽업 ${selectedOrders.length}건` : "쉬는 날"}
           </h2>
-          {monthQuery.isError ? (
+          {monthQuery.isError && !monthQuery.data ? (
             <LoadErrorState onRetry={() => void monthQuery.refetch()} />
           ) : selectedOrders.length > 0 ? (
             <div className="-mt-1">

@@ -56,7 +56,7 @@ export const StoreDetailFeedListPage: React.FC = () => {
       {/* 피드 목록 */}
       {isLoading ? (
         <ContentLoading variant="section" message="피드를 불러오는 중…" className="py-12" />
-      ) : inFrame && isError ? (
+      ) : inFrame && isError && !data ? (
         <LoadErrorState big onRetry={() => void refetch()} />
       ) : (
         <>
