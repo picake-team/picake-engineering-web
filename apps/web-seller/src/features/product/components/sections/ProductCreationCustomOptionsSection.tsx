@@ -26,6 +26,8 @@ import { BottomSheet } from "@/apps/web-seller/common/ui/Sheet";
 import { ListRowButton } from "@/apps/web-seller/common/ui/List";
 import { useInMobileFrame } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
+import { Switch } from "@/apps/web-seller/common/ui/Toggle";
+import { AffixNumberInput } from "@/apps/web-seller/common/components/inputs/AffixNumberInput";
 import {
   Select,
   SelectContent,
@@ -347,45 +349,93 @@ function CustomOptionEditor({
 
   return (
     <div className="border-t px-4 py-4 space-y-4 bg-muted/30">
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_auto] gap-4 items-end">
-        <div>
-          <Label className="after:content-['*'] after:ml-0.5 after:text-destructive">옵션명</Label>
-          <Input
-            value={option.name}
-            maxLength={CUSTOM_OPTION_LIMITS.MAX_NAME_LENGTH}
-            placeholder="예: 초 추가"
+      {inFrame ? (
+        // 휴대폰 틀 안: 켜고 끄는 것은 상품 "판매 상태"와 같은 스위치 줄(제목 + 한 줄 설명)
+        <div className="flex flex-col font-app">
+          <div className="pb-2">
+            <Label className="after:content-['*'] after:ml-0.5 after:text-destructive">
+              옵션명
+            </Label>
+            <Input
+              value={option.name}
+              maxLength={CUSTOM_OPTION_LIMITS.MAX_NAME_LENGTH}
+              placeholder="예: 초 추가"
+              disabled={disabled}
+              onChange={(e) => onChange({ name: e.target.value })}
+            />
+          </div>
+          {[
+            {
+              key: "visible",
+              title: "손님에게 보이기",
+              desc: "끄면 손님 화면에서 이 옵션을 숨겨요",
+              on: option.visible === EnableStatus.ENABLE,
+              set: (on: boolean) =>
+                onChange({ visible: on ? EnableStatus.ENABLE : EnableStatus.DISABLE }),
+            },
+            {
+              key: "required",
+              title: "필수",
+              desc: "켜면 손님이 꼭 고르거나 적어야 주문할 수 있어요",
+              on: option.required,
+              set: (on: boolean) => onChange({ required: on }),
+            },
+          ].map((row) => (
+            <div
+              key={row.key}
+              className="flex min-h-14 items-center gap-3 border-b border-ink-100 py-2 last:border-b-0"
+            >
+              <span className="flex min-w-0 flex-1 flex-col gap-1">
+                <span className="text-body font-semibold text-ink-900">{row.title}</span>
+                <span className="text-caption text-ink-600">{row.desc}</span>
+              </span>
+              <Switch label={row.title} checked={row.on} disabled={disabled} onChange={row.set} />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_auto] gap-4 items-end">
+          <div>
+            <Label className="after:content-['*'] after:ml-0.5 after:text-destructive">
+              옵션명
+            </Label>
+            <Input
+              value={option.name}
+              maxLength={CUSTOM_OPTION_LIMITS.MAX_NAME_LENGTH}
+              placeholder="예: 초 추가"
+              disabled={disabled}
+              onChange={(e) => onChange({ name: e.target.value })}
+            />
+          </div>
+          <div className="w-32">
+            <Label>노출 여부</Label>
+            <Select
+              sheetTitle="노출 여부"
+              value={option.visible}
+              onValueChange={(value) => onChange({ visible: value as EnableStatus })}
+              disabled={disabled}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {VISIBILITY_STATUS_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <Checkbox
+            checked={option.required}
+            onChange={(checked) => onChange({ required: checked })}
             disabled={disabled}
-            onChange={(e) => onChange({ name: e.target.value })}
+            label="필수 옵션"
+            className="h-9"
           />
         </div>
-        <div className="w-32">
-          <Label>노출 여부</Label>
-          <Select
-            sheetTitle="노출 여부"
-            value={option.visible}
-            onValueChange={(value) => onChange({ visible: value as EnableStatus })}
-            disabled={disabled}
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {VISIBILITY_STATUS_OPTIONS.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <Checkbox
-          checked={option.required}
-          onChange={(checked) => onChange({ required: checked })}
-          disabled={disabled}
-          label="필수 옵션"
-          className="h-9"
-        />
-      </div>
+      )}
       {isSelectType(option.type) && (
         <div className="space-y-3">
           {inFrame ? (
@@ -407,9 +457,11 @@ function CustomOptionEditor({
                         onChange={(e) => updateChoice(index, { label: e.target.value })}
                       />
                     </label>
-                    <label className="flex min-w-0 flex-1 flex-col gap-1">
-                      <span className="text-caption text-ink-600">추가금(원)</span>
-                      <NumberInput
+                    <div className="flex min-w-0 flex-1 flex-col gap-1">
+                      <span className="text-caption text-ink-600">추가금</span>
+                      <AffixNumberInput
+                        suffix="원"
+                        aria-label={`옵션값 ${index + 1} 추가금(원)`}
                         value={choice.price}
                         min={0}
                         max={CUSTOM_OPTION_LIMITS.MAX_CHOICE_PRICE}
@@ -417,7 +469,7 @@ function CustomOptionEditor({
                         disabled={disabled}
                         onChange={(value) => updateChoice(index, { price: value ?? 0 })}
                       />
-                    </label>
+                    </div>
                     <button
                       type="button"
                       aria-label={`옵션값 ${index + 1} 삭제`}
@@ -429,26 +481,17 @@ function CustomOptionEditor({
                     </button>
                   </div>
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-sub text-ink-700">노출 여부</span>
-                    <Select
-                      sheetTitle="노출 여부"
-                      value={choice.visible}
-                      onValueChange={(value) =>
-                        updateChoice(index, { visible: value as EnableStatus })
-                      }
+                    <span className="text-sub text-ink-700">손님에게 보이기</span>
+                    <Switch
+                      label={`옵션값 ${index + 1} 손님에게 보이기`}
+                      checked={choice.visible === EnableStatus.ENABLE}
                       disabled={disabled}
-                    >
-                      <SelectTrigger className="h-10 w-28">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {VISIBILITY_STATUS_OPTIONS.map((opt) => (
-                          <SelectItem key={opt.value} value={opt.value}>
-                            {opt.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      onChange={(on) =>
+                        updateChoice(index, {
+                          visible: on ? EnableStatus.ENABLE : EnableStatus.DISABLE,
+                        })
+                      }
+                    />
                   </div>
                 </div>
               ))}

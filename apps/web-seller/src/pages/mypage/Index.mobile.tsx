@@ -102,7 +102,7 @@ function ProfileEditSheet({
             disabled={!changed || !name.trim()}
             loading={update.isPending}
           >
-            저장
+            저장하기
           </Button>
         </ButtonPair>
       }

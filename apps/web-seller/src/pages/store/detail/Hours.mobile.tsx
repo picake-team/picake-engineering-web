@@ -227,7 +227,7 @@ export const StoreDetailHoursMobilePage: React.FC = () => {
       footer={
         <BottomActionBar>
           <Button block onClick={submit} loading={save.isPending} disabled={!draft || endTooEarly}>
-            저장
+            저장하기
           </Button>
         </BottomActionBar>
       }
@@ -308,7 +308,7 @@ export const StoreDetailHoursMobilePage: React.FC = () => {
                 addAlert({
                   severity: "success",
                   message:
-                    "네이버 값을 채웠어요. 확인하고 '저장'을 눌러야 반영돼요. 진행 중인 예약과 겹치면 겹친 예약을 알려 드려요.",
+                    "네이버 값을 채웠어요. 확인하고 '저장하기'를 눌러야 반영돼요. 진행 중인 예약과 겹치면 겹친 예약을 알려 드려요.",
                 });
               }}
             />
