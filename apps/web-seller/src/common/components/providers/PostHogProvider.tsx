@@ -1,8 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import posthog from "posthog-js";
 import { PostHogProvider as PHProvider } from "posthog-js/react";
-import { initPostHog } from "@/apps/web-seller/common/config/posthog.config";
+import { initPostHog, syncPostHogUser } from "@/apps/web-seller/common/config/posthog.config";
+import { useAuthStore } from "@/apps/web-seller/features/auth/store/auth.store";
+import { getAccessToken } from "@/apps/web-seller/common/utils/token.util";
 
 /**
  * 라우트 변경 시 $pageview 이벤트를 수동 캡처합니다.
@@ -32,9 +34,25 @@ export function PostHogPageView() {
 }
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
+  const isInitialized = useAuthStore((s) => s.isInitialized);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+
   useEffect(() => {
     initPostHog();
   }, []);
+
+  // 로그인한 판매자를 사람 하나로 묶고, 로그아웃하면 끊는다.
+  // 로그아웃은 isAuthenticated·isInitialized를 둘 다 false로 바꾸므로 "로그인돼 있었는지"를 따로 기억한다.
+  const wasAuthenticated = useRef(false);
+  useEffect(() => {
+    if (isAuthenticated) {
+      wasAuthenticated.current = true;
+      syncPostHogUser(getAccessToken());
+    } else if (wasAuthenticated.current || isInitialized) {
+      wasAuthenticated.current = false;
+      syncPostHogUser(null);
+    }
+  }, [isInitialized, isAuthenticated]);
 
   return <PHProvider client={posthog}>{children}</PHProvider>;
 }

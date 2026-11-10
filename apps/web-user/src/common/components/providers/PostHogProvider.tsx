@@ -4,7 +4,12 @@ import { Suspense, useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import posthog from "posthog-js";
 import { PostHogProvider as PHProvider, usePostHog } from "posthog-js/react";
-import { initPostHog, isPostHogEnabled } from "@/apps/web-user/common/config/posthog.config";
+import {
+  initPostHog,
+  isPostHogEnabled,
+  syncPostHogUser,
+} from "@/apps/web-user/common/config/posthog.config";
+import { useAuthHasHydrated, useAuthStore } from "@/apps/web-user/common/store/auth.store";
 
 /**
  * 라우트 변경 시 $pageview 이벤트를 수동 캡처합니다.
@@ -44,9 +49,18 @@ function PostHogPageView() {
 }
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
+  const authHydrated = useAuthHasHydrated();
+  const accessToken = useAuthStore((s) => s.accessToken);
+
   useEffect(() => {
     initPostHog();
   }, []);
+
+  // 로그인한 회원을 사람 하나로 묶고, 로그아웃하면 끊는다(초기화 다음에 돈다)
+  useEffect(() => {
+    if (!authHydrated) return;
+    syncPostHogUser(accessToken);
+  }, [authHydrated, accessToken]);
 
   return (
     <PHProvider client={posthog}>
