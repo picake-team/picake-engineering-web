@@ -8,6 +8,9 @@ import {
 } from "./src/common/ui/tokens";
 
 const config: Config = {
+  // hover: 꾸밈은 마우스가 있는 기기에서만. 휴대폰은 누른 뒤에도 hover가 남아 버튼이 회색으로 보인다(2026-11-10)
+  future: { hoverOnlyWhenSupported: true },
+  // 어두운 화면은 쓰지 않는다. "class"로 두어 PC 부품의 dark: 값이 휴대폰 어두운 모드에서 켜지지 않게 한다
   darkMode: ["class"],
   content: ["./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
@@ -58,13 +61,6 @@ const config: Config = {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
-        chart: {
-          "1": "hsl(var(--chart-1))",
-          "2": "hsl(var(--chart-2))",
-          "3": "hsl(var(--chart-3))",
-          "4": "hsl(var(--chart-4))",
-          "5": "hsl(var(--chart-5))",
-        },
       },
     },
   },

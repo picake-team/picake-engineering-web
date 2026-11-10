@@ -14,7 +14,7 @@ import {
 const CANCEL_REASONS = [
   { value: "재료 소진", label: "재료 소진" },
   { value: "매장 사정 (휴무)", label: "매장 사정 (휴무)" },
-  { value: "고객요청", label: "고객요청" },
+  { value: "손님 요청", label: "손님 요청" },
   { value: "기타", label: "기타" },
 ] as const;
 

@@ -1,6 +1,6 @@
 /**
  * 휴대폰 홈 (SC-70, 디자인 1-A · A70e): 주간 달력 → 처리할 주문 → 고른 날 픽업 → 이번 주 매출.
- * 홈은 무엇을 할지(숫자와 한 줄 안내), 주문 탭은 주문을 보고 처리하는 곳이다(운영자 결정 2026-11-06).
+ * 홈은 무엇을 할지(숫자와 한 줄 안내), 주문 탭은 주문을 보고 처리하는 곳이다(운영자 결정).
  */
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -69,9 +69,7 @@ function TaskRow({
       divider={!last}
       dimmed={zero}
       leading={
-        <RowIconBox active={!zero}>
-          {group.icon ? <TaskIcon name={group.icon} active={!zero} /> : null}
-        </RowIconBox>
+        <RowIconBox>{group.icon ? <TaskIcon name={group.icon} active={!zero} /> : null}</RowIconBox>
       }
       title={group.label}
       description={group.homeHint}
@@ -231,7 +229,7 @@ export const StoreDetailHomeMobilePage: React.FC = () => {
           {dayTitle}
         </GroupTitle>
         <div className="-mt-3">
-          {weekQuery.isError ? (
+          {weekQuery.isError && !weekQuery.data ? (
             <LoadErrorState onRetry={() => void weekQuery.refetch()} />
           ) : weekQuery.isLoading ? (
             <span className="block h-16 animate-pulse rounded-card bg-ink-50" aria-busy="true" />

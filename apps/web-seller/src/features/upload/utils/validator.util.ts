@@ -19,7 +19,7 @@ export const validateFileSize = (file: File, maxSize: number): string | null => 
  */
 export const validateMaxImages = (currentImageCount: number, maxImages: number): string | null => {
   if (currentImageCount >= maxImages) {
-    return `최대 ${maxImages}개의 이미지만 업로드할 수 있습니다.`;
+    return `사진은 ${maxImages}장까지 올릴 수 있어요.`;
   }
 
   return null;

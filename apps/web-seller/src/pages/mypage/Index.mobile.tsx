@@ -3,12 +3,14 @@
  */
 import React, { useRef, useState } from "react";
 import { appVersion } from "@/apps/web-seller/common/utils/webview.bridge";
+import { formatPhoneDisplay } from "@/apps/web-seller/common/utils/phone-display.util";
 import { Link } from "react-router-dom";
 import { AppScreen, BackHeader } from "@/apps/web-seller/common/ui/Screen";
 import { Button, ButtonPair } from "@/apps/web-seller/common/ui/Button";
 import { Field, TextInput } from "@/apps/web-seller/common/ui/Field";
 import { GrayBand, ListRowButton, ListRowLink } from "@/apps/web-seller/common/ui/List";
 import { BottomSheet } from "@/apps/web-seller/common/ui/Sheet";
+import { LoadErrorState } from "@/apps/web-seller/common/ui/Surface";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
 import { kstDateKey } from "@/apps/web-seller/common/utils/kst-date.util";
@@ -20,11 +22,8 @@ import type { SellerMypageProfileResponseDto } from "@/apps/web-seller/features/
 import { useLogout } from "@/apps/web-seller/features/auth/hooks/mutations/useAuthMutation";
 
 function formatPhone(phone: string) {
-  const d = phone.replace(/\D/g, "");
-  if (d.length === 11) return `${d.slice(0, 3)}-${d.slice(3, 7)}-${d.slice(7)}`;
-  if (d.length === 10) return `${d.slice(0, 3)}-${d.slice(3, 6)}-${d.slice(6)}`;
   // 휴대폰 번호가 아닌 값(심사용 계정 표시 등)은 그대로 보여 주지 않는다
-  return d.length >= 9 ? phone : "–";
+  return phone.replace(/\D/g, "").length >= 9 ? formatPhoneDisplay(phone) : "–";
 }
 
 function formatDay(iso: string | null | undefined) {
@@ -167,7 +166,7 @@ function ProfileEditSheet({
 }
 
 export const MypageIndexMobilePage: React.FC = () => {
-  const { data: profile, isLoading } = useMypageProfile();
+  const { data: profile, isLoading, isError, refetch } = useMypageProfile();
   const logout = useLogout();
   const [editOpen, setEditOpen] = useState(false);
   const [logoutOpen, setLogoutOpen] = useState(false);
@@ -175,7 +174,9 @@ export const MypageIndexMobilePage: React.FC = () => {
 
   return (
     <AppScreen header={<BackHeader title="마이페이지" />} bodyClassName="pt-2">
-      {isLoading || !profile ? (
+      {isError && !profile ? (
+        <LoadErrorState big onRetry={() => void refetch()} />
+      ) : isLoading || !profile ? (
         <span className="block h-48 animate-pulse rounded-card bg-ink-50" aria-busy="true" />
       ) : (
         <>

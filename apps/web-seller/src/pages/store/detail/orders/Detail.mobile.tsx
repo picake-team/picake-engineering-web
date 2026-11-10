@@ -1,9 +1,10 @@
 /**
  * 휴대폰 주문 상세 (SC-76, 디자인 3-B·3-G·A76c·A76d·A76s, 처리 창 SC-77).
  * 단계 막대 → (입금 마감) → (취소환불대기면 취소·환불) → 픽업 → 예약자 → 주문 항목 → 주문 정보 → 취소·사유.
- * 맨 위 할 일 안내 문장과 참고 사진 안내 문장은 두지 않는다(운영자 결정 2026-11-06).
+ * 맨 위 할 일 안내 문장과 참고 사진 안내 문장은 두지 않는다(운영자 결정).
  * 휴대폰 알림을 누르면 여기로 온다. 다른 스토어의 주문이면 그 스토어 주소로 바꿔 연다.
  */
+import { formatPhoneDisplay } from "@/apps/web-seller/common/utils/phone-display.util";
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { AppScreen, BackHeader, BottomActionBar } from "@/apps/web-seller/common/ui/Screen";
@@ -57,7 +58,7 @@ function Divider() {
 }
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <h2 className="mt-1 text-body font-bold text-ink-900">{children}</h2>;
+  return <h2 className="mt-1 text-group font-bold text-ink-900">{children}</h2>;
 }
 
 function ContactActions({ phone }: { phone: string }) {
@@ -93,7 +94,7 @@ function PaymentDeadline({ order }: { order: OrderResponseDto }) {
         </span>
       ) : (
         <span className="max-w-[60%] text-right text-sub font-semibold text-brand-ink">
-          유효 시간이 지났습니다. 서버에서는 자동으로 취소완료 처리될 수 있어요.
+          입금 시간이 지났어요. 곧 자동으로 취소완료될 수 있어요.
         </span>
       )}
     </div>
@@ -162,7 +163,7 @@ function OrderItemBlock({
           key={o.optionId}
           className="flex flex-col gap-1 rounded-control border border-ink-100 px-4 py-3"
         >
-          <span className="text-badge font-bold text-ink-600">{o.name}</span>
+          <span className="text-sub font-bold text-ink-700">{o.name}</span>
           <span className="whitespace-pre-wrap break-words text-heading font-bold text-ink-900">
             {o.text}
           </span>
@@ -170,7 +171,7 @@ function OrderItemBlock({
       ))}
       {legacyLettering && texts.length === 0 ? (
         <div className="flex flex-col gap-1 rounded-control border border-ink-100 px-4 py-3">
-          <span className="text-badge font-bold text-ink-600">레터링</span>
+          <span className="text-sub font-bold text-ink-700">레터링</span>
           <span className="whitespace-pre-wrap break-words text-heading font-bold text-ink-900">
             {legacyLettering}
           </span>
@@ -195,7 +196,13 @@ function OrderItemBlock({
         </div>
       ) : null}
       {item.requestMessage?.trim() ? (
-        <span className="text-sub text-ink-600">요청 · {item.requestMessage.trim()}</span>
+        // 손님 요청은 놓치지 않게 레터링처럼 칸으로(전: 사진 아래 작은 회색 한 줄)
+        <div className="flex flex-col gap-1 rounded-control border border-ink-100 px-4 py-3">
+          <span className="text-sub font-bold text-ink-700">요청 사항</span>
+          <span className="whitespace-pre-wrap break-words text-body text-ink-900">
+            {item.requestMessage.trim()}
+          </span>
+        </div>
       ) : null}
     </div>
   );
@@ -213,13 +220,13 @@ function CancelSection({ order }: { order: OrderResponseDto }) {
   if (order.paymentPendingExpiredAt) {
     rows.push({
       label: "경위",
-      value: "입금 기한 만료로 자동 취소됨",
-      sub: `${formatKstMonthDayTime(order.paymentPendingExpiredAt)} · 고객이 입금했는지 통장 내역 확인이 필요할 수 있습니다`,
+      value: "입금 기한이 지나 자동으로 취소됐어요",
+      sub: `${formatKstMonthDayTime(order.paymentPendingExpiredAt)} · 손님이 입금했는지 통장 내역을 확인해 주세요`,
     });
   }
-  reason("손님이 입금 전에 취소함", order.userCancelReason);
-  reason("사장님이 예약을 취소함", order.sellerCancelReason);
-  reason("손님이 환불을 요청함", order.refundRequestReason);
+  reason("손님이 입금 전에 취소했어요", order.userCancelReason);
+  reason("사장님이 예약을 취소했어요", order.sellerCancelReason);
+  reason("손님이 환불을 요청했어요", order.refundRequestReason);
   reason("사장님이 취소환불대기로 바꿈", order.sellerCancelRefundPendingReason);
   if (order.sellerNoShowReason?.trim()) {
     rows.push({ label: "노쇼 사유", value: order.sellerNoShowReason.trim() });
@@ -324,7 +331,7 @@ export const StoreDetailOrderDetailMobilePage: React.FC = () => {
         {isError ? (
           <LoadErrorState big onRetry={() => void refetch()} />
         ) : (
-          <EmptyState big icon="search" title="주문을 찾을 수 없습니다." />
+          <EmptyState big icon="search" title="주문을 찾을 수 없어요" />
         )}
       </AppScreen>
     );
@@ -336,7 +343,15 @@ export const StoreDetailOrderDetailMobilePage: React.FC = () => {
   const hasActions = Boolean(actions.primary || actions.secondary || actions.more?.length);
   const phone = order.reservationPhone?.trim();
   const depositor = order.depositorName?.trim();
-  const refundFirst = status === OrderStatus.CANCEL_REFUND_PENDING;
+  // 환불할 주문과 끝난 주문(취소·환불 완료·노쇼)은 경위·사유를 맨 위에(단계 막대 바로 아래). 끝났다는 걸 내려 보지 않아도 알게
+  const refundFirst = (
+    [
+      OrderStatus.CANCEL_REFUND_PENDING,
+      OrderStatus.CANCEL_COMPLETED,
+      OrderStatus.CANCEL_REFUND_COMPLETED,
+      OrderStatus.NO_SHOW,
+    ] as OrderStatus[]
+  ).includes(status);
   const pickupAddress = [order.pickupRoadAddress || order.pickupAddress, order.pickupDetailAddress]
     .filter((v) => v?.trim())
     .join(", ");
@@ -390,7 +405,7 @@ export const StoreDetailOrderDetailMobilePage: React.FC = () => {
       {phone ? (
         <InfoRow
           label="연락처"
-          value={<span className="select-all">{phone}</span>}
+          value={<span className="select-all">{formatPhoneDisplay(phone)}</span>}
           action={<ContactActions phone={phone} />}
         />
       ) : null}

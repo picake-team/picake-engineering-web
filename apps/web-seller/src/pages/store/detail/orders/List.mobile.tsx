@@ -212,7 +212,7 @@ function PastList({
   }, [q.orders, byPickupDate]);
 
   if (q.isLoading) return <SkeletonCards />;
-  if (q.isError) return <LoadErrorState onRetry={() => void q.refetch()} />;
+  if (q.isError) return <LoadErrorState big onRetry={() => void q.refetch()} />;
   if (q.orders.length === 0) return <EmptyState big title="지난 주문이 없어요" />;
   return (
     <div className="mt-1 flex flex-col">
@@ -264,7 +264,7 @@ function SearchResults({
       {q.isLoading ? (
         <SkeletonCards />
       ) : q.isError ? (
-        <LoadErrorState onRetry={() => void q.refetch()} />
+        <LoadErrorState big onRetry={() => void q.refetch()} />
       ) : q.orders.length === 0 ? (
         <EmptyState
           big
@@ -389,14 +389,14 @@ export const StoreDetailOrderListMobilePage: React.FC = () => {
                 {
                   value: "todo",
                   label: "처리할 것",
-                  count: todo.loading ? undefined : todo.total,
-                  // 주황은 사장님이 할 일이 있을 때만(운영자 의견 2026-11-07 "너무 다 주황")
+                  count: todo.loading || todo.error ? undefined : todo.total,
+                  // 주황은 사장님이 할 일이 있을 때만
                   countAccent: true,
                 },
                 {
                   value: "doing",
                   label: "진행 중",
-                  count: doing.loading ? undefined : doing.total,
+                  count: doing.loading || doing.error ? undefined : doing.total,
                 },
                 { value: "past", label: "지난 주문" },
               ]}
@@ -413,7 +413,7 @@ export const StoreDetailOrderListMobilePage: React.FC = () => {
             ) : tabState?.loading ? (
               <SkeletonCards />
             ) : tabState?.error ? (
-              <LoadErrorState onRetry={() => void tabState.refetch()} />
+              <LoadErrorState big onRetry={() => void tabState.refetch()} />
             ) : tabState && tabState.total === 0 ? (
               tab === "todo" ? (
                 <EmptyState

@@ -1,10 +1,10 @@
 /**
- * 아래에서 올라오는 창 (디자인 기준 B-3 "창 머리", B-6 "창 버튼 줄").
+ * 아래에서 올라오는 창.
  * - 뒤 어둡게 rgba(31,31,30,0.4), 위 모서리 22, 손잡이 36 × 4, 안쪽 12·20·아래 안전 영역
  * - 제목 20/700. 버튼 둘이면 왼쪽 흰 보조("돌아가기") · 오른쪽 주황 주 버튼
  * - 내용이 길면 창 안에서 스크롤하고 버튼 줄은 아래에 둔다
  * - 뒤를 누르거나 Esc로 닫는다(처리 중에는 닫지 않음). 열린 동안 화면 스크롤을 멈춘다
- * - 안드로이드 뒤로 버튼은 기본 동작만(I-48 "뒤로 가기", 운영자 결정 2026-11-06)
+ * - 안드로이드 뒤로 버튼은 기본 동작만(I-48 "뒤로 가기" 결정)
  */
 import React, { useEffect, useId, useRef } from "react";
 import { createPortal } from "react-dom";
@@ -12,6 +12,8 @@ import { cx } from "@/apps/web-seller/common/ui/cx";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
 
 let openSheetCount = 0;
+/** 열린 창 차례(창 위에 창을 열면 Esc·Tab은 맨 위 창만) */
+const sheetStack: symbol[] = [];
 
 function lockScroll() {
   openSheetCount += 1;
@@ -66,10 +68,13 @@ export function BottomSheet({
   useEffect(() => {
     if (!open) return;
     restoreRef.current = document.activeElement as HTMLElement | null;
+    const me = Symbol("sheet");
+    sheetStack.push(me);
     lockScroll();
     // 첫 칸에 바로 키보드를 올리지 않게 창 자체에 초점
     panelRef.current?.focus();
     const onKey = (e: KeyboardEvent) => {
+      if (sheetStack[sheetStack.length - 1] !== me) return;
       if (e.key === "Escape" && dismissibleRef.current) {
         e.stopPropagation();
         closeRef.current();
@@ -92,6 +97,7 @@ export function BottomSheet({
     document.addEventListener("keydown", onKey);
     return () => {
       document.removeEventListener("keydown", onKey);
+      sheetStack.splice(sheetStack.indexOf(me), 1);
       unlockScroll();
       restoreRef.current?.focus?.();
     };

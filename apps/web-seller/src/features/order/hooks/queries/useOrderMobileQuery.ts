@@ -87,7 +87,8 @@ export function useOrderMobileList(
     }
   }
   const total = query.data?.pages[0]?.meta.totalItems;
-  return { ...query, orders, total };
+  // 다시 불러오기만 실패했으면(끊김 등) 불러 둔 주문을 그대로 보여 준다. 못 불러온 게 처음일 때만 오류 화면
+  return { ...query, isError: query.isError && query.data === undefined, orders, total };
 }
 
 /** 홈 숫자·주문 탭 칸: 상태 하나, 픽업 가까운 순 */

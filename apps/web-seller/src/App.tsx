@@ -65,7 +65,7 @@ function AppRoutes() {
   const showMobile = useShowMobileScreens();
   return (
     <>
-      {/* 서버 오류·실시간 알림 안내: 휴대폰 화면은 아래쪽 흰 안내 띠(B-3), PC는 지금 모양 */}
+      {/* 서버 오류·실시간 알림 안내: 휴대폰 화면은 위쪽 흰 안내 띠(ToastHost), PC는 지금 모양 */}
       {showMobile ? <ToastHost /> : <Alert />}
       <ConfirmAlert />
       <Suspense fallback={<LoadingFallback />}>

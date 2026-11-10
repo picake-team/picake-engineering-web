@@ -1,7 +1,7 @@
 /**
  * 손님에게 링크 보내기 창 (SC-89, 디자인 A89). 손님 화면의 스토어·상품 주소를 복사하거나 휴대폰 공유 창으로 보낸다.
  * 공유 창은 앱이면 앱 껍데기(shareLink), 휴대폰 브라우저면 브라우저 공유 창, 둘 다 없으면 복사.
- * 손님 화면을 "열어 보기"하는 링크는 두지 않는다(운영자 결정 2026-11-06).
+ * 손님 화면을 "열어 보기"하는 링크는 두지 않는다(운영자 결정).
  */
 import { BottomSheet } from "@/apps/web-seller/common/ui/Sheet";
 import { Button, ButtonPair, CircleIconButton } from "@/apps/web-seller/common/ui/Button";

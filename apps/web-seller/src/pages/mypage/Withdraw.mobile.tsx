@@ -112,8 +112,8 @@ export const MypageWithdrawMobilePage: React.FC = () => {
         open={confirmOpen}
         onClose={() => setConfirmOpen(false)}
         dismissible={!withdraw.isPending}
-        title="정말로 회원 탈퇴를 진행하시겠어요?"
-        description="탈퇴 시 계정·스토어·상품 등 모든 정보가 삭제되며 복구할 수 없습니다."
+        title="정말 탈퇴할까요?"
+        description="계정·스토어·상품 등 모든 정보가 지워지고 되돌릴 수 없어요."
         footer={
           <ButtonPair>
             <Button

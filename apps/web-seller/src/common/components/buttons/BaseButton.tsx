@@ -50,7 +50,8 @@ const FRAME_SIZE: Record<string, string> = {
   icon: "size-10 rounded-control",
 };
 const FRAME_VARIANT: Record<string, string> = {
-  default: "shadow-none",
+  // 못 누를 때는 회색 채움(앱 Button과 같음)
+  default: "shadow-none disabled:bg-ink-100 disabled:text-ink-400 disabled:opacity-100",
   destructive: "border border-ink-200 bg-white text-ink-900 shadow-none hover:bg-ink-50",
   outline: "border-ink-200 bg-white text-ink-700 shadow-none hover:bg-ink-50 hover:text-ink-900",
   secondary: "border border-ink-200 bg-white text-ink-700 shadow-none hover:bg-ink-50",

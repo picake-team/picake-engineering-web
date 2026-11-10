@@ -1,12 +1,12 @@
 import React, { useState } from "react";
+import { EmptyState, LoadErrorState } from "@/apps/web-seller/common/ui/Surface";
 import { PageTitle } from "@/apps/web-seller/common/components/layouts/MobileFrame";
 import { useFrameConfirm } from "@/apps/web-seller/common/components/layouts/useFrameConfirm";
 import {
-  FRAME_SUBMIT_BAR_CLASS,
   FRAME_SUBMIT_BUTTON_CLASS,
   useInMobileFrame,
 } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
-import { cn } from "@/apps/web-seller/common/utils/classname.util";
+import { FrameSubmitBar } from "@/apps/web-seller/common/components/layouts/FrameSubmitBar";
 
 import { useParams } from "react-router-dom";
 import { useFeedDetail } from "@/apps/web-seller/features/feed/hooks/queries/useFeedQuery";
@@ -31,12 +31,12 @@ export const StoreDetailFeedDetailPage: React.FC = () => {
   const updateFeedMutation = useUpdateFeed();
   const deleteFeedMutation = useDeleteFeed();
   const { confirm: confirmDelete, sheet: confirmDeleteSheet } = useFrameConfirm({
-    pcMessage: "정말 이 피드를 삭제하시겠습니까?",
+    pcMessage: "이 피드를 삭제할까요?",
     title: "이 피드를 삭제할까요?",
     confirmLabel: "삭제하기",
   });
 
-  const { data: feed, isLoading } = useFeedDetail(storeId || "", feedId || "");
+  const { data: feed, isLoading, isError, refetch } = useFeedDetail(storeId || "", feedId || "");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [imageUrls, setImageUrls] = useState<string[]>([]);
@@ -55,7 +55,7 @@ export const StoreDetailFeedDetailPage: React.FC = () => {
   if (!storeId || !feedId) {
     return (
       <div>
-        <h2 className="text-xl font-semibold">스토어 또는 피드가 선택되지 않았습니다.</h2>
+        <h2 className="text-xl font-semibold">스토어나 피드를 고르지 않았어요.</h2>
       </div>
     );
   }
@@ -71,9 +71,16 @@ export const StoreDetailFeedDetailPage: React.FC = () => {
   }
 
   if (!feed) {
+    if (inFrame) {
+      return isError ? (
+        <LoadErrorState big onRetry={() => void refetch()} />
+      ) : (
+        <EmptyState big icon="search" title="피드를 찾을 수 없어요" />
+      );
+    }
     return (
       <div>
-        <h2 className="text-xl font-semibold">피드를 찾을 수 없습니다.</h2>
+        <h2 className="text-xl font-semibold">피드를 찾을 수 없어요.</h2>
       </div>
     );
   }
@@ -115,6 +122,28 @@ export const StoreDetailFeedDetailPage: React.FC = () => {
 
     await deleteFeedMutation.mutateAsync({ feedId, storeId });
   };
+
+  // 버튼: 휴대폰 틀 안에서는 늘 화면 맨 아래 저장 줄(FrameSubmitBar), PC는 폼 아래 가운데
+  const submitButtons = (
+    <>
+      <Button
+        type="button"
+        variant={inFrame ? "outline" : "destructive"}
+        onClick={handleDelete}
+        disabled={deleteFeedMutation.isPending || updateFeedMutation.isPending}
+        className={inFrame ? FRAME_SUBMIT_BUTTON_CLASS : undefined}
+      >
+        삭제하기
+      </Button>
+      <Button
+        type="submit"
+        disabled={updateFeedMutation.isPending}
+        className={inFrame ? FRAME_SUBMIT_BUTTON_CLASS : undefined}
+      >
+        {updateFeedMutation.isPending ? "수정 중..." : "수정하기"}
+      </Button>
+    </>
+  );
 
   return (
     <div className={inFrame ? "flex flex-1 flex-col" : "space-y-6"}>
@@ -175,30 +204,11 @@ export const StoreDetailFeedDetailPage: React.FC = () => {
             </div>
 
             {/* 버튼 */}
-            <div
-              className={
-                inFrame
-                  ? cn(FRAME_SUBMIT_BAR_CLASS, "mt-auto flex-row")
-                  : "flex justify-center gap-4 pt-6"
-              }
-            >
-              <Button
-                type="button"
-                variant={inFrame ? "outline" : "destructive"}
-                onClick={handleDelete}
-                disabled={deleteFeedMutation.isPending || updateFeedMutation.isPending}
-                className={inFrame ? FRAME_SUBMIT_BUTTON_CLASS : undefined}
-              >
-                삭제하기
-              </Button>
-              <Button
-                type="submit"
-                disabled={updateFeedMutation.isPending}
-                className={inFrame ? FRAME_SUBMIT_BUTTON_CLASS : undefined}
-              >
-                {updateFeedMutation.isPending ? "수정 중..." : "수정하기"}
-              </Button>
-            </div>
+            {inFrame ? (
+              <FrameSubmitBar>{submitButtons}</FrameSubmitBar>
+            ) : (
+              <div className="flex justify-center gap-4 pt-6">{submitButtons}</div>
+            )}
           </form>
         </CardContent>
       </Card>

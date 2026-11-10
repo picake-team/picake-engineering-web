@@ -1,6 +1,6 @@
 /**
- * 상태 배지 (디자인 기준 B-5 "추천 1": 누가 할 차례인지 + 알약, B-6: 안쪽 3·8, 12/700).
- * - turn(사장님 차례): 연한 주황 바탕 + 작은 주황 글씨
+ * 상태 배지: 누가 할 차례인지 + 알약(안쪽 3·8, 12/700).
+ * - turn(사장님 차례): 흰 바탕 + 주황 테두리 + 작은 주황 글씨
  * - wait(기다림): 회색 바탕 + #4E4E4B
  * - done(끝): 흰 바탕 + 얇은 테두리 + #686864
  */
@@ -10,8 +10,8 @@ import { cx } from "@/apps/web-seller/common/ui/cx";
 export type StatusTone = "turn" | "wait" | "done";
 
 const TONE: Record<StatusTone, string> = {
-  turn: "bg-brand-tint text-brand-ink",
-  wait: "bg-ink-50 text-ink-700",
+  turn: "border border-brand bg-white text-brand-ink",
+  wait: "border border-transparent bg-ink-50 text-ink-700",
   done: "border border-ink-100 bg-white text-ink-600",
 };
 

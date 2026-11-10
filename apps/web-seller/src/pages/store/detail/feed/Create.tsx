@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import { PageTitle } from "@/apps/web-seller/common/components/layouts/MobileFrame";
 import {
-  FRAME_SUBMIT_BAR_CLASS,
   FRAME_SUBMIT_BUTTON_CLASS,
   useInMobileFrame,
 } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
-import { cn } from "@/apps/web-seller/common/utils/classname.util";
+import { FrameSubmitBar } from "@/apps/web-seller/common/components/layouts/FrameSubmitBar";
 
 import { useParams } from "react-router-dom";
 import { useCreateFeed } from "@/apps/web-seller/features/feed/hooks/mutations/useFeedMutation";
@@ -33,7 +32,7 @@ export const StoreDetailFeedCreatePage: React.FC = () => {
   if (!storeId) {
     return (
       <div>
-        <h2 className="text-xl font-semibold">스토어가 선택되지 않았습니다.</h2>
+        <h2 className="text-xl font-semibold">스토어를 고르지 않았어요.</h2>
       </div>
     );
   }
@@ -68,6 +67,17 @@ export const StoreDetailFeedCreatePage: React.FC = () => {
 
     await createFeedMutation.mutateAsync({ storeId, request });
   };
+
+  // 버튼: 휴대폰 틀 안에서는 늘 화면 맨 아래 저장 줄(FrameSubmitBar), PC는 폼 아래 가운데
+  const submitButton = (
+    <Button
+      type="submit"
+      disabled={createFeedMutation.isPending}
+      className={inFrame ? FRAME_SUBMIT_BUTTON_CLASS : undefined}
+    >
+      {createFeedMutation.isPending ? "등록 중..." : "등록하기"}
+    </Button>
+  );
 
   return (
     <div className={inFrame ? "flex flex-1 flex-col" : "space-y-6"}>
@@ -128,21 +138,11 @@ export const StoreDetailFeedCreatePage: React.FC = () => {
             </div>
 
             {/* 버튼 */}
-            <div
-              className={
-                inFrame
-                  ? cn(FRAME_SUBMIT_BAR_CLASS, "mt-auto flex-row")
-                  : "flex justify-center gap-4 pt-6"
-              }
-            >
-              <Button
-                type="submit"
-                disabled={createFeedMutation.isPending}
-                className={inFrame ? FRAME_SUBMIT_BUTTON_CLASS : undefined}
-              >
-                {createFeedMutation.isPending ? "등록 중..." : "등록하기"}
-              </Button>
-            </div>
+            {inFrame ? (
+              <FrameSubmitBar>{submitButton}</FrameSubmitBar>
+            ) : (
+              <div className="flex justify-center gap-4 pt-6">{submitButton}</div>
+            )}
           </form>
         </CardContent>
       </Card>

@@ -114,9 +114,7 @@ export const ImageMultiUpload: React.FC<ImageMultiUploadProps> = ({
       return response.fileUrl;
     } catch (error) {
       const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "이미지 업로드 중 오류가 발생했습니다. 다시 시도해주세요.";
+        error instanceof Error ? error.message : "사진을 올리지 못했어요. 다시 시도해 주세요.";
       setError(errorMessage, index);
       return null;
     } finally {
@@ -139,7 +137,7 @@ export const ImageMultiUpload: React.FC<ImageMultiUploadProps> = ({
 
     for (const file of fileArray) {
       if (currentUrls.length >= maxImages) {
-        setError(`최대 ${maxImages}개의 이미지만 업로드할 수 있습니다.`, currentUrls.length);
+        setError(`사진은 ${maxImages}장까지 올릴 수 있어요.`, currentUrls.length);
         break;
       }
 

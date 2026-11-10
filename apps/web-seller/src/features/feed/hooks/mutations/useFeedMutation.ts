@@ -22,7 +22,7 @@ export function useCreateFeed() {
     onSuccess: (_response, variables) => {
       addAlert({
         severity: "success",
-        message: "피드가 등록되었습니다.",
+        message: "피드를 등록했어요.",
       });
       // 피드 쿼리 무효화
       queryClient.invalidateQueries({ queryKey: feedQueryKeys.all });
@@ -56,7 +56,7 @@ export function useUpdateFeed() {
     onSuccess: (_response, variables) => {
       addAlert({
         severity: "success",
-        message: "피드가 수정되었습니다.",
+        message: "피드를 고쳤어요.",
       });
       // 피드 쿼리 무효화
       queryClient.invalidateQueries({ queryKey: feedQueryKeys.all });
@@ -83,7 +83,7 @@ export function useDeleteFeed() {
     onSuccess: (_response, variables) => {
       addAlert({
         severity: "success",
-        message: "피드가 삭제되었습니다.",
+        message: "피드를 삭제했어요.",
       });
       // 피드 쿼리 무효화. 지운 피드의 상세는 다시 부르지 않는다(열려 있던 상세 화면이 다시 불러
       // 오류 안내가 함께 뜨지 않게)

@@ -1,5 +1,5 @@
 /**
- * 상품 정렬과 거르기 창 (SC-83, 디자인 A83). 정렬 6가지(지금 PC 그대로), 상품 타입, 가격, 사이즈·카테고리(하나라도 맞으면).
+ * 상품 정렬과 거르기 창 (SC-83, 디자인 A83). 정렬 6가지(지금 PC 그대로), 종류, 가격, 사이즈·분류(하나라도 맞으면). 이름은 상품 등록 화면과 같게.
  * 판매 상태·노출 상태는 목록 위 칩으로 옮겨 여기 두지 않는다. "결과 보기"를 눌러야 목록에 반영된다.
  */
 import { useEffect, useState } from "react";
@@ -70,7 +70,7 @@ export function productFilterSummary(f: ProductFilter): string | null {
         .map((s) => CAKE_SIZE_DISPLAY_NAME_OPTIONS.find((o) => o.value === s)?.label ?? s)
         .join("·"),
     );
-  if (f.categories.length) parts.push(`카테고리 ${f.categories.length}개`);
+  if (f.categories.length) parts.push(`분류 ${f.categories.length}개`);
   return parts.length ? parts.join(" · ") : null;
 }
 
@@ -131,8 +131,8 @@ export function ProductFilterSheet({
           </Chip>
         ))}
       </div>
-      <Title>상품 타입</Title>
-      <div role="group" aria-label="상품 타입" className="-mt-2 flex flex-wrap gap-2">
+      <Title>종류</Title>
+      <div role="group" aria-label="종류" className="-mt-2 flex flex-wrap gap-2">
         <Chip selected={!d.productType} onClick={() => setD({ ...d, productType: undefined })}>
           전체
         </Chip>
@@ -176,11 +176,11 @@ export function ProductFilterSheet({
           </Chip>
         ))}
       </div>
-      <Title hint="하나라도 맞으면">카테고리</Title>
+      <Title hint="하나라도 맞으면">분류</Title>
       {PRODUCT_CATEGORY_GROUPS.map((g) => (
         <div key={g.label} className="-mt-2 flex flex-col gap-2">
           <p className="text-caption text-ink-600">{g.label}</p>
-          <div role="group" aria-label={`카테고리 ${g.label}`} className="flex flex-wrap gap-2">
+          <div role="group" aria-label={`분류 ${g.label}`} className="flex flex-wrap gap-2">
             {g.options.map((o) => (
               <Chip
                 key={o.value}

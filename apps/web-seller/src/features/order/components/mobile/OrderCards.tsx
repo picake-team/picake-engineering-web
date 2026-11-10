@@ -118,7 +118,7 @@ export function PastOrderRow({ order }: { order: OrderResponseDto }) {
   );
 }
 
-/** 홈 고른 날 픽업 줄: 시각 52 · 상품 · 예약자 · 배지 */
+/** 홈 고른 날 픽업 줄: 시각 52 · 상품(두 줄까지) · 예약자 · 배지 */
 export function PickupRow({ order, last }: { order: OrderResponseDto; last?: boolean }) {
   return (
     <Link
@@ -132,7 +132,9 @@ export function PickupRow({ order, last }: { order: OrderResponseDto; last?: boo
         {kstTime(order.pickupDate)}
       </span>
       <span className="flex min-w-0 flex-1 flex-col gap-1">
-        <span className="text-body font-semibold text-ink-900">{orderItemsShort(order)}</span>
+        <span className="line-clamp-2 text-body font-semibold text-ink-900">
+          {orderItemsShort(order)}
+        </span>
         <span className="text-sub text-ink-600">
           {order.reservationContactName?.trim() || "예약자 미입력"}
         </span>
@@ -150,7 +152,9 @@ export function OrderSummaryBox({ order }: { order: OrderResponseDto }) {
     <div className="flex items-center gap-3 rounded-control border border-ink-100 px-4 py-3">
       <Thumb size={44} src={orderThumbSrc(order)} />
       <span className="flex min-w-0 flex-col gap-1">
-        <span className="text-body font-semibold text-ink-900">{orderItemsLine(order)}</span>
+        <span className="line-clamp-2 text-body font-semibold text-ink-900">
+          {orderItemsLine(order)}
+        </span>
         <span className="text-caption text-ink-600">
           {formatKstMonthDayWeekTime(order.pickupDate)} 픽업 ·{" "}
           {getOrderStatusLabel(order.orderStatus)}

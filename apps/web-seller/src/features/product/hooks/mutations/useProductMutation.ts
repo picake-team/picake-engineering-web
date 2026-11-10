@@ -21,7 +21,7 @@ export function useCreateProduct() {
     onSuccess: (_response, variables) => {
       addAlert({
         severity: "success",
-        message: "상품이 등록되었습니다.",
+        message: "상품을 등록했어요.",
       });
       // 상품 쿼리 무효화
       queryClient.invalidateQueries({ queryKey: productQueryKeys.all });
@@ -54,7 +54,7 @@ export function useUpdateProduct() {
     onSuccess: (_response, variables) => {
       addAlert({
         severity: "success",
-        message: "상품이 수정되었습니다.",
+        message: "상품을 고쳤어요.",
       });
       // 상품 쿼리 무효화
       queryClient.invalidateQueries({ queryKey: productQueryKeys.all });
@@ -81,7 +81,7 @@ export function useDeleteProduct() {
     onSuccess: (_response, variables) => {
       addAlert({
         severity: "success",
-        message: "상품이 삭제되었습니다.",
+        message: "상품을 삭제했어요.",
       });
       // 상품 쿼리 무효화. 지운 상품의 상세는 다시 부르지 않는다(열려 있던 상세 화면이 다시 불러
       // "상품을 찾을 수 없습니다" 오류 안내가 함께 뜨던 것)
