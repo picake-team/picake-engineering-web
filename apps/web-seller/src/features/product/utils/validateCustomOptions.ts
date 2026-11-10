@@ -21,14 +21,14 @@ function getOptionError(option: CustomOptionDto, sameNameCount: number): string 
   if ((RESERVED_CUSTOM_OPTION_NAMES as readonly string[]).includes(name)) {
     return `'${name}'은(는) 위 케이크 옵션에서 설정해주세요.`;
   }
-  if (sameNameCount > 1) return "같은 이름의 옵션이 있습니다.";
+  if (sameNameCount > 1) return "같은 이름의 옵션이 있어요.";
 
   if (isSelectType(option.type)) {
     const choices = option.choices ?? [];
     if (choices.length === 0) return "옵션값을 1개 이상 추가해주세요.";
-    if (choices.some((choice) => !choice.label.trim())) return "비어 있는 옵션값이 있습니다.";
+    if (choices.some((choice) => !choice.label.trim())) return "비어 있는 옵션값이 있어요.";
     const labels = choices.map((choice) => choice.label.trim());
-    if (new Set(labels).size !== labels.length) return "같은 이름의 옵션값이 있습니다.";
+    if (new Set(labels).size !== labels.length) return "같은 이름의 옵션값이 있어요.";
     if (
       choices.some(
         (choice) =>
@@ -46,7 +46,7 @@ function getOptionError(option: CustomOptionDto, sameNameCount: number): string 
     if (option.type === CustomOptionType.MULTI_SELECT && option.maxSelect !== undefined) {
       if (option.maxSelect < 1) return "최대 선택 개수는 1개 이상이어야 합니다.";
       if (option.maxSelect > choices.length) {
-        return "최대 선택 개수가 옵션값 개수보다 많습니다.";
+        return "최대 선택 개수가 옵션값 개수보다 많아요.";
       }
     }
   }
@@ -87,14 +87,14 @@ export function getCustomOptionErrors(options: CustomOptionDto[]): (string | und
 /** 추가 옵션 전체에 대한 오류 문구 (폼 errors.customOptions에 넣는 값) */
 export function getCustomOptionsError(options: CustomOptionDto[]): string | undefined {
   if (options.length > CUSTOM_OPTION_LIMITS.MAX_OPTIONS) {
-    return `추가 옵션은 최대 ${CUSTOM_OPTION_LIMITS.MAX_OPTIONS}개까지 등록할 수 있습니다.`;
+    return `추가 옵션은 최대 ${CUSTOM_OPTION_LIMITS.MAX_OPTIONS}개까지 등록할 수 있어요.`;
   }
   const imageCount = options.filter((option) => option.type === CustomOptionType.IMAGE).length;
   if (imageCount > CUSTOM_OPTION_LIMITS.MAX_IMAGE_OPTIONS) {
     return `사진 받기 옵션은 ${CUSTOM_OPTION_LIMITS.MAX_IMAGE_OPTIONS}개만 만들 수 있어요.`;
   }
   if (getCustomOptionErrors(options).some(Boolean)) {
-    return "추가 옵션에 확인이 필요한 항목이 있습니다.";
+    return "추가 옵션에 확인할 것이 있어요.";
   }
   return undefined;
 }

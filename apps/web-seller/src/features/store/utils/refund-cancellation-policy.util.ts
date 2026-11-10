@@ -85,7 +85,7 @@ export function validateRefundCancellationPolicy(
     return "환불·취소 규칙을 최소 1개 이상 입력해 주세요.";
   }
   if (policy.rules.length > 30) {
-    return "환불·취소 규칙은 최대 30개까지 입력할 수 있습니다.";
+    return "환불·취소 규칙은 30개까지 적을 수 있어요.";
   }
   for (let i = 0; i < policy.rules.length; i++) {
     const r = policy.rules[i];

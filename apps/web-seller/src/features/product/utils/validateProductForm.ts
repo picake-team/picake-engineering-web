@@ -61,7 +61,7 @@ export const validateProductForm = (
     form.originalPrice !== undefined &&
     form.salePrice > form.originalPrice
   ) {
-    newErrors.salePrice = "판매가는 정가보다 클 수 없습니다.";
+    newErrors.salePrice = "판매가는 정가보다 클 수 없어요.";
   }
 
   if (!form.productType) {
