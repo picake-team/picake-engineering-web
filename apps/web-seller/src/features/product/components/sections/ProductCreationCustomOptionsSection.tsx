@@ -439,7 +439,8 @@ function CustomOptionEditor({
       {isSelectType(option.type) && (
         <div className="space-y-3">
           {inFrame ? (
-            // 휴대폰 폭: 표 대신 옵션값마다 [이름 | 추가금 | ×] + 노출 여부 두 줄(디자인 6-G)
+            // 휴대폰 폭: 표 대신 옵션값마다 세 줄 — [이름 | ×] / [추가금 □ 원] / [손님에게 보이기]
+            // (상품 사이즈 줄처럼 숫자 칸 이름은 칸 안. 이름·추가금을 한 줄에 두면 "1,000,000원"이 칸에 안 들어간다)
             <div className="flex flex-col gap-2">
               {choices.map((choice, index) => (
                 <div
@@ -447,7 +448,7 @@ function CustomOptionEditor({
                   className="flex flex-col gap-2 rounded-control border border-ink-100 p-3"
                 >
                   <div className="flex items-end gap-2">
-                    <label className="flex min-w-0 flex-[2] flex-col gap-1">
+                    <label className="flex min-w-0 flex-1 flex-col gap-1">
                       <span className="text-caption text-ink-600">옵션값 {index + 1}</span>
                       <Input
                         value={choice.label}
@@ -457,19 +458,6 @@ function CustomOptionEditor({
                         onChange={(e) => updateChoice(index, { label: e.target.value })}
                       />
                     </label>
-                    <div className="flex min-w-0 flex-1 flex-col gap-1">
-                      <span className="text-caption text-ink-600">추가금</span>
-                      <AffixNumberInput
-                        suffix="원"
-                        aria-label={`옵션값 ${index + 1} 추가금(원)`}
-                        value={choice.price}
-                        min={0}
-                        max={CUSTOM_OPTION_LIMITS.MAX_CHOICE_PRICE}
-                        placeholder="0"
-                        disabled={disabled}
-                        onChange={(value) => updateChoice(index, { price: value ?? 0 })}
-                      />
-                    </div>
                     <button
                       type="button"
                       aria-label={`옵션값 ${index + 1} 삭제`}
@@ -480,6 +468,17 @@ function CustomOptionEditor({
                       <Icon name="close" size={16} strokeWidth={2} />
                     </button>
                   </div>
+                  <AffixNumberInput
+                    prefix="추가금"
+                    suffix="원"
+                    aria-label={`옵션값 ${index + 1} 추가금(원)`}
+                    value={choice.price}
+                    min={0}
+                    max={CUSTOM_OPTION_LIMITS.MAX_CHOICE_PRICE}
+                    placeholder="0"
+                    disabled={disabled}
+                    onChange={(value) => updateChoice(index, { price: value ?? 0 })}
+                  />
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-sub text-ink-700">손님에게 보이기</span>
                     <Switch

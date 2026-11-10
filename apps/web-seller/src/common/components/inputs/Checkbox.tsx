@@ -29,7 +29,8 @@ export function Checkbox({
       className={cn(
         "flex items-center gap-2",
         inFrame && "min-h-11 gap-3 font-app",
-        disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer",
+        // 휴대폰 틀 안: 못 누를 때 흐리게(흐린 주황=분홍) 하지 않고 회색으로(못 누르는 주 버튼과 같게)
+        disabled ? cn("cursor-not-allowed", !inFrame && "opacity-50") : "cursor-pointer",
         className,
       )}
     >
@@ -51,6 +52,7 @@ export function Checkbox({
             : "border-input bg-background",
           inFrame && "size-[22px] rounded-check border-[1.5px]",
           inFrame && !checked && "border-ink-200 bg-white",
+          inFrame && disabled && (checked ? "border-ink-100 bg-ink-100 text-ink-400" : "bg-ink-50"),
         )}
       >
         {checked ? (
@@ -62,6 +64,7 @@ export function Checkbox({
           className={cn(
             "text-sm leading-5 text-foreground",
             inFrame && "text-body leading-normal text-ink-900",
+            inFrame && disabled && "text-ink-400",
           )}
         >
           {label}
