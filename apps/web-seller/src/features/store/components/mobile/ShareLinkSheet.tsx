@@ -22,7 +22,7 @@ import {
 /** 휴대폰 공유 창(앱 → 휴대폰 브라우저), 둘 다 안 되면 복사 */
 export async function shareLink(title: string, url: string) {
   if (await shareViaDevice(title, url)) return;
-  await copyWithToast(url, "주소를 복사했어요. 카톡·인스타에 붙여 넣어 보내 주세요");
+  await copyWithToast(url, "링크를 복사했어요. 카톡·인스타에 붙여 넣어 보내 주세요");
 }
 
 function productState(p: ProductResponseDto): string | null {
@@ -58,9 +58,9 @@ export function ShareLinkSheet({
         <ButtonPair>
           <Button
             variant="secondary"
-            onClick={() => void copyWithToast(storeUrl, "스토어 주소를 복사했어요")}
+            onClick={() => void copyWithToast(storeUrl, "스토어 링크를 복사했어요")}
           >
-            주소 복사
+            링크 복사
           </Button>
           <Button onClick={() => void shareLink(`${storeName} | 픽케이크`, storeUrl)}>
             공유하기

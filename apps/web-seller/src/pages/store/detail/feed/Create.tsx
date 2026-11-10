@@ -43,14 +43,14 @@ export const StoreDetailFeedCreatePage: React.FC = () => {
     // 유효성 검사
     let isValid = true;
     if (!title.trim()) {
-      setTitleError("제목을 입력해주세요.");
+      setTitleError("제목을 적어 주세요.");
       isValid = false;
     } else {
       setTitleError("");
     }
 
     if (!content.trim()) {
-      setContentError("내용을 입력해주세요.");
+      setContentError("내용을 적어 주세요.");
       isValid = false;
     } else {
       setContentError("");
@@ -100,7 +100,7 @@ export const StoreDetailFeedCreatePage: React.FC = () => {
                   setTitle(e.target.value);
                   if (titleError) setTitleError("");
                 }}
-                placeholder="피드 제목을 입력해주세요"
+                placeholder="피드 제목을 적어 주세요"
                 className={titleError ? "border-destructive" : ""}
               />
               {titleError && <p className="text-sm text-destructive">{titleError}</p>}
@@ -108,7 +108,7 @@ export const StoreDetailFeedCreatePage: React.FC = () => {
 
             {/* 이미지 */}
             <div className="space-y-2">
-              <Label>이미지</Label>
+              <Label>사진</Label>
               <ImageMultiUpload
                 value={imageUrls}
                 onChange={setImageUrls}
@@ -130,7 +130,7 @@ export const StoreDetailFeedCreatePage: React.FC = () => {
                   setContent(e.target.value);
                   if (contentError) setContentError("");
                 }}
-                placeholder="피드 내용을 입력해주세요."
+                placeholder="손님에게 알릴 소식을 적어 주세요"
                 rows={8}
                 className={contentError ? "border-destructive" : ""}
               />

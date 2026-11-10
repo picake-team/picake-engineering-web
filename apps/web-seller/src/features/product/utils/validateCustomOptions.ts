@@ -1,3 +1,4 @@
+import { eunNeun } from "@/apps/web-seller/common/utils/josa.util";
 import {
   CustomOptionType,
   EnableStatus,
@@ -17,15 +18,15 @@ const isSelectType = (type: CustomOptionType) =>
  */
 function getOptionError(option: CustomOptionDto, sameNameCount: number): string | undefined {
   const name = option.name.trim();
-  if (!name) return "옵션명을 입력해주세요.";
+  if (!name) return "옵션명을 입력해 주세요.";
   if ((RESERVED_CUSTOM_OPTION_NAMES as readonly string[]).includes(name)) {
-    return `'${name}'은(는) 위 케이크 옵션에서 설정해주세요.`;
+    return `'${name}'${eunNeun(name)} 위 케이크 옵션에서 설정해 주세요.`;
   }
   if (sameNameCount > 1) return "같은 이름의 옵션이 있어요.";
 
   if (isSelectType(option.type)) {
     const choices = option.choices ?? [];
-    if (choices.length === 0) return "옵션값을 1개 이상 추가해주세요.";
+    if (choices.length === 0) return "옵션값을 1개 이상 추가해 주세요.";
     if (choices.some((choice) => !choice.label.trim())) return "비어 있는 옵션값이 있어요.";
     const labels = choices.map((choice) => choice.label.trim());
     if (new Set(labels).size !== labels.length) return "같은 이름의 옵션값이 있어요.";
@@ -37,14 +38,14 @@ function getOptionError(option: CustomOptionDto, sameNameCount: number): string 
           choice.price > CUSTOM_OPTION_LIMITS.MAX_CHOICE_PRICE,
       )
     ) {
-      return `옵션가는 0원 ~ ${CUSTOM_OPTION_LIMITS.MAX_CHOICE_PRICE.toLocaleString()}원 사이로 입력해주세요.`;
+      return `옵션가는 0원 ~ ${CUSTOM_OPTION_LIMITS.MAX_CHOICE_PRICE.toLocaleString()}원 사이로 입력해 주세요.`;
     }
     const hasVisibleChoice = choices.some((choice) => choice.visible === EnableStatus.ENABLE);
     if (option.required && option.visible === EnableStatus.ENABLE && !hasVisibleChoice) {
       return "필수 옵션인데 노출된 옵션값이 없어요. 이대로면 아무도 주문할 수 없어요.";
     }
     if (option.type === CustomOptionType.MULTI_SELECT && option.maxSelect !== undefined) {
-      if (option.maxSelect < 1) return "최대 선택 개수는 1개 이상이어야 합니다.";
+      if (option.maxSelect < 1) return "최대 선택 개수는 1개 이상이어야 해요.";
       if (option.maxSelect > choices.length) {
         return "최대 선택 개수가 옵션값 개수보다 많아요.";
       }
@@ -57,7 +58,7 @@ function getOptionError(option: CustomOptionDto, sameNameCount: number): string 
       option.maxLength < 1 ||
       option.maxLength > CUSTOM_OPTION_LIMITS.MAX_TEXT_LENGTH
     ) {
-      return `최대 글자 수는 1 ~ ${CUSTOM_OPTION_LIMITS.MAX_TEXT_LENGTH}자 사이로 입력해주세요.`;
+      return `최대 글자 수는 1 ~ ${CUSTOM_OPTION_LIMITS.MAX_TEXT_LENGTH}자 사이로 입력해 주세요.`;
     }
   }
 
@@ -67,7 +68,7 @@ function getOptionError(option: CustomOptionDto, sameNameCount: number): string 
       option.maxCount < 1 ||
       option.maxCount > CUSTOM_OPTION_LIMITS.MAX_IMAGE_COUNT
     ) {
-      return `최대 사진 수는 1 ~ ${CUSTOM_OPTION_LIMITS.MAX_IMAGE_COUNT}장 사이로 선택해주세요.`;
+      return `최대 사진 수는 1 ~ ${CUSTOM_OPTION_LIMITS.MAX_IMAGE_COUNT}장 사이로 골라 주세요.`;
     }
   }
 

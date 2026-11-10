@@ -27,6 +27,8 @@ export const StoreDetailProductDetailPage: React.FC = () => {
   const { confirm: confirmDelete, sheet: confirmDeleteSheet } = useFrameConfirm({
     pcMessage: "이 상품을 삭제할까요?",
     title: "이 상품을 삭제할까요?",
+    description:
+      "지우면 되돌릴 수 없어요. 주문이 있는 상품은 지울 수 없으니 판매중지로 바꾸거나 숨겨 주세요.",
     confirmLabel: "삭제하기",
   });
 

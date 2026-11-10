@@ -59,15 +59,16 @@ function Bars({
   const max = Math.max(1, ...rows.map((r) => r.value));
   return (
     <div className="flex flex-col gap-3">
-      {rows.map((r) => (
+      {rows.map((r, i) => (
         <div key={r.key} className="flex flex-col gap-2">
           <span className="flex justify-between gap-3 text-body text-ink-900">
             <span className="min-w-0 truncate">{r.label}</span>
             <b className="shrink-0 tabular-nums">{format(r.value)}</b>
           </span>
           <span className="block h-2 overflow-hidden rounded-check bg-ink-50" aria-hidden="true">
+            {/* 주황은 1등만, 나머지는 회색(주황은 뜻이 있는 곳에만) */}
             <span
-              className="block h-full bg-brand"
+              className={cx("block h-full", i === 0 ? "bg-brand" : "bg-ink-200")}
               style={{ width: `${(r.value / max) * 100}%` }}
             />
           </span>
@@ -87,18 +88,34 @@ function ColumnChart({
   labels: string[];
 }) {
   const max = Math.max(1, ...values);
+  const weekday = labels.length === 7;
+  const names = weekday ? labels.map((l) => `${l}요일`) : values.map((_, i) => `${i}시`);
+  const top = values.some((v) => v > 0) ? values.indexOf(Math.max(...values)) : -1;
   return (
     <figure className="flex flex-col gap-2">
-      <figcaption className="text-sub font-bold text-ink-700">{title}</figcaption>
+      <figcaption className="flex items-baseline justify-between gap-2">
+        <span className="text-sub font-bold text-ink-700">{title}</span>
+        {/* 가장 많은 때를 글로도(막대만 보고 고르지 않아도 되게) */}
+        {top >= 0 ? (
+          <span className="shrink-0 text-caption text-ink-600">
+            {names[top]}
+            {weekday ? "이" : "가"} 가장 많아요
+          </span>
+        ) : null}
+      </figcaption>
       <div
         className="flex h-24 items-end gap-0.5"
         role="img"
-        aria-label={`${title}: ${labels.map((l, i) => `${l} ${values[i]}`).join(", ")}`}
+        aria-label={`${title}: ${names.map((l, i) => `${l} ${values[i]}`).join(", ")}`}
       >
         {values.map((v, i) => (
           <span key={i} className="flex h-full min-w-0 flex-1 items-end">
+            {/* 가장 많은 막대만 주황, 나머지는 회색 */}
             <span
-              className={cx("block w-full rounded-t-[3px]", v > 0 ? "bg-brand" : "bg-ink-100")}
+              className={cx(
+                "block w-full rounded-t-[3px]",
+                i === top ? "bg-brand" : v > 0 ? "bg-ink-200" : "bg-ink-100",
+              )}
               style={{ height: `${Math.max(4, (v / max) * 100)}%` }}
             />
           </span>
@@ -183,7 +200,7 @@ export const StoreDetailStatisticsMobilePage: React.FC = () => {
       {/* 고른 기간은 늘 고르는 칸에 보이고, 누르면 달력 창(고르면 "직접 고르기"로) */}
       <PickerButton aria-label="기간 고르기" value={rangeText} onClick={() => setSheetOpen(true)} />
       <p className="text-caption leading-normal text-ink-600">
-        픽업 완료한 주문만 세요(주문 접수일 기준)
+        픽업 완료한 주문만, 주문받은 날 기준으로 세어요
       </p>
       <DateRangeSheet
         open={sheetOpen}
@@ -206,7 +223,7 @@ export const StoreDetailStatisticsMobilePage: React.FC = () => {
             {[
               { label: "매출", value: data ? formatWon(data.totalSales) : "–" },
               {
-                label: "주문건수",
+                label: "주문 수",
                 value: data ? `${data.totalOrders.toLocaleString("ko-KR")}건` : "–",
               },
             ].map((s) => (
@@ -222,7 +239,7 @@ export const StoreDetailStatisticsMobilePage: React.FC = () => {
           {empty ? (
             <EmptyState
               big
-              title="이 기간에 집계된 주문이 없어요"
+              title="이 기간에 픽업 완료한 주문이 없어요"
               description="다른 기간을 골라 보세요"
             />
           ) : data ? (
@@ -234,7 +251,7 @@ export const StoreDetailStatisticsMobilePage: React.FC = () => {
                 onChange={setRankBy}
                 options={[
                   { value: "revenue", label: "매출 순" },
-                  { value: "orders", label: "주문건수 순" },
+                  { value: "orders", label: "주문 수 순" },
                 ]}
               />
               <Bars
@@ -269,20 +286,20 @@ export const StoreDetailStatisticsMobilePage: React.FC = () => {
               {chartsOpen ? (
                 <div className="flex flex-col gap-6">
                   <ColumnChart
-                    title="요일별 주문(접수 기준)"
+                    title="요일별 주문 (주문받은 날)"
                     {...weekdayValues(data.weekdayOrders)}
                   />
                   <ColumnChart
-                    title="시간대별 주문(접수 기준)"
+                    title="시간대별 주문 (주문받은 시각)"
                     values={hourlyValues(data.hourlyOrders)}
                     labels={[]}
                   />
                   <ColumnChart
-                    title="요일별 픽업(픽업 예정 기준)"
+                    title="요일별 픽업 (픽업 날)"
                     {...weekdayValues(data.weekdayPickupOrders)}
                   />
                   <ColumnChart
-                    title="시간대별 픽업(픽업 예정 기준)"
+                    title="시간대별 픽업 (픽업 시각)"
                     values={hourlyValues(data.hourlyPickupOrders)}
                     labels={[]}
                   />

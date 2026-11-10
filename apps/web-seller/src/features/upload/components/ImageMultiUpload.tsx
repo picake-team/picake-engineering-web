@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import getApiMessage from "@/apps/web-seller/common/utils/getApiMessage";
 import { BaseButton as Button } from "@/apps/web-seller/common/components/buttons/BaseButton";
 import { CloudUpload, Trash2 } from "lucide-react";
 import { cn } from "@/apps/web-seller/common/utils/classname.util";
@@ -41,7 +42,8 @@ export const ImageMultiUpload: React.FC<ImageMultiUploadProps> = ({
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const uploadMutation = useUploadFile();
+  // 실패는 사진 칸 아래 한 줄로만 알린다(위 안내와 두 번 겹치지 않게)
+  const uploadMutation = useUploadFile({ silent: true });
   const inFrame = useInMobileFrame();
 
   const isSingleMode = maxImages === 1;
@@ -113,8 +115,12 @@ export const ImageMultiUpload: React.FC<ImageMultiUploadProps> = ({
       onChange?.(newUrls);
       return response.fileUrl;
     } catch (error) {
+      // 서버가 알려 준 한국어 이유(파일 형식 등)는 그대로, 그 밖에는 안내 문구(영어 원문을 보이지 않음)
+      const serverMessage = getApiMessage.error(error);
       const errorMessage =
-        error instanceof Error ? error.message : "사진을 올리지 못했어요. 다시 시도해 주세요.";
+        /[가-힣]/.test(serverMessage) && !serverMessage.startsWith("일시적인 오류")
+          ? serverMessage
+          : "사진을 올리지 못했어요. 다시 시도해 주세요.";
       setError(errorMessage, index);
       return null;
     } finally {

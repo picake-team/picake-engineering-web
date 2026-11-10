@@ -21,7 +21,7 @@ import { sellerPushApi } from "@/apps/web-seller/features/notification/apis/noti
 import { markWelcomeSeen } from "@/apps/web-seller/features/notification/utils/welcome.util";
 
 const REASONS = [
-  "새 예약신청이 들어왔을 때",
+  "새 예약 신청이 왔을 때",
   "손님이 입금 완료를 눌렀을 때",
   "취소·환불 요청이 왔을 때",
   "매일 아침 8시, 오늘 픽업 요약",

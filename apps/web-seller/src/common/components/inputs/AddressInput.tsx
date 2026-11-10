@@ -58,7 +58,7 @@ export const AddressInput: React.FC<AddressInputProps> = ({
       </Label>
       <div className="flex gap-2">
         <Input
-          placeholder="주소 검색 버튼을 클릭하여 주소를 선택하세요"
+          placeholder="주소 검색을 눌러 골라 주세요"
           value={displayAddress}
           readOnly
           className={error ? "border-destructive" : ""}

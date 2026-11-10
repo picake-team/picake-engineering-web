@@ -7,6 +7,7 @@ import {
   useInMobileFrame,
 } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
 import { FrameSubmitBar } from "@/apps/web-seller/common/components/layouts/FrameSubmitBar";
+import { Button as AppButton } from "@/apps/web-seller/common/ui/Button";
 import { Switch } from "@/apps/web-seller/common/ui/Toggle";
 import { cn } from "@/apps/web-seller/common/utils/classname.util";
 
@@ -45,7 +46,7 @@ import {
 import { AiDescriptionDialog } from "@/apps/web-seller/features/product/components/naver/AiDescriptionDialog";
 
 interface Props {
-  onSubmit: (data: ProductForm) => void;
+  onSubmit: (data: ProductForm) => void | Promise<unknown>;
   initialValue?: ProductForm;
   onChange?: (data: ProductForm) => void;
   disabled?: boolean;
@@ -72,9 +73,10 @@ export const defaultForm: ProductForm = {
     {
       visible: EnableStatus.ENABLE,
       displayName: CakeSizeDisplayName.DOSIRAK,
+      // 지름·설명은 비워 두고 사장님이 넣게 한다(손님 화면에 "도시락 0cm"로 보이지 않게)
       lengthCm: 0,
       price: 0,
-      description: "1~2인용",
+      description: "",
     },
   ],
   // 상품 유형은 판매자가 반드시 고르도록 비워 둔다
@@ -223,8 +225,11 @@ export const ProductCreationForm: React.FC<Props> = ({
     setTimeout(() => scrollTo(first.id), 0);
   };
 
+  // 서버 답을 기다리는 동안 다시 누르면 상품이 두 번 만들어지지 않게
+  const [saving, setSaving] = useState(false);
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (saving) return;
     setSubmitted(true);
     const next = validateProductForm(form);
     setErrors(next);
@@ -235,7 +240,8 @@ export const ProductCreationForm: React.FC<Props> = ({
       setNoticeOpen(true);
       return setTimeout(() => scrollTo("section-notice"), 0);
     }
-    onSubmit(form);
+    setSaving(true);
+    Promise.resolve(onSubmit(form)).finally(() => setSaving(false));
   };
 
   const blockingCount = errorKeys.length + (submitted && checkMarkLeft ? 1 : 0);
@@ -647,17 +653,18 @@ export const ProductCreationForm: React.FC<Props> = ({
       </div>
 
       {/* 저장 버튼은 항상 화면 아래에 */}
-      {!disabled && inFrame && isEdit && onDelete ? (
-        // 휴대폰: 삭제는 아래 버튼 줄이 아니라 폼 맨 아래 흰 테두리 작은 버튼으로(약한 행동, 실수로 누르지 않게)
-        <div className="mt-8 flex justify-center">
-          <Button type="button" variant="outline" onClick={onDelete} disabled={isDeleting}>
-            상품 삭제
-          </Button>
-        </div>
-      ) : null}
       {!disabled && inFrame ? (
         // 휴대폰(디자인 6-E): 고칠 곳이 있으면 "고칠 곳 n개"(누르면 첫 고칠 곳으로) | 등록하기
-        <FrameSubmitBar>
+        <FrameSubmitBar
+          below={
+            // 삭제는 약한 행동: 저장하기 바로 아래 회색 글자(누르면 한 번 더 묻는다)
+            isEdit && onDelete ? (
+              <AppButton variant="quiet" onClick={onDelete} disabled={isDeleting || saving}>
+                상품 삭제
+              </AppButton>
+            ) : undefined
+          }
+        >
           {blockingCount > 0 && (
             <Button
               type="button"
@@ -672,10 +679,10 @@ export const ProductCreationForm: React.FC<Props> = ({
           )}
           <Button
             type="submit"
-            disabled={isDeleting}
+            disabled={isDeleting || saving}
             className={cn(FRAME_SUBMIT_BUTTON_CLASS, blockingCount > 0 && "flex-[2]")}
           >
-            {isEdit ? "저장하기" : "등록하기"}
+            {saving ? (isEdit ? "저장하는 중…" : "등록하는 중…") : isEdit ? "저장하기" : "등록하기"}
           </Button>
         </FrameSubmitBar>
       ) : null}

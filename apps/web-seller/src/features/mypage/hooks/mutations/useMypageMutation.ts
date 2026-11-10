@@ -18,7 +18,7 @@ export function useUpdateMypageProfile() {
     onSuccess: (response) => {
       queryClient.setQueryData(mypageQueryKeys.profile(), response);
       addAlert({
-        message: "프로필을 저장했어요.",
+        message: "프로필을 저장했어요",
         title: "성공",
         severity: "success",
       });

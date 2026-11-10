@@ -1,4 +1,6 @@
 import { useNavigate } from "react-router-dom";
+import { useLeaveAfterSave } from "@/apps/web-seller/common/hooks/useLeaveAfterSave";
+import { useInMobileFrame } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { storeApi } from "@/apps/web-seller/features/store/apis/store.api";
 import { useAlertStore } from "@/apps/web-seller/common/store/alert.store";
@@ -15,6 +17,7 @@ import { storeQueryKeys } from "@/apps/web-seller/features/store/constants/store
 export function useCreateStore() {
   const { addAlert } = useAlertStore();
   const navigate = useNavigate();
+  const inFrame = useInMobileFrame();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -22,11 +25,16 @@ export function useCreateStore() {
     onSuccess: (response) => {
       addAlert({
         severity: "success",
-        message: "스토어를 만들었어요.",
+        message: "스토어를 만들었어요",
       });
       // 스토어 쿼리 무효화
       queryClient.invalidateQueries({ queryKey: storeQueryKeys.all });
-      navigate(ROUTES.STORE_DETAIL_CALENDAR(response.id));
+      // 휴대폰: 첫 상품 등록·알림 안내가 있는 홈으로. PC: 영업 캘린더부터 정한다
+      navigate(
+        inFrame ? ROUTES.STORE_DETAIL_HOME(response.id) : ROUTES.STORE_DETAIL_CALENDAR(response.id),
+        // 휴대폰: 뒤로를 눌러 스토어 만들기 화면으로 돌아오지 않게
+        { replace: inFrame },
+      );
     },
     onError: (error) => {
       addAlert({
@@ -40,7 +48,8 @@ export function useCreateStore() {
 // 스토어 수정 뮤테이션
 export function useUpdateStore() {
   const { addAlert } = useAlertStore();
-  const navigate = useNavigate();
+  const leave = useLeaveAfterSave();
+  const inFrame = useInMobileFrame();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -49,10 +58,15 @@ export function useUpdateStore() {
     onSuccess: (_response, variables) => {
       addAlert({
         severity: "success",
-        message: "스토어 정보를 저장했어요.",
+        message: "스토어 정보를 저장했어요",
       });
       queryClient.invalidateQueries({ queryKey: storeQueryKeys.all });
-      navigate(ROUTES.STORE_DETAIL_HOME(variables.storeId));
+      // 휴대폰: 들어온 곳(스토어 탭)으로 돌아간다. 상품·피드 저장과 같게 useLeaveAfterSave
+      leave(
+        inFrame
+          ? ROUTES.STORE_DETAIL_MENU(variables.storeId)
+          : ROUTES.STORE_DETAIL_HOME(variables.storeId),
+      );
     },
     onError: (error) => {
       addAlert({
@@ -74,7 +88,7 @@ export function useUpdateStoreBusinessCalendar() {
     onSuccess: (_data, variables) => {
       addAlert({
         severity: "success",
-        message: "영업 캘린더를 저장했어요.",
+        message: "영업시간을 저장했어요",
       });
       queryClient.invalidateQueries({ queryKey: storeQueryKeys.detail(variables.storeId) });
       queryClient.invalidateQueries({ queryKey: storeQueryKeys.all });
@@ -115,7 +129,7 @@ export function useConnectNaverPlace() {
     onSuccess: (_data, variables) => {
       addAlert({
         severity: "success",
-        message: "네이버 매장을 연결했어요.",
+        message: "네이버 매장을 연결했어요",
       });
       queryClient.invalidateQueries({ queryKey: storeQueryKeys.detail(variables.storeId) });
     },
@@ -138,7 +152,7 @@ export function useDisconnectNaverPlace() {
     onSuccess: (_data, storeId) => {
       addAlert({
         severity: "success",
-        message: "네이버 매장 연결을 끊었어요. 가져와 저장한 정보는 그대로예요.",
+        message: "네이버 매장 연결을 끊었어요. 가져와 저장한 정보는 그대로예요",
       });
       queryClient.invalidateQueries({ queryKey: storeQueryKeys.detail(storeId) });
     },

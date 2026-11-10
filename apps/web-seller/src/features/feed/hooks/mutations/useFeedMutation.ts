@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useLeaveAfterSave } from "@/apps/web-seller/common/hooks/useLeaveAfterSave";
 import { feedApi } from "@/apps/web-seller/features/feed/apis/feed.api";
 import { useAlertStore } from "@/apps/web-seller/common/store/alert.store";
 import getApiMessage from "@/apps/web-seller/common/utils/getApiMessage";
@@ -13,7 +13,7 @@ import { feedQueryKeys } from "@/apps/web-seller/features/feed/constants/feedQue
 // 피드 생성 뮤테이션
 export function useCreateFeed() {
   const { addAlert } = useAlertStore();
-  const navigate = useNavigate();
+  const leave = useLeaveAfterSave();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -22,11 +22,11 @@ export function useCreateFeed() {
     onSuccess: (_response, variables) => {
       addAlert({
         severity: "success",
-        message: "피드를 등록했어요.",
+        message: "피드를 등록했어요",
       });
       // 피드 쿼리 무효화
       queryClient.invalidateQueries({ queryKey: feedQueryKeys.all });
-      navigate(ROUTES.STORE_DETAIL_FEED_LIST(variables.storeId));
+      leave(ROUTES.STORE_DETAIL_FEED_LIST(variables.storeId));
     },
     onError: (error) => {
       addAlert({
@@ -40,7 +40,7 @@ export function useCreateFeed() {
 // 피드 수정 뮤테이션
 export function useUpdateFeed() {
   const { addAlert } = useAlertStore();
-  const navigate = useNavigate();
+  const leave = useLeaveAfterSave();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -56,11 +56,11 @@ export function useUpdateFeed() {
     onSuccess: (_response, variables) => {
       addAlert({
         severity: "success",
-        message: "피드를 고쳤어요.",
+        message: "피드를 저장했어요",
       });
       // 피드 쿼리 무효화
       queryClient.invalidateQueries({ queryKey: feedQueryKeys.all });
-      navigate(ROUTES.STORE_DETAIL_FEED_LIST(variables.storeId));
+      leave(ROUTES.STORE_DETAIL_FEED_LIST(variables.storeId));
     },
     onError: (error) => {
       addAlert({
@@ -74,7 +74,7 @@ export function useUpdateFeed() {
 // 피드 삭제 뮤테이션
 export function useDeleteFeed() {
   const { addAlert } = useAlertStore();
-  const navigate = useNavigate();
+  const leave = useLeaveAfterSave();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -83,7 +83,7 @@ export function useDeleteFeed() {
     onSuccess: (_response, variables) => {
       addAlert({
         severity: "success",
-        message: "피드를 삭제했어요.",
+        message: "피드를 삭제했어요",
       });
       // 피드 쿼리 무효화. 지운 피드의 상세는 다시 부르지 않는다(열려 있던 상세 화면이 다시 불러
       // 오류 안내가 함께 뜨지 않게)
@@ -91,7 +91,7 @@ export function useDeleteFeed() {
         queryKey: feedQueryKeys.all,
         predicate: (query) => query.queryKey[2] !== variables.feedId,
       });
-      navigate(ROUTES.STORE_DETAIL_FEED_LIST(variables.storeId));
+      leave(ROUTES.STORE_DETAIL_FEED_LIST(variables.storeId));
     },
     onError: (error) => {
       addAlert({

@@ -3,7 +3,7 @@
  */
 import { useEffect, useState } from "react";
 import { BottomSheet } from "@/apps/web-seller/common/ui/Sheet";
-import { Button, ButtonPair, CircleIconButton } from "@/apps/web-seller/common/ui/Button";
+import { Button, ButtonPair } from "@/apps/web-seller/common/ui/Button";
 import { Chip } from "@/apps/web-seller/common/ui/Choice";
 import { StatusPill } from "@/apps/web-seller/common/ui/Badge";
 import { StepBar } from "@/apps/web-seller/common/ui/Surface";
@@ -38,10 +38,10 @@ export function defaultSortFor(tab: OrderTab, searching: boolean): OrderSortBy {
 export const SORT_LABEL: Record<OrderSortBy, string> = {
   [OrderSortBy.PICKUP_ASC]: "픽업 가까운 순",
   [OrderSortBy.PICKUP_DESC]: "픽업 최근 순",
-  [OrderSortBy.LATEST]: "최신 주문순",
-  [OrderSortBy.OLDEST]: "오래된 주문순",
-  [OrderSortBy.PRICE_DESC]: "금액 높은순",
-  [OrderSortBy.PRICE_ASC]: "금액 낮은순",
+  [OrderSortBy.LATEST]: "최신 주문 순",
+  [OrderSortBy.OLDEST]: "오래된 주문 순",
+  [OrderSortBy.PRICE_DESC]: "금액 높은 순",
+  [OrderSortBy.PRICE_ASC]: "금액 낮은 순",
 };
 
 /**
@@ -163,7 +163,10 @@ export function OrderFindSheet({
           onChange={(e) => setDraft((d) => ({ ...d, query: e.target.value }))}
           className="h-12 min-w-0 flex-1 rounded-control border border-ink-200 bg-white px-4 text-body text-ink-900 outline-none placeholder:text-ink-500 focus:border-[1.5px] focus:border-ink-900 [&::-webkit-search-cancel-button]:hidden"
         />
-        <CircleIconButton icon="search" label="검색" type="submit" />
+        {/* 입력 칸 옆 버튼은 칸과 같은 48 흰 보조 버튼(디자인 기준) */}
+        <Button variant="secondary" type="submit" className="px-4">
+          찾기
+        </Button>
       </form>
       <DateRange
         title="픽업 날짜"

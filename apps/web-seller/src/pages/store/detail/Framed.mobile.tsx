@@ -3,6 +3,7 @@
  * 지금 PC 화면을 휴대폰 틀(뒤로 + 제목) 안에 담아 휴대폰에서도 모든 기능을 쓴다.
  */
 import React, { useEffect, useState } from "react";
+import { canGoBackInApp } from "@/apps/web-seller/common/hooks/useLeaveAfterSave";
 import { useNavigate, useParams } from "react-router-dom";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
 import { MobileFrame } from "@/apps/web-seller/common/components/layouts/MobileFrame";
@@ -66,12 +67,6 @@ export const StoreDetailEditMobilePage: React.FC = () => (
     <StoreDetailEditPage />
   </MobileFrame>
 );
-
-/** 이 앱 안에서 앞 화면이 있는지(앱을 켜자마자 연 화면이면 없다). react-router가 history.state.idx에 순번을 둔다 */
-function canGoBackInApp(): boolean {
-  const state = window.history.state as { idx?: number } | null;
-  return (state?.idx ?? 0) > 0;
-}
 
 /**
  * 스토어 만들기(SC-65·66, 디자인 8-E·8-F): 휴대폰 틀 안에서 진행 막대·단계 제목·가득 찬 버튼으로 그린다.

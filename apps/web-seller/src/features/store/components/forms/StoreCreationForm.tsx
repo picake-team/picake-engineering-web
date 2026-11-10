@@ -86,10 +86,10 @@ function validateStoreForm(form: StoreForm): Errors {
   set("phoneNumber", validateStorePhoneNumber(form.phoneNumber));
   // 주소는 주소 검색으로만 정한다(비어 있으면 서버가 영어 오류를 돌려줘서 여기서 먼저 막는다)
   if (!form.roadAddress?.trim() && !form.address?.trim()) {
-    errors.address = "주소 검색으로 가게 위치를 정해 주세요.";
+    errors.address = "주소 검색으로 스토어 주소를 정해 주세요.";
   }
   set("detailAddress", validateDetailAddress(form.detailAddress));
-  if (!form.bankName) errors.bankName = "은행을 선택해주세요.";
+  if (!form.bankName) errors.bankName = "은행을 골라 주세요.";
   set("bankAccountNumber", validateBankAccountNumber(form.bankAccountNumber));
   set("accountHolderName", validateAccountHolderName(form.accountHolderName));
   set("refundCancellationPolicy", validateRefundCancellationPolicy(form.refundCancellationPolicy));
@@ -234,7 +234,7 @@ export const StoreCreationForm: React.FC<Props> = ({
             }
           >
             <Textarea
-              placeholder="가게 소개, 주문 방법, 픽업 안내 등을 적어 주세요. 손님 화면에서는 길면 접어서 보여 줘요."
+              placeholder="스토어 소개, 주문 방법, 픽업 안내 등을 적어 주세요. 손님 화면에서는 길면 접어서 보여 줘요."
               rows={6}
               maxLength={STORE_DESCRIPTION_MAX_LENGTH}
               value={form.description || ""}
@@ -245,6 +245,8 @@ export const StoreCreationForm: React.FC<Props> = ({
           <Field label="연락처" required error={errors.phoneNumber}>
             <Input
               placeholder="010-1234-5678"
+              inputMode="tel"
+              autoComplete="tel"
               value={form.phoneNumber}
               onChange={handleChange("phoneNumber")}
               className={errors.phoneNumber ? "border-destructive" : ""}
@@ -344,7 +346,8 @@ export const StoreCreationForm: React.FC<Props> = ({
           </div>
           <Field label="계좌번호" required error={errors.bankAccountNumber}>
             <Input
-              placeholder="예: 110-302-1234567"
+              placeholder="예: 1103021234567"
+              inputMode="numeric"
               value={form.bankAccountNumber}
               onChange={handleChange("bankAccountNumber")}
               className={errors.bankAccountNumber ? "border-destructive" : ""}

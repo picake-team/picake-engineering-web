@@ -152,6 +152,7 @@ function GroupSection({
           now={now}
           quickAction={group.quickAction}
           onQuickAction={onQuickAction}
+          quickTone={group.tab === "doing" ? "secondary" : "primary"}
         />
       ))}
       <LoadMoreSentinel
@@ -259,7 +260,7 @@ function SearchResults({
       <SummaryBar
         clearLabel="검색 지우기"
         onClear={onClear}
-        text={`‘${find.query}’ 검색 결과 ${q.isLoading ? "…" : `${count.toLocaleString("ko-KR")}건`} · ${SORT_LABEL[sortBy]}`}
+        text={`'${find.query}' 검색 결과 ${q.isLoading ? "…" : `${count.toLocaleString("ko-KR")}건`} · ${SORT_LABEL[sortBy]}`}
       />
       {q.isLoading ? (
         <SkeletonCards />

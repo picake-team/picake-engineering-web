@@ -154,7 +154,7 @@ export const StoreDetailProductListPage: React.FC = () => {
               <SelectItem value={SortBy.POPULAR}>인기순</SelectItem>
               <SelectItem value={SortBy.PRICE_ASC}>가격 낮은순</SelectItem>
               <SelectItem value={SortBy.PRICE_DESC}>가격 높은순</SelectItem>
-              <SelectItem value={SortBy.REVIEW_COUNT}>후기 많은순</SelectItem>
+              <SelectItem value={SortBy.REVIEW_COUNT}>후기 많은 순</SelectItem>
               <SelectItem value={SortBy.RATING_AVG}>별점 높은순</SelectItem>
             </SelectContent>
           </Select>

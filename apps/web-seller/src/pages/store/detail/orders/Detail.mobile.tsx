@@ -81,20 +81,20 @@ function CopyButton({ text, label, done }: { text: string; label: string; done: 
   );
 }
 
-/** 입금 유효 시간(입금대기일 때만, 1초마다 줄어듦) */
+/** 입금 마감까지 남은 시간(입금대기일 때만, 1초마다 줄어듦). 주문 카드 "입금 마감까지"와 같은 말 */
 function PaymentDeadline({ order }: { order: OrderResponseDto }) {
   const now = useNow(1000);
   const left = paymentDeadlineMs(order) - now;
   return (
     <div className="flex items-center justify-between rounded-control border border-ink-100 px-4 py-3">
-      <span className="text-sub text-ink-600">입금 유효 시간</span>
+      <span className="text-sub text-ink-600">입금 마감까지</span>
       {left > 0 ? (
         <span className="text-group font-bold tabular-nums text-ink-900">
-          {formatRemainingClock(left)} 남음
+          {formatRemainingClock(left)}
         </span>
       ) : (
         <span className="max-w-[60%] text-right text-sub font-semibold text-brand-ink">
-          입금 시간이 지났어요. 곧 자동으로 취소완료될 수 있어요.
+          입금 마감이 지났어요. 곧 자동으로 취소될 수 있어요.
         </span>
       )}
     </div>

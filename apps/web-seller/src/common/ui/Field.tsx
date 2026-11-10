@@ -113,47 +113,10 @@ export const TextArea = React.forwardRef<
   );
 });
 
-/** 고르는 칸: 휴대폰 기본 고르기 창으로 연다 */
-export const SelectInput = React.forwardRef<
-  HTMLSelectElement,
-  React.SelectHTMLAttributes<HTMLSelectElement> & {
-    invalid?: boolean;
-    placeholder?: string;
-  }
->(function SelectInput({ invalid = false, className, placeholder, children, value, ...rest }, ref) {
-  const empty = value === "" || value === undefined;
-  return (
-    <div className="relative">
-      <select
-        ref={ref}
-        value={value}
-        aria-invalid={invalid || undefined}
-        className={cx(
-          BOX,
-          "h-12 appearance-none pl-4 pr-11",
-          stateClass(invalid),
-          empty && "text-ink-500",
-          className,
-        )}
-        {...rest}
-      >
-        {placeholder ? (
-          <option value="" disabled>
-            {placeholder}
-          </option>
-        ) : null}
-        {children}
-      </select>
-      <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-ink-600">
-        <Icon name="chevronDown" size={18} strokeWidth={2} />
-      </span>
-    </div>
-  );
-});
-
 /**
- * 앱 창(BottomSheet)으로 고르는 칸: 고르는 칸(SelectInput)과 같은 모양(48 · 모서리 12 · 회색 테두리 · 오른쪽 ▾).
- * 날짜·기간처럼 휴대폰 기본 고르기 창이 앱 디자인과 너무 다른 것은 이 칸을 누르면 앱 창을 연다(예: DateRangeSheet).
+ * 앱 창(BottomSheet)으로 고르는 칸(48 · 모서리 12 · 회색 테두리 · 오른쪽 ▾).
+ * 휴대폰 기본 고르기 창(select·날짜)은 앱 디자인과 달라 쓰지 않고, 이 칸을 누르면 앱 창을 연다
+ * (몇 개 중 하나는 SheetSelect, 날짜·기간은 DateRangeSheet, 시각은 TimeBox + TimeSlotSheet).
  */
 export const PickerButton = React.forwardRef<
   HTMLButtonElement,

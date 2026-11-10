@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { BaseButton as Button } from "@/apps/web-seller/common/components/buttons/BaseButton";
 import { BaseInput as Input } from "@/apps/web-seller/common/components/inputs/BaseInput";
-import { SelectInput } from "@/apps/web-seller/common/ui/Field";
+import { SheetSelect } from "@/apps/web-seller/common/ui/OptionSheet";
+import { Switch } from "@/apps/web-seller/common/ui/Toggle";
 import { useInMobileFrame } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
 import { NumberInput } from "@/apps/web-seller/common/components/inputs/NumberInput";
+import { AffixNumberInput } from "@/apps/web-seller/common/components/inputs/AffixNumberInput";
 import { Checkbox } from "@/apps/web-seller/common/components/inputs/Checkbox";
 import {
   CakeSizeDisplayName,
@@ -25,6 +27,8 @@ interface Props {
 
 const SIZE_NAMES = Object.values(CakeSizeDisplayName);
 const won = (n: number) => `${n.toLocaleString()}원`;
+const SIZE_OPTIONS = SIZE_NAMES.map((name) => ({ value: name, label: name }));
+
 const selectClass =
   "h-9 rounded-md border border-input bg-background px-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring";
 
@@ -79,47 +83,91 @@ export function ProductPriceSizeSection({ form, errors, onChange, disabled }: Pr
           <label className="mb-1 block text-sm font-medium">
             판매가 <span className="text-destructive">*</span>
           </label>
-          <div className="flex items-center gap-2">
-            <NumberInput
+          {inFrame ? (
+            <AffixNumberInput
+              suffix="원"
+              aria-label="판매가(원)"
               value={form.salePrice}
               onChange={setSalePrice}
-              placeholder="예: 38000"
+              placeholder="예: 38,000"
               min={0}
               disabled={disabled}
-              className={errors.salePrice ? "border-destructive" : ""}
+              invalid={Boolean(errors.salePrice)}
             />
-            <span className="text-sm text-muted-foreground">원</span>
-          </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <NumberInput
+                value={form.salePrice}
+                onChange={setSalePrice}
+                placeholder="예: 38,000"
+                min={0}
+                disabled={disabled}
+                className={errors.salePrice ? "border-destructive" : ""}
+              />
+              <span className="text-sm text-muted-foreground">원</span>
+            </div>
+          )}
         </div>
         {discount && (
           <div>
             <label className="mb-1 block text-sm font-medium">할인 전 가격(정가)</label>
-            <div className="flex items-center gap-2">
-              <NumberInput
+            {inFrame ? (
+              <AffixNumberInput
+                suffix="원"
+                aria-label="할인 전 가격(원)"
                 value={form.originalPrice}
                 onChange={(originalPrice) => onChange({ originalPrice })}
                 placeholder="예: 42000"
                 min={0}
                 disabled={disabled}
-                className={errors.originalPrice ? "border-destructive" : ""}
+                invalid={Boolean(errors.originalPrice)}
               />
-              <span className="text-sm text-muted-foreground">원</span>
-            </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <NumberInput
+                  value={form.originalPrice}
+                  onChange={(originalPrice) => onChange({ originalPrice })}
+                  placeholder="예: 42000"
+                  min={0}
+                  disabled={disabled}
+                  className={errors.originalPrice ? "border-destructive" : ""}
+                />
+                <span className="text-sm text-muted-foreground">원</span>
+              </div>
+            )}
           </div>
         )}
       </div>
-      <div className="mt-2">
-        <Checkbox
-          checked={discount}
-          onChange={toggleDiscount}
-          disabled={disabled}
-          label={
-            <span className={inFrame ? undefined : "text-sm"}>
-              할인해서 팔기 (손님 화면에 할인 전 가격이 함께 보여요)
+      {inFrame ? (
+        // 휴대폰 틀 안: 켜고 끄는 설정은 스위치 줄(판매 상태와 같은 모양)
+        <div className="mt-2 flex min-h-14 items-center gap-3 font-app">
+          <span className="flex min-w-0 flex-1 flex-col gap-1">
+            <span className="text-body font-semibold text-ink-900">할인해서 팔기</span>
+            <span className="text-caption text-ink-600">
+              손님 화면에 할인 전 가격이 함께 보여요
             </span>
-          }
-        />
-      </div>
+          </span>
+          <Switch
+            label="할인해서 팔기"
+            checked={discount}
+            disabled={disabled}
+            onChange={toggleDiscount}
+          />
+        </div>
+      ) : (
+        <div className="mt-2">
+          <Checkbox
+            checked={discount}
+            onChange={toggleDiscount}
+            disabled={disabled}
+            label={
+              <span className="text-sm">
+                할인해서 팔기 (손님 화면에 할인 전 가격이 함께 보여요)
+              </span>
+            }
+          />
+        </div>
+      )}
       {priceError && <p className="mt-1 text-sm text-destructive">{priceError}</p>}
 
       <div className="mt-6">
@@ -135,44 +183,104 @@ export function ProductPriceSizeSection({ form, errors, onChange, disabled }: Pr
         <ul className="divide-y rounded-lg border">
           {sizes.map((size, index) => {
             const hidden = size.visible !== EnableStatus.ENABLE;
+            if (inFrame) {
+              // 휴대폰 틀 안: 사이즈(앱 목록 창) + 삭제 / 지름·추가금 두 칸 / 설명 / 손님 결제 · 판매
+              return (
+                <li key={size.id ?? `new-${index}`} className="flex flex-col gap-2 p-4 font-app">
+                  <div className="flex items-center gap-2">
+                    <SheetSelect
+                      label="사이즈"
+                      value={size.displayName}
+                      options={SIZE_OPTIONS}
+                      disabled={disabled}
+                      className="min-w-0 flex-1"
+                      onChange={(v) => updateSize(index, { displayName: v as CakeSizeDisplayName })}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      aria-label={`${size.displayName} 사이즈 삭제`}
+                      className="h-9 w-9 shrink-0"
+                      disabled={disabled || sizes.length <= 1}
+                      onClick={() =>
+                        onChange({ cakeSizeOptions: sizes.filter((_, i) => i !== index) })
+                      }
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <AffixNumberInput
+                      prefix="지름"
+                      suffix="cm"
+                      aria-label="지름(cm)"
+                      value={size.lengthCm || undefined}
+                      onChange={(v) => updateSize(index, { lengthCm: v ?? 0 })}
+                      placeholder="0"
+                      disabled={disabled}
+                      integer={false}
+                    />
+                    <AffixNumberInput
+                      prefix="추가금"
+                      suffix="원"
+                      aria-label="추가금(원)"
+                      value={size.price}
+                      onChange={(v) => updateSize(index, { price: v ?? 0 })}
+                      placeholder="0"
+                      min={0}
+                      disabled={disabled}
+                    />
+                  </div>
+                  <Input
+                    aria-label="사이즈 설명"
+                    value={size.description ?? ""}
+                    onChange={(e) => updateSize(index, { description: e.target.value })}
+                    placeholder="설명 (선택, 예: 1~2인용)"
+                    disabled={disabled}
+                  />
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-caption text-ink-600">
+                      손님 결제{" "}
+                      <b className="text-sub font-bold text-ink-900">
+                        {won(base + (size.price || 0))}
+                      </b>
+                    </span>
+                    <span className="flex items-center gap-2 text-sub text-ink-700">
+                      {hidden ? "판매 안 함" : "판매"}
+                      <Switch
+                        label={`${size.displayName} 판매`}
+                        checked={!hidden}
+                        disabled={disabled}
+                        onChange={(checked) =>
+                          updateSize(index, {
+                            visible: checked ? EnableStatus.ENABLE : EnableStatus.DISABLE,
+                          })
+                        }
+                      />
+                    </span>
+                  </div>
+                </li>
+              );
+            }
             return (
               <li key={size.id ?? `new-${index}`} className={`p-3 ${hidden ? "bg-muted/40" : ""}`}>
                 <div className="flex flex-wrap items-center gap-2">
-                  {inFrame ? (
-                    // 휴대폰 틀 안: 앱 고르는 칸(48 · 모서리 12 · ▾)과 같게
-                    <div className="w-28">
-                      <SelectInput
-                        aria-label="사이즈"
-                        value={size.displayName}
-                        disabled={disabled}
-                        onChange={(e) =>
-                          updateSize(index, { displayName: e.target.value as CakeSizeDisplayName })
-                        }
-                      >
-                        {SIZE_NAMES.map((name) => (
-                          <option key={name} value={name}>
-                            {name}
-                          </option>
-                        ))}
-                      </SelectInput>
-                    </div>
-                  ) : (
-                    <select
-                      aria-label="사이즈"
-                      className={selectClass}
-                      value={size.displayName}
-                      disabled={disabled}
-                      onChange={(e) =>
-                        updateSize(index, { displayName: e.target.value as CakeSizeDisplayName })
-                      }
-                    >
-                      {SIZE_NAMES.map((name) => (
-                        <option key={name} value={name}>
-                          {name}
-                        </option>
-                      ))}
-                    </select>
-                  )}
+                  <select
+                    aria-label="사이즈"
+                    className={selectClass}
+                    value={size.displayName}
+                    disabled={disabled}
+                    onChange={(e) =>
+                      updateSize(index, { displayName: e.target.value as CakeSizeDisplayName })
+                    }
+                  >
+                    {SIZE_NAMES.map((name) => (
+                      <option key={name} value={name}>
+                        {name}
+                      </option>
+                    ))}
+                  </select>
                   <div className="flex w-24 items-center gap-1">
                     <NumberInput
                       aria-label="지름"
@@ -210,17 +318,12 @@ export function ProductPriceSizeSection({ form, errors, onChange, disabled }: Pr
                       disabled={disabled}
                       label={<span className="text-xs">판매</span>}
                     />
-                    {/* 휴대폰 틀 안: 옵션 삭제와 같은 36 동그라미(누르는 칸을 넓게). PC는 작은 아이콘 그대로 */}
                     <Button
                       type="button"
                       variant="ghost"
                       size="icon"
                       aria-label={`${size.displayName} 사이즈 삭제`}
-                      className={
-                        inFrame
-                          ? "h-8 w-8"
-                          : "h-auto w-auto rounded p-1 text-muted-foreground shadow-none hover:bg-transparent hover:text-destructive disabled:opacity-40"
-                      }
+                      className="h-auto w-auto rounded p-1 text-muted-foreground shadow-none hover:bg-transparent hover:text-destructive disabled:opacity-40"
                       disabled={disabled || sizes.length <= 1}
                       onClick={() =>
                         onChange({ cakeSizeOptions: sizes.filter((_, i) => i !== index) })
@@ -232,7 +335,7 @@ export function ProductPriceSizeSection({ form, errors, onChange, disabled }: Pr
                 </div>
                 <Input
                   aria-label="사이즈 설명"
-                  className={inFrame ? "mt-2" : "mt-2 h-8 text-sm"}
+                  className="mt-2 h-8 text-sm"
                   value={size.description ?? ""}
                   onChange={(e) => updateSize(index, { description: e.target.value })}
                   placeholder="설명 (선택, 예: 1~2인용)"

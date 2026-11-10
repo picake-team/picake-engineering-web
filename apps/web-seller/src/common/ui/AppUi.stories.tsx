@@ -10,7 +10,8 @@ import { Button, ButtonPair, CircleIconButton, FieldIconButton, HeaderIconButton
 import { CountBubble, StatusPill } from "./Badge";
 import { ChipGroup, ChoiceGrid, SegmentedTabs } from "./Choice";
 import { Checkbox, Radio, Switch } from "./Toggle";
-import { Field, PickerButton, SearchInput, SelectInput, TextArea, TextInput } from "./Field";
+import { Field, PickerButton, SearchInput, TextArea, TextInput } from "./Field";
+import { SheetSelect } from "./OptionSheet";
 import { DateRangeSheet } from "./DateRangeSheet";
 import { addDaysToKey, kstDateKey } from "../utils/kst-date.util";
 import {
@@ -175,6 +176,7 @@ export const 입력_칸: Story = {
     const [desc, setDesc] = useState("");
     const [today] = useState(() => kstDateKey(new Date()));
     const [range, setRange] = useState(() => ({ start: addDaysToKey(today, -6), end: today }));
+    const [bank, setBank] = useState<string | undefined>(undefined);
     const [rangeOpen, setRangeOpen] = useState(false);
     return (
       <>
@@ -208,14 +210,18 @@ export const 입력_칸: Story = {
             {(p) => <TextInput id={p.id} inputMode="numeric" placeholder="6자리" />}
           </Field>
         </Section>
-        <Section title="고르는 칸 48 · 날짜·기간은 앱 창으로 · 여러 줄 · 검색">
-          <Field label="정산 은행">
-            {(p) => (
-              <SelectInput id={p.id} value="" placeholder="은행 고르기" onChange={() => undefined}>
-                <option value="kb">국민은행</option>
-              </SelectInput>
-            )}
-          </Field>
+        <Section title="고르는 칸 48 · 몇 개 중 하나·날짜·기간 모두 앱 창으로 · 여러 줄 · 검색">
+          <SheetSelect
+            label="정산 은행"
+            value={bank}
+            placeholder="은행 고르기"
+            options={[
+              { value: "kb", label: "KB국민" },
+              { value: "shinhan", label: "신한" },
+              { value: "kakao", label: "카카오뱅크" },
+            ]}
+            onChange={setBank}
+          />
           <PickerButton
             aria-label="기간 고르기"
             value={`${range.start} ~ ${range.end}`}
@@ -339,7 +345,7 @@ export const 목록과_칸: Story = {
             (label) => ({ label }),
           )}
         />
-        <WarningBox>진행 중인 예약과 맞지 않아 저장할 수 없습니다.</WarningBox>
+        <WarningBox>진행 중인 예약과 맞지 않아 저장할 수 없어요.</WarningBox>
       </Section>
       <Section title="빈 화면 · 불러오는 중 · 다시 시도">
         <EmptyState

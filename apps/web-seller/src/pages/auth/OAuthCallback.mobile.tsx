@@ -219,7 +219,7 @@ function SignUp({
             invalid={p.invalid}
             autoComplete="name"
             maxLength={50}
-            placeholder="실명을 입력해 주세요"
+            placeholder="예: 홍길동"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
@@ -251,7 +251,7 @@ function ExistingAccountScreen({
     >
       <div className="flex flex-col gap-2">
         <h1 className="text-title font-bold text-ink-900">이미 가입한 계정이 있어요.</h1>
-        <p className="text-sub text-ink-600">아래 계정으로 로그인해주세요.</p>
+        <p className="text-sub text-ink-600">아래 계정으로 로그인해 주세요.</p>
       </div>
       <div className="flex flex-col gap-1 rounded-card border border-ink-100 p-4">
         {account.name ? (

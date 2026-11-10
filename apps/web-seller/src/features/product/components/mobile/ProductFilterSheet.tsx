@@ -3,10 +3,10 @@
  * 판매 상태·노출 상태는 목록 위 칩으로 옮겨 여기 두지 않는다. "결과 보기"를 눌러야 목록에 반영된다.
  */
 import { useEffect, useState } from "react";
+import { AffixNumberInput } from "@/apps/web-seller/common/components/inputs/AffixNumberInput";
 import { BottomSheet } from "@/apps/web-seller/common/ui/Sheet";
 import { Button, ButtonPair } from "@/apps/web-seller/common/ui/Button";
 import { Chip } from "@/apps/web-seller/common/ui/Choice";
-import { TextInput } from "@/apps/web-seller/common/ui/Field";
 import {
   CAKE_SIZE_DISPLAY_NAME_OPTIONS,
   PRODUCT_CATEGORY_GROUPS,
@@ -37,10 +37,10 @@ export const DEFAULT_PRODUCT_FILTER: ProductFilter = {
 export const PRODUCT_SORT_LABEL: Partial<Record<SortBy, string>> = {
   [SortBy.LATEST]: "최신순",
   [SortBy.POPULAR]: "인기순",
-  [SortBy.PRICE_ASC]: "가격 낮은순",
-  [SortBy.PRICE_DESC]: "가격 높은순",
-  [SortBy.REVIEW_COUNT]: "후기 많은순",
-  [SortBy.RATING_AVG]: "별점 높은순",
+  [SortBy.PRICE_ASC]: "가격 낮은 순",
+  [SortBy.PRICE_DESC]: "가격 높은 순",
+  [SortBy.REVIEW_COUNT]: "후기 많은 순",
+  [SortBy.RATING_AVG]: "별점 높은 순",
 };
 
 const SORTS = [
@@ -103,11 +103,6 @@ export function ProductFilterSheet({
     if (open) setD(value);
   }, [open, value]);
 
-  const price = (v: string) => {
-    const n = Number(v.replace(/[^0-9]/g, ""));
-    return v.trim() === "" || Number.isNaN(n) ? undefined : n;
-  };
-
   return (
     <BottomSheet
       open={open}
@@ -147,22 +142,27 @@ export function ProductFilterSheet({
         ))}
       </div>
       <Title>가격</Title>
+      {/* 금액 칸은 상품 판매가와 같게 "원" 단위 + 천 단위 쉼표 */}
       <div className="-mt-2 flex items-center gap-2">
-        <TextInput
-          aria-label="최소 가격"
-          inputMode="numeric"
-          placeholder="최소 가격"
-          value={d.minPrice ?? ""}
-          onChange={(e) => setD({ ...d, minPrice: price(e.target.value) })}
-        />
+        <div className="min-w-0 flex-1">
+          <AffixNumberInput
+            suffix="원"
+            aria-label="최소 가격"
+            placeholder="최소"
+            value={d.minPrice}
+            onChange={(v) => setD({ ...d, minPrice: v })}
+          />
+        </div>
         <span className="text-ink-900">~</span>
-        <TextInput
-          aria-label="최대 가격"
-          inputMode="numeric"
-          placeholder="최대 가격"
-          value={d.maxPrice ?? ""}
-          onChange={(e) => setD({ ...d, maxPrice: price(e.target.value) })}
-        />
+        <div className="min-w-0 flex-1">
+          <AffixNumberInput
+            suffix="원"
+            aria-label="최대 가격"
+            placeholder="최대"
+            value={d.maxPrice}
+            onChange={(v) => setD({ ...d, maxPrice: v })}
+          />
+        </div>
       </div>
       <Title hint="하나라도 맞으면">사이즈</Title>
       <div role="group" aria-label="사이즈" className="-mt-2 flex flex-wrap gap-2">
