@@ -14,7 +14,7 @@ import type { StoreResponseDto } from "@/apps/web-seller/features/store/types/st
 
 function StoreLogo({ store }: { store: StoreResponseDto }) {
   return (
-    <span className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-control bg-brand-tint">
+    <span className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-control bg-ink-50">
       {store.logoImageUrl ? (
         <img src={store.logoImageUrl} alt="" className="size-full object-cover" />
       ) : null}

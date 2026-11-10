@@ -53,7 +53,7 @@ export function PushOffBanner({
 
 /**
  * 알림 설정 맨 위 "이 휴대폰 알림"(SC-93 ①, 앱에서만). 홈 "휴대폰 알림이 꺼져 있어요"와 같은 모양:
- * 켜져 있으면 회색 종 + "허용됨", 꺼져 있으면 연한 주황 종 + "켜기"(안 물었으면 허용 창, 거절했으면 휴대폰 설정).
+ * 켜져 있으면 회색 종 + "허용됨", 꺼져 있으면 주황 종 + "켜기"(안 물었으면 허용 창, 거절했으면 휴대폰 설정).
  * 360 폭에서도 한 줄씩 들어가게 글을 짧게 둔다.
  */
 export function DevicePushStatusCard() {
@@ -64,7 +64,7 @@ export function DevicePushStatusCard() {
   const off = !on && !checking;
   return (
     <div className="flex items-center gap-3 rounded-card border border-ink-100 px-4 py-3">
-      <RowIconBox active={off}>
+      <RowIconBox>
         <span className={off ? "text-brand" : "text-ink-600"}>
           <Icon name="bell" size={22} strokeWidth={2} />
         </span>

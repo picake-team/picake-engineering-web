@@ -69,9 +69,7 @@ function TaskRow({
       divider={!last}
       dimmed={zero}
       leading={
-        <RowIconBox active={!zero}>
-          {group.icon ? <TaskIcon name={group.icon} active={!zero} /> : null}
-        </RowIconBox>
+        <RowIconBox>{group.icon ? <TaskIcon name={group.icon} active={!zero} /> : null}</RowIconBox>
       }
       title={group.label}
       description={group.homeHint}

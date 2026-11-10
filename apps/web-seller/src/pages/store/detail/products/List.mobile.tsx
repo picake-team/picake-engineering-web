@@ -9,7 +9,7 @@ import { AppScreen, TabHeader } from "@/apps/web-seller/common/ui/Screen";
 import { Button, FieldIconButton, HeaderIconButton } from "@/apps/web-seller/common/ui/Button";
 import { ChipGroup } from "@/apps/web-seller/common/ui/Choice";
 import { SearchInput } from "@/apps/web-seller/common/ui/Field";
-import { LoadErrorState } from "@/apps/web-seller/common/ui/Surface";
+import { EmptyState, LoadErrorState } from "@/apps/web-seller/common/ui/Surface";
 import { Switch } from "@/apps/web-seller/common/ui/Toggle";
 import { PullToRefresh } from "@/apps/web-seller/common/ui/PullToRefresh";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
@@ -153,18 +153,19 @@ export const StoreDetailProductListMobilePage: React.FC = () => {
         onRefresh={() => queryClient.invalidateQueries({ queryKey: productQueryKeys.all })}
       >
         {noProductsAtAll ? (
-          <div className="flex flex-1 flex-col items-center justify-center gap-4 pb-16 text-center">
-            <span className="flex size-16 items-center justify-center rounded-card bg-brand-tint text-brand">
-              <Icon name="cake" size={34} strokeWidth={1.6} />
-            </span>
-            <p className="text-group font-bold text-ink-900">등록된 상품이 없습니다.</p>
-            <Button
-              className="px-8"
-              onClick={() => navigate(ROUTES.STORE_DETAIL_PRODUCTS_CREATE(storeId))}
-            >
-              상품 등록
-            </Button>
-          </div>
+          <EmptyState
+            big
+            title="등록된 상품이 없어요"
+            description="첫 상품을 등록하면 손님 앱에 보여요"
+            action={
+              <Button
+                className="px-8"
+                onClick={() => navigate(ROUTES.STORE_DETAIL_PRODUCTS_CREATE(storeId))}
+              >
+                상품 등록
+              </Button>
+            }
+          />
         ) : (
           <>
             <div className="flex gap-2">

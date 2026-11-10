@@ -9,7 +9,9 @@ import { Button, ButtonPair, CircleIconButton, FieldIconButton, HeaderIconButton
 import { CountBubble, StatusPill } from "./Badge";
 import { ChipGroup, ChoiceGrid, SegmentedTabs } from "./Choice";
 import { Checkbox, Radio, Switch } from "./Toggle";
-import { Field, SearchInput, SelectInput, TextArea, TextInput } from "./Field";
+import { Field, PickerButton, SearchInput, SelectInput, TextArea, TextInput } from "./Field";
+import { DateRangeSheet } from "./DateRangeSheet";
+import { addDaysToKey, kstDateKey } from "../utils/kst-date.util";
 import {
   GrayBand,
   GroupTitle,
@@ -64,13 +66,13 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 export const 버튼: Story = {
   render: () => (
     <>
-      <Section title="버튼 52 · 주 버튼은 오른쪽 하나">
+      <Section title="버튼 48 · 주 버튼은 오른쪽 하나">
         <ButtonPair>
           <Button variant="secondary">돌아가기</Button>
           <Button>예약 확정</Button>
         </ButtonPair>
       </Section>
-      <Section title="누를 수 없을 때 · 처리 중">
+      <Section title="누를 수 없을 때(회색 채움, 흐린 주황은 분홍으로 보여 쓰지 않음) · 처리 중">
         <ButtonPair>
           <Button variant="secondary" disabled>
             돌아가기
@@ -116,7 +118,7 @@ export const 배지와_고르기: Story = {
     const [days, setDays] = useState<string[]>(["0"]);
     return (
       <>
-        <Section title="상태 배지 · 사장님 차례 / 기다림 / 끝">
+        <Section title="상태 배지 · 사장님 차례(주황 테두리) / 기다림(회색) / 끝(회색 테두리)">
           <div className="flex flex-wrap gap-2">
             <StatusPill tone="turn">입금완료</StatusPill>
             <StatusPill tone="wait">예약확정</StatusPill>
@@ -135,7 +137,7 @@ export const 배지와_고르기: Story = {
             ]}
           />
         </Section>
-        <Section title="칩 40">
+        <Section title="칩 36 · 고른 칩은 주황 채움(분류처럼 여러 개 고를 때도 같음)">
           <ChipGroup
             label="판매 상태"
             value={chip}
@@ -148,7 +150,7 @@ export const 배지와_고르기: Story = {
             ]}
           />
         </Section>
-        <Section title="고르는 네모 버튼 44">
+        <Section title="고르는 네모 버튼 40">
           <ChoiceGrid
             label="쉬는 요일"
             selected={days}
@@ -170,6 +172,9 @@ export const 입력_칸: Story = {
     const [agree, setAgree] = useState(true);
     const [pick, setPick] = useState("a");
     const [desc, setDesc] = useState("");
+    const [today] = useState(() => kstDateKey(new Date()));
+    const [range, setRange] = useState(() => ({ start: addDaysToKey(today, -6), end: today }));
+    const [rangeOpen, setRangeOpen] = useState(false);
     return (
       <>
         <Section title="입력 칸 · 기본 / 고칠 곳 / 꺼진 칸">
@@ -202,7 +207,7 @@ export const 입력_칸: Story = {
             {(p) => <TextInput id={p.id} inputMode="numeric" placeholder="6자리" />}
           </Field>
         </Section>
-        <Section title="고르는 칸 · 여러 줄 · 검색">
+        <Section title="고르는 칸 48 · 날짜·기간은 앱 창으로 · 여러 줄 · 검색">
           <Field label="정산 은행">
             {(p) => (
               <SelectInput id={p.id} value="" placeholder="은행 고르기" onChange={() => undefined}>
@@ -210,6 +215,22 @@ export const 입력_칸: Story = {
               </SelectInput>
             )}
           </Field>
+          <PickerButton
+            aria-label="기간 고르기"
+            value={`${range.start} ~ ${range.end}`}
+            onClick={() => setRangeOpen(true)}
+          />
+          <DateRangeSheet
+            open={rangeOpen}
+            onClose={() => setRangeOpen(false)}
+            start={range.start}
+            end={range.end}
+            max={today}
+            onApply={(start, end) => {
+              setRange({ start, end });
+              setRangeOpen(false);
+            }}
+          />
           <Field
             label="스토어 설명"
             counter={`${desc.length}/2,000`}
@@ -254,13 +275,13 @@ export const 입력_칸: Story = {
 export const 목록과_칸: Story = {
   render: () => (
     <>
-      <Section title="목록 줄 · 최소 높이 56">
+      <Section title="목록 줄 · 최소 높이 52(큰 줄 56)">
         <div>
           <ListRowLink
             to="/"
             tall
             leading={
-              <RowIconBox active>
+              <RowIconBox>
                 <TaskIcon name="confirm" active />
               </RowIconBox>
             }
@@ -273,7 +294,7 @@ export const 목록과_칸: Story = {
             tall
             dimmed
             leading={
-              <RowIconBox active={false}>
+              <RowIconBox>
                 <TaskIcon name="refund" active={false} />
               </RowIconBox>
             }

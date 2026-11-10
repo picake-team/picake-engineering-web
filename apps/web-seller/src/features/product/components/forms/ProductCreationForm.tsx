@@ -3,10 +3,10 @@ import { Link } from "react-router-dom";
 import { ChevronDown, ChevronRight, Sparkles } from "lucide-react";
 import { BaseButton as Button } from "@/apps/web-seller/common/components/buttons/BaseButton";
 import {
-  FRAME_SUBMIT_BAR_CLASS,
   FRAME_SUBMIT_BUTTON_CLASS,
   useInMobileFrame,
 } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
+import { FrameSubmitBar } from "@/apps/web-seller/common/components/layouts/FrameSubmitBar";
 import { Switch } from "@/apps/web-seller/common/ui/Toggle";
 import { cn } from "@/apps/web-seller/common/utils/classname.util";
 
@@ -657,29 +657,27 @@ export const ProductCreationForm: React.FC<Props> = ({
       ) : null}
       {!disabled && inFrame ? (
         // 휴대폰(디자인 6-E): 고칠 곳이 있으면 "고칠 곳 n개"(누르면 첫 고칠 곳으로) | 등록하기
-        <div className={FRAME_SUBMIT_BAR_CLASS}>
-          <div className="flex gap-2">
-            {blockingCount > 0 && (
-              <Button
-                type="button"
-                variant="outline"
-                className={FRAME_SUBMIT_BUTTON_CLASS}
-                onClick={() =>
-                  errorKeys.length ? goToFirstError(errorKeys) : scrollTo("section-detail")
-                }
-              >
-                고칠 곳 {blockingCount}개
-              </Button>
-            )}
+        <FrameSubmitBar>
+          {blockingCount > 0 && (
             <Button
-              type="submit"
-              disabled={isDeleting}
-              className={cn(FRAME_SUBMIT_BUTTON_CLASS, blockingCount > 0 && "flex-[2]")}
+              type="button"
+              variant="outline"
+              className={FRAME_SUBMIT_BUTTON_CLASS}
+              onClick={() =>
+                errorKeys.length ? goToFirstError(errorKeys) : scrollTo("section-detail")
+              }
             >
-              {isEdit ? "저장하기" : "등록하기"}
+              고칠 곳 {blockingCount}개
             </Button>
-          </div>
-        </div>
+          )}
+          <Button
+            type="submit"
+            disabled={isDeleting}
+            className={cn(FRAME_SUBMIT_BUTTON_CLASS, blockingCount > 0 && "flex-[2]")}
+          >
+            {isEdit ? "저장하기" : "등록하기"}
+          </Button>
+        </FrameSubmitBar>
       ) : null}
       {!disabled && !inFrame && (
         <div className="sticky bottom-0 z-10 mt-6 flex items-center gap-3 border-t bg-background/95 px-1 py-3 backdrop-blur">

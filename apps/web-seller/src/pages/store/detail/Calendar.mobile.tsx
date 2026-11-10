@@ -15,6 +15,9 @@ import {
   addDaysToKey,
   formatKeyMonthDayWeek,
   kstDateKey,
+  monthEndKey,
+  monthStartKey,
+  shiftMonthKey,
   weekdayLabel,
   weekdayOfKey,
 } from "@/apps/web-seller/common/utils/kst-date.util";
@@ -30,22 +33,6 @@ import {
 } from "@/apps/web-seller/features/store/utils/business-day.util";
 
 const SWIPE_PX = 56;
-
-function monthStartKey(key: string) {
-  return `${key.slice(0, 8)}01`;
-}
-
-function monthEndKey(startKey: string) {
-  const [y, m] = startKey.split("-").map(Number);
-  const nextMonth = m === 12 ? `${y + 1}-01-01` : `${y}-${String(m + 1).padStart(2, "0")}-01`;
-  return addDaysToKey(nextMonth, -1);
-}
-
-function shiftMonth(startKey: string, delta: number) {
-  const [y, m] = startKey.split("-").map(Number);
-  const idx = y * 12 + (m - 1) + delta;
-  return `${Math.floor(idx / 12)}-${String((idx % 12) + 1).padStart(2, "0")}-01`;
-}
 
 export const StoreDetailCalendarMobilePage: React.FC = () => {
   const { storeId = "" } = useParams<{ storeId: string }>();
@@ -78,7 +65,7 @@ export const StoreDetailCalendarMobilePage: React.FC = () => {
   for (let k = monthKey; k <= monthEnd; k = addDaysToKey(k, 1)) days.push(k);
 
   const goMonth = (delta: number) => {
-    const next = shiftMonth(monthKey, delta);
+    const next = shiftMonthKey(monthKey, delta);
     setMonthKey(next);
     // 이번 달로 돌아오면 오늘, 아니면 그달 1일을 고른다
     setSelectedKey(next === monthStartKey(todayKey) ? todayKey : next);

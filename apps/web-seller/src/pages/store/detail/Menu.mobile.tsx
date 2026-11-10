@@ -36,7 +36,7 @@ function StoreCard({
   return (
     <div className="flex flex-col gap-3 overflow-hidden rounded-card border border-ink-100 p-4">
       <div className="flex items-center gap-4">
-        <span className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-card bg-brand-tint">
+        <span className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-card bg-ink-50">
           {store.logoImageUrl ? (
             <img src={store.logoImageUrl} alt="" className="size-full object-cover" />
           ) : null}

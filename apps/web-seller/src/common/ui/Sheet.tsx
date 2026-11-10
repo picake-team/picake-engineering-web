@@ -12,6 +12,8 @@ import { cx } from "@/apps/web-seller/common/ui/cx";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
 
 let openSheetCount = 0;
+/** 열린 창 차례(창 위에 창을 열면 Esc·Tab은 맨 위 창만) */
+const sheetStack: symbol[] = [];
 
 function lockScroll() {
   openSheetCount += 1;
@@ -66,10 +68,13 @@ export function BottomSheet({
   useEffect(() => {
     if (!open) return;
     restoreRef.current = document.activeElement as HTMLElement | null;
+    const me = Symbol("sheet");
+    sheetStack.push(me);
     lockScroll();
     // 첫 칸에 바로 키보드를 올리지 않게 창 자체에 초점
     panelRef.current?.focus();
     const onKey = (e: KeyboardEvent) => {
+      if (sheetStack[sheetStack.length - 1] !== me) return;
       if (e.key === "Escape" && dismissibleRef.current) {
         e.stopPropagation();
         closeRef.current();
@@ -92,6 +97,7 @@ export function BottomSheet({
     document.addEventListener("keydown", onKey);
     return () => {
       document.removeEventListener("keydown", onKey);
+      sheetStack.splice(sheetStack.indexOf(me), 1);
       unlockScroll();
       restoreRef.current?.focus?.();
     };

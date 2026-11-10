@@ -7,8 +7,9 @@ import { Button, ButtonPair, CircleIconButton } from "@/apps/web-seller/common/u
 import { Chip } from "@/apps/web-seller/common/ui/Choice";
 import { StatusPill } from "@/apps/web-seller/common/ui/Badge";
 import { StepBar } from "@/apps/web-seller/common/ui/Surface";
-import { Icon } from "@/apps/web-seller/common/ui/icons";
-import { cx } from "@/apps/web-seller/common/ui/cx";
+import { PickerButton } from "@/apps/web-seller/common/ui/Field";
+import { DateRangeSheet } from "@/apps/web-seller/common/ui/DateRangeSheet";
+import { formatKeyMonthDayWeek, kstDateKey } from "@/apps/web-seller/common/utils/kst-date.util";
 import { OrderSortBy } from "@/apps/web-seller/features/order/types/order.dto";
 import type { OrderDateFilter } from "@/apps/web-seller/features/order/hooks/queries/useOrderMobileQuery";
 import {
@@ -43,78 +44,58 @@ export const SORT_LABEL: Record<OrderSortBy, string> = {
   [OrderSortBy.PRICE_ASC]: "금액 낮은순",
 };
 
-function DateBox({
-  label,
-  placeholder,
-  value,
-  min,
-  max,
-  onChange,
-}: {
-  /** 화면 읽기 프로그램용 이름(예: "픽업 날짜 시작일") */
-  label: string;
-  /** 칸 안 예시 글씨(시작일·종료일) */
-  placeholder: string;
-  value?: string;
-  min?: string;
-  max?: string;
-  onChange: (v: string | undefined) => void;
-}) {
-  return (
-    <label className="relative flex h-12 min-w-0 flex-1 items-center justify-between rounded-control border border-ink-200 bg-white px-4 text-body focus-within:border-[1.5px] focus-within:border-ink-900">
-      <span className={cx("truncate", value ? "text-ink-900" : "text-ink-500")}>
-        {value ? value.replace(/-/g, ".") : placeholder}
-      </span>
-      <span className="shrink-0 text-ink-600">
-        <Icon name="chevronDown" size={18} strokeWidth={2} />
-      </span>
-      {/* 휴대폰 날짜 고르기 창으로 연다 */}
-      <input
-        type="date"
-        aria-label={label}
-        value={value ?? ""}
-        min={min}
-        max={max}
-        onChange={(e) => onChange(e.target.value || undefined)}
-        className="absolute inset-0 size-full cursor-pointer opacity-0"
-      />
-    </label>
-  );
-}
-
+/**
+ * 기간 칸: 고르는 칸(PickerButton)을 누르면 앱 달력 창(DateRangeSheet)이 이 창 위에 열린다.
+ * 휴대폰 기본 날짜 창은 앱 디자인과 너무 달라 쓰지 않는다(2026-11-10). 고른 기간은 오른쪽 "지우기"로 뺀다.
+ */
 function DateRange({
   title,
   start,
   end,
+  max,
   onChange,
 }: {
   title: string;
   start?: string;
   end?: string;
+  /** 고를 수 있는 마지막 날(주문 날짜는 오늘, 픽업 날짜는 없음) */
+  max?: string;
   onChange: (start?: string, end?: string) => void;
 }) {
+  const [open, setOpen] = useState(false);
+  const text =
+    start || end
+      ? `${start ? formatKeyMonthDayWeek(start) : ""} ~ ${end ? formatKeyMonthDayWeek(end) : ""}`.trim()
+      : undefined;
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-body font-bold text-ink-900">{title}</p>
-      <div className="flex items-center gap-2">
-        <DateBox
-          label={`${title} 시작일`}
-          placeholder="시작일"
-          value={start}
-          max={end}
-          onChange={(v) => onChange(v, end)}
-        />
-        <span aria-hidden="true" className="text-ink-900">
-          ~
-        </span>
-        <DateBox
-          label={`${title} 종료일`}
-          placeholder="종료일"
-          value={end}
-          min={start}
-          onChange={(v) => onChange(start, v)}
-        />
+      <div className="flex min-h-6 items-center justify-between">
+        <p className="text-body font-bold text-ink-900">{title}</p>
+        {text ? (
+          <Button variant="quiet" className="-my-2.5 -mr-2" onClick={() => onChange()}>
+            지우기
+          </Button>
+        ) : null}
       </div>
+      <PickerButton
+        aria-label={`${title} 고르기`}
+        value={text}
+        placeholder="기간 고르기"
+        onClick={() => setOpen(true)}
+      />
+      <DateRangeSheet
+        open={open}
+        onClose={() => setOpen(false)}
+        title={`${title} 고르기`}
+        applyLabel="이 기간으로"
+        start={start}
+        end={end}
+        max={max}
+        onApply={(s, e) => {
+          onChange(s, e);
+          setOpen(false);
+        }}
+      />
     </div>
   );
 }
@@ -133,6 +114,7 @@ export function OrderFindSheet({
   onClose: () => void;
 }) {
   const [draft, setDraft] = useState<OrderFindState>(value);
+  const [todayKey] = useState(() => kstDateKey(new Date()));
   useEffect(() => {
     if (open) setDraft(value);
   }, [open, value]);
@@ -191,6 +173,7 @@ export function OrderFindSheet({
       />
       <DateRange
         title="주문 날짜"
+        max={todayKey}
         start={draft.startDate}
         end={draft.endDate}
         onChange={(s, e) => setDraft((d) => ({ ...d, startDate: s, endDate: e }))}

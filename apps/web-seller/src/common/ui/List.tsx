@@ -1,6 +1,6 @@
 /**
  * 목록 줄과 묶음 (디자인 기준 B-3).
- * - 목록 줄: 최소 높이 56, 이름 16/600, 설명 13 #686864. 오른쪽에 숫자·켜고 끄기·값·화살표(400 회색)
+ * - 목록 줄: 최소 높이 52(큰 줄 56), 이름 15/600, 설명 12 #686864. 오른쪽에 숫자·켜고 끄기·값·화살표(400 회색)
  * - 같은 묶음 안 줄 사이는 얇은 선(100), 묶음과 묶음 사이는 회색 띠 8(50)
  * - 흐리게(dimmed): 색만 바꾸고 크기·굵기는 그대로(이름 #686864, 0건 숫자 #8C8C88)
  */
@@ -20,7 +20,7 @@ interface RowContentProps {
   dimmed?: boolean;
   /** 마지막 줄은 아래 선 없음 */
   divider?: boolean;
-  /** 홈 "처리할 주문"처럼 큰 줄은 64 */
+  /** 홈 "처리할 주문"처럼 큰 줄은 56 */
   tall?: boolean;
 }
 
@@ -97,15 +97,10 @@ export function ListRow({ className, ...props }: RowContentProps & { className?:
   );
 }
 
-/** 줄 맨 앞 40 아이콘 칸(모서리 12). 할 일이 있으면 연한 주황, 0건이면 회색 */
-export function RowIconBox({ active, children }: { active: boolean; children: React.ReactNode }) {
+/** 줄 맨 앞 40 아이콘 칸(모서리 12, 회색). 할 일이 있다는 표시는 안의 아이콘 색(주황)으로 한다 */
+export function RowIconBox({ children }: { children: React.ReactNode }) {
   return (
-    <span
-      className={cx(
-        "flex size-10 shrink-0 items-center justify-center rounded-control",
-        active ? "bg-brand-tint" : "bg-ink-50",
-      )}
-    >
+    <span className="flex size-10 shrink-0 items-center justify-center rounded-control bg-ink-50">
       {children}
     </span>
   );

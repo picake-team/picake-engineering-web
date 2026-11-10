@@ -12,6 +12,7 @@ Picake(디저트 주문 플랫폼)의 **웹 프론트엔드** 레포입니다. Y
 | `picake-hq` (비공개)         | 회사 운영·운영 자동화 (매일 브리핑, 주간 회의, 데이터 리포트·인프라 점검 skill)               | 형제 폴더 `../picake-hq`                  |
 
 - 문서에 나오는 `apps/backend/...` 경로와 `deploy-*-backend-ec2.yml`은 backend 레포의 것입니다.
+- 판매자 휴대폰 화면(판매자 앱)을 만들거나 고치면 [`docs/web-seller/판매자 앱 디자인 기준.md`](docs/web-seller/판매자%20앱%20디자인%20기준.md)를 먼저 보고 `apps/web-seller/src/common/ui` 부품만 씁니다(높이 48/40/36, 흰색·회색·주황만, 연한·흐린 주황 금지, 날짜는 앱 창).
 - 공통 디자인 값(Picake 색, 손님 화면 tailwind preset)은 `packages/design-tokens`(`@picake/design-tokens`)에 있고 web-user·web-info·web-seller가 씁니다. 바꾸면 세 앱 화면이 같이 바뀝니다. 두 앱 이상이 같이 쓰는 값만 두고, 판매자 휴대폰 화면 값은 `apps/web-seller/src/common/ui/tokens.ts`에 둡니다.
 - 프로젝트 공통 문서는 이 레포 `docs/common`이 정본입니다. 구조는 `docs/common/structure/프로젝트 구조 - 가이드.md`, AI 에이전트 설정은 `docs/common/structure/AI 코딩 에이전트 - 가이드.md`를 참고하세요.
 

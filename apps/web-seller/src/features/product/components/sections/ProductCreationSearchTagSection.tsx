@@ -68,7 +68,7 @@ export const ProductCreationSearchTagSection: React.FC<ProductCreationSearchTagS
   return (
     <div>
       <div className="flex flex-col gap-4">
-        <p className="text-sm text-muted-foreground">
+        <p className={inFrame ? "text-caption text-ink-600" : "text-sm text-muted-foreground"}>
           손님이 검색할 때 쓰는 말 (예: 생일케이크, 레터링)
         </p>
 
@@ -78,17 +78,32 @@ export const ProductCreationSearchTagSection: React.FC<ProductCreationSearchTagS
             {value.map((tag, index) => (
               <div
                 key={index}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-muted/60 text-sm text-foreground border border-border/80"
+                className={
+                  inFrame
+                    ? // 휴대폰 틀 안: 앱 칩(흰 바탕 + 회색 테두리, 36)과 같은 모양
+                      "inline-flex h-9 items-center gap-1 rounded-full border border-ink-200 bg-white pl-3.5 pr-1.5 font-app text-sub font-bold text-ink-700"
+                    : "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-muted/60 text-sm text-foreground border border-border/80"
+                }
               >
                 <span>{tag}</span>
                 {!disabled && (
                   <button
                     type="button"
                     onClick={() => handleRemoveTag(tag)}
-                    className="ml-1 hover:bg-muted rounded-full p-0.5 transition-colors"
+                    className={
+                      inFrame
+                        ? "inline-flex size-7 items-center justify-center rounded-full text-ink-400 active:bg-ink-50"
+                        : "ml-1 hover:bg-muted rounded-full p-0.5 transition-colors"
+                    }
                     aria-label={`${tag} 태그 제거`}
                   >
-                    <X className="h-3.5 w-3.5 text-muted-foreground hover:text-foreground" />
+                    <X
+                      className={
+                        inFrame
+                          ? "h-4 w-4"
+                          : "h-3.5 w-3.5 text-muted-foreground hover:text-foreground"
+                      }
+                    />
                   </button>
                 )}
               </div>
@@ -108,13 +123,15 @@ export const ProductCreationSearchTagSection: React.FC<ProductCreationSearchTagS
             disabled={disabled}
             className="flex-1"
           />
+          {/* 휴대폰 틀 안: 입력 칸 바로 옆 버튼은 흰 보조 48(디자인 기준 Field) */}
           <Button
             type="button"
             onClick={() => handleAddTag()}
             disabled={disabled || !inputValue.trim()}
+            variant={inFrame ? "outline" : undefined}
             size={inFrame ? "lg" : undefined}
           >
-            확인
+            {inFrame ? "추가" : "확인"}
           </Button>
         </div>
       </div>

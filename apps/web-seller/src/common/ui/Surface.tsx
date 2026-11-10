@@ -28,7 +28,7 @@ export function Card({
   );
 }
 
-/** 카드 아래 가득 찬 주 버튼(52) */
+/** 카드 아래 가득 찬 주 버튼(48). 못 누를 때는 앱 Button과 같은 회색 채움 */
 export function CardFooterButton({
   children,
   onClick,
@@ -47,8 +47,10 @@ export function CardFooterButton({
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       className={cx(
-        "flex h-12 w-full items-center justify-center gap-2 bg-brand font-app text-body font-bold text-white disabled:cursor-not-allowed",
-        disabled && !loading ? "opacity-40" : "active:brightness-95",
+        "flex h-12 w-full items-center justify-center gap-2 font-app text-body font-bold disabled:cursor-not-allowed",
+        disabled && !loading
+          ? "bg-ink-100 text-ink-400"
+          : "bg-brand text-white active:brightness-95",
       )}
     >
       {loading ? (

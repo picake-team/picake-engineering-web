@@ -20,11 +20,12 @@ import { SelectBox } from "@/apps/web-seller/common/components/selects/SelectBox
 import { ImageMultiUpload } from "@/apps/web-seller/features/upload/components/ImageMultiUpload";
 import { BaseButton as Button } from "@/apps/web-seller/common/components/buttons/BaseButton";
 import {
-  FRAME_SUBMIT_BAR_CLASS,
   FRAME_SUBMIT_BUTTON_CLASS,
   useInMobileFrame,
 } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
+import { FrameSubmitBar } from "@/apps/web-seller/common/components/layouts/FrameSubmitBar";
 
+import { Textarea } from "@/apps/web-seller/common/components/textareas/Textarea";
 import { BaseInput as Input } from "@/apps/web-seller/common/components/inputs/BaseInput";
 import { AddressInput } from "@/apps/web-seller/common/components/inputs/AddressInput";
 import { FormSection } from "@/apps/web-seller/common/components/sections/FormSection";
@@ -74,9 +75,6 @@ const SECTION_ORDER: { id: string; keys: string[] }[] = [
   { id: "section-store-bank", keys: ["bankName", "bankAccountNumber", "accountHolderName"] },
   { id: "section-store-refund", keys: ["refundCancellationPolicy"] },
 ];
-
-const textareaClass =
-  "flex min-h-[80px] w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
 
 function validateStoreForm(form: StoreForm): Errors {
   const errors: Errors = {};
@@ -235,13 +233,13 @@ export const StoreCreationForm: React.FC<Props> = ({
               </p>
             }
           >
-            <textarea
+            <Textarea
               placeholder="가게 소개, 주문 방법, 픽업 안내 등을 적어 주세요. 손님 화면에서는 길면 접어서 보여 줘요."
               rows={6}
               maxLength={STORE_DESCRIPTION_MAX_LENGTH}
               value={form.description || ""}
               onChange={handleChange("description")}
-              className={`${textareaClass} ${errors.description ? "border-destructive" : "border-input"}`}
+              className={errors.description ? "border-destructive" : undefined}
             />
           </Field>
           <Field label="연락처" required error={errors.phoneNumber}>
@@ -383,40 +381,38 @@ export const StoreCreationForm: React.FC<Props> = ({
       {/* 저장 버튼은 항상 화면 아래에 */}
       {inFrame ? (
         // 휴대폰(디자인 8-F·A66b): 이전 | 고칠 곳 n개(누르면 첫 고칠 곳으로) | 등록하기·저장하기
-        <div className={FRAME_SUBMIT_BAR_CLASS}>
-          <div className="flex gap-2">
-            {onPrevious && (
-              <Button
-                type="button"
-                variant="outline"
-                className={FRAME_SUBMIT_BUTTON_CLASS}
-                onClick={onPrevious}
-              >
-                이전
-              </Button>
-            )}
-            {errorKeys.length > 0 && (
-              <Button
-                type="button"
-                variant="outline"
-                className={FRAME_SUBMIT_BUTTON_CLASS}
-                onClick={() => goToFirstError(errorKeys)}
-              >
-                고칠 곳 {errorKeys.length}개
-              </Button>
-            )}
+        <FrameSubmitBar>
+          {onPrevious && (
             <Button
-              type="submit"
-              className={cn(
-                FRAME_SUBMIT_BUTTON_CLASS,
-                (onPrevious || errorKeys.length > 0) && "flex-[2]",
-              )}
-              disabled={submitting}
+              type="button"
+              variant="outline"
+              className={FRAME_SUBMIT_BUTTON_CLASS}
+              onClick={onPrevious}
             >
-              {submitButtonText || (initialValue ? "저장하기" : "등록하기")}
+              이전
             </Button>
-          </div>
-        </div>
+          )}
+          {errorKeys.length > 0 && (
+            <Button
+              type="button"
+              variant="outline"
+              className={FRAME_SUBMIT_BUTTON_CLASS}
+              onClick={() => goToFirstError(errorKeys)}
+            >
+              고칠 곳 {errorKeys.length}개
+            </Button>
+          )}
+          <Button
+            type="submit"
+            className={cn(
+              FRAME_SUBMIT_BUTTON_CLASS,
+              (onPrevious || errorKeys.length > 0) && "flex-[2]",
+            )}
+            disabled={submitting}
+          >
+            {submitButtonText || (initialValue ? "저장하기" : "등록하기")}
+          </Button>
+        </FrameSubmitBar>
       ) : (
         <div className="sticky bottom-0 z-10 flex items-center gap-3 border-t bg-background/95 px-1 py-3 backdrop-blur">
           {onPrevious && (

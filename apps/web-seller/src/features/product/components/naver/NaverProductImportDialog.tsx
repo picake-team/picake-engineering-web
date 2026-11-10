@@ -37,6 +37,7 @@ import {
   type TextRowKey,
 } from "@/apps/web-seller/features/product/utils/naver-product.util";
 import { useInMobileFrame } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
+import { Icon } from "@/apps/web-seller/common/ui/icons";
 
 /** 네이버에서 가져온 설명 (AI 초안 참고 자료로 넘긴다) */
 export type NaverSourceText = { description: string | null; precautions: string | null };
@@ -312,9 +313,9 @@ export function NaverProductImportDialog({
                   }
                   className={`flex w-full items-center gap-3 p-3 text-left hover:bg-muted/50 disabled:cursor-not-allowed disabled:opacity-50 ${
                     picked
-                      ? // 휴대폰 틀 안: 고른 줄은 연한 주황 바탕 하나만(테두리와 겹치지 않음, 운영자 의견 2026-11-07)
+                      ? // 휴대폰 틀 안: 고른 줄은 회색 바탕 + 오른쪽 주황 체크(연한 주황 바탕은 분홍으로 보여 쓰지 않음, 2026-11-10)
                         inFrame
-                        ? "bg-brand-tint"
+                        ? "bg-ink-50"
                         : "bg-primary/5 ring-1 ring-inset ring-primary"
                       : ""
                   }`}
@@ -337,6 +338,11 @@ export function NaverProductImportDialog({
                         : [item.priceText, item.summary].filter(Boolean).join(" · ")}
                     </p>
                   </div>
+                  {picked && inFrame ? (
+                    <span className="shrink-0 text-brand">
+                      <Icon name="check" size={18} strokeWidth={2.4} />
+                    </span>
+                  ) : null}
                   {!linkOnly && !disabled && (
                     <ChevronRight className="h-4 w-4 text-muted-foreground" />
                   )}

@@ -63,7 +63,7 @@ export const StoreWelcomeMobilePage: React.FC = () => {
       )}
     >
       <div className="flex flex-col gap-3">
-        <span className="flex size-14 items-center justify-center rounded-card bg-brand-tint text-brand">
+        <span className="flex size-14 items-center justify-center rounded-card bg-ink-50 text-brand">
           <Icon name="bell" size={28} strokeWidth={1.8} />
         </span>
         <h1 className="text-title font-bold">
@@ -85,7 +85,7 @@ export const StoreWelcomeMobilePage: React.FC = () => {
       <div className="flex-1" />
       {granted ? (
         <>
-          <div className="flex flex-col gap-1 rounded-card bg-brand-tint px-4 py-3">
+          <div className="flex flex-col gap-1 rounded-card bg-ink-50 px-4 py-3">
             <p className="text-body font-semibold">알림을 허용했어요</p>
             <p className="text-caption text-ink-600">알림이 잘 오는지 확인해 보세요</p>
           </div>

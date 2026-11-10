@@ -71,39 +71,7 @@ textarea {
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%;
     --ring: 0 0% 3.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
     --radius: 0.5rem;
-  }
-
-  .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
   }
 }
 
@@ -121,6 +89,7 @@ textarea {
  * 맞춘다(운영자 의견 2026-11-06 "검정·초록이 많다, 적어도 색상은"). 틀이 열려 있는 동안 <html>에 붙어 창·목록(포털)까지 바뀐다.
  * 주 버튼·체크·토글 = 주황 #FF653E, 글씨 #1F1F1E·#686864, 입력 테두리 #D4D4D3, 나누는 선 #EBEBEA,
  * 고칠 곳·필수 표시 = #B5401C, 입력 중 테두리 = 진한 회색 #4E4E4B, 모서리 12.
+ * 고른 줄·마우스 올림(accent)은 회색이다. 연한 주황 바탕은 분홍으로 보여 쓰지 않는다(운영자 의견 2026-11-10).
  */
 .app-form {
   --foreground: 60 2% 12%;
@@ -132,7 +101,7 @@ textarea {
   --secondary-foreground: 60 2% 12%;
   --muted: 0 0% 96%;
   --muted-foreground: 60 2% 40%;
-  --accent: 12 100% 96%;
+  --accent: 0 0% 96%;
   --accent-foreground: 60 2% 12%;
   --destructive: 14 73% 41%;
   --destructive-foreground: 0 0% 100%;
@@ -141,16 +110,17 @@ textarea {
   --ring: 60 2% 30%;
   --radius: 0.75rem;
 }
-/* PC 화면의 노란 안내 칸은 연한 주황 칸으로 */
+/* PC 화면의 노란 안내 칸은 앱 주의 안내(WarningBox)처럼 흰 바탕 + 주황 테두리 1.5 + 진한 글씨 */
 .app-form .bg-amber-50 {
-  background-color: #ffefeb;
+  background-color: #ffffff;
 }
 .app-form .border-amber-200 {
-  border-color: #ffd3c5;
+  border-color: #ff653e;
+  border-width: 1.5px;
 }
 .app-form .text-amber-800,
 .app-form .text-amber-900 {
-  color: #b5401c;
+  color: #1f1f1e;
 }
 /* 휴대폰 틀 안 상세 설명 편집기(react-quill): 입력 칸과 같은 테두리·모서리·글자(디자인 6-F) */
 .app-form .ql-toolbar.ql-snow {

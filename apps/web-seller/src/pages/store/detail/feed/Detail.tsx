@@ -2,11 +2,10 @@ import React, { useState } from "react";
 import { PageTitle } from "@/apps/web-seller/common/components/layouts/MobileFrame";
 import { useFrameConfirm } from "@/apps/web-seller/common/components/layouts/useFrameConfirm";
 import {
-  FRAME_SUBMIT_BAR_CLASS,
   FRAME_SUBMIT_BUTTON_CLASS,
   useInMobileFrame,
 } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
-import { cn } from "@/apps/web-seller/common/utils/classname.util";
+import { FrameSubmitBar } from "@/apps/web-seller/common/components/layouts/FrameSubmitBar";
 
 import { useParams } from "react-router-dom";
 import { useFeedDetail } from "@/apps/web-seller/features/feed/hooks/queries/useFeedQuery";
@@ -116,6 +115,28 @@ export const StoreDetailFeedDetailPage: React.FC = () => {
     await deleteFeedMutation.mutateAsync({ feedId, storeId });
   };
 
+  // 버튼: 휴대폰 틀 안에서는 늘 화면 맨 아래 저장 줄(FrameSubmitBar), PC는 폼 아래 가운데
+  const submitButtons = (
+    <>
+      <Button
+        type="button"
+        variant={inFrame ? "outline" : "destructive"}
+        onClick={handleDelete}
+        disabled={deleteFeedMutation.isPending || updateFeedMutation.isPending}
+        className={inFrame ? FRAME_SUBMIT_BUTTON_CLASS : undefined}
+      >
+        삭제하기
+      </Button>
+      <Button
+        type="submit"
+        disabled={updateFeedMutation.isPending}
+        className={inFrame ? FRAME_SUBMIT_BUTTON_CLASS : undefined}
+      >
+        {updateFeedMutation.isPending ? "수정 중..." : "수정하기"}
+      </Button>
+    </>
+  );
+
   return (
     <div className={inFrame ? "flex flex-1 flex-col" : "space-y-6"}>
       <PageTitle className="text-3xl font-bold">피드 수정</PageTitle>
@@ -175,30 +196,11 @@ export const StoreDetailFeedDetailPage: React.FC = () => {
             </div>
 
             {/* 버튼 */}
-            <div
-              className={
-                inFrame
-                  ? cn(FRAME_SUBMIT_BAR_CLASS, "mt-auto flex-row")
-                  : "flex justify-center gap-4 pt-6"
-              }
-            >
-              <Button
-                type="button"
-                variant={inFrame ? "outline" : "destructive"}
-                onClick={handleDelete}
-                disabled={deleteFeedMutation.isPending || updateFeedMutation.isPending}
-                className={inFrame ? FRAME_SUBMIT_BUTTON_CLASS : undefined}
-              >
-                삭제하기
-              </Button>
-              <Button
-                type="submit"
-                disabled={updateFeedMutation.isPending}
-                className={inFrame ? FRAME_SUBMIT_BUTTON_CLASS : undefined}
-              >
-                {updateFeedMutation.isPending ? "수정 중..." : "수정하기"}
-              </Button>
-            </div>
+            {inFrame ? (
+              <FrameSubmitBar>{submitButtons}</FrameSubmitBar>
+            ) : (
+              <div className="flex justify-center gap-4 pt-6">{submitButtons}</div>
+            )}
           </form>
         </CardContent>
       </Card>

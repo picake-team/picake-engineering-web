@@ -1,6 +1,7 @@
 /**
  * 버튼 (디자인 기준 B-3·B-6).
- * - primary: 주황 채움, 화면에 하나(버튼 둘이면 오른쪽). 못 누르면 흐리게(40%) + 이유 문구는 버튼 위 한 줄
+ * - primary: 주황 채움, 화면에 하나(버튼 둘이면 오른쪽). 못 누르면 회색 채움(#EBEBEA + #8C8C88) + 이유 문구는 버튼 위 한 줄.
+ *   흐린 주황(투명도)은 분홍으로 보여 쓰지 않는다(운영자 의견 2026-11-10)
  * - secondary: 흰 바탕 + 테두리. 48은 15/700 진한 글씨, 40은 13/700 #4E4E4B
  * - quiet: 회색 글자 버튼(약한 행동: 그만두기·나중에·로그아웃) 13/400 #686864
  * 갈색(#B5401C) 글자 버튼은 쓰지 않는다(운영자 결정 2026-11-06). 위쪽 줄의 행동은 아이콘 버튼(HeaderIconButton),
@@ -34,8 +35,8 @@ function variantClass(variant: ButtonVariant, size: ButtonSize, disabled: boolea
   switch (variant) {
     case "primary":
       return cx(
-        "rounded-control bg-brand text-white",
-        disabled ? "opacity-40" : "active:brightness-95",
+        "rounded-control",
+        disabled ? "bg-ink-100 text-ink-400" : "bg-brand text-white active:brightness-95",
       );
     case "secondary":
       return cx(
@@ -127,7 +128,7 @@ export function ButtonPair({
   );
 }
 
-/** 동그라미 아이콘 버튼: 보이는 크기 40, 누르는 칸 44 (전화·문자·복사·공유) */
+/** 동그라미 아이콘 버튼: 보이는 크기 36, 누르는 칸 44 (전화·문자·복사·공유) */
 export const CircleIconButton = React.forwardRef<
   HTMLButtonElement,
   React.ButtonHTMLAttributes<HTMLButtonElement> & {

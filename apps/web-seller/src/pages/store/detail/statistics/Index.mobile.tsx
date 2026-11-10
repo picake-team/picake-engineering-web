@@ -1,6 +1,8 @@
 /**
  * 휴대폰 주문 통계 (SC-92, 디자인 A92). 기간 빠른 선택(오늘·이번주·이번달·최근 90일 = PC "누적")과 직접 고르기,
  * 매출·주문건수, 잘 팔린 상품(매출 순·주문건수 순), 요일·시간대 그래프는 접어 둔다.
+ * 직접 고르기는 고르는 칸(PickerButton)을 눌러 앱 달력 창(DateRangeSheet)에서 고른다(휴대폰 기본 날짜 창은 앱 디자인과 달라 쓰지 않음).
+ * 집계된 주문이 없으면 남은 칸 가운데에 빈 화면(주문 탭과 같은 모양).
  * 세는 기준은 지금 PC와 같다(주문 접수일 기준, 픽업 완료한 주문만).
  */
 import React, { useState } from "react";
@@ -8,6 +10,8 @@ import { useParams, useSearchParams } from "react-router-dom";
 import { AppScreen, BackHeader } from "@/apps/web-seller/common/ui/Screen";
 import { ChipGroup, SegmentedTabs } from "@/apps/web-seller/common/ui/Choice";
 import { GroupTitle } from "@/apps/web-seller/common/ui/List";
+import { PickerButton } from "@/apps/web-seller/common/ui/Field";
+import { DateRangeSheet } from "@/apps/web-seller/common/ui/DateRangeSheet";
 import { EmptyState, LoadErrorState } from "@/apps/web-seller/common/ui/Surface";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
 import { cx } from "@/apps/web-seller/common/ui/cx";
@@ -135,7 +139,7 @@ export const StoreDetailStatisticsMobilePage: React.FC = () => {
       ? rangeFor("week", today)
       : { start: addDaysToKey(today, STATISTICS_DEFAULT_DAY_OFFSET), end: today },
   );
-  const [customOpen, setCustomOpen] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [rankBy, setRankBy] = useState<"revenue" | "orders">("revenue");
   const [chartsOpen, setChartsOpen] = useState(false);
 
@@ -144,15 +148,15 @@ export const StoreDetailStatisticsMobilePage: React.FC = () => {
   const empty = data && data.totalOrders === 0;
 
   const pick = (p: Preset) => {
+    // 직접 고르기는 창에서 "이 기간 보기"를 눌러야 바뀐다(닫으면 그대로)
     if (p === "custom") {
-      setPreset("custom");
-      setCustomOpen(true);
+      setSheetOpen(true);
       return;
     }
     setPreset(p);
-    setCustomOpen(false);
     setRange(rangeFor(p, today));
   };
+  const rangeText = `${formatKeyMonthDayWeek(range.start)} ~ ${formatKeyMonthDayWeek(range.end)}`;
 
   const products = rankBy === "revenue" ? data?.topProductsByRevenue : data?.topProductsByOrders;
 
@@ -160,7 +164,7 @@ export const StoreDetailStatisticsMobilePage: React.FC = () => {
     <AppScreen header={<BackHeader title="주문 통계" />} bodyClassName="pt-2">
       <ChipGroup
         label="기간"
-        value={customOpen ? "custom" : preset}
+        value={preset}
         onChange={pick}
         options={[
           { value: "today", label: "오늘" },
@@ -170,28 +174,28 @@ export const StoreDetailStatisticsMobilePage: React.FC = () => {
           { value: "custom", label: "직접 고르기" },
         ]}
       />
-      {customOpen ? (
-        <div className="flex items-center gap-2">
-          {(["start", "end"] as const).map((k, i) => (
-            <React.Fragment key={k}>
-              {i === 1 ? <span className="text-ink-600">~</span> : null}
-              <input
-                type="date"
-                aria-label={k === "start" ? "시작일" : "종료일"}
-                value={range[k]}
-                max={k === "start" ? range.end : today}
-                min={k === "end" ? range.start : undefined}
-                onChange={(e) => e.target.value && setRange((r) => ({ ...r, [k]: e.target.value }))}
-                className="h-12 min-w-0 flex-1 rounded-control border border-ink-200 bg-white px-3 text-body text-ink-900"
-              />
-            </React.Fragment>
-          ))}
-        </div>
+      {preset === "custom" ? (
+        <PickerButton
+          aria-label="기간 고르기"
+          value={rangeText}
+          onClick={() => setSheetOpen(true)}
+        />
       ) : null}
       <p className="text-caption leading-normal text-ink-600">
-        {formatKeyMonthDayWeek(range.start)}~{formatKeyMonthDayWeek(range.end)} · 픽업 완료한 주문만
-        세요(주문 접수일 기준)
+        {preset === "custom" ? "" : `${rangeText} · `}픽업 완료한 주문만 세요(주문 접수일 기준)
       </p>
+      <DateRangeSheet
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        start={range.start}
+        end={range.end}
+        max={today}
+        onApply={(start, end) => {
+          setPreset("custom");
+          setRange({ start, end });
+          setSheetOpen(false);
+        }}
+      />
 
       {q.isError ? (
         <LoadErrorState onRetry={() => void q.refetch()} />
@@ -215,7 +219,11 @@ export const StoreDetailStatisticsMobilePage: React.FC = () => {
             ))}
           </div>
           {empty ? (
-            <EmptyState title="해당 기간에 집계된 데이터가 없습니다." />
+            <EmptyState
+              big
+              title="이 기간에 집계된 주문이 없어요"
+              description="다른 기간을 골라 보세요"
+            />
           ) : data ? (
             <>
               <GroupTitle>잘 팔린 상품</GroupTitle>

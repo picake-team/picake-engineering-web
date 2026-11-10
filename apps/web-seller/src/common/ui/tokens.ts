@@ -23,7 +23,7 @@ export const appColors = {
   brand: {
     DEFAULT: colors.primary.DEFAULT, // 주 버튼·고른 것·할 일
     ink: "#B5401C", // 작은 주황 글씨(대비 5.6:1) — 판매자 앱 값
-    tint: colors.primary[50], // 연한 주황 칸
+    // 연한 주황 바탕(tint)은 없앴다: 분홍으로 보인다(운영자 의견 2026-11-10). 바탕은 흰색·회색(ink-50)만 쓴다
   },
   kakao: "#FFEB00",
 } as const;

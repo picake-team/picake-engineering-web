@@ -121,6 +121,25 @@ export function mondayOfKey(key: string): string {
   return addDaysToKey(key, w === 0 ? -6 : 1 - w);
 }
 
+/** 그달 1일 키 */
+export function monthStartKey(key: string): string {
+  return `${key.slice(0, 8)}01`;
+}
+
+/** 그달 마지막 날 키(1일 키를 넘긴다) */
+export function monthEndKey(startKey: string): string {
+  const [y, m] = startKey.split("-").map(Number);
+  const nextMonth = m === 12 ? `${y + 1}-01-01` : `${y}-${pad2(m + 1)}-01`;
+  return addDaysToKey(nextMonth, -1);
+}
+
+/** 1일 키를 delta달 옮긴다 */
+export function shiftMonthKey(startKey: string, delta: number): string {
+  const [y, m] = startKey.split("-").map(Number);
+  const idx = y * 12 + (m - 1) + delta;
+  return `${Math.floor(idx / 12)}-${pad2((idx % 12) + 1)}-01`;
+}
+
 export function dayOfKey(key: string): number {
   return Number(key.split("-")[2]);
 }
