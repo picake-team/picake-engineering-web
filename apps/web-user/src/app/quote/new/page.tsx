@@ -31,7 +31,21 @@ import {
 } from "@/apps/web-user/features/quote/components/form/QuoteFormSteps";
 import { useCreateQuoteRequest } from "@/apps/web-user/features/quote/hooks/useQuoteRequests";
 import { quoteLocalApi } from "@/apps/web-user/features/quote/apis/quote.api";
-import { pickupWindow } from "@/apps/web-user/features/quote/utils/quote-time.util";
+import {
+  formatPickupDate,
+  pickupWindow,
+} from "@/apps/web-user/features/quote/utils/quote-time.util";
+
+/** 쓰던 요청서 한 줄: "11월 15일(일) 픽업 · 성수동2가 요청서를 쓰고 있었어요" */
+function draftSummary(draft: QuoteDraft): string {
+  const parts = [
+    draft.pickupDate ? `${formatPickupDate(draft.pickupDate)} 픽업` : null,
+    draft.area?.name ?? null,
+  ].filter(Boolean);
+  return parts.length
+    ? `${parts.join(" · ")} 요청서를 쓰고 있었어요`
+    : "쓰던 내용이 이 휴대폰에 남아 있어요";
+}
 
 const ENTRIES: QuoteRequestEntry[] = ["HOME", "SEARCH", "MAP", "STORE", "MYPAGE"];
 
@@ -322,9 +336,21 @@ function QuoteNewContent() {
         onClose={() => setPendingInit(null)}
         title="쓰던 요청서가 있어요"
       >
-        <div className="flex gap-[8px] px-[20px] pb-[20px] pt-[8px]">
+        <p className="px-[20px] pt-[4px] text-sm text-gray-500">{draftSummary(draft)}</p>
+        <div className="flex gap-[8px] px-[20px] pb-[20px] pt-[16px]">
           <Button
             variant="outline"
+            size="lg"
+            className="flex-1"
+            onClick={() => {
+              start(pendingInit ?? undefined);
+              if (pendingInit) fillAreaFromStore(pendingInit);
+              setPendingInit(null);
+            }}
+          >
+            새로 쓰기
+          </Button>
+          <Button
             size="lg"
             className="flex-1"
             onClick={() => {
@@ -341,17 +367,6 @@ function QuoteNewContent() {
             }}
           >
             이어 쓰기
-          </Button>
-          <Button
-            size="lg"
-            className="flex-1"
-            onClick={() => {
-              start(pendingInit ?? undefined);
-              if (pendingInit) fillAreaFromStore(pendingInit);
-              setPendingInit(null);
-            }}
-          >
-            새로 쓰기
           </Button>
         </div>
       </BottomSheet>

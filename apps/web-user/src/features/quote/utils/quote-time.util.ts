@@ -116,8 +116,8 @@ export function formatDeadline(deadline: Date, now: Date): string {
   return `${sameMonth ? day : `${d.month}월 ${day}`} ${formatHour(d.hour)}`;
 }
 
-/** "12/24(목)" */
-export function formatShortDate(ymd: string): string {
+/** "12월 24일(목)" — 보낸 뒤·요청 상세·MY 요약(서버 quote-request-label)과 같은 모양 */
+export function formatPickupDate(ymd: string): string {
   const [y, m, d] = ymd.split("-").map(Number);
-  return `${m}/${d}(${WEEKDAYS[new Date(Date.UTC(y, m - 1, d)).getUTCDay()]})`;
+  return `${m}월 ${d}일(${WEEKDAYS[new Date(Date.UTC(y, m - 1, d)).getUTCDay()]})`;
 }
