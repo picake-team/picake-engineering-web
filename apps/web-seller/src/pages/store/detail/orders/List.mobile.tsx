@@ -271,7 +271,7 @@ function SearchResults({
           big
           icon="search"
           title="찾는 주문이 없어요"
-          description="주문번호나 상품명을 다시 확인해 주세요"
+          description="이름, 전화번호 뒷자리, 상품명, 주문번호로 찾을 수 있어요"
         />
       ) : (
         <div className="flex flex-col gap-3">

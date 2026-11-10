@@ -135,6 +135,8 @@ export interface OrderListRequestDto {
   orderNumber?: string;
   /** 상품명 부분 일치 검색 */
   productName?: string;
+  /** 검색어 하나로 주문번호·상품명·예약자 이름·연락처(숫자 4자리 이상) 찾기 */
+  keyword?: string;
   type?: OrderType;
   /** YYYY-MM-DD, Asia/Seoul 달력 (백엔드 pickupStartDate) */
   pickupStartDate?: string;

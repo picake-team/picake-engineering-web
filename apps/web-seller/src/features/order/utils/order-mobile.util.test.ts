@@ -200,9 +200,9 @@ describe("카드 글자", () => {
 });
 
 describe("검색·연락", () => {
-  it("ORD-로 시작하면 주문번호, 아니면 상품명", () => {
-    expect(searchParamsFor(" ord-20261106-012 ")).toEqual({ orderNumber: "ORD-20261106-012" });
-    expect(searchParamsFor("딸기")).toEqual({ productName: "딸기" });
+  it("검색어는 앞뒤 빈칸을 빼고 하나로 보낸다(이름·번호 뒷자리·상품명·주문번호를 서버가 함께 찾음)", () => {
+    expect(searchParamsFor(" ord-20261106-012 ")).toEqual({ keyword: "ord-20261106-012" });
+    expect(searchParamsFor("5678")).toEqual({ keyword: "5678" });
     expect(searchParamsFor("  ")).toEqual({});
   });
 
