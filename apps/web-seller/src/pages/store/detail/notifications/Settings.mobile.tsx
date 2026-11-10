@@ -1,5 +1,6 @@
 /**
- * 휴대폰 알림 설정 (SC-93, 디자인 A93). 스토어마다: 주문 알림 받기(끌 때 한 번 묻기), 주문 알림 소리, 아침 요약.
+ * 휴대폰 알림 설정 (SC-93, 디자인 A93). 스토어마다: 주문 알림 받기(끌 때 한 번 묻기), 아침 요약.
+ * "주문 알림 소리"(앱을 켜 둔 동안의 화면 안 소리)는 PC 화면에만 둔다. 휴대폰은 휴대폰 알림 소리에 맡긴다(운영자 17차).
  * 아래 묶음 "테스트 알림 보내기"로 내 휴대폰에 오는지 확인하고(심사관도 이 버튼으로 확인), 안 오면 "알림이 안 와요"를 편다.
  * 맨 위 "이 휴대폰 알림" 칸은 앱에서만 보인다(허용 상태, 꺼져 있으면 "켜기": 허용 창 또는 휴대폰 설정).
  */
@@ -63,6 +64,7 @@ export const StoreDetailNotificationSettingsMobilePage: React.FC = () => {
         <ListRow
           title="주문 알림 받기"
           description="예약 신청, 입금·확정, 픽업, 취소·환불 알림"
+          divider={typeof prefs.morningSummaryEnabled === "boolean"}
           trailing={
             <Switch
               label="주문 알림 받기"
@@ -72,20 +74,6 @@ export const StoreDetailNotificationSettingsMobilePage: React.FC = () => {
                 if (!next) setConfirmOff(true);
                 else update.mutate({ orderNotificationsEnabled: true });
               }}
-            />
-          }
-        />
-        <ListRow
-          title="주문 알림 소리"
-          description="앱을 켜 두었을 때 화면 안 알림 소리"
-          dimmed={!prefs.orderNotificationsEnabled}
-          divider={typeof prefs.morningSummaryEnabled === "boolean"}
-          trailing={
-            <Switch
-              label="주문 알림 소리"
-              disabled={!loaded || update.isPending || !prefs.orderNotificationsEnabled}
-              checked={prefs.orderNotificationSoundEnabled}
-              onChange={(next) => update.mutate({ orderNotificationSoundEnabled: next })}
             />
           }
         />

@@ -1,6 +1,12 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
+import {
+  PHONE_MAX_WIDTH_PX,
+  SCREEN_MODE,
+  shouldShowMobileScreens,
+} from "@/apps/web-seller/common/constants/screen.constant";
+import { isSellerAppWebView } from "@/apps/web-seller/common/utils/webview.bridge";
 import { useQueryClient } from "@tanstack/react-query";
 import { connectNotificationSocket } from "@/apps/web-seller/features/notification/services/notification-socket.service";
 import type {
@@ -46,6 +52,15 @@ interface SellerNotificationContextValue {
 }
 
 const SellerNotificationContext = createContext<SellerNotificationContextValue | null>(null);
+
+/** 휴대폰 앱 안이거나 휴대폰 화면을 그리는 중인지(화면 안 알림 소리를 내지 않음) */
+function isPhoneOrApp(): boolean {
+  if (isSellerAppWebView()) return true;
+  return shouldShowMobileScreens(
+    SCREEN_MODE,
+    window.matchMedia(`(max-width: ${PHONE_MAX_WIDTH_PX}px)`).matches,
+  );
+}
 
 /** 소켓 알림 뒤 다시 불러오기를 모으는 시간 */
 const SOCKET_REFRESH_DELAY_MS = 800;
@@ -123,7 +138,9 @@ export const SellerNotificationProvider: React.FC<{
             navigateRef.current(ROUTES.STORE_DETAIL_ORDERS_DETAIL(item.storeId, item.orderId));
           },
         });
-        if (prefs.orderNotificationSoundEnabled) {
+        // 화면 안 알림 소리는 PC 화면에서만. 휴대폰 앱·휴대폰 화면은 휴대폰 알림 소리에 맡긴다
+        // (앱 웹뷰는 누르는 순간이 아니면 소리를 막아 거의 울리지 않았다, 운영자 17차)
+        if (prefs.orderNotificationSoundEnabled && !isPhoneOrApp()) {
           playNotificationChime();
         }
       },
