@@ -116,7 +116,7 @@ export default function MyReviewsPage() {
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         title="삭제하면 다시 쓸 수 없어요."
-        description="후기를 삭제하시겠습니까?"
+        description="후기를 삭제할까요?"
         confirmText="취소"
         cancelText="삭제"
         onCancel={handleConfirmDelete}

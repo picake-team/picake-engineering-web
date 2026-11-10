@@ -380,7 +380,7 @@ export function ReservationBottomSheet({
         isOpen={isCancelModalOpen}
         onClose={() => setIsCancelModalOpen(false)}
         title="예약 진행 취소"
-        description="예약 진행을 취소하시겠습니까?"
+        description="예약 진행을 취소할까요?"
         confirmText="계속 진행하기"
         cancelText="취소"
         onCancel={handleConfirmCancel}
@@ -390,7 +390,7 @@ export function ReservationBottomSheet({
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         title="상품 삭제"
-        description="해당 상품을 삭제하시겠습니까?"
+        description="이 상품을 삭제할까요?"
         confirmText="취소"
         cancelText="삭제"
         onCancel={handleConfirmDelete}
