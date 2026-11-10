@@ -18,6 +18,11 @@
 }
 
 html,
+/* 밝은 화면만 쓴다(판매자 앱과 같음). 어두운 모드 휴대폰에서 브라우저가 색을 억지로 바꾸지 않게 */
+:root {
+  color-scheme: only light;
+}
+
 body {
   max-width: 100vw;
   overflow-x: hidden;
