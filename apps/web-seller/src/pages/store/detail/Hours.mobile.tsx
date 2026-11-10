@@ -4,7 +4,10 @@
  * 서버가 막고 겹친 예약을 알려 준다(지금 PC와 같음).
  */
 import React, { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Icon } from "@/apps/web-seller/common/ui/icons";
+import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
+import { canGoBackInApp } from "@/apps/web-seller/common/hooks/useLeaveAfterSave";
+import { useNavigate, useParams } from "react-router-dom";
 import { AppScreen, BackHeader, BottomActionBar } from "@/apps/web-seller/common/ui/Screen";
 import { Button } from "@/apps/web-seller/common/ui/Button";
 import { ChoiceGrid } from "@/apps/web-seller/common/ui/Choice";
@@ -163,9 +166,13 @@ function NaverHoursSheet({
         </ul>
       ) : null}
       {data ? (
-        <details className="text-sub text-ink-700">
-          <summary className="min-h-11 cursor-pointer py-2 text-ink-600">
-            네이버에 적힌 영업시간 전체
+        <details className="group text-sub text-ink-700">
+          {/* 펼치기는 줄 이름 + 오른쪽 ⌄(▶ 글자 쓰지 않음) */}
+          <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 py-2 text-ink-600 [&::-webkit-details-marker]:hidden">
+            <span className="flex-1">네이버에 적힌 영업시간 전체</span>
+            <span className="shrink-0 text-ink-400 transition-transform group-open:rotate-180">
+              <Icon name="chevronDown" size={18} strokeWidth={2} />
+            </span>
           </summary>
           <ul className="flex flex-col gap-0.5">
             {data.businessHours.days.map((day) => (
@@ -185,6 +192,7 @@ export const StoreDetailHoursMobilePage: React.FC = () => {
   const { storeId = "" } = useParams<{ storeId: string }>();
   const { data: store } = useStoreDetail(storeId);
   const save = useUpdateStoreBusinessCalendar();
+  const navigate = useNavigate();
   const addAlert = useAlertStore((s) => s.addAlert);
   const [draft, setDraft] = useState<HoursDraft | null>(null);
   const [picking, setPicking] = useState<"start" | "end" | null>(null);
@@ -204,15 +212,24 @@ export const StoreDetailHoursMobilePage: React.FC = () => {
   const submit = () => {
     if (!store || !draft) return;
     const cal = calendarOrDefault(store.businessCalendar);
-    save.mutate({
-      storeId,
-      request: {
-        ...cal,
-        weeklyClosedWeekdays: [...draft.closed].sort((a, b) => a - b),
-        standardOpenTime: draft.start,
-        standardCloseTime: draft.end,
+    save.mutate(
+      {
+        storeId,
+        request: {
+          ...cal,
+          weeklyClosedWeekdays: [...draft.closed].sort((a, b) => a - b),
+          standardOpenTime: draft.start,
+          standardCloseTime: draft.end,
+        },
       },
-    });
+      {
+        // 스토어 정보처럼 저장하면 들어온 곳(스토어 탭)으로 돌아간다
+        onSuccess: () => {
+          if (canGoBackInApp()) navigate(-1);
+          else navigate(ROUTES.STORE_DETAIL_MENU(storeId), { replace: true });
+        },
+      },
+    );
   };
 
   const placeId = store?.naverPlace?.placeId;

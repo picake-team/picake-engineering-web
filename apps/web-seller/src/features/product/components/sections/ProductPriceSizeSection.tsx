@@ -89,7 +89,7 @@ export function ProductPriceSizeSection({ form, errors, onChange, disabled }: Pr
               aria-label="판매가(원)"
               value={form.salePrice}
               onChange={setSalePrice}
-              placeholder="예: 38000"
+              placeholder="예: 38,000"
               min={0}
               disabled={disabled}
               invalid={Boolean(errors.salePrice)}
@@ -99,7 +99,7 @@ export function ProductPriceSizeSection({ form, errors, onChange, disabled }: Pr
               <NumberInput
                 value={form.salePrice}
                 onChange={setSalePrice}
-                placeholder="예: 38000"
+                placeholder="예: 38,000"
                 min={0}
                 disabled={disabled}
                 className={errors.salePrice ? "border-destructive" : ""}

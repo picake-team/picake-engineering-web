@@ -27,7 +27,8 @@ export function AffixNumberInput({
       <NumberInput
         thousands={suffix === "원"}
         {...props}
-        className={`h-full min-w-0 flex-1 rounded-none border-0 bg-transparent px-0 shadow-none focus-visible:border-0 ${
+        // 휴대폰 틀 밖(앱 아래 창)에서도 안쪽 칸은 테두리·포커스 링 없이 앱 글씨로
+        className={`h-full min-w-0 flex-1 rounded-none border-0 bg-transparent px-0 py-0 font-app text-body text-ink-900 shadow-none placeholder:text-ink-500 focus-visible:border-0 focus-visible:ring-0 md:text-body ${
           prefix ? "text-right" : "text-left"
         }`}
       />

@@ -345,7 +345,7 @@ export const 목록과_칸: Story = {
             (label) => ({ label }),
           )}
         />
-        <WarningBox>진행 중인 예약과 맞지 않아 저장할 수 없습니다.</WarningBox>
+        <WarningBox>진행 중인 예약과 맞지 않아 저장할 수 없어요.</WarningBox>
       </Section>
       <Section title="빈 화면 · 불러오는 중 · 다시 시도">
         <EmptyState

@@ -1,3 +1,4 @@
+import { eunNeun } from "@/apps/web-seller/common/utils/josa.util";
 import {
   CustomOptionType,
   EnableStatus,
@@ -19,7 +20,7 @@ function getOptionError(option: CustomOptionDto, sameNameCount: number): string 
   const name = option.name.trim();
   if (!name) return "옵션명을 입력해 주세요.";
   if ((RESERVED_CUSTOM_OPTION_NAMES as readonly string[]).includes(name)) {
-    return `'${name}'은(는) 위 케이크 옵션에서 설정해 주세요.`;
+    return `'${name}'${eunNeun(name)} 위 케이크 옵션에서 설정해 주세요.`;
   }
   if (sameNameCount > 1) return "같은 이름의 옵션이 있어요.";
 
@@ -67,7 +68,7 @@ function getOptionError(option: CustomOptionDto, sameNameCount: number): string 
       option.maxCount < 1 ||
       option.maxCount > CUSTOM_OPTION_LIMITS.MAX_IMAGE_COUNT
     ) {
-      return `최대 사진 수는 1 ~ ${CUSTOM_OPTION_LIMITS.MAX_IMAGE_COUNT}장 사이로 선택해 주세요.`;
+      return `최대 사진 수는 1 ~ ${CUSTOM_OPTION_LIMITS.MAX_IMAGE_COUNT}장 사이로 골라 주세요.`;
     }
   }
 

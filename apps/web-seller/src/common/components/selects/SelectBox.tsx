@@ -46,7 +46,7 @@ export const SelectBox: React.FC<SelectBoxProps> = ({
         disabled={disabled}
       >
         <SelectTrigger className={error ? "border-destructive" : ""}>
-          <SelectValue placeholder={label} />
+          <SelectValue placeholder={`${label} 고르기`} />
         </SelectTrigger>
         <SelectContent>
           {options.map((option) => (

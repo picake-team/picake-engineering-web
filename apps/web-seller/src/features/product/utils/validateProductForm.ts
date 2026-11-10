@@ -39,11 +39,11 @@ export const validateProductForm = (
   }
 
   if (!form.salesStatus) {
-    newErrors.salesStatus = "판매 여부를 선택해 주세요.";
+    newErrors.salesStatus = "판매 여부를 골라 주세요.";
   }
 
   if (!form.visibilityStatus) {
-    newErrors.visibilityStatus = "노출 여부를 선택해 주세요.";
+    newErrors.visibilityStatus = "손님에게 보일지 골라 주세요.";
   }
 
   if (form.originalPrice === null || form.originalPrice === undefined) {

@@ -32,7 +32,7 @@ export const FeedList: React.FC<FeedListProps> = ({ feeds }) => {
         <AppEmptyState
           big
           title="등록된 피드가 없어요"
-          description="가게 소식을 올리면 손님 앱 스토어 화면에 보여요"
+          description="스토어 소식을 올리면 손님 앱 스토어 화면에 보여요"
           action={
             <Button
               className="px-8"

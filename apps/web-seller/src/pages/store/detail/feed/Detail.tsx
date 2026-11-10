@@ -34,6 +34,7 @@ export const StoreDetailFeedDetailPage: React.FC = () => {
   const { confirm: confirmDelete, sheet: confirmDeleteSheet } = useFrameConfirm({
     pcMessage: "이 피드를 삭제할까요?",
     title: "이 피드를 삭제할까요?",
+    description: "지우면 되돌릴 수 없어요. 손님 화면에서도 사라져요.",
     confirmLabel: "삭제하기",
   });
 

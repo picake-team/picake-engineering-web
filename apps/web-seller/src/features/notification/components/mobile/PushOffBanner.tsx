@@ -41,7 +41,10 @@ export function PushOffBanner({
         <Icon name="bell" size={22} strokeWidth={2} />
       </span>
       <span className="flex min-w-0 flex-1 flex-col gap-1">
-        <span className="text-body font-semibold text-ink-900">휴대폰 알림이 꺼져 있어요</span>
+        {/* 휴대폰 허용은 됐는데 앱 설정 "주문 알림 받기"만 껐으면 그렇게 말한다(휴대폰 설정 문제로 읽히지 않게) */}
+        <span className="text-body font-semibold text-ink-900">
+          {permissionOff ? "휴대폰 알림이 꺼져 있어요" : "주문 알림을 꺼 두었어요"}
+        </span>
         <span className="text-caption text-ink-600">새 예약을 놓칠 수 있어요</span>
       </span>
       <Button size="md" onClick={turnOn}>
@@ -71,7 +74,7 @@ export function DevicePushStatusCard() {
       </RowIconBox>
       <span className="flex min-w-0 flex-1 flex-col gap-1">
         <span className="text-body font-semibold text-ink-900">
-          {off ? "알림이 꺼져 있어요" : "이 휴대폰 알림"}
+          {off ? "휴대폰 알림이 꺼져 있어요" : "이 휴대폰 알림"}
         </span>
         <span className="text-caption text-ink-600">
           {on
