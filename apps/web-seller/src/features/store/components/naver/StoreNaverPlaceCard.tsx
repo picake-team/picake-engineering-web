@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useInMobileFrame } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
 import { BaseButton as Button } from "@/apps/web-seller/common/components/buttons/BaseButton";
 import { BaseInput as Input } from "@/apps/web-seller/common/components/inputs/BaseInput";
 import { Checkbox } from "@/apps/web-seller/common/components/inputs/Checkbox";
@@ -46,6 +47,7 @@ const formatDate = (iso: string) =>
  * 채우기만으로는 저장하지 않는다. 주소는 주소 검색으로, 픽업 시간은 캘린더에서 정한다.
  */
 export const StoreNaverPlaceCard: React.FC<Props> = ({ storeId, connected, form, onApply }) => {
+  const inFrame = useInMobileFrame();
   const mode = storeId ? "edit" : "create";
   const submitLabel = mode === "edit" ? "수정하기" : "등록하기";
   const { addAlert } = useAlertStore();
@@ -134,7 +136,9 @@ export const StoreNaverPlaceCard: React.FC<Props> = ({ storeId, connected, form,
   const pendingConnect = mode === "create" && !!form.naverPlaceId;
   const bar = (
     <div className="flex flex-wrap items-center gap-3 rounded-xl border bg-muted/40 px-4 py-3">
-      <p className="min-w-0 flex-1 text-sm text-muted-foreground">
+      <p
+        className={`min-w-0 flex-1 ${inFrame ? "text-sub text-ink-600" : "text-sm text-muted-foreground"}`}
+      >
         {pendingConnect ? (
           `네이버 매장 정보를 채웠어요. '${submitLabel}'를 누르면 함께 연결돼요.`
         ) : connected ? (

@@ -47,21 +47,21 @@ export const validateProductForm = (
   }
 
   if (form.originalPrice === null || form.originalPrice === undefined) {
-    newErrors.originalPrice = "정가를 입력해 주세요.";
+    newErrors.originalPrice = "할인 전 가격을 입력해 주세요.";
   } else if (form.originalPrice <= 0) {
-    newErrors.originalPrice = "정가는 0보다 큰 숫자여야 합니다.";
+    newErrors.originalPrice = "할인 전 가격은 0원보다 커야 해요.";
   }
 
   if (form.salePrice === null || form.salePrice === undefined) {
     newErrors.salePrice = "판매가를 입력해 주세요.";
   } else if (form.salePrice <= 0) {
-    newErrors.salePrice = "판매가는 0보다 큰 숫자여야 합니다.";
+    newErrors.salePrice = "판매가는 0원보다 커야 해요.";
   } else if (
     form.originalPrice !== null &&
     form.originalPrice !== undefined &&
     form.salePrice > form.originalPrice
   ) {
-    newErrors.salePrice = "판매가는 정가보다 클 수 없어요.";
+    newErrors.salePrice = "판매가는 할인 전 가격보다 클 수 없어요.";
   }
 
   if (!form.productType) {

@@ -45,7 +45,7 @@ export interface BaseButtonProps
  */
 const FRAME_SIZE: Record<string, string> = {
   default: "h-10 rounded-control px-4 font-app text-sub font-bold",
-  sm: "h-9 rounded-control px-3 font-app text-sub font-bold",
+  sm: "h-10 rounded-control px-3 font-app text-sub font-bold",
   lg: "h-12 rounded-control px-4 font-app text-body font-bold",
   icon: "size-10 rounded-control",
 };

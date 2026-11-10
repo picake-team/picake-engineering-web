@@ -183,7 +183,7 @@ export const StoreDetailStatisticsMobilePage: React.FC = () => {
       {/* 고른 기간은 늘 고르는 칸에 보이고, 누르면 달력 창(고르면 "직접 고르기"로) */}
       <PickerButton aria-label="기간 고르기" value={rangeText} onClick={() => setSheetOpen(true)} />
       <p className="text-caption leading-normal text-ink-600">
-        픽업 완료한 주문만 세요(주문 접수일 기준)
+        픽업 완료한 주문만, 주문받은 날 기준으로 세어요
       </p>
       <DateRangeSheet
         open={sheetOpen}
@@ -206,7 +206,7 @@ export const StoreDetailStatisticsMobilePage: React.FC = () => {
             {[
               { label: "매출", value: data ? formatWon(data.totalSales) : "–" },
               {
-                label: "주문건수",
+                label: "주문 수",
                 value: data ? `${data.totalOrders.toLocaleString("ko-KR")}건` : "–",
               },
             ].map((s) => (
@@ -222,7 +222,7 @@ export const StoreDetailStatisticsMobilePage: React.FC = () => {
           {empty ? (
             <EmptyState
               big
-              title="이 기간에 집계된 주문이 없어요"
+              title="이 기간에 픽업 완료한 주문이 없어요"
               description="다른 기간을 골라 보세요"
             />
           ) : data ? (
@@ -234,7 +234,7 @@ export const StoreDetailStatisticsMobilePage: React.FC = () => {
                 onChange={setRankBy}
                 options={[
                   { value: "revenue", label: "매출 순" },
-                  { value: "orders", label: "주문건수 순" },
+                  { value: "orders", label: "주문 수 순" },
                 ]}
               />
               <Bars

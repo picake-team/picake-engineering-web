@@ -168,9 +168,11 @@ export const StoreDetailHomeMobilePage: React.FC = () => {
     ]);
 
   const isToday = selectedKey === todayKey;
+  // 불러오는 동안은 건수를 비운다("0건"으로 보이면 픽업이 없는 줄 안다)
+  const dayCount = weekQuery.data ? `${dayOrders.length}건` : "";
   const dayTitle = isToday
-    ? `오늘 픽업 ${dayOrders.length}건`
-    : `${formatKeyMonthDayWeek(selectedKey)} 픽업 ${dayOrders.length}건`;
+    ? `오늘 픽업 ${dayCount}`.trim()
+    : `${formatKeyMonthDayWeek(selectedKey)} 픽업 ${dayCount}`.trim();
 
   return (
     <AppScreen

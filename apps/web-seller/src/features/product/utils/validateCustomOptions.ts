@@ -44,7 +44,7 @@ function getOptionError(option: CustomOptionDto, sameNameCount: number): string 
       return "필수 옵션인데 노출된 옵션값이 없어요. 이대로면 아무도 주문할 수 없어요.";
     }
     if (option.type === CustomOptionType.MULTI_SELECT && option.maxSelect !== undefined) {
-      if (option.maxSelect < 1) return "최대 선택 개수는 1개 이상이어야 합니다.";
+      if (option.maxSelect < 1) return "최대 선택 개수는 1개 이상이어야 해요.";
       if (option.maxSelect > choices.length) {
         return "최대 선택 개수가 옵션값 개수보다 많아요.";
       }

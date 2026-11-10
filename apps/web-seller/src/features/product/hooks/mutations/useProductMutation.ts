@@ -54,7 +54,7 @@ export function useUpdateProduct() {
     onSuccess: (_response, variables) => {
       addAlert({
         severity: "success",
-        message: "상품을 고쳤어요.",
+        message: "상품을 저장했어요.",
       });
       // 상품 쿼리 무효화
       queryClient.invalidateQueries({ queryKey: productQueryKeys.all });

@@ -56,7 +56,7 @@ export function useUpdateFeed() {
     onSuccess: (_response, variables) => {
       addAlert({
         severity: "success",
-        message: "피드를 고쳤어요.",
+        message: "피드를 저장했어요.",
       });
       // 피드 쿼리 무효화
       queryClient.invalidateQueries({ queryKey: feedQueryKeys.all });

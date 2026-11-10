@@ -152,6 +152,7 @@ function GroupSection({
           now={now}
           quickAction={group.quickAction}
           onQuickAction={onQuickAction}
+          quickTone={group.tab === "doing" ? "secondary" : "primary"}
         />
       ))}
       <LoadMoreSentinel

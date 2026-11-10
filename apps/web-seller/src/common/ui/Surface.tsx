@@ -34,11 +34,14 @@ export function CardFooterButton({
   onClick,
   disabled,
   loading,
+  tone = "primary",
 }: {
   children: React.ReactNode;
   onClick: () => void;
   disabled?: boolean;
   loading?: boolean;
+  /** secondary: 할 일이 아닌 칸(기다리는 중)의 버튼. 흰 바탕 + 위 선 + 짙은 글씨 */
+  tone?: "primary" | "secondary";
 }) {
   return (
     <button
@@ -50,7 +53,9 @@ export function CardFooterButton({
         "flex h-12 w-full items-center justify-center gap-2 font-app text-body font-bold disabled:cursor-not-allowed",
         disabled && !loading
           ? "bg-ink-100 text-ink-400"
-          : "bg-brand text-white active:brightness-95",
+          : tone === "secondary"
+            ? "border-t border-ink-100 bg-white text-ink-900 active:bg-ink-50"
+            : "bg-brand text-white active:brightness-95",
       )}
     >
       {loading ? (

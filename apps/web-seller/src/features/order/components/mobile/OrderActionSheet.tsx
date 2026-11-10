@@ -4,6 +4,7 @@
  * 문구·사유는 지금 PC 그대로, 버튼 이름은 하는 일 그대로.
  */
 import { useEffect, useState } from "react";
+import { ListRowButton } from "@/apps/web-seller/common/ui/List";
 import { useQueryClient } from "@tanstack/react-query";
 import { BottomSheet } from "@/apps/web-seller/common/ui/Sheet";
 import { Button, ButtonPair, CircleIconButton } from "@/apps/web-seller/common/ui/Button";
@@ -236,7 +237,7 @@ export function OrderActionSheet({
               maxLength={500}
               value={reasonText}
               onChange={(e) => setReasonText(e.target.value)}
-              placeholder="사유를 입력해 주세요."
+              placeholder="손님에게 안내할 사유를 적어 주세요"
             />
           )}
         </Field>
@@ -309,21 +310,17 @@ export function OrderMoreActionsSheet({
       }
     >
       <OrderSummaryBox order={order} />
+      {/* 누르면 확인 창이 열리는 줄: 스토어 탭 메뉴 줄처럼 오른쪽 화살표 */}
       <div className="flex flex-col">
-        {actions.map((to) => (
-          <button
+        {actions.map((to, i) => (
+          <ListRowButton
             key={to}
-            type="button"
             onClick={() => onPick(to)}
-            className="flex min-h-[60px] items-center gap-3 border-b border-ink-100 text-left active:bg-ink-50"
-          >
-            <span className="flex flex-1 flex-col gap-1">
-              <span className="text-body font-semibold text-ink-900">{COPY[to]?.button}</span>
-              {MORE_HINT[to] ? (
-                <span className="text-caption text-ink-600">{MORE_HINT[to]}</span>
-              ) : null}
-            </span>
-          </button>
+            title={COPY[to]?.button}
+            description={MORE_HINT[to]}
+            chevron
+            divider={i < actions.length - 1}
+          />
         ))}
       </div>
     </BottomSheet>

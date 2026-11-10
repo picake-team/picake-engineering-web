@@ -43,6 +43,7 @@ export function OrderCard({
   showStatus = false,
   quickAction,
   onQuickAction,
+  quickTone = "primary",
 }: {
   order: OrderResponseDto;
   now: number;
@@ -50,12 +51,14 @@ export function OrderCard({
   showStatus?: boolean;
   quickAction?: OrderStatus;
   onQuickAction?: (order: OrderResponseDto, to: OrderStatus) => void;
+  /** 기다리는 칸(진행 중 탭)은 흰 보조 버튼 */
+  quickTone?: "primary" | "secondary";
 }) {
   return (
     <Card
       footer={
         quickAction && onQuickAction ? (
-          <CardFooterButton onClick={() => onQuickAction(order, quickAction)}>
+          <CardFooterButton tone={quickTone} onClick={() => onQuickAction(order, quickAction)}>
             {ORDER_ACTION_LABEL[quickAction]}
           </CardFooterButton>
         ) : undefined

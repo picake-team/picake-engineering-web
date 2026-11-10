@@ -87,7 +87,8 @@ function ProductRow({
           label={`${product.name} 판매`}
           checked={onSale}
           disabled={pending}
-          className="h-7"
+          // 보이는 스위치(28)는 그대로, 누르는 칸은 44(위아래로 넓힘)
+          className="-my-2 h-11"
           onChange={() => onToggle(product)}
         />
         <span className="text-caption text-ink-600">{onSale ? "판매중" : "판매중지"}</span>
