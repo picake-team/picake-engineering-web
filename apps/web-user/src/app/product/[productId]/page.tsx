@@ -14,6 +14,9 @@ import { ProductDetailReviewSection } from "@/apps/web-user/features/product/com
 import { Tabs } from "@/apps/web-user/common/components/tabs/Tabs";
 import { ProductDetailSizeOptionSection } from "@/apps/web-user/features/product/components/sections/ProductDetailSizeOptionSection";
 import { Icon } from "@/apps/web-user/common/components/icons";
+import { LikePop } from "@/apps/web-user/common/components/motion/LikePop";
+import { usePresence } from "@/apps/web-user/common/hooks/usePresence";
+import { BOTTOM_SHEET_EXIT_MS } from "@/apps/web-user/common/components/bottom-sheets/BottomSheet";
 import { Button } from "@/apps/web-user/common/components/buttons/Button";
 import {
   ReservationBottomSheet,
@@ -65,6 +68,8 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   const isLikeLoading = isAddingLike || isRemovingLike;
 
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+  // 닫힌 뒤에도 내려가는 움직임이 끝날 때까지 예약 창을 그려 둔다
+  const reservationSheet = usePresence(isBottomSheetOpen, BOTTOM_SHEET_EXIT_MS, null);
   const { isAuthenticated } = useAuthStore();
   const openLoginSheet = useLoginSheetStore((s) => s.openLoginSheet);
 
@@ -194,12 +199,14 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
             disabled={isLikeLoading}
             className={`flex flex-col items-center justify-center w-[40px] h-[40px] ${isLikeLoading ? "opacity-50" : ""}`}
           >
-            <Icon
-              name={isLiked ? "favoriteFilled" : "favorite"}
-              width={24}
-              height={24}
-              className={isLiked ? "text-primary" : "text-gray-500"}
-            />
+            <LikePop liked={isLiked}>
+              <Icon
+                name={isLiked ? "favoriteFilled" : "favorite"}
+                width={24}
+                height={24}
+                className={isLiked ? "text-primary" : "text-gray-500"}
+              />
+            </LikePop>
             <span className="text-xs text-gray-900 font-bold">{data.likeCount}</span>
           </button>
           <span className="flex-1">
@@ -215,8 +222,8 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
         </div>
       </div>
 
-      {/* 예약 바텀시트 — 열릴 때만 마운트해 상세 진입 시 청크 선다운로드를 막는다 */}
-      {isBottomSheetOpen && (
+      {/* 예약 바텀시트 — 열릴 때만 마운트해 상세 진입 시 청크 선다운로드를 막는다(닫힐 때는 내려간 뒤 뺀다) */}
+      {reservationSheet.present && (
         <ReservationBottomSheet
           isOpen={isBottomSheetOpen}
           productId={productId}

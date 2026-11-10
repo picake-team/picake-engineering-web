@@ -2,7 +2,7 @@
  * 켜고 끄기 · 체크 · 하나 고르기.
  * 켜고 끄기는 바로 바뀌는 설정, 체크는 여러 개 동의·고르기, 동그라미는 하나만 고르기.
  */
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { cx } from "@/apps/web-seller/common/ui/cx";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
 
@@ -48,7 +48,7 @@ export function Switch({
   );
 }
 
-/** 체크 칸 22(모서리 6) + 글자. 줄 전체를 누를 수 있다 */
+/** 체크 칸 22(모서리 6) + 글자. 줄 전체를 누를 수 있다. 켜질 때 체크 선이 그려진다(처음 그릴 때는 그대로) */
 export function Checkbox({
   checked,
   onChange,
@@ -62,6 +62,13 @@ export function Checkbox({
   disabled?: boolean;
   className?: string;
 }) {
+  const wasChecked = useRef(checked);
+  const [drawCount, setDrawCount] = useState(0);
+  useEffect(() => {
+    if (checked && !wasChecked.current) setDrawCount((n) => n + 1);
+    wasChecked.current = checked;
+  }, [checked]);
+
   return (
     <label
       className={cx(
@@ -84,7 +91,9 @@ export function Checkbox({
           checked ? "bg-brand text-white" : "border-[1.5px] border-ink-200 bg-white",
         )}
       >
-        {checked ? <Icon name="check" size={14} strokeWidth={3} /> : null}
+        {checked ? (
+          <Icon key={drawCount} name="check" size={14} strokeWidth={3} draw={drawCount > 0} />
+        ) : null}
       </span>
       <span className="min-w-0 flex-1 text-body text-ink-900">{children}</span>
     </label>

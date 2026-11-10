@@ -161,11 +161,14 @@ export function Icon({
   size = 24,
   strokeWidth = 1.8,
   className,
+  draw = false,
 }: {
   name: IconName;
   size?: number;
   strokeWidth?: number;
   className?: string;
+  /** 선이 그려지며 나타남(공용 움직임 값 check-draw). 다시 그리려면 부르는 쪽에서 key를 바꾼다 */
+  draw?: boolean;
 }) {
   return (
     <svg
@@ -181,7 +184,16 @@ export function Icon({
       focusable="false"
       className={className}
     >
-      <path d={LINE_PATHS[name]} />
+      {draw ? (
+        <path
+          d={LINE_PATHS[name]}
+          pathLength={1}
+          strokeDasharray={1}
+          className="animate-check-draw motion-reduce:animate-none"
+        />
+      ) : (
+        <path d={LINE_PATHS[name]} />
+      )}
     </svg>
   );
 }

@@ -1,8 +1,12 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useId } from "react";
 import clsx from "clsx";
 import { Button } from "@/apps/web-user/common/components/buttons/Button";
+import { usePresence } from "@/apps/web-user/common/hooks/usePresence";
+
+/** 닫힐 때 사라지는 시간(공용 움직임 값 popup-out = fast) */
+const MODAL_EXIT_MS = 150;
 
 type ButtonVariant = "primary" | "secondary" | "outline" | "red";
 
@@ -87,7 +91,17 @@ export const Modal: React.FC<ModalProps> = ({
     };
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
+  const titleId = useId();
+  // 살짝 커지며 나오고(popup-in), 닫힐 때는 살짝 작아지며 사라진다(그동안 글은 열려 있던 때 그대로)
+  const presence = usePresence(isOpen, MODAL_EXIT_MS, {
+    title,
+    description,
+    confirmText,
+    cancelText,
+  });
+  if (!presence.present) return null;
+  const { leaving } = presence;
+  const shown = presence.content;
 
   const handleConfirm = () => {
     onConfirm?.();
@@ -102,17 +116,39 @@ export const Modal: React.FC<ModalProps> = ({
     <div
       className={clsx(
         "fixed inset-0 flex items-center justify-center",
+        leaving && "pointer-events-none",
         zIndexClassName ?? "z-[100]",
       )}
     >
       {/* 배경 오버레이 */}
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} aria-hidden="true" />
+      <div
+        className={clsx(
+          "absolute inset-0 bg-black/50",
+          leaving ? "animate-fade-out" : "animate-scrim-in",
+        )}
+        onClick={onClose}
+        aria-hidden="true"
+      />
 
       {/* 모달 컨텐츠 */}
-      <div className="relative z-10 w-[calc(100%-40px)] max-w-[320px] bg-white rounded-2xl px-[20px] pt-[36px]">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        className={clsx(
+          "relative z-10 w-[calc(100%-40px)] max-w-[320px] bg-white rounded-2xl px-[20px] pt-[36px]",
+          leaving
+            ? "animate-popup-out motion-reduce:animate-fade-out"
+            : "animate-popup-in motion-reduce:animate-fade-in",
+        )}
+      >
         <div className="text-center py-[12px]">
-          <h2 className="text-base font-bold text-gray-900 mb-[8px] break-keep">{title}</h2>
-          {description && <div className="text-sm text-gray-700 break-keep">{description}</div>}
+          <h2 id={titleId} className="text-base font-bold text-gray-900 mb-[8px] break-keep">
+            {shown.title}
+          </h2>
+          {shown.description && (
+            <div className="text-sm text-gray-700 break-keep">{shown.description}</div>
+          )}
         </div>
 
         <div className="flex gap-[8px] py-[20px]">
@@ -122,7 +158,7 @@ export const Modal: React.FC<ModalProps> = ({
               onClick={handleConfirm}
               className="break-keep leading-[1.2]"
             >
-              {confirmText}
+              {shown.confirmText}
             </Button>
           </span>
           {!hideCancel && (
@@ -132,7 +168,7 @@ export const Modal: React.FC<ModalProps> = ({
                 variant={cancelVariant}
                 className="break-keep leading-[1.2]"
               >
-                {cancelText}
+                {shown.cancelText}
               </Button>
             </span>
           )}

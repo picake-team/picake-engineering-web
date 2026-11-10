@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@/apps/web-user/common/components/icons";
+import { LikePop } from "@/apps/web-user/common/components/motion/LikePop";
 import type {
   StoreBusinessCalendar,
   StoreInfo,
@@ -201,12 +202,14 @@ export function MapStoreCardContent({
             className={`flex items-center justify-center shrink-0 bg-white border border-gray-100 ${isLikeLoading ? "opacity-50" : ""}`}
             style={{ minWidth: 63, height: 32, borderRadius: 8, gap: 4 }}
           >
-            <Icon
-              name={isLiked ? "favoriteFilled" : "favorite"}
-              width={18}
-              height={18}
-              className={`shrink-0 ${isLiked ? "text-primary" : "text-gray-900"}`}
-            />
+            <LikePop liked={isLiked}>
+              <Icon
+                name={isLiked ? "favoriteFilled" : "favorite"}
+                width={18}
+                height={18}
+                className={`shrink-0 ${isLiked ? "text-primary" : "text-gray-900"}`}
+              />
+            </LikePop>
             <span className="font-bold text-gray-900" style={{ fontSize: 14, lineHeight: "140%" }}>
               {likeCount}
             </span>

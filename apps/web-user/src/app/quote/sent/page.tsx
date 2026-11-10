@@ -79,15 +79,16 @@ function QuoteSentContent() {
             </div>
           )}
         </div>
-        <p className="mb-[28px] text-center text-xl font-bold text-gray-900">
+        {/* 제목 → 안내 → 요청 내용이 한 줄씩 차례로 올라온다(공용 움직임 값 rise, 80ms 간격) */}
+        <p className="mb-[28px] text-center text-xl font-bold text-gray-900 animate-rise motion-reduce:animate-none">
           견적 요청을 보냈어요
         </p>
         <div className="h-[calc(100%-56px)] overflow-y-auto pb-[60px]">
-          <p className="mb-[28px] flex items-center gap-[8px] rounded-xl bg-blue-50 px-[12px] py-[10px] text-sm text-gray-900">
+          <p className="mb-[28px] flex items-center gap-[8px] rounded-xl bg-blue-50 px-[12px] py-[10px] text-sm text-gray-900 animate-rise motion-reduce:animate-none [animation-delay:80ms]">
             <Icon name="warning" width={16} height={16} className="shrink-0 text-blue-400" />
             Picake가 근처 가게에 물어보고, 견적이 오면 알려 드릴게요
           </p>
-          <div className="mb-[20px] flex flex-col gap-[6px] border-b border-gray-100 px-[16px] pb-[16px]">
+          <div className="mb-[20px] flex flex-col gap-[6px] border-b border-gray-100 px-[16px] pb-[16px] animate-rise motion-reduce:animate-none [animation-delay:160ms]">
             {rows.map(([label, value]) => (
               <div key={label} className="flex items-center justify-between gap-[12px] text-sm">
                 <span className="shrink-0 text-gray-500">{label}</span>
@@ -95,7 +96,7 @@ function QuoteSentContent() {
               </div>
             ))}
           </div>
-          <div className="flex items-center justify-between px-[16px] text-sm">
+          <div className="flex items-center justify-between px-[16px] text-sm animate-rise motion-reduce:animate-none [animation-delay:240ms]">
             <span className="text-gray-500">견적 마감</span>
             <span className="font-bold text-gray-900">{data.summary.deadline}까지</span>
           </div>

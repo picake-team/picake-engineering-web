@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Product } from "@/apps/web-user/features/product/types/product.type";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { Icon } from "@/apps/web-user/common/components/icons";
+import { LikePop } from "@/apps/web-user/common/components/motion/LikePop";
 import { useAddProductLike } from "@/apps/web-user/features/like/hooks/mutations/useAddProductLike";
 import { useRemoveProductLike } from "@/apps/web-user/features/like/hooks/mutations/useRemoveProductLike";
 import { useAuthStore } from "@/apps/web-user/common/store/auth.store";
@@ -89,12 +90,14 @@ function ProductItem({ product }: ProductItemProps) {
           disabled={isLikeLoading}
           className={`absolute bottom-3 right-3 h-[28px] w-[28px] ${isLikeLoading ? "opacity-50" : ""}`}
         >
-          <Icon
-            name={isLiked ? "favoriteShadowFilled" : "favoriteShadow"}
-            width={28}
-            height={28}
-            className={isLiked ? "text-primary" : "text-white"}
-          />
+          <LikePop liked={isLiked}>
+            <Icon
+              name={isLiked ? "favoriteShadowFilled" : "favoriteShadow"}
+              width={28}
+              height={28}
+              className={isLiked ? "text-primary" : "text-white"}
+            />
+          </LikePop>
         </button>
       </div>
 
