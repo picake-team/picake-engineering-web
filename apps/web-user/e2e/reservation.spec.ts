@@ -88,7 +88,7 @@ test("예약(주문) 생성 골든패스", async ({ page, request }) => {
   await sheet.getByPlaceholder("예약자명을 입력해주세요.").fill("테스트예약자");
   await sheet.getByPlaceholder("휴대폰 번호를 입력해주세요.").fill("01099998888");
   // Checkbox의 실제 input은 sr-only(시각적으로 숨김)라 label 텍스트를 클릭해 토글한다
-  await sheet.getByText("모두 동의합니다", { exact: true }).click();
+  await sheet.getByText("모두 동의해요", { exact: true }).click();
 
   await sheet.getByRole("button", { name: "예약신청" }).click();
 
