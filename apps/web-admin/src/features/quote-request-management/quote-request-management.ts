@@ -69,7 +69,8 @@ export interface AdminQuoteRequestDetailDto extends AdminQuoteRequestListItemDto
   areaLatitude: number | null;
   areaLongitude: number | null;
   closedAt: string | null;
-  consentedAt: string;
+  /** 동의 칸을 없앤 2026-11-10 뒤 요청은 null */
+  consentedAt: string | null;
   stores: AdminQuoteRequestStoreDto[];
   consumer: { id: string; nickname: string | null; name: string | null; phone: string };
 }

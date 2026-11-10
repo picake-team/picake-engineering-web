@@ -161,7 +161,7 @@ function QuoteNewContent() {
     if (current === 2) return !!draft.area;
     if (current === 4) return draft.photos.length > 0 || draft.description.trim().length > 0;
     if (current === 5) return !!draft.size;
-    if (current === 6) return draft.agreed && !create.isPending;
+    if (current === 6) return !create.isPending;
     return true;
   })();
 
@@ -260,7 +260,6 @@ function QuoteNewContent() {
           budgetMax: draft.budgetMax >= QUOTE_LIMITS.BUDGET_MAX ? undefined : draft.budgetMax,
           requestNote: draft.requestNote.trim() || undefined,
           entry: draft.entry ?? undefined,
-          agreed: true,
         },
       },
       {

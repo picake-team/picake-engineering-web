@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { Calendar } from "@/apps/web-user/common/components/calendars/Calendar";
 import { TextArea } from "@/apps/web-user/common/components/textareas/TextArea";
-import { Checkbox } from "@/apps/web-user/common/components/inputs/Checkbox";
 import { DualThumbRangeSlider } from "@/apps/web-user/common/components/sliders/DualThumbRangeSlider";
 import { cn } from "@/apps/web-user/common/lib/utils";
 import {
@@ -612,8 +611,7 @@ export function StepSizeBudget() {
 
 /* ───────────── 6단계: 확인하고 보내기 ───────────── */
 export function StepConfirm({ now, onEdit }: { now: Date; onEdit: (step: number) => void }) {
-  const { draft, update } = useQuoteDraftStore();
-  const [detailOpen, setDetailOpen] = useState(false);
+  const { draft } = useQuoteDraftStore();
   const size = QUOTE_SIZE_OPTIONS.find((s) => s.value === draft.size);
   const creams = [
     ...draft.creams.map((c) => QUOTE_CREAM_OPTIONS.find((o) => o.value === c)?.label),
@@ -694,40 +692,6 @@ export function StepConfirm({ now, onEdit }: { now: Date; onEdit: (step: number)
             </button>
           </div>
         ))}
-      </div>
-      <div className="mb-[24px]">
-        <Checkbox
-          checked={draft.agreed}
-          onChange={(agreed) => update({ agreed })}
-          label={
-            <span className="text-sm text-gray-900">
-              요청 내용과 사진이 가게에 전달돼요. 입점 전 가게에도 전달될 수 있어요. 이름·연락처는
-              보내지 않아요.{" "}
-              <button
-                type="button"
-                className="text-gray-500 underline"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setDetailOpen((v) => !v);
-                }}
-              >
-                자세히
-              </button>
-            </span>
-          }
-        />
-        {detailOpen && (
-          <ul className="mt-[8px] flex flex-col gap-[4px] rounded-lg bg-gray-50 px-[12px] py-[10px] text-xs leading-[18px] text-gray-700">
-            <li>받는 곳: 고른 지역의 케이크 가게(Picake 입점 전 가게 포함)와 직접 넣은 가게</li>
-            <li>목적: 케이크 견적을 받기 위해</li>
-            <li>
-              항목: 픽업 날짜·시간, 받을 동네, 설명·요청 사항, 크기·개수·맛, 예산, 참고 사진
-              (이름·연락처는 보내지 않아요)
-            </li>
-            <li>기간: 견적 요청이 마감될 때까지</li>
-            <li>동의하지 않을 수 있어요. 동의하지 않으면 견적 요청만 보낼 수 없어요.</li>
-          </ul>
-        )}
       </div>
       <DeadlineNotice draft={draft} now={now} />
     </div>
