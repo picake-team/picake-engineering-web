@@ -21,6 +21,7 @@ import {
   weekdayLabel,
   weekdayOfKey,
 } from "@/apps/web-seller/common/utils/kst-date.util";
+import { useFollowToday, useKstTodayKey } from "@/apps/web-seller/common/hooks/useKstTodayKey";
 import { useCalendarMonthOrders } from "@/apps/web-seller/features/order/hooks/queries/useOrderQuery";
 import { CANCELED_ORDER_STATUSES } from "@/apps/web-seller/features/order/utils/order-mobile.util";
 import { PickupRow } from "@/apps/web-seller/features/order/components/mobile/OrderCards";
@@ -36,9 +37,14 @@ const SWIPE_PX = 56;
 
 export const StoreDetailCalendarMobilePage: React.FC = () => {
   const { storeId = "" } = useParams<{ storeId: string }>();
-  const [todayKey] = useState(() => kstDateKey(new Date()));
+  const todayKey = useKstTodayKey();
   const [selectedKey, setSelectedKey] = useState(todayKey);
   const [monthKey, setMonthKey] = useState(() => monthStartKey(todayKey));
+  // 켜 둔 채 날짜가 바뀌면 오늘을 보고 있던 칸·달도 새 오늘로(다른 날을 골라 뒀으면 그대로)
+  useFollowToday(todayKey, (prev, next) => {
+    setSelectedKey((s) => (s === prev ? next : s));
+    setMonthKey((m) => (m === monthStartKey(prev) ? monthStartKey(next) : m));
+  });
   const touch = useRef<{ x: number; y: number } | null>(null);
 
   const { data: store } = useStoreDetail(storeId);

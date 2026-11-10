@@ -64,12 +64,23 @@ export function useUpdateOrderStatus() {
       queryClient.invalidateQueries({ queryKey: orderQueryKeys.all });
     },
     onError: (error) => {
+      const message = getApiMessage.error(error);
       addAlert({
         severity: "error",
-        message: getApiMessage.error(error),
+        // 손님이나 다른 기기가 먼저 바꾼 주문이면 서버 말("이미 해당 상태입니다." 등) 대신 무슨 일인지 알린다.
+        // 화면은 처리 창이 닫히며 바뀐 상태로 다시 불러온다(SC-77 ④)
+        message: STALE_ORDER_STATUS_MESSAGES.has(message) ? STALE_ORDER_STATUS_NOTICE : message,
       });
     },
   });
 
   return mutation;
 }
+
+/** 그사이 주문 상태가 바뀌어 처리하지 못했을 때 서버가 주는 말(백엔드 ORDER_ERROR_MESSAGES) */
+const STALE_ORDER_STATUS_MESSAGES = new Set([
+  "이미 해당 상태입니다.",
+  "현재 주문 상태에서 요청한 상태로 변경할 수 없습니다.",
+]);
+export const STALE_ORDER_STATUS_NOTICE =
+  "그사이 주문 상태가 바뀌어 처리하지 못했어요. 바뀐 상태를 다시 보여 드릴게요";
