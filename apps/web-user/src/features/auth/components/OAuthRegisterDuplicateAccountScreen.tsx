@@ -44,7 +44,7 @@ export function OAuthRegisterDuplicateAccountScreen({
       showAlert({
         type: "error",
         title: "오류",
-        message: "로그인 설정을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.",
+        message: "로그인 설정을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.",
       });
       return;
     }

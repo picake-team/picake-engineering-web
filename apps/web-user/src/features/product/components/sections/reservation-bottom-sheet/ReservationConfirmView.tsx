@@ -220,11 +220,7 @@ export function ReservationConfirmView({
       </div>
       <div className="px-5 py-10 flex flex-col">
         <h2 className="mb-[18px] text-sm font-bold text-gray-900">필수 동의 항목</h2>
-        <Checkbox
-          checked={allAgreed}
-          onChange={handleToggleAllAgreements}
-          label="모두 동의합니다"
-        />
+        <Checkbox checked={allAgreed} onChange={handleToggleAllAgreements} label="모두 동의해요" />
         <div className="border-t border-gray-50 my-3" />
         <div className="flex flex-col gap-2">
           <Checkbox checked={agreePayment} onChange={setAgreePayment} label="결제 방법 확인" />
@@ -240,8 +236,8 @@ export function ReservationConfirmView({
           <div>
             <h3 className="text-2sm font-bold text-gray-900 mb-1">결제 안내</h3>
             <p className="text-2sm text-gray-900">
-              결제는 <span className="font-bold">계좌이체로 진행</span>되며, 판매자 예약 확인 후
-              입금정보가 공유됩니다.
+              결제는 <span className="font-bold">계좌이체</span>로 해요. 판매자가 예약을 확인하면
+              입금 정보를 알려 드려요.
             </p>
           </div>
           <div>
@@ -270,7 +266,7 @@ export function ReservationConfirmView({
           </div>
           <div>
             <h3 className="text-2sm font-bold text-gray-900 mb-1">날짜 및 옵션 변경 규정</h3>
-            <p className="text-2sm text-gray-900">옵션 변경은 예약신청 상태에서만 가능합니다.</p>
+            <p className="text-2sm text-gray-900">옵션은 예약신청 상태에서만 바꿀 수 있어요.</p>
             <p className="text-2sm text-gray-900">
               예약 상태: 예약신청 → 입금대기 → 입금완료 → 예약확정
             </p>
