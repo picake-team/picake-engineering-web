@@ -43,7 +43,7 @@ export const appFontSize = {
   tab: ["11px", { lineHeight: "1.3" }], // 아래 탭 이름·단계 이름(손님 웹 아래 탭과 같음)
 } as const;
 
-/** 모서리: 체크 6, 버튼·입력 12, 카드·칸·안내 16, 창 22, 칩·배지·토글은 rounded-full */
+/** 모서리: 체크 6, 위쪽 안내 띠 8, 버튼·입력 12, 카드·칸·안내 16, 창 22, 칩·배지·토글은 rounded-full */
 export const appRadius = {
   check: "6px",
   control: "12px",
