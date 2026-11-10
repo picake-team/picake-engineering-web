@@ -55,15 +55,42 @@ function TiltedPhotos({ size }: { size: number }) {
   );
 }
 
+/**
+ * 홈 카드 오른쪽 사진 두 장. 정한 그림(2026-11-09)처럼 크게 두고 카드 오른쪽·아래로 조금 넘친다(카드가 잘라 냄).
+ * 앞 사진은 오른쪽 위, 뒤 사진은 그 왼쪽 아래.
+ */
+function HomeCardPhotos() {
+  const [back, front] = QUOTE_CARD_PHOTOS;
+  const photo =
+    "absolute rounded-[12px] border-[3px] border-white object-cover shadow-[0_4px_12px_rgba(0,0,0,0.14)]";
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-[160px]">
+      <img
+        src={back}
+        alt=""
+        className={photo}
+        style={{ width: 92, height: 92, left: 0, bottom: -22, transform: "rotate(-8deg)" }}
+      />
+      <img
+        src={front}
+        alt=""
+        className={photo}
+        style={{ width: 112, height: 112, right: -14, top: 8, transform: "rotate(6deg)" }}
+      />
+    </div>
+  );
+}
+
 /** 홈 카테고리 아래 사진 카드(SC-12). 항상 같은 자리에 보인다 */
 export function QuoteHomeCard() {
   return (
     <Link
       href={buildQuoteNewHref("HOME")}
-      className="flex items-center justify-between gap-[12px] overflow-hidden rounded-2xl px-[20px] py-[20px]"
+      className="relative flex items-center overflow-hidden rounded-2xl px-[20px] py-[20px]"
       style={{ background: CREAM, minHeight: 155 }}
     >
-      <div className="min-w-0">
+      <HomeCardPhotos />
+      <div className="relative min-w-0">
         <p className="mb-[4px] text-xs font-bold" style={{ color: EYEBROW }}>
           원하는 디자인 그대로
         </p>
@@ -73,13 +100,15 @@ export function QuoteHomeCard() {
           근처 가게 견적이 와요
         </p>
         <span
-          className="inline-flex h-[36px] items-center rounded-full px-[16px] text-sm font-bold text-white"
+          className="inline-flex h-[34px] items-center gap-[2px] rounded-full pl-[16px] pr-[12px] text-sm font-bold text-white"
           style={{ background: CHOCOLATE }}
         >
           견적 받기
+          <span aria-hidden className="text-base leading-none">
+            ›
+          </span>
         </span>
       </div>
-      <TiltedPhotos size={78} />
     </Link>
   );
 }
@@ -169,9 +198,6 @@ export function QuoteAskSheet({
       zIndexClassName="z-[60]"
     >
       <div className="flex flex-col gap-[8px] px-[20px] pb-[24px] pt-[4px]">
-        <p className="mb-[8px] text-center text-sm text-gray-500">
-          이 가게에만 물을 수도, 다른 가게와 비교할 수도 있어요
-        </p>
         {option(
           true,
           `${storeName}에만 물어보기`,

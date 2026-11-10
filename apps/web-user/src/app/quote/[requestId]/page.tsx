@@ -191,7 +191,7 @@ function QuoteRequestDetailContent() {
         onClose={() => setCloseOpen(false)}
         title="요청을 닫을까요?"
         footer={
-          <div className="flex gap-[8px]">
+          <div className="flex gap-2 px-5 py-3">
             <Button
               variant="outline"
               size="lg"

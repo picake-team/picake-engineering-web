@@ -106,6 +106,7 @@ export function StepWhen({ now }: { now: Date }) {
           maxDate={maxDate}
           // 손님이 직접 고르게 한다(예약 달력처럼 오늘을 자동으로 고르지 않음)
           autoSelectToday={false}
+          className="border-0 p-0 shadow-none"
           onDateSelect={(date) => update({ pickupDate: toYmd(date) })}
         />
       </Field>
@@ -301,9 +302,9 @@ export function StepStores() {
           type="button"
           disabled={draft.stores.length >= QUOTE_LIMITS.MAX_STORES}
           onClick={() => setSheetOpen(true)}
-          className="flex h-[40px] w-full items-center gap-[8px] rounded-full px-[16px] text-sm text-gray-400 shadow-[0_2px_8px_rgba(0,0,0,0.08)] disabled:opacity-50"
+          className="flex h-[42px] w-full items-center gap-[6px] rounded-[8px] border border-gray-100 px-[12px] text-left text-sm text-gray-400 disabled:opacity-50"
         >
-          <Icon name="search" width={16} height={16} />
+          <Icon name="search" width={16} height={16} className="shrink-0 text-gray-400" />
           가게 이름으로 찾기
         </button>
       </Field>
@@ -421,11 +422,7 @@ export function StepCake() {
   return (
     <div>
       <StepTitle title="어떤 케이크인가요?" description="사진이나 설명 중 하나만 있으면 돼요" />
-      <Field
-        label="참고 사진"
-        optional={`${QUOTE_LIMITS.MAX_PHOTOS}장까지`}
-        caption={hasPhoto ? undefined : "케이크 전체가 잘 보이는 사진일수록 견적이 정확해요"}
-      >
+      <Field label="참고 사진" optional={`${QUOTE_LIMITS.MAX_PHOTOS}장까지`}>
         <div className="flex w-full gap-[6px] overflow-auto">
           {draft.photos.length < QUOTE_LIMITS.MAX_PHOTOS && (
             <button
@@ -485,11 +482,7 @@ export function StepCake() {
       </Field>
       <Field
         label="설명"
-        caption={
-          hasPhoto
-            ? "사진과 다르게 하고 싶은 점이나 꼭 지켜야 할 점을 적어 주세요"
-            : "원하는 케이크와 케이크에 쓸 글자를 적어 주세요"
-        }
+        caption={hasPhoto ? undefined : "원하는 케이크와 케이크에 쓸 글자를 적어 주세요"}
       >
         <TextArea
           value={draft.description}

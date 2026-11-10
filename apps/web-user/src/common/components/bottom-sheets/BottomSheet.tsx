@@ -7,6 +7,20 @@ import { Icon } from "@/apps/web-user/common/components/icons";
 /** 아래로 끌어내려 닫히는 최소 거리(px) */
 const CLOSE_THRESHOLD_PX = 100;
 
+/** 손짓이 콘텐츠 안의 다른 스크롤 영역(또는 data-no-sheet-drag)에서 시작했는지 */
+function isInNestedScroll(target: Node, content: HTMLElement): boolean {
+  let el: HTMLElement | null = target instanceof HTMLElement ? target : target.parentElement;
+  while (el && el !== content) {
+    if (el.hasAttribute("data-no-sheet-drag")) return true;
+    const overflowY = getComputedStyle(el).overflowY;
+    if ((overflowY === "auto" || overflowY === "scroll") && el.scrollHeight > el.clientHeight) {
+      return true;
+    }
+    el = el.parentElement;
+  }
+  return false;
+}
+
 interface BottomSheetProps {
   isOpen: boolean;
   onClose: () => void;
@@ -76,6 +90,8 @@ export function BottomSheet({
         const inContent = content.contains(target);
         // 콘텐츠 안에서는 최상단이고 아래로 당길 때만 드래그 시작
         if (dy <= 0 || (inContent && content.scrollTop > 0)) return;
+        // 창 안의 다른 스크롤(시간 휠 등)에서 시작한 손짓은 그 스크롤이 받는다(창이 같이 끌려 내려가지 않게)
+        if (inContent && isInNestedScroll(target, content)) return;
         dragging = true;
         startY = e.touches[0].clientY;
         return;

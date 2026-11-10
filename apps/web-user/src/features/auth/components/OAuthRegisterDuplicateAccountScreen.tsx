@@ -61,6 +61,16 @@ export function OAuthRegisterDuplicateAccountScreen({
         </h2>
         <p className="mt-1 text-sm leading-relaxed text-[var(--grayscale-gr-500,#82817D)]">
           아래 계정으로 로그인해주세요.
+          {provider !== "kakao" && payload.email && (
+            <>
+              <br />
+              {provider === "google" ? "구글" : "Apple"} 계정을 고르는 화면에서{" "}
+              <span className="font-medium text-[var(--grayscale-gr-900,#1F1F1E)]">
+                {payload.email}
+              </span>
+              을 골라 주세요.
+            </>
+          )}
         </p>
 
         <div className="mt-8 rounded-[12px] border border-solid border-[var(--grayscale-gr-100,#EBEBEA)] bg-white px-[20px] py-[24px]">
@@ -89,6 +99,16 @@ export function OAuthRegisterDuplicateAccountScreen({
                 {provider === "google" ? "구글" : provider === "apple" ? "애플" : "카카오"}
               </dd>
             </div>
+            {payload.email && (
+              <div className="flex flex-row items-center gap-[40px]">
+                <dt className="min-w-[80px] shrink-0 text-[14px] font-normal text-[var(--grayscale-gr-500,#82817D)]">
+                  계정
+                </dt>
+                <dd className="min-w-0 flex-1 break-all text-left text-[14px] font-normal text-[var(--grayscale-gr-900,#1F1F1E)]">
+                  {payload.email}
+                </dd>
+              </div>
+            )}
           </dl>
         </div>
 

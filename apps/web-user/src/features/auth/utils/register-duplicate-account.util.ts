@@ -10,7 +10,7 @@ import type {
  */
 export function parseDuplicateAccountPayload(error: unknown): DuplicateAccountPayload | null {
   const axiosError = error as AxiosError<{
-    data?: { message?: unknown; name?: unknown; phone?: unknown };
+    data?: { message?: unknown; name?: unknown; phone?: unknown; email?: unknown };
   }>;
   const status = axiosError.response?.status;
   const data = axiosError.response?.data?.data;
@@ -19,6 +19,7 @@ export function parseDuplicateAccountPayload(error: unknown): DuplicateAccountPa
   const message = typeof data.message === "string" ? data.message : null;
   const name = typeof data.name === "string" ? data.name : null;
   const phone = typeof data.phone === "string" ? data.phone : null;
+  const email = typeof data.email === "string" && data.email ? data.email : null;
   if (!message || !name || !phone) return null;
 
   if (
@@ -29,7 +30,7 @@ export function parseDuplicateAccountPayload(error: unknown): DuplicateAccountPa
     return null;
   }
 
-  return { message, name, phone };
+  return { message, name, phone, email };
 }
 
 /**
