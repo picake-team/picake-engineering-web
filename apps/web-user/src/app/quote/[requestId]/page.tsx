@@ -203,14 +203,14 @@ function QuoteRequestDetailContent() {
             <Button
               size="lg"
               className="flex-1"
-              disabled={close.isPending}
+              loading={close.isPending}
               onClick={() =>
                 close.mutate(data.id, {
                   onSuccess: () => setCloseOpen(false),
                 })
               }
             >
-              닫기
+              {close.isPending ? "닫는 중…" : "닫기"}
             </Button>
           </div>
         }

@@ -74,8 +74,12 @@ export function ProfileEditBottomSheet({
         title="프로필 편집"
         footer={
           <div className="px-5 py-3">
-            <Button onClick={handleConfirm} disabled={!nickname.trim() || isBusy}>
-              {isSubmitting ? "변경 중..." : "변경 완료"}
+            <Button
+              onClick={handleConfirm}
+              disabled={!nickname.trim() || isBusy}
+              loading={isSubmitting}
+            >
+              {isSubmitting ? "변경 중…" : "변경 완료"}
             </Button>
           </div>
         }

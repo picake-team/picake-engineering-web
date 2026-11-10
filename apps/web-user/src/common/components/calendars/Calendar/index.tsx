@@ -238,7 +238,7 @@ export const Calendar: React.FC<CalendarProps> = ({
         {DAYS_OF_WEEK.map((day) => (
           <div
             key={day}
-            className={cn("text-center text-xs font-normal leading-[130%] text-[#55595E] py-2")}
+            className={cn("text-center text-xs font-normal leading-[130%] text-gray-700 py-2")}
           >
             {day}
           </div>
@@ -272,7 +272,7 @@ export const Calendar: React.FC<CalendarProps> = ({
                 (!isCurrentMonthDate || disabled) && "text-gray-300",
                 disabled && "cursor-not-allowed opacity-50",
                 // 활성화된 날짜 스타일 (선택되지 않은 경우)
-                isCurrentMonthDate && !disabled && !isSelectedDate && "text-[#21272C]",
+                isCurrentMonthDate && !disabled && !isSelectedDate && "text-gray-900",
                 isTodayDate && !isSelectedDate && "bg-primary-50 text-primary",
                 // 선택된 날짜 스타일
                 isSelectedDate && "bg-primary text-white hover:bg-primary/90 focus:ring-0",

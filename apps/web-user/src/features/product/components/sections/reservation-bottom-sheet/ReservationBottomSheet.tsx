@@ -4,7 +4,6 @@ import { useCallback, useState } from "react";
 import { isAxiosError } from "axios";
 import { useQueryClient } from "@tanstack/react-query";
 import { BottomSheet } from "@/apps/web-user/common/components/bottom-sheets/BottomSheet";
-import { Spinner } from "@/apps/web-user/common/components/spinners/Spinner";
 import { Modal } from "@/apps/web-user/common/components/modals/Modal";
 import { Button } from "@/apps/web-user/common/components/buttons/Button";
 import { ReservationBottomSheetProps } from "./types";
@@ -281,20 +280,11 @@ export function ReservationBottomSheet({
           <Button
             onClick={handleCreateOrder}
             disabled={
-              orderItems.length === 0 ||
-              !reserverName.trim() ||
-              !reserverPhone.trim() ||
-              !allAgreed ||
-              isSubmitting
+              orderItems.length === 0 || !reserverName.trim() || !reserverPhone.trim() || !allAgreed
             }
+            loading={isSubmitting}
           >
-            {isSubmitting ? (
-              <span className="inline-flex items-center justify-center">
-                <Spinner size={20} className="text-white" />
-              </span>
-            ) : (
-              "예약신청"
-            )}
+            {isSubmitting ? "예약 신청 중…" : "예약신청"}
           </Button>
         </div>
       </div>

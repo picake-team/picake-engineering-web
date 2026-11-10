@@ -1,4 +1,5 @@
 import React from "react";
+import { Spinner } from "@/apps/web-user/common/components/spinners/Spinner";
 
 /**
  * 버튼 스타일 variant
@@ -21,6 +22,11 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   /** 버튼 크기 (기본값: "lg") */
   size?: ButtonSize;
+  /**
+   * 서버를 기다리는 중: 동그라미 + 글자, 다시 눌리지 않음. 색은 그대로 둔다(회색이면 실패처럼 보임).
+   * 글자는 부르는 쪽에서 "보내는 중…"처럼 바꿔 준다(사장님 앱 Button loading과 같은 뜻)
+   */
+  loading?: boolean;
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
@@ -68,23 +74,32 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   variant = "primary",
   size = "lg",
+  loading = false,
   ...props
 }) => {
   return (
     <button
       {...props}
-      disabled={disabled}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
       className={`
         press w-full font-bold rounded-xl px-[10px]
         ${variantStyles[variant]}
         ${sizeStyles[size]}
-        ${disabled ? "!bg-gray-200 !text-gray-300 cursor-not-allowed" : "cursor-pointer"}
+        ${loading ? "cursor-wait" : disabled ? "!bg-gray-200 !text-gray-300 cursor-not-allowed" : "cursor-pointer"}
         ${className}
       `
         .trim()
         .replace(/\s+/g, " ")}
     >
-      {children}
+      {loading ? (
+        <span className="inline-flex items-center justify-center gap-[8px]">
+          <Spinner size={20} className="text-current" />
+          {children}
+        </span>
+      ) : (
+        children
+      )}
     </button>
   );
 };
