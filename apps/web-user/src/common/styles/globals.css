@@ -127,22 +127,6 @@ textarea {
   animation: spin 1s linear infinite;
 }
 
-/* 랭킹 애니메이션 */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.ranking-item {
-  animation: fadeInUp 0.5s ease-out both;
-}
-
 /* ------------------------------ Swiper 커스텀 스타일 ------------------------------ */
 .product-image-gallery .swiper-pagination-fraction,
 .store-feed-gallery .swiper-pagination-fraction {

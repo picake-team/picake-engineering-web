@@ -120,14 +120,6 @@ const customerKeyframes = {
       height: "0",
     },
   },
-  "slide-up": {
-    from: {
-      transform: "translateY(100%)",
-    },
-    to: {
-      transform: "translateY(0)",
-    },
-  },
   // 탭 전환: 진행 방향 쪽에서 살짝 밀려 들어오며 나타남
   "tab-in-forward": {
     from: {
@@ -154,7 +146,6 @@ const customerKeyframes = {
 const customerAnimation = {
   "accordion-down": "accordion-down 0.2s ease-out",
   "accordion-up": "accordion-up 0.2s ease-out",
-  "slide-up": "slide-up 0.3s ease-out",
   "tab-in-forward": "tab-in-forward 0.22s ease-out",
   "tab-in-backward": "tab-in-backward 0.22s ease-out",
 };
