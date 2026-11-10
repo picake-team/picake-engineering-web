@@ -138,7 +138,7 @@ export const BusinessRegistrationForm: React.FC<Props> = ({ onSubmit, initialVal
             대표자명
           </Label>
           <Input
-            placeholder="홍길동"
+            placeholder="예: 홍길동"
             value={form.p_nm}
             onChange={handleChange("p_nm")}
             maxLength={30}
@@ -151,7 +151,7 @@ export const BusinessRegistrationForm: React.FC<Props> = ({ onSubmit, initialVal
           <NumberInput
             value={numericStringToValue(form.start_dt)}
             onChange={handleStartDtChange}
-            placeholder="20251030"
+            placeholder="예: 20251030 (숫자 8자리)"
             min={0}
             className={errors.start_dt ? "border-destructive" : ""}
           />
@@ -160,7 +160,7 @@ export const BusinessRegistrationForm: React.FC<Props> = ({ onSubmit, initialVal
         <div>
           <Label className="after:content-['*'] after:ml-0.5 after:text-destructive">상호</Label>
           <Input
-            placeholder="Picake"
+            placeholder="예: 달콤케이크"
             value={form.b_nm}
             onChange={handleChange("b_nm")}
             maxLength={50}
@@ -171,7 +171,7 @@ export const BusinessRegistrationForm: React.FC<Props> = ({ onSubmit, initialVal
         <div>
           <Label className="after:content-['*'] after:ml-0.5 after:text-destructive">업태</Label>
           <Input
-            placeholder="도매 및 소매업"
+            placeholder="예: 제조업"
             value={form.b_sector}
             onChange={handleChange("b_sector")}
             maxLength={50}
@@ -182,7 +182,7 @@ export const BusinessRegistrationForm: React.FC<Props> = ({ onSubmit, initialVal
         <div>
           <Label className="after:content-['*'] after:ml-0.5 after:text-destructive">종목</Label>
           <Input
-            placeholder="전자상거래 소매 중개업"
+            placeholder="예: 제과점업"
             value={form.b_type}
             onChange={handleChange("b_type")}
             maxLength={50}

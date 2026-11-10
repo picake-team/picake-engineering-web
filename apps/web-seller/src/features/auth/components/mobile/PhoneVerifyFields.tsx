@@ -4,6 +4,7 @@
  */
 import { Button } from "@/apps/web-seller/common/ui/Button";
 import { FrameSubmitBar } from "@/apps/web-seller/common/components/layouts/FrameSubmitBar";
+import { useKeyboardOpen } from "@/apps/web-seller/common/hooks/useKeyboardOpen";
 import { Field, TextInput } from "@/apps/web-seller/common/ui/Field";
 import {
   usePhoneVerification,
@@ -101,22 +102,25 @@ export function PhoneVerifyFields({
 }) {
   const v = usePhoneVerification(purpose);
   const busy = v.verifying;
+  // 아래 버튼 줄은 키보드가 올라오면 숨는다. 인증번호를 넣고 바로 누를 수 있게, 키보드가 떠 있는 동안만 칸 바로 밑에 둔다
+  const keyboardOpen = useKeyboardOpen();
+  const submit = (
+    <Button
+      block
+      disabled={!v.readyToVerify}
+      loading={busy}
+      onClick={async () => {
+        const phone = await v.verifyCode();
+        await onVerified(phone);
+      }}
+    >
+      {submitLabel}
+    </Button>
+  );
   return (
     <div className="flex flex-col gap-4">
       <PhoneVerifyInputs v={v} />
-      <FrameSubmitBar>
-        <Button
-          block
-          disabled={!v.readyToVerify}
-          loading={busy}
-          onClick={async () => {
-            const phone = await v.verifyCode();
-            await onVerified(phone);
-          }}
-        >
-          {submitLabel}
-        </Button>
-      </FrameSubmitBar>
+      {keyboardOpen ? submit : <FrameSubmitBar>{submit}</FrameSubmitBar>}
     </div>
   );
 }
