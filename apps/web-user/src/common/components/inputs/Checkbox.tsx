@@ -24,6 +24,55 @@ interface CheckboxProps {
   className?: string;
 }
 
+/**
+ * 체크 칸 모양. 고르면 체크 선이 그려진다(공용 움직임 값 check-draw, 처음 그릴 때는 그대로).
+ * Checkbox와, 거르기 창처럼 줄을 직접 그리는 곳이 같이 쓴다(같은 모양·같은 움직임).
+ */
+export function CheckboxMark({ checked, size = 16 }: { checked: boolean; size?: number }) {
+  const wasChecked = useRef(checked);
+  const [drawCount, setDrawCount] = useState(0);
+  useEffect(() => {
+    if (checked && !wasChecked.current) setDrawCount((n) => n + 1);
+    wasChecked.current = checked;
+  }, [checked]);
+
+  if (!checked) {
+    return (
+      <Icon
+        name="checkboxSmallDefault"
+        width={size}
+        height={size}
+        className="shrink-0"
+        aria-hidden
+      />
+    );
+  }
+  // checkbox-small-selected 아이콘과 같은 모양을 선으로 그려 체크가 그려지게 한다
+  return (
+    <svg
+      key={drawCount}
+      viewBox="0 0 20 20"
+      width={size}
+      height={size}
+      className="shrink-0 text-primary"
+      aria-hidden
+    >
+      <rect x="2" y="2" width="16" height="16" rx="3.56" fill="currentColor" />
+      <path
+        d="M6.14 9.49 8.93 12.28 14.17 7.03"
+        fill="none"
+        stroke="white"
+        strokeWidth={1.15}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        pathLength={1}
+        strokeDasharray={1}
+        className={drawCount > 0 ? "animate-check-draw motion-reduce:animate-none" : undefined}
+      />
+    </svg>
+  );
+}
+
 export const Checkbox = ({
   checked,
   onChange,
@@ -33,13 +82,6 @@ export const Checkbox = ({
   name,
   className,
 }: CheckboxProps) => {
-  const wasChecked = useRef(checked);
-  const [drawCount, setDrawCount] = useState(0);
-  useEffect(() => {
-    if (checked && !wasChecked.current) setDrawCount((n) => n + 1);
-    wasChecked.current = checked;
-  }, [checked]);
-
   return (
     <label
       className={clsx(
@@ -57,32 +99,7 @@ export const Checkbox = ({
         disabled={disabled}
         className="sr-only"
       />
-      {checked ? (
-        // checkbox-small-selected 아이콘과 같은 모양을 선으로 그려 체크가 그려지게 한다
-        <svg
-          key={drawCount}
-          viewBox="0 0 20 20"
-          width={16}
-          height={16}
-          className="shrink-0 text-primary"
-          aria-hidden
-        >
-          <rect x="2" y="2" width="16" height="16" rx="3.56" fill="currentColor" />
-          <path
-            d="M6.14 9.49 8.93 12.28 14.17 7.03"
-            fill="none"
-            stroke="white"
-            strokeWidth={1.15}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            pathLength={1}
-            strokeDasharray={1}
-            className={drawCount > 0 ? "animate-check-draw motion-reduce:animate-none" : undefined}
-          />
-        </svg>
-      ) : (
-        <Icon name="checkboxSmallDefault" width={16} height={16} className="shrink-0" aria-hidden />
-      )}
+      <CheckboxMark checked={checked} />
       {label && <span className="text-sm text-gray-900">{label}</span>}
     </label>
   );

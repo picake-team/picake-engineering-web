@@ -1,5 +1,5 @@
 /*
- * Picake 공통 디자인 값(색·움직임·그림자·겹침 순서 — 두 앱의 기초. 부품은 앱마다 따로). 한 파일에 둔다: Storybook이 tailwind 설정을 Node로 읽을 때
+ * Picake 공통 디자인 값(색·움직임 — 두 앱의 기초. 부품은 앱마다 따로). 한 파일에 둔다: Storybook이 tailwind 설정을 Node로 읽을 때
  * 이 패키지 안의 확장자 없는 상대 import("./colors")를 경고하므로 파일을 나누지 않는다.
  */
 import type { Config } from "tailwindcss";
@@ -158,7 +158,7 @@ const customerAnimation = {
   "tab-in-backward": "tab-in-backward 0.22s ease-out",
 };
 
-// ── 움직임·그림자·겹침 순서 (공용 기초, 손님 앱·판매자 앱이 같이 씀) ─────────────
+// ── 움직임 (공용 기초, 손님 앱·판매자 앱이 같이 씀) ─────────────
 
 /**
  * 움직임 시간(ms). 화면마다 0.15·0.2·0.3초를 직접 적던 것을 이 이름으로 모은다(2026-11-11 운영자 결정).
@@ -266,28 +266,6 @@ const motionAnimation = {
 
 /** 제목·설명을 한 줄씩 차례로 띄울 때 줄 사이 간격(ms). `animate-rise`와 같이 쓴다 */
 export const motionStaggerMs = 80;
-
-/** 그림자(지금 화면에서 쓰는 값을 이름으로 모음. 화면에는 아직 이 이름으로 바꾸지 않았다) */
-export const shadow = {
-  card: "0 1px 2px rgba(31, 31, 30, 0.06)",
-  float: "0 6px 20px rgba(31, 31, 30, 0.14)",
-  bar: "0 -4px 12px rgba(31, 31, 30, 0.06)",
-  sheet: "0 -8px 24px rgba(31, 31, 30, 0.12)",
-} as const;
-
-/**
- * 겹침 순서(z-index). 위에 올 것일수록 크다. 지금 화면 값(헤더 50, 안내 띠 60, 확인 창 100, 오류 창 9999)을
- * 이름으로 모아 둔 기준이며, 화면에는 아직 이 이름으로 바꾸지 않았다.
- */
-export const zIndex = {
-  sticky: 30,
-  header: 50,
-  banner: 60,
-  sheet: 70,
-  snackbar: 80,
-  modal: 100,
-  alert: 9999,
-} as const;
 
 /**
  * 움직임 tailwind preset. 손님 화면은 customerPreset 안에 들어 있고, 판매자 앱은 `presets: [motionPreset]`로 쓴다.

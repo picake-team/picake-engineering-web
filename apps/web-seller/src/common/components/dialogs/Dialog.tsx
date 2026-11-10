@@ -4,6 +4,10 @@ import { X } from "lucide-react";
 import { cn } from "@/apps/web-seller/common/utils/classname.util";
 import { useInMobileFrame } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
 import { useSheetDrag } from "@/apps/web-seller/common/ui/useSheetDrag";
+import { usePresence } from "@/apps/web-seller/common/ui/usePresence";
+
+/** 휴대폰 틀 안에서 닫힐 때 내려가는 시간(공용 움직임 값 sheet-out = medium, 앱 BottomSheet와 같음) */
+const SHEET_EXIT_MS = 250;
 
 interface DialogProps {
   open: boolean;
@@ -21,6 +25,7 @@ interface DialogProps {
  * 가벼운 팝업 창. Esc·바깥 클릭으로 닫히고, 열려 있는 동안 뒤 화면은 스크롤되지 않는다.
  * 휴대폰에서는 아래에서 올라오는 시트처럼 화면을 꽉 채운다.
  * 휴대폰 틀(MobileFrame) 안에서는 판매자 앱 창 모양(손잡이, 제목 18/700, 모서리 22, 안전 영역)으로 그리고, 손잡이·제목 부분을 아래로 끌어 닫는다.
+ * 휴대폰 틀 안에서는 앱 아래 창(BottomSheet)과 같이 올라오고(300) 닫힐 때 내려간다(250). PC 화면은 지금처럼 바로 뜬다.
  */
 export function Dialog({
   open,
@@ -39,6 +44,13 @@ export function Dialog({
 
   useEffect(() => {
     if (!open) return;
+    // 끌어내려 닫히던 중에 다시 열리면 끌던 자리를 지운다
+    for (const el of [panelRef.current, backdropRef.current]) {
+      if (!el) continue;
+      el.style.transition = "";
+      el.style.transform = "";
+      el.style.opacity = "";
+    }
     const previous = document.activeElement as HTMLElement | null;
     const { overflow } = document.body.style;
     document.body.style.overflow = "hidden";
@@ -54,13 +66,26 @@ export function Dialog({
     };
   }, [open, onClose]);
 
-  if (!open) return null;
+  // 휴대폰 틀 안에서는 닫힐 때도 내려가는 움직임이 끝날 때까지 그린다(그동안 내용은 열려 있던 때 그대로)
+  const presence = usePresence(open, SHEET_EXIT_MS, { title, description, footer, children });
+  if (!presence.present || (!inFrame && !open)) return null;
+  const leaving = inFrame && presence.leaving;
+  const shown = presence.content;
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-6">
+    <div
+      className={cn(
+        "fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-6",
+        leaving && "pointer-events-none",
+      )}
+    >
       <div
         ref={backdropRef}
-        className={cn("absolute inset-0", inFrame ? "bg-[rgba(31,31,30,0.4)]" : "bg-black/40")}
+        className={cn(
+          "absolute inset-0",
+          inFrame ? "bg-[rgba(31,31,30,0.4)]" : "bg-black/40",
+          inFrame && (leaving ? "animate-scrim-out" : "animate-scrim-in"),
+        )}
         aria-hidden
         onClick={onClose}
       />
@@ -75,6 +100,10 @@ export function Dialog({
           size === "lg" ? "sm:max-w-3xl" : "sm:max-w-xl",
           inFrame &&
             "max-h-[92dvh] max-w-[640px] rounded-t-sheet font-app text-ink-900 shadow-none",
+          inFrame &&
+            (leaving
+              ? "animate-sheet-out motion-reduce:animate-fade-out"
+              : "animate-sheet-in motion-reduce:animate-fade-in"),
         )}
       >
         {inFrame ? (
@@ -83,9 +112,11 @@ export function Dialog({
             <div className="flex items-start gap-2">
               <div className="min-w-0 flex-1 pt-2">
                 <h2 id={titleId} className="text-heading font-bold text-ink-900">
-                  {title}
+                  {shown.title}
                 </h2>
-                {description && <p className="mt-1 text-sub text-ink-600">{description}</p>}
+                {shown.description && (
+                  <p className="mt-1 text-sub text-ink-600">{shown.description}</p>
+                )}
               </div>
               <button
                 type="button"
@@ -116,16 +147,16 @@ export function Dialog({
           </div>
         )}
         <div className={cn("flex-1 overflow-y-auto px-5", inFrame ? "pb-4 pt-3" : "py-4")}>
-          {children}
+          {shown.children}
         </div>
-        {footer && (
+        {shown.footer && (
           <div
             className={cn(
               "border-t px-5 py-3",
               inFrame && "border-t-0 pb-[max(20px,env(safe-area-inset-bottom))] pt-4",
             )}
           >
-            {footer}
+            {shown.footer}
           </div>
         )}
       </div>
