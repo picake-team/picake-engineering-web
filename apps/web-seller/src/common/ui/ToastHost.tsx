@@ -41,6 +41,39 @@ export function ToastHost() {
       {visible.map((a) => {
         const isProblem = a.severity === "error" || a.severity === "warning";
         const title = a.title && a.title !== ALERT_ERROR_TITLE ? a.title : null;
+        if (a.onClick) {
+          // 누르면 열리는 알림(새 예약 등): 안내 전체가 버튼. 알림 종 + 오른쪽 화살표(누르면 열리는 줄과 같은 표시)
+          return (
+            <button
+              key={a.id}
+              type="button"
+              role="status"
+              onClick={() => {
+                a.onClick?.();
+                removeAlert(a.id);
+              }}
+              className="pointer-events-auto flex w-full items-center gap-2 rounded-card border border-ink-100 bg-white p-4 text-left text-body text-ink-900 shadow-[0_6px_20px_rgba(31,31,30,0.14)] animate-in fade-in-0 slide-in-from-top-2 duration-200 active:bg-ink-50"
+            >
+              <span className="shrink-0 self-start text-brand">
+                <Icon name="bell" size={20} strokeWidth={2} />
+              </span>
+              <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                {title ? <span className="font-bold">{title}</span> : null}
+                <span
+                  className={cx(
+                    "whitespace-pre-line break-words",
+                    title && "text-sub text-ink-600",
+                  )}
+                >
+                  {a.message}
+                </span>
+              </span>
+              <span className="shrink-0 text-ink-400">
+                <Icon name="chevronRight" size={18} strokeWidth={2} />
+              </span>
+            </button>
+          );
+        }
         return (
           <div
             key={a.id}

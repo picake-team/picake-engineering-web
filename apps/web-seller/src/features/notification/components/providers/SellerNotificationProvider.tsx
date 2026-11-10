@@ -1,5 +1,6 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo } from "react";
-import { useLocation } from "react-router-dom";
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
 import { useQueryClient } from "@tanstack/react-query";
 import { connectNotificationSocket } from "@/apps/web-seller/features/notification/services/notification-socket.service";
 import type {
@@ -46,6 +47,9 @@ interface SellerNotificationContextValue {
 
 const SellerNotificationContext = createContext<SellerNotificationContextValue | null>(null);
 
+/** 소켓 알림 뒤 다시 불러오기를 모으는 시간 */
+const SOCKET_REFRESH_DELAY_MS = 800;
+
 export const SellerNotificationProvider: React.FC<{
   storeId: string;
   children: React.ReactNode;
@@ -65,15 +69,34 @@ export const SellerNotificationProvider: React.FC<{
   const markReadMutation = useMarkNotificationRead(storeId);
   const markAllReadMutation = useMarkAllNotificationsRead(storeId);
 
+  // 소켓을 화면을 옮길 때마다 다시 붙이지 않도록, 안내를 눌렀을 때 쓰는 함수는 ref로 둔다
+  const navigate = useNavigate();
+  const navigateRef = useRef(navigate);
+  const markReadRef = useRef<(id: string) => void>(() => undefined);
+  useEffect(() => {
+    navigateRef.current = navigate;
+    markReadRef.current = (id) => markReadMutation.mutate(id);
+  }, [navigate, markReadMutation]);
+
   // 소켓: 푸시마다 목록·카운트 무효화 후, 현재 스토어·설정에 맞을 때만 토스트/알림음
   useEffect(() => {
-    return connectNotificationSocket({
-      storeId,
-      onNotification: (item) => {
+    // 알림이 몰려 와도(예약 여러 건, 연달아 처리) 다시 불러오기는 잠깐 모아 한 번만 한다.
+    // 알림마다 주문 목록 여러 개를 다시 부르면 서버 요청 한도(1분 100회)에 걸려 화면이 "불러오지 못했어요"가 된다
+    let refreshTimer: number | null = null;
+    const scheduleRefresh = () => {
+      if (refreshTimer !== null) return;
+      refreshTimer = window.setTimeout(() => {
+        refreshTimer = null;
         void queryClient.invalidateQueries({ queryKey: notificationQueryKeys.list(storeId) });
         void queryClient.invalidateQueries({ queryKey: notificationQueryKeys.unread(storeId) });
         // 주문 알림이면 주문 목록·상세·홈 숫자도 새로(앱을 켜 둔 채 새 예약이 오면 바로 보이게)
         void queryClient.invalidateQueries({ queryKey: orderQueryKeys.all });
+      }, SOCKET_REFRESH_DELAY_MS);
+    };
+    const disconnect = connectNotificationSocket({
+      storeId,
+      onNotification: (item) => {
+        scheduleRefresh();
         // 소켓은 계정 단위로 붙으므로, 현재 라우트 스토어와 일치할 때만 UI 반응
         if (item.storeId !== storeId) {
           return;
@@ -94,12 +117,21 @@ export const SellerNotificationProvider: React.FC<{
           severity: "info",
           title: item.title,
           message: item.body,
+          // 휴대폰 화면: 안내를 누르면 그 주문 상세로 바로 간다(알림 목록에서 누른 것과 같이 읽음 처리)
+          onClick: () => {
+            markReadRef.current(item.id);
+            navigateRef.current(ROUTES.STORE_DETAIL_ORDERS_DETAIL(item.storeId, item.orderId));
+          },
         });
         if (prefs.orderNotificationSoundEnabled) {
           playNotificationChime();
         }
       },
     });
+    return () => {
+      if (refreshTimer !== null) window.clearTimeout(refreshTimer);
+      disconnect();
+    };
   }, [queryClient, storeId]);
 
   const setSettings = useCallback(

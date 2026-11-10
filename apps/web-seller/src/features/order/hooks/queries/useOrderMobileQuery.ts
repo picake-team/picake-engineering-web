@@ -32,6 +32,7 @@ export interface OrderMobileListParams extends OrderDateFilter {
   type?: OrderType;
   orderNumber?: string;
   productName?: string;
+  keyword?: string;
 }
 
 function cleanParams(params: OrderMobileListParams): Omit<OrderListRequestDto, "page" | "limit"> {
@@ -43,6 +44,7 @@ function cleanParams(params: OrderMobileListParams): Omit<OrderListRequestDto, "
   if (params.type) out.type = params.type;
   if (params.orderNumber) out.orderNumber = params.orderNumber;
   if (params.productName) out.productName = params.productName;
+  if (params.keyword) out.keyword = params.keyword;
   if (params.pickupStartDate) out.pickupStartDate = params.pickupStartDate;
   if (params.pickupEndDate) out.pickupEndDate = params.pickupEndDate;
   if (params.startDate) out.startDate = params.startDate;

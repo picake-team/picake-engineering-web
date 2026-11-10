@@ -11,6 +11,8 @@ export interface AlertItem {
   autoHideDuration?: number | null; // null이면 자동으로 사라지지 않음
   /** 안내 오른쪽 글자 버튼(휴대폰 화면 "되돌리기" 등). 누르면 안내를 닫는다 */
   action?: { label: string; onClick: () => void };
+  /** 안내 전체를 누르면 할 일(휴대폰 화면 실시간 주문 알림 → 그 주문 상세). 누르면 안내를 닫는다 */
+  onClick?: () => void;
 }
 
 interface AlertStore {

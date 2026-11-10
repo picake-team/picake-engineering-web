@@ -8,6 +8,8 @@ import { useUploadFile } from "@/apps/web-seller/features/upload/hooks/mutations
 import { ImagePreview } from "@/apps/web-seller/common/components/images/ImagePreview";
 import { useInMobileFrame } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
+import { BottomSheet } from "@/apps/web-seller/common/ui/Sheet";
+import { Button as AppButton, ButtonPair } from "@/apps/web-seller/common/ui/Button";
 import {
   validateFileSize,
   validateMaxImages,
@@ -41,6 +43,8 @@ export const ImageMultiUpload: React.FC<ImageMultiUploadProps> = ({
   const [singleImageError, setSingleImageError] = useState<string | null>(null); // 단일 이미지 모드용 오류
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
   const [isDragging, setIsDragging] = useState<boolean>(false);
+  /** 휴대폰 틀 안: 대표 사진으로 바꿀 사진(누른 사진) */
+  const [mainPick, setMainPick] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   // 실패는 사진 칸 아래 한 줄로만 알린다(위 안내와 두 번 겹치지 않게)
   const uploadMutation = useUploadFile({ silent: true });
@@ -242,6 +246,15 @@ export const ImageMultiUpload: React.FC<ImageMultiUploadProps> = ({
               )}
             >
               <ImagePreview src={url} />
+              {/* 둘째 사진부터 누르면 대표 사진으로 바꿀 수 있다(첫 장이 손님 화면 대표 사진) */}
+              {index > 0 && !isSingleMode && uploadingIndex === null ? (
+                <button
+                  type="button"
+                  aria-label={`사진 ${index + 1} 대표 사진으로 하기`}
+                  onClick={() => setMainPick(index)}
+                  className="absolute inset-0 active:bg-black/10"
+                />
+              ) : null}
               {uploadingIndex === index && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/40">
                   <LoadingSpinner size="sm" className="text-white" aria-hidden />
@@ -282,6 +295,36 @@ export const ImageMultiUpload: React.FC<ImageMultiUploadProps> = ({
         {frameError ? (
           <p className="mt-2 text-caption font-semibold text-brand-ink">{frameError}</p>
         ) : null}
+        <BottomSheet
+          open={mainPick !== null}
+          onClose={() => setMainPick(null)}
+          title="이 사진을 대표 사진으로 할까요?"
+          description="손님 화면에서 맨 처음 보이는 사진이에요."
+          footer={
+            <ButtonPair>
+              <AppButton variant="secondary" onClick={() => setMainPick(null)}>
+                돌아가기
+              </AppButton>
+              <AppButton
+                onClick={() => {
+                  if (mainPick !== null && value[mainPick]) {
+                    onChange?.([value[mainPick], ...value.filter((_, i) => i !== mainPick)]);
+                    setUploadErrors({});
+                  }
+                  setMainPick(null);
+                }}
+              >
+                대표로 하기
+              </AppButton>
+            </ButtonPair>
+          }
+        >
+          {mainPick !== null && value[mainPick] ? (
+            <div className="size-32 overflow-hidden rounded-control border border-ink-100 bg-ink-50">
+              <ImagePreview src={value[mainPick]} />
+            </div>
+          ) : null}
+        </BottomSheet>
         {!isSingleMode ? (
           <p className="mt-2 text-caption text-ink-600">
             {value.length}/{maxImages}장 · {maxSize / (1024 * 1024)}MB 이하

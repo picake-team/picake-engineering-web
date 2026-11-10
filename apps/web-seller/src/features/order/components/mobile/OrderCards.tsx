@@ -80,9 +80,12 @@ export function OrderCard({
           <span className="text-body text-ink-900">{orderItemsLine(order)}</span>
           <span className="text-sub text-ink-600">
             {formatWon(order.totalPrice)} ·{" "}
-            {/* 검색 결과(칸 없음)는 상태 배지 + 주문 시각(디자인 A73s) */}
+            {/* 검색 결과(칸 없음)는 상태 배지 + 예약자 이름(이름·번호 뒷자리로 찾은 손님이 맞는지 바로 보이게).
+                이름이 없으면 주문 시각 */}
             {showStatus
-              ? `주문 ${formatKstMonthDayTime(order.createdAt)}`
+              ? order.reservationContactName?.trim()
+                ? `예약자 ${order.reservationContactName.trim()}`
+                : `주문 ${formatKstMonthDayTime(order.createdAt)}`
               : orderCardMeta(order, now)}
           </span>
         </span>
