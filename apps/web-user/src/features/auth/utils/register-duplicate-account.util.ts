@@ -1,9 +1,19 @@
 import type { AxiosError } from "axios";
-import { AUTH_ERROR_MESSAGES } from "@/apps/web-user/features/auth/constants/auth.constant";
+import { isServerAuthMessage } from "@/apps/web-user/features/auth/constants/auth.constant";
 import type {
   DuplicateAccountPayload,
   OAuthLoginProvider,
 } from "@/apps/web-user/features/auth/types/auth.dto";
+
+/** 서버 409 글로 이미 가입한 로그인 수단(구글/카카오/애플)을 알아낸다. 다른 글이면 null */
+export function resolveLoginProviderFromDuplicateMessage(
+  message: unknown,
+): OAuthLoginProvider | null {
+  if (isServerAuthMessage(message, "PHONE_KAKAO_ACCOUNT_EXISTS")) return "kakao";
+  if (isServerAuthMessage(message, "PHONE_GOOGLE_ACCOUNT_EXISTS")) return "google";
+  if (isServerAuthMessage(message, "PHONE_APPLE_ACCOUNT_EXISTS")) return "apple";
+  return null;
+}
 
 /**
  * 회원가입 API 409 응답에서 기존 계정 안내용 필드(message, name, phone)를 파싱합니다.
@@ -22,28 +32,8 @@ export function parseDuplicateAccountPayload(error: unknown): DuplicateAccountPa
   const email = typeof data.email === "string" && data.email ? data.email : null;
   if (!message || !name || !phone) return null;
 
-  if (
-    message !== AUTH_ERROR_MESSAGES.PHONE_KAKAO_ACCOUNT_EXISTS &&
-    message !== AUTH_ERROR_MESSAGES.PHONE_GOOGLE_ACCOUNT_EXISTS &&
-    message !== AUTH_ERROR_MESSAGES.PHONE_APPLE_ACCOUNT_EXISTS
-  ) {
-    return null;
-  }
+  const provider = resolveLoginProviderFromDuplicateMessage(message);
+  if (!provider) return null;
 
-  return { message, name, phone, email };
-}
-
-/**
- * 백엔드 message 문자열로 로그인 수단(구글/카카오/애플)을 추론합니다.
- * 중복 계정 화면에는 `PHONE_KAKAO_ACCOUNT_EXISTS` / `PHONE_GOOGLE_ACCOUNT_EXISTS` / `PHONE_APPLE_ACCOUNT_EXISTS`만 옵니다.
- */
-export function resolveLoginProviderFromDuplicateMessage(
-  message:
-    | typeof AUTH_ERROR_MESSAGES.PHONE_KAKAO_ACCOUNT_EXISTS
-    | typeof AUTH_ERROR_MESSAGES.PHONE_GOOGLE_ACCOUNT_EXISTS
-    | typeof AUTH_ERROR_MESSAGES.PHONE_APPLE_ACCOUNT_EXISTS,
-): OAuthLoginProvider {
-  if (message === AUTH_ERROR_MESSAGES.PHONE_KAKAO_ACCOUNT_EXISTS) return "kakao";
-  if (message === AUTH_ERROR_MESSAGES.PHONE_APPLE_ACCOUNT_EXISTS) return "apple";
-  return "google";
+  return { message, provider, name, phone, email };
 }
