@@ -11,6 +11,7 @@ import { useInfiniteScroll } from "@/apps/web-user/common/hooks/useInfiniteScrol
 import { flattenAndDeduplicateInfiniteData } from "@/apps/web-user/common/utils/pagination.util";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { Icon } from "@/apps/web-user/common/components/icons";
+import { LikePop } from "@/apps/web-user/common/components/motion/LikePop";
 import { useAddStoreLike } from "@/apps/web-user/features/like/hooks/mutations/useAddStoreLike";
 import { useRemoveStoreLike } from "@/apps/web-user/features/like/hooks/mutations/useRemoveStoreLike";
 import { shortenAddress } from "@/apps/web-user/common/utils/address.util";
@@ -95,12 +96,14 @@ export function LikedStoreListSection() {
                   onClick={(e) => handleLike(e, store)}
                   className="flex items-center gap-1 px-2 py-[6px] border border-gray-100 rounded-xl shrink-0"
                 >
-                  <Icon
-                    name={store.isLiked ? "favoriteFilled" : "favorite"}
-                    width={18}
-                    height={18}
-                    className={store.isLiked ? "text-primary" : "text-gray-900"}
-                  />
+                  <LikePop liked={!!store.isLiked}>
+                    <Icon
+                      name={store.isLiked ? "favoriteFilled" : "favorite"}
+                      width={18}
+                      height={18}
+                      className={store.isLiked ? "text-primary" : "text-gray-900"}
+                    />
+                  </LikePop>
                   <span className="text-sm text-gray-900 font-bold">{store.likeCount}</span>
                 </button>
               </div>

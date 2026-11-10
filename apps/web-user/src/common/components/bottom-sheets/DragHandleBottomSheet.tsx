@@ -2,6 +2,10 @@
 
 import { useEffect, useRef, type ReactNode } from "react";
 import clsx from "clsx";
+import { usePresence } from "@/apps/web-user/common/hooks/usePresence";
+
+/** 닫힐 때 내려가는 시간(공용 움직임 값 sheet-out = medium) */
+const SHEET_EXIT_MS = 250;
 
 interface DragHandleBottomSheetProps {
   isOpen: boolean;
@@ -60,6 +64,9 @@ export function DragHandleBottomSheet({
   useEffect(() => {
     const sheet = sheetRef.current;
     if (!isOpen || !draggable || !sheet) return;
+    // 끌어내려 닫히던 중에 다시 열리면 끌던 자리를 지운다
+    sheet.style.transition = "";
+    sheet.style.transform = "";
 
     let startY = 0;
     let delta = 0;
@@ -112,7 +119,10 @@ export function DragHandleBottomSheet({
     };
   }, [isOpen, draggable, closeThresholdPx, onClose]);
 
-  if (!isOpen) return null;
+  // 닫힐 때도 내려가는 움직임이 끝날 때까지 그린다(그동안 내용은 마지막으로 열려 있던 때 그대로)
+  const presence = usePresence(isOpen, SHEET_EXIT_MS, children);
+  if (!presence.present) return null;
+  const { leaving } = presence;
 
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) onClose();
@@ -120,19 +130,30 @@ export function DragHandleBottomSheet({
 
   return (
     <div
-      className={clsx("fixed inset-0 bg-black/50 transition-opacity", zIndexClassName ?? "z-50")}
+      className={clsx(
+        "fixed inset-0 bg-black/50",
+        leaving
+          ? "pointer-events-none animate-scrim-out"
+          : "animate-scrim-in motion-reduce:animate-fade-in",
+        zIndexClassName ?? "z-50",
+      )}
       onClick={handleBackdropClick}
     >
       <div
         ref={sheetRef}
-        className="fixed bottom-0 left-0 right-0 max-w-[638px] mx-auto bg-white rounded-t-3xl flex flex-col animate-slide-up"
+        className={clsx(
+          "fixed bottom-0 left-0 right-0 max-w-[638px] mx-auto bg-white rounded-t-3xl flex flex-col",
+          leaving
+            ? "animate-sheet-out motion-reduce:animate-fade-out"
+            : "animate-sheet-in motion-reduce:animate-fade-in",
+        )}
       >
         {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-1">
           <div className="w-12 h-1 rounded-full bg-gray-200" aria-hidden />
         </div>
 
-        {children}
+        {presence.content}
       </div>
     </div>
   );

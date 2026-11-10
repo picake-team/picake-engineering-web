@@ -133,17 +133,18 @@ export default function ReservationCompletePage() {
             <Image src={cakeImageUrl} alt={cakeTitle} fill className="object-cover" />
           </div>
         )}
-        <p className="mb-[28px] text-xl font-bold text-gray-900 text-center">
+        {/* 제목 → 안내 → 예약 내용이 한 줄씩 차례로 올라온다(공용 움직임 값 rise, 80ms 간격) */}
+        <p className="mb-[28px] text-xl font-bold text-gray-900 text-center animate-rise motion-reduce:animate-none">
           {orderData.orderStatus === OrderStatus.CONFIRMED ? "예약 완료" : "예약신청 완료"} 🎉
         </p>
         <div className="pb-[60px] h-[calc(100%-56px)] overflow-y-auto">
           {orderData.orderStatus === OrderStatus.RESERVATION_REQUESTED && (
-            <p className="flex items-center gap-[8px] mb-[28px] py-[10px] px-[12px] text-sm text-gray-900 bg-blue-50 rounded-xl">
+            <p className="flex items-center gap-[8px] mb-[28px] py-[10px] px-[12px] text-sm text-gray-900 bg-blue-50 rounded-xl animate-rise motion-reduce:animate-none [animation-delay:80ms]">
               <Icon name="warning" width={16} height={16} className="text-blue-400" />
               예약 확정까지 1-2일 소요될 수 있어요.
             </p>
           )}
-          <div className="mb-[20px]">
+          <div className="mb-[20px] animate-rise motion-reduce:animate-none [animation-delay:160ms]">
             <div className="flex items-center justify-between mb-[6px] px-[16px] text-sm">
               <span className="text-gray-500">픽업날짜</span>
               <span className="text-gray-900">{formatDateTime(orderData.pickupDate)}</span>
@@ -177,7 +178,7 @@ export default function ReservationCompletePage() {
               <span className="text-gray-900">{orderData.totalPrice.toLocaleString()}원</span>
             </div>
           </div>
-          <div className="flex flex-col gap-[20px]">
+          <div className="flex flex-col gap-[20px] animate-rise motion-reduce:animate-none [animation-delay:240ms]">
             {orderData.orderItems.map((item, index) => {
               const isOpen = openIndexes.has(index);
               const sizePrice = item.sizePrice || 0;

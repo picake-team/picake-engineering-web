@@ -51,10 +51,10 @@ export function Toast({
   useEffect(() => {
     // 마운트 직후 fade-in
     const showTimer = setTimeout(() => setVisible(true), 10);
-    // duration 후 fade-out → unmount
+    // duration 후 제자리에서 fade-out(150ms) → unmount
     const hideTimer = setTimeout(() => {
       setVisible(false);
-      setTimeout(onClose, 300);
+      setTimeout(onClose, 150);
     }, duration);
 
     return () => {
@@ -63,22 +63,12 @@ export function Toast({
     };
   }, [duration, onClose]);
 
-  // center 모드는 -translate-y-1/2(센터링)과 translate-y-N(애니메이션)이
-  // 같은 CSS 변수를 다투기 때문에, 두 값을 calc()로 합쳐서 한 번에 적용해야 함
-  const verticalTransform =
-    position === "center"
-      ? visible
-        ? "-translate-y-1/2"
-        : "translate-y-[calc(-50%+16px)]"
-      : visible
-        ? "translate-y-0"
-        : "translate-y-4";
-
+  // 토스트는 제자리에서 나타났다 사라진다(공용 움직임 값: 나타날 때 base·enter, 사라질 때 fast·exit)
   return (
     <div
-      className={`fixed left-1/2 -translate-x-1/2 w-max max-w-[calc(100%-40px)] z-50 transition-all duration-300 ease-out ${
-        position === "center" ? "top-1/2" : "bottom-[100px]"
-      } ${verticalTransform} ${visible ? "opacity-100" : "opacity-0"}`}
+      className={`fixed left-1/2 -translate-x-1/2 w-max max-w-[calc(100%-40px)] z-50 transition-opacity ${
+        position === "center" ? "top-1/2 -translate-y-1/2" : "bottom-[100px]"
+      } ${visible ? "opacity-100 duration-base ease-enter" : "opacity-0 duration-fast ease-exit"}`}
     >
       {variant === "row" ? (
         <div className="flex items-center gap-[6px] px-[18px] py-4 bg-gray-900/80 backdrop-blur-sm rounded-xl">
