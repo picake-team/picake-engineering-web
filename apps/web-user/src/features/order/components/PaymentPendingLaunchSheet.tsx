@@ -2,7 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { BottomSheet } from "@/apps/web-user/common/components/bottom-sheets/BottomSheet";
+import {
+  BOTTOM_SHEET_EXIT_MS,
+  BottomSheet,
+} from "@/apps/web-user/common/components/bottom-sheets/BottomSheet";
+import { usePresence } from "@/apps/web-user/common/hooks/usePresence";
 import { Button } from "@/apps/web-user/common/components/buttons/Button";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { PaymentConfirmBottomSheet } from "@/apps/web-user/common/components/bottom-sheets/PaymentConfirmBottomSheet";
@@ -74,10 +78,12 @@ function LaunchInfoRow({
 }
 
 function LaunchSheetView({
+  isOpen,
   order,
   onClose,
   onPaid,
 }: {
+  isOpen: boolean;
   order: OrderResponse;
   onClose: () => void;
   onPaid: () => void;
@@ -112,7 +118,7 @@ function LaunchSheetView({
   return (
     <>
       <BottomSheet
-        isOpen
+        isOpen={isOpen}
         onClose={onClose}
         title="입금 대기 중인 예약이 있어요"
         footerShadow={false}
@@ -169,7 +175,7 @@ function LaunchSheetView({
         amount={order.totalPrice}
         defaultDepositorName={order.reservationContactName}
         onConfirm={handlePaymentComplete}
-        zIndexClassName="z-[60]"
+        zIndexClassName="z-sheet-over"
       />
     </>
   );
@@ -224,11 +230,15 @@ export function PaymentPendingLaunchSheet() {
     writeShownIds([...shownIds.filter((id) => pendingIds.includes(id)), next.order.id]);
   }, [isLoading, data]);
 
+  // 닫힌 뒤에도 내려가는 움직임이 끝날 때까지 그 예약으로 창을 그려 둔다
+  const launchSheet = usePresence(!!targetOrder, BOTTOM_SHEET_EXIT_MS, targetOrder);
+
   return (
     <>
-      {targetOrder && (
+      {launchSheet.present && launchSheet.content && (
         <LaunchSheetView
-          order={targetOrder}
+          isOpen={!!targetOrder}
+          order={launchSheet.content}
           onClose={() => setTargetOrder(null)}
           onPaid={() => {
             setTargetOrder(null);
@@ -238,7 +248,7 @@ export function PaymentPendingLaunchSheet() {
       )}
       {showPaidToast && (
         <Toast
-          message="입금 확인 후 예약이 확정됩니다."
+          message="입금을 확인하면 예약이 확정돼요."
           iconName="checkCircle"
           iconClassName="text-green-400"
           duration={3000}

@@ -1,11 +1,18 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { motionDuration, motionEasing } from "@picake/design-tokens";
+import { useEffect, useId, useRef, type ReactNode } from "react";
 import clsx from "clsx";
 import { Icon } from "@/apps/web-user/common/components/icons";
+import { usePresence } from "@/apps/web-user/common/hooks/usePresence";
 
 /** 아래로 끌어내려 닫히는 최소 거리(px) */
 const CLOSE_THRESHOLD_PX = 100;
+/**
+ * 닫힐 때 내려가는 시간(공용 움직임 값 sheet-out = medium).
+ * 창을 열릴 때만 그리는 곳(`{open && <창 />}`)은 `usePresence(open, BOTTOM_SHEET_EXIT_MS, …)`로 이만큼 더 그려 둔다
+ */
+export const BOTTOM_SHEET_EXIT_MS = 250;
 
 /** 손짓이 콘텐츠 안의 다른 스크롤 영역(또는 data-no-sheet-drag)에서 시작했는지 */
 function isInNestedScroll(target: Node, content: HTMLElement): boolean {
@@ -53,6 +60,7 @@ export function BottomSheet({
 }: BottomSheetProps) {
   const sheetRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
 
   // scrollResetKey 변경 시 콘텐츠 스크롤을 맨 위로 리셋
   useEffect(() => {
@@ -67,13 +75,18 @@ export function BottomSheet({
     const sheet = sheetRef.current;
     const content = contentRef.current;
     if (!isOpen || !sheet || !content) return;
+    // 끌어내려 닫히던 중에 다시 열리면 끌던 자리를 지운다
+    sheet.style.transition = "";
+    sheet.style.transform = "";
 
     let startY = 0;
     let dragging = false;
     let delta = 0;
 
     const setTransform = (y: number, animate: boolean) => {
-      sheet.style.transition = animate ? "transform 0.2s ease-out" : "none";
+      sheet.style.transition = animate
+        ? `transform ${motionDuration.base}ms ${motionEasing.enter}`
+        : "none";
       sheet.style.transform = y ? `translateY(${y}px)` : "";
     };
 
@@ -157,20 +170,33 @@ export function BottomSheet({
     };
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  // 닫힐 때도 내려가는 움직임이 끝날 때까지 그린다(그동안 내용은 마지막으로 열려 있던 때 그대로)
+  const presence = usePresence(isOpen, BOTTOM_SHEET_EXIT_MS, { title, children, footer });
+  if (!presence.present) return null;
+  const { leaving } = presence;
+  const shown = presence.content;
 
   return (
     <div
       className={clsx(
-        "fixed mx-auto inset-0 bg-black/50 transition-opacity",
+        "fixed mx-auto inset-0 bg-black/50",
+        leaving
+          ? "pointer-events-none animate-scrim-out"
+          : "animate-scrim-in motion-reduce:animate-fade-in",
         zIndexClassName ?? "z-50",
       )}
       onClick={handleBackdropClick}
     >
       <div
         ref={sheetRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
         className={clsx(
-          "fixed bottom-0 left-0 right-0 max-w-[638px] mx-auto bg-white flex flex-col animate-slide-up",
+          "fixed bottom-0 left-0 right-0 max-w-[638px] mx-auto bg-white flex flex-col",
+          leaving
+            ? "animate-sheet-out motion-reduce:animate-fade-out"
+            : "animate-sheet-in motion-reduce:animate-fade-in",
           fullScreen ? "top-0" : "rounded-t-3xl",
         )}
         style={fullScreen ? undefined : { maxHeight }}
@@ -183,16 +209,18 @@ export function BottomSheet({
           )}
         >
           <h2
+            id={titleId}
             className={clsx(
               "flex items-center justify-center text-base font-bold text-center text-gray-900",
               fullScreen ? "h-[52px]" : "h-[64px]",
             )}
           >
-            {title}
+            {shown.title}
           </h2>
           <button
             type="button"
             onClick={onClose}
+            aria-label="닫기"
             className="absolute top-1/2 -translate-y-1/2 right-[20px] w-[24px] h-[24px] flex items-center justify-center"
           >
             <Icon name="close" width={24} height={24} className="text-gray-900" />
@@ -201,18 +229,18 @@ export function BottomSheet({
 
         {/* Content - 스크롤 가능 영역 */}
         <div ref={contentRef} className="flex-1 overflow-y-auto overscroll-contain">
-          {children}
+          {shown.children}
         </div>
 
         {/* Footer - 고정 영역 */}
-        {footer && (
+        {shown.footer && (
           <div
             className={clsx(
               "border-gray-100 bg-white",
               footerShadow ? "shadow-[0_12px_48px_-12px_rgba(0,0,0,0.16)]" : "shadow-none",
             )}
           >
-            {footer}
+            {shown.footer}
           </div>
         )}
       </div>

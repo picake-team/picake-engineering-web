@@ -17,7 +17,6 @@ import {
   getKakaoOAuthLoginUrl,
 } from "@/apps/web-user/features/auth/utils/oauth-login-url.util";
 import type { DuplicateAccountPayload } from "@/apps/web-user/features/auth/types/auth.dto";
-import { resolveLoginProviderFromDuplicateMessage } from "@/apps/web-user/features/auth/utils/register-duplicate-account.util";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 
 type OAuthRegisterDuplicateAccountScreenProps = {
@@ -30,7 +29,7 @@ export function OAuthRegisterDuplicateAccountScreen({
   onBack,
 }: OAuthRegisterDuplicateAccountScreenProps) {
   const { showAlert } = useAlertStore();
-  const provider = resolveLoginProviderFromDuplicateMessage(payload.message);
+  const provider = payload.provider;
 
   const handleLoginClick = useCallback(() => {
     trackEvent("engage_duplicate_login", { provider });
@@ -44,7 +43,7 @@ export function OAuthRegisterDuplicateAccountScreen({
       showAlert({
         type: "error",
         title: "오류",
-        message: "로그인 설정을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.",
+        message: "로그인 설정을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.",
       });
       return;
     }

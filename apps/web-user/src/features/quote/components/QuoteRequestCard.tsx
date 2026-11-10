@@ -37,7 +37,7 @@ export function QuoteRequestCard({ item }: { item: QuoteRequestListItem }) {
   return (
     <Link
       href={PATHS.QUOTE.DETAIL(item.id)}
-      className="flex gap-[12px] rounded-xl border border-gray-100 px-[16px] py-[12px]"
+      className="press flex gap-[12px] rounded-xl border border-gray-100 bg-white px-[16px] py-[12px]"
     >
       <div className="h-[64px] w-[64px] shrink-0 overflow-hidden rounded-lg bg-gray-50">
         {item.thumbnailUrl ? (

@@ -14,8 +14,11 @@ import {
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import type { ReservationTabName } from "@/apps/web-user/common/types/analytics.type";
 import { IosCustomSchemeRedirect } from "@/apps/web-user/common/components/deep-link/IosCustomSchemeRedirect";
+import { useScrollRestoration } from "@/apps/web-user/common/hooks/useScrollRestoration";
 
 export default function MyOrdersPage() {
+  // 뒤로 오면 보던 자리 그대로(새로 들어오면 맨 위부터)
+  useScrollRestoration();
   const upcomingCount = useUpcomingOrderCount();
   const pastCount = usePastOrderCount();
 

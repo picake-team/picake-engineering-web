@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import { FadeInImage } from "@/apps/web-user/common/components/motion/FadeInImage";
 import { useRouter } from "next/navigation";
 import { Product } from "@/apps/web-user/features/product/types/product.type";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { Icon } from "@/apps/web-user/common/components/icons";
+import { LikePop } from "@/apps/web-user/common/components/motion/LikePop";
 import { useAddProductLike } from "@/apps/web-user/features/like/hooks/mutations/useAddProductLike";
 import { useRemoveProductLike } from "@/apps/web-user/features/like/hooks/mutations/useRemoveProductLike";
 import { useAuthStore } from "@/apps/web-user/common/store/auth.store";
@@ -63,12 +64,12 @@ function ProductItem({ product }: ProductItemProps) {
   };
 
   return (
-    <div ref={cardRef} onClick={handleProductClick} className="bg-white cursor-pointer">
+    <div ref={cardRef} onClick={handleProductClick} className="press bg-white cursor-pointer">
       {/* 상품 이미지 */}
       <div className="mb-[10px] w-full relative bg-gray-50">
         {product.images && product.images.length > 0 ? (
-          <span className="relative w-full h-full aspect-square block overflow-hidden rounded-xl">
-            <Image
+          <span className="relative w-full h-full aspect-square block overflow-hidden rounded-xl bg-gray-50">
+            <FadeInImage
               src={product.images[0]}
               alt={product.name}
               fill
@@ -89,12 +90,14 @@ function ProductItem({ product }: ProductItemProps) {
           disabled={isLikeLoading}
           className={`absolute bottom-3 right-3 h-[28px] w-[28px] ${isLikeLoading ? "opacity-50" : ""}`}
         >
-          <Icon
-            name={isLiked ? "favoriteShadowFilled" : "favoriteShadow"}
-            width={28}
-            height={28}
-            className={isLiked ? "text-primary" : "text-white"}
-          />
+          <LikePop liked={isLiked}>
+            <Icon
+              name={isLiked ? "favoriteShadowFilled" : "favoriteShadow"}
+              width={28}
+              height={28}
+              className={isLiked ? "text-primary" : "text-white"}
+            />
+          </LikePop>
         </button>
       </div>
 

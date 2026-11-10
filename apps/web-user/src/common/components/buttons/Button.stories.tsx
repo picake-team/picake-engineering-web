@@ -188,6 +188,14 @@ export const Disabled: Story = {
   },
 };
 
+/** 서버를 기다리는 중: 색은 그대로, 동그라미 + 글자, 다시 눌리지 않음 */
+export const Loading: Story = {
+  args: {
+    loading: true,
+    children: "보내는 중…",
+  },
+};
+
 export const AllVariantsDisabled: Story = {
   render: () => (
     <div style={{ display: "flex", gap: "8px", width: "400px" }}>

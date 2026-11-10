@@ -28,7 +28,7 @@ export function ProductDetailInfoSection({ product }: ProductDetailInfoSectionPr
         {/* 판매자명, 상품명, 가격 */}
         <button
           onClick={handleStoreClick}
-          className="inline-flex items-center gap-[4px] mb-[8px] px-[6px] py-[6px] rounded-full bg-[#F6F5F5] text-xs text-gray-900 font-bold hover:bg-[#E8E6E6] transition-colors cursor-pointer"
+          className="inline-flex items-center gap-[4px] mb-[8px] px-[6px] py-[6px] rounded-full bg-gray-50 text-xs text-gray-900 font-bold hover:bg-gray-100 transition-colors cursor-pointer"
         >
           {product.storeLogoImageUrl ? (
             <Image
@@ -51,7 +51,7 @@ export function ProductDetailInfoSection({ product }: ProductDetailInfoSectionPr
             </span>
           )}
           <p className="flex items-center gap-[4px] text-xl font-bold text-gray-900">
-            {discountRate != null && <span className="text-[#FF653E]">{discountRate}%</span>}
+            {discountRate != null && <span className="text-primary">{discountRate}%</span>}
             {product.salePrice.toLocaleString()}원~
           </p>
         </div>

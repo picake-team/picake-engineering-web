@@ -147,7 +147,7 @@ export const Select = <T extends string | number = string>({
           height={20}
           className={`
             absolute right-[12px] top-[11px] text-gray-400 pointer-events-none
-            transition-transform duration-200
+            transition-transform duration-base motion-reduce:transition-none
             ${isOpen ? "rotate-0" : "rotate-180"}
           `
             .trim()

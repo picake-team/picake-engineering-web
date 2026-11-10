@@ -4,7 +4,7 @@ import {
   formatDeadline,
   formatHour,
   formatHourRange,
-  formatShortDate,
+  formatPickupDate,
   kstHour,
   pickupWindow,
   todayKstYmd,
@@ -38,7 +38,7 @@ describe("요청서 시간 규칙(견적 마감 = 픽업 1시간 전, 지금부�
   it("한국 날짜·요일은 기기 시간대와 상관없다", () => {
     // 한국 11월 10일 새벽 1시 = UTC 11월 9일 16시
     expect(todayKstYmd(kst("2026-11-10T01:00:00"))).toBe("2026-11-10");
-    expect(formatShortDate("2026-12-24")).toBe("12/24(목)");
+    expect(formatPickupDate("2026-12-24")).toBe("12월 24일(목)");
   });
 
   it("문구", () => {

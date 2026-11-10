@@ -18,7 +18,8 @@ test.describe("심사용 로그인", () => {
     await page.getByPlaceholder("6자리 코드 입력").fill("000000");
     await page.getByRole("button", { name: "로그인" }).click();
 
-    await expect(page.getByText("오류")).toBeVisible();
+    // 오류 창은 제목 "오류" 대신 안내 글을 제목 자리에 보이고 "확인" 하나를 둔다
+    await expect(page.getByRole("button", { name: "확인" })).toBeVisible();
     await expect(page).toHaveURL(/\/mypage\/version$/);
   });
 });

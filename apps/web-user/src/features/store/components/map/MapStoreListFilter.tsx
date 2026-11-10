@@ -1,5 +1,6 @@
 "use client";
 
+import { CheckboxMark } from "@/apps/web-user/common/components/inputs/Checkbox";
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import type { StoreListFilter } from "@/apps/web-user/features/store/types/store.type";
@@ -314,7 +315,7 @@ export function MapStoreListFilter({
         createPortal(
           <div
             id={MAP_STORE_LIST_FILTER_MODAL_ID}
-            className="fixed inset-0 z-[100]"
+            className="fixed inset-0 z-modal"
             onTouchStart={(e) => e.stopPropagation()}
             onTouchMove={(e) => e.stopPropagation()}
             onTouchEnd={(e) => e.stopPropagation()}
@@ -371,15 +372,8 @@ export function MapStoreListFilter({
                               }
                             }}
                             className="sr-only"
-                            aria-hidden
                           />
-                          <Icon
-                            name={checked ? "checkboxSmallSelected" : "checkboxSmallDefault"}
-                            width={20}
-                            height={20}
-                            className="shrink-0"
-                            aria-hidden
-                          />
+                          <CheckboxMark checked={checked} size={20} />
                           <span className={styles.labelText}>{size}</span>
                         </label>
                       );

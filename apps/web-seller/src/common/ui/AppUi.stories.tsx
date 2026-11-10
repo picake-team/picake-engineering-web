@@ -37,6 +37,7 @@ import {
 } from "./Surface";
 import { AppScreen, BackHeader, BottomActionBar, HomeHeader, TabHeader } from "./Screen";
 import { BottomSheet } from "./Sheet";
+import { Snackbar } from "./Snackbar";
 import { TaskIcon } from "./icons";
 
 const meta: Meta = {
@@ -429,6 +430,28 @@ export const 확인_창: Story = {
             이 작업은 처리 후 되돌릴 수 없습니다. 계속하시겠습니까?
           </p>
         </BottomSheet>
+      </div>
+    );
+  },
+};
+
+/** 스낵바: 한 일 + 되돌리기. 아래에서 올라오고(ease out) 내려가며 사라진다(ease in) */
+export const 스낵바: Story = {
+  render: () => {
+    const [shown, setShown] = useState(0);
+    return (
+      <div className="p-5">
+        <Button onClick={() => setShown((n) => n + 1)}>스낵바 띄우기</Button>
+        {shown > 0 ? (
+          <Snackbar
+            key={shown}
+            message="판매중지로 바꿨어요"
+            actionLabel="되돌리기"
+            onAction={() => undefined}
+            onClose={() => setShown(0)}
+            bottomOffset={16}
+          />
+        ) : null}
       </div>
     );
   },

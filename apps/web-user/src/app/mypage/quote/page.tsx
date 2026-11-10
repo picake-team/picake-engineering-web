@@ -10,9 +10,13 @@ import { useMyQuoteRequests } from "@/apps/web-user/features/quote/hooks/useQuot
 import { QuoteRequestCard } from "@/apps/web-user/features/quote/components/QuoteRequestCard";
 import type { QuoteRequestListTab } from "@/apps/web-user/features/quote/types/quote.type";
 import { QuoteLoginGate } from "@/apps/web-user/features/quote/components/QuoteLoginGate";
+import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
+import { useScrollRestoration } from "@/apps/web-user/common/hooks/useScrollRestoration";
 
 function QuoteList({ tab }: { tab: QuoteRequestListTab }) {
-  const { data, isLoading } = useMyQuoteRequests(tab);
+  const { data, isLoading, isError, refetch } = useMyQuoteRequests(tab);
+  if (isError && !data)
+    return <LoadErrorState className="px-[20px] py-[60px]" onRetry={() => void refetch()} />;
   if (isLoading) return <p className="py-[40px] text-center text-sm text-gray-400">불러오는 중…</p>;
   const items = data?.data ?? [];
   if (items.length === 0) {
@@ -45,6 +49,8 @@ function QuoteList({ tab }: { tab: QuoteRequestListTab }) {
 
 /** MY > 내 견적 요청(SC-17 2): 진행 중 / 지난 요청 */
 export default function MyQuotesPage() {
+  // 뒤로 오면 보던 자리 그대로(새로 들어오면 맨 위부터)
+  useScrollRestoration();
   return (
     <div>
       <Header variant="back-title" title="내 견적 요청" backFallbackPath={PATHS.MYPAGE} />

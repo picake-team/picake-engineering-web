@@ -62,7 +62,8 @@ export const StoreWelcomeMobilePage: React.FC = () => {
         "flex min-h-dvh flex-col gap-3 bg-white px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-[calc(env(safe-area-inset-top)+40px)] font-app text-ink-900",
       )}
     >
-      <div className="flex flex-col gap-3">
+      {/* 그림·제목 → 이유가 한 줄씩 차례로 올라온다(공용 움직임 값 rise, 80ms 간격) */}
+      <div className="flex flex-col gap-3 animate-rise motion-reduce:animate-none">
         <span className="flex size-14 items-center justify-center rounded-card bg-ink-50 text-brand">
           <Icon name="bell" size={28} strokeWidth={1.8} />
         </span>
@@ -73,8 +74,12 @@ export const StoreWelcomeMobilePage: React.FC = () => {
         </h1>
       </div>
       <ul className="mt-2 flex flex-col gap-3">
-        {REASONS.map((r) => (
-          <li key={r} className="flex items-center gap-3 text-body">
+        {REASONS.map((r, i) => (
+          <li
+            key={r}
+            className="flex items-center gap-3 text-body animate-rise motion-reduce:animate-none"
+            style={{ animationDelay: `${(i + 1) * 80}ms` }}
+          >
             <span className="text-brand">
               <Icon name="check" size={20} strokeWidth={2.4} />
             </span>

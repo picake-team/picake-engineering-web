@@ -7,7 +7,6 @@ import {
   ProductListQueryParams,
   SortBy,
 } from "@/apps/web-user/features/product/types/product.type";
-import { useQueryErrorAlert } from "@/apps/web-user/common/hooks/useQueryErrorAlert";
 
 interface UseProductListOptions extends Partial<ProductListQueryParams> {
   /**
@@ -83,8 +82,7 @@ export function useProductList({
     },
     initialPageParam: 1,
   });
-
-  useQueryErrorAlert(query);
+  // 조회 실패는 목록 화면이 "불러오지 못했어요 · 다시 시도"로 알린다(오류 창 없음)
 
   return query;
 }

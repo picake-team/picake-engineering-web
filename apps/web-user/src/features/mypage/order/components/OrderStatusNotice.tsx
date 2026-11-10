@@ -25,16 +25,16 @@ export function OrderStatusNotice({ order }: OrderStatusNoticeProps) {
     /* 입금완료: 판매자 확인 대기 중 안내 */
     case OrderStatus.PAYMENT_COMPLETED:
       return (
-        <InfoNotice className="mt-1 mb-4" message="판매자의 입금 확인 후 예약이 확정됩니다." />
+        <InfoNotice className="mt-1 mb-4" message="판매자가 입금을 확인하면 예약이 확정돼요." />
       );
 
     /* 환불대기: 환불 처리 중 안내 */
     case OrderStatus.CANCEL_REFUND_PENDING:
-      return <InfoNotice className="mt-1 mb-4" message="환불 완료까지 1-2일 소요될 수 있습니다." />;
+      return <InfoNotice className="mt-1 mb-4" message="환불 완료까지 1~2일 걸릴 수 있어요." />;
 
     /* 환불완료: 취소 건 안내 */
     case OrderStatus.CANCEL_REFUND_COMPLETED:
-      return <InfoNotice className="mt-1 mb-4" message="환불 완료된 취소 건입니다." />;
+      return <InfoNotice className="mt-1 mb-4" message="환불까지 끝난 취소 건이에요." />;
 
     /* 예약취소: sellerCancelReason 있을 때만 판매자 취소 안내 표시 (구매자 취소는 아무것도 표시하지 않음) */
     case OrderStatus.CANCEL_COMPLETED:
@@ -42,7 +42,7 @@ export function OrderStatusNotice({ order }: OrderStatusNoticeProps) {
       return (
         <InfoNotice
           className="mt-1 mb-4"
-          message="판매자 요청으로 예약 취소되었습니다."
+          message="판매자 요청으로 예약이 취소됐어요."
           description={order.sellerCancelReason}
         />
       );
@@ -53,8 +53,8 @@ export function OrderStatusNotice({ order }: OrderStatusNoticeProps) {
         <InfoNotice
           tone="red"
           className="mt-1 mb-4"
-          message="노쇼 처리된 예약입니다."
-          description={`${order.storeName}입니다. 노쇼로 인해 케이크는 폐기처리하였습니다.`}
+          message="노쇼로 처리된 예약이에요."
+          description={`${order.storeName}에서 알려 드려요. 노쇼로 처리되어 케이크는 폐기했어요.`}
         />
       );
 

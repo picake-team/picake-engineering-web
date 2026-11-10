@@ -20,7 +20,7 @@ export function ProfileImagePickerBottomSheet({
       isOpen={isOpen}
       onClose={onClose}
       title="프로필 편집"
-      zIndexClassName="z-[60]"
+      zIndexClassName="z-sheet-over"
       footerShadow={false}
       footer={
         <div className="px-5 py-2">

@@ -8,11 +8,16 @@ import { Icon } from "@/apps/web-user/common/components/icons";
 import { AlarmSkeleton } from "@/apps/web-user/common/components/skeleton/AlarmSkeleton";
 import { useAuthStore, useAuthHasHydrated } from "@/apps/web-user/common/store/auth.store";
 import { EmptyState } from "@/apps/web-user/common/components/fallbacks/EmptyState";
+import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
+import { useScrollRestoration } from "@/apps/web-user/common/hooks/useScrollRestoration";
 
 export default function AlarmPage() {
+  // 뒤로 오면 보던 자리 그대로(새로 들어오면 맨 위부터)
+  useScrollRestoration();
   const hasHydrated = useAuthHasHydrated();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const { data: alarms = [], isLoading } = useAlarmList();
+  const { data, isLoading, isError, refetch } = useAlarmList();
+  const alarms = data ?? [];
   const markReadMutation = useMarkAlarmRead();
 
   const showLoginHint = hasHydrated && !isAuthenticated;
@@ -21,11 +26,13 @@ export default function AlarmPage() {
     <div className="flex flex-col min-h-[calc(100vh-52px)]">
       <main className="flex-1 flex flex-col">
         {showLoginHint ? (
-          <EmptyState message="아직 알림이 없습니다." fill fillOffset={52} className="px-5" />
+          <EmptyState message="아직 알림이 없어요." fill fillOffset={52} className="px-5" />
+        ) : isError && !data ? (
+          <LoadErrorState fill fillOffset={52} onRetry={() => void refetch()} />
         ) : isLoading ? (
           <AlarmSkeleton />
         ) : alarms.length === 0 ? (
-          <EmptyState message="아직 알림이 없습니다." fill fillOffset={52} />
+          <EmptyState message="아직 알림이 없어요." fill fillOffset={52} />
         ) : (
           <ul className="px-5">
             {alarms.map((alarm) => {

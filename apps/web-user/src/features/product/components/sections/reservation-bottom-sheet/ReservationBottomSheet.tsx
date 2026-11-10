@@ -4,7 +4,6 @@ import { useCallback, useState } from "react";
 import { isAxiosError } from "axios";
 import { useQueryClient } from "@tanstack/react-query";
 import { BottomSheet } from "@/apps/web-user/common/components/bottom-sheets/BottomSheet";
-import { Spinner } from "@/apps/web-user/common/components/spinners/Spinner";
 import { Modal } from "@/apps/web-user/common/components/modals/Modal";
 import { Button } from "@/apps/web-user/common/components/buttons/Button";
 import { ReservationBottomSheetProps } from "./types";
@@ -281,20 +280,11 @@ export function ReservationBottomSheet({
           <Button
             onClick={handleCreateOrder}
             disabled={
-              orderItems.length === 0 ||
-              !reserverName.trim() ||
-              !reserverPhone.trim() ||
-              !allAgreed ||
-              isSubmitting
+              orderItems.length === 0 || !reserverName.trim() || !reserverPhone.trim() || !allAgreed
             }
+            loading={isSubmitting}
           >
-            {isSubmitting ? (
-              <span className="inline-flex items-center justify-center">
-                <Spinner size={20} className="text-white" />
-              </span>
-            ) : (
-              "예약신청"
-            )}
+            {isSubmitting ? "예약 신청 중…" : "예약신청"}
           </Button>
         </div>
       </div>
@@ -380,7 +370,7 @@ export function ReservationBottomSheet({
         isOpen={isCancelModalOpen}
         onClose={() => setIsCancelModalOpen(false)}
         title="예약 진행 취소"
-        description="예약 진행을 취소하시겠습니까?"
+        description="예약 진행을 취소할까요?"
         confirmText="계속 진행하기"
         cancelText="취소"
         onCancel={handleConfirmCancel}
@@ -390,7 +380,7 @@ export function ReservationBottomSheet({
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         title="상품 삭제"
-        description="해당 상품을 삭제하시겠습니까?"
+        description="이 상품을 삭제할까요?"
         confirmText="취소"
         cancelText="삭제"
         onCancel={handleConfirmDelete}
@@ -400,7 +390,7 @@ export function ReservationBottomSheet({
         isOpen={isDateChangeModalOpen}
         onClose={() => setIsDateChangeModalOpen(false)}
         title="픽업 날짜 변경"
-        description="픽업 날짜 변경 시 주문하는 다른 상품들의 픽업 날짜도 함께 변경됩니다."
+        description="픽업 날짜를 바꾸면 함께 주문하는 다른 상품의 픽업 날짜도 같이 바뀌어요."
         confirmText="변경취소"
         cancelText="확인"
         confirmVariant="outline"

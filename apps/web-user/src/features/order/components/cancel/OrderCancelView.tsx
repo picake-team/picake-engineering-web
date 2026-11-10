@@ -69,9 +69,7 @@ export function OrderCancelView({ order }: OrderCancelViewProps) {
   if (!isCancellable) {
     return (
       <div className="px-5 py-10 text-center">
-        <p className="text-sm text-gray-500">
-          현재 주문 상태에서는 이 취소 화면을 사용할 수 없습니다.
-        </p>
+        <p className="text-sm text-gray-500">지금 주문 상태에서는 이 화면에서 취소할 수 없어요.</p>
       </div>
     );
   }

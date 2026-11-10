@@ -35,8 +35,8 @@ export function RefundConfirmBottomSheet({
             </Button>
           </span>
           <span className="flex-[2]">
-            <Button onClick={onConfirm} disabled={isPending}>
-              {isPending ? "요청 중..." : "확인했어요"}
+            <Button onClick={onConfirm} loading={isPending}>
+              {isPending ? "요청 중…" : "확인했어요"}
             </Button>
           </span>
         </div>

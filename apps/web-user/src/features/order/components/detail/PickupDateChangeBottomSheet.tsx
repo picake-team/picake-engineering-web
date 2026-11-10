@@ -81,8 +81,8 @@ export function PickupDateChangeBottomSheet({
             </Button>
           </span>
           <span className="flex-[2]">
-            <Button onClick={handleConfirm} disabled={!isValid || isPending}>
-              {isPending ? "변경 중..." : "선택완료"}
+            <Button onClick={handleConfirm} disabled={!isValid} loading={isPending}>
+              {isPending ? "변경 중…" : "선택완료"}
             </Button>
           </span>
         </div>

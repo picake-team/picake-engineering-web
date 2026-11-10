@@ -58,7 +58,7 @@ export function MapPickupDateBottomSheet({
       isOpen={isOpen}
       onClose={onClose}
       title="픽업 날짜 선택"
-      zIndexClassName="z-[200]"
+      zIndexClassName="z-sheet-top"
       footer={
         <div className="px-[20px] py-[12px] flex flex-col gap-[8px]">
           {selectedFilter != null && onClearFilter != null && (

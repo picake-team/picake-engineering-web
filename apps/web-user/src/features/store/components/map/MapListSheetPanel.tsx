@@ -1,5 +1,6 @@
 "use client";
 
+import { motionDuration, motionEasing } from "@picake/design-tokens";
 import { ReactNode, useCallback, useEffect, useRef } from "react";
 import {
   LIST_SHEET_HANDLE_HEIGHT,
@@ -343,7 +344,7 @@ export function MapListSheetPanel({
       className="fixed left-0 right-0 bottom-[60px] z-50 flex flex-col max-w-[638px] mx-auto overflow-hidden"
       style={{
         height: LIST_SHEET_HANDLE_HEIGHT + offset,
-        transition: isDragging ? "none" : "height 0.25s ease-out",
+        transition: isDragging ? "none" : `height ${motionDuration.medium}ms ${motionEasing.enter}`,
         background: "#FFFFFF",
         borderRadius: expandedToTop && !isDragging ? 0 : "20px 20px 0 0",
       }}

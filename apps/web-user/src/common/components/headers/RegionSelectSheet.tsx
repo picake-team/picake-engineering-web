@@ -279,7 +279,7 @@ export function RegionSelectSheet({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[200] flex flex-col bg-white max-w-[638px] mx-auto">
+    <div className="fixed inset-0 z-sheet-top flex flex-col bg-white max-w-[638px] mx-auto">
       {/* 헤더 */}
       <div className="h-[52px] shrink-0 flex items-center justify-between px-5">
         <div className="flex items-center gap-4">

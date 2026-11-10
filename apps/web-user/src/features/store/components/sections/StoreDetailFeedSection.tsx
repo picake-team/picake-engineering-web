@@ -169,7 +169,7 @@ export function StoreDetailFeedSection({ storeId }: StoreDetailFeedSectionProps)
   }
 
   if (!feedData?.data || feedData.data.length === 0) {
-    return <EmptyState message="등록된 피드가 없습니다." fill />;
+    return <EmptyState message="등록된 피드가 없어요." fill />;
   }
 
   return (

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { Icon } from "@/apps/web-user/common/components/icons";
+import { LikePop } from "@/apps/web-user/common/components/motion/LikePop";
 import { StoreInfo } from "@/apps/web-user/features/store/types/store.type";
 import { useAddStoreLike } from "@/apps/web-user/features/like/hooks/mutations/useAddStoreLike";
 import { useRemoveStoreLike } from "@/apps/web-user/features/like/hooks/mutations/useRemoveStoreLike";
@@ -18,7 +19,6 @@ interface StoreDetailIntroSectionProps {
 }
 
 export function StoreDetailIntroSection({ store }: StoreDetailIntroSectionProps) {
-  const [imageError, setImageError] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isAddressExpanded, setIsAddressExpanded] = useState(false);
   const [showCopyToast, setShowCopyToast] = useState(false);
@@ -82,7 +82,6 @@ export function StoreDetailIntroSection({ store }: StoreDetailIntroSectionProps)
               fill
               sizes="48px"
               className="object-cover"
-              onError={() => setImageError(true)}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gray-100">
@@ -110,12 +109,14 @@ export function StoreDetailIntroSection({ store }: StoreDetailIntroSectionProps)
           disabled={isLikeLoading}
           className={`flex items-center gap-1 px-[8px] py-[6px] border border-gray-100 rounded-md ${isLikeLoading ? "opacity-50" : ""}`}
         >
-          <Icon
-            name={isLiked ? "favoriteFilled" : "favorite"}
-            width={18}
-            height={18}
-            className={isLiked ? "text-primary" : "text-gray-900"}
-          />
+          <LikePop liked={isLiked}>
+            <Icon
+              name={isLiked ? "favoriteFilled" : "favorite"}
+              width={18}
+              height={18}
+              className={isLiked ? "text-primary" : "text-gray-900"}
+            />
+          </LikePop>
           <span className="text-sm font-bold text-gray-900">{store.likeCount}</span>
         </button>
       </div>

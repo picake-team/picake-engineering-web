@@ -1,5 +1,3 @@
-import { AUTH_ERROR_MESSAGES } from "@/apps/web-user/features/auth/constants/auth.constant";
-
 /** 백엔드 JWT `aud`와 동일 */
 export const AUDIENCE = {
   CONSUMER: "consumer",
@@ -94,10 +92,10 @@ export interface MessageResponseDto {
 }
 
 export type DuplicateAccountPayload = {
-  message:
-    | typeof AUTH_ERROR_MESSAGES.PHONE_KAKAO_ACCOUNT_EXISTS
-    | typeof AUTH_ERROR_MESSAGES.PHONE_GOOGLE_ACCOUNT_EXISTS
-    | typeof AUTH_ERROR_MESSAGES.PHONE_APPLE_ACCOUNT_EXISTS;
+  /** 서버 409 글 그대로 */
+  message: string;
+  /** 이미 가입한 로그인 수단(서버 글로 알아냄) */
+  provider: OAuthLoginProvider;
   name: string;
   phone: string;
   /** 가입된 로그인 계정의 이메일(가림, 예: pi***er@gmail.com). 없으면 null */

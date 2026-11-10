@@ -195,7 +195,7 @@ export function QuoteAskSheet({
       isOpen={isOpen}
       onClose={onClose}
       title="어디에 물어볼까요?"
-      zIndexClassName="z-[60]"
+      zIndexClassName="z-sheet-over"
     >
       <div className="flex flex-col gap-[8px] px-[20px] pb-[24px] pt-[4px]">
         {option(

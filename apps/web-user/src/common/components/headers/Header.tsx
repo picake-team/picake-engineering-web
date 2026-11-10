@@ -351,7 +351,7 @@ export default function Header({
       <Modal
         isOpen={inactiveModal.visible && inactiveModal.type === "seoul"}
         onClose={handleInactiveClose}
-        title={`아직 ${inactiveModal.currentLabel} 매장은 준비중입니다. 가까운 동네에서 픽업해보시겠어요?`}
+        title={`아직 ${inactiveModal.currentLabel} 매장은 준비 중이에요. 가까운 동네에서 픽업해보시겠어요?`}
         confirmText="근처매장보기"
         confirmVariant="primary"
         cancelText="취소"

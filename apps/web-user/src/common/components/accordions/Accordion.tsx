@@ -27,7 +27,7 @@ const AccordionTrigger = React.forwardRef<
         name="arrow"
         width={20}
         height={20}
-        className="rotate-180 transition-transform duration-200 text-gray-900"
+        className="rotate-180 transition-transform duration-base motion-reduce:transition-none text-gray-900"
       />
     </AccordionPrimitive.Trigger>
   </AccordionPrimitive.Header>

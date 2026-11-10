@@ -46,9 +46,9 @@ test("예약(주문) 생성 골든패스", async ({ page, request }) => {
 
   await page.getByRole("button", { name: "예약신청" }).click();
 
-  // BottomSheet는 열려 있을 때만 마운트되는 단일 인스턴스라, 이 안에서만 찾으면
+  // 열린 창(아래 창·확인 창은 role="dialog") 안에서만 찾으면
   // 상품 상세 페이지 하단에 그대로 남아있는 "예약신청" CTA와 헷갈리지 않는다.
-  const sheet = page.locator(".animate-slide-up");
+  const sheet = page.getByRole("dialog");
   await expect(sheet.getByText("상품 옵션 선택")).toBeVisible();
 
   // 픽업날짜: 캘린더로 진입해 "내일"을 명시적으로 선택
@@ -88,7 +88,7 @@ test("예약(주문) 생성 골든패스", async ({ page, request }) => {
   await sheet.getByPlaceholder("예약자명을 입력해주세요.").fill("테스트예약자");
   await sheet.getByPlaceholder("휴대폰 번호를 입력해주세요.").fill("01099998888");
   // Checkbox의 실제 input은 sr-only(시각적으로 숨김)라 label 텍스트를 클릭해 토글한다
-  await sheet.getByText("모두 동의합니다", { exact: true }).click();
+  await sheet.getByText("모두 동의해요", { exact: true }).click();
 
   await sheet.getByRole("button", { name: "예약신청" }).click();
 

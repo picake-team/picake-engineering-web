@@ -16,7 +16,7 @@ export function LinkListItem({ href, label }: LinkListItemProps) {
   return (
     <Link
       href={href}
-      className="flex items-center justify-between px-5 py-4 border-b border-gray-100"
+      className="press-bg flex items-center justify-between px-5 py-4 border-b border-gray-100"
     >
       <span className="text-sm font-bold text-gray-900">{label}</span>
       <Icon name="arrow" width={20} height={20} className="text-gray-900 rotate-90" />

@@ -5,11 +5,14 @@ import { Product } from "@/apps/web-user/features/product/types/product.type";
 import { CakeListItem } from "@/apps/web-user/features/product/components/cards/CakeListItem";
 import { Skeleton, SkeletonText } from "@/apps/web-user/common/components/skeleton";
 import { EmptyState } from "@/apps/web-user/common/components/fallbacks/EmptyState";
+import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
 
 interface CakeListSliderProps {
   title: string;
   products: Product[];
   isLoading: boolean;
+  /** 불러오지 못했으면 "다시 시도"(없을 때 "등록된 상품이 없어요"와 헷갈리지 않게) */
+  onRetry?: () => void;
   /** 상품 카드의 상세 주소 (진입 경로 쿼리 포함) */
   getProductHref: (productId: string) => string;
 }
@@ -18,6 +21,7 @@ export default function CakeListSlider({
   title,
   products,
   isLoading,
+  onRetry,
   getProductHref,
 }: CakeListSliderProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -67,8 +71,10 @@ export default function CakeListSlider({
             </div>
           ))}
         </div>
+      ) : onRetry ? (
+        <LoadErrorState onRetry={onRetry} />
       ) : products.length === 0 ? (
-        <EmptyState message="등록된 상품이 없습니다." />
+        <EmptyState message="등록된 상품이 없어요." />
       ) : (
         <div
           ref={scrollRef}

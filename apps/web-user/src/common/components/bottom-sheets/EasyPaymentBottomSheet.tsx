@@ -122,7 +122,7 @@ export function EasyPaymentBottomSheet({
           <div className="flex flex-col gap-0.5 px-3.5 py-2.5 bg-gray-50 rounded-lg">
             <p className="text-xs font-bold text-gray-700">간편 입금이란?</p>
             <p className="text-xs text-gray-700">
-              계좌정보를 자동으로 인식해 바로 이체할 수 있는 서비스입니다.
+              계좌 정보를 자동으로 넣어 바로 이체할 수 있는 서비스예요.
             </p>
           </div>
         </div>
@@ -174,7 +174,7 @@ export function EasyPaymentBottomSheet({
 
       {isNotInstalledToastOpen && (
         <Toast
-          message="해당 앱이 존재하지 않습니다."
+          message="앱이 설치되어 있지 않아요."
           iconName="alertCircle"
           iconClassName="text-red-400"
           onClose={() => setIsNotInstalledToastOpen(false)}

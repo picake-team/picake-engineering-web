@@ -1,5 +1,6 @@
 "use client";
 
+import { CheckboxMark } from "@/apps/web-user/common/components/inputs/Checkbox";
 import { useState, useEffect } from "react";
 import { BottomSheet } from "@/apps/web-user/common/components/bottom-sheets/BottomSheet";
 import { Icon } from "@/apps/web-user/common/components/icons";
@@ -200,15 +201,8 @@ export function SearchFilterSheet({
                       }
                     }}
                     className="sr-only"
-                    aria-hidden
                   />
-                  <Icon
-                    name={checked ? "checkboxSmallSelected" : "checkboxSmallDefault"}
-                    width={20}
-                    height={20}
-                    className="shrink-0"
-                    aria-hidden
-                  />
+                  <CheckboxMark checked={checked} size={20} />
                   <span className={styles.labelText}>{size}</span>
                 </label>
               );

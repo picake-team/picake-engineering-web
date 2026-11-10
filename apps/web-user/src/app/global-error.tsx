@@ -33,7 +33,7 @@ export default function GlobalError({
             textAlign: "center",
           }}
         >
-          <h2 style={{ fontSize: "18px", fontWeight: 600 }}>예상치 못한 오류가 발생했습니다</h2>
+          <h2 style={{ fontSize: "18px", fontWeight: 600 }}>예상치 못한 오류가 생겼어요</h2>
           <button
             onClick={() => reset()}
             style={{

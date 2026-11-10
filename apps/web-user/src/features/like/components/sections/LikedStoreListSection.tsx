@@ -11,25 +11,27 @@ import { useInfiniteScroll } from "@/apps/web-user/common/hooks/useInfiniteScrol
 import { flattenAndDeduplicateInfiniteData } from "@/apps/web-user/common/utils/pagination.util";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { Icon } from "@/apps/web-user/common/components/icons";
-import { useAddStoreLike } from "@/apps/web-user/features/like/hooks/mutations/useAddStoreLike";
-import { useRemoveStoreLike } from "@/apps/web-user/features/like/hooks/mutations/useRemoveStoreLike";
+import { LikePop } from "@/apps/web-user/common/components/motion/LikePop";
+import { useOptimisticStoreLike } from "@/apps/web-user/features/like/hooks/useOptimisticStoreLike";
 import { shortenAddress } from "@/apps/web-user/common/utils/address.util";
 import { useUserLocation } from "@/apps/web-user/common/hooks/useUserLocation";
 import { calculateDistance, formatDistance } from "@/apps/web-user/common/utils/distance.util";
 import { useAuthStore } from "@/apps/web-user/common/store/auth.store";
 import { useLoginSheetStore } from "@/apps/web-user/common/store/login-sheet.store";
 import { EmptyState } from "@/apps/web-user/common/components/fallbacks/EmptyState";
+import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
 
 export function LikedStoreListSection() {
   const router = useRouter();
   const loadMoreRef = useRef<HTMLDivElement>(null);
-  const { mutate: addLike } = useAddStoreLike();
-  const { mutate: removeLike } = useRemoveStoreLike();
+  // 하트는 누르자마자 바뀌고, 저장이 실패하면 되돌린다
+  const storeLike = useOptimisticStoreLike();
   const { location: userLocation } = useUserLocation();
   const { isAuthenticated } = useAuthStore();
   const openLoginSheet = useLoginSheetStore((s) => s.openLoginSheet);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useLikedStores();
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError, refetch } =
+    useLikedStores();
 
   const handleLike = (e: React.MouseEvent, store: StoreInfo) => {
     e.preventDefault();
@@ -38,21 +40,19 @@ export function LikedStoreListSection() {
       openLoginSheet("like_button");
       return;
     }
-    if (store.isLiked) {
-      removeLike(store.id);
-    } else {
-      addLike(store.id);
-    }
+    storeLike.toggle(store);
   };
 
   useInfiniteScroll({ hasNextPage, isFetchingNextPage, fetchNextPage, loadMoreRef });
 
   const stores = flattenAndDeduplicateInfiniteData<StoreInfo>(data);
 
+  if (isError && !data)
+    return <LoadErrorState fill fillOffset={60} onRetry={() => void refetch()} />;
   if (isLoading) return <></>;
 
   if (stores.length === 0) {
-    return <EmptyState message="저장한 스토어가 없습니다." fill fillOffset={60} />;
+    return <EmptyState message="저장한 스토어가 없어요." fill fillOffset={60} />;
   }
 
   return (
@@ -60,7 +60,7 @@ export function LikedStoreListSection() {
       <ul className="flex flex-col gap-6">
         {stores.map((store) => (
           <li key={store.id}>
-            <Link href={PATHS.STORE.DETAIL(store.id)} className="py-[10px] block bg-white">
+            <Link href={PATHS.STORE.DETAIL(store.id)} className="press-bg py-[10px] block bg-white">
               <div className="flex items-center gap-[11px]">
                 <div className="w-[36px] h-[36px] rounded-full overflow-hidden bg-gray-100 shrink-0">
                   {store.logoImageUrl ? (
@@ -91,13 +91,17 @@ export function LikedStoreListSection() {
                   onClick={(e) => handleLike(e, store)}
                   className="flex items-center gap-1 px-2 py-[6px] border border-gray-100 rounded-xl shrink-0"
                 >
-                  <Icon
-                    name={store.isLiked ? "favoriteFilled" : "favorite"}
-                    width={18}
-                    height={18}
-                    className={store.isLiked ? "text-primary" : "text-gray-900"}
-                  />
-                  <span className="text-sm text-gray-900 font-bold">{store.likeCount}</span>
+                  <LikePop liked={storeLike.isLiked(store)}>
+                    <Icon
+                      name={storeLike.isLiked(store) ? "favoriteFilled" : "favorite"}
+                      width={18}
+                      height={18}
+                      className={storeLike.isLiked(store) ? "text-primary" : "text-gray-900"}
+                    />
+                  </LikePop>
+                  <span className="text-sm text-gray-900 font-bold">
+                    {storeLike.likeCount(store)}
+                  </span>
                 </button>
               </div>
               <div className="flex items-center gap-1 mt-3 mb-[10px]">

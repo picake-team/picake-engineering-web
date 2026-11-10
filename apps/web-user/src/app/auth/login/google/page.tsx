@@ -4,7 +4,7 @@ import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { authApi } from "@/apps/web-user/features/auth/apis/auth.api";
 import { useAuthStore } from "@/apps/web-user/common/store/auth.store";
-import { AUTH_ERROR_MESSAGES } from "@/apps/web-user/features/auth/constants/auth.constant";
+import { isServerAuthMessage } from "@/apps/web-user/features/auth/constants/auth.constant";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { useAlertStore } from "@/apps/web-user/common/store/alert.store";
 import getApiMessage from "@/apps/web-user/common/utils/getApiMessage";
@@ -57,7 +57,7 @@ function GoogleAuthCallbackContent() {
         const { googleId, googleEmail, message } = err?.response?.data?.data || {};
 
         if (
-          message === AUTH_ERROR_MESSAGES.PHONE_VERIFICATION_REQUIRED &&
+          isServerAuthMessage(message, "PHONE_VERIFICATION_REQUIRED") &&
           googleId &&
           googleEmail
         ) {

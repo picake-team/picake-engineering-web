@@ -1,5 +1,5 @@
 /**
- * 휴대폰 화면의 안내 띠(안내 · 처리 성공 / 되돌리기).
+ * 휴대폰 화면의 알림 배너(안내 · 처리 성공 · 서버 오류 · 실시간 주문 알림). 한 일 + 되돌리기는 아래 스낵바(`Snackbar`).
  * 흰 바탕 + 그림자, 모든 화면에서 같은 자리(화면 맨 위, 상태 표시줄 바로 아래)에 잠깐 보인다. 새 안내가 맨 위.
  * 저절로 사라지는 안내는 아래쪽 주황 막대가 남은 시간만큼 줄어들고, 누르고 있는 동안은 멈춘다.
  * 옆이나 위로 밀면 손가락을 따라오다가 그쪽으로 사라지고, 끝나면 위로 살짝 올라가며 흐려진다. 아이콘은 내용에 맞춘다(`toastIconFor`).
@@ -28,7 +28,7 @@ const SWIPE_SIDE_PX = 64;
 /** 남은 시간 막대: 밝은 주황에서 주 색으로 */
 const PROGRESS_BG = "linear-gradient(90deg, #FF9442 0%, #FF653E 100%)";
 
-export function ToastHost() {
+export function AlertBannerHost() {
   const alerts = useAlertStore((s) => s.alerts);
   const removeAlert = useAlertStore((s) => s.removeAlert);
   // 새 안내에 밀려 안 보이게 된 안내는 바로 지운다(나중에 다시 튀어나오지 않게)

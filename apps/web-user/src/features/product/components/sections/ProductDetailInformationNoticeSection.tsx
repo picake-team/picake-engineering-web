@@ -8,10 +8,13 @@ import {
   AccordionContent,
 } from "@/apps/web-user/common/components/accordions/Accordion";
 import { Product } from "@/apps/web-user/features/product/types/product.type";
+import {
+  formatRefundRulePeriodLabel,
+  visibleRefundRules,
+} from "@/apps/web-user/features/store/types/store.type";
 
 interface ProductDetailInformationNoticeSectionProps {
   product: Product;
-  cancellationRefundDetailDescription?: string;
 }
 
 interface NoticeItem {
@@ -21,8 +24,9 @@ interface NoticeItem {
 
 export function ProductDetailInformationNoticeSection({
   product,
-  cancellationRefundDetailDescription,
 }: ProductDetailInformationNoticeSectionProps) {
+  // 가게가 정한 환불·취소 규정(예약 확인·예약 상세와 같은 표)
+  const refundRules = visibleRefundRules(product.storeRefundCancellationPolicy);
   const noticeInfoRef = useRef<HTMLDivElement>(null);
   const cancellationRef = useRef<HTMLDivElement>(null);
 
@@ -82,12 +86,23 @@ export function ProductDetailInformationNoticeSection({
         >
           <AccordionTrigger className="py-[16px]">취소 및 환불</AccordionTrigger>
           <AccordionContent>
-            <div>
-              {cancellationRefundDetailDescription && (
-                // <div dangerouslySetInnerHTML={{ __html: cancellationRefundDetailDescription }} />
-                <p>{cancellationRefundDetailDescription}</p>
-              )}
-            </div>
+            {refundRules.length === 0 ? (
+              <p className="text-2sm text-gray-500">등록된 환불·취소 규정이 없어요.</p>
+            ) : (
+              <div className="overflow-hidden rounded-lg border border-gray-100 bg-white">
+                {refundRules.map(({ daysBeforePickup, refundDescription }, index) => (
+                  <div
+                    key={`${daysBeforePickup}-${index}`}
+                    className="flex items-center border-b border-gray-100 text-2sm text-gray-900 last:border-b-0"
+                  >
+                    <span className="w-[110px] shrink-0 border-r border-gray-100 px-4 py-3 text-gray-500">
+                      {formatRefundRulePeriodLabel(daysBeforePickup)}
+                    </span>
+                    <span className="px-4 py-3 text-gray-900">{refundDescription}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </AccordionContent>
         </AccordionItem>
       </Accordion>
