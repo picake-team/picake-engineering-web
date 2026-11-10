@@ -1,5 +1,6 @@
 "use client";
 
+import { motionDuration, motionEasing } from "@picake/design-tokens";
 import { useEffect, useRef, type ReactNode } from "react";
 import clsx from "clsx";
 import { usePresence } from "@/apps/web-user/common/hooks/usePresence";
@@ -76,7 +77,9 @@ export function DragHandleBottomSheet({
     let dragging = false;
 
     const setTransform = (y: number, animate: boolean) => {
-      sheet.style.transition = animate ? "transform 0.2s ease-out" : "none";
+      sheet.style.transition = animate
+        ? `transform ${motionDuration.base}ms ${motionEasing.enter}`
+        : "none";
       sheet.style.transform = y ? `translateY(${y}px)` : "";
     };
 

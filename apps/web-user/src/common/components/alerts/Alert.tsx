@@ -28,7 +28,7 @@ export function Alert() {
       confirmText="확인"
       confirmVariant="primary"
       hideCancel
-      zIndexClassName="z-[9999]"
+      zIndexClassName="z-top"
     />
   );
 }

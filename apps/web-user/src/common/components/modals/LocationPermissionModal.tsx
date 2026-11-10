@@ -39,8 +39,8 @@ export function LocationPermissionModal() {
       cancelVariant="primary"
       onConfirm={handleClose}
       onCancel={handleOpenSettings}
-      // RegionSelectSheet(z-[200]) 등 상위 오버레이 위에 표시
-      zIndexClassName="z-[300]"
+      // RegionSelectSheet(z-sheet-top) 등 상위 오버레이 위에 표시
+      zIndexClassName="z-permission"
     />
   );
 }

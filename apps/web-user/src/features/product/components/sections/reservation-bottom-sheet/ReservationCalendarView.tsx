@@ -104,7 +104,7 @@ export function ReservationCalendarView({
                     className={cn(
                       "box-border flex shrink-0 items-center justify-center text-center transition-colors",
                       selected
-                        ? "bg-[var(--primary-or-50,#FFEFEB)] text-[var(--primary-or-400,#FF653E)]"
+                        ? "bg-primary-50 text-primary"
                         : "bg-[var(--grayscale-gr-00,#FFFFFF)] text-[var(--grayscale-gr-900,#1F1F1E)]",
                     )}
                     style={{

@@ -55,7 +55,7 @@ export const TextArea: React.FC<TextAreaProps> = ({
         placeholder={placeholder}
         disabled={disabled}
         maxLength={maxLength}
-        className={`w-full h-[96px] py-[10px] px-[12px] text-sm border border-gray-100 rounded-lg outline-none resize-none transition-colors duration-200 focus:border-gray-900 ${className}`}
+        className={`w-full h-[96px] py-[10px] px-[12px] text-sm border border-gray-100 rounded-lg outline-none resize-none transition-colors duration-base focus:border-gray-900 ${className}`}
       />
       {showCount && maxLength && (
         <div className="mt-[6px] text-xs text-gray-400 text-right">

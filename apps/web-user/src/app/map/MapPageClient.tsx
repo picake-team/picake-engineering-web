@@ -1016,7 +1016,7 @@ export default function MapPageClient() {
       <button
         type="button"
         onClick={handleRefreshLocation}
-        className="absolute right-[15px] bottom-32 z-10 flex h-10 w-10 items-center justify-center rounded-[26px] border border-[#EBEBEA] bg-white p-2.5"
+        className="absolute right-[15px] bottom-32 z-10 flex h-10 w-10 items-center justify-center rounded-[26px] border border-gray-100 bg-white p-2.5"
         style={{ boxShadow: "0px 2px 10px 0px #0000000A" }}
         aria-label="내 위치로 이동"
       >

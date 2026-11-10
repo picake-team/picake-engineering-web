@@ -175,7 +175,7 @@ function LaunchSheetView({
         amount={order.totalPrice}
         defaultDepositorName={order.reservationContactName}
         onConfirm={handlePaymentComplete}
-        zIndexClassName="z-[60]"
+        zIndexClassName="z-sheet-over"
       />
     </>
   );

@@ -81,7 +81,7 @@ export default function CategoryList() {
               type="button"
               className="flex flex-col items-center gap-[6px] shrink-0"
             >
-              <div className="w-[59px] h-[59px] rounded-full overflow-hidden bg-[#f5f5f5]">
+              <div className="w-[59px] h-[59px] rounded-full overflow-hidden bg-gray-50">
                 {category.image && (
                   <Image
                     src={category.image}
