@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
+import { cx } from "@/apps/web-seller/common/ui/cx";
 import { PageTitle } from "@/apps/web-seller/common/components/layouts/MobileFrame";
 import { useInMobileFrame } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
 import { Card, CardContent } from "@/apps/web-seller/common/components/cards/Card";
@@ -71,6 +72,13 @@ export const StoreCreatePage: React.FC<StoreCreatePageProps> = ({ step, onStepCh
   const [ownStep, setOwnStep] = useState(1);
   const currentStep = step ?? ownStep;
   const setCurrentStep = onStepChange ?? setOwnStep;
+  // 휴대폰 틀 안: 다음 단계는 오른쪽에서, 이전 단계는 왼쪽에서 살짝 들어온다(처음 그릴 때는 그대로)
+  const prevStepRef = useRef(currentStep);
+  const stepDirRef = useRef<"forward" | "backward" | null>(null);
+  if (prevStepRef.current !== currentStep) {
+    stepDirRef.current = currentStep > prevStepRef.current ? "forward" : "backward";
+    prevStepRef.current = currentStep;
+  }
   const [stepData, setStepData] = useState<StepData>({
     businessRegistrationForm: defaultBusinessRegistrationForm,
     onlineTradingCompanyDetailForm: defaultOnlineTradingCompanyDetailForm,
@@ -212,14 +220,23 @@ export const StoreCreatePage: React.FC<StoreCreatePageProps> = ({ step, onStepCh
           </div>
         </div>
         {/* 단계마다 같은 머리: n/전체 + 큰 제목 + 한 줄 설명 */}
-        <div className="flex flex-col gap-1">
-          <span className="text-caption text-ink-600">
-            {currentStep}/{STEP_KEYS.length}
-          </span>
-          <h2 className="text-title font-bold text-ink-900">{FRAME_STEP_HEAD[key].title}</h2>
-          <p className="text-sub text-ink-600">{FRAME_STEP_HEAD[key].description}</p>
+        <div
+          key={currentStep}
+          className={cx(
+            "flex flex-col gap-4 motion-reduce:animate-none",
+            stepDirRef.current === "forward" && "animate-step-in-forward",
+            stepDirRef.current === "backward" && "animate-step-in-backward",
+          )}
+        >
+          <div className="flex flex-col gap-1">
+            <span className="text-caption text-ink-600">
+              {currentStep}/{STEP_KEYS.length}
+            </span>
+            <h2 className="text-title font-bold text-ink-900">{FRAME_STEP_HEAD[key].title}</h2>
+            <p className="text-sub text-ink-600">{FRAME_STEP_HEAD[key].description}</p>
+          </div>
+          {renderStep()}
         </div>
-        {renderStep()}
       </div>
     );
   }

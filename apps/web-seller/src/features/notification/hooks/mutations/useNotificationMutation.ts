@@ -5,18 +5,26 @@ import { notificationApi } from "@/apps/web-seller/features/notification/apis/no
 import { notificationQueryKeys } from "@/apps/web-seller/features/notification/constants/notificationQueryKeys.constant";
 import type { SellerNotificationSettings } from "@/apps/web-seller/features/notification/types/notification.dto";
 
-// 스토어 알림 설정 저장
+// 스토어 알림 설정 저장. 스위치는 서버를 기다리지 않고 바로 움직이고, 실패하면 되돌리고 알린다
 export function useUpdateNotificationPreferences(storeId: string) {
   const queryClient = useQueryClient();
   const { addAlert } = useAlertStore();
+  const key = notificationQueryKeys.prefs(storeId);
 
   return useMutation({
     mutationFn: (patch: Partial<SellerNotificationSettings>) =>
       notificationApi.updatePreferences(storeId, patch),
-    onSuccess: (data) => {
-      queryClient.setQueryData(notificationQueryKeys.prefs(storeId), data);
+    onMutate: async (patch) => {
+      await queryClient.cancelQueries({ queryKey: key });
+      const previous = queryClient.getQueryData<SellerNotificationSettings>(key);
+      if (previous) queryClient.setQueryData(key, { ...previous, ...patch });
+      return { previous };
     },
-    onError: (error) => {
+    onSuccess: (data) => {
+      queryClient.setQueryData(key, data);
+    },
+    onError: (error, _patch, context) => {
+      if (context?.previous) queryClient.setQueryData(key, context.previous);
       addAlert({
         severity: "error",
         message: getApiMessage.error(error),

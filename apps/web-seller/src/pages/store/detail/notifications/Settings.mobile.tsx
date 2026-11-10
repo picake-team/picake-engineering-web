@@ -68,7 +68,7 @@ export const StoreDetailNotificationSettingsMobilePage: React.FC = () => {
           trailing={
             <Switch
               label="주문 알림 받기"
-              disabled={!loaded || update.isPending}
+              disabled={!loaded}
               checked={prefs.orderNotificationsEnabled}
               onChange={(next) => {
                 if (!next) setConfirmOff(true);
@@ -85,7 +85,7 @@ export const StoreDetailNotificationSettingsMobilePage: React.FC = () => {
             trailing={
               <Switch
                 label="아침 요약 알림"
-                disabled={!loaded || update.isPending}
+                disabled={!loaded}
                 checked={prefs.morningSummaryEnabled}
                 onChange={(next) => update.mutate({ morningSummaryEnabled: next })}
               />

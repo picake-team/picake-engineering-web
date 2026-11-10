@@ -47,11 +47,9 @@ const BUCKET_PARAMS: Record<
 function ProductRow({
   product,
   onToggle,
-  pending,
 }: {
   product: ProductResponseDto;
   onToggle: (p: ProductResponseDto) => void;
-  pending: boolean;
 }) {
   const storeId = product.storeId;
   const onSale = product.salesStatus === EnableStatus.ENABLE;
@@ -86,7 +84,6 @@ function ProductRow({
         <Switch
           label={`${product.name} 판매`}
           checked={onSale}
-          disabled={pending}
           // 보이는 스위치(28)는 그대로, 누르는 칸은 44(위아래로 넓힘)
           className="-my-2 h-11"
           onChange={() => onToggle(product)}
@@ -225,7 +222,6 @@ export const StoreDetailProductListMobilePage: React.FC = () => {
                   <ProductRow
                     key={p.id}
                     product={p}
-                    pending={toggle.isPending && toggle.variables?.productId === p.id}
                     onToggle={(prod) =>
                       toggle.mutate({
                         productId: prod.id,

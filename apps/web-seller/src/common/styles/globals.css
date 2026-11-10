@@ -10,6 +10,21 @@
   color-scheme: only light;
 }
 
+/*
+ * 앱처럼: 누르는 것(버튼·링크·탭·카드) 안 글자는 길게 눌러도 선택되지 않고, 아이폰 링크 미리보기 메뉴도 뜨지 않는다.
+ * 주소·계좌번호 같은 읽는 글은 그대로 길게 눌러 복사된다.
+ */
+button,
+a,
+[role="button"],
+[role="tab"],
+.press,
+.press-bg {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
 /* Reset and base styles */
 * {
   box-sizing: border-box;
