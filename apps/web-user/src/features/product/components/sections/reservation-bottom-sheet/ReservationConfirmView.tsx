@@ -8,6 +8,7 @@ import { LabeledInput } from "@/apps/web-user/common/components/inputs/LabeledIn
 import { Checkbox } from "@/apps/web-user/common/components/inputs/Checkbox";
 import {
   formatRefundRulePeriodLabel,
+  visibleRefundRules,
   type RefundCancellationPolicy,
 } from "@/apps/web-user/features/store/types/store.type";
 import { EmptyState } from "@/apps/web-user/common/components/fallbacks/EmptyState";
@@ -73,7 +74,7 @@ export function ReservationConfirmView({
   handleToggleAllAgreements,
   refundCancellationPolicy,
 }: ReservationConfirmViewProps) {
-  const refundRules = refundCancellationPolicy?.rules ?? [];
+  const refundRules = visibleRefundRules(refundCancellationPolicy);
   return (
     <>
       <div className="px-5 pt-5 pb-10 flex flex-col border-b-[14px] border-gray-50">

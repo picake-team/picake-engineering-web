@@ -1,6 +1,7 @@
 import { OrderDetailSectionTitle } from "./OrderDetailSectionTitle";
 import {
   formatRefundRulePeriodLabel,
+  visibleRefundRules,
   type RefundCancellationPolicy,
 } from "@/apps/web-user/features/store/types/store.type";
 
@@ -10,7 +11,7 @@ interface NoticeSectionProps {
 }
 
 export function NoticeSection({ refundCancellationPolicy }: NoticeSectionProps) {
-  const refundRules = refundCancellationPolicy?.rules ?? [];
+  const refundRules = visibleRefundRules(refundCancellationPolicy);
   return (
     <section className="px-5">
       <OrderDetailSectionTitle>안내 사항</OrderDetailSectionTitle>
