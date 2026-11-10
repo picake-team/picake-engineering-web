@@ -39,6 +39,18 @@ const STEP_LABELS: Record<StepKey, string> = {
   store: "스토어 정보 입력",
 };
 const STEPS = STEP_KEYS.map((key) => STEP_LABELS[key]);
+/** 휴대폰 틀 단계 머리(큰 제목 + 한 줄 설명) */
+const FRAME_STEP_HEAD: Record<StepKey, { title: string; description: string }> = {
+  business: {
+    title: "사업자 정보를 알려 주세요",
+    description: "국세청에서 정상 영업인지 확인해요",
+  },
+  onlineTrading: {
+    title: "통신판매업 정보를 알려 주세요",
+    description: "정부24에서 신고한 번호를 확인해요",
+  },
+  store: { title: "스토어 정보를 알려 주세요", description: "나중에 스토어 탭에서 고칠 수 있어요" },
+};
 const TOTAL_STEPS = STEP_KEYS.length;
 
 interface StoreCreatePageProps {
@@ -199,19 +211,14 @@ export const StoreCreatePage: React.FC<StoreCreatePageProps> = ({ step, onStepCh
             />
           </div>
         </div>
-        {key === "business" ? (
-          <div className="flex flex-col gap-1">
-            <span className="text-caption text-ink-600">
-              {currentStep}/{STEP_KEYS.length}
-            </span>
-            <h2 className="text-title font-bold text-ink-900">사업자 정보를 알려 주세요</h2>
-            <p className="text-sub text-ink-600">국세청에서 정상 영업인지 확인해요</p>
-          </div>
-        ) : (
+        {/* 단계마다 같은 머리: n/전체 + 큰 제목 + 한 줄 설명 */}
+        <div className="flex flex-col gap-1">
           <span className="text-caption text-ink-600">
-            {currentStep}/{STEP_KEYS.length} · {STEP_LABELS[key]}
+            {currentStep}/{STEP_KEYS.length}
           </span>
-        )}
+          <h2 className="text-title font-bold text-ink-900">{FRAME_STEP_HEAD[key].title}</h2>
+          <p className="text-sub text-ink-600">{FRAME_STEP_HEAD[key].description}</p>
+        </div>
         {renderStep()}
       </div>
     );

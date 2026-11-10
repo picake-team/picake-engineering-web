@@ -36,7 +36,11 @@ import {
   type OptionChoice,
   type TextRowKey,
 } from "@/apps/web-seller/features/product/utils/naver-product.util";
-import { useInMobileFrame } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
+import {
+  FRAME_SUBMIT_BUTTON_CLASS,
+  useInMobileFrame,
+} from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
+import { Button as AppButton } from "@/apps/web-seller/common/ui/Button";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
 
 /** 네이버에서 가져온 설명 (AI 초안 참고 자료로 넘긴다) */
@@ -640,9 +644,34 @@ export function NaverProductImportDialog({
               )}
 
             {detail.warnings.length > 0 && (
-              <details className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2">
-                <summary className="cursor-pointer text-sm text-amber-900">
-                  확인할 것 {detail.warnings.length}개
+              <details
+                className={
+                  inFrame
+                    ? // 휴대폰 틀 안: 앱 주의 안내(흰 바탕 + 주황 테두리) + 오른쪽 ⌄ 펼치기
+                      "group rounded-card border-[1.5px] border-brand bg-white px-4 py-3 font-app"
+                    : "rounded-lg border border-amber-200 bg-amber-50 px-3 py-2"
+                }
+              >
+                <summary
+                  className={
+                    inFrame
+                      ? "flex min-h-6 cursor-pointer list-none items-center gap-2 text-sub font-semibold text-ink-900 [&::-webkit-details-marker]:hidden"
+                      : "cursor-pointer text-sm text-amber-900"
+                  }
+                >
+                  {inFrame ? (
+                    <span className="shrink-0 text-brand">
+                      <Icon name="warning" size={18} strokeWidth={2} />
+                    </span>
+                  ) : null}
+                  <span className={inFrame ? "flex-1" : undefined}>
+                    확인할 것 {detail.warnings.length}개
+                  </span>
+                  {inFrame ? (
+                    <span className="shrink-0 text-ink-400 transition-transform group-open:rotate-180">
+                      <Icon name="chevronDown" size={18} strokeWidth={2} />
+                    </span>
+                  ) : null}
                 </summary>
                 <ul className="mt-1 list-disc space-y-0.5 pl-4">
                   {detail.warnings.map((w) => (
@@ -656,19 +685,38 @@ export function NaverProductImportDialog({
 
             {detail.options.length > 0 && (
               <div>
-                <button
-                  type="button"
-                  className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-                  onClick={() => setAdvanced((v) => !v)}
-                  aria-expanded={advanced}
-                >
-                  {advanced ? (
-                    <ChevronDown className="h-4 w-4" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4" />
-                  )}
-                  옵션 하나씩 정하기 ({detail.options.length}개)
-                </button>
+                {inFrame ? (
+                  // 휴대폰 틀 안: 앱 펼치기 줄(이름 + 오른쪽 ⌄), "알림이 안 와요"와 같은 모양
+                  <button
+                    type="button"
+                    className="flex min-h-11 w-full items-center gap-3 text-left font-app"
+                    onClick={() => setAdvanced((v) => !v)}
+                    aria-expanded={advanced}
+                  >
+                    <span className="flex-1 text-body font-semibold text-ink-900">
+                      옵션 하나씩 정하기 ({detail.options.length}개)
+                    </span>
+                    <span
+                      className={`shrink-0 text-ink-400 transition-transform ${advanced ? "rotate-180" : ""}`}
+                    >
+                      <Icon name="chevronDown" size={18} strokeWidth={2} />
+                    </span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+                    onClick={() => setAdvanced((v) => !v)}
+                    aria-expanded={advanced}
+                  >
+                    {advanced ? (
+                      <ChevronDown className="h-4 w-4" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4" />
+                    )}
+                    옵션 하나씩 정하기 ({detail.options.length}개)
+                  </button>
+                )}
                 {advanced && (
                   <ul className="mt-2 divide-y rounded-lg border">
                     {detail.options.map((o) => {
@@ -759,7 +807,33 @@ export function NaverProductImportDialog({
       </div>
     );
 
-    footer = (
+    footer = inFrame ? (
+      // 휴대폰 틀 안: 긴 주 버튼이 잘리지 않게 위아래로. 주 버튼(가득 찬 48)이 위, 약한 행동은 회색 글자
+      <div className="flex flex-col gap-1">
+        {!menuLike && (
+          <Button
+            type="button"
+            className={FRAME_SUBMIT_BUTTON_CLASS + " w-full"}
+            disabled={busy || selectedCount === 0 || problems.length > 0}
+            onClick={apply}
+          >
+            {imagesMutation.isPending
+              ? "사진 가져오는 중…"
+              : mode === "create"
+                ? "내 상품이 맞아요, 채우기"
+                : "고른 것 바꾸기"}
+          </Button>
+        )}
+        <AppButton
+          variant="quiet"
+          className="self-center"
+          onClick={mode === "create" ? loadList : unlink}
+          disabled={busy}
+        >
+          {mode === "create" ? "다른 상품 고르기" : "연결 끊기"}
+        </AppButton>
+      </div>
+    ) : (
       <div className="flex flex-wrap items-center gap-2">
         {mode === "create" ? (
           <Button type="button" variant="ghost" onClick={loadList} disabled={busy}>

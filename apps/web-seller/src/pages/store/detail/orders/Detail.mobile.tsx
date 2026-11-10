@@ -343,7 +343,15 @@ export const StoreDetailOrderDetailMobilePage: React.FC = () => {
   const hasActions = Boolean(actions.primary || actions.secondary || actions.more?.length);
   const phone = order.reservationPhone?.trim();
   const depositor = order.depositorName?.trim();
-  const refundFirst = status === OrderStatus.CANCEL_REFUND_PENDING;
+  // 환불할 주문과 끝난 주문(취소·환불 완료·노쇼)은 경위·사유를 맨 위에(단계 막대 바로 아래). 끝났다는 걸 내려 보지 않아도 알게
+  const refundFirst = (
+    [
+      OrderStatus.CANCEL_REFUND_PENDING,
+      OrderStatus.CANCEL_COMPLETED,
+      OrderStatus.CANCEL_REFUND_COMPLETED,
+      OrderStatus.NO_SHOW,
+    ] as OrderStatus[]
+  ).includes(status);
   const pickupAddress = [order.pickupRoadAddress || order.pickupAddress, order.pickupDetailAddress]
     .filter((v) => v?.trim())
     .join(", ");

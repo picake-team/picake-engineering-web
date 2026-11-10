@@ -211,7 +211,12 @@ export const StoreDetailProductListMobilePage: React.FC = () => {
             ) : list.isLoading ? (
               <span className="block h-40 animate-pulse rounded-card bg-ink-50" aria-busy="true" />
             ) : products.length === 0 ? (
-              <p className="py-6 text-center text-sub text-ink-600">맞는 상품이 없어요</p>
+              <EmptyState
+                big
+                icon="search"
+                title="맞는 상품이 없어요"
+                description="다른 말로 찾거나 거르기를 지워 보세요"
+              />
             ) : (
               <div className="-mt-1">
                 {products.map((p) => (
