@@ -22,6 +22,8 @@ import { Checkbox } from "@/apps/web-seller/common/components/inputs/Checkbox";
 import { Label } from "@/apps/web-seller/common/components/labels/Label";
 import { Badge } from "@/apps/web-seller/common/components/badges/Badge";
 import { FormSection } from "@/apps/web-seller/common/components/sections/FormSection";
+import { BottomSheet } from "@/apps/web-seller/common/ui/Sheet";
+import { ListRowButton } from "@/apps/web-seller/common/ui/List";
 import { useInMobileFrame } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
 import {
@@ -144,7 +146,32 @@ export const ProductCreationCustomOptionsSection: React.FC<
         <Plus className="h-4 w-4" />
         옵션 추가
       </Button>
-      {menuOpen && (
+      {inFrame ? (
+        // 휴대폰 틀 안: PC 펼침 메뉴 대신 앱 창(아래에서 올라오는 창 + 목록 줄)
+        <BottomSheet
+          open={menuOpen}
+          onClose={() => setMenuOpen(false)}
+          showClose
+          title="어떤 옵션을 더할까요?"
+        >
+          <div className="-mt-2">
+            {CUSTOM_OPTION_TYPE_ORDER.map((type, i) => (
+              <ListRowButton
+                key={type}
+                disabled={cannotAdd(type)}
+                divider={i < CUSTOM_OPTION_TYPE_ORDER.length - 1}
+                title={CUSTOM_OPTION_TYPE_META[type].label}
+                description={CUSTOM_OPTION_TYPE_META[type].description}
+                chevron
+                onClick={() => {
+                  addOption(createEmptyCustomOption(type));
+                  setMenuOpen(false);
+                }}
+              />
+            ))}
+          </div>
+        </BottomSheet>
+      ) : menuOpen ? (
         <>
           <div className="fixed inset-0 z-10" aria-hidden onClick={() => setMenuOpen(false)} />
           <div className="absolute right-0 z-20 mt-1 w-72 rounded-lg border bg-popover p-1 shadow-lg">
@@ -167,7 +194,7 @@ export const ProductCreationCustomOptionsSection: React.FC<
             ))}
           </div>
         </>
-      )}
+      ) : null}
     </div>
   );
 

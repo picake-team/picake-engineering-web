@@ -1,7 +1,7 @@
 /**
  * 휴대폰 주문 통계 (SC-92, 디자인 A92). 기간 빠른 선택(오늘·이번주·이번달·최근 90일 = PC "누적")과 직접 고르기,
  * 매출·주문건수, 잘 팔린 상품(매출 순·주문건수 순), 요일·시간대 그래프는 접어 둔다.
- * 직접 고르기는 고르는 칸(PickerButton)을 눌러 앱 달력 창(DateRangeSheet)에서 고른다(휴대폰 기본 날짜 창은 앱 디자인과 달라 쓰지 않음).
+ * 고른 기간은 늘 고르는 칸(PickerButton)에 보이고, 누르면 앱 달력 창(DateRangeSheet)에서 직접 고른다(휴대폰 기본 날짜 창은 앱 디자인과 달라 쓰지 않음).
  * 집계된 주문이 없으면 남은 칸 가운데에 빈 화면(주문 탭과 같은 모양).
  * 세는 기준은 지금 PC와 같다(주문 접수일 기준, 픽업 완료한 주문만).
  */
@@ -179,15 +179,10 @@ export const StoreDetailStatisticsMobilePage: React.FC = () => {
           { value: "custom", label: "직접 고르기" },
         ]}
       />
-      {preset === "custom" ? (
-        <PickerButton
-          aria-label="기간 고르기"
-          value={rangeText}
-          onClick={() => setSheetOpen(true)}
-        />
-      ) : null}
+      {/* 고른 기간은 늘 고르는 칸에 보이고, 누르면 달력 창(고르면 "직접 고르기"로) */}
+      <PickerButton aria-label="기간 고르기" value={rangeText} onClick={() => setSheetOpen(true)} />
       <p className="text-caption leading-normal text-ink-600">
-        {preset === "custom" ? "" : `${rangeText} · `}픽업 완료한 주문만 세요(주문 접수일 기준)
+        픽업 완료한 주문만 세요(주문 접수일 기준)
       </p>
       <DateRangeSheet
         open={sheetOpen}

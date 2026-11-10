@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { SellerAppLogo } from "@/apps/web-seller/common/components/branding/SellerAppLogo";
 import { LoadingSpinner } from "@/apps/web-seller/common/components/loading/LoadingSpinner";
+import { useShowMobileScreens } from "@/apps/web-seller/common/hooks/useShowMobileScreens";
+import appLogoUrl from "@/apps/web-seller/assets/images/logo_picake.svg";
 
 interface LoadingFallbackProps {
   variant?: "overlay" | "corner";
@@ -17,6 +19,7 @@ export function LoadingFallback({
   animatedEllipsis = true,
 }: LoadingFallbackProps) {
   const [dots, setDots] = useState("");
+  const mobile = useShowMobileScreens();
 
   const useDots = variant === "overlay" && animatedEllipsis;
 
@@ -29,6 +32,23 @@ export function LoadingFallback({
   }, [useDots]);
 
   const suffix = useDots ? dots : "";
+
+  // 휴대폰(판매자 앱): 앱을 열 때 보이는 화면이라 앱 모양으로. 흰 바탕 + 로그인 화면과 같은 로고 + 작은 동그라미, 글자 없음
+  if (mobile && variant === "overlay") {
+    return (
+      <div
+        role="status"
+        aria-label={message}
+        className="fixed inset-0 z-[9999] flex flex-col items-center justify-center gap-6 bg-white font-app"
+      >
+        <img src={appLogoUrl} alt="" width={64} height={64} className="size-16" draggable={false} />
+        <span
+          aria-hidden="true"
+          className="inline-block size-6 animate-spin rounded-full border-[2.5px] border-ink-100 border-t-ink-400"
+        />
+      </div>
+    );
+  }
 
   if (variant === "corner") {
     return (

@@ -1,6 +1,7 @@
 import { cn } from "@/apps/web-seller/common/utils/classname.util";
 import { SellerAppLogo } from "@/apps/web-seller/common/components/branding/SellerAppLogo";
 import { LoadingSpinner } from "@/apps/web-seller/common/components/loading/LoadingSpinner";
+import { useInMobileFrame } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
 
 export type ContentLoadingVariant = "inline" | "section" | "page";
 
@@ -25,6 +26,21 @@ export function ContentLoading({
   showLogo = false,
 }: ContentLoadingProps) {
   const size = spinnerSize ?? (variant === "inline" ? "sm" : variant === "page" ? "lg" : "md");
+  const inFrame = useInMobileFrame();
+
+  // 휴대폰 틀 안(상품·피드·스토어 정보 화면): 앱 화면과 같은 회색 뼈대(칸 이름 + 입력 칸 모양)
+  if (inFrame && variant !== "inline") {
+    return (
+      <div role="status" aria-label={message} aria-busy="true" className="flex flex-col gap-3">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="flex flex-col gap-2">
+            <span className="block h-4 w-24 animate-pulse rounded-check bg-ink-50" />
+            <span className="block h-12 animate-pulse rounded-control bg-ink-50" />
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   if (variant === "inline") {
     return (
