@@ -106,3 +106,32 @@ export function initPostHog(): void {
     },
   });
 }
+
+/** 로그인 토큰(JWT)의 회원 번호(sub). 토큰 확인은 서버가 하고 여기서는 읽기만 한다 */
+function tokenSubject(token: string): string | null {
+  try {
+    const payload = token.split(".")[1];
+    if (!payload) return null;
+    const json = JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")));
+    return typeof json.sub === "string" && json.sub ? json.sub : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * 로그인한 회원을 PostHog에서 사람 하나로 묶는다(앱·브라우저·기기가 달라도 같은 사람으로 센다).
+ * 회원 번호만 보낸다(이름·전화번호·이메일은 보내지 않음, 처리방침 국외 이전 표의 "회원 식별값").
+ * 로그아웃하면 묶음을 끊어 같은 기기를 다음에 쓰는 사람과 섞이지 않게 한다.
+ * 토큰이 바뀌어도(다시 로그인·갱신) 같은 회원이면 다시 보내지 않는다.
+ */
+export function syncPostHogUser(accessToken: string | null): void {
+  if (typeof window === "undefined" || !isPostHogEnabled()) return;
+  if (!(posthog as unknown as { __loaded?: boolean }).__loaded) return;
+  const userId = accessToken ? tokenSubject(accessToken) : null;
+  if (userId) {
+    if (posthog.get_distinct_id() !== userId) posthog.identify(userId, { role: "consumer" });
+  } else if (posthog.get_property("$user_state") === "identified") {
+    posthog.reset();
+  }
+}
