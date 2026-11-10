@@ -256,14 +256,29 @@ export const ProductCreationCustomOptionsSection: React.FC<
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium truncate">
+                        <span
+                          className={
+                            inFrame
+                              ? // 휴대폰 틀 안: 목록 줄 이름(15/600)·설명(12)과 같게
+                                "truncate font-app text-body font-semibold text-ink-900"
+                              : "font-medium truncate"
+                          }
+                        >
                           {option.name.trim() || "(옵션명 없음)"}
                         </span>
                         {option.visible === EnableStatus.DISABLE && (
                           <Badge variant="secondary">숨김</Badge>
                         )}
                       </div>
-                      <p className="text-sm text-muted-foreground truncate">{summarize(option)}</p>
+                      <p
+                        className={
+                          inFrame
+                            ? "truncate font-app text-caption text-ink-600"
+                            : "text-sm text-muted-foreground truncate"
+                        }
+                      >
+                        {summarize(option)}
+                      </p>
                     </div>
                     <Button
                       type="button"

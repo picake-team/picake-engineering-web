@@ -114,7 +114,9 @@ export function ProductPriceSizeSection({ form, errors, onChange, disabled }: Pr
           onChange={toggleDiscount}
           disabled={disabled}
           label={
-            <span className="text-sm">할인해서 팔기 (손님 화면에 할인 전 가격이 함께 보여요)</span>
+            <span className={inFrame ? undefined : "text-sm"}>
+              할인해서 팔기 (손님 화면에 할인 전 가격이 함께 보여요)
+            </span>
           }
         />
       </div>

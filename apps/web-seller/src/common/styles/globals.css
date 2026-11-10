@@ -110,6 +110,14 @@ textarea {
   --ring: 60 2% 30%;
   --radius: 0.75rem;
 }
+/* 칸 이름: PC 칸 이름(14/500 검정)을 앱 칸 이름(Field·Label과 같은 13/700 #4E4E4B)으로. 필수 표시(*)는 같은 크기 */
+.app-form main label.text-sm.font-medium,
+.app-form main p.text-sm.font-medium {
+  font-size: 13px;
+  line-height: 1.5;
+  font-weight: 700;
+  color: #4e4e4b;
+}
 /* 고칠 곳: 앱 입력 칸(Field)과 같게 주황 테두리 1.5 + 아래 문구 12/600 #B5401C(PC는 갈색 1px·14/400) */
 .app-form input.border-destructive,
 .app-form textarea.border-destructive,
