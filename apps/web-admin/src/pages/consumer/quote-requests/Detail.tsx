@@ -140,7 +140,11 @@ export const QuoteRequestDetailPage: React.FC = () => {
               </p>
               <Row label="닉네임">{data.consumer.nickname ?? data.consumer.name ?? "-"}</Row>
               <Row label="휴대폰">{data.consumer.phone}</Row>
-              <Row label="가게 전달 동의">{formatDateTime(data.consentedAt)}</Row>
+              <Row label="가게 전달 동의">
+                {data.consentedAt
+                  ? formatDateTime(data.consentedAt)
+                  : "없음(동의 칸을 없앤 뒤 요청)"}
+              </Row>
             </div>
           </Card>
         </div>

@@ -41,7 +41,6 @@ export interface CreateQuoteRequestBody {
   budgetMax?: number;
   requestNote?: string;
   entry?: QuoteRequestEntry;
-  agreed: boolean;
 }
 
 export interface CreateQuoteRequestResponse {
