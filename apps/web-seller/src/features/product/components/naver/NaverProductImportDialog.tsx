@@ -1,3 +1,5 @@
+import { euRo } from "@/apps/web-seller/common/utils/josa.util";
+import { formatKstMonthDayTime } from "@/apps/web-seller/common/utils/kst-date.util";
 import React, { useEffect, useMemo, useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { BaseButton as Button } from "@/apps/web-seller/common/components/buttons/BaseButton";
@@ -248,7 +250,7 @@ export function NaverProductImportDialog({
     );
     addAlert({
       severity: "info",
-      message: "판매 상태를 '판매중지'로 바꿨어요. 저장해야 반영돼요.",
+      message: "판매 상태를 '판매중지'로 바꿨어요. 저장해야 반영돼요",
     });
     onClose();
   };
@@ -270,7 +272,7 @@ export function NaverProductImportDialog({
     } catch {
       return;
     }
-    addAlert({ severity: "info", message: "네이버 연결을 끊었어요. 상품 내용은 그대로예요." });
+    addAlert({ severity: "info", message: "네이버 연결을 끊었어요. 상품 내용은 그대로예요" });
     onClose();
   };
 
@@ -338,7 +340,7 @@ export function NaverProductImportDialog({
                     <p className="truncate text-sm font-medium">{item.name}</p>
                     <p className="truncate text-xs text-muted-foreground">
                       {taken
-                        ? `이미 '${item.linkedProduct!.name}'(으)로 가져왔어요`
+                        ? `이미 '${item.linkedProduct!.name}'${euRo(item.linkedProduct!.name)} 가져왔어요`
                         : [item.priceText, item.summary].filter(Boolean).join(" · ")}
                     </p>
                   </div>
@@ -458,13 +460,7 @@ export function NaverProductImportDialog({
             <p className="truncate font-medium">{detail.name}</p>
             <p className="text-xs text-muted-foreground">
               네이버 {detail.source === "BOOKING" ? "예약" : "메뉴"} ·{" "}
-              {new Date(detail.fetchedAt).toLocaleString("ko-KR", {
-                month: "long",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-              })}{" "}
-              기준
+              {formatKstMonthDayTime(detail.fetchedAt)} 기준
             </p>
           </div>
         </div>

@@ -10,7 +10,7 @@ export const validateBusinessNo = (businessNo: string): string | null => {
 
   // 숫자가 아닌 문자가 포함되어 있는지 확인
   if (!/^\d+$/.test(businessNo)) {
-    return "숫자만 입력 가능합니다.";
+    return "숫자만 넣을 수 있어요.";
   }
 
   // 자리 수 확인 (패턴 사용)
@@ -201,7 +201,7 @@ export const validatePermissionManagementNumber = (prmmiMnno: string): string | 
   const currentYear = new Date().getFullYear();
 
   if (year < 1900 || year > currentYear) {
-    return `연도는 1900년부터 ${currentYear}년까지 입력 가능합니다.`;
+    return `연도는 1900년부터 ${currentYear}년까지 넣을 수 있어요.`;
   }
 
   // 지역명이 한글로만 이루어져 있는지 확인

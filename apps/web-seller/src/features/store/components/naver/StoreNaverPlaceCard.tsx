@@ -1,4 +1,11 @@
 import React, { useState } from "react";
+import {
+  FRAME_SUBMIT_BUTTON_CLASS,
+  useInMobileFrame,
+} from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
+import { cn } from "@/apps/web-seller/common/utils/classname.util";
+import { Icon } from "@/apps/web-seller/common/ui/icons";
+import { Button as AppButton } from "@/apps/web-seller/common/ui/Button";
 import { BaseButton as Button } from "@/apps/web-seller/common/components/buttons/BaseButton";
 import { BaseInput as Input } from "@/apps/web-seller/common/components/inputs/BaseInput";
 import { Checkbox } from "@/apps/web-seller/common/components/inputs/Checkbox";
@@ -46,6 +53,7 @@ const formatDate = (iso: string) =>
  * 채우기만으로는 저장하지 않는다. 주소는 주소 검색으로, 픽업 시간은 캘린더에서 정한다.
  */
 export const StoreNaverPlaceCard: React.FC<Props> = ({ storeId, connected, form, onApply }) => {
+  const inFrame = useInMobileFrame();
   const mode = storeId ? "edit" : "create";
   const submitLabel = mode === "edit" ? "수정하기" : "등록하기";
   const { addAlert } = useAlertStore();
@@ -124,7 +132,7 @@ export const StoreNaverPlaceCard: React.FC<Props> = ({ storeId, connected, form,
       return;
     }
     setOpen(false);
-    addAlert({ severity: "info", message: "네이버 연결을 끊었어요. 스토어 정보는 그대로예요." });
+    addAlert({ severity: "info", message: "네이버 연결을 끊었어요. 스토어 정보는 그대로예요" });
   };
 
   const toggle = (key: NaverImportFieldKey, checked: boolean) =>
@@ -134,7 +142,9 @@ export const StoreNaverPlaceCard: React.FC<Props> = ({ storeId, connected, form,
   const pendingConnect = mode === "create" && !!form.naverPlaceId;
   const bar = (
     <div className="flex flex-wrap items-center gap-3 rounded-xl border bg-muted/40 px-4 py-3">
-      <p className="min-w-0 flex-1 text-sm text-muted-foreground">
+      <p
+        className={`min-w-0 flex-1 ${inFrame ? "text-sub text-ink-600" : "text-sm text-muted-foreground"}`}
+      >
         {pendingConnect ? (
           `네이버 매장 정보를 채웠어요. '${submitLabel}'를 누르면 함께 연결돼요.`
         ) : connected ? (
@@ -180,7 +190,36 @@ export const StoreNaverPlaceCard: React.FC<Props> = ({ storeId, connected, form,
           ? "내 매장이 맞아요, 연결하고 채우기"
           : "내 매장이 맞아요, 연결하기";
 
-  const footer = preview ? (
+  const secondaryAction = isConnectedToPreview
+    ? { label: "연결 끊기", onClick: handleDisconnect }
+    : !connected
+      ? { label: "다른 링크 넣기", onClick: () => setPreview(null) }
+      : null;
+  const applyDisabled = isBusy || (isConnectedToPreview && selected.length === 0);
+
+  const footer = !preview ? null : inFrame ? (
+    // 휴대폰 틀 안: 주 버튼 이름이 길어("연결하고 채우기") 가득 찬 48 한 줄, 약한 행동은 아래 회색 글자
+    <div className="flex flex-col gap-1">
+      <Button
+        type="button"
+        className={cn(FRAME_SUBMIT_BUTTON_CLASS, "w-full")}
+        disabled={applyDisabled}
+        onClick={handleApply}
+      >
+        {connectMutation.isPending ? "연결하는 중…" : applyLabel}
+      </Button>
+      {secondaryAction ? (
+        <AppButton
+          variant="quiet"
+          className="self-center"
+          onClick={secondaryAction.onClick}
+          disabled={isBusy}
+        >
+          {secondaryAction.label}
+        </AppButton>
+      ) : null}
+    </div>
+  ) : (
     <div className="flex flex-wrap items-center gap-2">
       {isConnectedToPreview ? (
         <Button type="button" variant="ghost" onClick={handleDisconnect} disabled={isBusy}>
@@ -202,7 +241,7 @@ export const StoreNaverPlaceCard: React.FC<Props> = ({ storeId, connected, form,
         {connectMutation.isPending ? "연결하는 중…" : applyLabel}
       </Button>
     </div>
-  ) : null;
+  );
 
   const address = preview ? preview.storePrefill.roadAddress || preview.storePrefill.address : null;
 
@@ -216,7 +255,7 @@ export const StoreNaverPlaceCard: React.FC<Props> = ({ storeId, connected, form,
         description={
           connected
             ? "네이버에서 바뀐 것만 보여 줘요. 고른 것만 바뀌고, 저장해야 반영돼요."
-            : "가져온 값은 폼에서 고칠 수 있고, 저장해야 반영돼요."
+            : "채운 뒤에도 고칠 수 있고, 저장해야 반영돼요."
         }
         footer={footer}
       >
@@ -296,7 +335,7 @@ export const StoreNaverPlaceCard: React.FC<Props> = ({ storeId, connected, form,
                       )}
                       {row.invalidReason && (
                         <p className="text-xs text-amber-800">
-                          {row.invalidReason} 채운 뒤 폼에서 고쳐 주세요.
+                          {row.invalidReason} 채운 뒤 고쳐 주세요.
                         </p>
                       )}
                     </div>
@@ -316,7 +355,7 @@ export const StoreNaverPlaceCard: React.FC<Props> = ({ storeId, connected, form,
               <ul className="list-disc space-y-0.5 pl-4">
                 {address && (
                   <li className="text-xs text-muted-foreground">
-                    주소는 폼의 &apos;스토어 위치&apos;에서 주소 검색으로 정해 주세요.
+                    주소는 아래 &apos;스토어 주소&apos;에서 주소 검색으로 정해 주세요.
                   </li>
                 )}
                 {preview.warnings.map((w) => (
@@ -328,9 +367,23 @@ export const StoreNaverPlaceCard: React.FC<Props> = ({ storeId, connected, form,
             )}
 
             {(preview.businessHours.days.length > 0 || preview.businessHours.freeText) && (
-              <details className="text-sm">
-                <summary className="cursor-pointer text-muted-foreground">
-                  네이버 영업시간 보기 (픽업 시간은 캘린더에서 정해요)
+              <details className={inFrame ? "group font-app text-sub text-ink-900" : "text-sm"}>
+                <summary
+                  className={
+                    inFrame
+                      ? // 휴대폰 틀 안: 펼치기는 줄 이름 + 오른쪽 ⌄(▶ 글자 쓰지 않음)
+                        "flex min-h-11 cursor-pointer list-none items-center gap-2 text-ink-700 [&::-webkit-details-marker]:hidden"
+                      : "cursor-pointer text-muted-foreground"
+                  }
+                >
+                  <span className={inFrame ? "flex-1" : undefined}>
+                    네이버 영업시간 보기 (픽업 시간은 캘린더에서 정해요)
+                  </span>
+                  {inFrame ? (
+                    <span className="shrink-0 text-ink-400 transition-transform group-open:rotate-180">
+                      <Icon name="chevronDown" size={18} strokeWidth={2} />
+                    </span>
+                  ) : null}
                 </summary>
                 <ul className="mt-2 space-y-0.5">
                   {preview.businessHours.days.map((day) => (

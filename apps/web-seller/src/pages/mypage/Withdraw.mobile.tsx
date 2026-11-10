@@ -100,7 +100,7 @@ export const MypageWithdrawMobilePage: React.FC = () => {
             maxLength={MAX_REASON}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            placeholder="탈퇴 사유를 입력해 주세요."
+            placeholder="탈퇴 사유를 적어 주세요"
           />
         )}
       </Field>

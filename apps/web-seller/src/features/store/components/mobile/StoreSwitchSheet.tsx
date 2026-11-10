@@ -45,7 +45,7 @@ export function StoreSwitchSheet({
   const navigate = useNavigate();
   const { stores } = useMyStores();
   return (
-    <BottomSheet open={open} onClose={onClose} showClose title="스토어 선택">
+    <BottomSheet open={open} onClose={onClose} showClose title="스토어 바꾸기">
       <div className="-mt-1 flex flex-col">
         {stores.map((s) => {
           const current = s.id === currentStoreId;

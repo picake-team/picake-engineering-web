@@ -12,12 +12,15 @@ import { Button, ButtonPair } from "@/apps/web-seller/common/ui/Button";
 export function useFrameConfirm({
   pcMessage,
   title,
+  description,
   confirmLabel,
 }: {
   /** PC 브라우저 기본 창 문구(지금 문구 그대로) */
   pcMessage: string;
   /** 휴대폰 틀 안 창 제목 */
   title: string;
+  /** 휴대폰 틀 안 창 안내 한 줄(되돌릴 수 없는 일이면 무엇이 사라지는지) */
+  description?: string;
   /** 휴대폰 틀 안 주 버튼 이름 */
   confirmLabel: string;
 }): { confirm: () => Promise<boolean>; sheet: React.ReactNode } {
@@ -52,7 +55,9 @@ export function useFrameConfirm({
           <Button onClick={() => close(true)}>{confirmLabel}</Button>
         </ButtonPair>
       }
-    />
+    >
+      {description ? <p className="text-sub leading-normal text-ink-600">{description}</p> : null}
+    </BottomSheet>
   ) : null;
 
   return { confirm, sheet };

@@ -200,10 +200,17 @@ export const StoreDetailCalendarMobilePage: React.FC = () => {
         <>
           <h2 className="mt-1 text-group font-bold text-ink-900">
             {formatKeyMonthDayWeek(selectedKey)} ·{" "}
-            {selectedRule.isOpen ? `픽업 ${selectedOrders.length}건` : "쉬는 날"}
+            {!selectedRule.isOpen
+              ? "쉬는 날"
+              : monthQuery.data
+                ? `픽업 ${selectedOrders.length}건`
+                : "픽업"}
           </h2>
           {monthQuery.isError && !monthQuery.data ? (
             <LoadErrorState onRetry={() => void monthQuery.refetch()} />
+          ) : monthQuery.isLoading ? (
+            // 불러오는 동안은 회색 뼈대(글자 "불러오는 중…" 대신, 다른 화면과 같게)
+            <span className="block h-16 animate-pulse rounded-card bg-ink-50" aria-busy="true" />
           ) : selectedOrders.length > 0 ? (
             <div className="-mt-1">
               {selectedOrders.map((o, i) => (
@@ -212,11 +219,7 @@ export const StoreDetailCalendarMobilePage: React.FC = () => {
             </div>
           ) : (
             <p className="text-sub text-ink-600">
-              {monthQuery.isLoading
-                ? "불러오는 중…"
-                : selectedRule.isOpen
-                  ? "이 날은 픽업이 없어요"
-                  : "쉬는 날이라 픽업이 없어요"}
+              {selectedRule.isOpen ? "이 날은 픽업이 없어요" : "쉬는 날이라 픽업이 없어요"}
             </p>
           )}
         </>

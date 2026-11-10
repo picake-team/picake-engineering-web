@@ -219,7 +219,7 @@ function SignUp({
             invalid={p.invalid}
             autoComplete="name"
             maxLength={50}
-            placeholder="실명을 입력해 주세요"
+            placeholder="예: 홍길동"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />

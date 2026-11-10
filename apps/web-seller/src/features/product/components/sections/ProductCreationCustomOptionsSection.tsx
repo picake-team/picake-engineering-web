@@ -211,7 +211,7 @@ export const ProductCreationCustomOptionsSection: React.FC<
       <div className="space-y-4">
         {/* 옵션 목록 */}
         {options.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
+          <p className={inFrame ? "text-sub text-ink-600" : "text-sm text-muted-foreground"}>
             추가 옵션이 없어요. 사이즈만 고르는 상품이면 그대로 두세요.
           </p>
         ) : (
@@ -232,8 +232,8 @@ export const ProductCreationCustomOptionsSection: React.FC<
                         aria-label="위로 이동"
                         className={
                           inFrame
-                            ? // 휴대폰 틀 안: 누르는 칸을 넓게(36 × 24, 화살표 모양은 그대로)
-                              "flex h-6 w-9 items-center justify-center rounded-check text-ink-600 active:bg-ink-50 disabled:text-ink-200"
+                            ? // 휴대폰 틀 안: 누르는 칸을 넓게(40 × 32, 화살표 모양은 그대로)
+                              "flex h-8 w-10 items-center justify-center rounded-check text-ink-600 active:bg-ink-50 disabled:text-ink-200"
                             : "text-muted-foreground disabled:opacity-30"
                         }
                         disabled={disabled || index === 0}
@@ -246,8 +246,8 @@ export const ProductCreationCustomOptionsSection: React.FC<
                         aria-label="아래로 이동"
                         className={
                           inFrame
-                            ? // 휴대폰 틀 안: 누르는 칸을 넓게(36 × 24, 화살표 모양은 그대로)
-                              "flex h-6 w-9 items-center justify-center rounded-check text-ink-600 active:bg-ink-50 disabled:text-ink-200"
+                            ? // 휴대폰 틀 안: 누르는 칸을 넓게(40 × 32, 화살표 모양은 그대로)
+                              "flex h-8 w-10 items-center justify-center rounded-check text-ink-600 active:bg-ink-50 disabled:text-ink-200"
                             : "text-muted-foreground disabled:opacity-30"
                         }
                         disabled={disabled || index === options.length - 1}

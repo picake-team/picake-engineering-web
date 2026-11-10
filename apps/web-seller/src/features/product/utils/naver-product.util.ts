@@ -1,3 +1,4 @@
+import { eunNeun } from "@/apps/web-seller/common/utils/josa.util";
 import {
   CakeSizeDisplayName,
   CustomOptionType,
@@ -171,11 +172,13 @@ export function getSelectionProblems(
       problems.push(`'${choice.sizeDisplayName}' 사이즈를 두 번 골랐어요. 하나만 남겨 주세요.`);
     else names.add(choice.sizeDisplayName);
     if (!option.price || option.price <= 0)
-      problems.push(`'${option.name}'은 네이버 가격이 없어요.`);
+      problems.push(`'${option.name}'${eunNeun(option.name)} 네이버 가격이 없어요.`);
   }
   for (const { option, choice } of picked) {
     if (choice.use === "EXTRA" && option.name.length > 30) {
-      problems.push(`'${option.name.slice(0, 15)}…'은 선택지 이름이 30자를 넘어요.`);
+      problems.push(
+        `'${option.name.slice(0, 15)}…'${eunNeun(option.name.slice(0, 15))} 선택지 이름이 30자를 넘어요.`,
+      );
     }
   }
   const bases = picked.filter(({ choice }) => choice.use === "BASE");
@@ -187,7 +190,7 @@ export function getSelectionProblems(
   }
   for (const { option } of bases) {
     if (!option.price || option.price <= 0)
-      problems.push(`'${option.name}'은 네이버 가격이 없어요.`);
+      problems.push(`'${option.name}'${eunNeun(option.name)} 네이버 가격이 없어요.`);
   }
   return problems;
 }
