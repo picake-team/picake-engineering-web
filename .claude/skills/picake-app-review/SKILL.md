@@ -23,7 +23,7 @@ description: 판매자 앱(web-seller, 기획 I-48)이나 손님 앱(web-user) �
 
 작업 공간 `CLAUDE.md`의 "로컬에서 화면까지 직접 테스트하는 법"을 따른다(운영·staging 계정으로는 로그인하지 않는다). 덧붙여:
 
-- **손님 앱**: `apps/web-user`에서 `NEXT_PUBLIC_API_DOMAIN=http://localhost:3000 npx next dev -p 3001`(빌드 결과 `.next`가 있으면 먼저 지운다. 개발 서버를 켠 채 `next build`를 돌리면 `.next`를 덮어써 500이 난다). 로그인은 `localStorage["picake:auth"] = {state:{isAuthenticated:true, accessToken}, version:0}`에 테스트 DB 손님 토큰. 화면은 `#root-scroll-container` 안에서 스크롤한다. 개발 표시(`nextjs-portal`, TanStack 야자수 버튼 `.tsqd-parent-container`)가 누르기를 가리면 CSS로 숨긴다. Playwright `locator.click()`은 누르기 전에 스크롤을 옮기므로 스크롤 자리를 볼 때는 화면에 보이는 점을 `page.mouse.click`으로 누르고 `mouse.wheel`로 내린다.
+- **손님 앱**: `apps/web-user`에서 `NEXT_PUBLIC_API_DOMAIN=http://localhost:3000 npx next dev -p 3001`(빌드 결과 `.next`가 있으면 먼저 지운다. 개발 서버를 켠 채 `next build`를 돌리면 `.next`를 덮어써 500이 난다). 로그인은 `localStorage["picake:auth"] = {state:{isAuthenticated:true, accessToken}, version:0}`에 테스트 DB 손님 토큰. 화면은 `#root-scroll-container` 안에서 스크롤한다. 개발 표시(`nextjs-portal`, TanStack 야자수 버튼 `.tsqd-parent-container`)가 누르기를 가리면 CSS로 숨긴다. Playwright `locator.click()`은 누르기 전에 스크롤을 옮기므로 스크롤 자리를 볼 때는 화면에 보이는 점을 `page.mouse.click`으로 누르고 `mouse.wheel`로 내린다. `packages/design-tokens`(색·겹침 순서·움직임 이름)를 바꾸면 켜 둔 개발 서버(손님·판매자 둘 다)는 새 이름을 만들지 못하니 다시 켠다(`z-modal`이 `auto`로 보임).
 
 - **토큰을 브라우저에 넣기**: Playwright 코드에서는 파일을 못 읽으므로, 토큰을 넣은 JS 파일을 `.playwright-mcp/`에 만들어 `browser_run_code_unsafe`의 `filename`으로 돌린다. 로그인 화면이 다 뜬 뒤 `localStorage.accessToken`에 넣는다(먼저 넣으면 첫 화면의 401이 지운다).
 - **앱 안처럼**: init script로 `window.flutter_inappwebview.callHandler`를 흉내 내고 알림 권한 요청에 `receivePushPermission('granted')`로 답한다. 화면은 390×844.
