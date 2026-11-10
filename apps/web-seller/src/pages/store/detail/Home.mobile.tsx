@@ -41,6 +41,7 @@ import { useStoreDetail } from "@/apps/web-seller/features/store/hooks/queries/u
 import { useMyStores } from "@/apps/web-seller/features/store/hooks/queries/useMyStores";
 import { StoreSwitchSheet } from "@/apps/web-seller/features/store/components/mobile/StoreSwitchSheet";
 import { useSellerNotifications } from "@/apps/web-seller/features/notification/components/providers/SellerNotificationProvider";
+import { useFollowToday, useKstTodayKey } from "@/apps/web-seller/common/hooks/useKstTodayKey";
 import type { OrderResponseDto } from "@/apps/web-seller/features/order/types/order.dto";
 import { PushOffBanner } from "@/apps/web-seller/features/notification/components/mobile/PushOffBanner";
 import { useNotificationPreferences } from "@/apps/web-seller/features/notification/hooks/queries/useNotificationQuery";
@@ -100,8 +101,10 @@ export const StoreDetailHomeMobilePage: React.FC = () => {
   const { storeId = "" } = useParams<{ storeId: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [todayKey] = useState(() => kstDateKey(new Date()));
+  const todayKey = useKstTodayKey();
   const [selectedKey, setSelectedKey] = useState(todayKey);
+  // 켜 둔 채 날짜가 바뀌면(자정, 다음 날 앱을 다시 엶) 오늘을 보고 있던 주간 달력도 새 오늘로
+  useFollowToday(todayKey, (prev, next) => setSelectedKey((s) => (s === prev ? next : s)));
   const [switchOpen, setSwitchOpen] = useState(false);
 
   const weekStart = sundayOfKey(selectedKey);

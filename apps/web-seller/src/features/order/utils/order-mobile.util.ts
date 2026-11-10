@@ -291,12 +291,13 @@ export function orderCardMeta(order: OrderResponseDto, now: number): string {
   }
 }
 
-/** 검색어가 주문번호 모양이면 주문번호로, 아니면 상품명으로(SC-74 ①) */
-export function searchParamsFor(query: string): { orderNumber?: string; productName?: string } {
+/**
+ * 검색어 하나로 예약자 이름·전화번호(뒷자리 4자리 이상)·상품명·주문번호를 함께 찾는다(SC-74 ①).
+ * 픽업하러 온 손님을 이름이나 번호 뒷자리로 바로 찾기 위해서다(서버 `keyword`)
+ */
+export function searchParamsFor(query: string): { keyword?: string } {
   const q = query.trim();
-  if (!q) return {};
-  if (/^ord-/i.test(q)) return { orderNumber: q.toUpperCase() };
-  return { productName: q };
+  return q ? { keyword: q } : {};
 }
 
 /** 휴대폰 화면 "전화"·"문자" 링크용 번호(숫자·+만) */

@@ -313,7 +313,11 @@ export const ProductCreationForm: React.FC<Props> = ({
                 사진 <span className="text-destructive">*</span>
               </>
             }
-            description="첫 번째 사진이 대표 사진이에요. 최대 8장까지 올릴 수 있어요."
+            description={
+              inFrame
+                ? "첫 번째 사진이 대표 사진이에요. 다른 사진을 누르면 대표로 바꿀 수 있어요."
+                : "첫 번째 사진이 대표 사진이에요. 최대 8장까지 올릴 수 있어요."
+            }
             error={sectionHasError("section-photos")}
           >
             <ImageMultiUpload

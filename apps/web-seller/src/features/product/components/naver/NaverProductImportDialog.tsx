@@ -44,6 +44,8 @@ import {
 } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
 import { Button as AppButton } from "@/apps/web-seller/common/ui/Button";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
+import { SheetSelect, type SheetOption } from "@/apps/web-seller/common/ui/OptionSheet";
+import { AffixNumberInput } from "@/apps/web-seller/common/components/inputs/AffixNumberInput";
 
 /** 네이버에서 가져온 설명 (AI 초안 참고 자료로 넘긴다) */
 export type NaverSourceText = { description: string | null; precautions: string | null };
@@ -62,6 +64,13 @@ type View = "list" | "detail" | "missing";
 type Use = OptionChoice["use"];
 
 const SIZE_NAMES = Object.values(CakeSizeDisplayName);
+/** 옵션을 상품 어디에 넣을지(휴대폰 틀 안 앱 고르기 창) */
+const USE_OPTIONS: SheetOption[] = [
+  { value: "SIZE", label: "사이즈" },
+  { value: "BASE", label: "판매가" },
+  { value: "EXTRA", label: "추가 옵션" },
+  { value: "SKIP", label: "넣지 않음" },
+];
 const won = (n: number | null | undefined) => (n == null ? "-" : `${n.toLocaleString()}원`);
 const plus = (n: number) => (n > 0 ? `+${n.toLocaleString()}` : "+0");
 const selectClass = "h-8 rounded-md border bg-background px-2 text-sm";
@@ -713,7 +722,78 @@ export function NaverProductImportDialog({
                     옵션 하나씩 정하기 ({detail.options.length}개)
                   </button>
                 )}
-                {advanced && (
+                {advanced && inFrame && (
+                  // 휴대폰 틀 안: 옵션마다 [체크 | 이름·가격] / [넣을 곳] / (사이즈면) [사이즈 | 지름 □ cm].
+                  // 고르기는 휴대폰 기본 고르기 창 대신 앱 아래 창(SheetSelect)
+                  <ul className="mt-1 flex flex-col font-app">
+                    {detail.options.map((o) => {
+                      const c = choiceOf(o);
+                      const use = useOf(o);
+                      return (
+                        <li
+                          key={o.optionId}
+                          className="flex flex-col gap-2 border-b border-ink-100 py-3 last:border-b-0"
+                        >
+                          <div className="flex items-start gap-3">
+                            {/* "넣지 않음"이면 넣지 않는 것이 보이게 체크를 푼 회색 칸 */}
+                            <Checkbox
+                              checked={use !== "SKIP" && selection.optionIds.includes(o.optionId)}
+                              onChange={(v) => toggleOption(o.optionId, v)}
+                              disabled={use === "SKIP"}
+                            />
+                            <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                              <span className="text-body font-semibold text-ink-900">{o.name}</span>
+                              <span className="text-sub text-ink-600">
+                                {won(o.price)}
+                                {o.isSoldOut ? " · 품절" : ""}
+                              </span>
+                            </span>
+                          </div>
+                          <div className="flex flex-col gap-2 pl-9">
+                            <SheetSelect
+                              label={`${o.name} 넣을 곳`}
+                              value={use}
+                              options={USE_OPTIONS}
+                              onChange={(v) => updateChoice(o.optionId, { use: v as Use })}
+                            />
+                            {use === "SIZE" && (
+                              <div className="grid grid-cols-2 gap-2">
+                                <SheetSelect
+                                  label={`${o.name} 사이즈`}
+                                  value={c?.sizeDisplayName ?? undefined}
+                                  placeholder="사이즈"
+                                  options={SIZE_NAMES.map((n) => ({ value: n, label: n }))}
+                                  onChange={(v) =>
+                                    updateChoice(o.optionId, {
+                                      sizeDisplayName: v as CakeSizeDisplayName,
+                                    })
+                                  }
+                                />
+                                <AffixNumberInput
+                                  prefix="지름"
+                                  suffix="cm"
+                                  aria-label={`${o.name} 지름`}
+                                  value={c?.lengthCm ?? undefined}
+                                  onChange={(v) =>
+                                    updateChoice(o.optionId, { lengthCm: v ?? null })
+                                  }
+                                  placeholder="0"
+                                  integer={false}
+                                />
+                              </div>
+                            )}
+                            {o.invalidReason && (
+                              <p className="text-caption font-semibold text-brand-ink">
+                                {o.invalidReason}
+                              </p>
+                            )}
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+                {advanced && !inFrame && (
                   <ul className="mt-2 divide-y rounded-lg border">
                     {detail.options.map((o) => {
                       const c = choiceOf(o);

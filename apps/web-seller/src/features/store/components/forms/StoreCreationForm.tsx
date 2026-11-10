@@ -383,18 +383,9 @@ export const StoreCreationForm: React.FC<Props> = ({
 
       {/* 저장 버튼은 항상 화면 아래에 */}
       {inFrame ? (
-        // 휴대폰(디자인 8-F·A66b): 이전 | 고칠 곳 n개(누르면 첫 고칠 곳으로) | 등록하기·저장하기
+        // 휴대폰: 고칠 곳 n개(누르면 첫 고칠 곳으로) | 등록하기·저장하기.
+        // 앞 단계로는 위쪽 ←로 간다(넣은 값은 남음). "이전"까지 셋을 두면 360 폭에서 버튼이 좁아진다
         <FrameSubmitBar>
-          {onPrevious && (
-            <Button
-              type="button"
-              variant="outline"
-              className={FRAME_SUBMIT_BUTTON_CLASS}
-              onClick={onPrevious}
-            >
-              이전
-            </Button>
-          )}
           {errorKeys.length > 0 && (
             <Button
               type="button"
@@ -407,10 +398,7 @@ export const StoreCreationForm: React.FC<Props> = ({
           )}
           <Button
             type="submit"
-            className={cn(
-              FRAME_SUBMIT_BUTTON_CLASS,
-              (onPrevious || errorKeys.length > 0) && "flex-[2]",
-            )}
+            className={cn(FRAME_SUBMIT_BUTTON_CLASS, errorKeys.length > 0 && "flex-[2]")}
             disabled={submitting}
           >
             {submitButtonText || (initialValue ? "저장하기" : "등록하기")}
