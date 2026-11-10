@@ -163,7 +163,7 @@ function OrderItemBlock({
           key={o.optionId}
           className="flex flex-col gap-1 rounded-control border border-ink-100 px-4 py-3"
         >
-          <span className="text-badge font-bold text-ink-600">{o.name}</span>
+          <span className="text-sub font-bold text-ink-700">{o.name}</span>
           <span className="whitespace-pre-wrap break-words text-heading font-bold text-ink-900">
             {o.text}
           </span>
@@ -171,7 +171,7 @@ function OrderItemBlock({
       ))}
       {legacyLettering && texts.length === 0 ? (
         <div className="flex flex-col gap-1 rounded-control border border-ink-100 px-4 py-3">
-          <span className="text-badge font-bold text-ink-600">레터링</span>
+          <span className="text-sub font-bold text-ink-700">레터링</span>
           <span className="whitespace-pre-wrap break-words text-heading font-bold text-ink-900">
             {legacyLettering}
           </span>
@@ -196,7 +196,13 @@ function OrderItemBlock({
         </div>
       ) : null}
       {item.requestMessage?.trim() ? (
-        <span className="text-sub text-ink-600">요청 · {item.requestMessage.trim()}</span>
+        // 손님 요청은 놓치지 않게 레터링처럼 칸으로(전: 사진 아래 작은 회색 한 줄)
+        <div className="flex flex-col gap-1 rounded-control border border-ink-100 px-4 py-3">
+          <span className="text-sub font-bold text-ink-700">요청 사항</span>
+          <span className="whitespace-pre-wrap break-words text-body text-ink-900">
+            {item.requestMessage.trim()}
+          </span>
+        </div>
       ) : null}
     </div>
   );

@@ -1,4 +1,6 @@
 import React, { useMemo } from "react";
+import { useInMobileFrame } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
+import { EmptyState, LoadErrorState } from "@/apps/web-seller/common/ui/Surface";
 import { PageTitle } from "@/apps/web-seller/common/components/layouts/MobileFrame";
 import { useFrameConfirm } from "@/apps/web-seller/common/components/layouts/useFrameConfirm";
 import { useParams } from "react-router-dom";
@@ -18,7 +20,8 @@ import { ContentLoading } from "@/apps/web-seller/common/components/loading/Cont
 export const StoreDetailProductDetailPage: React.FC = () => {
   const { storeId, productId } = useParams<{ storeId: string; productId: string }>();
 
-  const { data: product, isLoading } = useProductDetail(productId || "");
+  const { data: product, isLoading, isError, refetch } = useProductDetail(productId || "");
+  const inFrame = useInMobileFrame();
   const updateProductMutation = useUpdateProduct();
   const deleteProductMutation = useDeleteProduct();
   const { confirm: confirmDelete, sheet: confirmDeleteSheet } = useFrameConfirm({
@@ -85,6 +88,13 @@ export const StoreDetailProductDetailPage: React.FC = () => {
   }
 
   if (!product || !productForm) {
+    if (inFrame) {
+      return isError ? (
+        <LoadErrorState big onRetry={() => void refetch()} />
+      ) : (
+        <EmptyState big icon="search" title="상품을 찾을 수 없어요" />
+      );
+    }
     return (
       <div>
         <h2 className="text-xl font-semibold">상품을 찾을 수 없어요.</h2>

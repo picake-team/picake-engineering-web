@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { EmptyState, LoadErrorState } from "@/apps/web-seller/common/ui/Surface";
 import { PageTitle } from "@/apps/web-seller/common/components/layouts/MobileFrame";
 import { useFrameConfirm } from "@/apps/web-seller/common/components/layouts/useFrameConfirm";
 import {
@@ -35,7 +36,7 @@ export const StoreDetailFeedDetailPage: React.FC = () => {
     confirmLabel: "삭제하기",
   });
 
-  const { data: feed, isLoading } = useFeedDetail(storeId || "", feedId || "");
+  const { data: feed, isLoading, isError, refetch } = useFeedDetail(storeId || "", feedId || "");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [imageUrls, setImageUrls] = useState<string[]>([]);
@@ -70,6 +71,13 @@ export const StoreDetailFeedDetailPage: React.FC = () => {
   }
 
   if (!feed) {
+    if (inFrame) {
+      return isError ? (
+        <LoadErrorState big onRetry={() => void refetch()} />
+      ) : (
+        <EmptyState big icon="search" title="피드를 찾을 수 없어요" />
+      );
+    }
     return (
       <div>
         <h2 className="text-xl font-semibold">피드를 찾을 수 없어요.</h2>

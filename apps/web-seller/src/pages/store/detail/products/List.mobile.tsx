@@ -207,7 +207,7 @@ export const StoreDetailProductListMobilePage: React.FC = () => {
               </div>
             ) : null}
             {list.isError ? (
-              <LoadErrorState onRetry={() => void list.refetch()} />
+              <LoadErrorState big onRetry={() => void list.refetch()} />
             ) : list.isLoading ? (
               <span className="block h-40 animate-pulse rounded-card bg-ink-50" aria-busy="true" />
             ) : products.length === 0 ? (

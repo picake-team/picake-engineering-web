@@ -130,7 +130,7 @@ export const StoreDetailNotificationsListMobilePage: React.FC = () => {
         {list.isLoading ? (
           <SkeletonCards thumb={false} />
         ) : list.isError ? (
-          <LoadErrorState onRetry={() => void list.refetch()} />
+          <LoadErrorState big onRetry={() => void list.refetch()} />
         ) : sections.length === 0 ? (
           <EmptyState
             big

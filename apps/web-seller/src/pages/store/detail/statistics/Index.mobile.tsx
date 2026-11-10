@@ -198,7 +198,7 @@ export const StoreDetailStatisticsMobilePage: React.FC = () => {
       />
 
       {q.isError ? (
-        <LoadErrorState onRetry={() => void q.refetch()} />
+        <LoadErrorState big onRetry={() => void q.refetch()} />
       ) : (
         <>
           <div className="grid grid-cols-2 gap-3">

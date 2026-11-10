@@ -9,6 +9,7 @@ import { FeedList } from "@/apps/web-seller/features/feed/components/list/FeedLi
 import { ContentLoading } from "@/apps/web-seller/common/components/loading/ContentLoading";
 import { InfiniteScrollLoading } from "@/apps/web-seller/common/components/loading/InfiniteScrollLoading";
 import { useInMobileFrame } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
+import { LoadErrorState } from "@/apps/web-seller/common/ui/Surface";
 
 export const StoreDetailFeedListPage: React.FC = () => {
   const inFrame = useInMobileFrame();
@@ -23,7 +24,8 @@ export const StoreDetailFeedListPage: React.FC = () => {
     );
   }
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useFeedList(storeId);
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError, refetch } =
+    useFeedList(storeId);
 
   // 무한 스크롤 훅 사용
   useInfiniteScroll({
@@ -54,6 +56,8 @@ export const StoreDetailFeedListPage: React.FC = () => {
       {/* 피드 목록 */}
       {isLoading ? (
         <ContentLoading variant="section" message="피드를 불러오는 중…" className="py-12" />
+      ) : inFrame && isError ? (
+        <LoadErrorState big onRetry={() => void refetch()} />
       ) : (
         <>
           <FeedList feeds={feeds} />

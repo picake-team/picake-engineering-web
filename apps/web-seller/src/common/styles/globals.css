@@ -5,6 +5,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 밝은 화면만 쓴다(다크 모드 따로 하지 않음, I-48). 휴대폰이 어두운 모드여도 웹뷰·브라우저가 강제로 어둡게 바꾸지 않게 */
+:root {
+  color-scheme: only light;
+}
+
 /* Reset and base styles */
 * {
   box-sizing: border-box;

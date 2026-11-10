@@ -10,6 +10,7 @@ import { Button, ButtonPair } from "@/apps/web-seller/common/ui/Button";
 import { Field, TextInput } from "@/apps/web-seller/common/ui/Field";
 import { GrayBand, ListRowButton, ListRowLink } from "@/apps/web-seller/common/ui/List";
 import { BottomSheet } from "@/apps/web-seller/common/ui/Sheet";
+import { LoadErrorState } from "@/apps/web-seller/common/ui/Surface";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
 import { kstDateKey } from "@/apps/web-seller/common/utils/kst-date.util";
@@ -165,7 +166,7 @@ function ProfileEditSheet({
 }
 
 export const MypageIndexMobilePage: React.FC = () => {
-  const { data: profile, isLoading } = useMypageProfile();
+  const { data: profile, isLoading, isError, refetch } = useMypageProfile();
   const logout = useLogout();
   const [editOpen, setEditOpen] = useState(false);
   const [logoutOpen, setLogoutOpen] = useState(false);
@@ -173,7 +174,9 @@ export const MypageIndexMobilePage: React.FC = () => {
 
   return (
     <AppScreen header={<BackHeader title="마이페이지" />} bodyClassName="pt-2">
-      {isLoading || !profile ? (
+      {isError ? (
+        <LoadErrorState big onRetry={() => void refetch()} />
+      ) : isLoading || !profile ? (
         <span className="block h-48 animate-pulse rounded-card bg-ink-50" aria-busy="true" />
       ) : (
         <>
