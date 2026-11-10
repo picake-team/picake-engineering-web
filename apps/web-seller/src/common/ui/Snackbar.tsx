@@ -1,7 +1,7 @@
 /**
  * 스낵바: 한 일을 알리면서 바로 되돌릴 수 있게 버튼 하나를 둔 띠(예: "판매중지로 바꿨어요 · 되돌리기").
  * 화면 아래(아래 탭·저장 줄 위)에서 위로 올라오고(slide in, ease out), 나갈 때는 아래로 내려간다(ease in).
- * 짧은 안내·서버 오류·실시간 주문 알림은 위쪽 알림 배너(ToastHost)를 쓴다(2026-11-11 운영자 결정: 토스트·스낵바·알림 배너 세 가지).
+ * 짧은 안내·서버 오류·실시간 주문 알림은 위쪽 알림 배너(AlertBannerHost)를 쓴다(2026-11-11 운영자 결정: 토스트·스낵바·알림 배너 세 가지).
  * 화면에서는 `useSnackbarStore().showSnackbar(...)`로 띄우고 `SnackbarHost`가 그린다.
  *
  * 움직임 값은 공용 기초(packages/design-tokens `animate-snackbar-in|out`)에서 가져온다.

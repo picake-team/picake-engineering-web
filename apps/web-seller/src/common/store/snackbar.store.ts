@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 /**
  * 휴대폰 화면 스낵바(한 일 + 되돌리기). 한 번에 하나만 보이고, 새로 띄우면 앞의 것을 바꾼다.
- * 짧은 안내·서버 오류·실시간 주문 알림은 위쪽 알림 배너(useAlertStore → ToastHost)를 쓴다.
+ * 짧은 안내·서버 오류·실시간 주문 알림은 위쪽 알림 배너(useAlertStore → AlertBannerHost)를 쓴다.
  */
 export interface SnackbarItem {
   id: number;

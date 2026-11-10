@@ -28,7 +28,7 @@ const SWIPE_SIDE_PX = 64;
 /** 남은 시간 막대: 밝은 주황에서 주 색으로 */
 const PROGRESS_BG = "linear-gradient(90deg, #FF9442 0%, #FF653E 100%)";
 
-export function ToastHost() {
+export function AlertBannerHost() {
   const alerts = useAlertStore((s) => s.alerts);
   const removeAlert = useAlertStore((s) => s.removeAlert);
   // 새 안내에 밀려 안 보이게 된 안내는 바로 지운다(나중에 다시 튀어나오지 않게)
