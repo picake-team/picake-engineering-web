@@ -3,6 +3,7 @@
  * 이 패키지 안의 확장자 없는 상대 import("./colors")를 경고하므로 파일을 나누지 않는다.
  */
 import type { Config } from "tailwindcss";
+import plugin from "tailwindcss/plugin";
 
 // ── Picake 색 ──────────────────────────────────────────────────────────────
 
@@ -237,6 +238,15 @@ const motionKeyframes = {
     "20%, 60%": { transform: "translateX(-6px)" },
     "40%, 80%": { transform: "translateX(6px)" },
   },
+  // 단계 흐름(견적 요청·스토어 만들기): 다음은 오른쪽에서, 뒤로는 왼쪽에서 살짝(손님 앱 탭 전환과 같은 16px)
+  "motion-step-in-forward": {
+    from: { opacity: "0", transform: "translateX(16px)" },
+    to: { opacity: "1", transform: "translateX(0)" },
+  },
+  "motion-step-in-backward": {
+    from: { opacity: "0", transform: "translateX(-16px)" },
+    to: { opacity: "1", transform: "translateX(0)" },
+  },
   "motion-shimmer": {
     from: { backgroundPosition: "100% 0" },
     to: { backgroundPosition: "-100% 0" },
@@ -260,6 +270,8 @@ const motionAnimation = {
   "check-draw": `motion-check-draw ${ms("slow")} ${motionEasing.move} backwards`,
   "spin-steady": `motion-spin 800ms ${motionEasing.linear} infinite`,
   rise: `motion-rise ${ms("slow")} ${motionEasing.enter} backwards`,
+  "step-in-forward": `motion-step-in-forward ${ms("medium")} ${motionEasing.enter} backwards`,
+  "step-in-backward": `motion-step-in-backward ${ms("medium")} ${motionEasing.enter} backwards`,
   shake: `motion-shake ${ms("slow")} ${motionEasing.enter}`,
   shimmer: `motion-shimmer 1.2s ${motionEasing.linear} infinite`,
 };
@@ -268,11 +280,44 @@ const motionAnimation = {
 export const motionStaggerMs = 80;
 
 /**
+ * 눌렀을 때 모양(11-11 운영자: 두 앱 모두 "살짝 작아지고 어두워짐").
+ * - `press`: 버튼·카드. 0.97로 작아지고 조금 어두워진다(흰 바탕은 회색 50 정도). 동작 줄이기면 작아지지 않는다
+ * - `press-bg`: 목록 줄. 회색 바탕만
+ * 목록을 밀어 스크롤할 때 손가락이 닿은 카드가 깜빡이지 않게 눌림은 50ms 늦게 시작한다(앱들이 쓰는 방식).
+ */
+const pressPlugin = plugin(({ addComponents }) => {
+  addComponents({
+    ".press": {
+      transitionProperty: "transform, filter",
+      transitionDuration: `${motionDuration.instant}ms`,
+      transitionTimingFunction: motionEasing.enter,
+      "&:active:not(:disabled)": {
+        transform: "scale(0.97)",
+        filter: "brightness(0.96)",
+        transitionDelay: "50ms",
+      },
+      "@media (prefers-reduced-motion: reduce)": {
+        "&:active:not(:disabled)": { transform: "none" },
+      },
+    },
+    ".press-bg": {
+      transitionProperty: "background-color",
+      transitionDuration: `${motionDuration.instant}ms`,
+      "&:active:not(:disabled)": {
+        backgroundColor: colors.gray[50],
+        transitionDelay: "50ms",
+      },
+    },
+  });
+});
+
+/**
  * 움직임 tailwind preset. 손님 화면은 customerPreset 안에 들어 있고, 판매자 앱은 `presets: [motionPreset]`로 쓴다.
  * 이름: `duration-instant|fast|base|medium|slow|slower`, `ease-enter|exit|move|spring`, `animate-toast-in` 등.
  * tailwind 기본 이름(duration-200, ease-out, animate-spin)은 그대로 둔다.
  */
 export const motionPreset = {
+  plugins: [pressPlugin],
   theme: {
     extend: {
       transitionDuration: Object.fromEntries(
