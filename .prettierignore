@@ -61,3 +61,6 @@ pnpm-lock.yaml
 # 외부에서 설치한 Claude skill (원본 그대로 유지, skills-lock.json으로 관리)
 .claude/skills/design-taste-frontend/
 .claude/skills/emil-design-eng/
+
+# Playwright MCP에 함수식 그대로 넣는 점검 스크립트(끝에 ;가 붙으면 안 됨)
+.claude/skills/**/*.js
