@@ -39,7 +39,12 @@ export const SelectBox: React.FC<SelectBoxProps> = ({
       <Label className={required ? "after:content-['*'] after:ml-0.5 after:text-destructive" : ""}>
         {label}
       </Label>
-      <Select value={value === "" ? undefined : value} onValueChange={onChange} disabled={disabled}>
+      <Select
+        sheetTitle={label}
+        value={value === "" ? undefined : value}
+        onValueChange={onChange}
+        disabled={disabled}
+      >
         <SelectTrigger className={error ? "border-destructive" : ""}>
           <SelectValue placeholder={label} />
         </SelectTrigger>

@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { cn } from "@/apps/web-seller/common/utils/classname.util";
 import { useInMobileFrame } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
+import { useSheetDrag } from "@/apps/web-seller/common/ui/useSheetDrag";
 
 interface DialogProps {
   open: boolean;
@@ -19,7 +20,7 @@ interface DialogProps {
 /**
  * 가벼운 팝업 창. Esc·바깥 클릭으로 닫히고, 열려 있는 동안 뒤 화면은 스크롤되지 않는다.
  * 휴대폰에서는 아래에서 올라오는 시트처럼 화면을 꽉 채운다.
- * 휴대폰 틀(MobileFrame) 안에서는 판매자 앱 창 모양(손잡이, 제목 18/700, 모서리 22, 안전 영역)으로 그린다(디자인 6-G·6-H·A87).
+ * 휴대폰 틀(MobileFrame) 안에서는 판매자 앱 창 모양(손잡이, 제목 18/700, 모서리 22, 안전 영역)으로 그리고, 손잡이·제목 부분을 아래로 끌어 닫는다.
  */
 export function Dialog({
   open,
@@ -32,7 +33,9 @@ export function Dialog({
 }: DialogProps) {
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
+  const backdropRef = useRef<HTMLDivElement>(null);
   const inFrame = useInMobileFrame();
+  const dragHandle = useSheetDrag({ panelRef, backdropRef, onClose, enabled: inFrame });
 
   useEffect(() => {
     if (!open) return;
@@ -56,6 +59,7 @@ export function Dialog({
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-6">
       <div
+        ref={backdropRef}
         className={cn("absolute inset-0", inFrame ? "bg-[rgba(31,31,30,0.4)]" : "bg-black/40")}
         aria-hidden
         onClick={onClose}
@@ -74,7 +78,7 @@ export function Dialog({
         )}
       >
         {inFrame ? (
-          <div className="px-5 pt-3">
+          <div className="px-5 pt-3" {...dragHandle}>
             <div className="mx-auto mb-2 h-1 w-9 rounded-full bg-ink-200" aria-hidden />
             <div className="flex items-start gap-2">
               <div className="min-w-0 flex-1 pt-2">
@@ -118,7 +122,7 @@ export function Dialog({
           <div
             className={cn(
               "border-t px-5 py-3",
-              inFrame && "border-ink-100 pb-[max(12px,env(safe-area-inset-bottom))]",
+              inFrame && "border-t-0 pb-[max(20px,env(safe-area-inset-bottom))] pt-4",
             )}
           >
             {footer}

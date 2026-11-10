@@ -7,6 +7,7 @@ import {
   useInMobileFrame,
 } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
 import { FrameSubmitBar } from "@/apps/web-seller/common/components/layouts/FrameSubmitBar";
+import { Button as AppButton } from "@/apps/web-seller/common/ui/Button";
 
 import { useParams } from "react-router-dom";
 import { useFeedDetail } from "@/apps/web-seller/features/feed/hooks/queries/useFeedQuery";
@@ -91,14 +92,14 @@ export const StoreDetailFeedDetailPage: React.FC = () => {
     // 유효성 검사
     let isValid = true;
     if (!title.trim()) {
-      setTitleError("제목을 입력해주세요.");
+      setTitleError("제목을 적어 주세요.");
       isValid = false;
     } else {
       setTitleError("");
     }
 
     if (!content.trim()) {
-      setContentError("내용을 입력해주세요.");
+      setContentError("내용을 적어 주세요.");
       isValid = false;
     } else {
       setContentError("");
@@ -123,23 +124,18 @@ export const StoreDetailFeedDetailPage: React.FC = () => {
     await deleteFeedMutation.mutateAsync({ feedId, storeId });
   };
 
-  // 버튼: 휴대폰 틀 안에서는 늘 화면 맨 아래 저장 줄(FrameSubmitBar), PC는 폼 아래 가운데
+  // PC 버튼(폼 아래 가운데). 휴대폰 틀 안은 아래 저장 줄(FrameSubmitBar)을 따로 그린다
   const submitButtons = (
     <>
       <Button
         type="button"
-        variant={inFrame ? "outline" : "destructive"}
+        variant="destructive"
         onClick={handleDelete}
         disabled={deleteFeedMutation.isPending || updateFeedMutation.isPending}
-        className={inFrame ? FRAME_SUBMIT_BUTTON_CLASS : undefined}
       >
         삭제하기
       </Button>
-      <Button
-        type="submit"
-        disabled={updateFeedMutation.isPending}
-        className={inFrame ? FRAME_SUBMIT_BUTTON_CLASS : undefined}
-      >
+      <Button type="submit" disabled={updateFeedMutation.isPending}>
         {updateFeedMutation.isPending ? "수정 중..." : "수정하기"}
       </Button>
     </>
@@ -166,7 +162,7 @@ export const StoreDetailFeedDetailPage: React.FC = () => {
                   setTitle(e.target.value);
                   if (titleError) setTitleError("");
                 }}
-                placeholder="피드 제목을 입력해주세요"
+                placeholder="피드 제목을 적어 주세요"
                 className={titleError ? "border-destructive" : ""}
               />
               {titleError && <p className="text-sm text-destructive">{titleError}</p>}
@@ -174,7 +170,7 @@ export const StoreDetailFeedDetailPage: React.FC = () => {
 
             {/* 이미지 */}
             <div className="space-y-2">
-              <Label>이미지</Label>
+              <Label>사진</Label>
               <ImageMultiUpload
                 value={imageUrls}
                 onChange={setImageUrls}
@@ -196,7 +192,7 @@ export const StoreDetailFeedDetailPage: React.FC = () => {
                   setContent(e.target.value);
                   if (contentError) setContentError("");
                 }}
-                placeholder="피드 내용을 입력해주세요."
+                placeholder="손님에게 알릴 소식을 적어 주세요"
                 rows={8}
                 className={contentError ? "border-destructive" : ""}
               />
@@ -205,7 +201,26 @@ export const StoreDetailFeedDetailPage: React.FC = () => {
 
             {/* 버튼 */}
             {inFrame ? (
-              <FrameSubmitBar>{submitButtons}</FrameSubmitBar>
+              <FrameSubmitBar
+                below={
+                  // 상품 수정과 같게: 삭제는 저장하기 바로 아래 회색 글자
+                  <AppButton
+                    variant="quiet"
+                    onClick={handleDelete}
+                    disabled={deleteFeedMutation.isPending || updateFeedMutation.isPending}
+                  >
+                    피드 삭제
+                  </AppButton>
+                }
+              >
+                <Button
+                  type="submit"
+                  disabled={updateFeedMutation.isPending}
+                  className={FRAME_SUBMIT_BUTTON_CLASS}
+                >
+                  {updateFeedMutation.isPending ? "저장하는 중…" : "저장하기"}
+                </Button>
+              </FrameSubmitBar>
             ) : (
               <div className="flex justify-center gap-4 pt-6">{submitButtons}</div>
             )}

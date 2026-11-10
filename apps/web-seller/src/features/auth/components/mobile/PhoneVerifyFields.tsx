@@ -3,6 +3,7 @@
  * 인증번호(칸 안 오른쪽에 남은 시간). 숫자 키패드, 문자 인증번호 자동 채우기.
  */
 import { Button } from "@/apps/web-seller/common/ui/Button";
+import { FrameSubmitBar } from "@/apps/web-seller/common/components/layouts/FrameSubmitBar";
 import { Field, TextInput } from "@/apps/web-seller/common/ui/Field";
 import {
   usePhoneVerification,
@@ -87,7 +88,7 @@ export function PhoneVerifyInputs({ v, helper }: { v: PhoneVerificationState; he
   );
 }
 
-/** 칸 + 확인 버튼(휴대폰 번호 변경·계정 찾기) */
+/** 칸 + 확인 버튼(휴대폰 번호 변경·계정 찾기). 버튼은 다른 화면처럼 화면 맨 아래 버튼 줄에 붙는다 */
 export function PhoneVerifyFields({
   purpose,
   submitLabel = "인증 완료",
@@ -103,17 +104,19 @@ export function PhoneVerifyFields({
   return (
     <div className="flex flex-col gap-4">
       <PhoneVerifyInputs v={v} />
-      <Button
-        block
-        disabled={!v.readyToVerify}
-        loading={busy}
-        onClick={async () => {
-          const phone = await v.verifyCode();
-          await onVerified(phone);
-        }}
-      >
-        {submitLabel}
-      </Button>
+      <FrameSubmitBar>
+        <Button
+          block
+          disabled={!v.readyToVerify}
+          loading={busy}
+          onClick={async () => {
+            const phone = await v.verifyCode();
+            await onVerified(phone);
+          }}
+        >
+          {submitLabel}
+        </Button>
+      </FrameSubmitBar>
     </div>
   );
 }

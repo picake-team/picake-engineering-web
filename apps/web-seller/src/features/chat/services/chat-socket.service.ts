@@ -46,7 +46,7 @@ export class ChatSocketService {
         useAlertStore.getState().addAlert({
           severity: "error",
           title: "인증 오류",
-          message: "로그인이 필요합니다. 다시 로그인해주세요.",
+          message: "로그인이 필요합니다. 다시 로그인해 주세요.",
         });
         reject(error);
         return;
@@ -75,7 +75,7 @@ export class ChatSocketService {
           useAlertStore.getState().addAlert({
             severity: "error",
             title: "채팅 연결 실패",
-            message: "[100] 채팅 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.",
+            message: "[100] 채팅 서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.",
           });
           reject(error);
         };
@@ -136,7 +136,7 @@ export class ChatSocketService {
         useAlertStore.getState().addAlert({
           severity: "error",
           title: "채팅 연결 실패",
-          message: "[101] 채팅 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.",
+          message: "[101] 채팅 서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.",
         });
         reject(error);
       };
@@ -188,7 +188,7 @@ export class ChatSocketService {
           useAlertStore.getState().addAlert({
             severity: "error",
             title: "채팅 연결 실패",
-            message: "[102] 채팅 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.",
+            message: "[102] 채팅 서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.",
           });
         });
       }

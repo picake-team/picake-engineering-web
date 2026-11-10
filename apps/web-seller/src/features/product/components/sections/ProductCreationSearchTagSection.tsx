@@ -115,7 +115,7 @@ export const ProductCreationSearchTagSection: React.FC<ProductCreationSearchTagS
         <div className="flex gap-2">
           <Input
             type="text"
-            placeholder="태그 입력 후 Enter"
+            placeholder="태그를 쓰고 추가를 눌러 주세요"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}

@@ -89,7 +89,7 @@ function validateStoreForm(form: StoreForm): Errors {
     errors.address = "주소 검색으로 가게 위치를 정해 주세요.";
   }
   set("detailAddress", validateDetailAddress(form.detailAddress));
-  if (!form.bankName) errors.bankName = "은행을 선택해주세요.";
+  if (!form.bankName) errors.bankName = "은행을 선택해 주세요.";
   set("bankAccountNumber", validateBankAccountNumber(form.bankAccountNumber));
   set("accountHolderName", validateAccountHolderName(form.accountHolderName));
   set("refundCancellationPolicy", validateRefundCancellationPolicy(form.refundCancellationPolicy));

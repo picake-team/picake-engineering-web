@@ -39,7 +39,7 @@ export const RootPage: React.FC = () => {
     return (
       <div className="flex flex-col gap-4">
         <h1 className="text-2xl font-semibold">스토어가 없습니다</h1>
-        <p className="text-muted-foreground">먼저 스토어를 생성해주세요.</p>
+        <p className="text-muted-foreground">먼저 스토어를 생성해 주세요.</p>
       </div>
     );
   }

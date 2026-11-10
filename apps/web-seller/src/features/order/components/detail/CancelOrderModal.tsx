@@ -111,7 +111,7 @@ export const CancelOrderModal: React.FC<CancelOrderModalProps> = ({
             </Label>
             <Select value={reason} onValueChange={setReason}>
               <SelectTrigger className="text-[13px]">
-                <SelectValue placeholder="사유를 선택해주세요." />
+                <SelectValue placeholder="사유를 선택해 주세요." />
               </SelectTrigger>
               <SelectContent className="z-[200]">
                 {CANCEL_REASONS.map((r) => (
@@ -130,7 +130,7 @@ export const CancelOrderModal: React.FC<CancelOrderModalProps> = ({
             <Textarea
               value={detail}
               onChange={(e) => setDetail(e.target.value)}
-              placeholder="고객에게 안내할 상세 사유를 입력해주세요"
+              placeholder="고객에게 안내할 상세 사유를 입력해 주세요"
               rows={3}
               className="resize-none text-[13px]"
             />
