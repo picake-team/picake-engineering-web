@@ -100,6 +100,8 @@ export type DuplicateAccountPayload = {
     | typeof AUTH_ERROR_MESSAGES.PHONE_APPLE_ACCOUNT_EXISTS;
   name: string;
   phone: string;
+  /** 가입된 로그인 계정의 이메일(가림, 예: pi***er@gmail.com). 없으면 null */
+  email: string | null;
 };
 
 export type OAuthLoginProvider = "google" | "kakao" | "apple";
