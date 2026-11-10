@@ -4,6 +4,12 @@ import { validatePermissionManagementNumber } from "@/apps/web-seller/features/b
 import { BaseButton as Button } from "@/apps/web-seller/common/components/buttons/BaseButton";
 import { BaseInput as Input } from "@/apps/web-seller/common/components/inputs/BaseInput";
 import { Label } from "@/apps/web-seller/common/components/labels/Label";
+import {
+  FRAME_SUBMIT_BUTTON_CLASS,
+  useInMobileFrame,
+} from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
+import { FrameSubmitBar } from "@/apps/web-seller/common/components/layouts/FrameSubmitBar";
+import { cn } from "@/apps/web-seller/common/utils/classname.util";
 
 interface Props {
   onSubmit: (data: OnlineTradingCompanyDetailFormValues) => void;
@@ -22,6 +28,7 @@ export const OnlineTradingCompanyDetailForm: React.FC<Props> = ({
   initialValue,
   onChange,
 }) => {
+  const inFrame = useInMobileFrame();
   const [form, setForm] = useState<OnlineTradingCompanyDetailFormValues>(
     initialValue || defaultForm,
   );
@@ -80,14 +87,33 @@ export const OnlineTradingCompanyDetailForm: React.FC<Props> = ({
         </div>
       </div>
 
-      <div className="flex justify-center gap-4 pt-6">
-        {onPrevious && (
-          <Button type="button" variant="outline" onClick={onPrevious}>
-            이전
+      {inFrame ? (
+        // 휴대폰 틀 안: 다른 단계와 같은 아래 저장 줄(이전 | 다음)
+        <FrameSubmitBar>
+          {onPrevious && (
+            <Button
+              type="button"
+              variant="outline"
+              className={FRAME_SUBMIT_BUTTON_CLASS}
+              onClick={onPrevious}
+            >
+              이전
+            </Button>
+          )}
+          <Button type="submit" className={cn(FRAME_SUBMIT_BUTTON_CLASS, onPrevious && "flex-[2]")}>
+            다음
           </Button>
-        )}
-        <Button type="submit">다음 단계</Button>
-      </div>
+        </FrameSubmitBar>
+      ) : (
+        <div className="flex justify-center gap-4 pt-6">
+          {onPrevious && (
+            <Button type="button" variant="outline" onClick={onPrevious}>
+              이전
+            </Button>
+          )}
+          <Button type="submit">다음 단계</Button>
+        </div>
+      )}
     </form>
   );
 };

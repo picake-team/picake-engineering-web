@@ -13,10 +13,10 @@ import { BaseInput as Input } from "@/apps/web-seller/common/components/inputs/B
 import { NumberInput } from "@/apps/web-seller/common/components/inputs/NumberInput";
 import { Label } from "@/apps/web-seller/common/components/labels/Label";
 import {
-  FRAME_SUBMIT_BAR_CLASS,
   FRAME_SUBMIT_BUTTON_CLASS,
   useInMobileFrame,
 } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
+import { FrameSubmitBar } from "@/apps/web-seller/common/components/layouts/FrameSubmitBar";
 
 interface Props {
   onSubmit: (data: BusinessRegistrationFormValues) => void;
@@ -193,11 +193,11 @@ export const BusinessRegistrationForm: React.FC<Props> = ({ onSubmit, initialVal
       </div>
 
       {inFrame ? (
-        <div className={FRAME_SUBMIT_BAR_CLASS}>
+        <FrameSubmitBar>
           <Button type="submit" className={FRAME_SUBMIT_BUTTON_CLASS}>
             다음
           </Button>
-        </div>
+        </FrameSubmitBar>
       ) : (
         <div className="flex justify-center pt-6">
           <Button type="submit">다음 단계</Button>

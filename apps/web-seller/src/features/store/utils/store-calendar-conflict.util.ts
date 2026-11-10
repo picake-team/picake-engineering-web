@@ -131,7 +131,7 @@ export function formatCalendarConflictMessage(conflicts: readonly CalendarOrderC
   if (conflicts.length === 0) return "";
 
   const lines = [
-    `진행 중인 예약 ${conflicts.length}건과 영업 설정이 맞지 않아 저장할 수 없습니다.`,
+    `진행 중인 예약 ${conflicts.length}건과 영업 설정이 맞지 않아 저장할 수 없어요.`,
     "",
     ...conflicts
       .slice(0, 5)

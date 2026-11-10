@@ -63,7 +63,13 @@ export const AddressInput: React.FC<AddressInputProps> = ({
           readOnly
           className={error ? "border-destructive" : ""}
         />
-        <Button type="button" variant="outline" onClick={handleAddressSearch}>
+        {/* 휴대폰 틀 안: 입력 칸 바로 옆 버튼은 칸과 같은 48(디자인 기준 Field) */}
+        <Button
+          type="button"
+          variant="outline"
+          size={inFrame ? "lg" : undefined}
+          onClick={handleAddressSearch}
+        >
           주소 검색
         </Button>
       </div>

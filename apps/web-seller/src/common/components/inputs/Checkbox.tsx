@@ -22,7 +22,7 @@ export function Checkbox({
   name,
   className,
 }: CheckboxProps) {
-  // 휴대폰 틀 안: 체크 칸 22 · 모서리 6 · 주황(디자인 기준 B-3), 누르는 줄 44
+  // 휴대폰 틀 안: 체크 칸 22 · 모서리 6 · 주황, 누르는 줄 44
   const inFrame = useInMobileFrame();
   return (
     <label

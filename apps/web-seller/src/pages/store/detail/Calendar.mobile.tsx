@@ -1,8 +1,8 @@
 /**
  * 휴대폰 캘린더 탭 (SC-79, 디자인 4-A · 4-B): 달력 하나(안쪽 탭 없음).
  * 날짜 아래 점 = 그날 픽업 수(3개까지, 취소 빼고), "휴무", 그날만 바꾼 날 "바꿈".
- * 날짜를 누르면 아래가 그날 픽업으로 바뀐다. 그날만 영업을 바꾸는 것은 휴대폰에서 하지 않는다(운영자 결정
- * 2026-11-06, PC 캘린더에서). 쉬는 요일·영업시간은 스토어 탭 "영업시간".
+ * 날짜를 누르면 아래가 그날 픽업으로 바뀐다. 그날만 영업을 바꾸는 것은 휴대폰에서 하지 않는다(운영자 결정,
+ * PC 캘린더에서). 쉬는 요일·영업시간은 스토어 탭 "영업시간".
  */
 import React, { useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -15,6 +15,9 @@ import {
   addDaysToKey,
   formatKeyMonthDayWeek,
   kstDateKey,
+  monthEndKey,
+  monthStartKey,
+  shiftMonthKey,
   weekdayLabel,
   weekdayOfKey,
 } from "@/apps/web-seller/common/utils/kst-date.util";
@@ -30,22 +33,6 @@ import {
 } from "@/apps/web-seller/features/store/utils/business-day.util";
 
 const SWIPE_PX = 56;
-
-function monthStartKey(key: string) {
-  return `${key.slice(0, 8)}01`;
-}
-
-function monthEndKey(startKey: string) {
-  const [y, m] = startKey.split("-").map(Number);
-  const nextMonth = m === 12 ? `${y + 1}-01-01` : `${y}-${String(m + 1).padStart(2, "0")}-01`;
-  return addDaysToKey(nextMonth, -1);
-}
-
-function shiftMonth(startKey: string, delta: number) {
-  const [y, m] = startKey.split("-").map(Number);
-  const idx = y * 12 + (m - 1) + delta;
-  return `${Math.floor(idx / 12)}-${String((idx % 12) + 1).padStart(2, "0")}-01`;
-}
 
 export const StoreDetailCalendarMobilePage: React.FC = () => {
   const { storeId = "" } = useParams<{ storeId: string }>();
@@ -78,7 +65,7 @@ export const StoreDetailCalendarMobilePage: React.FC = () => {
   for (let k = monthKey; k <= monthEnd; k = addDaysToKey(k, 1)) days.push(k);
 
   const goMonth = (delta: number) => {
-    const next = shiftMonth(monthKey, delta);
+    const next = shiftMonthKey(monthKey, delta);
     setMonthKey(next);
     // 이번 달로 돌아오면 오늘, 아니면 그달 1일을 고른다
     setSelectedKey(next === monthStartKey(todayKey) ? todayKey : next);
@@ -215,7 +202,7 @@ export const StoreDetailCalendarMobilePage: React.FC = () => {
             {formatKeyMonthDayWeek(selectedKey)} ·{" "}
             {selectedRule.isOpen ? `픽업 ${selectedOrders.length}건` : "쉬는 날"}
           </h2>
-          {monthQuery.isError ? (
+          {monthQuery.isError && !monthQuery.data ? (
             <LoadErrorState onRetry={() => void monthQuery.refetch()} />
           ) : selectedOrders.length > 0 ? (
             <div className="-mt-1">

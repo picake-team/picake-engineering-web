@@ -1,4 +1,6 @@
 import React, { useMemo } from "react";
+import { useInMobileFrame } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
+import { EmptyState, LoadErrorState } from "@/apps/web-seller/common/ui/Surface";
 import { PageTitle } from "@/apps/web-seller/common/components/layouts/MobileFrame";
 import { useFrameConfirm } from "@/apps/web-seller/common/components/layouts/useFrameConfirm";
 import { useParams } from "react-router-dom";
@@ -18,11 +20,12 @@ import { ContentLoading } from "@/apps/web-seller/common/components/loading/Cont
 export const StoreDetailProductDetailPage: React.FC = () => {
   const { storeId, productId } = useParams<{ storeId: string; productId: string }>();
 
-  const { data: product, isLoading } = useProductDetail(productId || "");
+  const { data: product, isLoading, isError, refetch } = useProductDetail(productId || "");
+  const inFrame = useInMobileFrame();
   const updateProductMutation = useUpdateProduct();
   const deleteProductMutation = useDeleteProduct();
   const { confirm: confirmDelete, sheet: confirmDeleteSheet } = useFrameConfirm({
-    pcMessage: "정말 이 상품을 삭제하시겠습니까?",
+    pcMessage: "이 상품을 삭제할까요?",
     title: "이 상품을 삭제할까요?",
     confirmLabel: "삭제하기",
   });
@@ -69,7 +72,7 @@ export const StoreDetailProductDetailPage: React.FC = () => {
   if (!storeId || !productId) {
     return (
       <div>
-        <h2 className="text-xl font-semibold">스토어 또는 상품이 선택되지 않았습니다.</h2>
+        <h2 className="text-xl font-semibold">스토어나 상품을 고르지 않았어요.</h2>
       </div>
     );
   }
@@ -85,9 +88,16 @@ export const StoreDetailProductDetailPage: React.FC = () => {
   }
 
   if (!product || !productForm) {
+    if (inFrame) {
+      return isError ? (
+        <LoadErrorState big onRetry={() => void refetch()} />
+      ) : (
+        <EmptyState big icon="search" title="상품을 찾을 수 없어요" />
+      );
+    }
     return (
       <div>
-        <h2 className="text-xl font-semibold">상품을 찾을 수 없습니다.</h2>
+        <h2 className="text-xl font-semibold">상품을 찾을 수 없어요.</h2>
       </div>
     );
   }

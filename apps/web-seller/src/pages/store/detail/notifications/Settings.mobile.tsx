@@ -1,14 +1,14 @@
 /**
  * 휴대폰 알림 설정 (SC-93, 디자인 A93). 스토어마다: 주문 알림 받기(끌 때 한 번 묻기), 주문 알림 소리, 아침 요약.
- * "테스트 알림 보내기"로 내 휴대폰에 오는지 확인한다(심사관도 이 버튼으로 확인).
- * 맨 위 "이 휴대폰 알림" 칸은 앱에서만 보인다(허용 상태, 꺼져 있으면 허용하기·휴대폰 설정 열기).
+ * 아래 묶음 "테스트 알림 보내기"로 내 휴대폰에 오는지 확인하고(심사관도 이 버튼으로 확인), 안 오면 "알림이 안 와요"를 편다.
+ * 맨 위 "이 휴대폰 알림" 칸은 앱에서만 보인다(허용 상태, 꺼져 있으면 "켜기": 허용 창 또는 휴대폰 설정).
  */
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { AppScreen, BackHeader } from "@/apps/web-seller/common/ui/Screen";
 import { Button, ButtonPair } from "@/apps/web-seller/common/ui/Button";
-import { ListRow } from "@/apps/web-seller/common/ui/List";
+import { GrayBand, ListRow } from "@/apps/web-seller/common/ui/List";
 import { Switch } from "@/apps/web-seller/common/ui/Toggle";
 import { BottomSheet } from "@/apps/web-seller/common/ui/Sheet";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
@@ -58,7 +58,7 @@ export const StoreDetailNotificationSettingsMobilePage: React.FC = () => {
   return (
     <AppScreen header={<BackHeader title="알림 설정" />} bodyClassName="pt-2">
       <DevicePushStatusCard />
-      <h2 className="text-sub font-bold text-ink-700">{store?.name ?? "스토어"} 알림</h2>
+      <h2 className="text-group font-bold text-ink-900">{store?.name ?? "스토어"} 알림</h2>
       <div className="-mt-2">
         <ListRow
           title="주문 알림 받기"
@@ -79,6 +79,7 @@ export const StoreDetailNotificationSettingsMobilePage: React.FC = () => {
           title="주문 알림 소리"
           description="앱을 켜 두었을 때 화면 안 알림 소리"
           dimmed={!prefs.orderNotificationsEnabled}
+          divider={typeof prefs.morningSummaryEnabled === "boolean"}
           trailing={
             <Switch
               label="주문 알림 소리"
@@ -92,6 +93,7 @@ export const StoreDetailNotificationSettingsMobilePage: React.FC = () => {
           <ListRow
             title="아침 요약 알림"
             description="매일 아침 8시, 오늘 픽업이 있을 때만"
+            divider={false}
             trailing={
               <Switch
                 label="아침 요약 알림"
@@ -104,21 +106,31 @@ export const StoreDetailNotificationSettingsMobilePage: React.FC = () => {
         ) : null}
       </div>
 
-      <Button
-        variant="secondary"
-        block
-        loading={testPush.isPending}
-        loadingLabel="보내는 중"
-        onClick={() => testPush.mutate()}
-      >
-        테스트 알림 보내기
-      </Button>
+      {/* 테스트 알림은 이 스토어가 아니라 내 휴대폰 모두에 가서, 스토어 묶음과 띠로 나누고 "알림이 안 와요"와 한 묶음 */}
+      <GrayBand />
+      <ListRow
+        className="-mt-1"
+        title="테스트 알림 보내기"
+        description="내 휴대폰에 알림이 오는지 확인해요"
+        trailing={
+          <Button
+            variant="secondary"
+            size="md"
+            className="shrink-0"
+            loading={testPush.isPending}
+            loadingLabel="보내는 중"
+            onClick={() => testPush.mutate()}
+          >
+            보내기
+          </Button>
+        }
+      />
 
       <button
         type="button"
         aria-expanded={tipsOpen}
         onClick={() => setTipsOpen((v) => !v)}
-        className="flex min-h-13 items-center gap-3 border-b border-ink-100 text-left"
+        className="-mt-3 flex min-h-13 items-center gap-3 py-2 text-left active:bg-ink-50"
       >
         <span className="flex min-w-0 flex-1 flex-col gap-1">
           <span className="text-body font-semibold text-ink-900">알림이 안 와요</span>

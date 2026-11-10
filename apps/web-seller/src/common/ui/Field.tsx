@@ -1,9 +1,10 @@
 /**
- * 입력 칸 (디자인 기준 B-2·B-3·B-6).
- * - 칸 이름 14/700 #4E4E4B, 칸 52 · 모서리 12 · 테두리 #D4D4D3, 글씨 16
- * - 입력 중: 진한 테두리 1.5 #1F1F1E / 고칠 곳: 주황 테두리 1.5 + 아래 문구 13/600 #B5401C
- * - 꺼진 칸: 회색 바탕 + #686864 글씨 / 예시 글씨 16 #767672 / 설명 13 #686864
- * - 입력 칸 바로 옆 버튼(재전송·검색 등)은 52 흰 보조 버튼(Button variant="secondary" size="lg")
+ * 입력 칸.
+ * - 칸 이름 13/700 #4E4E4B, 칸 48 · 모서리 12 · 테두리 #D4D4D3, 글씨 15
+ * - 입력 중: 진한 테두리 1.5 #1F1F1E / 고칠 곳: 주황 테두리 1.5 + 아래 문구 12/600 #B5401C
+ * - 꺼진 칸: 회색 바탕 + #686864 글씨 / 예시 글씨 15 #767672 / 설명 12 #686864
+ * - 입력 칸 바로 옆 버튼(재전송·검색 등)은 칸과 같은 48 흰 보조 버튼(Button variant="secondary" size="lg")
+ * - 날짜·기간은 휴대폰 기본 고르기 창(input type="date")을 쓰지 않고 PickerButton + 앱 창(DateRangeSheet)으로 고른다
  */
 import React, { useId } from "react";
 import { cx } from "@/apps/web-seller/common/ui/cx";
@@ -32,7 +33,7 @@ export function Field({
   error?: React.ReactNode;
   /** 글자 수 등 오른쪽 아래 숫자 */
   counter?: React.ReactNode;
-  /** 칸 오른쪽에 붙는 52 버튼(재전송·검색) */
+  /** 칸 오른쪽에 붙는 48 버튼(재전송·검색) */
   trailing?: React.ReactNode;
   className?: string;
   children: (props: FieldRenderProps) => React.ReactNode;
@@ -147,6 +148,45 @@ export const SelectInput = React.forwardRef<
         <Icon name="chevronDown" size={18} strokeWidth={2} />
       </span>
     </div>
+  );
+});
+
+/**
+ * 앱 창(BottomSheet)으로 고르는 칸: 고르는 칸(SelectInput)과 같은 모양(48 · 모서리 12 · 회색 테두리 · 오른쪽 ▾).
+ * 날짜·기간처럼 휴대폰 기본 고르기 창이 앱 디자인과 너무 다른 것은 이 칸을 누르면 앱 창을 연다(예: DateRangeSheet).
+ */
+export const PickerButton = React.forwardRef<
+  HTMLButtonElement,
+  Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "value"> & {
+    /** 고른 값. 비어 있으면 placeholder를 예시 글씨 색으로 */
+    value?: React.ReactNode;
+    placeholder?: string;
+    invalid?: boolean;
+  }
+>(function PickerButton({ value, placeholder, invalid = false, className, ...rest }, ref) {
+  const empty = value === undefined || value === null || value === "";
+  return (
+    <button
+      ref={ref}
+      type="button"
+      aria-invalid={invalid || undefined}
+      className={cx(
+        BOX,
+        "relative flex h-12 items-center pl-4 pr-11 text-left",
+        // 창을 닫으면 초점이 이 칸으로 돌아오므로, 진한 테두리는 키보드로 옮겨 왔을 때만
+        invalid
+          ? "border-[1.5px] border-brand"
+          : "border-ink-200 focus-visible:border-[1.5px] focus-visible:border-ink-900",
+        empty && "text-ink-500",
+        className,
+      )}
+      {...rest}
+    >
+      <span className="min-w-0 truncate">{empty ? placeholder : value}</span>
+      <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-ink-600">
+        <Icon name="chevronDown" size={18} strokeWidth={2} />
+      </span>
+    </button>
   );
 });
 

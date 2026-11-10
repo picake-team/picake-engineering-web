@@ -22,6 +22,8 @@ import { Checkbox } from "@/apps/web-seller/common/components/inputs/Checkbox";
 import { Label } from "@/apps/web-seller/common/components/labels/Label";
 import { Badge } from "@/apps/web-seller/common/components/badges/Badge";
 import { FormSection } from "@/apps/web-seller/common/components/sections/FormSection";
+import { BottomSheet } from "@/apps/web-seller/common/ui/Sheet";
+import { ListRowButton } from "@/apps/web-seller/common/ui/List";
 import { useInMobileFrame } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
 import {
@@ -68,6 +70,7 @@ function summarize(option: CustomOptionDto): string {
 export const ProductCreationCustomOptionsSection: React.FC<
   ProductCreationCustomOptionsSectionProps
 > = ({ form, errors, onCustomOptionsChange, disabled = false }) => {
+  const inFrame = useInMobileFrame();
   const options = form.customOptions;
   // 펼쳐진 옵션 인덱스 (순서 변경·삭제 시 함께 갱신)
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
@@ -143,7 +146,32 @@ export const ProductCreationCustomOptionsSection: React.FC<
         <Plus className="h-4 w-4" />
         옵션 추가
       </Button>
-      {menuOpen && (
+      {inFrame ? (
+        // 휴대폰 틀 안: PC 펼침 메뉴 대신 앱 창(아래에서 올라오는 창 + 목록 줄)
+        <BottomSheet
+          open={menuOpen}
+          onClose={() => setMenuOpen(false)}
+          showClose
+          title="어떤 옵션을 더할까요?"
+        >
+          <div className="-mt-2">
+            {CUSTOM_OPTION_TYPE_ORDER.map((type, i) => (
+              <ListRowButton
+                key={type}
+                disabled={cannotAdd(type)}
+                divider={i < CUSTOM_OPTION_TYPE_ORDER.length - 1}
+                title={CUSTOM_OPTION_TYPE_META[type].label}
+                description={CUSTOM_OPTION_TYPE_META[type].description}
+                chevron
+                onClick={() => {
+                  addOption(createEmptyCustomOption(type));
+                  setMenuOpen(false);
+                }}
+              />
+            ))}
+          </div>
+        </BottomSheet>
+      ) : menuOpen ? (
         <>
           <div className="fixed inset-0 z-10" aria-hidden onClick={() => setMenuOpen(false)} />
           <div className="absolute right-0 z-20 mt-1 w-72 rounded-lg border bg-popover p-1 shadow-lg">
@@ -166,7 +194,7 @@ export const ProductCreationCustomOptionsSection: React.FC<
             ))}
           </div>
         </>
-      )}
+      ) : null}
     </div>
   );
 
@@ -200,7 +228,12 @@ export const ProductCreationCustomOptionsSection: React.FC<
                       <button
                         type="button"
                         aria-label="위로 이동"
-                        className="text-muted-foreground disabled:opacity-30"
+                        className={
+                          inFrame
+                            ? // 휴대폰 틀 안: 누르는 칸을 넓게(36 × 24, 화살표 모양은 그대로)
+                              "flex h-6 w-9 items-center justify-center rounded-check text-ink-600 active:bg-ink-50 disabled:text-ink-200"
+                            : "text-muted-foreground disabled:opacity-30"
+                        }
                         disabled={disabled || index === 0}
                         onClick={() => moveOption(index, -1)}
                       >
@@ -209,7 +242,12 @@ export const ProductCreationCustomOptionsSection: React.FC<
                       <button
                         type="button"
                         aria-label="아래로 이동"
-                        className="text-muted-foreground disabled:opacity-30"
+                        className={
+                          inFrame
+                            ? // 휴대폰 틀 안: 누르는 칸을 넓게(36 × 24, 화살표 모양은 그대로)
+                              "flex h-6 w-9 items-center justify-center rounded-check text-ink-600 active:bg-ink-50 disabled:text-ink-200"
+                            : "text-muted-foreground disabled:opacity-30"
+                        }
                         disabled={disabled || index === options.length - 1}
                         onClick={() => moveOption(index, 1)}
                       >
@@ -218,14 +256,29 @@ export const ProductCreationCustomOptionsSection: React.FC<
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium truncate">
+                        <span
+                          className={
+                            inFrame
+                              ? // 휴대폰 틀 안: 목록 줄 이름(15/600)·설명(12)과 같게
+                                "truncate font-app text-body font-semibold text-ink-900"
+                              : "font-medium truncate"
+                          }
+                        >
                           {option.name.trim() || "(옵션명 없음)"}
                         </span>
                         {option.visible === EnableStatus.DISABLE && (
                           <Badge variant="secondary">숨김</Badge>
                         )}
                       </div>
-                      <p className="text-sm text-muted-foreground truncate">{summarize(option)}</p>
+                      <p
+                        className={
+                          inFrame
+                            ? "truncate font-app text-caption text-ink-600"
+                            : "text-sm text-muted-foreground truncate"
+                        }
+                      >
+                        {summarize(option)}
+                      </p>
                     </div>
                     <Button
                       type="button"

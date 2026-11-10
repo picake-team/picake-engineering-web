@@ -67,10 +67,15 @@ export function kstTime(date: Date | string): string {
   return `${pad2(p.hour)}:${pad2(p.minute)}`;
 }
 
-/** "11월 12일(수)" */
+/** 올해가 아니면 "2025년 " (작년 주문·내년 픽업이 올해 날짜처럼 보이지 않게), 올해면 "" */
+function yearPrefix(year: number): string {
+  return year === kstParts(new Date()).year ? "" : `${year}년 `;
+}
+
+/** "11월 12일(수)" (올해가 아니면 "2025년 12월 24일(수)") */
 export function formatKstMonthDayWeek(date: Date | string): string {
   const p = kstParts(date);
-  return `${p.month}월 ${p.day}일(${WEEKDAYS[p.weekday]})`;
+  return `${yearPrefix(p.year)}${p.month}월 ${p.day}일(${WEEKDAYS[p.weekday]})`;
 }
 
 /** "11월 12일(수) 14:00" */
@@ -78,16 +83,10 @@ export function formatKstMonthDayWeekTime(date: Date | string): string {
   return `${formatKstMonthDayWeek(date)} ${kstTime(date)}`;
 }
 
-/** "11월 6일 09:12" (주문 시각처럼 요일이 필요 없는 곳) */
+/** "11월 6일 09:12" (주문 시각처럼 요일이 필요 없는 곳, 올해가 아니면 해 붙임) */
 export function formatKstMonthDayTime(date: Date | string): string {
   const p = kstParts(date);
-  return `${p.month}월 ${p.day}일 ${pad2(p.hour)}:${pad2(p.minute)}`;
-}
-
-/** "2026년 11월 6일 09:12" (주문 정보처럼 해가 필요한 곳) */
-export function formatKstFullDateTime(date: Date | string): string {
-  const p = kstParts(date);
-  return `${p.year}년 ${p.month}월 ${p.day}일 ${pad2(p.hour)}:${pad2(p.minute)}`;
+  return `${yearPrefix(p.year)}${p.month}월 ${p.day}일 ${pad2(p.hour)}:${pad2(p.minute)}`;
 }
 
 function keyToUtc(key: string): Date {
@@ -121,14 +120,33 @@ export function mondayOfKey(key: string): string {
   return addDaysToKey(key, w === 0 ? -6 : 1 - w);
 }
 
+/** 그달 1일 키 */
+export function monthStartKey(key: string): string {
+  return `${key.slice(0, 8)}01`;
+}
+
+/** 그달 마지막 날 키(1일 키를 넘긴다) */
+export function monthEndKey(startKey: string): string {
+  const [y, m] = startKey.split("-").map(Number);
+  const nextMonth = m === 12 ? `${y + 1}-01-01` : `${y}-${pad2(m + 1)}-01`;
+  return addDaysToKey(nextMonth, -1);
+}
+
+/** 1일 키를 delta달 옮긴다 */
+export function shiftMonthKey(startKey: string, delta: number): string {
+  const [y, m] = startKey.split("-").map(Number);
+  const idx = y * 12 + (m - 1) + delta;
+  return `${Math.floor(idx / 12)}-${pad2((idx % 12) + 1)}-01`;
+}
+
 export function dayOfKey(key: string): number {
   return Number(key.split("-")[2]);
 }
 
-/** 날짜 키 → "11월 10일(월)" */
+/** 날짜 키 → "11월 10일(월)" (올해가 아니면 해 붙임) */
 export function formatKeyMonthDayWeek(key: string): string {
   const d = keyToUtc(key);
-  return `${d.getUTCMonth() + 1}월 ${d.getUTCDate()}일(${WEEKDAYS[d.getUTCDay()]})`;
+  return `${yearPrefix(d.getUTCFullYear())}${d.getUTCMonth() + 1}월 ${d.getUTCDate()}일(${WEEKDAYS[d.getUTCDay()]})`;
 }
 
 export function weekdayLabel(index: number): string {

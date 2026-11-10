@@ -22,7 +22,7 @@ export const validateStoreName = (name: string): string | null => {
   // 특수문자 제한 검증 (한글, 영문, 숫자, 공백만 허용)
   const storeNamePattern = /^[가-힣a-zA-Z0-9\s]+$/;
   if (!storeNamePattern.test(trimmedName)) {
-    return "스토어 이름은 한글, 영문, 숫자만 사용할 수 있습니다.";
+    return "스토어 이름은 한글·영문·숫자만 쓸 수 있어요.";
   }
 
   return null;
@@ -51,7 +51,7 @@ export const validateStoreDescription = (description: string | undefined): strin
   // HTML 태그 검증 (< > 태그가 포함되어 있는지 확인)
   const htmlTagPattern = /<[^>]*>/;
   if (htmlTagPattern.test(description)) {
-    return "스토어 설명에는 HTML 태그를 사용할 수 없습니다.";
+    return "스토어 설명에는 HTML 태그를 쓸 수 없어요.";
   }
 
   return null;
@@ -69,7 +69,7 @@ export const validateStorePhoneNumber = (value: string | undefined): string | nu
     return "스토어 연락처는 8자 이상 20자 이하여야 합니다.";
   }
   if (!/^[0-9\-+() ]+$/.test(trimmed)) {
-    return "스토어 연락처는 숫자, 하이픈(-), 공백, 괄호, + 만 사용할 수 있습니다.";
+    return "스토어 연락처는 숫자·하이픈(-)·공백·괄호·+만 쓸 수 있어요.";
   }
   return null;
 };
@@ -110,7 +110,7 @@ export const validateBankAccountNumber = (value: string): string | null => {
     return "계좌번호는 4자 이상 30자 이하여야 합니다.";
   }
   if (!/^[0-9\- ]+$/.test(trimmed)) {
-    return "계좌번호는 숫자, 하이픈(-), 공백만 사용할 수 있습니다.";
+    return "계좌번호는 숫자·하이픈(-)·공백만 쓸 수 있어요.";
   }
   return null;
 };
@@ -128,7 +128,7 @@ export const validateAccountHolderName = (value: string): string | null => {
   }
   const pattern = /^[가-힣a-zA-Z0-9\s]+$/;
   if (!pattern.test(trimmed)) {
-    return "예금주명은 한글, 영문, 숫자만 사용할 수 있습니다.";
+    return "예금주명은 한글·영문·숫자만 쓸 수 있어요.";
   }
   return null;
 };

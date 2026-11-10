@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { BaseButton as Button } from "@/apps/web-seller/common/components/buttons/BaseButton";
 import { BaseInput as Input } from "@/apps/web-seller/common/components/inputs/BaseInput";
+import { SelectInput } from "@/apps/web-seller/common/ui/Field";
+import { useInMobileFrame } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
 import { NumberInput } from "@/apps/web-seller/common/components/inputs/NumberInput";
 import { Checkbox } from "@/apps/web-seller/common/components/inputs/Checkbox";
 import {
@@ -31,6 +33,7 @@ const selectClass =
  * 정가는 할인할 때만 보인다(할인하지 않으면 정가 = 판매가).
  */
 export function ProductPriceSizeSection({ form, errors, onChange, disabled }: Props) {
+  const inFrame = useInMobileFrame();
   // 정가가 판매가보다 크면(수정 화면·네이버 가져오기) 할인 중으로 본다
   const [discountOn, setDiscountOn] = useState(false);
   const discount =
@@ -111,7 +114,9 @@ export function ProductPriceSizeSection({ form, errors, onChange, disabled }: Pr
           onChange={toggleDiscount}
           disabled={disabled}
           label={
-            <span className="text-sm">할인해서 팔기 (손님 화면에 할인 전 가격이 함께 보여요)</span>
+            <span className={inFrame ? undefined : "text-sm"}>
+              할인해서 팔기 (손님 화면에 할인 전 가격이 함께 보여요)
+            </span>
           }
         />
       </div>
@@ -133,21 +138,41 @@ export function ProductPriceSizeSection({ form, errors, onChange, disabled }: Pr
             return (
               <li key={size.id ?? `new-${index}`} className={`p-3 ${hidden ? "bg-muted/40" : ""}`}>
                 <div className="flex flex-wrap items-center gap-2">
-                  <select
-                    aria-label="사이즈"
-                    className={selectClass}
-                    value={size.displayName}
-                    disabled={disabled}
-                    onChange={(e) =>
-                      updateSize(index, { displayName: e.target.value as CakeSizeDisplayName })
-                    }
-                  >
-                    {SIZE_NAMES.map((name) => (
-                      <option key={name} value={name}>
-                        {name}
-                      </option>
-                    ))}
-                  </select>
+                  {inFrame ? (
+                    // 휴대폰 틀 안: 앱 고르는 칸(48 · 모서리 12 · ▾)과 같게
+                    <div className="w-28">
+                      <SelectInput
+                        aria-label="사이즈"
+                        value={size.displayName}
+                        disabled={disabled}
+                        onChange={(e) =>
+                          updateSize(index, { displayName: e.target.value as CakeSizeDisplayName })
+                        }
+                      >
+                        {SIZE_NAMES.map((name) => (
+                          <option key={name} value={name}>
+                            {name}
+                          </option>
+                        ))}
+                      </SelectInput>
+                    </div>
+                  ) : (
+                    <select
+                      aria-label="사이즈"
+                      className={selectClass}
+                      value={size.displayName}
+                      disabled={disabled}
+                      onChange={(e) =>
+                        updateSize(index, { displayName: e.target.value as CakeSizeDisplayName })
+                      }
+                    >
+                      {SIZE_NAMES.map((name) => (
+                        <option key={name} value={name}>
+                          {name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                   <div className="flex w-24 items-center gap-1">
                     <NumberInput
                       aria-label="지름"
@@ -185,22 +210,29 @@ export function ProductPriceSizeSection({ form, errors, onChange, disabled }: Pr
                       disabled={disabled}
                       label={<span className="text-xs">판매</span>}
                     />
-                    <button
+                    {/* 휴대폰 틀 안: 옵션 삭제와 같은 36 동그라미(누르는 칸을 넓게). PC는 작은 아이콘 그대로 */}
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="icon"
                       aria-label={`${size.displayName} 사이즈 삭제`}
-                      className="rounded p-1 text-muted-foreground hover:text-destructive disabled:opacity-40"
+                      className={
+                        inFrame
+                          ? "h-8 w-8"
+                          : "h-auto w-auto rounded p-1 text-muted-foreground shadow-none hover:bg-transparent hover:text-destructive disabled:opacity-40"
+                      }
                       disabled={disabled || sizes.length <= 1}
                       onClick={() =>
                         onChange({ cakeSizeOptions: sizes.filter((_, i) => i !== index) })
                       }
                     >
                       <Trash2 className="h-4 w-4" />
-                    </button>
+                    </Button>
                   </div>
                 </div>
                 <Input
                   aria-label="사이즈 설명"
-                  className="mt-2 h-8 text-sm"
+                  className={inFrame ? "mt-2" : "mt-2 h-8 text-sm"}
                   value={size.description ?? ""}
                   onChange={(e) => updateSize(index, { description: e.target.value })}
                   placeholder="설명 (선택, 예: 1~2인용)"

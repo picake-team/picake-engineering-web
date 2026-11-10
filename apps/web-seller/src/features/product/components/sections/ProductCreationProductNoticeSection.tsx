@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Textarea } from "@/apps/web-seller/common/components/textareas/Textarea";
 import type { ProductForm } from "@/apps/web-seller/features/product/types/product.ui";
 import { BaseButton as Button } from "@/apps/web-seller/common/components/buttons/BaseButton";
 import { Checkbox } from "@/apps/web-seller/common/components/inputs/Checkbox";
@@ -221,14 +222,12 @@ export const ProductCreationProductNoticeSection: React.FC<
           <Label className="after:content-['*'] after:ml-0.5 after:text-destructive">
             원재료명 및 함량
           </Label>
-          <textarea
+          <Textarea
             placeholder="예: 초콜릿, 밀가루, 설탕, 우유, 계란"
             rows={3}
             value={form.productNoticeIngredients || ""}
             onChange={onChange("productNoticeIngredients")}
-            className={`flex min-h-[80px] w-full rounded-md border ${
-              errors.productNoticeIngredients ? "border-destructive" : "border-input"
-            } bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50`}
+            className={errors.productNoticeIngredients ? "border-destructive" : undefined}
           />
           {errors.productNoticeIngredients && (
             <p className="text-sm text-destructive mt-1">{errors.productNoticeIngredients}</p>
@@ -239,14 +238,12 @@ export const ProductCreationProductNoticeSection: React.FC<
           <Label className="after:content-['*'] after:ml-0.5 after:text-destructive">
             영양성분
           </Label>
-          <textarea
+          <Textarea
             placeholder="예: 칼로리: 350kcal, 탄수화물: 45g, 단백질: 5g, 지방: 15g"
             rows={3}
             value={form.productNoticeCalories || ""}
             onChange={onChange("productNoticeCalories")}
-            className={`flex min-h-[80px] w-full rounded-md border ${
-              errors.productNoticeCalories ? "border-destructive" : "border-input"
-            } bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50`}
+            className={errors.productNoticeCalories ? "border-destructive" : undefined}
           />
           {errors.productNoticeCalories && (
             <p className="text-sm text-destructive mt-1">{errors.productNoticeCalories}</p>
@@ -257,14 +254,12 @@ export const ProductCreationProductNoticeSection: React.FC<
           <Label className="after:content-['*'] after:ml-0.5 after:text-destructive">
             소비자안전을 위한 주의사항
           </Label>
-          <textarea
+          <Textarea
             placeholder="예: 알레르기 주의: 우유, 계란, 밀 함유"
             rows={3}
             value={form.productNoticeSafetyNotice || ""}
             onChange={onChange("productNoticeSafetyNotice")}
-            className={`flex min-h-[80px] w-full rounded-md border ${
-              errors.productNoticeSafetyNotice ? "border-destructive" : "border-input"
-            } bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50`}
+            className={errors.productNoticeSafetyNotice ? "border-destructive" : undefined}
           />
           {errors.productNoticeSafetyNotice && (
             <p className="text-sm text-destructive mt-1">{errors.productNoticeSafetyNotice}</p>

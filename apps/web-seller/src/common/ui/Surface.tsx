@@ -1,5 +1,5 @@
 /**
- * 칸과 상태 화면 (디자인 기준 B-3).
+ * 칸과 상태 화면.
  * - 카드: 모서리 16 + 얇은 테두리, 아래 가득 찬 버튼
  * - 사진 칸: 정사각형만(주문 카드 48, 주문 항목 64, 참고 사진 88, 처리 창 주문 줄 44)
  * - 단계 막대(주문 상세): 지금 단계 11/700 진한 + 연한 주황 테두리, 지난 11/400 #686864, 다음 11/400 #767672
@@ -28,7 +28,7 @@ export function Card({
   );
 }
 
-/** 카드 아래 가득 찬 주 버튼(52) */
+/** 카드 아래 가득 찬 주 버튼(48). 못 누를 때는 앱 Button과 같은 회색 채움 */
 export function CardFooterButton({
   children,
   onClick,
@@ -47,8 +47,10 @@ export function CardFooterButton({
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       className={cx(
-        "flex h-12 w-full items-center justify-center gap-2 bg-brand font-app text-body font-bold text-white disabled:cursor-not-allowed",
-        disabled && !loading ? "opacity-40" : "active:brightness-95",
+        "flex h-12 w-full items-center justify-center gap-2 font-app text-body font-bold disabled:cursor-not-allowed",
+        disabled && !loading
+          ? "bg-ink-100 text-ink-400"
+          : "bg-brand text-white active:brightness-95",
       )}
     >
       {loading ? (

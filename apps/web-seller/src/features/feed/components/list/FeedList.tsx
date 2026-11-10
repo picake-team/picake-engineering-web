@@ -7,6 +7,8 @@ import { ROUTES } from "@/apps/web-seller/common/constants/paths.constant";
 import { EmptyState } from "@/apps/web-seller/common/components/fallbacks/EmptyState";
 import { useInMobileFrame } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
+import { Button } from "@/apps/web-seller/common/ui/Button";
+import { EmptyState as AppEmptyState } from "@/apps/web-seller/common/ui/Surface";
 
 function getContentPreview(content: string, maxLength = 80): string {
   const sanitized = DOMPurify.sanitize(content, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
@@ -25,11 +27,24 @@ export const FeedList: React.FC<FeedListProps> = ({ feeds }) => {
 
   if (feeds.length === 0) {
     if (inFrame) {
+      // 휴대폰: 다른 빈 화면처럼 남은 칸 가운데 아이콘 + 한 줄 + 할 일 버튼
       return (
-        <p className="py-16 text-center font-app text-sub text-ink-600">등록된 피드가 없습니다.</p>
+        <AppEmptyState
+          big
+          title="등록된 피드가 없어요"
+          description="가게 소식을 올리면 손님 앱 스토어 화면에 보여요"
+          action={
+            <Button
+              className="px-8"
+              onClick={() => storeId && navigate(ROUTES.STORE_DETAIL_FEED_CREATE(storeId))}
+            >
+              피드 등록
+            </Button>
+          }
+        />
       );
     }
-    return <EmptyState message="등록된 피드가 없습니다." />;
+    return <EmptyState message="등록된 피드가 없어요." />;
   }
 
   if (inFrame) {

@@ -129,13 +129,13 @@ export const StoreDetailNotificationsListMobilePage: React.FC = () => {
         />
         {list.isLoading ? (
           <SkeletonCards thumb={false} />
-        ) : list.isError ? (
-          <LoadErrorState onRetry={() => void list.refetch()} />
+        ) : list.isError && !list.data ? (
+          <LoadErrorState big onRetry={() => void list.refetch()} />
         ) : sections.length === 0 ? (
           <EmptyState
             big
             icon="bell"
-            title={unreadOnly ? "읽지 않은 알림이 없습니다." : "알림이 없습니다."}
+            title={unreadOnly ? "읽지 않은 알림이 없어요" : "알림이 없어요"}
           />
         ) : (
           sections.map((s) => (

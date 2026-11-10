@@ -4,7 +4,7 @@
  * 상품 등록·수정, 피드, 스토어 정보·만들기처럼 긴 입력 화면이 여기에 해당한다. PC 부품(버튼·입력·이름표·묶음·체크·창·
  * 고르는 칸·카드·사진 올리기)이 useInMobileFrame()으로 판매자 앱 디자인(6-E·6-F·6-G·A87·A90·A91·8-E·8-F·A66b·A67)대로 그려진다.
  * 틀이 열려 있는 동안 <html>에 `app-form`을 붙여 PC 화면의 색(검정 주 버튼·초록 등)을 앱 디자인 기준 색으로 바꾼다
- * (globals.css, 운영자 의견 2026-11-06). 아래 저장 줄은 useInMobileFrame()으로 앱처럼 가득 찬 버튼으로 그린다.
+ * (globals.css). 아래 저장 줄은 useInMobileFrame()으로 앱처럼 가득 찬 버튼으로 그린다.
  */
 import React, { useContext, useEffect } from "react";
 import { AppScreen, BackHeader } from "@/apps/web-seller/common/ui/Screen";

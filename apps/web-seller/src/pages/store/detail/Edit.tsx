@@ -1,4 +1,6 @@
 import React, { useMemo } from "react";
+import { useInMobileFrame } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
+import { EmptyState, LoadErrorState } from "@/apps/web-seller/common/ui/Surface";
 import { PageTitle } from "@/apps/web-seller/common/components/layouts/MobileFrame";
 import { useParams } from "react-router-dom";
 import { StoreCreationForm } from "@/apps/web-seller/features/store/components/forms/StoreCreationForm";
@@ -14,7 +16,8 @@ import { ContentLoading } from "@/apps/web-seller/common/components/loading/Cont
 export const StoreDetailEditPage: React.FC = () => {
   const { storeId } = useParams<{ storeId: string }>();
 
-  const { data: store, isLoading } = useStoreDetail(storeId || "");
+  const { data: store, isLoading, isError, refetch } = useStoreDetail(storeId || "");
+  const inFrame = useInMobileFrame();
   const updateStoreMutation = useUpdateStore();
   // 같은 스토어 데이터면 폼을 다시 초기화하지 않도록 고정 (다시 불러오기·창 전환 때 입력 중인 값 유지)
   const storeForm = useMemo<StoreForm | undefined>(
@@ -25,7 +28,7 @@ export const StoreDetailEditPage: React.FC = () => {
   if (!storeId) {
     return (
       <div>
-        <h2 className="text-xl font-semibold">스토어가 선택되지 않았습니다.</h2>
+        <h2 className="text-xl font-semibold">스토어를 고르지 않았어요.</h2>
       </div>
     );
   }
@@ -42,9 +45,16 @@ export const StoreDetailEditPage: React.FC = () => {
   }
 
   if (!store) {
+    if (inFrame) {
+      return isError ? (
+        <LoadErrorState big onRetry={() => void refetch()} />
+      ) : (
+        <EmptyState big icon="search" title="스토어를 찾을 수 없어요" />
+      );
+    }
     return (
       <div>
-        <h2 className="text-xl font-semibold">스토어를 찾을 수 없습니다.</h2>
+        <h2 className="text-xl font-semibold">스토어를 찾을 수 없어요.</h2>
       </div>
     );
   }

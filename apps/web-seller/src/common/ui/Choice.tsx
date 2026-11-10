@@ -1,12 +1,12 @@
 /**
- * 고르는 부품 (디자인 기준 B-3).
+ * 고르는 부품.
  * - SegmentedTabs: 위쪽 탭(회색 칸 안에서 고른 탭만 흰 칸 + 짙은 글씨 13/700, 안 고른 탭 13/400 #686864, 안쪽 3, 버튼 36).
  *   숫자는 동그라미: 사장님이 할 일(countAccent, 예: "처리할 것")은 주황, 나머지는 회색. 주황은 할 일이 있다는 뜻에만 쓴다.
- *   2026-11-06 "너무 다 회색" → 주황 칸·주황 채움, 2026-11-07 "너무 다 주황, 적절하게" → 지금 모양(운영자 의견)
- * - Chip: 거르기·정렬처럼 여러 개(40, 둥근 끝). 줄이 넘치면 다음 줄로
- * - ChoiceGrid: 선택지가 2~7개로 정해진 것(44 네모 버튼, 쉬는 요일). 고른 것은 주황 채움
+ * - Chip: 거르기·정렬·분류처럼 여러 개(36, 둥근 끝). 고른 칩은 주황 채움 + 흰 글씨. 줄이 넘치면 다음 줄로,
+ *   화면 맨 위 기간처럼 한 줄이어야 하면 ChipGroup scroll(한 줄, 넘치면 옆으로 밀기, 화면 끝까지)
+ * - ChoiceGrid: 선택지가 2~7개로 정해진 것(40 네모 버튼, 쉬는 요일). 고른 것은 주황 채움
  */
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { cx } from "@/apps/web-seller/common/ui/cx";
 import { CountBubble } from "@/apps/web-seller/common/ui/Badge";
 
@@ -111,7 +111,7 @@ export function Chip({
       type="button"
       aria-pressed={selected}
       className={cx(
-        // 보이는 높이 40, 위아래 2씩 더해 누르는 칸 44
+        // 보이는 높이 36, 위아래 2씩 더해 누르는 칸 40
         "relative inline-flex h-9 shrink-0 items-center whitespace-nowrap rounded-full px-4 font-app text-sub font-bold",
         "before:absolute before:-inset-y-0.5 before:inset-x-0 before:content-['']",
         selected ? "bg-brand text-white" : "border border-ink-200 bg-white text-ink-700",
@@ -129,16 +129,44 @@ export function ChipGroup<T extends string>({
   value,
   onChange,
   label,
+  scroll = false,
   className,
 }: {
   options: ChoiceOption<T>[];
   value: T;
   onChange: (value: T) => void;
   label: string;
+  /** 한 줄에 두고 넘치면 옆으로 민다(좌우 여백 20을 넘어 화면 끝까지, 스크롤 막대 없음) */
+  scroll?: boolean;
   className?: string;
 }) {
+  const rowRef = useRef<HTMLDivElement>(null);
+  // 한 줄(scroll)일 때 고른 칩이 화면 밖이면 보이게 민다(처음 열 때 "직접 고르기"가 잘리지 않게)
+  useEffect(() => {
+    const row = rowRef.current;
+    if (!scroll || !row) return;
+    const chip = row.querySelector<HTMLElement>('[aria-pressed="true"]');
+    if (!chip) return;
+    const pad = 20;
+    if (chip.offsetLeft + chip.offsetWidth + pad > row.scrollLeft + row.clientWidth) {
+      row.scrollLeft = chip.offsetLeft + chip.offsetWidth + pad - row.clientWidth;
+    } else if (chip.offsetLeft - pad < row.scrollLeft) {
+      row.scrollLeft = Math.max(0, chip.offsetLeft - pad);
+    }
+  }, [scroll, value]);
   return (
-    <div role="group" aria-label={label} className={cx("flex flex-wrap gap-2", className)}>
+    <div
+      ref={rowRef}
+      role="group"
+      aria-label={label}
+      className={cx(
+        "relative flex gap-2",
+        scroll
+          ? "-mx-5 overflow-x-auto px-5 py-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          : "flex-wrap",
+        className,
+      )}
+    >
       {options.map((o) => (
         <Chip
           key={o.value}

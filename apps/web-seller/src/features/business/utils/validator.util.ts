@@ -50,7 +50,7 @@ export const validateRepresentativeName = (representativeName: string): string |
 
   // 허용된 문자 패턴 체크 (한글, 공백, 괄호(), &, ., ,, -)
   if (!REPRESENTATIVE_NAME_PATTERN.test(trimmed)) {
-    return "특수문자, 이모지는 입력할 수 없습니다.";
+    return "특수문자·이모지는 쓸 수 없어요.";
   }
 
   return null;
@@ -93,7 +93,7 @@ export const validateStartDate = (startDate: string): string | null => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   if (date > today) {
-    return "개업일은 오늘 이후 날짜로 입력할 수 없습니다.";
+    return "개업일은 오늘 뒤 날짜로 적을 수 없어요.";
   }
 
   return null;
@@ -121,7 +121,7 @@ export const validateBusinessName = (businessName: string): string | null => {
 
   // 의미 없는 반복 문자 체크 (같은 문자가 3번 이상 연속 반복)
   if (/(.)\1{2,}/.test(trimmed)) {
-    return "의미 없는 반복 문자는 입력할 수 없습니다.";
+    return "같은 글자만 되풀이해 적을 수 없어요.";
   }
 
   return null;

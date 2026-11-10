@@ -1,6 +1,6 @@
 /**
  * 휴대폰 스토어 탭 (SC-88, 디자인 7-D): 스토어 카드(좋아요·평점·리뷰, 링크 보내기) + 회색 띠 + 내 스토어(홈과 같은 묶음 제목).
- * 스토어와 관계없는 설정(알림 설정·마이페이지·문의하기)은 위쪽 오른쪽 톱니(설정, SC-98)로 옮겼다(운영자 결정 2026-11-06).
+ * 스토어와 관계없는 설정(알림 설정·마이페이지·문의하기)은 위쪽 오른쪽 톱니(설정, SC-98)로 옮겼다(운영자 결정).
  * 로그아웃과 앱 버전은 마이페이지 안.
  */
 import React, { useState } from "react";
@@ -36,7 +36,7 @@ function StoreCard({
   return (
     <div className="flex flex-col gap-3 overflow-hidden rounded-card border border-ink-100 p-4">
       <div className="flex items-center gap-4">
-        <span className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-card bg-brand-tint">
+        <span className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-card bg-ink-50">
           {store.logoImageUrl ? (
             <img src={store.logoImageUrl} alt="" className="size-full object-cover" />
           ) : null}
@@ -117,7 +117,7 @@ export const StoreDetailMenuMobilePage: React.FC = () => {
         <span className="block h-[150px] animate-pulse rounded-card bg-ink-50" aria-busy="true" />
       )}
 
-      {/* 스토어 카드와 내 스토어 사이는 홈처럼 회색 띠 + 묶음 제목으로 나눈다(운영자 의견 2026-11-07) */}
+      {/* 스토어 카드와 내 스토어 사이는 홈처럼 회색 띠 + 묶음 제목으로 나눈다 */}
       <GrayBand />
       <GroupTitle>내 스토어</GroupTitle>
       <div className="-mt-3">

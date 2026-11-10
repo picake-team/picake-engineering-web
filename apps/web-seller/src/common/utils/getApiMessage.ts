@@ -1,6 +1,6 @@
 const LOGIN_REQUIRED_MESSAGE = "로그인한 뒤 이용해 주세요.";
 const TIMEOUT_MESSAGE = "요청 시간이 초과되었어요. 잠시 후 다시 시도해 주세요.";
-const NETWORK_MESSAGE = "네트워크 연결을 확인해 주세요.";
+const NETWORK_MESSAGE = "인터넷 연결을 확인해 주세요.";
 const FALLBACK_MESSAGE = "일시적인 오류가 발생했어요. 잠시 후 다시 시도해 주세요.";
 
 const getApiMessage = {

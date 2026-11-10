@@ -39,7 +39,8 @@ export function FormSection({
       >
         <div className="mb-4 flex items-start gap-3">
           <div className="min-w-0 flex-1">
-            <h2 className={cn("text-group font-bold", error ? "text-brand-ink" : "text-ink-900")}>
+            {/* 고칠 곳은 칸 테두리와 아래 문구로만 알린다(제목 색은 그대로, 앱 기준) */}
+            <h2 className="text-group font-bold text-ink-900">
               {title}
               {hint && <span className="ml-1.5 text-sub font-normal text-ink-600">{hint}</span>}
             </h2>
