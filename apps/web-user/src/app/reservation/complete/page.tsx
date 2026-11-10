@@ -261,7 +261,7 @@ export default function ReservationCompletePage() {
                       name="arrow"
                       width={16}
                       height={16}
-                      className={`text-[#D9D9D9] transition-transform ${isOpen ? "" : "rotate-180"}`}
+                      className={`text-gray-200 transition-transform ${isOpen ? "" : "rotate-180"}`}
                     />
                   </button>
                 </div>

@@ -223,9 +223,9 @@ export const TimePicker: React.FC<TimePickerProps> = ({
                   "font-normal text-[14px] leading-[22px]",
                   // 비활성화된 시간 스타일
                   isDisabled &&
-                    "bg-[#F6F6F6] text-gray-300 border border-[#ECEDED] cursor-not-allowed",
+                    "bg-gray-50 text-gray-300 border border-gray-100 cursor-not-allowed",
                   // 선택되지 않은 활성화된 시간 스타일 (일반 상태)
-                  !isSelected && !isDisabled && "bg-white text-[#21272C] border border-[#ECEDED]",
+                  !isSelected && !isDisabled && "bg-white text-gray-900 border border-gray-100",
                   // 선택된 시간 스타일
                   isSelected && !isDisabled && "bg-primary text-white border-0",
                 )}
