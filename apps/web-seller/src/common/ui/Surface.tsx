@@ -104,7 +104,7 @@ export interface StepItem {
 }
 
 /**
- * 주문 상세 단계 막대. filledThrough까지 주황으로 칠하고, current가 있으면 그 단계를 굵게 + 연한 주황 테두리.
+ * 주문 상세 단계 막대. filledThrough까지 주황으로 칠하고, current가 있으면 그 단계를 굵게 + 흰 틈과 주황 테두리.
  * 정상 단계 밖 상태(취소·환불·노쇼)는 current 없이 지나온 단계까지만 칠한다.
  */
 export function StepBar({
@@ -132,7 +132,7 @@ export function StepBar({
               className={cx(
                 "relative z-[1] mt-1 size-3 rounded-full",
                 filled ? "bg-brand" : "bg-ink-200",
-                now && "shadow-[0_0_0_4px_#FFEFEB]",
+                now && "ring-2 ring-brand ring-offset-2 ring-offset-white",
               )}
             />
             <span
