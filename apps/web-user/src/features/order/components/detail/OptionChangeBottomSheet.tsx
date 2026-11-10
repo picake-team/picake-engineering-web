@@ -185,8 +185,8 @@ export function OptionChangeBottomSheet({
             </Button>
           </span>
           <span className="flex-[2]">
-            <Button onClick={handleConfirm} disabled={!product || isSubmitting}>
-              {isSubmitting ? "변경 중..." : "변경완료"}
+            <Button onClick={handleConfirm} disabled={!product} loading={isSubmitting}>
+              {isSubmitting ? "변경 중…" : "변경완료"}
             </Button>
           </span>
         </div>

@@ -344,7 +344,13 @@ function QuoteNewContent() {
         )}
       </main>
       <FixedFooter>
-        <Button size="lg" className="w-full" disabled={!canNext} onClick={next}>
+        <Button
+          size="lg"
+          className="w-full"
+          disabled={!canNext}
+          loading={current === 6 && create.isPending}
+          onClick={next}
+        >
           {current === 6 ? (create.isPending ? "보내는 중…" : "견적 요청 보내기") : "다음"}
         </Button>
       </FixedFooter>

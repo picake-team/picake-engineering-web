@@ -173,7 +173,7 @@ export function RefundAccountView({ order }: RefundAccountViewProps) {
       </div>
 
       <div className="fixed bottom-0 left-1/2 w-full max-w-[600px] -translate-x-1/2 bg-white px-5 py-4">
-        <Button onClick={handleSubmit} disabled={!isValid || isPending}>
+        <Button onClick={handleSubmit} disabled={!isValid} loading={isPending}>
           {isPending ? "등록 중…" : "환불 계좌 등록"}
         </Button>
       </div>
