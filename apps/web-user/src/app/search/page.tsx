@@ -17,6 +17,7 @@ import type { StoreListFilter } from "@/apps/web-user/features/store/types/store
 import { hasActiveFilter } from "@/apps/web-user/features/store/components/map/MapStoreListFilter";
 import { releaseSoftKeyboard } from "@/apps/web-user/common/utils/soft-keyboard.util";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
+import { useScrollRestoration } from "@/apps/web-user/common/hooks/useScrollRestoration";
 
 const RECENT_SEARCHES_KEY = "recentSearches";
 const MAX_RECENT = 10;
@@ -38,6 +39,8 @@ function saveRecentSearch(term: string) {
 }
 
 export default function SearchPage() {
+  // 뒤로 오면 보던 자리 그대로(새로 들어오면 맨 위부터)
+  useScrollRestoration();
   const searchParams = useSearchParams();
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);

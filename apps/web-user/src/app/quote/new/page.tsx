@@ -303,6 +303,14 @@ function QuoteNewContent() {
     else setStep(order[position + 1]);
   };
 
+  // 단계를 넘기면 다음은 오른쪽에서, 뒤로는 왼쪽에서 살짝 들어온다(처음 그릴 때는 그대로)
+  const prevPositionRef = useRef(position);
+  const stepDirRef = useRef<"forward" | "backward" | null>(null);
+  if (prevPositionRef.current !== position) {
+    stepDirRef.current = position > prevPositionRef.current ? "forward" : "backward";
+    prevPositionRef.current = position;
+  }
+
   if (!hydrated) return null;
 
   return (
@@ -316,7 +324,16 @@ function QuoteNewContent() {
           {position + 1}/{order.length}
         </span>
       </header>
-      <main className="px-[20px] pt-[24px]">
+      <main
+        key={current}
+        className={`px-[20px] pt-[24px] motion-reduce:animate-none ${
+          stepDirRef.current === "forward"
+            ? "animate-step-in-forward"
+            : stepDirRef.current === "backward"
+              ? "animate-step-in-backward"
+              : ""
+        }`}
+      >
         {current === 1 && <StepWhen now={now} />}
         {current === 2 && <StepWhere />}
         {current === 3 && <StepStores />}

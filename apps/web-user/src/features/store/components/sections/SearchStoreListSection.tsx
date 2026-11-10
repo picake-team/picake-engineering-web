@@ -12,8 +12,7 @@ import { flattenAndDeduplicateInfiniteData } from "@/apps/web-user/common/utils/
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { LikePop } from "@/apps/web-user/common/components/motion/LikePop";
-import { useAddStoreLike } from "@/apps/web-user/features/like/hooks/mutations/useAddStoreLike";
-import { useRemoveStoreLike } from "@/apps/web-user/features/like/hooks/mutations/useRemoveStoreLike";
+import { useOptimisticStoreLike } from "@/apps/web-user/features/like/hooks/useOptimisticStoreLike";
 import { shortenAddress } from "@/apps/web-user/common/utils/address.util";
 import { useUserLocation } from "@/apps/web-user/common/hooks/useUserLocation";
 import { calculateDistance, formatDistance } from "@/apps/web-user/common/utils/distance.util";
@@ -42,8 +41,8 @@ export function SearchStoreListSection({
 }: SearchStoreListSectionProps) {
   const router = useRouter();
   const loadMoreRef = useRef<HTMLDivElement>(null);
-  const { mutate: addLike } = useAddStoreLike();
-  const { mutate: removeLike } = useRemoveStoreLike();
+  // 하트는 누르자마자 바뀌고, 저장이 실패하면 되돌린다
+  const storeLike = useOptimisticStoreLike();
   const { location: userLocation } = useUserLocation();
   const { isAuthenticated } = useAuthStore();
   const openLoginSheet = useLoginSheetStore((s) => s.openLoginSheet);
@@ -67,11 +66,7 @@ export function SearchStoreListSection({
       openLoginSheet("like_button");
       return;
     }
-    if (store.isLiked) {
-      removeLike(store.id);
-    } else {
-      addLike(store.id);
-    }
+    storeLike.toggle(store);
   };
 
   useInfiniteScroll({ hasNextPage, isFetchingNextPage, fetchNextPage, loadMoreRef });
@@ -100,7 +95,7 @@ export function SearchStoreListSection({
       <ul className="flex flex-col gap-10">
         {stores.map((store) => (
           <li key={store.id}>
-            <Link href={PATHS.STORE.DETAIL(store.id)} className="py-[10px] block bg-white">
+            <Link href={PATHS.STORE.DETAIL(store.id)} className="press-bg py-[10px] block bg-white">
               {/* 스토어 정보 상단 */}
               <div className="flex items-center gap-[11px]">
                 <div className="w-[36px] h-[36px] rounded-full overflow-hidden bg-gray-100 shrink-0">
@@ -132,15 +127,17 @@ export function SearchStoreListSection({
                   onClick={(e) => handleLike(e, store)}
                   className="flex items-center gap-1 px-2 py-[6px] border border-gray-100 rounded-xl shrink-0"
                 >
-                  <LikePop liked={!!store.isLiked}>
+                  <LikePop liked={storeLike.isLiked(store)}>
                     <Icon
-                      name={store.isLiked ? "favoriteFilled" : "favorite"}
+                      name={storeLike.isLiked(store) ? "favoriteFilled" : "favorite"}
                       width={18}
                       height={18}
-                      className={store.isLiked ? "text-primary" : "text-gray-900"}
+                      className={storeLike.isLiked(store) ? "text-primary" : "text-gray-900"}
                     />
                   </LikePop>
-                  <span className="text-sm text-gray-900 font-bold">{store.likeCount}</span>
+                  <span className="text-sm text-gray-900 font-bold">
+                    {storeLike.likeCount(store)}
+                  </span>
                 </button>
               </div>
               {/* 위치 */}

@@ -161,7 +161,7 @@ export function MapStoreCardContent({
               key={item.productId}
               type="button"
               onClick={() => router.push(`${PATHS.PRODUCT.DETAIL(item.productId)}?entry_point=map`)}
-              className="flex-shrink-0 overflow-hidden bg-gray-100"
+              className="press flex-shrink-0 overflow-hidden bg-gray-100"
               style={{
                 scrollSnapAlign: "start",
                 width: imageWidth,

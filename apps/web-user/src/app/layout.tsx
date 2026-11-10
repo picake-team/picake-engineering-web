@@ -91,6 +91,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
+  // 밝은 화면만 쓴다. 휴대폰이 어두운 모드여도 브라우저(삼성 인터넷 등)가 색을 억지로 어둡게 바꾸지 않게(판매자 앱과 같음)
+  colorScheme: "only light",
 };
 
 export default function RootLayout({

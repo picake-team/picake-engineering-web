@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { scrollAppToTop } from "@/apps/web-user/common/hooks/useScrollRestoration";
 import { Icon, type IconName } from "@/apps/web-user/common/components/icons";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 
@@ -32,7 +33,10 @@ export function BottomNav() {
 
   return (
     <>
-      <ul className="fixed bottom-0 left-0 right-0 bg-white flex items-center h-[60px] border-t border-gray-100 max-w-[638px] mx-auto z-40">
+      <ul
+        aria-label="아래 탭"
+        className="fixed bottom-0 left-0 right-0 bg-white flex items-center h-[60px] border-t border-gray-100 max-w-[638px] mx-auto z-40"
+      >
         {NAV_ITEMS.map(({ icon, activeIcon, label, path, ready }) => {
           const isActive = pathname === path;
           return (
@@ -40,6 +44,13 @@ export function BottomNav() {
               {ready ? (
                 <Link
                   href={path}
+                  aria-current={isActive ? "page" : undefined}
+                  onClick={(e) => {
+                    if (!isActive) return;
+                    // 보고 있는 탭을 다시 누르면 맨 위로(아이폰 맨 위 시간 누르기 대신)
+                    e.preventDefault();
+                    scrollAppToTop();
+                  }}
                   className={`flex flex-col items-center justify-center text-2xs font-bold ${isActive ? "text-primary" : "text-gray-400"}`}
                 >
                   <Icon name={isActive ? (activeIcon ?? icon) : icon} width={24} height={24} />

@@ -9,8 +9,11 @@ import { LikedStoreListSection } from "@/apps/web-user/features/like/components/
 import { LikedProductListSection } from "@/apps/web-user/features/like/components/sections/LikedProductListSection";
 import { useAuthStore, useAuthHasHydrated } from "@/apps/web-user/common/store/auth.store";
 import { useLoginSheetStore } from "@/apps/web-user/common/store/login-sheet.store";
+import { useScrollRestoration } from "@/apps/web-user/common/hooks/useScrollRestoration";
 
 export default function SavedPage() {
+  // 뒤로 오면 보던 자리 그대로(새로 들어오면 맨 위부터)
+  useScrollRestoration();
   const hasHydrated = useAuthHasHydrated();
   const { isAuthenticated } = useAuthStore();
   const openLoginSheet = useLoginSheetStore((s) => s.openLoginSheet);

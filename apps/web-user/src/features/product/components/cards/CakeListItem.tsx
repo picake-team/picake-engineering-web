@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import { FadeInImage } from "@/apps/web-user/common/components/motion/FadeInImage";
 import { useRouter } from "next/navigation";
 import { Product } from "@/apps/web-user/features/product/types/product.type";
 import { Icon } from "@/apps/web-user/common/components/icons";
@@ -55,11 +55,11 @@ export function CakeListItem({ product, href }: CakeListItemProps) {
     <div
       ref={cardRef}
       onClick={() => router.push(href)}
-      className="min-w-[164px] bg-white cursor-pointer"
+      className="press min-w-[164px] bg-white cursor-pointer"
     >
-      <div className="w-full aspect-square relative overflow-hidden rounded-xl">
+      <div className="w-full aspect-square relative overflow-hidden rounded-xl bg-gray-50">
         {product.images && product.images.length > 0 ? (
-          <Image
+          <FadeInImage
             src={product.images[0]}
             alt={product.name}
             fill
