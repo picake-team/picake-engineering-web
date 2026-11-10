@@ -251,10 +251,7 @@ export function BottomActionBar({
   children: React.ReactNode;
 }) {
   return (
-    <div
-      data-bottom-bar=""
-      className="flex flex-col gap-2 bg-white px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-4 font-app shadow-[0_-6px_20px_rgba(31,31,30,0.07)]"
-    >
+    <div className="flex flex-col gap-2 bg-white px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-4 font-app shadow-[0_-6px_20px_rgba(31,31,30,0.07)]">
       {reason ? (
         onReasonClick ? (
           <button
