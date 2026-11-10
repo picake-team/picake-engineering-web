@@ -36,7 +36,7 @@ import {
   formatDeadline,
   formatHour,
   formatHourRange,
-  formatShortDate,
+  formatPickupDate,
   fromYmd,
   pickupWindow,
   kstHour,
@@ -642,7 +642,7 @@ export function StepConfirm({ now, onEdit }: { now: Date; onEdit: (step: number)
   const rows: { label: string; value: string; step: number; clamp?: boolean }[] = [
     {
       label: "픽업",
-      value: `${draft.pickupDate ? formatShortDate(draft.pickupDate) : ""} · ${time}`,
+      value: `${draft.pickupDate ? formatPickupDate(draft.pickupDate) : ""} ${time}`.trim(),
       step: 1,
     },
     { label: "받을 동네", value: area, step: draft.onlyDesignatedStores ? 1 : 2 },

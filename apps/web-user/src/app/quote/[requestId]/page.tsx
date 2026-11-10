@@ -118,7 +118,7 @@ function QuoteRequestDetailContent() {
 
         <div className="mb-[10px] flex items-center justify-between">
           <span className="text-sm font-bold text-gray-900">받은 견적 {data.quoteCount}</span>
-          <span className="text-xs text-gray-500">견적 마감 {data.summary.deadline}</span>
+          <span className="text-xs text-gray-500">견적 마감 {data.summary.deadline}까지</span>
         </div>
         {open ? (
           <div className="flex flex-col items-center gap-[16px] rounded-xl bg-gray-50 px-[20px] py-[32px]">
