@@ -65,7 +65,7 @@ export default function OrderDetailPage() {
         <OrderDetailView order={order} />
       ) : (
         <p className="px-5 py-10 text-sm text-gray-500 text-center">
-          예약 정보를 불러올 수 없습니다.
+          예약 정보를 불러오지 못했어요.
         </p>
       )}
 

@@ -8,20 +8,24 @@ import { useInfiniteScroll } from "@/apps/web-user/common/hooks/useInfiniteScrol
 import { flattenAndDeduplicateInfiniteData } from "@/apps/web-user/common/utils/pagination.util";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { EmptyState } from "@/apps/web-user/common/components/fallbacks/EmptyState";
+import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
 
 export function LikedProductListSection() {
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useLikedProducts();
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError, refetch } =
+    useLikedProducts();
 
   useInfiniteScroll({ hasNextPage, isFetchingNextPage, fetchNextPage, loadMoreRef });
 
   const products = flattenAndDeduplicateInfiniteData<Product>(data);
 
+  if (isError && !data)
+    return <LoadErrorState fill fillOffset={60} onRetry={() => void refetch()} />;
   if (isLoading) return <></>;
 
   if (products.length === 0) {
-    return <EmptyState message="저장한 상품이 없습니다." fill fillOffset={60} />;
+    return <EmptyState message="저장한 상품이 없어요." fill fillOffset={60} />;
   }
 
   return (

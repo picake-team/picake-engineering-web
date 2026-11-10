@@ -400,7 +400,7 @@ export function ReservationBottomSheet({
         isOpen={isDateChangeModalOpen}
         onClose={() => setIsDateChangeModalOpen(false)}
         title="픽업 날짜 변경"
-        description="픽업 날짜 변경 시 주문하는 다른 상품들의 픽업 날짜도 함께 변경됩니다."
+        description="픽업 날짜를 바꾸면 함께 주문하는 다른 상품의 픽업 날짜도 같이 바뀌어요."
         confirmText="변경취소"
         cancelText="확인"
         confirmVariant="outline"

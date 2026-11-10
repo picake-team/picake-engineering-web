@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { useQueryErrorAlert } from "@/apps/web-user/common/hooks/useQueryErrorAlert";
 import { useAuthStore, useAuthHasHydrated } from "@/apps/web-user/common/store/auth.store";
 import { alarmApi } from "@/apps/web-user/features/alarm/apis/alarm.api";
 import { alarmQueryKeys } from "@/apps/web-user/features/alarm/constants/alarmQueryKeys.constant";
@@ -34,8 +33,7 @@ export function useAlarmList() {
     },
     enabled: hasHydrated && isAuthenticated && Boolean(accessToken),
   });
-
-  useQueryErrorAlert(query);
+  // 조회 실패는 목록 화면이 "불러오지 못했어요 · 다시 시도"로 알린다(오류 창 없음)
 
   return query;
 }

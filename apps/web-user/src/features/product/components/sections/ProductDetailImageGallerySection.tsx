@@ -36,7 +36,7 @@ export function ProductDetailImageGallerySection({
   if (!images || images.length === 0) {
     return (
       <div className="w-full aspect-square bg-gray-100 flex items-center justify-center">
-        <EmptyState message="이미지가 없습니다." />
+        <EmptyState message="이미지가 없어요." />
       </div>
     );
   }

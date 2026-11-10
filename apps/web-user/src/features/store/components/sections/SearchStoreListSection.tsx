@@ -19,6 +19,7 @@ import { calculateDistance, formatDistance } from "@/apps/web-user/common/utils/
 import { useAuthStore } from "@/apps/web-user/common/store/auth.store";
 import { useLoginSheetStore } from "@/apps/web-user/common/store/login-sheet.store";
 import { EmptyState } from "@/apps/web-user/common/components/fallbacks/EmptyState";
+import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
 import {
   sortStoresForMapList,
   type MapListSortBy,
@@ -46,11 +47,12 @@ export function SearchStoreListSection({
   const { isAuthenticated } = useAuthStore();
   const openLoginSheet = useLoginSheetStore((s) => s.openLoginSheet);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useStoreList({
-    search,
-    ...filter,
-    sortBy: "popular",
-  });
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError, refetch } =
+    useStoreList({
+      search,
+      ...filter,
+      sortBy: "popular",
+    });
   const totalCount = data?.pages[0]?.meta.totalCount;
 
   useEffect(() => {
@@ -84,8 +86,9 @@ export function SearchStoreListSection({
 
   if (isLoading) return <></>;
 
+  if (isError && !data) return <LoadErrorState fill onRetry={() => void refetch()} />;
   if (stores.length === 0) {
-    return <EmptyState message="검색 결과가 없습니다." fill />;
+    return <EmptyState message="검색 결과가 없어요." fill />;
   }
 
   return (

@@ -34,16 +34,16 @@ function getStatusNotice(order: OrderResponse): {
 } | null {
   switch (order.orderStatus) {
     case OrderStatus.PAYMENT_COMPLETED:
-      return { message: "판매자의 입금 확인 후 예약이 확정됩니다.", isRed: false };
+      return { message: "판매자가 입금을 확인하면 예약이 확정돼요.", isRed: false };
     case OrderStatus.CANCEL_REFUND_PENDING:
-      return { message: "환불까지 영업일 기준 1-2일 소요될 수 있습니다.", isRed: false };
+      return { message: "환불까지 영업일 기준 1~2일 걸릴 수 있어요.", isRed: false };
     case OrderStatus.CANCEL_REFUND_COMPLETED:
-      return { message: "환불 완료된 취소 건입니다.", isRed: false };
+      return { message: "환불까지 끝난 취소 건이에요.", isRed: false };
     // 취소완료: 판매자 취소(사유 표시) / 구매자 취소(표시 안 함) / 미입금 자동취소 구분
     case OrderStatus.CANCEL_COMPLETED:
       if (order.sellerCancelReason) {
         return {
-          message: "판매자 요청으로 예약 취소되었습니다.",
+          message: "판매자 요청으로 예약이 취소됐어요.",
           description: order.sellerCancelReason,
           isRed: false,
         };
@@ -51,10 +51,10 @@ function getStatusNotice(order: OrderResponse): {
       // 구매자 취소는 안내 없음
       if (order.userCancelReason) return null;
       // 사유 없음 = 미입금으로 인한 자동취소
-      return { message: "미입금으로 인해 예약 취소되었습니다.", isRed: false };
+      return { message: "입금하지 않아 예약이 취소됐어요.", isRed: false };
     case OrderStatus.NO_SHOW:
       return {
-        message: "노쇼 처리된 예약입니다.",
+        message: "노쇼로 처리된 예약이에요.",
         description: order.sellerNoShowReason ?? undefined,
         isRed: true,
       };

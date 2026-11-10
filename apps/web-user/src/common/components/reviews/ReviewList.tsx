@@ -21,7 +21,7 @@ export function ReviewList({
   sortBy,
   onSortChange,
   title = "후기",
-  emptyMessage = "등록된 후기가 없습니다.",
+  emptyMessage = "등록된 후기가 없어요.",
 }: ReviewListProps) {
   const [isReviewDetailModalOpen, setIsReviewDetailModalOpen] = useState(false);
   const [selectedReviewId, setSelectedReviewId] = useState<string | undefined>(undefined);

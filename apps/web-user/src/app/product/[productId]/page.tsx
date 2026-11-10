@@ -135,7 +135,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   if (!data) {
     return (
       <div className="w-full mx-auto px-5 py-6 text-center text-gray-500">
-        상품 정보를 불러오지 못했습니다.
+        상품 정보를 불러오지 못했어요.
       </div>
     );
   }

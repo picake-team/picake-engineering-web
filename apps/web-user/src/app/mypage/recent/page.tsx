@@ -51,7 +51,7 @@ export default function RecentPage() {
         {isLoading ? (
           <RecentProductsSkeleton />
         ) : products.length === 0 ? (
-          <EmptyState message="최근 본 상품이 없습니다." fill />
+          <EmptyState message="최근 본 상품이 없어요." fill />
         ) : (
           groupedProducts.map((group) => (
             <section key={group.date} className="mb-8">

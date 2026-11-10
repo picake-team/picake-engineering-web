@@ -20,6 +20,7 @@ import { OrderStatusNotice } from "./OrderStatusNotice";
 import { NavigationBottomSheet } from "@/apps/web-user/common/components/bottom-sheets/NavigationBottomSheet";
 import { StoreInquiryBottomSheet } from "@/apps/web-user/common/components/bottom-sheets/StoreInquiryBottomSheet";
 import { EmptyState } from "@/apps/web-user/common/components/fallbacks/EmptyState";
+import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
 
 function formatItemName(order: OrderResponse, item: OrderItemResponse) {
   const parts: string[] = [order.productName];
@@ -179,9 +180,10 @@ function UpcomingOrderItem({ order, isLast }: { order: OrderResponse; isLast: bo
 }
 
 export function UpcomingOrderList() {
-  const { data, isLoading, hasNextPage, isFetchingNextPage, fetchNextPage } = useMyOrders({
-    type: "UPCOMING",
-  });
+  const { data, isLoading, isError, refetch, hasNextPage, isFetchingNextPage, fetchNextPage } =
+    useMyOrders({
+      type: "UPCOMING",
+    });
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
   useInfiniteScroll({
@@ -194,6 +196,10 @@ export function UpcomingOrderList() {
   const orders = [...(data?.pages.flatMap((p) => p.data) ?? [])].sort(
     (a, b) => new Date(a.pickupDate).getTime() - new Date(b.pickupDate).getTime(),
   );
+
+  if (isError && !data) {
+    return <LoadErrorState fill onRetry={() => void refetch()} />;
+  }
 
   if (isLoading) {
     return (

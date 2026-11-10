@@ -24,7 +24,7 @@ export default function NoticePage() {
         </div>
       )}
       {!isLoading && (!notices || notices.length === 0) && (
-        <EmptyState message="등록된 공지사항이 없습니다." fill />
+        <EmptyState message="등록된 공지사항이 없어요." fill />
       )}
       {!isLoading && notices && notices.length > 0 && (
         <ul className="pt-4">

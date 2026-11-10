@@ -447,7 +447,7 @@ export class ChatSocketService {
           useAlertStore.getState().showAlert({
             type: "success",
             title: "채팅 연결 복구",
-            message: "채팅 연결이 복구되었습니다.",
+            message: "채팅이 다시 연결됐어요.",
           });
         }
         this.isInitialConnection = false;

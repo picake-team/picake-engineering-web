@@ -81,7 +81,7 @@ export default function ReservationCompletePage() {
   if (!orderId) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="text-sm text-gray-500">예약 정보가 없습니다.</div>
+        <div className="text-sm text-gray-500">예약 정보가 없어요.</div>
       </div>
     );
   }
@@ -303,7 +303,7 @@ export default function ReservationCompletePage() {
 
       {showCopyToast && (
         <Toast
-          message="복사가 완료되었습니다"
+          message="복사했어요"
           iconName="checkCircle"
           iconClassName="text-green-400"
           variant="row"

@@ -13,6 +13,7 @@ import { useInfiniteScroll } from "@/apps/web-user/common/hooks/useInfiniteScrol
 import { flattenAndDeduplicateInfiniteData } from "@/apps/web-user/common/utils/pagination.util";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { EmptyState } from "@/apps/web-user/common/components/fallbacks/EmptyState";
+import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
 
 interface SearchProductListSectionProps {
   search?: string;
@@ -38,13 +39,14 @@ export function SearchProductListSection({
 }: SearchProductListSectionProps) {
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useProductList({
-    search: search?.trim() || undefined,
-    sortBy: toProductSortBy(sortBy),
-    minPrice,
-    maxPrice,
-    productCategoryTypes,
-  });
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError, refetch } =
+    useProductList({
+      search: search?.trim() || undefined,
+      sortBy: toProductSortBy(sortBy),
+      minPrice,
+      maxPrice,
+      productCategoryTypes,
+    });
 
   useInfiniteScroll({ hasNextPage, isFetchingNextPage, fetchNextPage, loadMoreRef });
 
@@ -55,10 +57,11 @@ export function SearchProductListSection({
     if (totalCount != null) onResultCountChange?.(totalCount);
   }, [totalCount, onResultCountChange]);
 
+  if (isError && !data) return <LoadErrorState fill onRetry={() => void refetch()} />;
   if (isLoading) return <></>;
 
   if (products.length === 0) {
-    return <EmptyState message="검색 결과가 없습니다." fill />;
+    return <EmptyState message="검색 결과가 없어요." fill />;
   }
 
   return (

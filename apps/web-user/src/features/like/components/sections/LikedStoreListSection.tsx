@@ -19,6 +19,7 @@ import { calculateDistance, formatDistance } from "@/apps/web-user/common/utils/
 import { useAuthStore } from "@/apps/web-user/common/store/auth.store";
 import { useLoginSheetStore } from "@/apps/web-user/common/store/login-sheet.store";
 import { EmptyState } from "@/apps/web-user/common/components/fallbacks/EmptyState";
+import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
 
 export function LikedStoreListSection() {
   const router = useRouter();
@@ -29,7 +30,8 @@ export function LikedStoreListSection() {
   const { isAuthenticated } = useAuthStore();
   const openLoginSheet = useLoginSheetStore((s) => s.openLoginSheet);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useLikedStores();
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError, refetch } =
+    useLikedStores();
 
   const handleLike = (e: React.MouseEvent, store: StoreInfo) => {
     e.preventDefault();
@@ -49,10 +51,12 @@ export function LikedStoreListSection() {
 
   const stores = flattenAndDeduplicateInfiniteData<StoreInfo>(data);
 
+  if (isError && !data)
+    return <LoadErrorState fill fillOffset={60} onRetry={() => void refetch()} />;
   if (isLoading) return <></>;
 
   if (stores.length === 0) {
-    return <EmptyState message="저장한 스토어가 없습니다." fill fillOffset={60} />;
+    return <EmptyState message="저장한 스토어가 없어요." fill fillOffset={60} />;
   }
 
   return (

@@ -265,7 +265,7 @@ export default function ReviewWritePage() {
 
       {showSuccessToast && (
         <Toast
-          message="후기가 등록되었습니다!"
+          message="후기를 등록했어요"
           iconName="checkCircle"
           iconClassName="text-green-400"
           onClose={() => setShowSuccessToast(false)}

@@ -120,7 +120,7 @@ export function PaymentPendingActions({ order }: PaymentPendingActionsProps) {
 
       {showSuccessToast && (
         <Toast
-          message="입금 확인 후 예약이 확정됩니다."
+          message="입금을 확인하면 예약이 확정돼요."
           iconName="checkCircle"
           iconClassName="text-green-400"
           variant="row"

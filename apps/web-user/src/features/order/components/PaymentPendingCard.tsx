@@ -211,7 +211,7 @@ export function PaymentPendingCard({ order }: { order: OrderResponse }) {
       {showSuccessToast &&
         createPortal(
           <Toast
-            message="입금 확인 후 예약이 확정됩니다."
+            message="입금을 확인하면 예약이 확정돼요."
             iconName="checkCircle"
             iconClassName="text-green-400"
             variant="row"
@@ -223,7 +223,7 @@ export function PaymentPendingCard({ order }: { order: OrderResponse }) {
       {showCopyToast &&
         createPortal(
           <Toast
-            message="계좌번호가 복사되었습니다"
+            message="계좌번호를 복사했어요"
             iconName="checkCircle"
             iconClassName="text-green-400"
             duration={3000}

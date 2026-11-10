@@ -123,7 +123,7 @@ export const ChatRoom: React.FC = () => {
   };
 
   if (!roomId) {
-    return <div>채팅방을 찾을 수 없습니다.</div>;
+    return <div>채팅방을 찾을 수 없어요.</div>;
   }
 
   return (
@@ -135,7 +135,7 @@ export const ChatRoom: React.FC = () => {
             <div className="text-muted-foreground">메시지를 불러오는 중...</div>
           </div>
         ) : allMessages.length === 0 ? (
-          <EmptyState message="메시지가 없습니다." />
+          <EmptyState message="메시지가 없어요." />
         ) : (
           <>
             {/* 이전 메시지 로드 트리거 */}
