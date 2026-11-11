@@ -6,6 +6,7 @@ import {
   getFirstOptionImageUrl,
 } from "@/apps/web-user/features/product/utils/custom-option.util";
 import { CustomOptionType } from "@/apps/web-user/features/product/types/product.type";
+import { NO_REPLAY } from "@/apps/web-user/common/constants/replay.constant";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@/apps/web-user/common/components/icons";
@@ -139,7 +140,15 @@ export function ReservationItemCard({
             </div>
           )}
           {item.selectedOptions.map((option) => (
-            <div key={option.optionId}>
+            <div
+              key={option.optionId}
+              // 손님이 쓴 레터링·올린 사진은 화면 녹화에서 가린다
+              className={
+                option.type === CustomOptionType.TEXT || option.type === CustomOptionType.IMAGE
+                  ? NO_REPLAY
+                  : undefined
+              }
+            >
               <p className="text-xs text-gray-500">{option.name}</p>
               {option.type === CustomOptionType.IMAGE ? (
                 <div className="flex gap-1.5 mt-1">
@@ -161,7 +170,7 @@ export function ReservationItemCard({
             </div>
           ))}
           {item.requestMessage && (
-            <div>
+            <div className={NO_REPLAY}>
               <p className="text-xs text-gray-500">요청사항</p>
               <p className="text-2sm text-gray-900">{item.requestMessage}</p>
             </div>

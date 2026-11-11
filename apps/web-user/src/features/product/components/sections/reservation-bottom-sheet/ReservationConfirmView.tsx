@@ -17,6 +17,7 @@ import {
   formatPreviewOptionValue,
   toSelectedOptionPreviews,
 } from "@/apps/web-user/features/product/utils/custom-option.util";
+import { NO_REPLAY } from "@/apps/web-user/common/constants/replay.constant";
 
 interface ReservationConfirmViewProps {
   orderItems: OrderItem[];
@@ -106,7 +107,8 @@ export function ReservationConfirmView({
                         <div className="text-sm font-bold text-gray-900 mb-[4px]">
                           {getItemPrice(item).toLocaleString()}원
                         </div>
-                        <ul className="text-xs text-gray-700 pl-[18px] list-disc">
+                        {/* 손님이 쓴 레터링·요청 사항이 들어 있어 화면 녹화에서 가린다 */}
+                        <ul className={`${NO_REPLAY} text-xs text-gray-700 pl-[18px] list-disc`}>
                           <li>사이즈 : {item.sizeName}</li>
                           {toSelectedOptionPreviews(customOptions, item.selections).map(
                             (option) => (
