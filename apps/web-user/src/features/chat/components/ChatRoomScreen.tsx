@@ -191,7 +191,8 @@ export function ChatRoomScreen({
   const storeId = thread?.storeId ?? start?.storeId ?? null;
 
   // 새 글: 맨 아래를 보고 있으면 내려가고, 위를 보는 중이면 "새 메시지 ↓"
-  const count = room.messages.length + room.pending.length;
+  // 위로 올려 옛 글을 불러오는 것은 새 글이 아니라서 맨 아래 글·보내는 중인 글만 본다
+  const tailKey = `${room.messages[room.messages.length - 1]?.id ?? ""}:${room.pending.length}`;
   useLayoutEffect(() => {
     const el = listRef.current;
     if (!el) return;
@@ -201,7 +202,7 @@ export function ChatRoomScreen({
     } else {
       setNewBelow(true);
     }
-  }, [count]);
+  }, [tailKey]);
 
   useEffect(() => {
     const el = listRef.current;

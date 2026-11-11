@@ -192,7 +192,8 @@ export function SellerChatRoom({
   const write = thread?.write ?? initialWrite ?? { ok: true };
   const agreed = thread?.rulesAgreed ?? rulesAgreed;
 
-  const count = room.messages.length + room.pending.length;
+  // 새 글(맨 아래 글·보내는 중인 글)이 생겼을 때만. 위로 올려 옛 글을 불러오는 것은 새 글이 아니다
+  const tailKey = `${room.messages[room.messages.length - 1]?.id ?? ""}:${room.pending.length}`;
   useLayoutEffect(() => {
     const el = listRef.current;
     if (!el) return;
@@ -200,7 +201,7 @@ export function SellerChatRoom({
       el.scrollTop = el.scrollHeight;
       setNewBelow(false);
     } else setNewBelow(true);
-  }, [count]);
+  }, [tailKey]);
   useEffect(() => {
     const el = listRef.current;
     if (el && !room.loading) el.scrollTop = el.scrollHeight;
