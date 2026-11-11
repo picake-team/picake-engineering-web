@@ -68,13 +68,7 @@ export interface ChatSendResult {
   messages: ChatMessage[];
 }
 
-export interface ChatStatus {
-  open: boolean;
-  rulesVersion: number;
-}
-
 export interface ChatUnread {
-  open: boolean;
   unreadThreads: number;
 }
 

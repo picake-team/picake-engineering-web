@@ -17,7 +17,7 @@ import { Toast } from "@/apps/web-user/common/components/toast/Toast";
 import { useLoginSheetStore } from "@/apps/web-user/common/store/login-sheet.store";
 import { useScrollRestoration } from "@/apps/web-user/common/hooks/useScrollRestoration";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
-import { useChatStatus, useChatUnread } from "@/apps/web-user/features/chat/hooks/useChat";
+import { useChatUnread } from "@/apps/web-user/features/chat/hooks/useChat";
 
 function getLoginInfo(user: {
   googleId: string;
@@ -89,9 +89,7 @@ export default function MypagePage() {
   const [showProfileUpdatedToast, setShowProfileUpdatedToast] = useState(false);
   const { mutate: updateProfile, isPending: isUpdatingProfile } = useUpdateMypageProfile();
   const { data: ordersData } = useMyOrders({ type: "UPCOMING" });
-  const { data: chatStatus } = useChatStatus();
   const { data: chatUnread } = useChatUnread();
-  const quickLinks = QUICK_LINKS.filter((l) => l.icon !== "chat" || !!chatStatus?.open);
   const chatUnreadCount = chatUnread?.unreadThreads ?? 0;
   const upcomingCount =
     ordersData?.pages
@@ -171,10 +169,10 @@ export default function MypagePage() {
           <UpcomingOrderCard />
 
           <ul className="flex py-[10px] mx-5 mb-8 border border-gray-100 rounded-lg">
-            {quickLinks.map(({ icon, label, href }, index) => (
+            {QUICK_LINKS.map(({ icon, label, href }, index) => (
               <li
                 key={icon}
-                className={`relative flex-1 flex justify-center ${index < quickLinks.length - 1 ? "after:content-[''] after:absolute after:right-0 after:top-1/2 after:-translate-y-1/2 after:h-5 after:w-px after:bg-gray-50" : ""}`}
+                className={`relative flex-1 flex justify-center ${index < QUICK_LINKS.length - 1 ? "after:content-[''] after:absolute after:right-0 after:top-1/2 after:-translate-y-1/2 after:h-5 after:w-px after:bg-gray-50" : ""}`}
               >
                 <Link
                   href={href}

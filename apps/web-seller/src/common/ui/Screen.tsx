@@ -40,7 +40,7 @@ export function AppTabBar({ storeId, current }: { storeId: string; current: AppT
   const shownTab = tapped ?? current;
   // 채팅 탭 숫자: 안 읽은 방 수(채팅이 닫혀 있으면 없음)
   const { data: chatUnread } = useSellerChatUnread(storeId);
-  const chatCount = chatUnread?.open ? chatUnread.unreadThreads : 0;
+  const chatCount = chatUnread?.unreadThreads ?? 0;
   return (
     <nav
       aria-label="아래 탭"

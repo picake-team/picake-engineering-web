@@ -22,7 +22,6 @@ import { useUpdateNotificationPreferences } from "@/apps/web-seller/features/not
 import { sellerPushApi } from "@/apps/web-seller/features/notification/apis/notification.api";
 import { DEFAULT_SELLER_NOTIFICATION_SETTINGS } from "@/apps/web-seller/features/notification/types/notification.dto";
 import { DevicePushStatusCard } from "@/apps/web-seller/features/notification/components/mobile/PushOffBanner";
-import { useSellerChatUnread } from "@/apps/web-seller/features/chat/hooks/useChat";
 
 const TIPS = [
   "휴대폰 설정 > 알림에서 '픽케이크 사장님' 알림이 켜져 있는지",
@@ -37,14 +36,13 @@ export const StoreDetailNotificationSettingsMobilePage: React.FC = () => {
   const { data: store } = useStoreDetail(storeId);
   const prefsQuery = useNotificationPreferences(storeId);
   // 채팅 줄은 서버가 값을 주고 채팅이 열려 있을 때만(기획 I-11, 열기 전에는 없는 기능이라 숨김)
-  const chatOpen = !!useSellerChatUnread(storeId).data?.open;
   const update = useUpdateNotificationPreferences(storeId);
   const addAlert = useAlertStore((s) => s.addAlert);
   const [confirmOff, setConfirmOff] = useState(false);
   const [tipsOpen, setTipsOpen] = useState(false);
 
   const prefs = prefsQuery.data ?? DEFAULT_SELLER_NOTIFICATION_SETTINGS;
-  const showChat = chatOpen && typeof prefs.chatNotificationsEnabled === "boolean";
+  const showChat = typeof prefs.chatNotificationsEnabled === "boolean";
   const loaded = Boolean(prefsQuery.data);
 
   const testPush = useMutation({

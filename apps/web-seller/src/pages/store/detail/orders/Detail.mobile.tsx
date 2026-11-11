@@ -30,7 +30,6 @@ import {
   formatRemainingClock,
 } from "@/apps/web-seller/common/utils/kst-date.util";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
-import { useSellerChatUnread } from "@/apps/web-seller/features/chat/hooks/useChat";
 import { CHAT_FIRST_ORDER_STATUSES } from "@/apps/web-seller/features/chat/constants/chat.constants";
 import { useOrderDetail } from "@/apps/web-seller/features/order/hooks/queries/useOrderQuery";
 import {
@@ -287,7 +286,6 @@ export const StoreDetailOrderDetailMobilePage: React.FC = () => {
   const [target, setTarget] = useState<OrderStatus | null>(null);
   const [lightbox, setLightbox] = useState<{ images: string[]; index: number } | null>(null);
   // 채팅이 열려 있을 때만 연락처 옆 "채팅"(기획 I-11)
-  const chatOpen = !!useSellerChatUnread(storeId).data?.open;
 
   // 다른 스토어의 주문이면 그 스토어로 바꿔서 연다(알림을 눌러 들어온 경우)
   useEffect(() => {
@@ -415,7 +413,7 @@ export const StoreDetailOrderDetailMobilePage: React.FC = () => {
             <ContactActions
               phone={phone}
               onChat={
-                chatOpen && CHAT_FIRST_ORDER_STATUSES.includes(order.orderStatus)
+                CHAT_FIRST_ORDER_STATUSES.includes(order.orderStatus)
                   ? () => navigate(ROUTES.STORE_DETAIL_CHAT_ORDER(storeId, order.id))
                   : undefined
               }

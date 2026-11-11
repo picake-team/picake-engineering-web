@@ -65,20 +65,7 @@ export interface AdminChatReportDetail {
   messages: AdminChatReportMessage[];
 }
 
-export interface AdminChatOpenConfig {
-  chatOpensAt: string | null;
-  open: boolean;
-}
-
 export const chatManagementApi = {
-  getOpen: async (): Promise<AdminChatOpenConfig> => {
-    const response = await adminClient.get("/chat/open");
-    return response.data.data;
-  },
-  setOpen: async (chatOpensAt: string | null): Promise<AdminChatOpenConfig> => {
-    const response = await adminClient.put("/chat/open", { chatOpensAt });
-    return response.data.data;
-  },
   getReports: async (
     status?: ChatReportStatus,
   ): Promise<{ reports: AdminChatReportListItem[] }> => {
@@ -100,32 +87,9 @@ export const chatManagementApi = {
 
 const keys = {
   all: ["chat-management"] as const,
-  open: ["chat-management", "open"] as const,
   reports: (status?: ChatReportStatus) => ["chat-management", "reports", status ?? "ALL"] as const,
   report: (id: string) => ["chat-management", "report", id] as const,
 };
-
-export function useChatOpenConfig() {
-  const query = useQuery({ queryKey: keys.open, queryFn: chatManagementApi.getOpen });
-  useQueryErrorAlert(query);
-  return query;
-}
-
-export function useSetChatOpen() {
-  const queryClient = useQueryClient();
-  const { addAlert } = useAlertStore();
-  return useMutation({
-    mutationFn: (chatOpensAt: string | null) => chatManagementApi.setOpen(chatOpensAt),
-    onSuccess: (data) => {
-      queryClient.setQueryData(keys.open, data);
-      addAlert({
-        severity: "success",
-        message: data.chatOpensAt ? "채팅 여는 시각을 저장했어요." : "채팅을 닫았어요.",
-      });
-    },
-    onError: (e) => addAlert({ severity: "error", message: getApiMessage.error(e) }),
-  });
-}
 
 export function useChatReports(status?: ChatReportStatus) {
   const query = useQuery({
@@ -174,22 +138,6 @@ export function formatKst(iso: string): string {
     minute: "2-digit",
     hour12: false,
   }).format(new Date(iso));
-}
-
-/**
- * 한국 시각 입력(datetime-local, "2026-11-25T00:00") ↔ 서버 ISO(UTC).
- * 서버·DB는 UTC로 저장하므로 +09:00을 붙여 바꾼다(그냥 넣으면 9시간 어긋남).
- */
-export function kstInputToIso(value: string): string | null {
-  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)) return null;
-  const d = new Date(`${value}:00+09:00`);
-  return Number.isNaN(d.getTime()) ? null : d.toISOString();
-}
-
-export function isoToKstInput(iso: string | null): string {
-  if (!iso) return "";
-  const kst = new Date(new Date(iso).getTime() + 9 * 3600_000);
-  return kst.toISOString().slice(0, 16);
 }
 
 /** 24시간 안 처리(애플 1.2). 남은 시간(시간 단위, 음수면 지남) */

@@ -5,7 +5,6 @@ import type {
   ChatReportReason,
   ChatSendBody,
   ChatSendResult,
-  ChatStatus,
   ChatThreadDetail,
   ChatThreadList,
   ChatUnread,
@@ -13,10 +12,6 @@ import type {
 
 /** 손님 채팅 API(기획 I-11) */
 export const chatApi = {
-  status: async (): Promise<ChatStatus> => {
-    const response = await consumerClient.get("/chat-status");
-    return response.data.data;
-  },
   unread: async (): Promise<ChatUnread> => {
     const response = await consumerClient.get("/chats/unread");
     return response.data.data;

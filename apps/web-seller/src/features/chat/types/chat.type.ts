@@ -68,13 +68,7 @@ export interface ChatSendResult {
   messages: ChatMessage[];
 }
 
-export interface ChatStatus {
-  open: boolean;
-  rulesVersion: number;
-}
-
 export interface ChatUnread {
-  open: boolean;
   unreadThreads: number;
   /** 답할 방 수(마지막 글이 손님 것) */
   replyNeeded?: number;

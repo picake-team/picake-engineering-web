@@ -16,25 +16,14 @@ import type {
 } from "@/apps/web-user/features/chat/types/chat.type";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 
-/** 채팅이 열렸나(로그인 없이). 닫혀 있으면 입구를 숨긴다 */
-export function useChatStatus() {
-  return useQuery({
-    queryKey: chatQueryKeys.status(),
-    queryFn: chatApi.status,
-    staleTime: 60_000,
-    retry: false,
-  });
-}
-
-/** 안 읽은 채팅 방 수(MY 점·숫자). 로그인했고 채팅이 열렸을 때만 */
+/** 안 읽은 채팅 방 수(MY 점·숫자). 로그인했을 때만 */
 export function useChatUnread() {
   const hydrated = useAuthHasHydrated();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const { data: status } = useChatStatus();
   return useQuery({
     queryKey: chatQueryKeys.unread(),
     queryFn: chatApi.unread,
-    enabled: hydrated && isAuthenticated && !!status?.open,
+    enabled: hydrated && isAuthenticated,
     refetchInterval: CHAT_LIMITS.LIST_POLL_MS,
     refetchIntervalInBackground: false,
     retry: false,

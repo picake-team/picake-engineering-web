@@ -14,7 +14,6 @@ export const CHAT_LIMITS = {
 
 export const chatQueryKeys = {
   all: ["chat"] as const,
-  status: () => ["chat", "status"] as const,
   unread: () => ["chat", "unread"] as const,
   list: () => ["chat", "list"] as const,
   byStore: (storeId: string) => ["chat", "store", storeId] as const,

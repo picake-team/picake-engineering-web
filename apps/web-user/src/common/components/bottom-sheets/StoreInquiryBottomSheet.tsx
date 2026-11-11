@@ -11,7 +11,6 @@ import { useOpenExternal } from "@/apps/web-user/common/hooks/useOpenExternal";
 import { useRouter } from "next/navigation";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
-import { useChatStatus } from "@/apps/web-user/features/chat/hooks/useChat";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 
 interface StoreInquiryBottomSheetProps {
@@ -41,8 +40,6 @@ export function StoreInquiryBottomSheet({
   phoneNumber,
 }: StoreInquiryBottomSheetProps) {
   const router = useRouter();
-  const { data: chatStatus } = useChatStatus();
-  const chatOpen = !!chatStatus?.open && !!storeId;
   const { data: store } = useStoreDetail(isOpen && storeId ? storeId : "");
   const kakaoUrl = kakaoChannelUrl || storeKakaoChatUrl(store?.kakaoChannelId);
   const instaUrl = instagramUrl || storeInstagramUrl(store?.instagramId);
@@ -88,7 +85,7 @@ export function StoreInquiryBottomSheet({
                 onClose();
                 router.push(PATHS.CHAT.STORE(storeId, { orderId }));
               },
-              disabled: !chatOpen,
+              disabled: !storeId,
             },
             {
               icon: { type: "image", src: "/images/contents/talk_kakao.png", alt: "카카오 채널" },

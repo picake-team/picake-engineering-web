@@ -46,6 +46,7 @@ function ChatStoreEntry() {
       title={data.title}
       start={{ storeId, orderId, productId }}
       initialRulesAgreed={data.rulesAgreed}
+      initialRulesVersion={data.rulesVersion}
       initialWrite={data.write}
     />
   );

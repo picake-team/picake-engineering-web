@@ -11,7 +11,7 @@ import getApiMessage from "@/apps/web-user/common/utils/getApiMessage";
 import { shrinkPhoto } from "@/apps/web-user/features/quote/utils/quote-photo.util";
 import { OrderStatusBadge } from "@/apps/web-user/features/order/components/OrderStatusBadge";
 import { chatApi } from "@/apps/web-user/features/chat/apis/chat.api";
-import { useChatRoom, useChatStatus } from "@/apps/web-user/features/chat/hooks/useChat";
+import { useChatRoom } from "@/apps/web-user/features/chat/hooks/useChat";
 import { CHAT_LIMITS, CHAT_NO_REPLAY } from "@/apps/web-user/features/chat/constants/chat.constant";
 import {
   ChatMenuSheet,
@@ -156,17 +156,18 @@ export function ChatRoomScreen({
   title: initialTitle,
   start,
   initialRulesAgreed,
+  initialRulesVersion,
   initialWrite,
 }: {
   threadId: string | null;
   title?: string;
   start?: { storeId: string; orderId?: string; productId?: string };
   initialRulesAgreed?: boolean;
+  initialRulesVersion?: number;
   initialWrite?: { ok: boolean; message?: string | null };
 }) {
   const router = useRouter();
   const { showAlert } = useAlertStore();
-  const { data: status } = useChatStatus();
   const room = useChatRoom({
     threadId,
     start,
@@ -259,7 +260,7 @@ export function ChatRoomScreen({
   const onAgree = async () => {
     setAgreeing(true);
     try {
-      await chatApi.agreeRules(status?.rulesVersion ?? 1);
+      await chatApi.agreeRules(thread?.rulesVersion ?? initialRulesVersion ?? 1);
       setRulesAgreed(true);
       if (room.thread) room.setThread({ ...room.thread, rulesAgreed: true });
       setRulesOpen(false);

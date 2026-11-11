@@ -27,8 +27,7 @@ function ChatsScreen({ pc }: { pc: boolean }) {
   const { storeId = "" } = useParams<{ storeId: string }>();
   const [filter, setFilter] = useState<"reply" | "all">("reply");
   const unread = useSellerChatUnread(storeId);
-  const open = !!unread.data?.open;
-  const list = useSellerChatList(storeId, filter, open);
+  const list = useSellerChatList(storeId, filter);
   const threads = list.data?.pages.flatMap((p) => p.threads) ?? [];
   const replyNeeded = unread.data?.replyNeeded ?? 0;
 
@@ -42,88 +41,75 @@ function ChatsScreen({ pc }: { pc: boolean }) {
       bodyClassName="gap-2 px-0"
     >
       {pc ? <TabHeader title="채팅" /> : null}
-      {unread.isLoading ? null : !open ? (
+      <>
         <div className="px-5">
-          <EmptyState
-            big
-            icon="chat"
-            title="채팅은 아직 준비 중이에요"
-            description="열리면 손님 문의가 여기에 모여요"
+          <SegmentedTabs
+            label="채팅 묶음"
+            value={filter}
+            onChange={setFilter}
+            options={[
+              { value: "reply", label: "답할 것", count: replyNeeded, countAccent: true },
+              { value: "all", label: "전체" },
+            ]}
           />
         </div>
-      ) : (
-        <>
+        {list.isError ? (
           <div className="px-5">
-            <SegmentedTabs
-              label="채팅 묶음"
-              value={filter}
-              onChange={setFilter}
-              options={[
-                { value: "reply", label: "답할 것", count: replyNeeded, countAccent: true },
-                { value: "all", label: "전체" },
-              ]}
+            <LoadErrorState onRetry={() => void list.refetch()} />
+          </div>
+        ) : list.isLoading ? (
+          <div className="px-5">
+            <SkeletonCards count={4} />
+          </div>
+        ) : threads.length === 0 ? (
+          <div className="px-5">
+            <EmptyState
+              big
+              icon="chat"
+              title={filter === "reply" ? "답할 채팅이 없어요" : "아직 채팅이 없어요"}
+              description={
+                filter === "reply" ? '답한 채팅은 "전체"에 있어요' : "손님이 문의하면 여기에 모여요"
+              }
             />
           </div>
-          {list.isError ? (
-            <div className="px-5">
-              <LoadErrorState onRetry={() => void list.refetch()} />
-            </div>
-          ) : list.isLoading ? (
-            <div className="px-5">
-              <SkeletonCards count={4} />
-            </div>
-          ) : threads.length === 0 ? (
-            <div className="px-5">
-              <EmptyState
-                big
-                icon="chat"
-                title={filter === "reply" ? "답할 채팅이 없어요" : "아직 채팅이 없어요"}
-                description={
-                  filter === "reply"
-                    ? '답한 채팅은 "전체"에 있어요'
-                    : "손님이 문의하면 여기에 모여요"
-                }
-              />
-            </div>
-          ) : (
-            <ul className="flex flex-col">
-              {threads.map((t) => (
-                <li key={t.id}>
-                  <Link
-                    to={ROUTES.STORE_DETAIL_CHAT_ROOM(storeId, t.id)}
-                    className="flex min-h-[72px] items-center gap-3 border-b border-ink-100 px-5 py-3 active:bg-ink-50"
-                  >
-                    <span className="size-11 shrink-0 rounded-full bg-ink-50" aria-hidden="true" />
-                    <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                      <span className="truncate text-body font-bold text-ink-900">{t.title}</span>
-                      <span className={cx(CHAT_NO_REPLAY, "truncate text-sub text-ink-600")}>
-                        {t.lastMessagePreview ?? ""}
-                      </span>
+        ) : (
+          <ul className="flex flex-col">
+            {threads.map((t) => (
+              <li key={t.id}>
+                <Link
+                  to={ROUTES.STORE_DETAIL_CHAT_ROOM(storeId, t.id)}
+                  className="flex min-h-[72px] items-center gap-3 border-b border-ink-100 px-5 py-3 active:bg-ink-50"
+                >
+                  <span className="size-11 shrink-0 rounded-full bg-ink-50" aria-hidden="true" />
+                  <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                    <span className="truncate text-body font-bold text-ink-900">{t.title}</span>
+                    <span className={cx(CHAT_NO_REPLAY, "truncate text-sub text-ink-600")}>
+                      {t.lastMessagePreview ?? ""}
                     </span>
-                    <span className="flex shrink-0 flex-col items-end gap-1.5">
-                      <span className="text-caption text-ink-400">
-                        {t.lastMessageAt ? formatRelativeTime(new Date(t.lastMessageAt)) : ""}
-                      </span>
-                      {t.unread ? (
-                        <span className="size-2 rounded-full bg-brand" aria-label="안 읽음" />
-                      ) : (
-                        <span className="h-2" />
-                      )}
+                  </span>
+                  <span className="flex shrink-0 flex-col items-end gap-1.5">
+                    <span className="text-caption text-ink-400">
+                      {t.lastMessageAt ? formatRelativeTime(new Date(t.lastMessageAt)) : ""}
                     </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-          {list.hasNextPage ? (
-            <div className="px-5">
-              <Button variant="secondary" size="md" onClick={() => void list.fetchNextPage()}>
-                더 보기
-              </Button>
-            </div>
-          ) : null}
-        </>
-      )}
+                    {t.unread ? (
+                      <span className="size-2 rounded-full bg-brand" aria-label="안 읽음" />
+                    ) : (
+                      <span className="h-2" />
+                    )}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+        {list.hasNextPage ? (
+          <div className="px-5">
+            <Button variant="secondary" size="md" onClick={() => void list.fetchNextPage()}>
+              더 보기
+            </Button>
+          </div>
+        ) : null}
+      </>
     </AppScreen>
   );
 }

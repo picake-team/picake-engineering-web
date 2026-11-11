@@ -13,7 +13,6 @@ import { QuoteRequestsListPage } from "@/apps/web-admin/pages/consumer/quote-req
 import { QuoteRequestDetailPage } from "@/apps/web-admin/pages/consumer/quote-requests/Detail";
 import { ChatReportsListPage } from "@/apps/web-admin/pages/chat/Reports";
 import { ChatReportDetailPage } from "@/apps/web-admin/pages/chat/ReportDetail";
-import { ChatSettingsPage } from "@/apps/web-admin/pages/chat/Settings";
 import { SellerMembersListPage } from "@/apps/web-admin/pages/seller/members/List";
 import { SellerStoresListPage } from "@/apps/web-admin/pages/seller/stores/List";
 import { SellerSegmentsListPage } from "@/apps/web-admin/pages/seller/segments/List";
@@ -62,7 +61,6 @@ export const ROUTES = {
   CHAT: {
     REPORTS: "/chat-reports",
     REPORT_DETAIL: (reportId: string) => `/chat-reports/${reportId}`,
-    SETTINGS: "/chat-settings",
   },
   SELLER: {
     TERMS: "/seller/terms",
@@ -104,7 +102,6 @@ export const ADMIN_ROUTE_CONFIG = [
   // 판매자 앱
   { path: ROUTES.CHAT.REPORTS, element: ChatReportsListPage },
   { path: "/chat-reports/:reportId", element: ChatReportDetailPage },
-  { path: ROUTES.CHAT.SETTINGS, element: ChatSettingsPage },
   { path: ROUTES.SELLER.TERMS, element: SellerTermsListPage },
   { path: ROUTES.SELLER.MEMBERS, element: SellerMembersListPage },
   { path: ROUTES.SELLER.STORES, element: SellerStoresListPage },

@@ -14,7 +14,7 @@ import type {
   PendingChatMessage,
 } from "@/apps/web-seller/features/chat/types/chat.type";
 
-/** 안 읽은 방·답할 방 수(아래 탭 숫자, 홈 "답할 채팅"). 채팅이 닫혀 있으면 open=false */
+/** 안 읽은 방·답할 방 수(아래 탭 숫자, 홈 "답할 채팅") */
 export function useSellerChatUnread(storeId: string | undefined) {
   return useQuery({
     queryKey: chatQueryKeys.unread(storeId ?? ""),
@@ -27,13 +27,13 @@ export function useSellerChatUnread(storeId: string | undefined) {
   });
 }
 
-export function useSellerChatList(storeId: string, filter: "reply" | "all", enabled = true) {
+export function useSellerChatList(storeId: string, filter: "reply" | "all") {
   return useInfiniteQuery({
     queryKey: chatQueryKeys.list(storeId, filter),
     queryFn: ({ pageParam }) => chatApi.list(storeId, filter, pageParam as string | undefined),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (last) => last.nextCursor ?? undefined,
-    enabled,
+    enabled: !!storeId,
     refetchInterval: CHAT_LIMITS.LIST_POLL_MS,
   });
 }

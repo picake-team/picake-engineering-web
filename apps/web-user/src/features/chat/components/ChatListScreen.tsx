@@ -7,15 +7,14 @@ import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { navigateBack } from "@/apps/web-user/common/utils/navigate-back.util";
 import { formatRelativeTime } from "@/apps/web-user/common/utils/date.util";
 import { cn } from "@/apps/web-user/common/lib/utils";
-import { useChatList, useChatStatus } from "@/apps/web-user/features/chat/hooks/useChat";
+import { useChatList } from "@/apps/web-user/features/chat/hooks/useChat";
 import { CHAT_NO_REPLAY } from "@/apps/web-user/features/chat/constants/chat.constant";
 import { ChatListSkeleton } from "@/apps/web-user/common/components/skeleton/ChatSkeleton";
 
 /** MY → 채팅 목록(기획 I-11). 가게 사진·이름·마지막 글·안 읽음 점 */
 export function ChatListScreen() {
   const router = useRouter();
-  const { data: status, isLoading: statusLoading } = useChatStatus();
-  const list = useChatList(!!status?.open);
+  const list = useChatList();
   const threads = list.data?.pages.flatMap((p) => p.threads) ?? [];
 
   const header = (
@@ -32,19 +31,11 @@ export function ChatListScreen() {
     </header>
   );
 
-  if (statusLoading || (status?.open && list.isLoading)) {
+  if (list.isLoading) {
     return (
       <div>
         {header}
         <ChatListSkeleton />
-      </div>
-    );
-  }
-  if (!status?.open) {
-    return (
-      <div>
-        {header}
-        <p className="py-[60px] text-center text-sm text-gray-500">채팅은 아직 준비 중이에요</p>
       </div>
     );
   }
