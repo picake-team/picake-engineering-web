@@ -171,8 +171,7 @@ function UpcomingOrderItem({ order, isLast }: { order: OrderResponse; isLast: bo
       <StoreInquiryBottomSheet
         isOpen={isInquirySheetOpen}
         onClose={() => setIsInquirySheetOpen(false)}
-        kakaoChannelUrl={null}
-        instagramUrl={null}
+        storeId={order.storeId}
         phoneNumber={order.storePhoneNumber}
       />
     </div>

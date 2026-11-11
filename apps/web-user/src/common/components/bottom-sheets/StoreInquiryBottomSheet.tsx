@@ -2,22 +2,39 @@
 
 import { BottomSheet } from "@/apps/web-user/common/components/bottom-sheets/BottomSheet";
 import { BottomSheetOptionList } from "./BottomSheetOptionList";
+import { useStoreDetail } from "@/apps/web-user/features/store/hooks/queries/useStoreDetail";
+import {
+  openExternalUrl,
+  storeInstagramUrl,
+  storeKakaoChatUrl,
+} from "@/apps/web-user/common/utils/external-link.util";
 
 interface StoreInquiryBottomSheetProps {
   isOpen: boolean;
   onClose: () => void;
+  /** 주면 열 때 가게 정보를 불러와 사장님이 적은 카카오톡 채널·인스타·전화를 쓴다(아래 값이 있으면 그것을 먼저) */
+  storeId?: string;
   kakaoChannelUrl?: string | null;
   instagramUrl?: string | null;
   phoneNumber?: string | null;
 }
 
+/**
+ * 스토어 문의: 가게의 카카오톡 채널(1:1 채팅으로 바로)·인스타그램·전화. 사장님이 적지 않은 것은 누를 수 없다.
+ * 예전에는 카카오톡·인스타에 늘 빈 값이 들어가 전화만 됐다(2026-11-11 고침).
+ */
 export function StoreInquiryBottomSheet({
   isOpen,
   onClose,
+  storeId,
   kakaoChannelUrl,
   instagramUrl,
   phoneNumber,
 }: StoreInquiryBottomSheetProps) {
+  const { data: store } = useStoreDetail(isOpen && storeId ? storeId : "");
+  const kakaoUrl = kakaoChannelUrl || storeKakaoChatUrl(store?.kakaoChannelId);
+  const instaUrl = instagramUrl || storeInstagramUrl(store?.instagramId);
+  const phone = phoneNumber || store?.phoneNumber;
   return (
     <BottomSheet
       isOpen={isOpen}
@@ -42,34 +59,34 @@ export function StoreInquiryBottomSheet({
             icon: { type: "image", src: "/images/contents/talk_kakao.png", alt: "카카오 채널" },
             label: "카카오톡 채널",
             onClick: () => {
-              if (kakaoChannelUrl) {
-                window.open(kakaoChannelUrl, "_blank");
+              if (kakaoUrl) {
+                openExternalUrl(kakaoUrl);
                 onClose();
               }
             },
-            disabled: !kakaoChannelUrl,
+            disabled: !kakaoUrl,
           },
           {
             icon: { type: "image", src: "/images/contents/talk_insta.png", alt: "인스타그램" },
             label: "인스타그램",
             onClick: () => {
-              if (instagramUrl) {
-                window.open(instagramUrl, "_blank");
+              if (instaUrl) {
+                openExternalUrl(instaUrl);
                 onClose();
               }
             },
-            disabled: !instagramUrl,
+            disabled: !instaUrl,
           },
           {
             icon: { type: "image", src: "/images/contents/talk_phone.png", alt: "전화 문의" },
             label: "전화 문의",
             onClick: () => {
-              if (phoneNumber) {
-                window.location.href = `tel:${phoneNumber.replace(/[^0-9+]/g, "")}`;
+              if (phone) {
+                window.location.href = `tel:${phone.replace(/[^0-9+]/g, "")}`;
                 onClose();
               }
             },
-            disabled: !phoneNumber,
+            disabled: !phone,
           },
         ]}
       />

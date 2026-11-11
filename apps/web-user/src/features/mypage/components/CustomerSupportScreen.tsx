@@ -3,23 +3,11 @@
 import Image from "next/image";
 import { Button } from "@/apps/web-user/common/components/buttons/Button";
 import { Icon } from "@/apps/web-user/common/components/icons";
-import {
-  isWebViewEnvironment,
-  toExternalAppSchemeUrl,
-} from "@/apps/web-user/common/utils/webview.bridge";
+import { openExternalUrl } from "@/apps/web-user/common/utils/external-link.util";
 
 const SUPPORT_EMAIL = "picakeee@gmail.com";
 /** 카카오톡 채널 "픽케이크" 1:1 채팅(채팅 켜져 있음, 2026-11-11 확인). 판매자 앱 문의하기와 같은 곳 */
 export const SUPPORT_KAKAO_CHAT_URL = "https://pf.kakao.com/_MgxdPX/chat";
-
-/** 바깥 링크: 앱이면 앱이 가로채 카카오톡·메일 앱으로, 브라우저면 새 창 */
-function openExternal(url: string) {
-  if (isWebViewEnvironment()) {
-    window.location.href = toExternalAppSchemeUrl(url);
-    return;
-  }
-  window.open(url, "_blank", "noopener,noreferrer");
-}
 
 /**
  * 마이페이지 > 고객센터.
@@ -33,7 +21,7 @@ export function CustomerSupportScreen() {
         <p className="text-sm text-gray-700">
           궁금한 점은 카카오톡 &apos;픽케이크&apos; 채널 채팅으로 물어봐 주세요.
         </p>
-        <Button onClick={() => openExternal(SUPPORT_KAKAO_CHAT_URL)}>
+        <Button onClick={() => openExternalUrl(SUPPORT_KAKAO_CHAT_URL)}>
           <span className="flex items-center justify-center gap-2">
             <Image
               src="/images/contents/talk_kakao.png"
@@ -48,7 +36,7 @@ export function CustomerSupportScreen() {
       </div>
       <button
         type="button"
-        onClick={() => openExternal(`mailto:${SUPPORT_EMAIL}`)}
+        onClick={() => openExternalUrl(`mailto:${SUPPORT_EMAIL}`)}
         className="press-bg mt-6 w-full flex items-center justify-between gap-3 px-5 py-4 border-y border-gray-100 text-left"
       >
         <span className="flex-1">

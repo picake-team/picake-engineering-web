@@ -85,6 +85,10 @@ export interface StoreInfo {
   name: string;
   description?: string;
   phoneNumber?: string;
+  /** 카카오톡 채널 ID(예: "_xeaCon"). 비어 있으면 "" */
+  kakaoChannelId?: string | null;
+  /** 인스타그램 ID(@ 없이). 비어 있으면 "" */
+  instagramId?: string | null;
   isLiked: boolean | null;
   // 사업자 정보
   businessNo: string;
