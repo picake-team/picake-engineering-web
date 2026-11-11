@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { LikePop } from "@/apps/web-user/common/components/motion/LikePop";
 import { StoreInfo } from "@/apps/web-user/features/store/types/store.type";
+import { useChatStatus } from "@/apps/web-user/features/chat/hooks/useChat";
 import { useAddStoreLike } from "@/apps/web-user/features/like/hooks/mutations/useAddStoreLike";
 import { useRemoveStoreLike } from "@/apps/web-user/features/like/hooks/mutations/useRemoveStoreLike";
 import { Toast } from "@/apps/web-user/common/components/toast/Toast";
@@ -29,10 +30,11 @@ export function StoreDetailIntroSection({ store }: StoreDetailIntroSectionProps)
   const [showCopyToast, setShowCopyToast] = useState(false);
   const [isLiked, setIsLiked] = useState(store.isLiked ?? false);
   const [isInquiryOpen, setIsInquiryOpen] = useState(false);
-  // 사장님이 적은 카카오톡 채널·인스타·전화 중 하나라도 있으면 "문의"를 보인다(I-61 첫 조각, 2026-11-11)
+  // 사장님이 적은 카카오톡 채널·인스타·전화 중 하나라도 있거나 채팅이 열렸으면 "문의"를 보인다(I-61 첫 조각, I-11 채팅)
   const kakaoUrl = storeKakaoChatUrl(store.kakaoChannelId);
   const instaUrl = storeInstagramUrl(store.instagramId);
-  const canInquire = !!(kakaoUrl || instaUrl || store.phoneNumber);
+  const { data: chatStatus } = useChatStatus();
+  const canInquire = !!(kakaoUrl || instaUrl || store.phoneNumber || chatStatus?.open);
 
   const { mutate: addLike, isPending: isAddingLike } = useAddStoreLike();
   const { mutate: removeLike, isPending: isRemovingLike } = useRemoveStoreLike();
@@ -191,6 +193,7 @@ export function StoreDetailIntroSection({ store }: StoreDetailIntroSectionProps)
       <StoreInquiryBottomSheet
         isOpen={isInquiryOpen}
         onClose={() => setIsInquiryOpen(false)}
+        storeId={store.id}
         kakaoChannelUrl={kakaoUrl}
         instagramUrl={instaUrl}
         phoneNumber={store.phoneNumber}

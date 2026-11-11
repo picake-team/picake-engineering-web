@@ -31,7 +31,8 @@ export type LoginEntryPoint =
   | "mypage"
   | "like_button"
   | "session_expired"
-  | "quote_request";
+  | "quote_request"
+  | "chat";
 
 /** 소셜 로그인 제공자 */
 export type OAuthProvider = "kakao" | "google" | "apple";

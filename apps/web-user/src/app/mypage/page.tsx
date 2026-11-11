@@ -17,6 +17,7 @@ import { Toast } from "@/apps/web-user/common/components/toast/Toast";
 import { useLoginSheetStore } from "@/apps/web-user/common/store/login-sheet.store";
 import { useScrollRestoration } from "@/apps/web-user/common/hooks/useScrollRestoration";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
+import { useChatStatus, useChatUnread } from "@/apps/web-user/features/chat/hooks/useChat";
 
 function getLoginInfo(user: {
   googleId: string;
@@ -56,6 +57,8 @@ function getLoginInfo(user: {
 
 const QUICK_LINKS = [
   { icon: "reservation", label: "내 예약", href: PATHS.MY_ORDERS },
+  // 채팅(기획 I-11). 채팅이 열렸을 때만 보인다(아래에서 거름). 안 읽은 방 수는 "내 예약"과 같은 숫자 배지
+  { icon: "chat", label: "채팅", href: PATHS.CHAT.LIST },
   { icon: "review", label: "내 후기", href: PATHS.MY_REVIEWS },
   { icon: "saved", label: "저장", href: PATHS.MY_SAVED },
   { icon: "recent", label: "최근 본", href: PATHS.RECENT },
@@ -86,6 +89,10 @@ export default function MypagePage() {
   const [showProfileUpdatedToast, setShowProfileUpdatedToast] = useState(false);
   const { mutate: updateProfile, isPending: isUpdatingProfile } = useUpdateMypageProfile();
   const { data: ordersData } = useMyOrders({ type: "UPCOMING" });
+  const { data: chatStatus } = useChatStatus();
+  const { data: chatUnread } = useChatUnread();
+  const quickLinks = QUICK_LINKS.filter((l) => l.icon !== "chat" || !!chatStatus?.open);
+  const chatUnreadCount = chatUnread?.unreadThreads ?? 0;
   const upcomingCount =
     ordersData?.pages
       .flatMap((p) => p.data)
@@ -164,10 +171,10 @@ export default function MypagePage() {
           <UpcomingOrderCard />
 
           <ul className="flex py-[10px] mx-5 mb-8 border border-gray-100 rounded-lg">
-            {QUICK_LINKS.map(({ icon, label, href }, index) => (
+            {quickLinks.map(({ icon, label, href }, index) => (
               <li
                 key={icon}
-                className={`relative flex-1 flex justify-center ${index < QUICK_LINKS.length - 1 ? "after:content-[''] after:absolute after:right-0 after:top-1/2 after:-translate-y-1/2 after:h-5 after:w-px after:bg-gray-50" : ""}`}
+                className={`relative flex-1 flex justify-center ${index < quickLinks.length - 1 ? "after:content-[''] after:absolute after:right-0 after:top-1/2 after:-translate-y-1/2 after:h-5 after:w-px after:bg-gray-50" : ""}`}
               >
                 <Link
                   href={href}
@@ -178,6 +185,11 @@ export default function MypagePage() {
                     {icon === "reservation" && upcomingCount > 0 && (
                       <span className="absolute -top-[6px] -right-[8px] min-w-[16px] h-[16px] flex items-center justify-center rounded-full bg-primary text-white text-[10px] font-bold px-1">
                         {upcomingCount}
+                      </span>
+                    )}
+                    {icon === "chat" && chatUnreadCount > 0 && (
+                      <span className="absolute -top-[6px] -right-[8px] min-w-[16px] h-[16px] flex items-center justify-center rounded-full bg-primary text-white text-[10px] font-bold px-1">
+                        {chatUnreadCount}
                       </span>
                     )}
                   </div>

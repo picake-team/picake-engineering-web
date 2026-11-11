@@ -78,6 +78,7 @@ export function ConfirmedOrderCard({ order }: { order: OrderResponse }) {
           isOpen={isInquirySheetOpen}
           onClose={() => setIsInquirySheetOpen(false)}
           storeId={order.storeId}
+          orderId={order.id}
           phoneNumber={order.storePhoneNumber}
         />,
         document.body,

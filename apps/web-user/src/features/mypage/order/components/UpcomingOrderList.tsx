@@ -172,6 +172,7 @@ function UpcomingOrderItem({ order, isLast }: { order: OrderResponse; isLast: bo
         isOpen={isInquirySheetOpen}
         onClose={() => setIsInquirySheetOpen(false)}
         storeId={order.storeId}
+        orderId={order.id}
         phoneNumber={order.storePhoneNumber}
       />
     </div>

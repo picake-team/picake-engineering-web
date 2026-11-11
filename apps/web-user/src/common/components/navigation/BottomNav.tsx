@@ -5,6 +5,7 @@ import Link from "next/link";
 import { scrollAppToTop } from "@/apps/web-user/common/hooks/useScrollRestoration";
 import { Icon, type IconName } from "@/apps/web-user/common/components/icons";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
+import { useChatUnread } from "@/apps/web-user/features/chat/hooks/useChat";
 
 // activeIcon: 해당 탭에 진입했을 때 노출할 채워진(fill) 아이콘. 없으면 icon을 그대로 사용
 const NAV_ITEMS: {
@@ -26,6 +27,9 @@ const NAV_ITEMS: {
 
 export function BottomNav() {
   const pathname = usePathname();
+  // 안 읽은 채팅이 있으면 MY 탭에 점(기획 I-11)
+  const { data: chatUnread } = useChatUnread();
+  const myDot = (chatUnread?.unreadThreads ?? 0) > 0;
 
   return (
     <>
@@ -48,7 +52,15 @@ export function BottomNav() {
                 }}
                 className={`flex flex-col items-center justify-center text-2xs font-bold ${isActive ? "text-primary" : "text-gray-400"}`}
               >
-                <Icon name={isActive ? (activeIcon ?? icon) : icon} width={24} height={24} />
+                <span className="relative">
+                  <Icon name={isActive ? (activeIcon ?? icon) : icon} width={24} height={24} />
+                  {path === PATHS.MYPAGE && myDot && (
+                    <span
+                      className="absolute -right-[3px] -top-[1px] h-[6px] w-[6px] rounded-full bg-primary"
+                      aria-label="안 읽은 채팅"
+                    />
+                  )}
+                </span>
                 {label}
               </Link>
             </li>
