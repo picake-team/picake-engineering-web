@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useEffect } from "react";
+import { use, useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { useProductDetail } from "@/apps/web-user/features/product/hooks/queries/useProductDetail";
 import { useProductReviews } from "@/apps/web-user/features/review/hooks/queries/useProductReviews";
@@ -27,6 +27,10 @@ import { useStoreDetail } from "@/apps/web-user/features/store/hooks/queries/use
 import { useAuthStore } from "@/apps/web-user/common/store/auth.store";
 import { useLoginSheetStore } from "@/apps/web-user/common/store/login-sheet.store";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
+import {
+  takeReservationDraft,
+  type ReservationDraft,
+} from "@/apps/web-user/features/product/utils/reservation-draft.util";
 import type {
   ProductEntryPoint,
   ProductTabName,
@@ -73,15 +77,25 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   const { isAuthenticated } = useAuthStore();
   const openLoginSheet = useLoginSheetStore((s) => s.openLoginSheet);
 
+  // 로그인 없이도 예약 창을 연다. 다 고르고 "로그인하고 예약신청"을 누를 때 로그인한다(I-59 A)
   const handleReservationClick = () => {
     trackEvent("engage_reservation");
-
-    if (!isAuthenticated) {
-      openLoginSheet("reservation_button");
-      return;
-    }
     setIsBottomSheetOpen(true);
   };
+
+  // 로그인·가입을 다녀왔으면 그 전에 고른 내용으로 예약 창을 다시 연다(사장님이 그사이 옵션을 바꿨으면 버림)
+  const [resumeDraft, setResumeDraft] = useState<ReservationDraft | null>(null);
+  const checkedDraftRef = useRef(false);
+  const optionsVersion = data?.optionsVersion;
+  useEffect(() => {
+    if (!isAuthenticated || optionsVersion === undefined || checkedDraftRef.current) return;
+    checkedDraftRef.current = true;
+    void takeReservationDraft(productId).then((draft) => {
+      if (!draft || draft.optionsVersion !== optionsVersion) return;
+      setResumeDraft(draft);
+      setIsBottomSheetOpen(true);
+    });
+  }, [isAuthenticated, optionsVersion, productId]);
 
   /**
    * 예약 시트 청크는 초기 렌더 경로에서 빼되(아래 조건부 렌더),
@@ -245,7 +259,11 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
           pickupLongitude={data.pickupLongitude}
           businessCalendar={storeDetail?.businessCalendar}
           refundCancellationPolicy={data.storeRefundCancellationPolicy}
-          onClose={() => setIsBottomSheetOpen(false)}
+          initialDraft={resumeDraft}
+          onClose={() => {
+            setIsBottomSheetOpen(false);
+            setResumeDraft(null);
+          }}
         />
       )}
     </div>

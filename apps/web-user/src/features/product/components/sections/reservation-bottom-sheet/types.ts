@@ -4,6 +4,7 @@ import type {
   RefundCancellationPolicy,
 } from "@/apps/web-user/features/store/types/store.type";
 import type { OptionSelections } from "@/apps/web-user/features/product/utils/custom-option.util";
+import type { ReservationDraft } from "@/apps/web-user/features/product/utils/reservation-draft.util";
 
 /** 바텀시트에서 담은 상품 1개 (옵션은 ID 기준, 이름·가격은 표시용으로 함께 보관) */
 export interface OrderItem {
@@ -46,6 +47,8 @@ export interface ReservationBottomSheetProps {
   businessCalendar?: StoreBusinessCalendar;
   /** 판매자 환불·취소 규정 — 주문확인 단계 안내 박스에 노출 */
   refundCancellationPolicy?: RefundCancellationPolicy;
+  /** 로그인 전에 고른 내용(로그인하고 돌아왔을 때). 있으면 주문확인 화면부터 그대로 보인다 */
+  initialDraft?: ReservationDraft | null;
   onClose: () => void;
 }
 
