@@ -1,7 +1,7 @@
 import { isProduction } from "@/apps/web-seller/common/utils/environment.util";
 
 /**
- * 손님 웹(web-user) 주소. 스토어·상품 링크 보내기(SC-89)와 문의하기(SC-88)에 쓴다.
+ * 손님 웹(web-user) 주소. 스토어·상품 링크 보내기(SC-89)에 쓴다.
  * production 판매자 웹은 손님 웹 production, 그 밖(개발·staging)은 손님 웹 staging.
  */
 export const CUSTOMER_WEB_ORIGIN = isProduction(import.meta.env.VITE_PUBLIC_NODE_ENV)
@@ -22,5 +22,8 @@ export function customerProductUrl(productId: string): string {
   return `${CUSTOMER_WEB_ORIGIN}/product/${encodeURIComponent(productId)}?${STORE_LINK_QUERY}`;
 }
 
-/** 문의하기 = 손님 앱 고객센터(로그인 없이 열림, 앱 심사 지원 주소와 같음) */
-export const CUSTOMER_SUPPORT_URL = "https://picakes.com/mypage/support";
+/**
+ * 문의하기 = 카카오톡 채널 "픽케이크" 1:1 채팅으로 바로(2026-11-11, 손님 앱 고객센터와 같은 곳).
+ * 예전에는 손님 앱 고객센터 화면을 열었다(사장님이 손님 화면을 거쳐 한 번 더 눌러야 했음)
+ */
+export const SUPPORT_KAKAO_CHAT_URL = "https://pf.kakao.com/_MgxdPX/chat";
