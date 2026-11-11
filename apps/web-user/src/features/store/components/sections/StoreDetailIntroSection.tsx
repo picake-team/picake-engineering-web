@@ -112,15 +112,15 @@ export function StoreDetailIntroSection({ store }: StoreDetailIntroSectionProps)
           </div>
         </div>
 
-        {/* 문의 버튼: 주문 화면의 "스토어 문의"와 같은 창 */}
+        {/* 문의 버튼(아이콘만, 2026-11-11 운영자): 주문 화면의 "스토어 문의"와 같은 창 */}
         {canInquire && (
           <button
             type="button"
             onClick={() => setIsInquiryOpen(true)}
-            className="flex items-center gap-1 px-[8px] py-[6px] border border-gray-100 rounded-md"
+            aria-label="스토어 문의"
+            className="flex items-center px-[8px] py-[6px] border border-gray-100 rounded-md"
           >
             <Icon name="reviewQna" width={18} height={18} className="text-gray-900" />
-            <span className="text-sm font-bold text-gray-900">문의</span>
           </button>
         )}
 

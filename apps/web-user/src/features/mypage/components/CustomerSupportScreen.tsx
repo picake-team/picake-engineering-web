@@ -1,50 +1,104 @@
 "use client";
 
 import Image from "next/image";
-import { Button } from "@/apps/web-user/common/components/buttons/Button";
-import { Icon } from "@/apps/web-user/common/components/icons";
+import type { ReactNode } from "react";
 import { openExternalUrl } from "@/apps/web-user/common/utils/external-link.util";
 
 const SUPPORT_EMAIL = "picakeee@gmail.com";
+const KAKAO_CHANNEL_NAME = "픽케이크";
 /** 카카오톡 채널 "픽케이크" 1:1 채팅(채팅 켜져 있음, 2026-11-11 확인). 판매자 앱 문의하기와 같은 곳 */
 export const SUPPORT_KAKAO_CHAT_URL = "https://pf.kakao.com/_MgxdPX/chat";
+const INSTAGRAM_HANDLE = "picake_app";
+
+function MailIcon() {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      className="text-gray-900"
+      aria-hidden="true"
+    >
+      <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" strokeWidth="1.6" />
+      <path
+        d="M4 7l8 6 8-6"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+interface SupportRowProps {
+  icon: ReactNode;
+  label: string;
+  value: string;
+  /** 누르면 바로 여는 곳(카카오톡 채팅·메일 앱·인스타그램) */
+  href: string;
+}
+
+/** 라벨/값 정보 행. 누르면 그 채널로 바로 간다(2026-11-11) */
+function SupportRow({ icon, label, value, href }: SupportRowProps) {
+  return (
+    <button
+      type="button"
+      onClick={() => openExternalUrl(href)}
+      className="press-bg w-full flex items-center gap-3 px-5 py-4 border-b border-gray-100 text-left"
+    >
+      <div className="w-6 h-6 shrink-0 flex items-center justify-center">{icon}</div>
+      <div className="flex-1 text-left">
+        <p className="text-sm font-bold text-gray-900">{label}</p>
+        <p className="text-xs text-gray-500 mt-0.5">{value}</p>
+      </div>
+    </button>
+  );
+}
 
 /**
- * 마이페이지 > 고객센터.
- * 문의는 카카오톡 채널 채팅 하나로 받는다(2026-11-11, 운영자 휴대폰에 바로 알림). 카카오톡을 안 쓰는 손님을 위해 이메일만 함께 둔다.
+ * 마이페이지 > 고객센터. 줄을 누르면 그 채널로 바로 간다(카카오톡은 채널 1:1 채팅).
+ * 전화 문의는 뺐다(2026-11-11 운영자, 1인 운영이라 카카오톡 채팅으로 받음). 전화번호는 약관의 사업자 정보에 남는다.
  * 로그인 없이도 접근 가능해야 함 — App Store 심사(가이드라인 1.5)의 Support URL이 이 화면을 가리킴.
  */
 export function CustomerSupportScreen() {
   return (
-    <div className="pt-5 pb-10">
-      <div className="px-5 flex flex-col gap-3">
-        <p className="text-sm text-gray-700">
-          궁금한 점은 카카오톡 &apos;픽케이크&apos; 채널 채팅으로 물어봐 주세요.
-        </p>
-        <Button onClick={() => openExternalUrl(SUPPORT_KAKAO_CHAT_URL)}>
-          <span className="flex items-center justify-center gap-2">
-            <Image
-              src="/images/contents/talk_kakao.png"
-              alt=""
-              width={20}
-              height={20}
-              className="w-5 h-5 rounded-full object-cover"
-            />
-            카카오톡으로 문의하기
-          </span>
-        </Button>
-      </div>
-      <button
-        type="button"
-        onClick={() => openExternalUrl(`mailto:${SUPPORT_EMAIL}`)}
-        className="press-bg mt-6 w-full flex items-center justify-between gap-3 px-5 py-4 border-y border-gray-100 text-left"
-      >
-        <span className="flex-1">
-          <span className="block text-sm font-bold text-gray-900">이메일로 문의하기</span>
-          <span className="block text-xs text-gray-500 mt-0.5">{SUPPORT_EMAIL}</span>
-        </span>
-        <Icon name="arrow" width={20} height={20} className="text-gray-900 rotate-90" />
-      </button>
+    <div className="pt-4 pb-10">
+      <SupportRow
+        icon={<MailIcon />}
+        label="이메일"
+        value={SUPPORT_EMAIL}
+        href={`mailto:${SUPPORT_EMAIL}`}
+      />
+      <SupportRow
+        icon={
+          <Image
+            src="/images/contents/talk_kakao.png"
+            alt="카카오톡 채널"
+            width={24}
+            height={24}
+            className="w-6 h-6 rounded-full object-cover"
+          />
+        }
+        label="카카오톡 채널"
+        value={KAKAO_CHANNEL_NAME}
+        href={SUPPORT_KAKAO_CHAT_URL}
+      />
+      <SupportRow
+        icon={
+          <Image
+            src="/images/contents/talk_insta.png"
+            alt="인스타그램"
+            width={24}
+            height={24}
+            className="w-6 h-6 rounded-full object-cover"
+          />
+        }
+        label="인스타그램"
+        value={`@${INSTAGRAM_HANDLE}`}
+        href={`https://instagram.com/${INSTAGRAM_HANDLE}`}
+      />
     </div>
   );
 }
