@@ -83,6 +83,8 @@ export interface CreateOrderRequest {
   reservationContactName?: string;
   /** 예약 연락처 휴대폰 (선택) */
   reservationPhone?: string;
+  /** 손님이 들어온 길. 사장님이 보낸 링크로 들어와 그 가게에 예약하면 STORE_LINK(기획 I-45) */
+  entrySource?: "STORE_LINK";
   // 픽업장소
   pickupAddress: string;
   pickupRoadAddress: string;

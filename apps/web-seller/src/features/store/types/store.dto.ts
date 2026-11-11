@@ -237,6 +237,13 @@ export interface NaverPlaceCalendarSuggestionDto {
   warnings: string[];
 }
 
+/** 링크 효과(기획 I-45): 최근 N일 사장님이 보낸 링크로 들어온 손님 기기 수·예약 신청 수 */
+export interface StoreLinkStatsResponseDto {
+  days: number;
+  visitorCount: number;
+  reservationCount: number;
+}
+
 /** 네이버 플레이스 미리보기 응답 */
 export interface NaverPlacePreviewResponseDto {
   placeId: string;

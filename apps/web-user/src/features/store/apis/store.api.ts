@@ -22,6 +22,10 @@ export const storeApi = {
     const response = await consumerClient.get(`/store/${storeId}`);
     return response.data.data;
   },
+  // 사장님이 보낸 링크로 들어온 방문 남기기(기획 I-45). 기기 임의 값만 보낸다
+  recordLinkVisit: async (storeId: string, visitorKey: string): Promise<void> => {
+    await consumerClient.post(`/store/${storeId}/link-visits`, { visitorKey });
+  },
   // 서비스 가능 지역 조회
   getRegions: async (): Promise<StoreRegionsResponse> => {
     const response = await consumerClient.get("/store/regions");

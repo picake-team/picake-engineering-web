@@ -20,6 +20,7 @@ import { productQueryKeys } from "@/apps/web-user/features/product/constants/pro
 import { CustomOptionType } from "@/apps/web-user/features/product/types/product.type";
 import { toOrderItemOptionInputs } from "@/apps/web-user/features/product/utils/custom-option.util";
 import { saveReservationDraft } from "@/apps/web-user/features/product/utils/reservation-draft.util";
+import { getStoreLinkEntrySource } from "@/apps/web-user/features/store/utils/store-link.util";
 import { useAuthStore } from "@/apps/web-user/common/store/auth.store";
 import { useLoginSheetStore } from "@/apps/web-user/common/store/login-sheet.store";
 
@@ -34,6 +35,7 @@ export function ReservationBottomSheet({
   customOptions,
   optionsVersion,
   storeName,
+  storeId,
   pickupAddress,
   pickupRoadAddress,
   pickupDetailAddress,
@@ -198,6 +200,9 @@ export function ReservationBottomSheet({
         }),
       );
 
+      // 사장님이 보낸 링크로 이 가게에 왔으면(30일 안) 링크로 온 예약으로 센다(I-45)
+      const entrySource = storeId ? getStoreLinkEntrySource(storeId) : undefined;
+
       // API 요청 데이터 구성 (주문 시점의 정보 전달)
       const orderRequest: CreateOrderRequest = {
         pickupDate: selectedDate ? selectedDate.toISOString() : "",
@@ -219,6 +224,7 @@ export function ReservationBottomSheet({
         pickupLatitude,
         pickupLongitude,
         items: itemsWithOptions,
+        ...(entrySource && { entrySource }),
       };
 
       // API 호출 (성공 시 완료 페이지로 이동하며 언마운트, 실패 시 락 해제)

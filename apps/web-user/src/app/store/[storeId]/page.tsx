@@ -13,6 +13,7 @@ import { StoreDetailSkeleton } from "@/apps/web-user/common/components/skeleton/
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import { StoreQuoteEntry } from "@/apps/web-user/features/quote/components/entry/StoreQuoteEntry";
 import { useScrollRestoration } from "@/apps/web-user/common/hooks/useScrollRestoration";
+import { useStoreLinkVisit } from "@/apps/web-user/features/store/hooks/useStoreLinkVisit";
 
 interface StoreDetailPageProps {
   params: Promise<{ storeId: string }>;
@@ -23,6 +24,8 @@ export default function StoreDetailPage({ params }: StoreDetailPageProps) {
   useScrollRestoration();
   const { storeId } = use(params);
   const { data, isLoading } = useStoreDetail(storeId);
+  // 사장님이 보낸 가게 링크(?from=link)로 왔으면 방문으로 남긴다(I-45). 없는 가게면 남기지 않는다
+  useStoreLinkVisit(data ? storeId : undefined);
   const { data: productData } = useProductList({ storeId });
   // StoreDetailFeedSection과 동일한 파라미터 → 쿼리 캐시 공유 (추가 요청 없음)
   const { data: feedData } = useStoreFeeds({ storeId });
