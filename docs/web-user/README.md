@@ -57,7 +57,7 @@ Picake 플랫폼을 위한 Next.js 기반 사용자 웹 애플리케이션입니
 ### 상품 / 스토어
 
 - **상품 상세**: `/product/:productId` - 상품 상세 페이지
-- **스토어 상세**: `/store/:storeId` - 스토어 홈 및 피드. 사장님이 보낸 링크(`?from=link`)로 가게·상품 화면이 열리면 기기 임의 값으로 방문을 남기고 가게를 30일 기억해, 그 가게 예약에 `entrySource: STORE_LINK`를 붙인다(`features/store/utils/store-link.util.ts`, 기획 I-45)
+- **스토어 상세**: `/store/:storeId` - 스토어 홈 및 피드. 좋아요 옆 문의 아이콘 → "스토어 문의" 창(`StoreInquiryBottomSheet`, 사장님이 적은 카카오톡 채널 1:1 채팅·인스타·전화. 주문 화면 네 곳과 같은 창, `storeId`를 주면 가게 정보에서 불러옴). 바깥 링크는 `common/utils/external-link.util.ts`의 `openExternalUrl`(앱이면 `apps://`). 사장님이 보낸 링크(`?from=link`)로 가게·상품 화면이 열리면 기기 임의 값으로 방문을 남기고 가게를 30일 기억해, 그 가게 예약에 `entrySource: STORE_LINK`를 붙인다(`features/store/utils/store-link.util.ts`, 기획 I-45)
 
 ### 주문 / 예약
 
