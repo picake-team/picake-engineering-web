@@ -58,3 +58,13 @@ export function useStoreDetail(storeId: string) {
 
   return query;
 }
+
+// 링크 효과(I-45): 링크 보내기 창을 열 때마다 새로 센다. 못 불러와도 알림은 띄우지 않는다(창의 다른 일은 그대로)
+export function useStoreLinkStats(storeId: string) {
+  return useQuery({
+    queryKey: storeQueryKeys.linkStats(storeId),
+    queryFn: () => storeApi.getLinkStats(storeId),
+    enabled: !!storeId,
+    staleTime: 0,
+  });
+}

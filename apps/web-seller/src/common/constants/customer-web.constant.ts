@@ -8,12 +8,18 @@ export const CUSTOMER_WEB_ORIGIN = isProduction(import.meta.env.VITE_PUBLIC_NODE
   ? "https://picakes.com"
   : "https://staging.picakes.com";
 
+/**
+ * 링크 보내기로 보내는 주소에 붙는 표시(기획 I-45 링크 효과). 손님 웹이 이 표시로 열리면
+ * "링크로 온 손님"으로 세고, 그 손님이 예약하면 "링크로 온 예약"으로 센다. 손님 웹 store-link.util과 같은 값
+ */
+export const STORE_LINK_QUERY = "from=link";
+
 export function customerStoreUrl(storeId: string): string {
-  return `${CUSTOMER_WEB_ORIGIN}/store/${encodeURIComponent(storeId)}`;
+  return `${CUSTOMER_WEB_ORIGIN}/store/${encodeURIComponent(storeId)}?${STORE_LINK_QUERY}`;
 }
 
 export function customerProductUrl(productId: string): string {
-  return `${CUSTOMER_WEB_ORIGIN}/product/${encodeURIComponent(productId)}`;
+  return `${CUSTOMER_WEB_ORIGIN}/product/${encodeURIComponent(productId)}?${STORE_LINK_QUERY}`;
 }
 
 /** 문의하기 = 손님 앱 고객센터(로그인 없이 열림, 앱 심사 지원 주소와 같음) */

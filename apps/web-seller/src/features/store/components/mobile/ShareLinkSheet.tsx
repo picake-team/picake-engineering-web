@@ -2,6 +2,7 @@
  * 손님에게 링크 보내기 창 (SC-89, 디자인 A89). 손님 화면의 스토어·상품 주소를 복사하거나 휴대폰 공유 창으로 보낸다.
  * 공유 창은 앱이면 앱 껍데기(shareLink), 휴대폰 브라우저면 브라우저 공유 창, 둘 다 없으면 복사.
  * 손님 화면을 "열어 보기"하는 링크는 두지 않는다(운영자 결정).
+ * 링크 효과(기획 I-45): 스토어 칸 아래에 최근 30일 이 링크로 온 손님 수와 예약 신청 수를 보인다.
  */
 import { BottomSheet } from "@/apps/web-seller/common/ui/Sheet";
 import { Button, ButtonPair, CircleIconButton } from "@/apps/web-seller/common/ui/Button";
@@ -13,6 +14,7 @@ import {
   customerStoreUrl,
 } from "@/apps/web-seller/common/constants/customer-web.constant";
 import { useProductList } from "@/apps/web-seller/features/product/hooks/queries/useProductQuery";
+import { useStoreLinkStats } from "@/apps/web-seller/features/store/hooks/queries/useStoreQuery";
 import { flattenAndDeduplicateInfiniteData } from "@/apps/web-seller/common/utils/pagination.util";
 import {
   EnableStatus,
@@ -45,6 +47,9 @@ export function ShareLinkSheet({
   const products = useProductList({ storeId, limit: 50 });
   const list = flattenAndDeduplicateInfiniteData<ProductResponseDto>(products.data);
   const storeUrl = customerStoreUrl(storeId);
+  const linkStats = useStoreLinkStats(open ? storeId : "");
+  const stats = linkStats.data;
+  const noVisitsYet = stats ? stats.visitorCount === 0 && stats.reservationCount === 0 : false;
   return (
     <BottomSheet open={open} onClose={onClose} showClose title="손님에게 링크 보내기">
       <p className="-mt-2 text-sub leading-normal text-ink-600">
@@ -66,7 +71,32 @@ export function ShareLinkSheet({
             공유하기
           </Button>
         </ButtonPair>
+        <div className="-mx-4 -mb-4 mt-1 grid grid-cols-2 border-t border-ink-100">
+          {[
+            {
+              label: "링크로 온 손님",
+              value: stats ? `${stats.visitorCount.toLocaleString("ko-KR")}명` : "–",
+            },
+            {
+              label: "예약 신청",
+              value: stats ? `${stats.reservationCount.toLocaleString("ko-KR")}건` : "–",
+            },
+          ].map((s, i) => (
+            <span
+              key={s.label}
+              className={`flex flex-col items-center gap-1 py-3 ${i > 0 ? "border-l border-ink-100" : ""}`}
+            >
+              <span className="text-heading font-bold tabular-nums text-ink-900">{s.value}</span>
+              <span className="text-caption text-ink-600">{s.label}</span>
+            </span>
+          ))}
+        </div>
       </div>
+      <p className="-mt-2 text-caption leading-normal text-ink-600">
+        {noVisitsYet
+          ? "아직 링크로 온 손님이 없어요. 카카오톡 채널 자동응답이나 인스타 프로필에 걸어 두세요."
+          : "최근 30일, 이 창에서 보낸 스토어·상품 링크로 들어온 숫자예요."}
+      </p>
       {list.length > 0 ? (
         <>
           <p className="text-body font-bold text-ink-900">상품</p>

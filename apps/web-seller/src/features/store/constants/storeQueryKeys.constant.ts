@@ -9,4 +9,5 @@ export const storeQueryKeys = {
   list: (params: Partial<GetSellerStoresQueryParams>) => ["store", "list", params] as const,
   details: () => ["store", "detail"] as const,
   detail: (storeId: string) => ["store", "detail", storeId] as const,
+  linkStats: (storeId: string) => ["store", "link-stats", storeId] as const,
 } as const;

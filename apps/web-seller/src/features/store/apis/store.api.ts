@@ -10,6 +10,7 @@ import {
   GetSellerStoresRequestDto,
   StoreListResponseDto,
   NaverPlacePreviewResponseDto,
+  StoreLinkStatsResponseDto,
 } from "@/apps/web-seller/features/store/types/store.dto";
 
 export const storeApi = {
@@ -22,6 +23,12 @@ export const storeApi = {
   // 스토어 상세 조회
   getStoreDetail: async (storeId: string): Promise<StoreResponseDto> => {
     const response = await sellerClient.get(`/store/${storeId}`);
+    return response.data.data;
+  },
+
+  // 링크 효과(I-45): 최근 30일 링크로 온 손님·예약 신청 수
+  getLinkStats: async (storeId: string): Promise<StoreLinkStatsResponseDto> => {
+    const response = await sellerClient.get(`/store/${storeId}/link-stats`);
     return response.data.data;
   },
 
