@@ -14,6 +14,7 @@ import type {
   ChatThreadDetail,
   PendingChatMessage,
 } from "@/apps/web-user/features/chat/types/chat.type";
+import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 
 /** 채팅이 열렸나(로그인 없이). 닫혀 있으면 입구를 숨긴다 */
 export function useChatStatus() {
@@ -203,6 +204,13 @@ export function useChatRoom(input: {
             ? await chatApi.send(threadId, body)
             : await chatApi.start({ ...body, ...(input.start as { storeId: string }) });
         cardSentRef.current = true;
+        trackEvent("success_chat_message", {
+          thread_id: res.threadId,
+          store_id: input.start?.storeId ?? null,
+          is_first: !threadId,
+          photo_count: imageUrls.length,
+          with_card: withCard,
+        });
         setPending((prev) => prev.filter((x) => x.clientId !== p.clientId));
         setMessages((prev) => mergeMessages(prev, res.messages));
         void queryClient.invalidateQueries({ queryKey: chatQueryKeys.list() });

@@ -178,6 +178,11 @@ export default function MypagePage() {
               >
                 <Link
                   href={href}
+                  onClick={
+                    icon === "chat"
+                      ? () => trackEvent("engage_chat_entry", { entry_point: "mypage" })
+                      : undefined
+                  }
                   className="relative flex flex-col items-center gap-2 py-3 text-gray-900 font-bold text-sm"
                 >
                   <div className="relative">

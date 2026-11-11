@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { useChatStatus } from "@/apps/web-user/features/chat/hooks/useChat";
+import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 
 interface StoreInquiryBottomSheetProps {
   isOpen: boolean;
@@ -80,6 +81,10 @@ export function StoreInquiryBottomSheet({
               label: "채팅으로 문의",
               onClick: () => {
                 if (!storeId) return;
+                trackEvent("engage_chat_entry", {
+                  entry_point: orderId ? "order_inquiry" : "store_inquiry",
+                  store_id: storeId,
+                });
                 onClose();
                 router.push(PATHS.CHAT.STORE(storeId, { orderId }));
               },
