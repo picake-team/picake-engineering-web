@@ -24,3 +24,21 @@ describe("가게 연락 주소", () => {
     expect(storeInstagramUrl("달콤 케이크")).toBeNull();
   });
 });
+
+describe("바깥 링크 열기", () => {
+  it("전화는 앱에서도 tel: 그대로(apps://를 붙이지 않음)", async () => {
+    const { openExternalUrl } = await import("@/apps/web-user/common/utils/external-link.util");
+    const loc = { href: "" };
+    const win = { location: loc, mylocation: {}, open: () => null } as unknown as Window;
+    const original = globalThis.window;
+    Object.defineProperty(globalThis, "window", { value: win, configurable: true });
+    try {
+      openExternalUrl("tel:01012345678");
+      expect(loc.href).toBe("tel:01012345678");
+      openExternalUrl("https://pf.kakao.com/_x/chat");
+      expect(loc.href).toBe("apps://https://pf.kakao.com/_x/chat");
+    } finally {
+      Object.defineProperty(globalThis, "window", { value: original, configurable: true });
+    }
+  });
+});
