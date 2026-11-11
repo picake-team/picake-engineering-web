@@ -13,6 +13,11 @@ import { useUserLocation } from "@/apps/web-user/common/hooks/useUserLocation";
 import { calculateDistance, formatDistance } from "@/apps/web-user/common/utils/distance.util";
 import { useAuthStore } from "@/apps/web-user/common/store/auth.store";
 import { useLoginSheetStore } from "@/apps/web-user/common/store/login-sheet.store";
+import { StoreInquiryBottomSheet } from "@/apps/web-user/common/components/bottom-sheets/StoreInquiryBottomSheet";
+import {
+  storeInstagramUrl,
+  storeKakaoChatUrl,
+} from "@/apps/web-user/common/utils/external-link.util";
 
 interface StoreDetailIntroSectionProps {
   store: StoreInfo;
@@ -23,6 +28,11 @@ export function StoreDetailIntroSection({ store }: StoreDetailIntroSectionProps)
   const [isAddressExpanded, setIsAddressExpanded] = useState(false);
   const [showCopyToast, setShowCopyToast] = useState(false);
   const [isLiked, setIsLiked] = useState(store.isLiked ?? false);
+  const [isInquiryOpen, setIsInquiryOpen] = useState(false);
+  // 사장님이 적은 카카오톡 채널·인스타·전화 중 하나라도 있으면 "문의"를 보인다(I-61 첫 조각, 2026-11-11)
+  const kakaoUrl = storeKakaoChatUrl(store.kakaoChannelId);
+  const instaUrl = storeInstagramUrl(store.instagramId);
+  const canInquire = !!(kakaoUrl || instaUrl || store.phoneNumber);
 
   const { mutate: addLike, isPending: isAddingLike } = useAddStoreLike();
   const { mutate: removeLike, isPending: isRemovingLike } = useRemoveStoreLike();
@@ -102,6 +112,18 @@ export function StoreDetailIntroSection({ store }: StoreDetailIntroSectionProps)
           </div>
         </div>
 
+        {/* 문의 버튼(아이콘만, 2026-11-11 운영자): 주문 화면의 "스토어 문의"와 같은 창 */}
+        {canInquire && (
+          <button
+            type="button"
+            onClick={() => setIsInquiryOpen(true)}
+            aria-label="스토어 문의"
+            className="flex items-center px-[8px] py-[6px] border border-gray-100 rounded-md"
+          >
+            <Icon name="reviewQna" width={18} height={18} className="text-gray-900" />
+          </button>
+        )}
+
         {/* 좋아요 버튼 */}
         <button
           type="button"
@@ -165,6 +187,14 @@ export function StoreDetailIntroSection({ store }: StoreDetailIntroSectionProps)
           </button>
         )}
       </div>
+
+      <StoreInquiryBottomSheet
+        isOpen={isInquiryOpen}
+        onClose={() => setIsInquiryOpen(false)}
+        kakaoChannelUrl={kakaoUrl}
+        instagramUrl={instaUrl}
+        phoneNumber={store.phoneNumber}
+      />
 
       {showCopyToast && (
         <Toast

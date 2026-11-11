@@ -77,8 +77,7 @@ export function ConfirmedOrderCard({ order }: { order: OrderResponse }) {
         <StoreInquiryBottomSheet
           isOpen={isInquirySheetOpen}
           onClose={() => setIsInquirySheetOpen(false)}
-          kakaoChannelUrl={null}
-          instagramUrl={null}
+          storeId={order.storeId}
           phoneNumber={order.storePhoneNumber}
         />,
         document.body,

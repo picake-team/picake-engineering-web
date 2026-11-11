@@ -181,8 +181,7 @@ function PastOrderItem({ order, isLast }: { order: OrderResponse; isLast: boolea
       <StoreInquiryBottomSheet
         isOpen={isInquirySheetOpen}
         onClose={() => setIsInquirySheetOpen(false)}
-        kakaoChannelUrl={null}
-        instagramUrl={null}
+        storeId={order.storeId}
         phoneNumber={order.storePhoneNumber}
       />
     </div>
