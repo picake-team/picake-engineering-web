@@ -1,101 +1,62 @@
 "use client";
 
 import Image from "next/image";
-import type { ReactNode } from "react";
+import { Button } from "@/apps/web-user/common/components/buttons/Button";
+import { Icon } from "@/apps/web-user/common/components/icons";
+import {
+  isWebViewEnvironment,
+  toExternalAppSchemeUrl,
+} from "@/apps/web-user/common/utils/webview.bridge";
 
 const SUPPORT_EMAIL = "picakeee@gmail.com";
-const SUPPORT_PHONE = "010-3007-5647";
-const KAKAO_CHANNEL_NAME = "픽케이크";
-const INSTAGRAM_HANDLE = "picake_app";
+/** 카카오톡 채널 "픽케이크" 1:1 채팅(채팅 켜져 있음, 2026-11-11 확인). 판매자 앱 문의하기와 같은 곳 */
+export const SUPPORT_KAKAO_CHAT_URL = "https://pf.kakao.com/_MgxdPX/chat";
 
-function MailIcon() {
-  return (
-    <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      className="text-gray-900"
-      aria-hidden="true"
-    >
-      <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" strokeWidth="1.6" />
-      <path
-        d="M4 7l8 6 8-6"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-interface SupportRowProps {
-  icon: ReactNode;
-  label: string;
-  value: string;
-}
-
-/** 탭 동작 없이 라벨/값만 보여주는 정보 행 */
-function SupportRow({ icon, label, value }: SupportRowProps) {
-  return (
-    <div className="w-full flex items-center gap-3 px-5 py-4 border-b border-gray-100">
-      <div className="w-6 h-6 shrink-0 flex items-center justify-center">{icon}</div>
-      <div className="flex-1 text-left">
-        <p className="text-sm font-bold text-gray-900">{label}</p>
-        <p className="text-xs text-gray-500 mt-0.5">{value}</p>
-      </div>
-    </div>
-  );
+/** 바깥 링크: 앱이면 앱이 가로채 카카오톡·메일 앱으로, 브라우저면 새 창 */
+function openExternal(url: string) {
+  if (isWebViewEnvironment()) {
+    window.location.href = toExternalAppSchemeUrl(url);
+    return;
+  }
+  window.open(url, "_blank", "noopener,noreferrer");
 }
 
 /**
  * 마이페이지 > 고객센터.
+ * 문의는 카카오톡 채널 채팅 하나로 받는다(2026-11-11, 운영자 휴대폰에 바로 알림). 카카오톡을 안 쓰는 손님을 위해 이메일만 함께 둔다.
  * 로그인 없이도 접근 가능해야 함 — App Store 심사(가이드라인 1.5)의 Support URL이 이 화면을 가리킴.
  */
 export function CustomerSupportScreen() {
   return (
-    <div className="pt-4 pb-10">
-      <SupportRow icon={<MailIcon />} label="이메일" value={SUPPORT_EMAIL} />
-      <SupportRow
-        icon={
-          <Image
-            src="/images/contents/talk_phone.png"
-            alt="전화 문의"
-            width={24}
-            height={24}
-            className="w-6 h-6 rounded-full object-cover"
-          />
-        }
-        label="전화 문의"
-        value={SUPPORT_PHONE}
-      />
-      <SupportRow
-        icon={
-          <Image
-            src="/images/contents/talk_kakao.png"
-            alt="카카오톡 채널"
-            width={24}
-            height={24}
-            className="w-6 h-6 rounded-full object-cover"
-          />
-        }
-        label="카카오톡 채널"
-        value={KAKAO_CHANNEL_NAME}
-      />
-      <SupportRow
-        icon={
-          <Image
-            src="/images/contents/talk_insta.png"
-            alt="인스타그램"
-            width={24}
-            height={24}
-            className="w-6 h-6 rounded-full object-cover"
-          />
-        }
-        label="인스타그램"
-        value={`@${INSTAGRAM_HANDLE}`}
-      />
+    <div className="pt-5 pb-10">
+      <div className="px-5 flex flex-col gap-3">
+        <p className="text-sm text-gray-700">
+          궁금한 점은 카카오톡 &apos;픽케이크&apos; 채널 채팅으로 물어봐 주세요.
+        </p>
+        <Button onClick={() => openExternal(SUPPORT_KAKAO_CHAT_URL)}>
+          <span className="flex items-center justify-center gap-2">
+            <Image
+              src="/images/contents/talk_kakao.png"
+              alt=""
+              width={20}
+              height={20}
+              className="w-5 h-5 rounded-full object-cover"
+            />
+            카카오톡으로 문의하기
+          </span>
+        </Button>
+      </div>
+      <button
+        type="button"
+        onClick={() => openExternal(`mailto:${SUPPORT_EMAIL}`)}
+        className="press-bg mt-6 w-full flex items-center justify-between gap-3 px-5 py-4 border-y border-gray-100 text-left"
+      >
+        <span className="flex-1">
+          <span className="block text-sm font-bold text-gray-900">이메일로 문의하기</span>
+          <span className="block text-xs text-gray-500 mt-0.5">{SUPPORT_EMAIL}</span>
+        </span>
+        <Icon name="arrow" width={20} height={20} className="text-gray-900 rotate-90" />
+      </button>
     </div>
   );
 }
