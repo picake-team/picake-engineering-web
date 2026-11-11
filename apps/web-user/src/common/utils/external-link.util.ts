@@ -3,13 +3,25 @@ import {
   toExternalAppSchemeUrl,
 } from "@/apps/web-user/common/utils/webview.bridge";
 
-/** 바깥 링크(카카오톡 채팅·인스타·메일): 앱이면 앱이 가로채 그 앱으로, 브라우저면 새 창 */
+/**
+ * 바깥 링크(카카오톡 채팅·인스타·메일·전화): 앱이면 `apps://`로 앱이 가로채 그 앱으로,
+ * 브라우저면 웹 주소는 새 창, mailto·tel은 그 자리에서. 열리지 않을 때 대신할 길은 useOpenExternal
+ */
 export function openExternalUrl(url: string) {
+  // 전화·문자는 앱이 tel:·sms: 그대로 받는다(판매자 앱과 같은 약속). apps://를 붙이면 "tel"이 주소의 호스트, 번호가 포트로 읽혀 주소가 깨진다
+  if (/^(tel|sms):/i.test(url)) {
+    window.location.href = url;
+    return;
+  }
   if (isWebViewEnvironment()) {
     window.location.href = toExternalAppSchemeUrl(url);
     return;
   }
-  window.open(url, "_blank", "noopener,noreferrer");
+  if (/^https?:/i.test(url)) {
+    window.open(url, "_blank", "noopener,noreferrer");
+    return;
+  }
+  window.location.href = url;
 }
 
 /**

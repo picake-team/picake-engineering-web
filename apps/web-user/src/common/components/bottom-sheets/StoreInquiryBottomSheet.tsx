@@ -4,10 +4,10 @@ import { BottomSheet } from "@/apps/web-user/common/components/bottom-sheets/Bot
 import { BottomSheetOptionList } from "./BottomSheetOptionList";
 import { useStoreDetail } from "@/apps/web-user/features/store/hooks/queries/useStoreDetail";
 import {
-  openExternalUrl,
   storeInstagramUrl,
   storeKakaoChatUrl,
 } from "@/apps/web-user/common/utils/external-link.util";
+import { useOpenExternal } from "@/apps/web-user/common/hooks/useOpenExternal";
 
 interface StoreInquiryBottomSheetProps {
   isOpen: boolean;
@@ -35,61 +35,74 @@ export function StoreInquiryBottomSheet({
   const kakaoUrl = kakaoChannelUrl || storeKakaoChatUrl(store?.kakaoChannelId);
   const instaUrl = instagramUrl || storeInstagramUrl(store?.instagramId);
   const phone = phoneNumber || store?.phoneNumber;
+  const { open, toast } = useOpenExternal();
   return (
-    <BottomSheet
-      isOpen={isOpen}
-      onClose={onClose}
-      title="스토어 문의"
-      footerShadow={false}
-      footer={
-        <div className="px-5 py-4">
-          <button
-            type="button"
-            onClick={onClose}
-            className="w-full h-[52px] rounded-xl border border-gray-100 text-base font-bold text-gray-900"
-          >
-            취소
-          </button>
-        </div>
-      }
-    >
-      <BottomSheetOptionList
-        items={[
-          {
-            icon: { type: "image", src: "/images/contents/talk_kakao.png", alt: "카카오 채널" },
-            label: "카카오톡 채널",
-            onClick: () => {
-              if (kakaoUrl) {
-                openExternalUrl(kakaoUrl);
-                onClose();
-              }
+    <>
+      <BottomSheet
+        isOpen={isOpen}
+        onClose={onClose}
+        title="스토어 문의"
+        footerShadow={false}
+        footer={
+          <div className="px-5 py-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full h-[52px] rounded-xl border border-gray-100 text-base font-bold text-gray-900"
+            >
+              취소
+            </button>
+          </div>
+        }
+      >
+        <BottomSheetOptionList
+          items={[
+            {
+              icon: { type: "image", src: "/images/contents/talk_kakao.png", alt: "카카오 채널" },
+              label: "카카오톡 채널",
+              onClick: () => {
+                if (kakaoUrl) {
+                  open(kakaoUrl, {
+                    copyText: kakaoUrl.replace(/\/chat$/, ""),
+                    message: "카카오톡 채널 주소를 복사했어요",
+                  });
+                  onClose();
+                }
+              },
+              disabled: !kakaoUrl,
             },
-            disabled: !kakaoUrl,
-          },
-          {
-            icon: { type: "image", src: "/images/contents/talk_insta.png", alt: "인스타그램" },
-            label: "인스타그램",
-            onClick: () => {
-              if (instaUrl) {
-                openExternalUrl(instaUrl);
-                onClose();
-              }
+            {
+              icon: { type: "image", src: "/images/contents/talk_insta.png", alt: "인스타그램" },
+              label: "인스타그램",
+              onClick: () => {
+                if (instaUrl) {
+                  open(instaUrl, {
+                    copyText: instaUrl.replace(/^https:\/\/instagram\.com\//, ""),
+                    message: "인스타그램 아이디를 복사했어요",
+                  });
+                  onClose();
+                }
+              },
+              disabled: !instaUrl,
             },
-            disabled: !instaUrl,
-          },
-          {
-            icon: { type: "image", src: "/images/contents/talk_phone.png", alt: "전화 문의" },
-            label: "전화 문의",
-            onClick: () => {
-              if (phone) {
-                window.location.href = `tel:${phone.replace(/[^0-9+]/g, "")}`;
-                onClose();
-              }
+            {
+              icon: { type: "image", src: "/images/contents/talk_phone.png", alt: "전화 문의" },
+              label: "전화 문의",
+              onClick: () => {
+                if (phone) {
+                  open(`tel:${phone.replace(/[^0-9+]/g, "")}`, {
+                    copyText: phone,
+                    message: "전화번호를 복사했어요",
+                  });
+                  onClose();
+                }
+              },
+              disabled: !phone,
             },
-            disabled: !phone,
-          },
-        ]}
-      />
-    </BottomSheet>
+          ]}
+        />
+      </BottomSheet>
+      {toast}
+    </>
   );
 }
