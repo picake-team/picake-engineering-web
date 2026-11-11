@@ -19,6 +19,8 @@ import {
   ChatRulesSheet,
 } from "@/apps/web-user/features/chat/components/ChatSheets";
 import type { ChatCard, ChatMessage } from "@/apps/web-user/features/chat/types/chat.type";
+import { ChatRoomSkeleton } from "@/apps/web-user/common/components/skeleton/ChatSkeleton";
+import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
 
 function dayLabel(iso: string): string {
   const d = new Date(iso);
@@ -369,22 +371,16 @@ export function ChatRoomScreen({
         onScroll={onScroll}
         className="relative flex-1 overflow-y-auto px-[16px] py-[12px]"
       >
+        {/* 불러오는 동안 회색 뼈대, 못 불러오면 "다시 시도"(손님 앱 디자인 기준) */}
         {room.loadingOlder && (
-          <p className="py-[8px] text-center text-xs text-gray-400">불러오는 중…</p>
+          <div className="pb-[10px]">
+            <ChatRoomSkeleton count={2} />
+          </div>
         )}
         {room.loading ? (
-          <p className="py-[40px] text-center text-sm text-gray-400">불러오는 중…</p>
-        ) : room.error ? (
-          <div className="flex flex-col items-center gap-[12px] py-[40px]">
-            <p className="text-sm text-gray-500">{room.error}</p>
-            <button
-              type="button"
-              onClick={() => void room.reload()}
-              className="text-sm font-bold text-primary"
-            >
-              다시 불러오기
-            </button>
-          </div>
+          <ChatRoomSkeleton />
+        ) : room.error && room.messages.length === 0 ? (
+          <LoadErrorState className="py-[60px]" onRetry={() => void room.reload()} />
         ) : room.messages.length === 0 && room.pending.length === 0 ? (
           <p className="py-[40px] text-center text-sm text-gray-500">
             {title}에 궁금한 것을 물어보세요

@@ -9,6 +9,7 @@ import { formatRelativeTime } from "@/apps/web-user/common/utils/date.util";
 import { cn } from "@/apps/web-user/common/lib/utils";
 import { useChatList, useChatStatus } from "@/apps/web-user/features/chat/hooks/useChat";
 import { CHAT_NO_REPLAY } from "@/apps/web-user/features/chat/constants/chat.constant";
+import { ChatListSkeleton } from "@/apps/web-user/common/components/skeleton/ChatSkeleton";
 
 /** MY → 채팅 목록(기획 I-11). 가게 사진·이름·마지막 글·안 읽음 점 */
 export function ChatListScreen() {
@@ -35,7 +36,7 @@ export function ChatListScreen() {
     return (
       <div>
         {header}
-        <p className="py-[40px] text-center text-sm text-gray-400">불러오는 중…</p>
+        <ChatListSkeleton />
       </div>
     );
   }
