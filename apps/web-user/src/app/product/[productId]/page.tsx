@@ -24,6 +24,7 @@ import {
 } from "@/apps/web-user/features/product/components/sections/reservation-bottom-sheet";
 import { ProductDetailSkeleton } from "@/apps/web-user/common/components/skeleton/ProductDetailSkeleton";
 import { useStoreDetail } from "@/apps/web-user/features/store/hooks/queries/useStoreDetail";
+import { useStoreLinkVisit } from "@/apps/web-user/features/store/hooks/useStoreLinkVisit";
 import { useAuthStore } from "@/apps/web-user/common/store/auth.store";
 import { useLoginSheetStore } from "@/apps/web-user/common/store/login-sheet.store";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
@@ -67,6 +68,8 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   const { mutate: removeLike, isPending: isRemovingLike } = useRemoveProductLike();
   // 예약 바텀시트 캘린더에서 휴무일 disable + 영업시간 노출용 영업 캘린더
   const { data: storeDetail } = useStoreDetail(data?.storeId ?? "");
+  // 사장님이 보낸 상품 링크(?from=link)로 왔으면 그 가게 방문으로 남긴다(I-45)
+  useStoreLinkVisit(data?.storeId);
 
   const [isLiked, setIsLiked] = useState(false);
   const isLikeLoading = isAddingLike || isRemovingLike;
@@ -251,6 +254,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
           productNoticeProducer={data.productNoticeProducer}
           productNoticeAddress={data.productNoticeAddress}
           storeName={data.storeName}
+          storeId={data.storeId}
           pickupAddress={data.pickupAddress}
           pickupRoadAddress={data.pickupRoadAddress}
           pickupDetailAddress={data.pickupDetailAddress}

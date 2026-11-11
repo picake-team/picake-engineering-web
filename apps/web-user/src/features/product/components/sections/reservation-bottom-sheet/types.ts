@@ -36,6 +36,8 @@ export interface ReservationBottomSheetProps {
   productNoticeProducer?: string;
   productNoticeAddress?: string;
   storeName: string;
+  /** 링크 효과(I-45): 이 가게에 링크로 왔으면 주문에 표시 */
+  storeId?: string;
   // 픽업장소
   pickupAddress: string;
   pickupRoadAddress: string;
