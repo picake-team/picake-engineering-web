@@ -16,6 +16,7 @@ import {
   HeaderIconButton,
 } from "@/apps/web-seller/common/ui/Button";
 import { InfoRow } from "@/apps/web-seller/common/ui/List";
+import { NO_REPLAY } from "@/apps/web-seller/common/constants/replay.constant";
 import { EmptyState, LoadErrorState, StepBar, Thumb } from "@/apps/web-seller/common/ui/Surface";
 import { ImageLightbox } from "@/apps/web-seller/common/components/images/ImageLightbox";
 import {
@@ -161,7 +162,7 @@ function OrderItemBlock({
       {texts.map((o) => (
         <div
           key={o.optionId}
-          className="flex flex-col gap-1 rounded-control border border-ink-100 px-4 py-3"
+          className={`${NO_REPLAY} flex flex-col gap-1 rounded-control border border-ink-100 px-4 py-3`}
         >
           <span className="text-sub font-bold text-ink-700">{o.name}</span>
           <span className="whitespace-pre-wrap break-words text-heading font-bold text-ink-900">
@@ -170,7 +171,9 @@ function OrderItemBlock({
         </div>
       ))}
       {legacyLettering && texts.length === 0 ? (
-        <div className="flex flex-col gap-1 rounded-control border border-ink-100 px-4 py-3">
+        <div
+          className={`${NO_REPLAY} flex flex-col gap-1 rounded-control border border-ink-100 px-4 py-3`}
+        >
           <span className="text-sub font-bold text-ink-700">레터링</span>
           <span className="whitespace-pre-wrap break-words text-heading font-bold text-ink-900">
             {legacyLettering}
@@ -180,7 +183,7 @@ function OrderItemBlock({
       {images.length > 0 ? (
         <div className="flex flex-col gap-2">
           <span className="text-sub font-bold text-ink-700">참고 사진 {images.length}장</span>
-          <div className="flex flex-wrap gap-2">
+          <div className={`${NO_REPLAY} flex flex-wrap gap-2`}>
             {images.map((src, i) => (
               <button
                 key={src}
@@ -197,7 +200,9 @@ function OrderItemBlock({
       ) : null}
       {item.requestMessage?.trim() ? (
         // 손님 요청은 놓치지 않게 레터링처럼 칸으로(전: 사진 아래 작은 회색 한 줄)
-        <div className="flex flex-col gap-1 rounded-control border border-ink-100 px-4 py-3">
+        <div
+          className={`${NO_REPLAY} flex flex-col gap-1 rounded-control border border-ink-100 px-4 py-3`}
+        >
           <span className="text-sub font-bold text-ink-700">요청 사항</span>
           <span className="whitespace-pre-wrap break-words text-body text-ink-900">
             {item.requestMessage.trim()}
@@ -210,12 +215,18 @@ function OrderItemBlock({
 
 /** 취소·환불·사유(있을 때만, SC-76 ⑦). 누가 왜 바꿨는지를 경위·사유 줄로 */
 function CancelSection({ order }: { order: OrderResponseDto }) {
-  const rows: { label: string; value: React.ReactNode; sub?: string; action?: React.ReactNode }[] =
-    [];
-  const reason = (how: string, text?: string | null, label = "사유") => {
+  const rows: {
+    label: string;
+    value: React.ReactNode;
+    sub?: string;
+    action?: React.ReactNode;
+    /** 손님이 쓴 글·환불 계좌는 화면 녹화에서 가린다 */
+    noReplay?: boolean;
+  }[] = [];
+  const reason = (how: string, text?: string | null, byCustomer = false) => {
     if (!text?.trim()) return;
     rows.push({ label: "경위", value: how });
-    rows.push({ label, value: text.trim() });
+    rows.push({ label: "사유", value: text.trim(), noReplay: byCustomer });
   };
   if (order.paymentPendingExpiredAt) {
     rows.push({
@@ -224,9 +235,9 @@ function CancelSection({ order }: { order: OrderResponseDto }) {
       sub: `${formatKstMonthDayTime(order.paymentPendingExpiredAt)} · 손님이 입금했는지 통장 내역을 확인해 주세요`,
     });
   }
-  reason("손님이 입금 전에 취소했어요", order.userCancelReason);
+  reason("손님이 입금 전에 취소했어요", order.userCancelReason, true);
   reason("사장님이 예약을 취소했어요", order.sellerCancelReason);
-  reason("손님이 환불을 요청했어요", order.refundRequestReason);
+  reason("손님이 환불을 요청했어요", order.refundRequestReason, true);
   reason("사장님이 취소환불대기로 바꿈", order.sellerCancelRefundPendingReason);
   if (order.sellerNoShowReason?.trim()) {
     rows.push({ label: "노쇼 사유", value: order.sellerNoShowReason.trim() });
@@ -236,6 +247,7 @@ function CancelSection({ order }: { order: OrderResponseDto }) {
     rows.push({
       label: "환불 계좌",
       value: account,
+      noReplay: true,
       sub: order.refundAccountHolderName?.trim()
         ? `예금주 ${order.refundAccountHolderName.trim()}`
         : undefined,
@@ -258,6 +270,7 @@ function CancelSection({ order }: { order: OrderResponseDto }) {
       {rows.map((r, i) => (
         <InfoRow
           key={`${r.label}-${i}`}
+          className={r.noReplay ? NO_REPLAY : undefined}
           label={r.label}
           value={
             <>
@@ -401,9 +414,14 @@ export const StoreDetailOrderDetailMobilePage: React.FC = () => {
 
       <Divider />
       <SectionTitle>예약자</SectionTitle>
-      <InfoRow label="이름" value={order.reservationContactName?.trim() || "예약자 미입력"} />
+      <InfoRow
+        className={NO_REPLAY}
+        label="이름"
+        value={order.reservationContactName?.trim() || "예약자 미입력"}
+      />
       {phone ? (
         <InfoRow
+          className={NO_REPLAY}
           label="연락처"
           value={<span className="select-all">{formatPhoneDisplay(phone)}</span>}
           action={<ContactActions phone={phone} />}
@@ -411,6 +429,7 @@ export const StoreDetailOrderDetailMobilePage: React.FC = () => {
       ) : null}
       {depositor ? (
         <InfoRow
+          className={NO_REPLAY}
           label="입금자명"
           value={depositor}
           action={

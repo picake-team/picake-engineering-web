@@ -22,6 +22,7 @@ import {
 import { OrderSummaryBox } from "@/apps/web-seller/features/order/components/mobile/OrderCards";
 import { formatWon } from "@/apps/web-seller/features/order/utils/order-mobile.util";
 import { storeBankLabel } from "@/apps/web-seller/features/store/constants/store.constants";
+import { NO_REPLAY } from "@/apps/web-seller/common/constants/replay.constant";
 
 const IRREVERSIBLE = "처리하면 되돌릴 수 없어요.";
 
@@ -248,7 +249,9 @@ export function OrderActionSheet({
           <span className="text-caption text-ink-600">환불 계좌</span>
           {account ? (
             <div className="flex items-center justify-between gap-2">
-              <span className="min-w-0 break-all text-body font-bold text-ink-900">{account}</span>
+              <span className={`${NO_REPLAY} min-w-0 break-all text-body font-bold text-ink-900`}>
+                {account}
+              </span>
               <CircleIconButton
                 icon="copy"
                 label="환불 계좌 복사"
@@ -264,7 +267,7 @@ export function OrderActionSheet({
           ) : (
             <span className="text-body font-bold text-ink-900">손님이 적은 환불 계좌가 없어요</span>
           )}
-          <span className="text-sub text-ink-600">
+          <span className={`${NO_REPLAY} text-sub text-ink-600`}>
             {order.refundAccountHolderName?.trim()
               ? `예금주 ${order.refundAccountHolderName.trim()} · `
               : ""}

@@ -22,8 +22,10 @@ import {
   SheetSectionRow,
   SheetTable,
 } from "@/apps/web-seller/features/order/components/detail/OrderDetailSheetTable";
+import { NO_REPLAY } from "@/apps/web-seller/common/constants/replay.constant";
 
-type NotesRow = { key: string; value: string };
+/** noReplay: 손님이 쓴 사유·환불 계좌는 화면 녹화에서 가린다 */
+type NotesRow = { key: string; value: string; noReplay?: boolean };
 
 function buildNotesRows(order: OrderResponseDto): NotesRow[] {
   const rows: NotesRow[] = [];
@@ -36,7 +38,7 @@ function buildNotesRows(order: OrderResponseDto): NotesRow[] {
     });
   }
   if (order.userCancelReason) {
-    rows.push({ key: "고객 입금 전 취소 사유", value: order.userCancelReason });
+    rows.push({ key: "고객 입금 전 취소 사유", value: order.userCancelReason, noReplay: true });
   }
   if (order.sellerCancelReason) {
     rows.push({ key: "판매자 예약 취소 사유", value: order.sellerCancelReason });
@@ -45,7 +47,11 @@ function buildNotesRows(order: OrderResponseDto): NotesRow[] {
     rows.push({ key: "노쇼 사유", value: order.sellerNoShowReason });
   }
   if (order.refundRequestReason) {
-    rows.push({ key: "고객 취소·환불 요청 사유", value: order.refundRequestReason });
+    rows.push({
+      key: "고객 취소·환불 요청 사유",
+      value: order.refundRequestReason,
+      noReplay: true,
+    });
   }
   if (order.sellerCancelRefundPendingReason) {
     rows.push({
@@ -56,6 +62,7 @@ function buildNotesRows(order: OrderResponseDto): NotesRow[] {
   if (order.refundBankName || order.refundBankAccountNumber || order.refundAccountHolderName) {
     rows.push({
       key: "환불 계좌 (고객 요청 시)",
+      noReplay: true,
       value: [
         storeBankLabel(order.refundBankName),
         order.refundBankAccountNumber,
@@ -164,7 +171,14 @@ export const OrderDetailSpreadsheetView: React.FC<OrderDetailSpreadsheetViewProp
                       {item.selectedOptions.length > 0 ? (
                         <ul className="space-y-1">
                           {item.selectedOptions.map((option) => (
-                            <li key={option.optionId} className="whitespace-pre-wrap">
+                            <li
+                              key={option.optionId}
+                              // 손님이 쓴 레터링·올린 사진은 화면 녹화에서 가린다
+                              className={cn(
+                                "whitespace-pre-wrap",
+                                (option.type === "TEXT" || option.type === "IMAGE") && NO_REPLAY,
+                              )}
+                            >
                               <span className="text-slate-500">{option.name}: </span>
                               {option.type === "IMAGE" ? (
                                 <span className="mt-1 flex flex-wrap gap-1.5">
@@ -196,7 +210,13 @@ export const OrderDetailSpreadsheetView: React.FC<OrderDetailSpreadsheetViewProp
                         <span className={ORDER_DETAIL_MUTED}>—</span>
                       )}
                     </td>
-                    <td className={cn(ORDER_DETAIL_TD_CELL, "max-w-[200px] whitespace-pre-wrap")}>
+                    <td
+                      className={cn(
+                        ORDER_DETAIL_TD_CELL,
+                        "max-w-[200px] whitespace-pre-wrap",
+                        NO_REPLAY,
+                      )}
+                    >
                       {item.requestMessage?.trim() || "—"}
                     </td>
                   </tr>
@@ -232,11 +252,15 @@ export const OrderDetailSpreadsheetView: React.FC<OrderDetailSpreadsheetViewProp
               </SheetKvRow>
 
               <SheetSectionRow>예약자 연락</SheetSectionRow>
-              <SheetKvRow label="입금자명">{order.depositorName?.trim() || "—"}</SheetKvRow>
-              <SheetKvRow label="예약자명">
-                {order.reservationContactName?.trim() || "—"}
+              <SheetKvRow label="입금자명">
+                <span className={NO_REPLAY}>{order.depositorName?.trim() || "—"}</span>
               </SheetKvRow>
-              <SheetKvRow label="연락처">{order.reservationPhone?.trim() || "—"}</SheetKvRow>
+              <SheetKvRow label="예약자명">
+                <span className={NO_REPLAY}>{order.reservationContactName?.trim() || "—"}</span>
+              </SheetKvRow>
+              <SheetKvRow label="연락처">
+                <span className={NO_REPLAY}>{order.reservationPhone?.trim() || "—"}</span>
+              </SheetKvRow>
 
               <SheetSectionRow>기본</SheetSectionRow>
               <SheetKvRow label="상품명">{order.productName || "—"}</SheetKvRow>
@@ -308,7 +332,12 @@ export const OrderDetailSpreadsheetView: React.FC<OrderDetailSpreadsheetViewProp
                       {row.key}
                     </td>
                     <td
-                      className={cn(ORDER_DETAIL_TD_CELL, ORDER_DETAIL_MONO, "whitespace-pre-wrap")}
+                      className={cn(
+                        ORDER_DETAIL_TD_CELL,
+                        ORDER_DETAIL_MONO,
+                        "whitespace-pre-wrap",
+                        row.noReplay && NO_REPLAY,
+                      )}
                     >
                       {row.value}
                     </td>

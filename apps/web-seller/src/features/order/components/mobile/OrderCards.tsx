@@ -26,6 +26,7 @@ import {
   orderItemsShort,
   statusTone,
 } from "@/apps/web-seller/features/order/utils/order-mobile.util";
+import { NO_REPLAY } from "@/apps/web-seller/common/constants/replay.constant";
 
 export function orderDetailPath(order: Pick<OrderResponseDto, "storeId" | "id">) {
   return ROUTES.STORE_DETAIL_ORDERS_DETAIL(order.storeId, order.id);
@@ -78,7 +79,8 @@ export function OrderCard({
             ) : null}
           </span>
           <span className="text-body text-ink-900">{orderItemsLine(order)}</span>
-          <span className="text-sub text-ink-600">
+          {/* 줄 안에 예약자·입금자 이름이 들어갈 수 있어 화면 녹화에서 가린다 */}
+          <span className={`${NO_REPLAY} text-sub text-ink-600`}>
             {formatWon(order.totalPrice)} ·{" "}
             {/* 검색 결과(칸 없음)는 상태 배지 + 예약자 이름(이름·번호 뒷자리로 찾은 손님이 맞는지 바로 보이게).
                 이름이 없으면 주문 시각 */}
@@ -141,7 +143,7 @@ export function PickupRow({ order, last }: { order: OrderResponseDto; last?: boo
         <span className="line-clamp-2 text-body font-semibold text-ink-900">
           {orderItemsShort(order)}
         </span>
-        <span className="text-sub text-ink-600">
+        <span className={`${NO_REPLAY} text-sub text-ink-600`}>
           {order.reservationContactName?.trim() || "예약자 미입력"}
         </span>
       </span>
