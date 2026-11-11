@@ -19,6 +19,9 @@ import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import { productQueryKeys } from "@/apps/web-user/features/product/constants/productQueryKeys.constant";
 import { CustomOptionType } from "@/apps/web-user/features/product/types/product.type";
 import { toOrderItemOptionInputs } from "@/apps/web-user/features/product/utils/custom-option.util";
+import { saveReservationDraft } from "@/apps/web-user/features/product/utils/reservation-draft.util";
+import { useAuthStore } from "@/apps/web-user/common/store/auth.store";
+import { useLoginSheetStore } from "@/apps/web-user/common/store/login-sheet.store";
 
 export function ReservationBottomSheet({
   isOpen,
@@ -39,6 +42,7 @@ export function ReservationBottomSheet({
   pickupLongitude,
   businessCalendar,
   refundCancellationPolicy,
+  initialDraft,
   onClose,
 }: ReservationBottomSheetProps) {
   const queryClient = useQueryClient();
@@ -47,6 +51,10 @@ export function ReservationBottomSheet({
   const [optionsVersionAtOpen] = useState(optionsVersion);
   const { mutate: createOrder } = useCreateOrder();
   const { mutateAsync: uploadFile } = useUploadFile();
+  // 로그인 없이도 예약 창에서 다 고르고, "예약신청"을 누를 때 로그인한다(I-59 A)
+  const { isAuthenticated } = useAuthStore();
+  const openLoginSheet = useLoginSheetStore((s) => s.openLoginSheet);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
 
   // 클릭 즉시 잠그기 위한 제출 락 (이미지 업로드 → 주문 생성 전 구간 포함)
   // useCreateOrder의 isPending은 업로드가 끝난 뒤에야 true가 되므로 단독으로는 더블클릭을 막지 못함
@@ -123,14 +131,25 @@ export function ReservationBottomSheet({
     handleConfirmDelete,
     handleEditItem,
     handleAddNewItem,
+    buildDraft,
   } = useReservationBottomSheet({
     isOpen,
     productId,
     price,
     cakeSizeOptions,
     customOptions,
+    initialDraft,
     onClose: handleGuardedClose,
   });
+
+  /** 로그인하지 않았으면 고른 내용(사진 포함)을 기기에 남기고 로그인 창을 연다. 다녀오면 상품 화면이 이어서 연다 */
+  const handleLoginToReserve = async () => {
+    if (isSavingDraft) return;
+    setIsSavingDraft(true);
+    await saveReservationDraft(buildDraft(optionsVersionAtOpen));
+    setIsSavingDraft(false);
+    openLoginSheet("reservation_button");
+  };
 
   // 모바일 키보드가 올라오면 옵션 선택 뷰의 하단 버튼(취소/선택완료) 숨김
   const isKeyboardOpen = useKeyboardOpen();
@@ -277,15 +296,29 @@ export function ReservationBottomSheet({
           <span className="text-xl font-bold text-gray-900">{totalPrice.toLocaleString()}원</span>
         </div>
         <div className="py-[12px]">
-          <Button
-            onClick={handleCreateOrder}
-            disabled={
-              orderItems.length === 0 || !reserverName.trim() || !reserverPhone.trim() || !allAgreed
-            }
-            loading={isSubmitting}
-          >
-            {isSubmitting ? "예약 신청 중…" : "예약신청"}
-          </Button>
+          {isAuthenticated ? (
+            <Button
+              onClick={handleCreateOrder}
+              disabled={
+                orderItems.length === 0 ||
+                !reserverName.trim() ||
+                !reserverPhone.trim() ||
+                !allAgreed
+              }
+              loading={isSubmitting}
+            >
+              {isSubmitting ? "예약 신청 중…" : "예약신청"}
+            </Button>
+          ) : (
+            // 예약자 칸은 로그인하면 가입 정보로 채워지므로 비어 있어도 된다
+            <Button
+              onClick={() => void handleLoginToReserve()}
+              disabled={orderItems.length === 0 || !allAgreed}
+              loading={isSavingDraft}
+            >
+              로그인하고 예약신청
+            </Button>
+          )}
         </div>
       </div>
     );
@@ -348,6 +381,7 @@ export function ReservationBottomSheet({
       allAgreed={allAgreed}
       handleToggleAllAgreements={handleToggleAllAgreements}
       refundCancellationPolicy={refundCancellationPolicy}
+      isAuthenticated={isAuthenticated}
     />
   );
 

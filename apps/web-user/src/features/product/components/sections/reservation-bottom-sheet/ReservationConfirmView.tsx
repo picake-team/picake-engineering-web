@@ -46,6 +46,8 @@ interface ReservationConfirmViewProps {
   handleToggleAllAgreements: (value: boolean) => void;
   /** 판매자 환불·취소 규정. 미정의면 안내 박스에서만 빈 메시지 노출 */
   refundCancellationPolicy?: RefundCancellationPolicy;
+  /** 로그인 전이면 예약자 칸은 비워 둬도 된다고 알린다 */
+  isAuthenticated?: boolean;
 }
 
 export function ReservationConfirmView({
@@ -73,6 +75,7 @@ export function ReservationConfirmView({
   allAgreed,
   handleToggleAllAgreements,
   refundCancellationPolicy,
+  isAuthenticated = true,
 }: ReservationConfirmViewProps) {
   const refundRules = visibleRefundRules(refundCancellationPolicy);
   return (
@@ -190,7 +193,15 @@ export function ReservationConfirmView({
       </div>
       <div className="px-5 py-10 flex flex-col border-b-[14px] border-gray-50">
         <h2 className="mb-1 py-2.5 text-lg font-bold text-gray-900">예약정보 확인</h2>
-        <InfoNotice message="예약 연락을 위해 판매자에게 전달돼요." tone="gray" className="mb-1" />
+        <InfoNotice
+          message={
+            isAuthenticated
+              ? "예약 연락을 위해 판매자에게 전달돼요."
+              : "비워 두면 로그인한 뒤 가입한 이름·번호로 채워요. 예약 연락을 위해 판매자에게 전달돼요."
+          }
+          tone="gray"
+          className="mb-1"
+        />
         <div className="flex flex-col gap-4">
           <div className="py-3">
             <LabeledInput

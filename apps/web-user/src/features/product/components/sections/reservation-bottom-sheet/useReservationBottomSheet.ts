@@ -15,6 +15,7 @@ import {
 } from "@/apps/web-user/features/product/utils/custom-option.util";
 import { useMypageProfile } from "@/apps/web-user/features/mypage/hooks/queries/useMypageProfile";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
+import type { ReservationDraft } from "@/apps/web-user/features/product/utils/reservation-draft.util";
 
 interface UseReservationBottomSheetProps {
   isOpen: boolean;
@@ -22,6 +23,8 @@ interface UseReservationBottomSheetProps {
   price: number;
   cakeSizeOptions?: CakeSizeOption[];
   customOptions?: CustomOption[];
+  /** 로그인 전에 고른 내용. 있으면 열 때 그대로 채우고 주문확인 화면부터 보인다 */
+  initialDraft?: ReservationDraft | null;
   onClose: () => void;
 }
 
@@ -39,6 +42,7 @@ export function useReservationBottomSheet({
   price,
   cakeSizeOptions,
   customOptions,
+  initialDraft,
   onClose,
 }: UseReservationBottomSheetProps) {
   // 구매자에게는 노출 중인 옵션만 보여준다 (서버도 걸러 주지만 한 번 더)
@@ -120,6 +124,8 @@ export function useReservationBottomSheet({
   const [reserverName, setReserverName] = useState("");
   const [reserverPhone, setReserverPhone] = useState("");
   const hasPrefilledReserverRef = useRef(false);
+  // 이미 채운 로그인 전 내용(같은 내용으로 두 번 채우지 않게)
+  const restoredDraftRef = useRef<ReservationDraft | null>(null);
 
   // ========================================
   // 필수 동의 상태 (confirm 단계)
@@ -156,8 +162,38 @@ export function useReservationBottomSheet({
       setAgreePayment(false);
       setAgreeRefund(false);
       setAgreeOptionChange(false);
+      restoredDraftRef.current = null;
     }
   }, [isOpen]);
+
+  // 로그인 전에 고른 내용으로 다시 열기(고른 다음에 로그인, I-59). 예약자 칸이 비어 있으면 아래에서 가입 정보로 채운다
+  useEffect(() => {
+    if (!isOpen || !initialDraft || restoredDraftRef.current === initialDraft) return;
+    restoredDraftRef.current = initialDraft;
+    setSelectedDate(initialDraft.selectedDate ? new Date(initialDraft.selectedDate) : null);
+    setOrderItems(initialDraft.orderItems);
+    setAgreePayment(initialDraft.agreements.payment);
+    setAgreeRefund(initialDraft.agreements.refund);
+    setAgreeOptionChange(initialDraft.agreements.optionChange);
+    if (initialDraft.reserverName.trim() || initialDraft.reserverPhone.trim()) {
+      setReserverName(initialDraft.reserverName);
+      setReserverPhone(initialDraft.reserverPhone);
+      hasPrefilledReserverRef.current = true;
+    }
+    setView(initialDraft.orderItems.length > 0 ? "confirm" : "options");
+  }, [isOpen, initialDraft]);
+
+  /** 지금 고른 내용을 로그인 전에 남겨 둘 모양으로 */
+  const buildDraft = (optionsVersion: number): ReservationDraft => ({
+    productId,
+    optionsVersion,
+    savedAt: Date.now(),
+    selectedDate: selectedDate ? selectedDate.toISOString() : null,
+    orderItems,
+    reserverName,
+    reserverPhone,
+    agreements: { payment: agreePayment, refund: agreeRefund, optionChange: agreeOptionChange },
+  });
 
   // 시트 열릴 때 사용자 정보로 예약자명/번호 1회 prefill
   useEffect(() => {
@@ -462,6 +498,9 @@ export function useReservationBottomSheet({
     isEditingFromConfirm,
     dateSelectionSignal,
     formatDateTime,
+
+    // 로그인 전에 남겨 둘 내용
+    buildDraft,
 
     // Handlers
     handleOpenCalendar,

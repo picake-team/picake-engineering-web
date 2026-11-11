@@ -50,6 +50,8 @@ export function LoginBottomSheet() {
   return (
     <DragHandleBottomSheet
       isOpen={isOpen}
+      // 예약 창 위에서도 열린다(로그인 없이 다 고른 뒤 "로그인하고 예약신청", I-59 A)
+      zIndexClassName="z-sheet-over"
       onClose={closeLoginSheet}
       ariaLabel="로그인 / 회원가입 하기"
     >

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { withEulReul } from "@/apps/web-user/common/utils/josa.util";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { Select } from "@/apps/web-user/common/components/selectboxs/Select";
@@ -140,10 +140,14 @@ function ImageOptionField({ option, selection, onChange, error }: CustomOptionFi
   const files = useMemo(() => selection?.imageFiles ?? [], [selection?.imageFiles]);
   const count = getImageCount(selection);
 
-  const filePreviewUrls = useMemo(() => files.map((file) => URL.createObjectURL(file)), [files]);
+  // 미리보기 주소는 만드는 곳과 지우는 곳을 한 effect에 둔다. 그리는 중(useMemo)에 만들면 처음부터 사진이 든 채
+  // 열린 칸(옵션변경, 로그인하고 돌아온 예약 창)에서 개발 모드의 두 번 정리가 주소를 지워 미리보기가 깨졌다
+  const [filePreviewUrls, setFilePreviewUrls] = useState<string[]>([]);
   useEffect(() => {
-    return () => filePreviewUrls.forEach((url) => URL.revokeObjectURL(url));
-  }, [filePreviewUrls]);
+    const urls = files.map((file) => URL.createObjectURL(file));
+    setFilePreviewUrls(urls);
+    return () => urls.forEach((url) => URL.revokeObjectURL(url));
+  }, [files]);
 
   const previews = [
     ...existingUrls.map((url, index) => ({ url, remove: () => removeExisting(index) })),
