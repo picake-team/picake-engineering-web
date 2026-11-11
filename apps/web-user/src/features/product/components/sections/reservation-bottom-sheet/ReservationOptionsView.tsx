@@ -81,12 +81,19 @@ export function ReservationOptionsView({
     }
   };
 
-  // 날짜 선택 → 사이즈 → 첫 추가 옵션(맛 등) 순서로 다음 입력으로 안내
+  // 날짜 선택 → 사이즈 → 첫 추가 옵션(맛 등) 순서로 다음 입력으로 안내.
+  // 사이즈가 없는 상품(사이즈 칸을 그리지 않음)은 바로 첫 추가 옵션으로
   useEffect(() => {
-    if (dateSelectionSignal > 0 && !selectedSizeId) {
+    if (dateSelectionSignal === 0) return;
+    if (sizeOptions.length === 0) {
+      scrollToOption(customOptions.find((option) => !selections[option.id]));
+      return;
+    }
+    if (!selectedSizeId) {
       scrollToRef(sizeRef);
       setSizeOpenSignal((prev) => prev + 1);
     }
+    // 날짜를 고른 신호에만 반응
   }, [dateSelectionSignal, selectedSizeId]);
 
   useEffect(() => {
@@ -136,26 +143,29 @@ export function ReservationOptionsView({
           {dateError && <p className="mt-[6px] text-xs text-red-400">{dateError}</p>}
         </div>
       )}
-      <div ref={sizeRef}>
-        <Select
-          label="사이즈 선택"
-          value={selectedSizeId}
-          onChange={setSelectedSizeId}
-          openSignal={sizeOpenSignal}
-          error={errorIf(
-            sizeOptions.length > 0 && !sizeOptions.some((size) => size.id === selectedSizeId),
-            "사이즈를 선택해주세요.",
-          )}
-          options={[
-            { value: "", label: "사이즈를 선택해주세요" },
-            ...sizeOptions.map((size) => ({
-              value: size.id,
-              label: [size.displayName, size.description].filter(Boolean).join(" "),
-              subLabel: size.price > 0 ? `+${size.price.toLocaleString()}원` : undefined,
-            })),
-          ]}
-        />
-      </div>
+      {/* 사이즈가 없는 상품은 칸을 그리지 않는다(서버도 사이즈 없이 받고, 상품 상세 '사이즈·옵션' 탭도 숨김) */}
+      {sizeOptions.length > 0 && (
+        <div ref={sizeRef}>
+          <Select
+            label="사이즈 선택"
+            value={selectedSizeId}
+            onChange={setSelectedSizeId}
+            openSignal={sizeOpenSignal}
+            error={errorIf(
+              sizeOptions.length > 0 && !sizeOptions.some((size) => size.id === selectedSizeId),
+              "사이즈를 선택해주세요.",
+            )}
+            options={[
+              { value: "", label: "사이즈를 선택해주세요" },
+              ...sizeOptions.map((size) => ({
+                value: size.id,
+                label: [size.displayName, size.description].filter(Boolean).join(" "),
+                subLabel: size.price > 0 ? `+${size.price.toLocaleString()}원` : undefined,
+              })),
+            ]}
+          />
+        </div>
+      )}
       {customOptions.map((option) => (
         <div
           key={option.id}
