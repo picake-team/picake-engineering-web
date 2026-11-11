@@ -8,6 +8,7 @@ import { BottomSheet } from "@/apps/web-seller/common/ui/Sheet";
 import { useAlertStore } from "@/apps/web-seller/common/store/alert.store";
 import getApiMessage from "@/apps/web-seller/common/utils/getApiMessage";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
+import { canGoBackInApp } from "@/apps/web-seller/common/hooks/useLeaveAfterSave";
 import { getOrderStatusLabel } from "@/apps/web-seller/features/order/utils/order-status-ui.util";
 import { chatApi } from "@/apps/web-seller/features/chat/apis/chat.api";
 import { shrinkPhoto, useSellerChatRoom } from "@/apps/web-seller/features/chat/hooks/useChat";
@@ -47,7 +48,7 @@ function CardView({ card, onOpen }: { card: ChatCard; onOpen?: () => void }) {
     <button
       type="button"
       onClick={onOpen}
-      className="flex w-[248px] items-center gap-3 rounded-card border border-ink-100 bg-white p-3 text-left"
+      className="flex w-[min(248px,calc(100vw-120px))] items-center gap-3 rounded-card border border-ink-100 bg-white p-3 text-left"
     >
       {card.imageUrl ? (
         <img src={card.imageUrl} alt="" className="size-12 shrink-0 rounded-control object-cover" />
@@ -102,7 +103,7 @@ function Bubble({
           <div
             className={cx(
               CHAT_NO_REPLAY,
-              "flex max-w-[264px] flex-wrap gap-1",
+              "flex max-w-[min(264px,calc(100vw-120px))] flex-wrap gap-1",
               m.mine && "justify-end",
             )}
           >
@@ -122,7 +123,7 @@ function Bubble({
           <div
             className={cx(
               CHAT_NO_REPLAY,
-              "max-w-[264px] select-text whitespace-pre-wrap break-words rounded-2xl px-3.5 py-2.5 text-body",
+              "max-w-[min(264px,calc(100vw-120px))] select-text whitespace-pre-wrap [overflow-wrap:anywhere] [word-break:keep-all] rounded-2xl px-3.5 py-2.5 text-body",
               // 판매자 앱은 진한 주황을 버튼 하나에만 쓴다 — 내 말풍선은 검정(디자인 기준)
               m.mine ? "bg-ink-900 text-white" : "bg-ink-50 text-ink-900",
             )}
@@ -330,7 +331,12 @@ export function SellerChatRoom({
       >
         <BackHeader
           title={title}
-          onBack={() => navigate(ROUTES.STORE_DETAIL_CHATS(storeId))}
+          // 들어온 곳(주문 상세·채팅 목록)으로. 휴대폰 알림으로 바로 열렸으면 채팅 목록으로
+          onBack={() =>
+            canGoBackInApp()
+              ? navigate(-1)
+              : navigate(ROUTES.STORE_DETAIL_CHATS(storeId), { replace: true })
+          }
           actions={
             thread ? (
               <HeaderIconButton icon="more" label="채팅 메뉴" onClick={() => setMenuOpen(true)} />
@@ -382,7 +388,7 @@ export function SellerChatRoom({
                 <div
                   className={cx(
                     CHAT_NO_REPLAY,
-                    "flex max-w-[264px] flex-wrap justify-end gap-1 opacity-70",
+                    "flex max-w-[min(264px,calc(100vw-120px))] flex-wrap justify-end gap-1 opacity-70",
                   )}
                 >
                   {p.photos.map((src, i) => (
@@ -399,7 +405,7 @@ export function SellerChatRoom({
                 <div
                   className={cx(
                     CHAT_NO_REPLAY,
-                    "max-w-[264px] whitespace-pre-wrap break-words rounded-2xl bg-ink-900 px-3.5 py-2.5 text-body text-white opacity-60",
+                    "max-w-[min(264px,calc(100vw-120px))] whitespace-pre-wrap [overflow-wrap:anywhere] [word-break:keep-all] rounded-2xl bg-ink-900 px-3.5 py-2.5 text-body text-white opacity-60",
                   )}
                 >
                   {p.text}

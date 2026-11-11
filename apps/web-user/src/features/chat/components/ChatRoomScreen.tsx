@@ -43,7 +43,7 @@ function CardView({ card, onOpen }: { card: ChatCard; onOpen?: () => void }) {
     <button
       type="button"
       onClick={onOpen}
-      className="flex w-[240px] items-center gap-[10px] rounded-xl border border-gray-100 bg-white p-[10px] text-left"
+      className="flex w-[min(240px,calc(100vw-120px))] items-center gap-[10px] rounded-xl border border-gray-100 bg-white p-[10px] text-left"
     >
       {card.imageUrl ? (
         <img
@@ -103,7 +103,7 @@ function Bubble({
           <div
             className={cn(
               CHAT_NO_REPLAY,
-              "flex max-w-[260px] flex-wrap gap-[4px]",
+              "flex max-w-[min(260px,calc(100vw-120px))] flex-wrap gap-[4px]",
               m.mine && "justify-end",
             )}
           >
@@ -127,7 +127,7 @@ function Bubble({
           <div
             className={cn(
               CHAT_NO_REPLAY,
-              "max-w-[260px] select-text whitespace-pre-wrap break-words rounded-2xl px-[14px] py-[10px] text-sm",
+              "max-w-[min(260px,calc(100vw-120px))] select-text whitespace-pre-wrap [overflow-wrap:anywhere] [word-break:keep-all] rounded-2xl px-[14px] py-[10px] text-sm",
               m.mine ? "bg-primary text-white" : "bg-gray-50 text-gray-900",
             )}
           >
@@ -413,7 +413,7 @@ export function ChatRoomScreen({
                 <div
                   className={cn(
                     CHAT_NO_REPLAY,
-                    "flex max-w-[260px] flex-wrap justify-end gap-[4px] opacity-70",
+                    "flex max-w-[min(260px,calc(100vw-120px))] flex-wrap justify-end gap-[4px] opacity-70",
                   )}
                 >
                   {p.photos.map((src, i) => (
@@ -430,7 +430,7 @@ export function ChatRoomScreen({
                 <div
                   className={cn(
                     CHAT_NO_REPLAY,
-                    "max-w-[260px] whitespace-pre-wrap break-words rounded-2xl bg-primary px-[14px] py-[10px] text-sm text-white",
+                    "max-w-[min(260px,calc(100vw-120px))] whitespace-pre-wrap [overflow-wrap:anywhere] [word-break:keep-all] rounded-2xl bg-primary px-[14px] py-[10px] text-sm text-white",
                     p.status === "sending" ? "opacity-70" : "opacity-50",
                   )}
                 >
