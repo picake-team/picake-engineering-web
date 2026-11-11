@@ -3,8 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { cx } from "@/apps/web-seller/common/ui/cx";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
 import { BackHeader, APP_COLUMN_CLASS } from "@/apps/web-seller/common/ui/Screen";
-import { Button, HeaderIconButton } from "@/apps/web-seller/common/ui/Button";
+import { Button, ButtonPair, HeaderIconButton } from "@/apps/web-seller/common/ui/Button";
 import { BottomSheet } from "@/apps/web-seller/common/ui/Sheet";
+import { ListRowButton } from "@/apps/web-seller/common/ui/List";
+import { Field, TextArea } from "@/apps/web-seller/common/ui/Field";
+import { EmptyState, LoadErrorState } from "@/apps/web-seller/common/ui/Surface";
+import { ImageLightbox } from "@/apps/web-seller/common/components/images/ImageLightbox";
+import { formatKstMonthDayWeek, kstTime } from "@/apps/web-seller/common/utils/kst-date.util";
 import { useAlertStore } from "@/apps/web-seller/common/store/alert.store";
 import getApiMessage from "@/apps/web-seller/common/utils/getApiMessage";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
@@ -26,21 +31,27 @@ import type {
   ChatWriteState,
 } from "@/apps/web-seller/features/chat/types/chat.type";
 
-function dayLabel(iso: string): string {
-  return new Intl.DateTimeFormat("ko-KR", {
-    timeZone: "Asia/Seoul",
-    month: "long",
-    day: "numeric",
-    weekday: "short",
-  }).format(new Date(iso));
-}
+// 날짜는 "11월 12일(목)"(올해가 아니면 해), 시각은 24시 "20:05" — 판매자 앱 디자인 기준(kst-date.util)
+const dayLabel = (iso: string) => formatKstMonthDayWeek(iso);
+const timeLabel = (iso: string) => kstTime(iso);
 
-function timeLabel(iso: string): string {
-  return new Intl.DateTimeFormat("ko-KR", {
-    timeZone: "Asia/Seoul",
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(new Date(iso));
+/** 불러오는 동안 말풍선 모양 회색 뼈대(디자인 기준: "불러오는 중…" 글자 대신 뼈대) */
+function RoomSkeleton({ count = 6 }: { count?: number }) {
+  const widths = ["w-48", "w-36", "w-56", "w-40", "w-52", "w-32"];
+  return (
+    <div className="flex flex-col gap-2.5" aria-busy="true" aria-label="불러오는 중">
+      {Array.from({ length: count }, (_, i) => (
+        <span
+          key={i}
+          className={cx(
+            "h-11 animate-pulse rounded-2xl bg-ink-50",
+            widths[i % widths.length],
+            i % 2 === 1 && "self-end",
+          )}
+        />
+      ))}
+    </div>
+  );
 }
 
 function CardView({ card, onOpen }: { card: ChatCard; onOpen?: () => void }) {
@@ -82,8 +93,12 @@ function Bubble({
   onOpenCard: (card: ChatCard) => void;
 }) {
   const meta = (
-    <span className="shrink-0 self-end pb-0.5 text-[11px] text-ink-400">
-      {m.mine && readByOther ? <span className="mr-1 font-semibold text-ink-600">읽음</span> : null}
+    <span className="shrink-0 self-end pb-0.5 text-badge text-ink-400">
+      {m.mine && readByOther ? (
+        <span className="mr-1 font-semibold text-brand-ink" data-chat-read>
+          읽음
+        </span>
+      ) : null}
       {timeLabel(m.createdAt)}
     </span>
   );
@@ -124,9 +139,10 @@ function Bubble({
             className={cx(
               CHAT_NO_REPLAY,
               "max-w-[min(264px,calc(100vw-120px))] select-text whitespace-pre-wrap [overflow-wrap:anywhere] [word-break:keep-all] rounded-2xl px-3.5 py-2.5 text-body",
-              // 판매자 앱은 진한 주황을 버튼 하나에만 쓴다 — 내 말풍선은 검정(디자인 기준)
-              m.mine ? "bg-ink-900 text-white" : "bg-ink-50 text-ink-900",
+              // 내 말풍선은 주황(손님 앱과 같게, 운영자 결정 11-12 — 디자인 기준의 채팅 예외)
+              m.mine ? "bg-brand text-white" : "bg-ink-50 text-ink-900",
             )}
+            data-chat-bubble={m.mine ? "mine" : "other"}
           >
             {m.text}
           </div>
@@ -181,6 +197,7 @@ export function SellerChatRoom({
   const [menuOpen, setMenuOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [reason, setReason] = useState<ChatReportReason | null>(null);
+  const [reportDetail, setReportDetail] = useState("");
   const [viewer, setViewer] = useState<string | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const atBottomRef = useRef(true);
@@ -296,10 +313,15 @@ export function SellerChatRoom({
     if (!thread || !reason) return;
     setBusy(true);
     try {
-      const res = await chatApi.report(storeId, thread.id, { reason });
+      await chatApi.report(storeId, thread.id, {
+        reason,
+        ...(reportDetail.trim() ? { detail: reportDetail.trim() } : {}),
+      });
       setReportOpen(false);
       setReason(null);
-      addAlert({ severity: "info", message: res.message });
+      setReportDetail("");
+      // 안내 띠는 한 일을 말하고 마침표를 찍지 않는다(디자인 기준)
+      addAlert({ severity: "info", message: "신고했어요. Picake가 24시간 안에 확인해요" });
     } catch (e) {
       addAlert({ severity: "error", message: getApiMessage.error(e) });
     } finally {
@@ -348,21 +370,21 @@ export function SellerChatRoom({
 
       <div ref={listRef} onScroll={onScroll} className="flex-1 overflow-y-auto px-4 py-3">
         {room.loadingOlder ? (
-          <p className="py-2 text-center text-caption text-ink-400">불러오는 중…</p>
+          <div className="pb-2.5">
+            <RoomSkeleton count={2} />
+          </div>
         ) : null}
         {room.loading ? (
-          <p className="py-10 text-center text-sub text-ink-400">불러오는 중…</p>
-        ) : room.error ? (
-          <div className="flex flex-col items-center gap-3 py-10">
-            <p className="text-sub text-ink-600">{room.error}</p>
-            <Button variant="secondary" size="md" onClick={() => void room.reload()}>
-              다시 불러오기
-            </Button>
-          </div>
+          <RoomSkeleton />
+        ) : room.error && room.messages.length === 0 ? (
+          <LoadErrorState big onRetry={() => void room.reload()} />
         ) : room.messages.length === 0 && room.pending.length === 0 ? (
-          <p className="py-10 text-center text-sub text-ink-600">
-            {fromOrderId ? "이 예약에 대해 손님에게 물어볼 것을 보내 보세요" : "아직 글이 없어요"}
-          </p>
+          <EmptyState
+            big
+            icon="chat"
+            title={fromOrderId ? "손님에게 물어볼 것을 보내 보세요" : "아직 글이 없어요"}
+            description={fromOrderId ? "첫 글에 이 예약 카드가 함께 가요" : undefined}
+          />
         ) : null}
         <div className="flex flex-col gap-2.5">
           {room.messages.map((m) => {
@@ -406,16 +428,17 @@ export function SellerChatRoom({
                 <div
                   className={cx(
                     CHAT_NO_REPLAY,
-                    "max-w-[min(264px,calc(100vw-120px))] whitespace-pre-wrap [overflow-wrap:anywhere] [word-break:keep-all] rounded-2xl bg-ink-900 px-3.5 py-2.5 text-body text-white opacity-60",
+                    "max-w-[min(264px,calc(100vw-120px))] whitespace-pre-wrap [overflow-wrap:anywhere] [word-break:keep-all] rounded-2xl bg-brand px-3.5 py-2.5 text-body text-white",
                   )}
+                  data-chat-bubble="mine"
                 >
                   {p.text}
                 </div>
               ) : null}
               {p.status === "sending" ? (
-                <span className="text-[11px] text-ink-400">보내는 중…</span>
+                <span className="text-badge text-ink-400">보내는 중…</span>
               ) : (
-                <span className="text-[11px] font-semibold text-brand-ink">
+                <span className="text-badge font-semibold text-brand-ink">
                   보내지 못했어요 ·{" "}
                   <button
                     type="button"
@@ -448,9 +471,12 @@ export function SellerChatRoom({
             atBottomRef.current = true;
             setNewBelow(false);
           }}
-          className="mx-auto -mt-11 mb-2 rounded-full bg-ink-900 px-3.5 py-2 text-caption font-bold text-white"
+          // 검정 버튼은 쓰지 않는다(디자인 기준) — 위쪽 알림 띠처럼 흰 바탕·회색 테두리·그림자
+          className="press mx-auto -mt-12 mb-2 inline-flex min-h-10 items-center gap-1 rounded-full border border-ink-200 bg-white px-4 text-caption font-bold text-ink-900 shadow-md"
+          data-chat-new-below
         >
-          새 메시지 ↓
+          새 메시지
+          <Icon name="chevronDown" size={16} />
         </button>
       ) : null}
 
@@ -465,9 +491,9 @@ export function SellerChatRoom({
                     type="button"
                     aria-label="사진 빼기"
                     onClick={() => setPhotos((prev) => prev.filter((_, j) => j !== i))}
-                    className="absolute -right-1.5 -top-1.5 flex size-5 items-center justify-center rounded-full bg-ink-900 text-[12px] text-white"
+                    className="absolute -right-2 -top-2 flex size-6 items-center justify-center rounded-full border border-ink-200 bg-white text-ink-700"
                   >
-                    ×
+                    <Icon name="close" size={14} strokeWidth={2} />
                   </button>
                 </div>
               ))}
@@ -507,7 +533,7 @@ export function SellerChatRoom({
               aria-label="보내기"
               disabled={!text.trim() && photos.length === 0}
               onClick={onSendClick}
-              className="inline-flex size-12 shrink-0 items-center justify-center rounded-full bg-brand text-white disabled:bg-ink-100 disabled:text-ink-400"
+              className="press inline-flex size-12 shrink-0 items-center justify-center rounded-full bg-brand text-white disabled:bg-ink-100 disabled:text-ink-400"
             >
               <Icon name="send" size={22} strokeWidth={2} />
             </button>
@@ -520,17 +546,10 @@ export function SellerChatRoom({
       )}
 
       {viewer ? (
-        <button
-          type="button"
-          aria-label="사진 닫기"
-          onClick={() => setViewer(null)}
-          className={cx(
-            CHAT_NO_REPLAY,
-            "fixed inset-0 z-50 flex items-center justify-center bg-black/90",
-          )}
-        >
-          <img src={viewer} alt="" className="max-h-full max-w-full object-contain" />
-        </button>
+        // 주문 상세 참고 사진과 같은 사진 보기(확대·넘기기)
+        <div className={CHAT_NO_REPLAY}>
+          <ImageLightbox images={[viewer]} alt="채팅 사진" onClose={() => setViewer(null)} />
+        </div>
       ) : null}
 
       <BottomSheet
@@ -538,7 +557,7 @@ export function SellerChatRoom({
         onClose={() => setRulesOpen(false)}
         title="채팅 이용 규칙"
         footer={
-          <Button onClick={() => void onAgree()} loading={busy} loadingLabel="보내는 중">
+          <Button block onClick={() => void onAgree()} loading={busy} loadingLabel="보내는 중">
             동의하고 보내기
           </Button>
         }
@@ -553,72 +572,121 @@ export function SellerChatRoom({
         </ul>
       </BottomSheet>
 
-      <BottomSheet open={menuOpen} onClose={() => setMenuOpen(false)} title="채팅">
-        <div className="-mx-5 flex flex-col">
-          {[
-            {
-              label: thread?.muted ? "이 채팅 알림 켜기" : "이 채팅 알림 끄기",
-              onClick: () => void setFlag("mute", !thread?.muted),
-            },
-            { label: "신고하기", onClick: () => setReportOpen(true) },
-            {
-              label: thread?.blockedByMe ? "차단 풀기" : "차단하기",
-              danger: !thread?.blockedByMe,
-              onClick: () => void setFlag("block", !thread?.blockedByMe),
-            },
-          ].map((row) => (
-            <button
-              key={row.label}
-              type="button"
-              onClick={() => {
-                setMenuOpen(false);
-                row.onClick();
-              }}
-              className={cx(
-                "min-h-12 px-5 py-3 text-left text-body active:bg-ink-50",
-                row.danger ? "font-semibold text-brand-ink" : "text-ink-900",
-              )}
-            >
-              {row.label}
-            </button>
-          ))}
-        </div>
-      </BottomSheet>
-
+      {/* 메뉴: 주문 "다른 처리" 창처럼 BottomSheet + ListRowButton(디자인 기준) */}
       <BottomSheet
-        open={reportOpen}
-        onClose={() => setReportOpen(false)}
-        title="어떤 점이 불편했나요?"
-        description="신고하면 Picake가 24시간 안에 확인해요"
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        title="채팅 메뉴"
         footer={
-          <Button
-            disabled={!reason}
-            loading={busy}
-            loadingLabel="보내는 중"
-            onClick={() => void onReport()}
-          >
-            신고하기
+          <Button variant="secondary" block onClick={() => setMenuOpen(false)}>
+            돌아가기
           </Button>
         }
       >
-        <div className="flex flex-col gap-2">
-          {CHAT_REPORT_REASONS.map((r) => (
-            <button
-              key={r.value}
-              type="button"
-              aria-pressed={reason === r.value}
-              onClick={() => setReason(r.value)}
-              className={cx(
-                "flex min-h-12 items-center rounded-control border px-4 text-body",
-                reason === r.value
-                  ? "border-brand font-semibold text-ink-900"
-                  : "border-ink-200 text-ink-900",
-              )}
-            >
-              {r.label}
-            </button>
-          ))}
+        <div className="flex flex-col">
+          <ListRowButton
+            title={thread?.muted ? "이 채팅 알림 켜기" : "이 채팅 알림 끄기"}
+            description={
+              thread?.muted
+                ? "새 글이 오면 다시 휴대폰 알림을 보내요"
+                : "새 글이 와도 휴대폰 알림을 보내지 않아요"
+            }
+            onClick={() => {
+              setMenuOpen(false);
+              void setFlag("mute", !thread?.muted);
+            }}
+          />
+          <ListRowButton
+            title="신고하기"
+            description="욕설·광고·사기 등을 Picake에 알려요"
+            chevron
+            onClick={() => {
+              setMenuOpen(false);
+              setReportOpen(true);
+            }}
+          />
+          <ListRowButton
+            title={thread?.blockedByMe ? "차단 풀기" : "차단하기"}
+            description={
+              thread?.blockedByMe ? "다시 채팅할 수 있어요" : "이 손님과 더는 채팅할 수 없어요"
+            }
+            divider={false}
+            onClick={() => {
+              setMenuOpen(false);
+              void setFlag("block", !thread?.blockedByMe);
+            }}
+          />
         </div>
+      </BottomSheet>
+
+      {/* 신고: 주문 취소 사유 창처럼 동그라미 고르기 + 자세히(선택) + 버튼 둘(디자인 기준) */}
+      <BottomSheet
+        open={reportOpen}
+        onClose={() => setReportOpen(false)}
+        title="신고하기"
+        description="Picake가 24시간 안에 확인하고 가리거나 이용을 막아요"
+        footer={
+          <ButtonPair>
+            <Button variant="secondary" onClick={() => setReportOpen(false)}>
+              돌아가기
+            </Button>
+            <Button
+              disabled={!reason}
+              loading={busy}
+              loadingLabel="보내는 중"
+              onClick={() => void onReport()}
+            >
+              신고하기
+            </Button>
+          </ButtonPair>
+        }
+      >
+        <p className="text-body font-bold text-ink-900">이유</p>
+        <div role="radiogroup" aria-label="신고 이유" className="-mt-2 flex flex-col">
+          {CHAT_REPORT_REASONS.map((r) => {
+            const on = reason === r.value;
+            return (
+              <label
+                key={r.value}
+                className={cx(
+                  "flex min-h-11 cursor-pointer items-center gap-3 border-b border-ink-100 text-body text-ink-900",
+                  on ? "font-bold" : "font-normal",
+                )}
+              >
+                <input
+                  type="radio"
+                  name="chat-report-reason"
+                  value={r.value}
+                  checked={on}
+                  onChange={() => setReason(r.value)}
+                  className="peer sr-only"
+                />
+                <span
+                  aria-hidden="true"
+                  className={cx(
+                    "inline-block size-[22px] shrink-0 rounded-full peer-focus-visible:ring-2 peer-focus-visible:ring-ink-900 peer-focus-visible:ring-offset-2",
+                    on ? "border-[7px] border-brand" : "border-[1.5px] border-ink-200",
+                  )}
+                />
+                {r.label}
+              </label>
+            );
+          })}
+        </div>
+        <Field>
+          {(p) => (
+            <TextArea
+              id={p.id}
+              aria-label="자세히 (선택)"
+              rows={3}
+              className="min-h-[68px]"
+              maxLength={300}
+              value={reportDetail}
+              onChange={(e) => setReportDetail(e.target.value)}
+              placeholder="어떤 일이 있었는지 적어 주세요(선택)"
+            />
+          )}
+        </Field>
       </BottomSheet>
     </div>
   );

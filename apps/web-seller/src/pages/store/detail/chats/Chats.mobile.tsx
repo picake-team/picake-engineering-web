@@ -8,11 +8,10 @@ import { useQuery } from "@tanstack/react-query";
 import { cx } from "@/apps/web-seller/common/ui/cx";
 import { AppScreen, TabHeader } from "@/apps/web-seller/common/ui/Screen";
 import { SegmentedTabs } from "@/apps/web-seller/common/ui/Choice";
-import { EmptyState, LoadErrorState } from "@/apps/web-seller/common/ui/Surface";
+import { EmptyState, LoadErrorState, SkeletonCards } from "@/apps/web-seller/common/ui/Surface";
 import { Button } from "@/apps/web-seller/common/ui/Button";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
 import { formatRelativeTime } from "@/apps/web-seller/common/utils/date.util";
-import getApiMessage from "@/apps/web-seller/common/utils/getApiMessage";
 import { chatApi } from "@/apps/web-seller/features/chat/apis/chat.api";
 import {
   chatQueryKeys,
@@ -46,6 +45,7 @@ function ChatsScreen({ pc }: { pc: boolean }) {
       {unread.isLoading ? null : !open ? (
         <div className="px-5">
           <EmptyState
+            big
             icon="chat"
             title="채팅은 아직 준비 중이에요"
             description="열리면 손님 문의가 여기에 모여요"
@@ -69,10 +69,13 @@ function ChatsScreen({ pc }: { pc: boolean }) {
               <LoadErrorState onRetry={() => void list.refetch()} />
             </div>
           ) : list.isLoading ? (
-            <p className="py-10 text-center text-sub text-ink-400">불러오는 중…</p>
+            <div className="px-5">
+              <SkeletonCards count={4} />
+            </div>
           ) : threads.length === 0 ? (
             <div className="px-5">
               <EmptyState
+                big
                 icon="chat"
                 title={filter === "reply" ? "답할 채팅이 없어요" : "아직 채팅이 없어요"}
                 description={
@@ -143,10 +146,18 @@ function OrderChatScreen({ pc }: { pc: boolean }) {
     queryFn: () => chatApi.byOrder(storeId, orderId),
     retry: false,
   });
-  if (q.isLoading) return <p className="py-16 text-center text-sub text-ink-400">불러오는 중…</p>;
+  if (q.isLoading) {
+    return (
+      <div className="mx-auto w-full max-w-[640px] px-5 py-6">
+        <SkeletonCards count={3} thumb={false} />
+      </div>
+    );
+  }
   if (q.isError || !q.data) {
     return (
-      <p className="py-16 text-center text-sub text-ink-600">{getApiMessage.error(q.error)}</p>
+      <div className="mx-auto flex min-h-dvh w-full max-w-[640px] flex-col px-5">
+        <LoadErrorState big onRetry={() => void q.refetch()} />
+      </div>
     );
   }
   return (
