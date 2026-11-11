@@ -64,7 +64,10 @@ export const StoreDetailNotificationSettingsMobilePage: React.FC = () => {
         <ListRow
           title="주문 알림 받기"
           description="예약 신청, 입금·확정, 픽업, 취소·환불 알림"
-          divider={typeof prefs.morningSummaryEnabled === "boolean"}
+          divider={
+            typeof prefs.morningSummaryEnabled === "boolean" ||
+            typeof prefs.chatNotificationsEnabled === "boolean"
+          }
           trailing={
             <Switch
               label="주문 알림 받기"
@@ -77,6 +80,35 @@ export const StoreDetailNotificationSettingsMobilePage: React.FC = () => {
             />
           }
         />
+        {typeof prefs.chatNotificationsEnabled === "boolean" ? (
+          <>
+            <ListRow
+              title="채팅 알림 받기"
+              description="손님이 문의하면 휴대폰 알림. 끄면 채팅 탭 숫자만 보여요"
+              trailing={
+                <Switch
+                  label="채팅 알림 받기"
+                  disabled={!loaded}
+                  checked={prefs.chatNotificationsEnabled}
+                  onChange={(next) => update.mutate({ chatNotificationsEnabled: next })}
+                />
+              }
+            />
+            <ListRow
+              title="밤 9시~아침 8시는 채팅 알림 끄기"
+              description="밤에 온 문의는 아침에 채팅 탭에서 확인해요"
+              divider={typeof prefs.morningSummaryEnabled === "boolean"}
+              trailing={
+                <Switch
+                  label="밤 9시~아침 8시는 채팅 알림 끄기"
+                  disabled={!loaded || !prefs.chatNotificationsEnabled}
+                  checked={!!prefs.chatQuietNight}
+                  onChange={(next) => update.mutate({ chatQuietNight: next })}
+                />
+              }
+            />
+          </>
+        ) : null}
         {typeof prefs.morningSummaryEnabled === "boolean" ? (
           <ListRow
             title="아침 요약 알림"

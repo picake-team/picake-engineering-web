@@ -30,6 +30,8 @@ import {
   formatRemainingClock,
 } from "@/apps/web-seller/common/utils/kst-date.util";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
+import { useSellerChatUnread } from "@/apps/web-seller/features/chat/hooks/useChat";
+import { CHAT_FIRST_ORDER_STATUSES } from "@/apps/web-seller/features/chat/constants/chat.constants";
 import { useOrderDetail } from "@/apps/web-seller/features/order/hooks/queries/useOrderQuery";
 import {
   OrderStatus,
@@ -61,11 +63,12 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   return <h2 className="mt-1 text-group font-bold text-ink-900">{children}</h2>;
 }
 
-function ContactActions({ phone }: { phone: string }) {
+function ContactActions({ phone, onChat }: { phone: string; onChat?: () => void }) {
   return (
     <span className="-my-1 -mr-1 flex items-center">
       <CircleIconLink icon="phone" label="전화" href={telHref(phone, "tel")} />
       <CircleIconLink icon="message" label="문자" href={telHref(phone, "sms")} />
+      {onChat ? <CircleIconButton icon="chat" label="채팅" onClick={onChat} /> : null}
     </span>
   );
 }
@@ -283,6 +286,8 @@ export const StoreDetailOrderDetailMobilePage: React.FC = () => {
   const [moreOpen, setMoreOpen] = useState(false);
   const [target, setTarget] = useState<OrderStatus | null>(null);
   const [lightbox, setLightbox] = useState<{ images: string[]; index: number } | null>(null);
+  // 채팅이 열려 있을 때만 연락처 옆 "채팅"(기획 I-11)
+  const chatOpen = !!useSellerChatUnread(storeId).data?.open;
 
   // 다른 스토어의 주문이면 그 스토어로 바꿔서 연다(알림을 눌러 들어온 경우)
   useEffect(() => {
@@ -406,7 +411,16 @@ export const StoreDetailOrderDetailMobilePage: React.FC = () => {
         <InfoRow
           label="연락처"
           value={<span className="select-all">{formatPhoneDisplay(phone)}</span>}
-          action={<ContactActions phone={phone} />}
+          action={
+            <ContactActions
+              phone={phone}
+              onChat={
+                chatOpen && CHAT_FIRST_ORDER_STATUSES.includes(order.orderStatus)
+                  ? () => navigate(ROUTES.STORE_DETAIL_CHAT_ORDER(storeId, order.id))
+                  : undefined
+              }
+            />
+          }
         />
       ) : null}
       {depositor ? (

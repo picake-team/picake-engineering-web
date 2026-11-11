@@ -14,17 +14,22 @@ import { Icon, TabIcon, type TabIconName } from "@/apps/web-seller/common/ui/ico
 import { HeaderIconButton } from "@/apps/web-seller/common/ui/Button";
 import { useKeyboardOpen } from "@/apps/web-seller/common/hooks/useKeyboardOpen";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
+import { useSellerChatUnread } from "@/apps/web-seller/features/chat/hooks/useChat";
 
 /** 화면 칸 너비(손님 웹 PC 가운데 칸과 같은 값) */
 export const APP_COLUMN_CLASS = "mx-auto w-full max-w-[640px]";
 
 export type AppTab = TabIconName;
 
+/**
+ * 홈 · 주문 · 상품 · 채팅 · 스토어(운영자 결정 2026-11-11, 기획 I-11). 캘린더는 탭에서 빠지고
+ * 홈 주간 달력 위 "캘린더 보기"로 간다(주소 /stores/:id/calendar는 그대로, PC 왼쪽 메뉴도 그대로)
+ */
 const TABS: { tab: AppTab; label: string; to: (storeId: string) => string }[] = [
   { tab: "home", label: "홈", to: ROUTES.STORE_DETAIL_HOME },
   { tab: "orders", label: "주문", to: ROUTES.STORE_DETAIL_ORDERS_LIST },
-  { tab: "calendar", label: "캘린더", to: ROUTES.STORE_DETAIL_CALENDAR },
   { tab: "products", label: "상품", to: ROUTES.STORE_DETAIL_PRODUCTS },
+  { tab: "chat", label: "채팅", to: ROUTES.STORE_DETAIL_CHATS },
   { tab: "store", label: "스토어", to: ROUTES.STORE_DETAIL_MENU },
 ];
 
@@ -33,6 +38,9 @@ export function AppTabBar({ storeId, current }: { storeId: string; current: AppT
   // 누른 탭은 다음 화면이 그려지기 전에도 바로 고른 탭으로 보인다(느린 인터넷에서 0.15~0.25초 빈틈)
   const [tapped, setTapped] = useState<AppTab | null>(null);
   const shownTab = tapped ?? current;
+  // 채팅 탭 숫자: 안 읽은 방 수(채팅이 닫혀 있으면 없음)
+  const { data: chatUnread } = useSellerChatUnread(storeId);
+  const chatCount = chatUnread?.open ? chatUnread.unreadThreads : 0;
   return (
     <nav
       aria-label="아래 탭"
@@ -59,7 +67,17 @@ export function AppTabBar({ storeId, current }: { storeId: string; current: AppT
             }}
             className="flex min-h-11 flex-col items-center gap-1 pb-1 pt-2 font-app"
           >
-            <TabIcon name={tab} active={on} />
+            <span className="relative">
+              <TabIcon name={tab} active={on} />
+              {tab === "chat" && chatCount > 0 ? (
+                <span
+                  aria-label={`안 읽은 채팅 ${chatCount}`}
+                  className="absolute -right-2.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-1 text-[10px] font-bold leading-none text-white"
+                >
+                  {chatCount > 99 ? "99+" : chatCount}
+                </span>
+              ) : null}
+            </span>
             <span
               className={cx("text-tab", on ? "font-bold text-brand" : "font-normal text-ink-600")}
             >

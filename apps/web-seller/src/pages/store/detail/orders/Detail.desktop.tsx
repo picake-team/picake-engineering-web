@@ -1,5 +1,8 @@
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
+import { useSellerChatUnread } from "@/apps/web-seller/features/chat/hooks/useChat";
+import { CHAT_FIRST_ORDER_STATUSES } from "@/apps/web-seller/features/chat/constants/chat.constants";
 import { useOrderDetail } from "@/apps/web-seller/features/order/hooks/queries/useOrderQuery";
 import { useUpdateOrderStatus } from "@/apps/web-seller/features/order/hooks/mutations/useOrderMutation";
 import {
@@ -44,6 +47,9 @@ const IRREVERSIBLE_ACTION_CONFIRM_MESSAGE =
 
 export const StoreDetailOrderDetailPage: React.FC = () => {
   const { storeId, orderId } = useParams<{ storeId: string; orderId: string }>();
+  const navigate = useNavigate();
+  // 채팅이 열려 있을 때만 연락처 옆 "채팅하기"(기획 I-11, 픽업 전 예약)
+  const chatOpen = !!useSellerChatUnread(storeId).data?.open;
   const { data: order, isLoading } = useOrderDetail(orderId || "");
   const updateOrderStatusMutation = useUpdateOrderStatus();
   const openConfirmModal = useConfirmStore((state) => state.showConfirm);
@@ -348,6 +354,11 @@ export const StoreDetailOrderDetailPage: React.FC = () => {
       <OrderDetailSpreadsheetView
         order={order}
         onReferenceImageClick={(images, index) => setLightbox({ images, index })}
+        onChat={
+          chatOpen && storeId && CHAT_FIRST_ORDER_STATUSES.includes(order.orderStatus)
+            ? () => navigate(ROUTES.STORE_DETAIL_CHAT_ORDER(storeId, order.id))
+            : undefined
+        }
       />
 
       <OrderStatusGuideModal

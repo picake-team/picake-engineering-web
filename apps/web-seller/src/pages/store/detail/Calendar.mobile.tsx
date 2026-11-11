@@ -5,8 +5,9 @@
  * PC 캘린더에서). 쉬는 요일·영업시간은 스토어 탭 "영업시간".
  */
 import React, { useMemo, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
-import { AppScreen, TabHeader } from "@/apps/web-seller/common/ui/Screen";
+import { useNavigate, useParams } from "react-router-dom";
+import { AppScreen, BackHeader } from "@/apps/web-seller/common/ui/Screen";
+import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
 import { Button } from "@/apps/web-seller/common/ui/Button";
 import { LoadErrorState } from "@/apps/web-seller/common/ui/Surface";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
@@ -37,6 +38,7 @@ const SWIPE_PX = 56;
 
 export const StoreDetailCalendarMobilePage: React.FC = () => {
   const { storeId = "" } = useParams<{ storeId: string }>();
+  const navigate = useNavigate();
   const todayKey = useKstTodayKey();
   const [selectedKey, setSelectedKey] = useState(todayKey);
   const [monthKey, setMonthKey] = useState(() => monthStartKey(todayKey));
@@ -82,10 +84,11 @@ export const StoreDetailCalendarMobilePage: React.FC = () => {
   const inMonth = selectedKey.slice(0, 7) === monthKey.slice(0, 7);
 
   return (
+    // 아래 탭에서 빠지고(채팅 탭, 운영자 결정 11-11) 홈 "캘린더 보기"로 들어오는 안쪽 화면
     <AppScreen
-      tab="calendar"
-      storeId={storeId}
-      header={<TabHeader title="캘린더" />}
+      header={
+        <BackHeader title="캘린더" onBack={() => navigate(ROUTES.STORE_DETAIL_HOME(storeId))} />
+      }
       bodyClassName="gap-2"
     >
       <div className="flex items-center justify-between">
