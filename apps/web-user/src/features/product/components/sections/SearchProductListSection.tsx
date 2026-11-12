@@ -39,23 +39,32 @@ export function SearchProductListSection({
 }: SearchProductListSectionProps) {
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError, refetch } =
-    useProductList({
-      search: search?.trim() || undefined,
-      sortBy: toProductSortBy(sortBy),
-      minPrice,
-      maxPrice,
-      productCategoryTypes,
-    });
+  const {
+    data,
+    dataUpdatedAt,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+    refetch,
+  } = useProductList({
+    search: search?.trim() || undefined,
+    sortBy: toProductSortBy(sortBy),
+    minPrice,
+    maxPrice,
+    productCategoryTypes,
+  });
 
   useInfiniteScroll({ hasNextPage, isFetchingNextPage, fetchNextPage, loadMoreRef });
 
   const products = flattenAndDeduplicateInfiniteData<Product>(data);
   const totalCount = data?.pages[0]?.meta.totalItems;
 
+  // 개수가 같아도 새 결과를 받을 때마다 알린다(필터를 적용해 개수가 그대로면 "필터 적용" 이벤트가 빠지던 것)
   useEffect(() => {
     if (totalCount != null) onResultCountChange?.(totalCount);
-  }, [totalCount, onResultCountChange]);
+  }, [totalCount, dataUpdatedAt, onResultCountChange]);
 
   if (isError && !data) return <LoadErrorState fill onRetry={() => void refetch()} />;
   if (isLoading) return <></>;

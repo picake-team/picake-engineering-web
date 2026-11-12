@@ -47,17 +47,26 @@ export function SearchStoreListSection({
   const { isAuthenticated } = useAuthStore();
   const openLoginSheet = useLoginSheetStore((s) => s.openLoginSheet);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError, refetch } =
-    useStoreList({
-      search,
-      ...filter,
-      sortBy: "popular",
-    });
+  const {
+    data,
+    dataUpdatedAt,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+    refetch,
+  } = useStoreList({
+    search,
+    ...filter,
+    sortBy: "popular",
+  });
   const totalCount = data?.pages[0]?.meta.totalCount;
 
+  // 개수가 같아도 새 결과를 받을 때마다 알린다(필터를 적용해 개수가 그대로면 "필터 적용" 이벤트가 빠지던 것)
   useEffect(() => {
     if (totalCount != null) onResultCountChange?.(totalCount);
-  }, [totalCount, onResultCountChange]);
+  }, [totalCount, dataUpdatedAt, onResultCountChange]);
 
   const handleLike = (e: React.MouseEvent, store: StoreInfo) => {
     e.preventDefault();

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { SearchProductListSection } from "@/apps/web-user/features/product/components/sections/SearchProductListSection";
 import { SearchStoreListSection } from "@/apps/web-user/features/store/components/sections/SearchStoreListSection";
@@ -51,7 +51,10 @@ export default function SearchPage() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [listFilter, setListFilter] = useState<StoreListFilter>({});
   const [sortBy, setSortBy] = useState<SearchSortBy>(DEFAULT_SORT_BY);
-  const [resultCount, setResultCount] = useState<number | undefined>(undefined);
+  // 새 결과를 받을 때마다 새 객체로 바꿔, 개수가 같아도 아래 이벤트 효과가 다시 돈다
+  const [result, setResult] = useState<{ count: number } | undefined>(undefined);
+  const resultCount = result?.count;
+  const handleResultCount = useCallback((count: number) => setResult({ count }), []);
   // 필터 적용 직후 다음 result_count 갱신을 success_filter_apply로 처리하기 위한 플래그
   const pendingFilterApplyRef = useRef(false);
   // view_search_result 중복 발화 방지 (탭+검색어 조합이 바뀔 때만 재발화)
@@ -108,7 +111,7 @@ export default function SearchPage() {
     if (lastViewedResultKeyRef.current === key) return;
     lastViewedResultKeyRef.current = key;
     trackEvent("view_search_result", { keyword: submitted, result_count: resultCount });
-  }, [resultCount]);
+  }, [result]);
 
   const handleSearch = (term: string) => {
     if (!term.trim()) return;
@@ -201,14 +204,14 @@ export default function SearchPage() {
                 maxPrice={listFilter.maxPrice}
                 productCategoryTypes={listFilter.productCategoryTypes}
                 sortBy={sortBy}
-                onResultCountChange={setResultCount}
+                onResultCountChange={handleResultCount}
               />
             ) : (
               <SearchStoreListSection
                 search={submittedTerm}
                 filter={listFilter}
                 sortBy={sortBy}
-                onResultCountChange={setResultCount}
+                onResultCountChange={handleResultCount}
               />
             )}
           </div>
