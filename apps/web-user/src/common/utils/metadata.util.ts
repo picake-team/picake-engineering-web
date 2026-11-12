@@ -84,5 +84,7 @@ export function buildNotFoundMetadata(title: string): Metadata {
   return {
     title,
     description: DEFAULT_DESCRIPTION,
+    // 없는(지워진) 상품·가게 주소는 화면이 200으로 "찾을 수 없어요"를 보여 줘서, 검색에 빈 페이지로 남지 않게 막는다
+    robots: { index: false, follow: false },
   };
 }
