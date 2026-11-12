@@ -139,6 +139,8 @@ function QuoteSendSheet({
       onClose();
     } catch (e) {
       setError(getApiMessage.error(e));
+      // 그사이 손님이 닫았거나 다른 가게를 골랐을 수 있어 카드 상태를 다시 읽는다
+      void queryClient.invalidateQueries({ queryKey: quoteViewKey(storeId, view.requestId) });
     } finally {
       setSending(false);
     }
@@ -284,6 +286,11 @@ export function QuoteRequestPanel({ storeId, requestId }: { storeId: string; req
   } = useQuery({
     queryKey: quoteViewKey(storeId, requestId),
     queryFn: () => quoteApi.view(storeId, requestId),
+    // 채팅방은 새 글만 가져와 이 카드 상태는 다시 읽지 않는다. 손님이 닫거나 다른 가게를 고르면
+    // 30초 안에 "마감"·"다른 가게를 골랐어요"로 바뀌게, 아직 끝나지 않은 동안만 다시 읽는다
+    refetchInterval: (q) =>
+      q.state.data && ["OPEN", "SENT", "CHOSEN_ME"].includes(q.state.data.state) ? 30_000 : false,
+    refetchIntervalInBackground: false,
   });
   const [sendOpen, setSendOpen] = useState(false);
   const [declineOpen, setDeclineOpen] = useState(false);
@@ -326,6 +333,7 @@ export function QuoteRequestPanel({ storeId, requestId }: { storeId: string; req
     } catch (e) {
       setDeclineOpen(false);
       setError(getApiMessage.error(e));
+      void queryClient.invalidateQueries({ queryKey: quoteViewKey(storeId, requestId) });
     } finally {
       setDeclining(false);
     }

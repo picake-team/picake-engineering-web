@@ -317,6 +317,8 @@ export function QuoteLinkScreen({ token }: { token: string }) {
       await reload();
     } catch (e) {
       setFormError(getApiMessage.error(e));
+      // 그사이 손님이 닫았거나 다른 가게를 골랐을 수 있어 화면 상태를 다시 읽는다
+      void reload();
     } finally {
       setSending(false);
     }
@@ -333,6 +335,7 @@ export function QuoteLinkScreen({ token }: { token: string }) {
     } catch (e) {
       setDeclineOpen(false);
       setFormError(getApiMessage.error(e));
+      void reload();
     } finally {
       setDeclining(false);
     }
