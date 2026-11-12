@@ -18,6 +18,10 @@ import { hasActiveFilter } from "@/apps/web-user/features/store/components/map/M
 import { releaseSoftKeyboard } from "@/apps/web-user/common/utils/soft-keyboard.util";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import { useScrollRestoration } from "@/apps/web-user/common/hooks/useScrollRestoration";
+import {
+  SEARCH_CATEGORY_PARAM,
+  readSearchCategory,
+} from "@/apps/web-user/features/search/utils/search-category.util";
 
 const RECENT_SEARCHES_KEY = "recentSearches";
 const MAX_RECENT = 10;
@@ -40,16 +44,20 @@ function saveRecentSearch(term: string) {
 
 export default function SearchPage() {
   const searchParams = useSearchParams();
+  // 홈 카테고리에서 들어오면 검색어 없이 그 카테고리를 필터 "유형"에 넣고 결과를 바로 보인다
+  const categoryParam = readSearchCategory(searchParams.get(SEARCH_CATEGORY_PARAM));
   // 뒤로 오면 보던 자리 그대로(새로 들어오면 맨 위부터). 검색어를 바꿔도 이 화면이 그대로 남아 있어
   // 저장 이름에 검색어를 넣는다(넣지 않으면 처음 검색어 이름으로 저장돼 돌아왔을 때 못 찾는다)
-  useScrollRestoration(`/search?q=${searchParams.get("q") ?? ""}`);
+  useScrollRestoration(`/search?q=${searchParams.get("q") ?? ""}&category=${categoryParam ?? ""}`);
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [searchTerm, setSearchTerm] = useState(searchParams.get("q") || "");
   const [submittedTerm, setSubmittedTerm] = useState(searchParams.get("q") || "");
   const [activeTab, setActiveTab] = useState<"product" | "store">("product");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [listFilter, setListFilter] = useState<StoreListFilter>({});
+  const [listFilter, setListFilter] = useState<StoreListFilter>(() =>
+    categoryParam ? { productCategoryTypes: [categoryParam] } : {},
+  );
   const [sortBy, setSortBy] = useState<SearchSortBy>(DEFAULT_SORT_BY);
   // 새 결과를 받을 때마다 새 객체로 바꿔, 개수가 같아도 아래 이벤트 효과가 다시 돈다
   const [result, setResult] = useState<{ count: number } | undefined>(undefined);
@@ -74,10 +82,17 @@ export default function SearchPage() {
     setSearchTerm(q || "");
   }, [searchParams]);
 
+  // 이 화면에 있는 채로 주소의 카테고리만 바뀌면(뒤로 가기 등) 필터 "유형"도 그 카테고리로
+  useEffect(() => {
+    if (!categoryParam) return;
+    setListFilter((prev) => ({ ...prev, productCategoryTypes: [categoryParam] }));
+  }, [categoryParam]);
+
   // 검색어 없이 진입한 경우(홈의 검색 버튼 등)에는 바로 입력할 수 있도록 키보드를 올린다.
+  // 홈 카테고리로 들어와 결과를 보는 중이면 키보드를 올리지 않는다.
   // 홈에서 미리 띄워둔 임시 입력은 실제 입력에 포커스를 넘긴 뒤 정리한다.
   useEffect(() => {
-    if (!searchParams.get("q")) {
+    if (!searchParams.get("q") && !categoryParam) {
       inputRef.current?.focus({ preventScroll: true });
     }
     releaseSoftKeyboard();
@@ -127,7 +142,10 @@ export default function SearchPage() {
     handleSearch(searchTerm);
   };
 
-  const isSearching = !!submittedTerm.trim();
+  // 검색어 없이 카테고리(필터 "유형")만으로 결과를 보는 중
+  const isBrowsingCategory =
+    !submittedTerm.trim() && (listFilter.productCategoryTypes?.length ?? 0) > 0;
+  const isSearching = !!submittedTerm.trim() || isBrowsingCategory;
   // 필터 시트에서 조건이나 정렬을 바꾼 상태면 아이콘을 on으로 표시
   const isFilterActive = hasActiveFilter(listFilter) || sortBy !== DEFAULT_SORT_BY;
 
@@ -204,6 +222,7 @@ export default function SearchPage() {
                 maxPrice={listFilter.maxPrice}
                 productCategoryTypes={listFilter.productCategoryTypes}
                 sortBy={sortBy}
+                entryPoint={isBrowsingCategory ? "category" : "search"}
                 onResultCountChange={handleResultCount}
               />
             ) : (
