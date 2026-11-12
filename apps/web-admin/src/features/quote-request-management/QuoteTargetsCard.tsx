@@ -316,6 +316,29 @@ export function QuoteTargetsCard({ req }: { req: AdminQuoteDetailDtoLike }) {
     quoteAdminApi.addStore(requestId, body),
   );
   const notified = useQuoteAdminAction(requestId, () => quoteAdminApi.chosenNotified(requestId));
+  // 입점 전 가게를 고르면 보낼 DM 문구(링크가 없으면 만든다 — 운영자가 대신 적은 견적일 때)
+  const onCopyChosen = async () => {
+    const targetId = section?.chosenTargetId;
+    if (!targetId) return;
+    try {
+      const linkUrl =
+        section?.targets.find((x) => x.targetId === targetId)?.linkUrl ??
+        (await quoteAdminApi.createLink(requestId, targetId)).linkUrl;
+      await navigator.clipboard.writeText(
+        [
+          "사장님, 손님이 사장님 견적을 골랐어요!",
+          "아래 링크에서 손님과 대화하며 디자인·픽업 시간·입금 방법을 정해 주세요.",
+          linkUrl,
+        ].join("\n"),
+      );
+      addAlert({
+        severity: "success",
+        message: "알림 문구를 복사했어요. DM으로 보낸 뒤 '알렸어요'를 눌러 주세요.",
+      });
+    } catch (e) {
+      addAlert({ severity: "error", message: getApiMessage.error(e) });
+    }
+  };
   const close = useQuoteAdminAction(requestId, () => quoteAdminApi.close(requestId));
   const open = req.status === "OPEN";
   const byId = new Map((section?.targets ?? []).map((t) => [t.targetId, t]));
@@ -363,11 +386,14 @@ export function QuoteTargetsCard({ req }: { req: AdminQuoteDetailDtoLike }) {
                   사장님께 알림 {formatDateTime(section.chosenNotifiedAt)}
                 </div>
               ) : (
-                <div className="mt-1 flex items-center gap-2">
+                <div className="mt-1 flex flex-wrap items-center gap-2">
                   <span className="text-xs">
-                    그 가게에 &quot;손님이 사장님 견적을 골랐어요, 링크에서 손님과 대화해
-                    주세요&quot;를 DM으로 보낸 뒤 눌러 주세요.
+                    그 가게에 알림 문구를 DM으로 보낸 뒤 &quot;알렸어요&quot;를 눌러 주세요.
                   </span>
+                  {/* 처음 요청 DM처럼 문구·링크를 한 번에 복사(운영자가 직접 쓰지 않게) */}
+                  <Button size="sm" variant="outline" onClick={() => void onCopyChosen()}>
+                    알림 문구 복사
+                  </Button>
                   <Button
                     size="sm"
                     disabled={notified.isPending}

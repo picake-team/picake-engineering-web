@@ -139,6 +139,8 @@ function QuoteSendSheet({
       onClose();
     } catch (e) {
       setError(getApiMessage.error(e));
+      // 그사이 손님이 닫았거나 다른 가게를 골랐을 수 있어 카드 상태를 다시 읽는다
+      void queryClient.invalidateQueries({ queryKey: quoteViewKey(storeId, view.requestId) });
     } finally {
       setSending(false);
     }
@@ -284,6 +286,11 @@ export function QuoteRequestPanel({ storeId, requestId }: { storeId: string; req
   } = useQuery({
     queryKey: quoteViewKey(storeId, requestId),
     queryFn: () => quoteApi.view(storeId, requestId),
+    // 채팅방은 새 글만 가져와 이 카드 상태는 다시 읽지 않는다. 손님이 닫거나 다른 가게를 고르면
+    // 30초 안에 "마감"·"다른 가게를 골랐어요"로 바뀌게, 아직 끝나지 않은 동안만 다시 읽는다
+    refetchInterval: (q) =>
+      q.state.data && ["OPEN", "SENT", "CHOSEN_ME"].includes(q.state.data.state) ? 30_000 : false,
+    refetchIntervalInBackground: false,
   });
   const [sendOpen, setSendOpen] = useState(false);
   const [declineOpen, setDeclineOpen] = useState(false);
@@ -326,6 +333,7 @@ export function QuoteRequestPanel({ storeId, requestId }: { storeId: string; req
     } catch (e) {
       setDeclineOpen(false);
       setError(getApiMessage.error(e));
+      void queryClient.invalidateQueries({ queryKey: quoteViewKey(storeId, requestId) });
     } finally {
       setDeclining(false);
     }
@@ -404,6 +412,12 @@ export function QuoteRequestPanel({ storeId, requestId }: { storeId: string; req
         ) : null}
       </div>
       {textBox ? <div className="mt-2">{textBox}</div> : null}
+      {view.contentHidden ? (
+        // 처리방침 보유 기간: 끝난 요청의 손님 글·사진은 서버가 보내지 않는다
+        <p className="mt-2 rounded-control bg-ink-50 px-3 py-2.5 text-sub text-ink-600">
+          끝난 요청이라 손님이 쓴 내용과 사진은 보이지 않아요
+        </p>
+      ) : null}
       {/* 손님이 고른 뒤에는 마감 시각이 필요 없어 할 일 한 줄로 바꾼다 */}
       {view.state === "CHOSEN_ME" ? null : (
         <p className="mt-2 text-caption text-ink-600">견적 마감 {view.deadline}</p>

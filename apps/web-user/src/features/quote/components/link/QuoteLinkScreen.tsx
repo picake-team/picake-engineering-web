@@ -116,6 +116,12 @@ function RequestCard({ view }: { view: QuoteLinkView }) {
       <InfoLine label="케이크">{view.cake}</InfoLine>
       <InfoLine label="예산">{view.budget}</InfoLine>
       {view.area && <InfoLine label="동네">{view.area} 근처</InfoLine>}
+      {view.contentHidden && (
+        // 처리방침 보유 기간: 끝난 요청의 손님 글·사진은 서버가 보내지 않는다
+        <p className="mt-[8px] rounded-xl bg-gray-50 px-[12px] py-[10px] text-sm text-gray-500">
+          끝난 요청이라 손님이 쓴 내용과 사진은 보이지 않아요
+        </p>
+      )}
       {(view.description || view.requestNote) && (
         <div className={cn("mt-[8px] rounded-xl bg-gray-50 px-[12px] py-[10px]", QUOTE_NO_REPLAY)}>
           {view.description && (
@@ -317,6 +323,8 @@ export function QuoteLinkScreen({ token }: { token: string }) {
       await reload();
     } catch (e) {
       setFormError(getApiMessage.error(e));
+      // 그사이 손님이 닫았거나 다른 가게를 골랐을 수 있어 화면 상태를 다시 읽는다
+      void reload();
     } finally {
       setSending(false);
     }
@@ -333,6 +341,7 @@ export function QuoteLinkScreen({ token }: { token: string }) {
     } catch (e) {
       setDeclineOpen(false);
       setFormError(getApiMessage.error(e));
+      void reload();
     } finally {
       setDeclining(false);
     }
