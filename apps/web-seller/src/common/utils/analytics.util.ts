@@ -1,4 +1,4 @@
-import posthog from "posthog-js";
+import { withPostHog } from "@/apps/web-seller/common/config/posthog.config";
 
 /**
  * 판매자 웹 PostHog 커스텀 이벤트(손님 웹 `trackEvent`와 같은 정책: 키가 없으면 보내지 않고, 실패해도 화면은 그대로).
@@ -34,10 +34,5 @@ export function trackSellerEvent<T extends keyof SellerAnalyticsEventMap>(
   event: T,
   properties: SellerAnalyticsEventMap[T],
 ): void {
-  if (!import.meta.env.VITE_PUBLIC_POSTHOG_KEY) return;
-  try {
-    posthog.capture(event, properties);
-  } catch (error) {
-    console.error("PostHog 이벤트 전송 실패:", error);
-  }
+  withPostHog((posthog) => posthog.capture(event, properties));
 }
