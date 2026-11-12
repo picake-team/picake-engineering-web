@@ -3,6 +3,25 @@ const CONSUMER_API_PREFIX = "/v1/consumer";
 /** 서버 fetch 제한 시간. 백엔드가 응답하지 않아도 서버 렌더링이 무한정 기다리지 않게 한다 */
 const SERVER_API_TIMEOUT_MS = 3000;
 
+/**
+ * 다시 해 볼 만한 연결 끊김. 서버가 쉬던 연결(keep-alive)을 닫는 순간 그 연결을 다시 쓰면
+ * "fetch failed · other side closed"가 난다(Vercel 운영 오류 7일 20번·4명, 상품·가게 화면, 2026-11-12 확인).
+ * 시간 초과(AbortSignal)는 다시 하지 않는다 — 기다림만 길어진다
+ */
+const STALE_CONNECTION_CODES = new Set([
+  "UND_ERR_SOCKET",
+  "UND_ERR_CLOSED",
+  "ECONNRESET",
+  "EPIPE",
+  "ETIMEDOUT",
+]);
+
+export function isStaleConnectionError(error: unknown): boolean {
+  if (!(error instanceof TypeError)) return false;
+  const code = (error as { cause?: { code?: unknown } }).cause?.code;
+  return typeof code === "string" && STALE_CONNECTION_CODES.has(code);
+}
+
 /** metadata 등 서버 전용 API fetch (axios/Zustand 미사용) */
 export function getConsumerApiOrigin(): string | null {
   const domain = process.env.NEXT_PUBLIC_API_DOMAIN;
@@ -28,11 +47,21 @@ export async function fetchConsumerApiResult<T>(
   if (!origin) return { status: "error" };
 
   try {
-    const response = await fetch(`${origin}${CONSUMER_API_PREFIX}${path}`, {
+    const url = `${origin}${CONSUMER_API_PREFIX}${path}`;
+    const init = {
       next: { revalidate: options?.revalidate ?? 3600 },
       headers: { Accept: "application/json" },
+      // 다시 해 볼 때도 처음 3초 안에서(서버 렌더링이 오래 멈추지 않게)
       signal: AbortSignal.timeout(SERVER_API_TIMEOUT_MS),
-    });
+    };
+    let response: Response;
+    try {
+      response = await fetch(url, init);
+    } catch (error) {
+      // 읽기(GET)라 한 번 더 해도 안전하다. 끊긴 연결은 버려지고 새 연결로 간다
+      if (!isStaleConnectionError(error)) throw error;
+      response = await fetch(url, init);
+    }
 
     if (response.status === 404) return { status: "not_found" };
     if (!response.ok) return { status: "error" };
