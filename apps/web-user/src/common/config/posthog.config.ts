@@ -1,4 +1,4 @@
-import posthog, { type CaptureResult } from "posthog-js";
+import type { CaptureResult, PostHog } from "posthog-js";
 import { isQuoteLinkPath, scrubLinkToken } from "@/apps/web-user/common/utils/link-token.util";
 import { isSyntheticBrowser } from "@/apps/web-user/common/utils/synthetic-traffic.util";
 
@@ -87,32 +87,76 @@ function sanitizeEvent(event: CaptureResult | null): CaptureResult | null {
  * - Lighthouse·브라우저 자동화 같은 합성 접속은 실제 방문자처럼 집계되므로 false (synthetic-traffic.util 참고)
  */
 export function isPostHogEnabled(): boolean {
-  return !!POSTHOG_KEY && !isSyntheticBrowser();
+  return typeof window !== "undefined" && !!POSTHOG_KEY && !isSyntheticBrowser();
 }
 
-/**
- * PostHog 클라이언트를 초기화합니다.
- * - 키가 없으면(로컬 등 미설정) 또는 합성 접속이면 초기화를 건너뜁니다.
- * - 페이지뷰는 App Router 특성상 수동 캡처하므로 자동 캡처를 비활성화합니다.
- */
-export function initPostHog(): void {
-  if (typeof window === "undefined" || !POSTHOG_KEY || !isPostHogEnabled()) {
-    return;
-  }
-
-  posthog.init(POSTHOG_KEY, {
+/** 불러온 PostHog를 초기화한다(loadPostHog에서 한 번) */
+function initClient(posthog: PostHog): void {
+  posthog.init(POSTHOG_KEY!, {
     api_host: POSTHOG_HOST,
     ui_host: "https://us.posthog.com",
     capture_pageview: false,
     capture_pageleave: true,
     person_profiles: "identified_only",
     before_send: sanitizeEvent,
-    // 사장님 견적 링크(/q)는 손님 앱이 아니고 손님 요청서·대화가 보이는 화면이라 녹화하지 않는다(이벤트는 보냄)
-    disable_session_recording: isQuoteLinkPath(window.location.pathname),
+    // 사장님 견적 링크(/q)는 손님 앱이 아니고 손님 요청서·대화가 보이는 화면이라 녹화하지 않는다(이벤트는 보냄).
+    // 화면을 옮길 때 녹화를 켜고 끄는 일은 PostHogPageView의 isReplayBlockedPath가 맡는다
+    disable_session_recording: isReplayBlockedPath(window.location.pathname),
     loaded: (ph) => {
       ph.register(SUPER_PROPERTIES);
     },
   });
+}
+
+/**
+ * 화면 녹화(세션 리플레이)를 하지 않는 주소.
+ * - /auth/*: OAuth 콜백·가입 플로우라 이메일 등이 화면에 보인다
+ * - /q/*: 사장님 견적 링크(손님 요청서·대화)
+ * startSessionRecording()은 disable_session_recording 설정을 덮어쓰므로 화면을 옮길 때마다 이 함수로 판단한다.
+ */
+export function isReplayBlockedPath(pathname: string | null | undefined): boolean {
+  if (!pathname) return false;
+  return pathname.startsWith("/auth") || isQuoteLinkPath(pathname);
+}
+
+/**
+ * PostHog는 처음 쓸 때 따로 불러온다(첫 화면 파일에서 빼서 화면이 먼저 뜨게 — 압축 약 50KB).
+ * 불러오기 전에 부른 일(페이지뷰·이벤트·회원 묶기)은 부른 순서대로 불러온 뒤 한다.
+ * 키가 없거나 꺼져 있으면 아무것도 불러오지 않는다.
+ */
+let loading: Promise<PostHog | null> | null = null;
+
+function loadPostHog(): Promise<PostHog | null> {
+  if (!isPostHogEnabled()) return Promise.resolve(null);
+  loading ??= import("posthog-js")
+    .then(({ default: posthog }) => {
+      initClient(posthog);
+      return posthog;
+    })
+    .catch((error) => {
+      // 파일을 못 받았으면(끊김) 다음 호출 때 다시 시도
+      loading = null;
+      console.error("PostHog 불러오기 실패:", error);
+      return null;
+    });
+  return loading;
+}
+
+/** PostHog가 준비되면 fn을 부른다(실패해도 화면은 그대로) */
+export function withPostHog(fn: (posthog: PostHog) => void): void {
+  void loadPostHog().then((posthog) => {
+    if (!posthog) return;
+    try {
+      fn(posthog);
+    } catch (error) {
+      console.error("PostHog 호출 실패:", error);
+    }
+  });
+}
+
+/** 앱이 뜰 때 한 번: PostHog를 불러와 초기화 */
+export function initPostHog(): void {
+  withPostHog(() => {});
 }
 
 /** 로그인 토큰(JWT)의 회원 번호(sub). 토큰 확인은 서버가 하고 여기서는 읽기만 한다 */
@@ -134,12 +178,12 @@ function tokenSubject(token: string): string | null {
  * 토큰이 바뀌어도(다시 로그인·갱신) 같은 회원이면 다시 보내지 않는다.
  */
 export function syncPostHogUser(accessToken: string | null): void {
-  if (typeof window === "undefined" || !isPostHogEnabled()) return;
-  if (!(posthog as unknown as { __loaded?: boolean }).__loaded) return;
   const userId = accessToken ? tokenSubject(accessToken) : null;
-  if (userId) {
-    if (posthog.get_distinct_id() !== userId) posthog.identify(userId, { role: "consumer" });
-  } else if (posthog.get_property("$user_state") === "identified") {
-    posthog.reset();
-  }
+  withPostHog((posthog) => {
+    if (userId) {
+      if (posthog.get_distinct_id() !== userId) posthog.identify(userId, { role: "consumer" });
+    } else if (posthog.get_property("$user_state") === "identified") {
+      posthog.reset();
+    }
+  });
 }

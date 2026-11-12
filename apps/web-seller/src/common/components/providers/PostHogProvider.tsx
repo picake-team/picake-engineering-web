@@ -1,8 +1,10 @@
 import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
-import posthog from "posthog-js";
-import { PostHogProvider as PHProvider } from "posthog-js/react";
-import { initPostHog, syncPostHogUser } from "@/apps/web-seller/common/config/posthog.config";
+import {
+  initPostHog,
+  syncPostHogUser,
+  withPostHog,
+} from "@/apps/web-seller/common/config/posthog.config";
 import { useAuthStore } from "@/apps/web-seller/features/auth/store/auth.store";
 import { getAccessToken } from "@/apps/web-seller/common/utils/token.util";
 
@@ -15,19 +17,21 @@ export function PostHogPageView() {
   const location = useLocation();
 
   useEffect(() => {
-    posthog.capture("$pageview", {
-      $current_url: window.origin + location.pathname + location.search,
-    });
+    const url = window.origin + location.pathname + location.search;
+    withPostHog((ph) => ph.capture("$pageview", { $current_url: url }));
   }, [location.pathname, location.search]);
 
   // /auth/* 는 OAuth 콜백·가입 플로우라 화면 녹화(세션 리플레이) 자체를 꺼서
   // 이메일 등 화면에 노출되는 정보가 리플레이로 남지 않게 한다.
   useEffect(() => {
-    if (location.pathname.startsWith("/auth")) {
-      posthog.stopSessionRecording();
-    } else {
-      posthog.startSessionRecording();
-    }
+    const blocked = location.pathname.startsWith("/auth");
+    withPostHog((ph) => {
+      if (blocked) {
+        ph.stopSessionRecording();
+      } else {
+        ph.startSessionRecording();
+      }
+    });
   }, [location.pathname]);
 
   return null;
@@ -54,5 +58,5 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
     }
   }, [isInitialized, isAuthenticated]);
 
-  return <PHProvider client={posthog}>{children}</PHProvider>;
+  return <>{children}</>;
 }

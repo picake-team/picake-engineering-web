@@ -1,4 +1,4 @@
-import posthog, { type CaptureResult } from "posthog-js";
+import type { CaptureResult, PostHog } from "posthog-js";
 
 const POSTHOG_KEY = import.meta.env.VITE_PUBLIC_POSTHOG_KEY;
 const POSTHOG_HOST = import.meta.env.VITE_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com";
@@ -61,17 +61,9 @@ function sanitizeEvent(event: CaptureResult | null): CaptureResult | null {
   return event;
 }
 
-/**
- * PostHog 클라이언트를 초기화합니다.
- * - 키가 없으면(로컬 등 미설정) 초기화를 건너뜁니다.
- * - 페이지뷰는 SPA 라우팅 특성상 수동 캡처하므로 자동 캡처를 비활성화합니다.
- */
-export function initPostHog(): void {
-  if (typeof window === "undefined" || !POSTHOG_KEY) {
-    return;
-  }
-
-  posthog.init(POSTHOG_KEY, {
+/** 불러온 PostHog를 초기화한다(loadPostHog에서 한 번) */
+function initClient(posthog: PostHog): void {
+  posthog.init(POSTHOG_KEY!, {
     api_host: POSTHOG_HOST,
     ui_host: "https://us.posthog.com",
     capture_pageview: false,
@@ -86,7 +78,47 @@ export function initPostHog(): void {
 
 /** PostHog를 켰는지(키가 있을 때만) */
 function isPostHogEnabled(): boolean {
-  return !!POSTHOG_KEY;
+  return typeof window !== "undefined" && !!POSTHOG_KEY;
+}
+
+/**
+ * PostHog는 처음 쓸 때 따로 불러온다(첫 화면 파일에서 빼서 화면이 먼저 뜨게 — 압축 약 50KB).
+ * 불러오기 전에 부른 일(페이지뷰·이벤트·회원 묶기)은 부른 순서대로 불러온 뒤 한다.
+ * 키가 없으면 아무것도 불러오지 않는다.
+ */
+let loading: Promise<PostHog | null> | null = null;
+
+function loadPostHog(): Promise<PostHog | null> {
+  if (!isPostHogEnabled()) return Promise.resolve(null);
+  loading ??= import("posthog-js")
+    .then(({ default: posthog }) => {
+      initClient(posthog);
+      return posthog;
+    })
+    .catch((error) => {
+      // 파일을 못 받았으면(끊김) 다음 호출 때 다시 시도
+      loading = null;
+      console.error("PostHog 불러오기 실패:", error);
+      return null;
+    });
+  return loading;
+}
+
+/** PostHog가 준비되면 fn을 부른다(실패해도 화면은 그대로) */
+export function withPostHog(fn: (posthog: PostHog) => void): void {
+  void loadPostHog().then((posthog) => {
+    if (!posthog) return;
+    try {
+      fn(posthog);
+    } catch (error) {
+      console.error("PostHog 호출 실패:", error);
+    }
+  });
+}
+
+/** 앱이 뜰 때 한 번: PostHog를 불러와 초기화 */
+export function initPostHog(): void {
+  withPostHog(() => {});
 }
 
 /** 로그인 토큰(JWT)의 회원 번호(sub). 토큰 확인은 서버가 하고 여기서는 읽기만 한다 */
@@ -108,12 +140,12 @@ function tokenSubject(token: string): string | null {
  * 토큰이 바뀌어도(다시 로그인·갱신) 같은 회원이면 다시 보내지 않는다.
  */
 export function syncPostHogUser(accessToken: string | null): void {
-  if (typeof window === "undefined" || !isPostHogEnabled()) return;
-  if (!(posthog as unknown as { __loaded?: boolean }).__loaded) return;
   const userId = accessToken ? tokenSubject(accessToken) : null;
-  if (userId) {
-    if (posthog.get_distinct_id() !== userId) posthog.identify(userId, { role: "seller" });
-  } else if (posthog.get_property("$user_state") === "identified") {
-    posthog.reset();
-  }
+  withPostHog((posthog) => {
+    if (userId) {
+      if (posthog.get_distinct_id() !== userId) posthog.identify(userId, { role: "seller" });
+    } else if (posthog.get_property("$user_state") === "identified") {
+      posthog.reset();
+    }
+  });
 }
