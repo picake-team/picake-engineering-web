@@ -10,6 +10,7 @@ import { InfoRow } from "@/apps/web-seller/common/ui/List";
 import { Checkbox } from "@/apps/web-seller/common/ui/Toggle";
 import { cx } from "@/apps/web-seller/common/ui/cx";
 import getApiMessage from "@/apps/web-seller/common/utils/getApiMessage";
+import { useAlertStore } from "@/apps/web-seller/common/store/alert.store";
 import { uploadApi } from "@/apps/web-seller/features/upload/apis/upload.api";
 import { dataUrlToFile, shrinkPhoto } from "@/apps/web-seller/features/chat/hooks/useChat";
 import { quoteApi } from "@/apps/web-seller/features/quote/apis/quote.api";
@@ -81,6 +82,7 @@ function QuoteSendSheet({
   onClose: () => void;
 }) {
   const queryClient = useQueryClient();
+  const { addAlert } = useAlertStore();
   const q = view.quote;
   const [price, setPrice] = useState(q ? q.unitPrice.toLocaleString("ko-KR") : "");
   const [mayVary, setMayVary] = useState(q?.priceMayVary ?? false);
@@ -132,6 +134,8 @@ function QuoteSendSheet({
         surface: surfaceNow(),
       });
       await queryClient.invalidateQueries({ queryKey: quoteViewKey(storeId, view.requestId) });
+      // 주문 처리처럼 한 일을 아래 안내 띠로(같은 일 = 같은 모양)
+      addAlert({ severity: "success", message: q ? "견적을 고쳤어요" : "견적을 보냈어요" });
       onClose();
     } catch (e) {
       setError(getApiMessage.error(e));
@@ -272,6 +276,7 @@ function QuoteSendSheet({
  */
 export function QuoteRequestPanel({ storeId, requestId }: { storeId: string; requestId: string }) {
   const queryClient = useQueryClient();
+  const { addAlert } = useAlertStore();
   const {
     data: view,
     isError,
@@ -317,6 +322,7 @@ export function QuoteRequestPanel({ storeId, requestId }: { storeId: string; req
       });
       await queryClient.invalidateQueries({ queryKey: quoteViewKey(storeId, requestId) });
       setDeclineOpen(false);
+      addAlert({ severity: "success", message: "어려워요로 답했어요" });
     } catch (e) {
       setDeclineOpen(false);
       setError(getApiMessage.error(e));

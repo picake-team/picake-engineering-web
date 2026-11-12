@@ -7,6 +7,10 @@ import { BottomSheet } from "@/apps/web-user/common/components/bottom-sheets/Bot
 import { Button } from "@/apps/web-user/common/components/buttons/Button";
 import { Checkbox } from "@/apps/web-user/common/components/inputs/Checkbox";
 import { Icon } from "@/apps/web-user/common/components/icons";
+import { EmptyState } from "@/apps/web-user/common/components/fallbacks/EmptyState";
+import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
+import { Skeleton } from "@/apps/web-user/common/components/skeleton";
+import { Toast } from "@/apps/web-user/common/components/toast/Toast";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { cn } from "@/apps/web-user/common/lib/utils";
 import getApiMessage from "@/apps/web-user/common/utils/getApiMessage";
@@ -193,6 +197,9 @@ export function QuoteLinkScreen({ token }: { token: string }) {
   const [declineOpen, setDeclineOpen] = useState(false);
   const [declining, setDeclining] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  // 보낸 뒤 한 줄 안내(판매자 앱 견적 보내기와 같은 말)
+  const [toast, setToast] = useState<string | null>(null);
+  const formRef = useRef<HTMLElement>(null);
 
   // 사장님이 링크를 엶(한 번)
   const viewedRef = useRef(false);
@@ -224,7 +231,13 @@ export function QuoteLinkScreen({ token }: { token: string }) {
     return (
       <div className="min-h-screen bg-white">
         {header}
-        <p className="py-[40px] text-center text-sm text-gray-400">불러오는 중…</p>
+        {/* 다른 화면과 같은 회색 뼈대(손님 견적 화면과 같게) */}
+        <div className="flex flex-col gap-[12px] px-[20px] pt-[20px]">
+          <Skeleton className="h-[16px] w-[140px] rounded" />
+          <Skeleton className="h-[28px] w-[220px] rounded" />
+          <Skeleton className="mt-[8px] h-[220px] rounded-xl" />
+          <Skeleton className="h-[120px] rounded-xl" />
+        </div>
       </div>
     );
   }
@@ -232,27 +245,30 @@ export function QuoteLinkScreen({ token }: { token: string }) {
     return (
       <div className="min-h-screen bg-white">
         {header}
-        <div className="flex flex-col items-center gap-[16px] px-[20px] py-[48px]">
-          <p className="text-center text-sm text-gray-700">
-            {isError ? getApiMessage.error(error) : "견적 링크를 찾을 수 없어요."}
-          </p>
-          {/* 없는 링크(404)는 다시 해도 같아서 "다시 시도"를 보이지 않는다. 인터넷 끊김 등만 */}
-          {!(isAxiosError(error) && error.response?.status === 404) && (
-            <Button
-              variant="outline"
-              size="md"
-              className="w-[160px]"
-              onClick={() => void refetch()}
-            >
-              다시 시도
-            </Button>
-          )}
-        </div>
+        {/* 없는 링크(404)는 다시 해도 같아서 "다시 시도" 없이, 인터넷 끊김·서버 오류만 다른 화면과 같은 "다시 시도" */}
+        {isAxiosError(error) && error.response?.status === 404 ? (
+          <EmptyState
+            message="견적 링크를 찾을 수 없어요. 받은 메시지의 링크를 다시 확인해 주세요."
+            fill
+          />
+        ) : isError ? (
+          <LoadErrorState fill onRetry={() => void refetch()} />
+        ) : (
+          <EmptyState message="견적 링크를 찾을 수 없어요." fill />
+        )}
       </div>
     );
   }
 
   const set = (patch: Partial<FormState>) => setForm((f) => (f ? { ...f, ...patch } : f));
+  // "견적 고치기"를 누르면 칸이 요청서 아래에 열려 작은 휴대폰에서는 보이지 않아, 칸으로 내려간다
+  const openEditor = () => {
+    setForm(initialForm(view));
+    setEditing(true);
+    requestAnimationFrame(() =>
+      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
+    );
+  };
   const price = digits(form.price);
   // 어려워요로 답한 뒤에도 "견적 보내기로 바꾸기"를 누르면 칸이 열린다
   const showForm =
@@ -296,6 +312,7 @@ export function QuoteLinkScreen({ token }: { token: string }) {
         similarity: form.similarity,
         photo_count: form.photos.length,
       });
+      setToast(view.quote ? "고친 견적을 보냈어요" : "견적을 보냈어요");
       setEditing(false);
       await reload();
     } catch (e) {
@@ -311,6 +328,7 @@ export function QuoteLinkScreen({ token }: { token: string }) {
       await quoteLinkApi.decline(token, reason);
       trackEvent("success_quote_link_decline", { quote_request_id: view.requestId, reason });
       setDeclineOpen(false);
+      setToast("어려워요로 답했어요");
       await reload();
     } catch (e) {
       setDeclineOpen(false);
@@ -369,7 +387,7 @@ export function QuoteLinkScreen({ token }: { token: string }) {
               ). 손님에게는 한 줄로 보여요.
             </NoticeBox>
             {view.canEdit && (
-              <Button variant="outline" size="md" onClick={() => setEditing(true)}>
+              <Button variant="outline" size="md" onClick={openEditor}>
                 견적 보내기로 바꾸기
               </Button>
             )}
@@ -408,15 +426,7 @@ export function QuoteLinkScreen({ token }: { token: string }) {
               </div>
             )}
             {view.canEdit && (
-              <Button
-                variant="outline"
-                size="md"
-                className="mt-[12px] w-full"
-                onClick={() => {
-                  setForm(initialForm(view));
-                  setEditing(true);
-                }}
-              >
+              <Button variant="outline" size="md" className="mt-[12px] w-full" onClick={openEditor}>
                 견적 고치기
               </Button>
             )}
@@ -424,7 +434,7 @@ export function QuoteLinkScreen({ token }: { token: string }) {
         )}
 
         {showForm && (
-          <section className="mb-[24px]">
+          <section ref={formRef} className="mb-[24px] scroll-mt-[64px]">
             <p className="mb-[16px] text-base font-bold text-gray-900">
               {view.quote ? "견적 고치기" : "견적 보내기"}
             </p>
@@ -619,6 +629,15 @@ export function QuoteLinkScreen({ token }: { token: string }) {
             </Button>
           </span>
         </div>
+      )}
+
+      {toast && (
+        <Toast
+          message={toast}
+          iconName="checkCircle"
+          iconClassName="text-green-400"
+          onClose={() => setToast(null)}
+        />
       )}
 
       <BottomSheet
