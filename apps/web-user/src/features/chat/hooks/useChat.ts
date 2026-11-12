@@ -209,7 +209,11 @@ export function useChatRoom(input: {
         setPending((prev) =>
           prev.map((x) => (x.clientId === p.clientId ? { ...x, status: "failed" } : x)),
         );
-        return { ok: false as const, message: getApiMessage.error(e) };
+        // 끊김·서버 오류는 말풍선 아래 "보내지 못했어요 · 다시 보내기"로 충분하다(창을 또 띄우지 않음).
+        // 차단·잠김처럼 다시 보내도 안 되는 이유(4xx)만 화면이 따로 알린다
+        const status = (e as { response?: { status?: number } })?.response?.status;
+        const retryable = !status || status >= 500;
+        return { ok: false as const, message: getApiMessage.error(e), retryable };
       }
     },
     [threadId, input, queryClient],
