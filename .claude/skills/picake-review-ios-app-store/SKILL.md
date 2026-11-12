@@ -1,6 +1,6 @@
 ---
 name: picake-review-ios-app-store
-description: Picake web-user가 겉면만 Flutter로 감싼 웹뷰 앱으로 iOS 앱스토어 심사를 준비하거나 반려에 대응할 때 사용합니다. "iOS 심사 준비해줘", "심사노트 써줘", "리젝됐어 대응해야 돼", "애플 반려 사유 확인" 같은 요청에 이 skill을 따르세요. 이 저장소(web-user/backend)에 이미 구현된 심사 대응 장치(심사용 로그인, Apple 로그인, 계정삭제, 딥링크 수정)를 안내하고 App Store Connect 심사노트 문구 초안을 제공합니다. 네이티브 Flutter 앱 자체(별도 저장소)의 Info.plist·권한 문구·스크린샷·App Privacy 설문은 이 skill 범위 밖이며 앱담당자 확인이 필요합니다.
+description: 손님 앱(웹뷰) iOS 앱스토어 심사 준비·반려 대응, 심사노트 초안. "iOS 심사 준비", "리젝됐어", "심사노트 써줘"에 쓴다. 네이티브 앱 설정은 앱담당자.
 ---
 
 # iOS 앱스토어 심사 대응

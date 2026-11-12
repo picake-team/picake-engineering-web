@@ -1,6 +1,6 @@
 ---
 name: picake-auth-social-login
-description: Picake web-user/web-seller의 소셜 로그인(구글·카카오·애플 등 OAuth) 관련 기능을 새로 추가하거나 수정할 때 사용합니다. "애플 로그인 추가해줘", "소셜 로그인 provider 추가", "구글/카카오 로그인 수정" 같은 요청에 이 skill을 따르세요. 브릿지 없이 웹뷰에서 OAuth code flow로 처리하는 기존 패턴(프론트·백엔드·시크릿·탈퇴 처리)을 그대로 재사용합니다.
+description: 소셜 로그인(구글·카카오·애플 OAuth)을 더하거나 고칠 때. "애플 로그인 추가", "카카오·구글 로그인 수정"에 쓴다. 웹뷰 OAuth code flow·시크릿·탈퇴 처리 패턴.
 ---
 
 # 소셜 로그인(OAuth) 기능 구현
