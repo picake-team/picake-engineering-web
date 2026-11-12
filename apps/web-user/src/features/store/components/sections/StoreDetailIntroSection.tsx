@@ -29,10 +29,9 @@ export function StoreDetailIntroSection({ store }: StoreDetailIntroSectionProps)
   const [showCopyToast, setShowCopyToast] = useState(false);
   const [isLiked, setIsLiked] = useState(store.isLiked ?? false);
   const [isInquiryOpen, setIsInquiryOpen] = useState(false);
-  // 사장님이 적은 카카오톡 채널·인스타·전화 중 하나라도 있으면 "문의"를 보인다(I-61 첫 조각, 2026-11-11)
+  // "문의"는 늘 보인다 — 채팅(I-11)이 있고, 사장님이 적은 카카오톡 채널·인스타·전화도 같은 창에(I-61 첫 조각)
   const kakaoUrl = storeKakaoChatUrl(store.kakaoChannelId);
   const instaUrl = storeInstagramUrl(store.instagramId);
-  const canInquire = !!(kakaoUrl || instaUrl || store.phoneNumber);
 
   const { mutate: addLike, isPending: isAddingLike } = useAddStoreLike();
   const { mutate: removeLike, isPending: isRemovingLike } = useRemoveStoreLike();
@@ -113,16 +112,14 @@ export function StoreDetailIntroSection({ store }: StoreDetailIntroSectionProps)
         </div>
 
         {/* 문의 버튼(아이콘만, 2026-11-11 운영자): 주문 화면의 "스토어 문의"와 같은 창 */}
-        {canInquire && (
-          <button
-            type="button"
-            onClick={() => setIsInquiryOpen(true)}
-            aria-label="스토어 문의"
-            className="flex items-center px-[8px] py-[6px] border border-gray-100 rounded-md"
-          >
-            <Icon name="reviewQna" width={18} height={18} className="text-gray-900" />
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => setIsInquiryOpen(true)}
+          aria-label="스토어 문의"
+          className="flex items-center px-[8px] py-[6px] border border-gray-100 rounded-md"
+        >
+          <Icon name="reviewQna" width={18} height={18} className="text-gray-900" />
+        </button>
 
         {/* 좋아요 버튼 */}
         <button
@@ -191,6 +188,7 @@ export function StoreDetailIntroSection({ store }: StoreDetailIntroSectionProps)
       <StoreInquiryBottomSheet
         isOpen={isInquiryOpen}
         onClose={() => setIsInquiryOpen(false)}
+        storeId={store.id}
         kakaoChannelUrl={kakaoUrl}
         instagramUrl={instaUrl}
         phoneNumber={store.phoneNumber}

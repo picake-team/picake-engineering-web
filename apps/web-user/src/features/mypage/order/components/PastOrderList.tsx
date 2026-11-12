@@ -182,6 +182,7 @@ function PastOrderItem({ order, isLast }: { order: OrderResponse; isLast: boolea
         isOpen={isInquirySheetOpen}
         onClose={() => setIsInquirySheetOpen(false)}
         storeId={order.storeId}
+        orderId={order.id}
         phoneNumber={order.storePhoneNumber}
       />
     </div>

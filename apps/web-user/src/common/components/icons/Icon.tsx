@@ -64,6 +64,9 @@ import MypageNav from "./icons/mypage_nav.svg";
 import MypageNavFilled from "./icons/mypage_nav-filled.svg";
 import NoneStore from "./icons/none-store.svg";
 import NoneAlarm from "./icons/none-alarm.svg";
+import Chat from "./icons/chat.svg";
+import More from "./icons/more.svg";
+import Send from "./icons/send.svg";
 
 interface IconProps {
   name: keyof typeof iconTypes;
@@ -137,6 +140,9 @@ export const iconTypes = {
   mypageNavFilled: MypageNavFilled,
   noneStore: NoneStore,
   noneAlarm: NoneAlarm,
+  chat: Chat,
+  more: More,
+  send: Send,
 };
 
 export type IconName = keyof typeof iconTypes;

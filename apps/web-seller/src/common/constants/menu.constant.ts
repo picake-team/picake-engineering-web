@@ -1,5 +1,14 @@
 import React from "react";
-import { Home, Package, Store, FileText, ShoppingCart, Bell, BarChart3 } from "lucide-react";
+import {
+  Home,
+  Package,
+  Store,
+  FileText,
+  ShoppingCart,
+  Bell,
+  BarChart3,
+  MessageSquare,
+} from "lucide-react";
 import { ROUTES } from "./paths.constant";
 
 export interface MenuChildItem {
@@ -74,10 +83,11 @@ export function getMenuItems(storeId: string | null): MenuItem[] {
         { text: "알림 설정", path: ROUTES.STORE_DETAIL_NOTIFICATIONS_SETTINGS(storeId) },
       ],
     },
-    // {
-    //   text: "채팅",
-    //   icon: React.createElement(MessageSquare, { className: "w-5 h-5" }),
-    //   children: [{ text: "채팅 목록", path: ROUTES.STORE_DETAIL_CHAT_LIST(storeId) }],
-    // },
+    {
+      // 채팅(기획 I-11). 휴대폰과 같은 화면을 가운데에 띄운다
+      text: "채팅",
+      icon: React.createElement(MessageSquare, { className: "w-5 h-5" }),
+      path: ROUTES.STORE_DETAIL_CHATS(storeId),
+    },
   ];
 }

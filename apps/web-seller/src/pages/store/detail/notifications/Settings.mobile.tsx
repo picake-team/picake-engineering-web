@@ -35,12 +35,14 @@ export const StoreDetailNotificationSettingsMobilePage: React.FC = () => {
   const { storeId = "" } = useParams<{ storeId: string }>();
   const { data: store } = useStoreDetail(storeId);
   const prefsQuery = useNotificationPreferences(storeId);
+  // 채팅 줄은 서버가 값을 주고 채팅이 열려 있을 때만(기획 I-11, 열기 전에는 없는 기능이라 숨김)
   const update = useUpdateNotificationPreferences(storeId);
   const addAlert = useAlertStore((s) => s.addAlert);
   const [confirmOff, setConfirmOff] = useState(false);
   const [tipsOpen, setTipsOpen] = useState(false);
 
   const prefs = prefsQuery.data ?? DEFAULT_SELLER_NOTIFICATION_SETTINGS;
+  const showChat = typeof prefs.chatNotificationsEnabled === "boolean";
   const loaded = Boolean(prefsQuery.data);
 
   const testPush = useMutation({
@@ -64,7 +66,7 @@ export const StoreDetailNotificationSettingsMobilePage: React.FC = () => {
         <ListRow
           title="주문 알림 받기"
           description="예약 신청, 입금·확정, 픽업, 취소·환불 알림"
-          divider={typeof prefs.morningSummaryEnabled === "boolean"}
+          divider={typeof prefs.morningSummaryEnabled === "boolean" || showChat}
           trailing={
             <Switch
               label="주문 알림 받기"
@@ -77,6 +79,35 @@ export const StoreDetailNotificationSettingsMobilePage: React.FC = () => {
             />
           }
         />
+        {showChat ? (
+          <>
+            <ListRow
+              title="채팅 알림 받기"
+              description="손님이 문의하면 휴대폰 알림. 끄면 채팅 탭 숫자만 보여요"
+              trailing={
+                <Switch
+                  label="채팅 알림 받기"
+                  disabled={!loaded}
+                  checked={!!prefs.chatNotificationsEnabled}
+                  onChange={(next) => update.mutate({ chatNotificationsEnabled: next })}
+                />
+              }
+            />
+            <ListRow
+              title="밤 9시~아침 8시는 채팅 알림 끄기"
+              description="밤에 온 문의는 아침에 채팅 탭에서 확인해요"
+              divider={typeof prefs.morningSummaryEnabled === "boolean"}
+              trailing={
+                <Switch
+                  label="밤 9시~아침 8시는 채팅 알림 끄기"
+                  disabled={!loaded || !prefs.chatNotificationsEnabled}
+                  checked={!!prefs.chatQuietNight}
+                  onChange={(next) => update.mutate({ chatQuietNight: next })}
+                />
+              }
+            />
+          </>
+        ) : null}
         {typeof prefs.morningSummaryEnabled === "boolean" ? (
           <ListRow
             title="아침 요약 알림"

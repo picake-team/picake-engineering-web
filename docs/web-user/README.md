@@ -15,7 +15,7 @@ Picake 플랫폼을 위한 Next.js 기반 사용자 웹 애플리케이션입니
 - **리뷰**: 리뷰 작성 및 조회
 - **좋아요 / 저장**: 좋아요 추가/제거, 저장 목록 (Saved)
 - **마이페이지**: 사용자 정보 조회/수정, 주문 내역
-- **채팅**: Socket.IO 기반 (현재 `/chat` 경로는 홈으로 리다이렉트)
+- **채팅(기획 I-11)**: 가게 상세 문의 창 "채팅으로 문의", MY 바로가기 "채팅"(안 읽은 수), 아래 MY 점. 관리자가 연 뒤에만 보임. 자세한 것은 `docs/common/feature/채팅 시스템 - 가이드.md`
 - **알림**: FCM 푸시 알림 + 실시간 알림 목록
 - **지도**: 위치 기반 스토어 검색 (Map)
 - **검색**: 통합 검색 기능
@@ -24,7 +24,7 @@ Picake 플랫폼을 위한 Next.js 기반 사용자 웹 애플리케이션입니
 - **상태 관리**: Zustand를 활용한 전역 상태 관리
 - **API 통신**: TanStack Query + Axios를 활용한 서버 상태 관리
 - **에러 처리**: Error Boundary, global-error, Sentry 연동
-- **분석**: PostHog (환경 변수 설정 시). 이벤트 정의는 `common/types/analytics.type.ts`(기획팀 Data Taxonomy 시트와 같게), 모든 이벤트에 `app`·`environment`·`surface`(app = 손님 앱 웹뷰, web = 브라우저). 로그인하면 회원 번호로 사람을 묶고(`identify`, 이름·전화번호는 보내지 않음) 로그아웃하면 끊는다(`reset`, 2026-11-10~, 판매자 웹도 같음). 견적 요청서는 `view_quote_step` → `request_quote_request` → `success_quote_request`·`fail_quote_request`
+- **분석**: PostHog (환경 변수 설정 시). 이벤트 정의는 `common/types/analytics.type.ts`(기획팀 Data Taxonomy 시트와 같게), 모든 이벤트에 `app`·`environment`·`surface`(app = 손님 앱 웹뷰, web = 브라우저). 로그인하면 회원 번호로 사람을 묶고(`identify`, 이름·전화번호는 보내지 않음) 로그아웃하면 끊는다(`reset`, 2026-11-10~, 판매자 웹도 같음). 견적 요청서는 `view_quote_step` → `request_quote_request` → `success_quote_request`·`fail_quote_request`. 채팅(I-11)은 `engage_chat_entry`(입구: 스토어 문의 창·예약에서 연 문의 창·MY) → `success_chat_message`(글 내용 없이 방·가게·처음인지·사진 수)
 - **반응형 UI**: 모바일 우선 반응형 디자인 (Flutter WebView 환경 최적화)
 - **디자인 기준**: 화면을 만들거나 고칠 때 [손님 앱 디자인 기준](손님%20앱%20디자인%20기준.md)(지금 있는 부품에 맞추기, 누름 효과·스크롤 자리 등 동작, 다시 꺼내지 않을 것)을 먼저 봅니다.
 - **디자인 값**: 색·글자 크기·모서리·움직임은 공통 패키지 `@picake/design-tokens`의 손님 화면 preset(web-info와 같이 씀, `tailwind.config.ts`의 `presets`). 값과 tailwind 이름은 Storybook "Common/디자인 값"(`yarn web-user:storybook`)에서 보고, 새 화면은 숫자·색 코드를 클래스에 직접 쓰지 않고 이 이름을 씁니다([공통 디자인 값](../common/structure/프로젝트%20구조%20-%20가이드.md#공통-디자인-값-packagesdesign-tokens-2026-11-08))
@@ -79,7 +79,7 @@ Picake 플랫폼을 위한 Next.js 기반 사용자 웹 애플리케이션입니
 
 ### 커뮤니케이션
 
-- **채팅**: `/chat` - 현재 홈(`/`)으로 리다이렉트
+- **채팅**: `/chat`(목록), `/chat/:threadId`(방, 손님 앱 푸시 `data.path`와 같음), `/chat/store/:storeId`(가게에 처음 보내기)
 - **알림**: `/alarm` - 알림 목록
 - **Q&A**: `/qa` - 상품/스토어 문의
 

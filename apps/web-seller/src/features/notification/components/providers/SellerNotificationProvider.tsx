@@ -29,6 +29,11 @@ import { playNotificationChime } from "@/apps/web-seller/features/notification/u
 import { useAlertStore } from "@/apps/web-seller/common/store/alert.store";
 import { orderQueryKeys } from "@/apps/web-seller/features/order/constants/orderQueryKeys.constant";
 import { wasOrderChangedHere } from "@/apps/web-seller/features/order/utils/recent-order-change.util";
+import { useChatSignalStore } from "@/apps/web-seller/features/chat/store/chat-signal.store";
+import {
+  chatQueryKeys,
+  SELLER_CHAT_TITLE,
+} from "@/apps/web-seller/features/chat/constants/chat.constants";
 
 /**
  * 스토어 컨텍스트 안에서 알림 목록·설정·미읽음 수를 React Query로 묶고,
@@ -87,6 +92,10 @@ export const SellerNotificationProvider: React.FC<{
   // 소켓을 화면을 옮길 때마다 다시 붙이지 않도록, 안내를 눌렀을 때 쓰는 함수는 ref로 둔다
   const navigate = useNavigate();
   const navigateRef = useRef(navigate);
+  // 지금 보고 있는 채팅방이면 새 글 안내를 띄우지 않는다
+  const location = useLocation();
+  const pathRef = useRef(location.pathname);
+  pathRef.current = location.pathname;
   const markReadRef = useRef<(id: string) => void>(() => undefined);
   useEffect(() => {
     navigateRef.current = navigate;
@@ -108,8 +117,41 @@ export const SellerNotificationProvider: React.FC<{
         void queryClient.invalidateQueries({ queryKey: orderQueryKeys.all });
       }, SOCKET_REFRESH_DELAY_MS);
     };
+    // 채팅 숫자·목록 다시 불러오기도 잠깐 모아 한 번만
+    let chatTimer: number | null = null;
+    const scheduleChatRefresh = () => {
+      if (chatTimer !== null) return;
+      chatTimer = window.setTimeout(() => {
+        chatTimer = null;
+        void queryClient.invalidateQueries({ queryKey: chatQueryKeys.unread(storeId) });
+        void queryClient.invalidateQueries({ queryKey: ["chat", storeId, "list"] });
+      }, SOCKET_REFRESH_DELAY_MS);
+    };
     const disconnect = connectNotificationSocket({
       storeId,
+      onConnectionChange: (connected) =>
+        useChatSignalStore.getState().setSocketConnected(connected),
+      onChatUpdated: (signal) => {
+        if (signal.storeId !== storeId) return;
+        // 열린 방은 바로 새 글을 가져온다
+        useChatSignalStore.getState().signal(signal.threadId);
+        scheduleChatRefresh();
+        // 손님이 보낸 글만 안내(내가 보낸 글·다른 기기에서 보낸 글은 조용히)
+        if (!signal.senderName || signal.muted) return;
+        const roomPath = ROUTES.STORE_DETAIL_CHAT_ROOM(storeId, signal.threadId);
+        if (pathRef.current === roomPath && document.visibilityState === "visible") return;
+        const prefs =
+          queryClient.getQueryData<SellerNotificationSettings>(
+            notificationQueryKeys.prefs(storeId),
+          ) ?? DEFAULT_SELLER_NOTIFICATION_SETTINGS;
+        if (prefs.chatNotificationsEnabled === false) return;
+        useAlertStore.getState().addAlert({
+          severity: "info",
+          title: SELLER_CHAT_TITLE,
+          message: signal.senderName,
+          onClick: () => navigateRef.current(roomPath),
+        });
+      },
       onNotification: (item) => {
         scheduleRefresh();
         // 소켓은 계정 단위로 붙으므로, 현재 라우트 스토어와 일치할 때만 UI 반응
@@ -147,6 +189,7 @@ export const SellerNotificationProvider: React.FC<{
     });
     return () => {
       if (refreshTimer !== null) window.clearTimeout(refreshTimer);
+      if (chatTimer !== null) window.clearTimeout(chatTimer);
       disconnect();
     };
   }, [queryClient, storeId]);

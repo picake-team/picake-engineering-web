@@ -48,6 +48,21 @@ export const PATHS = {
     DETAIL: (requestId: string) => `/quote/${requestId}`,
   },
 
+  // 채팅(기획 I-11). 방 주소는 휴대폰 알림 data.path(서버 buildConsumerChatPath)와 같아야 한다
+  CHAT: {
+    LIST: "/chat",
+    ROOM: (threadId: string) => `/chat/${threadId}`,
+    /** 이 가게에 처음 보내기(방은 첫 글을 보낼 때 생김). 주문·상품에서 열면 그 카드가 붙는다 */
+    STORE: (storeId: string, ref?: { orderId?: string; productId?: string }) => {
+      const q = ref?.orderId
+        ? `?orderId=${ref.orderId}`
+        : ref?.productId
+          ? `?productId=${ref.productId}`
+          : "";
+      return `/chat/store/${storeId}${q}`;
+    },
+  },
+
   // 마이페이지
   MYPAGE: "/mypage",
   MY_ORDERS: "/mypage/order",

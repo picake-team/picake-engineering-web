@@ -169,6 +169,7 @@ export function OrderDetailView({ order }: OrderDetailViewProps) {
           isOpen={isInquirySheetOpen}
           onClose={() => setIsInquirySheetOpen(false)}
           storeId={order.storeId}
+          orderId={order.id}
           phoneNumber={storeDetail?.phoneNumber}
         />
         <PickupDateChangeBottomSheet

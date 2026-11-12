@@ -25,6 +25,13 @@ export const ROUTES = {
     `/stores/${storeId}/orders/${orderId}`,
   STORE_DETAIL_STATISTICS_ORDERS: (storeId: string) => `/stores/${storeId}/statistics/orders`,
   STORE_DETAIL_NOTIFICATIONS_LIST: (storeId: string) => `/stores/${storeId}/notifications`,
+  // 채팅(기획 I-11). 방 주소는 판매자 앱 휴대폰 알림 data.path(서버 buildSellerChatPath)와 같아야 한다
+  STORE_DETAIL_CHATS: (storeId: string) => `/stores/${storeId}/chats`,
+  STORE_DETAIL_CHAT_ROOM: (storeId: string, threadId: string) =>
+    `/stores/${storeId}/chats/${threadId}`,
+  /** 주문 상세 "채팅": 픽업 전 예약 손님에게 먼저(운영자 결정 11-11) */
+  STORE_DETAIL_CHAT_ORDER: (storeId: string, orderId: string) =>
+    `/stores/${storeId}/chats/order/${orderId}`,
   STORE_DETAIL_NOTIFICATIONS_SETTINGS: (storeId: string) =>
     `/stores/${storeId}/notifications/settings`,
   STORE_DETAIL_EDIT: (storeId: string) => `/stores/${storeId}/edit`,

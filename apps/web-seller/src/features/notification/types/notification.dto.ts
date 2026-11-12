@@ -33,6 +33,10 @@ export interface SellerNotificationSettings {
    * 휴대폰 화면 알림 설정에서 그 줄을 숨긴다.
    */
   morningSummaryEnabled?: boolean;
+  /** 채팅 알림(판매자 앱 알림·알림톡, 기획 I-11). 서버가 아직 주지 않으면 undefined라 그 줄을 숨긴다 */
+  chatNotificationsEnabled?: boolean;
+  /** 밤 9시~아침 8시에는 채팅 알림 끄기 */
+  chatQuietNight?: boolean;
 }
 
 export const DEFAULT_SELLER_NOTIFICATION_SETTINGS: SellerNotificationSettings = {
