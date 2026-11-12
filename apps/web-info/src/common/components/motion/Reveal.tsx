@@ -7,6 +7,11 @@ interface RevealProps {
   /** 등장 순서를 어긋나게 할 지연(ms). 같은 묶음 안에서 0 -> 80 -> 160 식으로 준다 */
   delay?: number;
   className?: string;
+  /**
+   * 첫 화면(히어로)용: JS를 기다리지 않고 첫 그림과 함께 CSS로 바로 올라오며 나타난다.
+   * 스크롤 감지용 기본 모양은 화면 코드가 돌 때까지 투명해서, 느린 휴대폰에서 첫 화면이 3초 넘게 비었다(2026-11-12)
+   */
+  onLoad?: boolean;
 }
 
 /**
@@ -18,7 +23,25 @@ interface RevealProps {
  *
  * 한 번 나타난 뒤에는 관찰을 끊는다. 다시 접었다 펴는 연출은 읽는 흐름을 방해한다.
  */
-export function Reveal({ children, delay = 0, className = "" }: RevealProps) {
+export function Reveal({ children, delay = 0, className = "", onLoad = false }: RevealProps) {
+  if (onLoad) {
+    return (
+      <div
+        style={{ animationDelay: `${delay}ms` }}
+        className={`animate-rise motion-reduce:animate-none ${className}`}
+      >
+        {children}
+      </div>
+    );
+  }
+  return (
+    <ScrollReveal delay={delay} className={className}>
+      {children}
+    </ScrollReveal>
+  );
+}
+
+function ScrollReveal({ children, delay = 0, className = "" }: Omit<RevealProps, "onLoad">) {
   const ref = useRef<HTMLDivElement>(null);
   const [shown, setShown] = useState(false);
 
