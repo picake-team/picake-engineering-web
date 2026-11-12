@@ -109,15 +109,23 @@ export default function MypagePage() {
       <header className="sticky top-0 z-50 bg-white px-5 flex justify-between items-center h-[56px]">
         <h1 className="text-xl font-bold text-gray-900">My</h1>
         <div className="flex items-center gap-4">
-          <Link href={PATHS.SEARCH} className="flex items-center justify-center">
+          <Link href={PATHS.SEARCH} aria-label="검색" className="flex items-center justify-center">
             <Icon name="search" width={24} height={24} className="text-gray-900" />
           </Link>
           {hasHydrated && isAuthenticated && (
             <>
-              <Link href={PATHS.ALARM} className="flex items-center justify-center">
+              <Link
+                href={PATHS.ALARM}
+                aria-label="알림"
+                className="flex items-center justify-center"
+              >
                 <Icon name="alarm" width={24} height={24} className="text-gray-900" />
               </Link>
-              <Link href={PATHS.SETTING} className="flex items-center justify-center">
+              <Link
+                href={PATHS.SETTING}
+                aria-label="설정"
+                className="flex items-center justify-center"
+              >
                 <Icon name="setting" width={24} height={24} className="text-gray-900" />
               </Link>
             </>

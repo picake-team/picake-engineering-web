@@ -161,6 +161,8 @@ export function StoreDetailIntroSection({ store }: StoreDetailIntroSectionProps)
           <button
             type="button"
             onClick={() => setIsAddressExpanded((prev) => !prev)}
+            aria-label={isAddressExpanded ? "주소 접기" : "주소 펼치기"}
+            aria-expanded={isAddressExpanded}
             className="flex items-center justify-center ml-[2px]"
           >
             <Icon

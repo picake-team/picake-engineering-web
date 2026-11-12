@@ -75,6 +75,8 @@ export function CakeListItem({ product, href }: CakeListItemProps) {
           type="button"
           onClick={handleLikeClick}
           disabled={isLikeLoading}
+          aria-label={isLiked ? "저장 취소" : "저장"}
+          aria-pressed={isLiked}
           className={`absolute bottom-3 right-3 h-[28px] w-[28px] ${isLikeLoading ? "opacity-50" : ""}`}
         >
           <LikePop liked={isLiked}>

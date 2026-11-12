@@ -47,7 +47,12 @@ export const PhotoReviewListModal: React.FC<PhotoReviewListModalProps> = ({
     <div className="fixed inset-0 z-modal bg-white max-w-[640px] mx-auto flex flex-col">
       {/* 헤더 */}
       <div className="flex-shrink-0 flex items-center px-[20px] py-[14px] bg-white border-b border-gray-100">
-        <button type="button" onClick={onClose} className="text-gray-900 h-[24px] w-[24px]">
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="뒤로가기"
+          className="text-gray-900 h-[24px] w-[24px]"
+        >
           <Icon name="chevronLeft" width={24} height={24} />
         </button>
         <span className="flex-1 text-center text-base font-bold text-gray-900 -ml-[24px] pointer-events-none">

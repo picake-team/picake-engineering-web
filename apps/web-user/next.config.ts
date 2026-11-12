@@ -77,6 +77,14 @@ export default withSentryConfig(nextConfig, {
   telemetry: false,
   // 번들에서 Sentry 디버그 로그 제거 (번들 크기 최적화)
   disableLogger: true,
+  // 쓰지 않는 기능 코드를 번들에서 뺀다(성능 추적은 tracesSampleRate 0으로 끔, 화면 녹화는 PostHog로 함)
+  bundleSizeOptimizations: {
+    excludeDebugStatements: true,
+    excludeTracing: true,
+    excludeReplayIframe: true,
+    excludeReplayShadowDom: true,
+    excludeReplayWorker: true,
+  },
   // 소스맵 업로드 비활성화 (auth token 불필요) — 필요 시 추후 활성화
   sourcemaps: { disable: true },
 });

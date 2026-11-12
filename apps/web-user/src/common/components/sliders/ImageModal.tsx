@@ -89,6 +89,7 @@ export const ImageModal: React.FC<ImageModalProps> = ({
       <button
         type="button"
         onClick={onClose}
+        aria-label="닫기"
         className="absolute top-4 right-4 z-10 p-2 text-white"
       >
         <Icon name="close" width={24} height={24} />

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Bell, ChevronRight } from "lucide-react";
 import { BaseButton as Button } from "@/apps/web-seller/common/components/buttons/BaseButton";
