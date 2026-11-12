@@ -26,6 +26,8 @@ import {
 } from "@/apps/web-user/features/quote/components/QuoteCards";
 import type { ConsumerQuote } from "@/apps/web-user/features/quote/types/quote.type";
 import { useAlertStore } from "@/apps/web-user/common/store/alert.store";
+import { Skeleton } from "@/apps/web-user/common/components/skeleton";
+import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
 import getApiMessage from "@/apps/web-user/common/utils/getApiMessage";
 import { withEulReul, withRo, withWaGwa } from "@/apps/web-user/common/utils/josa.util";
 
@@ -50,7 +52,12 @@ function QuoteRequestDetailContent() {
   const router = useRouter();
   const { requestId } = useParams<{ requestId: string }>();
   const { data, isLoading, isError } = useQuoteRequestDetail(requestId ?? null);
-  const { data: section } = useQuoteSection(requestId ?? null);
+  const {
+    data: section,
+    isLoading: sectionLoading,
+    isError: sectionError,
+    refetch: refetchSection,
+  } = useQuoteSection(requestId ?? null);
   const close = useCloseQuoteRequest();
   const choose = useChooseQuote();
   const { showAlert } = useAlertStore();
@@ -73,6 +80,8 @@ function QuoteRequestDetailContent() {
         onError: (e) => {
           setPicking(null);
           showAlert({ type: "error", title: "고르지 못했어요", message: getApiMessage.error(e) });
+          // 그사이 마감·다른 기기에서 고름 등으로 바뀌었을 수 있어 견적을 다시 읽는다
+          void refetchSection();
         },
       },
     );
@@ -194,7 +203,9 @@ function QuoteRequestDetailContent() {
         )}
 
         <div className="mb-[10px] flex items-center justify-between">
-          <span className="text-sm font-bold text-gray-900">받은 견적 {quotes.length}</span>
+          <span className="text-sm font-bold text-gray-900">
+            받은 견적{section ? ` ${quotes.length}` : ""}
+          </span>
           <span className="text-xs text-gray-500">견적 마감 {data.summary.deadline}까지</span>
         </div>
         {(section?.askedCount ?? 0) > 0 && open && (
@@ -224,7 +235,15 @@ function QuoteRequestDetailContent() {
             ))}
           </ul>
         )}
-        {quotes.length > 0 ? null : open ? (
+        {/* 견적을 불러오는 동안·못 불러왔을 때 "받은 견적 0 · 물어보는 중"으로 보이지 않게(11-12 검토) */}
+        {sectionLoading ? (
+          <div className="flex flex-col gap-[10px]">
+            <Skeleton className="h-[150px] rounded-xl" />
+            <Skeleton className="h-[150px] rounded-xl" />
+          </div>
+        ) : sectionError && !section ? (
+          <LoadErrorState onRetry={() => void refetchSection()} />
+        ) : quotes.length > 0 ? null : open ? (
           <div className="flex flex-col items-center gap-[16px] rounded-xl bg-gray-50 px-[20px] py-[32px]">
             <Icon name="noData" width={62} height={57} />
             <p className="text-center text-sm leading-[22px] text-gray-700">
@@ -364,7 +383,9 @@ function QuoteRequestDetailContent() {
         }
       >
         <p className="px-[20px] pb-[16px] text-center text-sm text-gray-700">
-          닫으면 더 이상 견적을 받지 않아요. 되돌릴 수 없어요.
+          {quotes.length > 0
+            ? "닫으면 더 이상 견적을 받지 않고, 받은 견적도 고를 수 없어요. 되돌릴 수 없어요."
+            : "닫으면 더 이상 견적을 받지 않아요. 되돌릴 수 없어요."}
         </p>
       </BottomSheet>
     </div>

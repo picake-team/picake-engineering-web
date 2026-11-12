@@ -7,6 +7,7 @@ import { cn } from "@/apps/web-user/common/lib/utils";
 import getApiMessage from "@/apps/web-user/common/utils/getApiMessage";
 import { quoteLinkApi } from "@/apps/web-user/features/quote/apis/quote.api";
 import { NoticeBox } from "@/apps/web-user/features/quote/components/form/QuoteFormParts";
+import { QUOTE_NO_REPLAY } from "@/apps/web-user/features/quote/constants/quote.constant";
 import type { ChatMessage } from "@/apps/web-user/features/chat/types/chat.type";
 
 const TEXT_MAX = 1000;
@@ -38,7 +39,14 @@ function Line({ m }: { m: ChatMessage }) {
     );
   }
   return (
-    <div className={cn("flex flex-col gap-[2px]", m.mine ? "items-end" : "items-start")}>
+    // 대화는 손님과 가게 사이의 것이라 화면 녹화에서 가린다(손님 채팅과 같게)
+    <div
+      className={cn(
+        QUOTE_NO_REPLAY,
+        "flex flex-col gap-[2px]",
+        m.mine ? "items-end" : "items-start",
+      )}
+    >
       {m.imageUrls.map((url) => (
         <img key={url} src={url} alt="" className="h-[120px] w-[120px] rounded-xl object-cover" />
       ))}
@@ -113,8 +121,8 @@ export function QuoteLinkChat({ token, open }: { token: string; open: boolean })
       <p className="mb-[10px] text-base font-bold text-gray-900">손님과 대화</p>
       <div className="mb-[10px]">
         <NoticeBox>
-          손님 이름·연락처는 Picake가 보내지 않아요. 욕설·광고는 가려지고, 대화는 신고가 있을 때만
-          Picake가 봐요.
+          손님 이름·연락처는 Picake가 보내지 않아요. 욕설은 가려지고, 대화 내용은 손님이 신고했을
+          때만 Picake가 봐요.
         </NoticeBox>
       </div>
       <div className="flex max-h-[360px] flex-col gap-[10px] overflow-y-auto rounded-xl border border-gray-100 px-[12px] py-[12px]">
@@ -137,7 +145,7 @@ export function QuoteLinkChat({ token, open }: { token: string; open: boolean })
             rows={2}
             placeholder="손님에게 답하기"
             aria-label="손님에게 답하기"
-            className="min-w-0 flex-1 resize-none rounded-xl border border-gray-100 px-[12px] py-[10px] text-sm text-gray-900 outline-none focus:border-gray-900"
+            className="ph-no-capture min-w-0 flex-1 resize-none rounded-xl border border-gray-100 px-[12px] py-[10px] text-sm text-gray-900 outline-none focus:border-gray-900"
           />
           <span className="w-[72px]">
             <Button
