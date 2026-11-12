@@ -1,4 +1,5 @@
 import type { QuoteCakeSize, QuoteCream } from "@/apps/web-user/features/quote/types/quote.type";
+import { NO_REPLAY } from "@/apps/web-user/common/constants/replay.constant";
 
 /** 요청서 규칙(기획 I-46 요청서 표, backend와 같은 숫자) */
 export const QUOTE_LIMITS = {
@@ -55,4 +56,4 @@ export const QUOTE_DRAFT_STORAGE_KEY = "picake:quoteDraft";
  * 직접 쓴 설명·요청 사항은 가게에 주려고 받은 것이라 이용 통계(PostHog)에 남기지 않는다. 녹화에는 빈 상자로 보인다.
  * 입력칸은 PostHog가 원래 가린다.
  */
-export const QUOTE_NO_REPLAY = "ph-no-capture";
+export const QUOTE_NO_REPLAY = NO_REPLAY;

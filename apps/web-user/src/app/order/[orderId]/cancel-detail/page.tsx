@@ -7,6 +7,7 @@ import { useOrderDetail } from "@/apps/web-user/features/order/hooks/queries/use
 import { OrderResponse, OrderStatus } from "@/apps/web-user/features/order/types/order.type";
 import { ReservationItemCard } from "@/apps/web-user/features/order/components/detail/ReservationItemCard";
 import { OrderStatusBadge } from "@/apps/web-user/features/order/components/OrderStatusBadge";
+import { NO_REPLAY } from "@/apps/web-user/common/constants/replay.constant";
 
 function formatCancelDateTime(iso: string | null | undefined): string {
   if (!iso) return "-";
@@ -111,14 +112,16 @@ function CancelDetailView({ order }: { order: OrderResponse }) {
             <hr className="my-3 border-gray-100" />
             <div className="flex gap-10">
               <dt className="w-[70px] text-gray-500 shrink-0">환불 계좌</dt>
-              <dd className="text-gray-900">
+              <dd className={`${NO_REPLAY} text-gray-900`}>
                 {maskAccountNumber(order.refundBankAccountNumber)}
                 {order.refundBankName ? ` (${order.refundBankName})` : ""}
               </dd>
             </div>
             <div className="flex gap-10">
               <dt className="w-[70px] text-gray-500 shrink-0">예금주명</dt>
-              <dd className="text-gray-900">{order.refundAccountHolderName ?? "-"}</dd>
+              <dd className={`${NO_REPLAY} text-gray-900`}>
+                {order.refundAccountHolderName ?? "-"}
+              </dd>
             </div>
           </dl>
         </section>
