@@ -256,7 +256,8 @@ export function SellerChatRoom({
     setPhotos([]);
     atBottomRef.current = true;
     const res = await room.send(body, shots);
-    if (!res.ok && res.message) addAlert({ severity: "error", message: res.message });
+    if (!res.ok && !res.retryable && res.message)
+      addAlert({ severity: "error", message: res.message });
   };
 
   const onSendClick = () => {
@@ -318,6 +319,11 @@ export function SellerChatRoom({
         });
       } else if (flag === "block") {
         addAlert({ severity: "info", message: "차단을 풀었어요" });
+      } else {
+        addAlert({
+          severity: "info",
+          message: value ? "이 채팅 알림을 껐어요" : "이 채팅 알림을 켰어요",
+        });
       }
     } catch (e) {
       addAlert({ severity: "error", message: getApiMessage.error(e) });
@@ -506,7 +512,7 @@ export function SellerChatRoom({
                     type="button"
                     aria-label="사진 빼기"
                     onClick={() => setPhotos((prev) => prev.filter((_, j) => j !== i))}
-                    className="absolute -right-2 -top-2 flex size-6 items-center justify-center rounded-full border border-ink-200 bg-white text-ink-700"
+                    className="absolute -right-2 -top-2 flex size-6 items-center justify-center rounded-full border border-ink-200 bg-white text-ink-700 before:absolute before:-inset-2 before:content-['']"
                   >
                     <Icon name="close" size={14} strokeWidth={2} />
                   </button>
@@ -534,6 +540,18 @@ export function SellerChatRoom({
             <textarea
               ref={inputRef}
               value={text}
+              onKeyDown={(e) => {
+                // PC(마우스·키보드)에서는 Enter로 보내고 Shift+Enter로 줄바꿈. 휴대폰은 Enter가 줄바꿈, 한글 조합 중에는 보내지 않음
+                if (
+                  e.key === "Enter" &&
+                  !e.shiftKey &&
+                  !e.nativeEvent.isComposing &&
+                  window.matchMedia("(hover: hover) and (pointer: fine)").matches
+                ) {
+                  e.preventDefault();
+                  if (text.trim() || photos.length) onSendClick();
+                }
+              }}
               onChange={(e) => setText(e.target.value)}
               placeholder="메시지 보내기"
               aria-label="메시지 보내기"

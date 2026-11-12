@@ -9,8 +9,8 @@ import { cx } from "@/apps/web-seller/common/ui/cx";
 import { AppScreen, TabHeader } from "@/apps/web-seller/common/ui/Screen";
 import { SegmentedTabs } from "@/apps/web-seller/common/ui/Choice";
 import { EmptyState, LoadErrorState, SkeletonCards } from "@/apps/web-seller/common/ui/Surface";
-import { Button } from "@/apps/web-seller/common/ui/Button";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
+import { LoadMoreSentinel } from "@/apps/web-seller/features/order/components/mobile/OrderCards";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
 import { formatRelativeTime } from "@/apps/web-seller/common/utils/date.util";
 import { chatApi } from "@/apps/web-seller/features/chat/apis/chat.api";
@@ -103,6 +103,9 @@ function ChatsScreen({ pc }: { pc: boolean }) {
                       <span className="text-caption text-ink-400">차단함</span>
                     ) : t.unread ? (
                       <span className="size-2 rounded-full bg-brand" aria-label="안 읽음" />
+                    ) : t.muted ? (
+                      // 알림을 끈 방은 표시해 둔다(끈 줄 모르고 놓치지 않게)
+                      <span className="text-caption text-ink-400">알림 끔</span>
                     ) : (
                       <span className="h-2" />
                     )}
@@ -112,13 +115,12 @@ function ChatsScreen({ pc }: { pc: boolean }) {
             ))}
           </ul>
         )}
-        {list.hasNextPage ? (
-          <div className="px-5">
-            <Button variant="secondary" size="md" onClick={() => void list.fetchNextPage()}>
-              더 보기
-            </Button>
-          </div>
-        ) : null}
+        {/* 주문·상품 목록처럼 내리면 저절로 더 불러온다("더 보기" 버튼 없이) */}
+        <LoadMoreSentinel
+          hasNext={Boolean(list.hasNextPage)}
+          loading={list.isFetchingNextPage}
+          onLoad={() => void list.fetchNextPage()}
+        />
       </>
     </AppScreen>
   );

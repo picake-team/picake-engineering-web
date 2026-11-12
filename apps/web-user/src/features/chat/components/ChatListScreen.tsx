@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useRef } from "react";
+import { useInfiniteScroll } from "@/apps/web-user/common/hooks/useInfiniteScroll";
 import { useRouter } from "next/navigation";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
@@ -17,6 +19,13 @@ import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/Load
 export function ChatListScreen() {
   const router = useRouter();
   const list = useChatList();
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+  useInfiniteScroll({
+    hasNextPage: list.hasNextPage,
+    isFetchingNextPage: list.isFetchingNextPage,
+    fetchNextPage: () => void list.fetchNextPage(),
+    loadMoreRef,
+  });
   const threads = list.data?.pages.flatMap((p) => p.threads) ?? [];
 
   const header = (
@@ -96,6 +105,9 @@ export function ChatListScreen() {
                       className="h-[8px] w-[8px] rounded-full bg-primary"
                       aria-label="안 읽음"
                     />
+                  ) : t.muted ? (
+                    // 알림을 끈 방은 표시해 둔다(끈 줄 모르고 놓치지 않게)
+                    <span className="text-[11px] text-gray-400">알림 끔</span>
                   ) : (
                     <span className="h-[8px]" />
                   )}
@@ -105,15 +117,8 @@ export function ChatListScreen() {
           ))}
         </ul>
       )}
-      {list.hasNextPage && (
-        <button
-          type="button"
-          onClick={() => void list.fetchNextPage()}
-          className="w-full py-[16px] text-sm text-gray-500"
-        >
-          더 보기
-        </button>
-      )}
+      {/* 저장·최근 본 목록처럼 내리면 저절로 더 불러온다("더 보기" 버튼 없이) */}
+      {list.hasNextPage && <div ref={loadMoreRef} className="h-[40px]" aria-hidden="true" />}
     </div>
   );
 }
