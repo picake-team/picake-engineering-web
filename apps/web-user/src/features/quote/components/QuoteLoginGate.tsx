@@ -25,7 +25,7 @@ export function QuoteLoginGate({
   return (
     <div>
       {fallbackHeader}
-      <div className="flex flex-col items-center gap-[16px] px-[20px] py-[60px]">
+      <div className="flex min-h-[calc(100dvh-52px)] flex-col items-center justify-center gap-[16px] px-[20px] pb-[52px]">
         <p className="text-center text-sm text-gray-700">로그인하면 내 견적 요청을 볼 수 있어요</p>
         <Button size="md" className="px-[20px]" onClick={() => openLoginSheet("quote_request")}>
           로그인 / 회원가입
