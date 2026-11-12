@@ -17,6 +17,8 @@ import { Toast } from "@/apps/web-user/common/components/toast/Toast";
 import { useLoginSheetStore } from "@/apps/web-user/common/store/login-sheet.store";
 import { useScrollRestoration } from "@/apps/web-user/common/hooks/useScrollRestoration";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
+import { useChatUnread } from "@/apps/web-user/features/chat/hooks/useChat";
+import { useUnseenQuoteCount } from "@/apps/web-user/features/quote/hooks/useQuoteRequests";
 
 function getLoginInfo(user: {
   googleId: string;
@@ -56,10 +58,12 @@ function getLoginInfo(user: {
 
 const QUICK_LINKS = [
   { icon: "reservation", label: "내 예약", href: PATHS.MY_ORDERS },
+  // 채팅(기획 I-11). 채팅이 열렸을 때만 보인다(아래에서 거름). 안 읽은 방 수는 "내 예약"과 같은 숫자 배지
+  { icon: "chat", label: "채팅", href: PATHS.CHAT.LIST },
   { icon: "review", label: "내 후기", href: PATHS.MY_REVIEWS },
   { icon: "saved", label: "저장", href: PATHS.MY_SAVED },
   { icon: "recent", label: "최근 본", href: PATHS.RECENT },
-  // 견적 요청(기획 I-46 SC-13 4). 아직 보지 않은 견적 수는 견적 기능(1단계 ②)과 함께 띄운다
+  // 견적 요청(기획 I-46 SC-13 4). 아직 보지 않은 견적 수를 주황 숫자로(1단계 ②)
   { icon: "list", label: "내 견적", href: PATHS.MY_QUOTES },
 ] as const;
 
@@ -86,6 +90,9 @@ export default function MypagePage() {
   const [showProfileUpdatedToast, setShowProfileUpdatedToast] = useState(false);
   const { mutate: updateProfile, isPending: isUpdatingProfile } = useUpdateMypageProfile();
   const { data: ordersData } = useMyOrders({ type: "UPCOMING" });
+  const { data: chatUnread } = useChatUnread();
+  const chatUnreadCount = chatUnread?.unreadThreads ?? 0;
+  const { data: unseenQuotes = 0 } = useUnseenQuoteCount(hasHydrated && isAuthenticated);
   const upcomingCount =
     ordersData?.pages
       .flatMap((p) => p.data)
@@ -104,15 +111,23 @@ export default function MypagePage() {
       <header className="sticky top-0 z-50 bg-white px-5 flex justify-between items-center h-[56px]">
         <h1 className="text-xl font-bold text-gray-900">My</h1>
         <div className="flex items-center gap-4">
-          <Link href={PATHS.SEARCH} className="flex items-center justify-center">
+          <Link href={PATHS.SEARCH} aria-label="검색" className="flex items-center justify-center">
             <Icon name="search" width={24} height={24} className="text-gray-900" />
           </Link>
           {hasHydrated && isAuthenticated && (
             <>
-              <Link href={PATHS.ALARM} className="flex items-center justify-center">
+              <Link
+                href={PATHS.ALARM}
+                aria-label="알림"
+                className="flex items-center justify-center"
+              >
                 <Icon name="alarm" width={24} height={24} className="text-gray-900" />
               </Link>
-              <Link href={PATHS.SETTING} className="flex items-center justify-center">
+              <Link
+                href={PATHS.SETTING}
+                aria-label="설정"
+                className="flex items-center justify-center"
+              >
                 <Icon name="setting" width={24} height={24} className="text-gray-900" />
               </Link>
             </>
@@ -171,6 +186,11 @@ export default function MypagePage() {
               >
                 <Link
                   href={href}
+                  onClick={
+                    icon === "chat"
+                      ? () => trackEvent("engage_chat_entry", { entry_point: "mypage" })
+                      : undefined
+                  }
                   className="relative flex flex-col items-center gap-2 py-3 text-gray-900 font-bold text-sm"
                 >
                   <div className="relative">
@@ -178,6 +198,16 @@ export default function MypagePage() {
                     {icon === "reservation" && upcomingCount > 0 && (
                       <span className="absolute -top-[6px] -right-[8px] min-w-[16px] h-[16px] flex items-center justify-center rounded-full bg-primary text-white text-[10px] font-bold px-1">
                         {upcomingCount}
+                      </span>
+                    )}
+                    {icon === "chat" && chatUnreadCount > 0 && (
+                      <span className="absolute -top-[6px] -right-[8px] min-w-[16px] h-[16px] flex items-center justify-center rounded-full bg-primary text-white text-[10px] font-bold px-1">
+                        {chatUnreadCount}
+                      </span>
+                    )}
+                    {icon === "list" && unseenQuotes > 0 && (
+                      <span className="absolute -top-[6px] -right-[8px] min-w-[16px] h-[16px] flex items-center justify-center rounded-full bg-primary text-white text-[10px] font-bold px-1">
+                        {unseenQuotes}
                       </span>
                     )}
                   </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { LikePop } from "@/apps/web-user/common/components/motion/LikePop";
@@ -21,18 +21,26 @@ import {
 
 interface StoreDetailIntroSectionProps {
   store: StoreInfo;
+  /** 서버가 로그인 없이 미리 받은 가게를 보이는 동안: 하트는 누르지 않게(새로 받은 뒤 내 상태로 맞춘다) */
+  likeDisabled?: boolean;
 }
 
-export function StoreDetailIntroSection({ store }: StoreDetailIntroSectionProps) {
+export function StoreDetailIntroSection({
+  store,
+  likeDisabled = false,
+}: StoreDetailIntroSectionProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isAddressExpanded, setIsAddressExpanded] = useState(false);
   const [showCopyToast, setShowCopyToast] = useState(false);
   const [isLiked, setIsLiked] = useState(store.isLiked ?? false);
+  // 가게를 새로 받으면(로그인 상태로) 하트도 그 값으로 맞춘다
+  useEffect(() => {
+    setIsLiked(store.isLiked ?? false);
+  }, [store.isLiked]);
   const [isInquiryOpen, setIsInquiryOpen] = useState(false);
-  // 사장님이 적은 카카오톡 채널·인스타·전화 중 하나라도 있으면 "문의"를 보인다(I-61 첫 조각, 2026-11-11)
+  // "문의"는 늘 보인다 — 채팅(I-11)이 있고, 사장님이 적은 카카오톡 채널·인스타·전화도 같은 창에(I-61 첫 조각)
   const kakaoUrl = storeKakaoChatUrl(store.kakaoChannelId);
   const instaUrl = storeInstagramUrl(store.instagramId);
-  const canInquire = !!(kakaoUrl || instaUrl || store.phoneNumber);
 
   const { mutate: addLike, isPending: isAddingLike } = useAddStoreLike();
   const { mutate: removeLike, isPending: isRemovingLike } = useRemoveStoreLike();
@@ -61,7 +69,7 @@ export function StoreDetailIntroSection({ store }: StoreDetailIntroSectionProps)
       openLoginSheet("like_button");
       return;
     }
-    if (isLikeLoading) return;
+    if (isLikeLoading || likeDisabled) return;
     setIsLiked(!isLiked);
     if (isLiked) {
       removeLike(store.id, { onError: () => setIsLiked(true) });
@@ -113,16 +121,14 @@ export function StoreDetailIntroSection({ store }: StoreDetailIntroSectionProps)
         </div>
 
         {/* 문의 버튼(아이콘만, 2026-11-11 운영자): 주문 화면의 "스토어 문의"와 같은 창 */}
-        {canInquire && (
-          <button
-            type="button"
-            onClick={() => setIsInquiryOpen(true)}
-            aria-label="스토어 문의"
-            className="flex items-center px-[8px] py-[6px] border border-gray-100 rounded-md"
-          >
-            <Icon name="reviewQna" width={18} height={18} className="text-gray-900" />
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => setIsInquiryOpen(true)}
+          aria-label="스토어 문의"
+          className="flex items-center px-[8px] py-[6px] border border-gray-100 rounded-md"
+        >
+          <Icon name="reviewQna" width={18} height={18} className="text-gray-900" />
+        </button>
 
         {/* 좋아요 버튼 */}
         <button
@@ -164,6 +170,8 @@ export function StoreDetailIntroSection({ store }: StoreDetailIntroSectionProps)
           <button
             type="button"
             onClick={() => setIsAddressExpanded((prev) => !prev)}
+            aria-label={isAddressExpanded ? "주소 접기" : "주소 펼치기"}
+            aria-expanded={isAddressExpanded}
             className="flex items-center justify-center ml-[2px]"
           >
             <Icon
@@ -191,6 +199,7 @@ export function StoreDetailIntroSection({ store }: StoreDetailIntroSectionProps)
       <StoreInquiryBottomSheet
         isOpen={isInquiryOpen}
         onClose={() => setIsInquiryOpen(false)}
+        storeId={store.id}
         kakaoChannelUrl={kakaoUrl}
         instagramUrl={instaUrl}
         phoneNumber={store.phoneNumber}

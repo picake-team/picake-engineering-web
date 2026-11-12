@@ -16,6 +16,11 @@ interface UseProductListOptions extends Partial<ProductListQueryParams> {
    * queryKey에는 포함되지 않습니다.
    */
   enabled?: boolean;
+  /**
+   * 서버가 미리 받은 첫 쪽(로그인 없이). 있으면 먼저 보이고 바로 새로 받는다. queryKey에는 넣지 않는다.
+   * 같은 조건(가게·크기·정렬)으로 받은 것만 넘긴다
+   */
+  placeholderFirstPage?: ProductListResponse;
 }
 
 export function useProductList({
@@ -29,6 +34,7 @@ export function useProductList({
   productCategoryTypes,
   regions,
   enabled = true,
+  placeholderFirstPage,
 }: UseProductListOptions = {}) {
   const query = useInfiniteQuery<ProductListResponse>({
     queryKey: productQueryKeys.list({
@@ -81,6 +87,9 @@ export function useProductList({
       return undefined;
     },
     initialPageParam: 1,
+    placeholderData: placeholderFirstPage
+      ? { pages: [placeholderFirstPage], pageParams: [1] }
+      : undefined,
   });
   // 조회 실패는 목록 화면이 "불러오지 못했어요 · 다시 시도"로 알린다(오류 창 없음)
 

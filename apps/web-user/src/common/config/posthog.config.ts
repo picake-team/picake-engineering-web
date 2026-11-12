@@ -1,4 +1,5 @@
 import posthog, { type CaptureResult } from "posthog-js";
+import { isQuoteLinkPath, scrubLinkToken } from "@/apps/web-user/common/utils/link-token.util";
 import { isSyntheticBrowser } from "@/apps/web-user/common/utils/synthetic-traffic.util";
 
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
@@ -30,6 +31,8 @@ const SENSITIVE_URL_PARAMS = [
 ];
 
 function sanitizeUrl(rawUrl: string): string {
+  // 견적 링크 열쇠(/q/열쇠)는 그 가게 권한이라 지운다
+  rawUrl = scrubLinkToken(rawUrl);
   try {
     const url = new URL(rawUrl);
     // /auth/* 는 통째로 OAuth 콜백·가입 플로우라 쿼리스트링 자체가 필요 없음 — 전부 제거
@@ -72,6 +75,9 @@ function sanitizeEvent(event: CaptureResult | null): CaptureResult | null {
   if (typeof event.properties.$referrer === "string") {
     event.properties.$referrer = sanitizeUrl(event.properties.$referrer);
   }
+  if (typeof event.properties.$pathname === "string") {
+    event.properties.$pathname = scrubLinkToken(event.properties.$pathname);
+  }
   return event;
 }
 
@@ -101,6 +107,8 @@ export function initPostHog(): void {
     capture_pageleave: true,
     person_profiles: "identified_only",
     before_send: sanitizeEvent,
+    // 사장님 견적 링크(/q)는 손님 앱이 아니고 손님 요청서·대화가 보이는 화면이라 녹화하지 않는다(이벤트는 보냄)
+    disable_session_recording: isQuoteLinkPath(window.location.pathname),
     loaded: (ph) => {
       ph.register(SUPER_PROPERTIES);
     },

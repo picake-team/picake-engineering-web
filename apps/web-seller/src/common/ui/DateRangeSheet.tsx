@@ -6,7 +6,7 @@
  * - max가 있으면(주문일·통계는 오늘) 그 뒤 날짜는 고를 수 없다(회색). 픽업 날짜처럼 앞날도 고르면 max를 넘기지 않는다
  * - 아래 버튼(기본 "이 기간 보기")은 종료일까지 골라야 누를 수 있다. 하루만 보려면 같은 날을 두 번 누른다
  */
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { BottomSheet } from "@/apps/web-seller/common/ui/Sheet";
 import { Button } from "@/apps/web-seller/common/ui/Button";
 import { Icon } from "@/apps/web-seller/common/ui/icons";

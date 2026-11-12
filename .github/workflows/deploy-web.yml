@@ -163,7 +163,10 @@ jobs:
           VERCEL_PROJECT_ID: ${{ steps.vercel-project.outputs.id }}
         run: |
           set -o pipefail
-          vercel deploy --prebuilt --prod --yes --token="$VERCEL_TOKEN" \
+          # --archive=tgz: 빌드 결과를 압축 파일 하나로 올린다. 파일 하나하나를 올리면 무료 플랜
+          # 하루 업로드 한도(5,000개, api-upload-free)에 걸린다(2026-11-12 웹 배포가 막힘).
+          # 파일 재사용이 안 돼 조금 느려질 수 있다(Vercel 문서 vercel deploy --archive)
+          vercel deploy --prebuilt --archive=tgz --prod --yes --token="$VERCEL_TOKEN" \
             2>&1 | tee /tmp/vercel-deploy.log
 
           DEPLOY_URL=$(grep -Eo 'https://[a-zA-Z0-9./_-]+' /tmp/vercel-deploy.log | tail -n 1)

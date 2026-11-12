@@ -1,82 +1,39 @@
-"use client";
-
-import { use, useEffect } from "react";
-import { useStoreDetail } from "@/apps/web-user/features/store/hooks/queries/useStoreDetail";
-import { useProductList } from "@/apps/web-user/features/product/hooks/queries/useProductList";
-import { useStoreFeeds } from "@/apps/web-user/features/feed/hooks/queries/useStoreFeeds";
-import { StoreDetailIntroSection } from "@/apps/web-user/features/store/components/sections/StoreDetailIntroSection";
-import { StoreDetailProductListSection } from "@/apps/web-user/features/store/components/sections/StoreDetailProductListSection";
-import { StoreDetailReviewSection } from "@/apps/web-user/features/store/components/sections/StoreDetailReviewSection";
-import { StoreDetailFeedSection } from "@/apps/web-user/features/store/components/sections/StoreDetailFeedSection";
-import { Tabs } from "@/apps/web-user/common/components/tabs/Tabs";
-import { StoreDetailSkeleton } from "@/apps/web-user/common/components/skeleton/StoreDetailSkeleton";
-import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
-import { StoreQuoteEntry } from "@/apps/web-user/features/quote/components/entry/StoreQuoteEntry";
-import { useScrollRestoration } from "@/apps/web-user/common/hooks/useScrollRestoration";
-import { useStoreLinkVisit } from "@/apps/web-user/features/store/hooks/useStoreLinkVisit";
+import StoreDetailScreen from "@/apps/web-user/features/store/components/screens/StoreDetailScreen";
+import { fetchStoreForMetadata } from "@/apps/web-user/common/apis/metadata.api";
+import { fetchConsumerApiResult } from "@/apps/web-user/common/utils/server-api.util";
+import {
+  SortBy,
+  type ProductListResponse,
+} from "@/apps/web-user/features/product/types/product.type";
 
 interface StoreDetailPageProps {
   params: Promise<{ storeId: string }>;
 }
 
-export default function StoreDetailPage({ params }: StoreDetailPageProps) {
-  // 뒤로 오면 보던 자리 그대로(새로 들어오면 맨 위부터)
-  useScrollRestoration();
-  const { storeId } = use(params);
-  const { data, isLoading } = useStoreDetail(storeId);
-  // 사장님이 보낸 가게 링크(?from=link)로 왔으면 방문으로 남긴다(I-45). 없는 가게면 남기지 않는다
-  useStoreLinkVisit(data ? storeId : undefined);
-  const { data: productData } = useProductList({ storeId });
-  // StoreDetailFeedSection과 동일한 파라미터 → 쿼리 캐시 공유 (추가 요청 없음)
-  const { data: feedData } = useStoreFeeds({ storeId });
+/** 가게 화면 상품 목록 첫 쪽(화면의 "전체"와 같은 조건: 20개·인기순) */
+const STORE_PRODUCTS_FIRST_PAGE = { limit: 20, sortBy: SortBy.POPULAR };
 
-  // 상품 개수 (첫 페이지 meta에서 가져옴)
-  const productCount = productData?.pages[0]?.meta.totalItems ?? 0;
-  const feedCount = feedData?.meta.totalItems ?? 0;
-
-  // 스토어 상세화면 노출
-  useEffect(() => {
-    if (data) {
-      trackEvent("view_store_detail", { store_id: storeId });
-    }
-  }, [data, storeId]);
-
-  if (isLoading) {
-    return <StoreDetailSkeleton />;
-  }
-
-  if (!data) {
-    return <div>스토어 정보를 불러오지 못했어요.</div>;
-  }
-
+/**
+ * 가게 화면(사장님이 보내는 가게 링크 I-45의 첫 화면). 미리보기와 같은 요청으로 가게를,
+ * 화면과 같은 조건으로 상품 첫 쪽을 서버에서 받아 첫 HTML에 넣는다. 받지 못하면 예전처럼 화면이 받는다.
+ */
+export default async function StoreDetailPage({ params }: StoreDetailPageProps) {
+  const { storeId } = await params;
+  const query = new URLSearchParams({
+    page: "1",
+    limit: String(STORE_PRODUCTS_FIRST_PAGE.limit),
+    sortBy: STORE_PRODUCTS_FIRST_PAGE.sortBy,
+    storeId,
+  });
+  const [store, products] = await Promise.all([
+    fetchStoreForMetadata(storeId),
+    fetchConsumerApiResult<ProductListResponse>(`/products?${query}`, { revalidate: 60 }),
+  ]);
   return (
-    <div className="w-full pb-[100px]">
-      <div className="px-[20px]">
-        <StoreDetailIntroSection store={data} />
-      </div>
-      <Tabs
-        defaultTab="product"
-        swipeable
-        tabs={[
-          {
-            id: "product",
-            label: `상품 ${productCount}`,
-            content: <StoreDetailProductListSection storeId={storeId} />,
-          },
-          {
-            id: "review",
-            label: `후기 ${data.totalReviewCount}`,
-            content: <StoreDetailReviewSection storeId={storeId} />,
-          },
-          {
-            id: "feed",
-            label: `피드 ${feedCount}`,
-            content: <StoreDetailFeedSection storeId={storeId} />,
-          },
-        ]}
-      />
-      {/* 견적 요청 입구(기획 I-46 SC-13 3): 상품·후기·피드 탭 모두 같은 자리 */}
-      <StoreQuoteEntry store={data} />
-    </div>
+    <StoreDetailScreen
+      storeId={storeId}
+      initialStore={store.status === "ok" ? store.data : undefined}
+      initialProducts={products.status === "ok" ? products.data : undefined}
+    />
   );
 }

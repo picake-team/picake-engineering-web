@@ -69,6 +69,7 @@ export function PaymentPendingInfo({ order }: { order: OrderResponse }) {
             <button
               type="button"
               onClick={handleCopyAccountNumber}
+              aria-label="계좌번호 복사"
               className="ml-1 text-gray-400 w-5 h-5 cursor-pointer"
             >
               <Icon name="copy" width={20} height={20} />

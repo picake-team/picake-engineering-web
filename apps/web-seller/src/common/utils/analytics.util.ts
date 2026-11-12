@@ -14,6 +14,20 @@ export interface SellerAnalyticsEventMap {
     /** 목록에서 바로 처리했는지(상세가 아니라) */
     from_list: boolean;
   };
+  /** 판매자 앱 채팅 요청서 카드에서 견적을 보냄·고침(기획 I-46 ②) */
+  success_quote_send: {
+    quote_request_id: string;
+    edited: boolean;
+    similarity: string;
+    photo_count: number;
+    surface: "app" | "mobile_web" | "pc";
+  };
+  /** 판매자 앱에서 "어려워요"로 답함 */
+  success_quote_decline: {
+    quote_request_id: string;
+    reason: string;
+    surface: "app" | "mobile_web" | "pc";
+  };
 }
 
 export function trackSellerEvent<T extends keyof SellerAnalyticsEventMap>(

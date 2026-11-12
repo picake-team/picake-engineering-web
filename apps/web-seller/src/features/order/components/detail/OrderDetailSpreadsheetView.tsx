@@ -99,11 +99,14 @@ function formatSelectedOptionValue(
 export type OrderDetailSpreadsheetViewProps = {
   order: OrderResponseDto;
   onReferenceImageClick: (images: string[], index: number) => void;
+  /** 픽업 전 예약 손님에게 채팅(기획 I-11). 채팅이 열려 있고 픽업 전일 때만 넘긴다 */
+  onChat?: () => void;
 };
 
 export const OrderDetailSpreadsheetView: React.FC<OrderDetailSpreadsheetViewProps> = ({
   order,
   onReferenceImageClick,
+  onChat,
 }) => {
   const status = order.orderStatus;
   const variant = getOrderStatusBadgeVariant(status);
@@ -259,7 +262,18 @@ export const OrderDetailSpreadsheetView: React.FC<OrderDetailSpreadsheetViewProp
                 <span className={NO_REPLAY}>{order.reservationContactName?.trim() || "—"}</span>
               </SheetKvRow>
               <SheetKvRow label="연락처">
-                <span className={NO_REPLAY}>{order.reservationPhone?.trim() || "—"}</span>
+                <span className="flex items-center justify-between gap-3">
+                  <span className={NO_REPLAY}>{order.reservationPhone?.trim() || "—"}</span>
+                  {onChat ? (
+                    <button
+                      type="button"
+                      onClick={onChat}
+                      className="shrink-0 rounded-md border border-slate-300 bg-white px-3 py-1 text-xs font-semibold text-slate-800 hover:bg-slate-50"
+                    >
+                      채팅하기
+                    </button>
+                  ) : null}
+                </span>
               </SheetKvRow>
 
               <SheetSectionRow>기본</SheetSectionRow>

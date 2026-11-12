@@ -8,6 +8,20 @@ const PARTNER_ABOUT_URL =
     : "https://info-staging.picakes.com/seller/about";
 
 const nextConfig: NextConfig = {
+  poweredByHeader: false,
+  async headers() {
+    // 보안 헤더: 다른 사이트가 이 화면을 틀(iframe)에 넣어 누르게 하는 것을 막고, 파일 종류를 추측하지 않게 한다(2026-11-12 전체 검토)
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+        ],
+      },
+    ];
+  },
   experimental: {
     optimizePackageImports: ["swiper", "lucide-react"],
     /**
@@ -30,8 +44,7 @@ const nextConfig: NextConfig = {
       // 사장님 입점 소개 페이지는 정보 사이트(web-info)로 옮겼다(2026-10-27). 게이트(`/partner`)의 "소개페이지 바로가기"와
       // 이미 공유된 링크가 계속 동작하도록 남겨 둔다. 2주 동안 문제가 없어 2026-11-10 영구(308)로 올렸다.
       { source: "/partner/about", destination: PARTNER_ABOUT_URL, permanent: true },
-      { source: "/chat", destination: "/", permanent: false },
-      { source: "/chat/:path*", destination: "/", permanent: false },
+      // 옛 채팅을 숨기던 /chat → / 돌려보내기는 새 채팅(기획 I-11)에서 지웠다. 채팅이 닫혀 있으면 화면이 "준비 중"을 보여 준다
     ];
   },
   eslint: {
@@ -78,6 +91,14 @@ export default withSentryConfig(nextConfig, {
   telemetry: false,
   // 번들에서 Sentry 디버그 로그 제거 (번들 크기 최적화)
   disableLogger: true,
+  // 쓰지 않는 기능 코드를 번들에서 뺀다(성능 추적은 tracesSampleRate 0으로 끔, 화면 녹화는 PostHog로 함)
+  bundleSizeOptimizations: {
+    excludeDebugStatements: true,
+    excludeTracing: true,
+    excludeReplayIframe: true,
+    excludeReplayShadowDom: true,
+    excludeReplayWorker: true,
+  },
   // 소스맵 업로드 비활성화 (auth token 불필요) — 필요 시 추후 활성화
   sourcemaps: { disable: true },
 });

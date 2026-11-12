@@ -48,6 +48,7 @@ import { useNotificationPreferences } from "@/apps/web-seller/features/notificat
 import { usePushPermissionStore } from "@/apps/web-seller/common/store/push-permission.store";
 import { isSellerAppWebView } from "@/apps/web-seller/common/utils/webview.bridge";
 import { hasSeenWelcome } from "@/apps/web-seller/features/notification/utils/welcome.util";
+import { useSellerChatUnread } from "@/apps/web-seller/features/chat/hooks/useChat";
 
 const TODO_GROUPS = groupsForTab("todo");
 
@@ -121,7 +122,12 @@ export const StoreDetailHomeMobilePage: React.FC = () => {
   const refund = useOrderStatusGroup(storeId, TODO_GROUPS[3].status);
   const taskQueries = [confirm, deposit, pickup, refund];
   const tasksLoaded = taskQueries.every((q) => q.total !== undefined);
-  const taskTotal = taskQueries.reduce((sum, q) => sum + (q.total ?? 0), 0);
+  // 답할 채팅(기획 I-11): "처리할 일"에 한 줄 더한다
+  const chat = useSellerChatUnread(storeId);
+  // 견적 요청(기획 I-46): 채팅방으로 받은 요청 중 아직 답하지 않은 것. 그 방은 "답할 채팅"에서 뺀다
+  const quoteOpen = chat.data?.quoteRequests ?? 0;
+  const chatReply = chat.data?.replyNeededChats ?? chat.data?.replyNeeded ?? 0;
+  const taskTotal = taskQueries.reduce((sum, q) => sum + (q.total ?? 0), 0) + quoteOpen + chatReply;
 
   // 주간 달력 점·고른 날 픽업: 그 주 픽업 주문(취소된 주문은 빼고 셈)
   const weekQuery = useCalendarMonthOrders(storeId, weekStart, weekEnd);
@@ -167,6 +173,7 @@ export const StoreDetailHomeMobilePage: React.FC = () => {
     Promise.all([
       queryClient.invalidateQueries({ queryKey: ["order"] }),
       queryClient.invalidateQueries({ queryKey: ["statistics"] }),
+      queryClient.invalidateQueries({ queryKey: ["chat"] }),
       notifications ? queryClient.invalidateQueries({ queryKey: ["notification"] }) : null,
     ]);
 
@@ -198,6 +205,21 @@ export const StoreDetailHomeMobilePage: React.FC = () => {
         />
         {noProducts ? <FirstProductCard storeId={storeId} /> : null}
 
+        {/* 캘린더는 아래 탭에서 빠져(채팅 탭) 여기서 들어간다 */}
+        <GroupTitle
+          className="-mb-3"
+          action={
+            <Link
+              to={ROUTES.STORE_DETAIL_CALENDAR(storeId)}
+              className="-mr-2 inline-flex min-h-11 items-center gap-0.5 px-2 text-sub font-semibold text-ink-600 active:bg-ink-50"
+            >
+              캘린더 보기
+              <Icon name="chevronRight" size={16} />
+            </Link>
+          }
+        >
+          이번 주
+        </GroupTitle>
         <WeekStrip
           weekStartKey={weekStart}
           selectedKey={selectedKey}
@@ -212,7 +234,7 @@ export const StoreDetailHomeMobilePage: React.FC = () => {
         />
 
         <GrayBand />
-        <GroupTitle>처리할 주문 {tasksLoaded ? `${taskTotal}건` : ""}</GroupTitle>
+        <GroupTitle>처리할 일 {tasksLoaded ? `${taskTotal}건` : ""}</GroupTitle>
         <div className="-mt-3">
           {TODO_GROUPS.map((g, i) => (
             <TaskRow
@@ -220,9 +242,36 @@ export const StoreDetailHomeMobilePage: React.FC = () => {
               storeId={storeId}
               group={g}
               count={taskQueries[i].total}
-              last={i === TODO_GROUPS.length - 1}
+              last={false}
             />
           ))}
+          <ListRowLink
+            to={ROUTES.STORE_DETAIL_CHATS(storeId)}
+            tall
+            dimmed={quoteOpen === 0}
+            leading={
+              <RowIconBox>
+                <TaskIcon name="quote" active={quoteOpen > 0} />
+              </RowIconBox>
+            }
+            title="견적 요청"
+            description="마감 전에 견적을 보내 주세요"
+            trailing={<RowCount value={quoteOpen} dimmed={quoteOpen === 0} />}
+          />
+          <ListRowLink
+            to={ROUTES.STORE_DETAIL_CHATS(storeId)}
+            tall
+            divider={false}
+            dimmed={chatReply === 0}
+            leading={
+              <RowIconBox>
+                <TaskIcon name="chat" active={chatReply > 0} />
+              </RowIconBox>
+            }
+            title="답할 채팅"
+            description="손님이 답을 기다려요"
+            trailing={<RowCount value={chatReply} dimmed={chatReply === 0} />}
+          />
         </div>
 
         <GrayBand />

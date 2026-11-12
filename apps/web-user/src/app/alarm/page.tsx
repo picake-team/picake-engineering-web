@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import Image from "next/image";
 import { useAlarmList } from "@/apps/web-user/features/alarm/hooks/queries/useAlarmList";
 import { useMarkAlarmRead } from "@/apps/web-user/features/alarm/hooks/mutations/useMarkAlarmRead";
@@ -38,7 +39,9 @@ export default function AlarmPage() {
             {alarms.map((alarm) => {
               const href = alarm.orderId
                 ? `/reservation/complete?orderId=${alarm.orderId}&from=alarm`
-                : "/alarm";
+                : alarm.quoteRequestId
+                  ? PATHS.QUOTE.DETAIL(alarm.quoteRequestId)
+                  : "/alarm";
               return (
                 <li key={alarm.id}>
                   <Link

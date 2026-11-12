@@ -1,33 +1,80 @@
 import { sellerClient } from "@/apps/web-seller/common/config/axios.config";
-import {
-  ChatRoomListForSellerResponseDto,
-  MessageListResponseDto,
-  GetMessagesRequestDto,
-  GetChatRoomsRequestDto,
-} from "@/apps/web-seller/features/chat/types/chat.dto";
+import type {
+  ChatExistingThread,
+  ChatMessages,
+  ChatReportReason,
+  ChatSendBody,
+  ChatSendResult,
+  ChatThreadDetail,
+  ChatThreadList,
+  ChatUnread,
+} from "@/apps/web-seller/features/chat/types/chat.type";
 
+const base = (storeId: string) => `/stores/${storeId}/chats`;
+
+/** 사장님 채팅 API(기획 I-11) — 스토어마다 */
 export const chatApi = {
-  // 스토어의 채팅방 목록 조회 (무한 스크롤)
-  getChatRoomsByStore: async (
+  unread: async (storeId: string): Promise<ChatUnread> => {
+    const response = await sellerClient.get(`${base(storeId)}/unread`);
+    return response.data.data;
+  },
+  list: async (
     storeId: string,
-    params: GetChatRoomsRequestDto,
-  ): Promise<ChatRoomListForSellerResponseDto> => {
-    const response = await sellerClient.get(`/chat-room/store/${storeId}`, { params });
+    filter: "reply" | "all",
+    cursor?: string,
+  ): Promise<ChatThreadList> => {
+    const response = await sellerClient.get(base(storeId), {
+      params: { filter, ...(cursor ? { cursor } : {}) },
+    });
     return response.data.data;
   },
-
-  // 메시지 목록 조회 (무한 스크롤)
-  getMessages: async (
-    roomId: string,
-    params: GetMessagesRequestDto,
-  ): Promise<MessageListResponseDto> => {
-    const response = await sellerClient.get(`/chat-room/${roomId}/messages`, { params });
+  byOrder: async (storeId: string, orderId: string): Promise<ChatExistingThread> => {
+    const response = await sellerClient.get(`${base(storeId)}/orders/${orderId}`);
     return response.data.data;
   },
-
-  // 채팅방 읽음 처리
-  markChatRoomAsRead: async (roomId: string): Promise<{ success: boolean }> => {
-    const response = await sellerClient.post(`/chat-room/${roomId}/read`);
+  thread: async (storeId: string, threadId: string): Promise<ChatThreadDetail> => {
+    const response = await sellerClient.get(`${base(storeId)}/${threadId}`);
+    return response.data.data;
+  },
+  messages: async (
+    storeId: string,
+    threadId: string,
+    params: { after?: string; before?: string; markRead?: boolean },
+  ): Promise<ChatMessages> => {
+    const response = await sellerClient.get(`${base(storeId)}/${threadId}/messages`, { params });
+    return response.data.data;
+  },
+  send: async (storeId: string, threadId: string, body: ChatSendBody): Promise<ChatSendResult> => {
+    const response = await sellerClient.post(`${base(storeId)}/${threadId}/messages`, body);
+    return response.data.data;
+  },
+  startFromOrder: async (
+    storeId: string,
+    orderId: string,
+    body: ChatSendBody,
+  ): Promise<ChatSendResult> => {
+    const response = await sellerClient.post(`${base(storeId)}/orders/${orderId}/messages`, body);
+    return response.data.data;
+  },
+  agreeRules: async (storeId: string, version: number) => {
+    const response = await sellerClient.post(`${base(storeId)}/rules/agree`, { version });
+    return response.data.data;
+  },
+  setFlag: async (
+    storeId: string,
+    threadId: string,
+    flag: "mute" | "block",
+    value: boolean,
+  ): Promise<ChatThreadDetail> => {
+    const response = await sellerClient.post(`${base(storeId)}/${threadId}/${flag}`, { value });
+    return response.data.data;
+  },
+  report: async (
+    storeId: string,
+    threadId: string,
+    body: { reason: ChatReportReason; detail?: string },
+  ): Promise<{ reportId: string; message: string }> => {
+    const response = await sellerClient.post(`${base(storeId)}/${threadId}/reports`, body);
     return response.data.data;
   },
 };

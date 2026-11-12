@@ -8,29 +8,38 @@ import {
   storeKakaoChatUrl,
 } from "@/apps/web-user/common/utils/external-link.util";
 import { useOpenExternal } from "@/apps/web-user/common/hooks/useOpenExternal";
+import { useRouter } from "next/navigation";
+import { Icon } from "@/apps/web-user/common/components/icons";
+import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
+import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 
 interface StoreInquiryBottomSheetProps {
   isOpen: boolean;
   onClose: () => void;
   /** 주면 열 때 가게 정보를 불러와 사장님이 적은 카카오톡 채널·인스타·전화를 쓴다(아래 값이 있으면 그것을 먼저) */
   storeId?: string;
+  /** 주문에서 열었으면 그 주문 — 채팅 첫 글 앞에 주문 카드가 붙는다(기획 I-11) */
+  orderId?: string;
   kakaoChannelUrl?: string | null;
   instagramUrl?: string | null;
   phoneNumber?: string | null;
 }
 
 /**
- * 스토어 문의: 가게의 카카오톡 채널(1:1 채팅으로 바로)·인스타그램·전화. 사장님이 적지 않은 것은 누를 수 없다.
+ * 스토어 문의: 맨 위 "채팅으로 문의"(채팅이 열렸을 때, 기획 I-11) + 가게의 카카오톡 채널(1:1 채팅으로 바로)·인스타그램·전화.
+ * 사장님이 적지 않은 것은 누를 수 없다.
  * 예전에는 카카오톡·인스타에 늘 빈 값이 들어가 전화만 됐다(2026-11-11 고침).
  */
 export function StoreInquiryBottomSheet({
   isOpen,
   onClose,
   storeId,
+  orderId,
   kakaoChannelUrl,
   instagramUrl,
   phoneNumber,
 }: StoreInquiryBottomSheetProps) {
+  const router = useRouter();
   const { data: store } = useStoreDetail(isOpen && storeId ? storeId : "");
   const kakaoUrl = kakaoChannelUrl || storeKakaoChatUrl(store?.kakaoChannelId);
   const instaUrl = instagramUrl || storeInstagramUrl(store?.instagramId);
@@ -57,6 +66,28 @@ export function StoreInquiryBottomSheet({
       >
         <BottomSheetOptionList
           items={[
+            {
+              icon: {
+                type: "element",
+                element: (
+                  // Picake 채팅이라 Picake 로고(운영자 11-12). 다른 줄 그림처럼 40 동그라미(전화 줄과 같은 연한 주황 바탕)
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-50">
+                    <Icon name="logoPicake" width={26} height={26} />
+                  </span>
+                ),
+              },
+              label: "채팅으로 문의",
+              onClick: () => {
+                if (!storeId) return;
+                trackEvent("engage_chat_entry", {
+                  entry_point: orderId ? "order_inquiry" : "store_inquiry",
+                  store_id: storeId,
+                });
+                onClose();
+                router.push(PATHS.CHAT.STORE(storeId, { orderId }));
+              },
+              disabled: !storeId,
+            },
             {
               icon: { type: "image", src: "/images/contents/talk_kakao.png", alt: "카카오 채널" },
               label: "카카오톡 채널",

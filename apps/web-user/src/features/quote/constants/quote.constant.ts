@@ -45,6 +45,8 @@ export const quoteQueryKeys = {
   all: ["quote-requests"] as const,
   list: (tab: string) => ["quote-requests", "list", tab] as const,
   detail: (id: string) => ["quote-requests", "detail", id] as const,
+  quotes: (id: string) => ["quote-requests", "quotes", id] as const,
+  unseen: ["quote-requests", "unseen"] as const,
 };
 
 export const QUOTE_DRAFT_STORAGE_KEY = "picake:quoteDraft";
