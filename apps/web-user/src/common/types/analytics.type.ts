@@ -86,6 +86,19 @@ export type QuoteStepName = "when" | "where" | "stores" | "cake" | "size_budget"
 /** 견적 요청을 보내지 못한 이유 */
 export type QuoteRequestFailReason = "pickup_time" | "api_error";
 
+/** 견적을 보낸 가게: picake = 입점 가게, unentered = 입점 전 가게(견적 링크·운영자 대신 적기) */
+export type QuoteStoreType = "picake" | "unentered";
+
+/** 견적 링크(사장님 쪽)에서 본 이 가게 상태 */
+export type QuoteLinkState =
+  | "OPEN"
+  | "SENT"
+  | "DECLINED"
+  | "CHOSEN_ME"
+  | "CHOSEN_OTHER"
+  | "CLOSED"
+  | "FULL";
+
 export interface AnalyticsEventMap {
   // ── 주문과정 ──
   /** 상품 상세 페이지 노출 (일반/주문제작 분기) */
@@ -296,6 +309,44 @@ export interface AnalyticsEventMap {
   success_quote_request: { quote_request_id: string; entry_point: QuoteEntryPoint };
   /** 견적 요청을 보내지 못함(pickup_time = 그새 3시간 안이 됨, api_error = 사진 올리기·서버 오류) */
   fail_quote_request: { entry_point: QuoteEntryPoint; fail_reason: QuoteRequestFailReason };
+
+  // ── 견적 ②(I-46): 손님이 견적을 보고 고름. 성공 기준: 받은 견적 → 고른 요청 비율 ──
+  /** 요청 상세에서 받은 견적을 봄(열 때 한 번). unseen_count = 처음 보는 견적 수 */
+  view_quote_detail: {
+    quote_request_id: string;
+    status: string;
+    quote_count: number;
+    unseen_count: number;
+  };
+  /** 견적 카드에서 그 가게와 채팅을 엶(고르기 전 "채팅으로 묻기"·고른 뒤 "채팅하기") */
+  engage_quote_chat: { quote_request_id: string; store_type: QuoteStoreType; chosen: boolean };
+  /** 고르기 창에서 "고르기"를 누름(서버 응답 전). rechoose = 이미 고른 뒤 다른 견적으로 바꿈 */
+  request_quote_choose: { quote_request_id: string; store_type: QuoteStoreType; rechoose: boolean };
+  /** 견적을 골랐음(서버 응답) */
+  success_quote_choose: {
+    quote_request_id: string;
+    store_type: QuoteStoreType;
+    rechoose: boolean;
+    quote_count: number;
+  };
+  /** 고르지 못함(마감·다른 기기에서 바뀜 등 서버 오류) */
+  fail_quote_choose: { quote_request_id: string; fail_reason: "api_error" };
+
+  // ── 견적 링크(I-46 SC-19, 입점 전 가게 사장님 — 로그인 없음) ──
+  /** 사장님이 견적 링크를 엶(한 번). state = 이 가게 쪽 상태 */
+  view_quote_link: { quote_request_id: string; state: QuoteLinkState };
+  /** 링크에서 견적을 보냄·고침(서버 응답) */
+  success_quote_link_submit: {
+    quote_request_id: string;
+    edited: boolean;
+    similarity: string;
+    photo_count: number;
+    contact_types: string;
+  };
+  /** 링크에서 "어려워요"로 답함 */
+  success_quote_link_decline: { quote_request_id: string; reason: string };
+  /** 링크 안 대화에서 사장님이 글을 보냄(글 내용은 보내지 않는다) */
+  success_quote_link_chat: { quote_request_id: string };
 
   // ── 채팅(I-11) ── 성공 기준: 문의 → 예약 전환율(같은 가게 store_id로 success_reservation과 잇는다)
   /** 채팅 입구를 누름(채팅이 열려 있을 때만 보임) */

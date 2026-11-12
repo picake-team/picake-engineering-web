@@ -13,6 +13,12 @@ import { uploadApi } from "@/apps/web-seller/features/upload/apis/upload.api";
 import { dataUrlToFile, shrinkPhoto } from "@/apps/web-seller/features/chat/hooks/useChat";
 import { quoteApi } from "@/apps/web-seller/features/quote/apis/quote.api";
 import { CHAT_NO_REPLAY } from "@/apps/web-seller/features/chat/constants/chat.constants";
+import { trackSellerEvent } from "@/apps/web-seller/common/utils/analytics.util";
+import { sellerSurface } from "@/apps/web-seller/common/utils/webview.bridge";
+import { PHONE_MAX_WIDTH_PX } from "@/apps/web-seller/common/constants/screen.constant";
+
+const surfaceNow = () =>
+  sellerSurface(window.matchMedia(`(max-width: ${PHONE_MAX_WIDTH_PX}px)`).matches);
 import type {
   QuoteContactType,
   QuoteDeclineReason,
@@ -144,6 +150,14 @@ function QuoteSendSheet({
         contacts: list,
         ...(memo.trim() ? { memo: memo.trim() } : {}),
         photoUrls: photos,
+      });
+      trackSellerEvent("success_quote_send", {
+        quote_request_id: view.requestId,
+        edited: !!q,
+        similarity,
+        photo_count: photos.length,
+        contact_types: list.map((c) => c.type).join(","),
+        surface: surfaceNow(),
       });
       await queryClient.invalidateQueries({ queryKey: quoteViewKey(storeId, view.requestId) });
       onClose();
@@ -352,6 +366,11 @@ export function QuoteRequestPanel({ storeId, requestId }: { storeId: string; req
     setError(null);
     try {
       await quoteApi.decline(storeId, requestId, reason);
+      trackSellerEvent("success_quote_decline", {
+        quote_request_id: requestId,
+        reason,
+        surface: surfaceNow(),
+      });
       await queryClient.invalidateQueries({ queryKey: quoteViewKey(storeId, requestId) });
       setDeclineOpen(false);
     } catch (e) {

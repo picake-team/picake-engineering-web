@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Icon } from "@/apps/web-user/common/components/icons";
@@ -30,6 +30,8 @@ import { Skeleton } from "@/apps/web-user/common/components/skeleton";
 import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
 import getApiMessage from "@/apps/web-user/common/utils/getApiMessage";
 import { withEulReul, withRo, withWaGwa } from "@/apps/web-user/common/utils/josa.util";
+import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
+import type { QuoteStoreType } from "@/apps/web-user/common/types/analytics.type";
 
 /** "11월 13일 오후 3시" */
 function kstShort(iso: string): string {
@@ -65,19 +67,57 @@ function QuoteRequestDetailContent() {
   const [closeOpen, setCloseOpen] = useState(false);
   const [picking, setPicking] = useState<ConsumerQuote | null>(null);
 
+  // 요청 상세에서 받은 견적을 봄(열 때 한 번, 견적 ② 성공 기준: 받은 견적 → 고른 요청)
+  const viewedRef = useRef(false);
+  useEffect(() => {
+    if (!section || !data || viewedRef.current) return;
+    viewedRef.current = true;
+    trackEvent("view_quote_detail", {
+      quote_request_id: data.id,
+      status: data.status,
+      quote_count: section.quotes.length,
+      unseen_count: section.quotes.filter((q) => q.unseen).length,
+    });
+  }, [section, data]);
+
   const goChat = (threadId: string | null) => {
     if (threadId) router.push(PATHS.CHAT.ROOM(threadId));
   };
+  const storeType = (q: ConsumerQuote): QuoteStoreType =>
+    q.isPicakeStore ? "picake" : "unentered";
+  const onQuoteChat = (q: ConsumerQuote) => {
+    if (!data) return;
+    trackEvent("engage_quote_chat", {
+      quote_request_id: data.id,
+      store_type: storeType(q),
+      chosen: q.chosen,
+    });
+    goChat(q.threadId);
+  };
   const onConfirmChoose = () => {
     if (!picking || !data) return;
+    const rechoose = !!section?.chosenTargetId;
+    trackEvent("request_quote_choose", {
+      quote_request_id: data.id,
+      store_type: storeType(picking),
+      rechoose,
+    });
+    const picked = picking;
     choose.mutate(
       { requestId: data.id, quoteId: picking.id },
       {
         onSuccess: (res) => {
+          trackEvent("success_quote_choose", {
+            quote_request_id: data.id,
+            store_type: storeType(picked),
+            rechoose,
+            quote_count: section?.quotes.length ?? 0,
+          });
           setPicking(null);
           goChat(res.threadId);
         },
         onError: (e) => {
+          trackEvent("fail_quote_choose", { quote_request_id: data.id, fail_reason: "api_error" });
           setPicking(null);
           showAlert({ type: "error", title: "고르지 못했어요", message: getApiMessage.error(e) });
           // 그사이 마감·다른 기기에서 고름 등으로 바뀌었을 수 있어 견적을 다시 읽는다
@@ -221,7 +261,7 @@ function QuoteRequestDetailContent() {
                 quote={q}
                 closed={!q.canChoose && !q.chosen}
                 onChoose={() => setPicking(q)}
-                onChat={() => goChat(q.threadId)}
+                onChat={() => onQuoteChat(q)}
               />
             ))}
           </div>
@@ -268,7 +308,7 @@ function QuoteRequestDetailContent() {
 
       <div className="fixed bottom-0 left-0 right-0 mx-auto flex max-w-[638px] gap-[8px] bg-white px-[20px] pb-[12px] pt-[10px]">
         {chosen ? (
-          <Button size="lg" className="w-full" onClick={() => goChat(chosen.threadId)}>
+          <Button size="lg" className="w-full" onClick={() => onQuoteChat(chosen)}>
             {withWaGwa(chosen.storeName)} 채팅하기
           </Button>
         ) : open ? (
