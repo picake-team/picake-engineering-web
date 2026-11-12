@@ -343,6 +343,8 @@ export function QuoteRequestPanel({ storeId, requestId }: { storeId: string; req
   const [declining, setDeclining] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [viewer, setViewer] = useState<string | null>(null);
+  // 긴 설명·요청 사항은 4줄까지 보이고 "더 보기"로 펼친다(버튼이 화면 아래로 밀리지 않게)
+  const [textOpen, setTextOpen] = useState(false);
 
   if (isError) {
     return (
@@ -412,14 +414,35 @@ export function QuoteRequestPanel({ storeId, requestId }: { storeId: string; req
         {view.area ? ` · ${view.area} 근처` : ""}
       </p>
       {view.description ? (
-        <p className={cx(CHAT_NO_REPLAY, "mt-1 whitespace-pre-wrap text-sub text-ink-700")}>
+        <p
+          className={cx(
+            CHAT_NO_REPLAY,
+            "mt-1 whitespace-pre-wrap text-sub text-ink-700",
+            !textOpen && "line-clamp-4",
+          )}
+        >
           “{view.description}”
         </p>
       ) : null}
       {view.requestNote ? (
-        <p className={cx(CHAT_NO_REPLAY, "whitespace-pre-wrap text-sub text-ink-700")}>
+        <p
+          className={cx(
+            CHAT_NO_REPLAY,
+            "whitespace-pre-wrap text-sub text-ink-700",
+            !textOpen && "line-clamp-2",
+          )}
+        >
           요청 사항 “{view.requestNote}”
         </p>
+      ) : null}
+      {!textOpen && (view.description ?? "").length + (view.requestNote ?? "").length > 120 ? (
+        <button
+          type="button"
+          onClick={() => setTextOpen(true)}
+          className="mt-0.5 text-sub font-semibold text-ink-900 underline"
+        >
+          더 보기
+        </button>
       ) : null}
       <p className="mt-1 text-sub text-ink-700">예산 {view.budget}</p>
       <p className="text-caption text-ink-600">견적 마감 {view.deadline}</p>
