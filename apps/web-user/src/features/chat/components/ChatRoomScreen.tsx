@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Toast } from "@/apps/web-user/common/components/toast/Toast";
 import { useRouter } from "next/navigation";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
@@ -22,14 +23,24 @@ import type { ChatCard, ChatMessage } from "@/apps/web-user/features/chat/types/
 import { ChatRoomSkeleton } from "@/apps/web-user/common/components/skeleton/ChatSkeleton";
 import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
 
+const SEOUL_PARTS = new Intl.DateTimeFormat("ko-KR", {
+  timeZone: "Asia/Seoul",
+  year: "numeric",
+  month: "numeric",
+  day: "numeric",
+  weekday: "short",
+});
+
+/** 날짜 줄 "11월 11일 (수)". 올해가 아니면 해를 붙인다("2025년 12월 24일 (수)") — 작년 글이 올해처럼 보이지 않게(사장님 앱과 같음) */
 function dayLabel(iso: string): string {
-  const d = new Date(iso);
-  return new Intl.DateTimeFormat("ko-KR", {
-    timeZone: "Asia/Seoul",
-    month: "long",
-    day: "numeric",
-    weekday: "short",
-  }).format(d);
+  const get = (d: Date) => {
+    const parts = SEOUL_PARTS.formatToParts(d);
+    const v = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+    return { y: v("year"), m: v("month"), d: v("day"), w: v("weekday") };
+  };
+  const p = get(new Date(iso));
+  const thisYear = get(new Date()).y;
+  return `${p.y === thisYear ? "" : `${p.y}년 `}${p.m}월 ${p.d}일 (${p.w})`;
 }
 
 function timeLabel(iso: string): string {
@@ -168,6 +179,8 @@ export function ChatRoomScreen({
 }) {
   const router = useRouter();
   const { showAlert } = useAlertStore();
+  // 짧은 안내(차단·신고·알림 끔·장수 제한)는 다른 손님 화면처럼 아래 알약(Toast), 실패만 확인 창
+  const [toast, setToast] = useState<string | null>(null);
   const room = useChatRoom({
     threadId,
     start,
@@ -241,18 +254,14 @@ export function ChatRoomScreen({
     const shots = photos;
     if (!body.trim() && shots.length === 0) return;
     if (body.length > CHAT_LIMITS.TEXT_MAX) {
-      showAlert({
-        type: "warning",
-        title: "알림",
-        message: `글은 ${CHAT_LIMITS.TEXT_MAX.toLocaleString()}자까지 보낼 수 있어요`,
-      });
+      setToast(`글은 ${CHAT_LIMITS.TEXT_MAX.toLocaleString()}자까지 보낼 수 있어요`);
       return;
     }
     setText("");
     setPhotos([]);
     atBottomRef.current = true;
     const res = await room.send(body, shots);
-    if (!res.ok && res.message) {
+    if (!res.ok && !res.retryable && res.message) {
       showAlert({ type: "error", title: "보내지 못했어요", message: res.message });
     }
   };
@@ -274,7 +283,7 @@ export function ChatRoomScreen({
       setRulesOpen(false);
       await doSend();
     } catch (e) {
-      showAlert({ type: "error", title: "오류", message: getApiMessage.error(e) });
+      showAlert({ type: "error", title: "보내지 못했어요", message: getApiMessage.error(e) });
     } finally {
       setAgreeing(false);
     }
@@ -285,11 +294,7 @@ export function ChatRoomScreen({
     const room_ = CHAT_LIMITS.IMAGES_MAX - photos.length;
     const picked = Array.from(files).slice(0, room_);
     if (files.length > room_) {
-      showAlert({
-        type: "warning",
-        title: "알림",
-        message: `사진은 한 번에 ${CHAT_LIMITS.IMAGES_MAX}장까지 보낼 수 있어요`,
-      });
+      setToast(`사진은 한 번에 ${CHAT_LIMITS.IMAGES_MAX}장까지 보낼 수 있어요`);
     }
     const shrunk: string[] = [];
     for (const f of picked) {
@@ -308,15 +313,11 @@ export function ChatRoomScreen({
     try {
       const next = await chatApi.setFlag(threadId, flag, value);
       room.setThread(next);
-      if (flag === "block") {
-        showAlert({
-          type: "success",
-          title: "알림",
-          message: value ? "차단했어요. 더는 채팅할 수 없어요" : "차단을 풀었어요",
-        });
-      }
+      if (flag === "block")
+        setToast(value ? "차단했어요. 더는 채팅할 수 없어요" : "차단을 풀었어요");
+      else setToast(value ? "이 채팅 알림을 껐어요" : "이 채팅 알림을 켰어요");
     } catch (e) {
-      showAlert({ type: "error", title: "오류", message: getApiMessage.error(e) });
+      showAlert({ type: "error", title: "바꾸지 못했어요", message: getApiMessage.error(e) });
     }
   };
 
@@ -332,9 +333,9 @@ export function ChatRoomScreen({
         ...(detail.trim() ? { detail: detail.trim() } : {}),
       });
       setReportOpen(false);
-      showAlert({ type: "success", title: "신고를 받았어요", message: res.message });
+      setToast(res.message || "신고했어요. Picake가 24시간 안에 확인해요");
     } catch (e) {
-      showAlert({ type: "error", title: "오류", message: getApiMessage.error(e) });
+      showAlert({ type: "error", title: "신고하지 못했어요", message: getApiMessage.error(e) });
     } finally {
       setReporting(false);
     }
@@ -496,7 +497,7 @@ export function ChatRoomScreen({
                     type="button"
                     aria-label="사진 빼기"
                     onClick={() => setPhotos((prev) => prev.filter((_, j) => j !== i))}
-                    className="absolute -right-[6px] -top-[6px] flex h-[20px] w-[20px] items-center justify-center rounded-full bg-gray-900 text-xs text-white"
+                    className="absolute -right-[6px] -top-[6px] flex h-[20px] w-[20px] items-center justify-center rounded-full bg-gray-900 text-xs text-white before:absolute before:-inset-[10px] before:content-['']"
                   >
                     ×
                   </button>
@@ -524,6 +525,18 @@ export function ChatRoomScreen({
             <textarea
               ref={inputRef}
               value={text}
+              onKeyDown={(e) => {
+                // PC(마우스·키보드)에서는 Enter로 보내고 Shift+Enter로 줄바꿈. 휴대폰은 Enter가 줄바꿈, 한글 조합 중에는 보내지 않음
+                if (
+                  e.key === "Enter" &&
+                  !e.shiftKey &&
+                  !e.nativeEvent.isComposing &&
+                  window.matchMedia("(hover: hover) and (pointer: fine)").matches
+                ) {
+                  e.preventDefault();
+                  if (text.trim() || photos.length) onSendClick();
+                }
+              }}
               onChange={(e) => setText(e.target.value)}
               placeholder="메시지 보내기"
               rows={1}
@@ -598,6 +611,7 @@ export function ChatRoomScreen({
         onSubmit={(reason, detail) => void onReport(reason, detail)}
         busy={reporting}
       />
+      {toast && <Toast message={toast} onClose={() => setToast(null)} />}
     </div>
   );
 }
