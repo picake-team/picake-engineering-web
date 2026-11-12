@@ -29,7 +29,7 @@ const PERIOD_LABELS: Record<MapPickupPeriodKind, string> = {
 
 /** PillTabs와 동일한 회색 세로 구분선 */
 function PickupPeriodDivider() {
-  return <div className="h-3 w-px shrink-0 bg-[var(--grayscale-gr-100,#EBEBEA)]" aria-hidden />;
+  return <div className="h-3 w-px shrink-0 bg-gray-100" aria-hidden />;
 }
 
 export function ReservationCalendarView({
@@ -103,9 +103,7 @@ export function ReservationCalendarView({
                     onClick={() => onPickupPeriodChange?.(key)}
                     className={cn(
                       "box-border flex shrink-0 items-center justify-center text-center transition-colors",
-                      selected
-                        ? "bg-primary-50 text-primary"
-                        : "bg-[var(--grayscale-gr-00,#FFFFFF)] text-[var(--grayscale-gr-900,#1F1F1E)]",
+                      selected ? "bg-primary-50 text-primary" : "bg-white text-gray-900",
                     )}
                     style={{
                       height: 40,
