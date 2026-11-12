@@ -302,8 +302,12 @@ export function SellerChatRoom({
     }
   };
 
-  const onPickPhotos = async (files: FileList | null) => {
-    if (!files) return;
+  const onPickPhotos = async (picked: FileList | File[] | null) => {
+    // 붙여 넣기·끌어다 놓기로 사진이 아닌 파일이 오면 뺀다(종류를 모르는 파일은 줄여 보며 걸러짐)
+    const files = picked
+      ? Array.from(picked).filter((f) => !f.type || f.type.startsWith("image/"))
+      : [];
+    if (files.length === 0) return;
     const left = CHAT_LIMITS.IMAGES_MAX - photos.length;
     if (files.length > left) {
       addAlert({
@@ -312,7 +316,7 @@ export function SellerChatRoom({
       });
     }
     const out: string[] = [];
-    for (const f of Array.from(files).slice(0, left)) {
+    for (const f of files.slice(0, left)) {
       try {
         out.push(await shrinkPhoto(f));
       } catch {
@@ -530,7 +534,18 @@ export function SellerChatRoom({
       ) : null}
 
       {composerHidden ? null : write.ok ? (
-        <div className="shrink-0 border-t border-ink-100 bg-white px-3 pb-[max(10px,env(safe-area-inset-bottom))] pt-2">
+        <div
+          className="shrink-0 border-t border-ink-100 bg-white px-3 pb-[max(10px,env(safe-area-inset-bottom))] pt-2"
+          // PC: 사진을 끌어다 놓아도 보낼 사진에 들어간다
+          onDragOver={(e) => {
+            if (e.dataTransfer.types.includes("Files")) e.preventDefault();
+          }}
+          onDrop={(e) => {
+            if (e.dataTransfer.files.length === 0) return;
+            e.preventDefault();
+            void onPickPhotos(e.dataTransfer.files);
+          }}
+        >
           {photos.length > 0 ? (
             <div className="mb-2 flex gap-1.5 overflow-x-auto">
               {photos.map((src, i) => (
@@ -581,6 +596,13 @@ export function SellerChatRoom({
                 }
               }}
               onChange={(e) => setText(e.target.value)}
+              // PC: 복사한 사진을 붙여 넣으면 보낼 사진에 들어간다(글이 함께 복사됐으면 글로 붙임)
+              onPaste={(e) => {
+                const files = Array.from(e.clipboardData.files);
+                if (files.length === 0 || e.clipboardData.getData("text/plain")) return;
+                e.preventDefault();
+                void onPickPhotos(files);
+              }}
               placeholder="메시지 보내기"
               aria-label="메시지 보내기"
               rows={1}
