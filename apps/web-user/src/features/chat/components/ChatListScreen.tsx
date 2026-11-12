@@ -10,6 +10,8 @@ import { cn } from "@/apps/web-user/common/lib/utils";
 import { useChatList } from "@/apps/web-user/features/chat/hooks/useChat";
 import { CHAT_NO_REPLAY } from "@/apps/web-user/features/chat/constants/chat.constant";
 import { ChatListSkeleton } from "@/apps/web-user/common/components/skeleton/ChatSkeleton";
+import { EmptyState } from "@/apps/web-user/common/components/fallbacks/EmptyState";
+import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
 
 /** MY → 채팅 목록(기획 I-11). 가게 사진·이름·마지막 글·안 읽음 점 */
 export function ChatListScreen() {
@@ -40,17 +42,25 @@ export function ChatListScreen() {
     );
   }
 
+  // 못 불러오면 "없어요" 대신 "다시 시도"(손님 화면 공통, F-65). 빈 화면은 다른 MY 목록과 같은 부품
+  if (list.isError) {
+    return (
+      <div>
+        {header}
+        <LoadErrorState fill className="px-[20px]" onRetry={() => void list.refetch()} />
+      </div>
+    );
+  }
+
   return (
     <div>
       {header}
       {threads.length === 0 ? (
-        <div className="flex flex-col items-center gap-[8px] px-[20px] py-[80px] text-center">
-          <span className="flex h-[56px] w-[56px] items-center justify-center rounded-full bg-gray-50 text-gray-400">
-            <Icon name="chat" width={26} height={26} />
+        <EmptyState message="아직 채팅이 없어요." fill>
+          <span className="-mt-[12px] text-center text-xs text-gray-500">
+            가게 화면이나 주문에서 사장님께 물어볼 수 있어요
           </span>
-          <p className="mt-[8px] text-base font-bold text-gray-900">아직 채팅이 없어요</p>
-          <p className="text-sm text-gray-500">가게 화면이나 주문에서 사장님께 물어볼 수 있어요</p>
-        </div>
+        </EmptyState>
       ) : (
         <ul className="flex flex-col">
           {threads.map((t) => (
@@ -66,7 +76,10 @@ export function ChatListScreen() {
                     className="h-[44px] w-[44px] shrink-0 rounded-full object-cover"
                   />
                 ) : (
-                  <span className="h-[44px] w-[44px] shrink-0 rounded-full bg-gray-50" />
+                  // 로고가 없는 가게는 가게 화면과 같은 가게 그림
+                  <span className="flex h-[44px] w-[44px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-100">
+                    <Icon name="noneStore" width={44} height={44} />
+                  </span>
                 )}
                 <span className="flex min-w-0 flex-1 flex-col gap-[2px]">
                   <span className="truncate text-sm font-bold text-gray-900">{t.title}</span>

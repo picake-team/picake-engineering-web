@@ -1,3 +1,4 @@
+import { useSnackbarStore } from "@/apps/web-seller/common/store/snackbar.store";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { cx } from "@/apps/web-seller/common/ui/cx";
@@ -203,6 +204,14 @@ export function SellerChatRoom({
   const atBottomRef = useRef(true);
   const [newBelow, setNewBelow] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  // 입력칸은 글에 맞게 늘어난다(최대 높이까지, 그 뒤로는 칸 안에서 스크롤)
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  useLayoutEffect(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 96)}px`;
+  }, [text]);
 
   const thread = room.thread;
   const title = thread?.title ?? initialTitle ?? "채팅";
@@ -294,15 +303,21 @@ export function SellerChatRoom({
     if (fileRef.current) fileRef.current.value = "";
   };
 
+  const showSnackbar = useSnackbarStore((st) => st.showSnackbar);
   const setFlag = async (flag: "mute" | "block", value: boolean) => {
     if (!thread) return;
     try {
       room.setThread(await chatApi.setFlag(storeId, thread.id, flag, value));
-      if (flag === "block") {
-        addAlert({
-          severity: "info",
-          message: value ? "차단했어요. 더는 채팅할 수 없어요" : "차단을 풀었어요",
+      if (flag === "block" && value) {
+        // 판매 상태 바꾸기처럼 한 일 + 되돌리기(잘못 눌러도 바로 풀 수 있게)
+        showSnackbar({
+          message: "차단했어요. 더는 채팅할 수 없어요",
+          duration: 5000,
+          actionLabel: "되돌리기",
+          onAction: () => void setFlag("block", false),
         });
+      } else if (flag === "block") {
+        addAlert({ severity: "info", message: "차단을 풀었어요" });
       }
     } catch (e) {
       addAlert({ severity: "error", message: getApiMessage.error(e) });
@@ -517,6 +532,7 @@ export function SellerChatRoom({
               onChange={(e) => void onPickPhotos(e.target.files)}
             />
             <textarea
+              ref={inputRef}
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="메시지 보내기"

@@ -186,6 +186,14 @@ export function ChatRoomScreen({
   const atBottomRef = useRef(true);
   const [newBelow, setNewBelow] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  // 입력칸은 글에 맞게 늘어난다(최대 높이까지, 그 뒤로는 칸 안에서 스크롤)
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  useLayoutEffect(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 96)}px`;
+  }, [text]);
 
   const thread = room.thread;
   const title = thread?.title ?? initialTitle ?? "채팅";
@@ -438,7 +446,7 @@ export function ChatRoomScreen({
               {p.status === "sending" ? (
                 <span className="text-[11px] text-gray-400">보내는 중…</span>
               ) : (
-                <span className="text-[11px] text-red-500">
+                <span className="text-[11px] text-red-400">
                   보내지 못했어요 ·{" "}
                   <button
                     type="button"
@@ -514,6 +522,7 @@ export function ChatRoomScreen({
               onChange={(e) => void onPickPhotos(e.target.files)}
             />
             <textarea
+              ref={inputRef}
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="메시지 보내기"

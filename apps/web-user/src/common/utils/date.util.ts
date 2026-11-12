@@ -22,7 +22,19 @@ export const formatRelativeTime = (date: Date | null): string => {
   if (diffMins < 60) return `${diffMins}분 전`;
   if (diffHours < 24) return `${diffHours}시간 전`;
   if (diffDays < 7) return `${diffDays}일 전`;
-  return messageDate.toLocaleDateString("ko-KR");
+  // "10월 3일", 올해가 아니면 "2025년 12월 24일"(서울 기준, 방 안 날짜 줄과 같은 말)
+  const seoul = (d: Date) => {
+    const parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Seoul",
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+    }).formatToParts(d);
+    const get = (t: string) => Number(parts.find((x) => x.type === t)?.value ?? 0);
+    return { y: get("year"), m: get("month"), d: get("day") };
+  };
+  const t = seoul(messageDate);
+  return `${t.y === seoul(now).y ? "" : `${t.y}년 `}${t.m}월 ${t.d}일`;
 };
 
 /**

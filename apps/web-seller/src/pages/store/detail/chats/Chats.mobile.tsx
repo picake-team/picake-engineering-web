@@ -10,6 +10,7 @@ import { AppScreen, TabHeader } from "@/apps/web-seller/common/ui/Screen";
 import { SegmentedTabs } from "@/apps/web-seller/common/ui/Choice";
 import { EmptyState, LoadErrorState, SkeletonCards } from "@/apps/web-seller/common/ui/Surface";
 import { Button } from "@/apps/web-seller/common/ui/Button";
+import { Icon } from "@/apps/web-seller/common/ui/icons";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
 import { formatRelativeTime } from "@/apps/web-seller/common/utils/date.util";
 import { chatApi } from "@/apps/web-seller/features/chat/apis/chat.api";
@@ -54,15 +55,16 @@ function ChatsScreen({ pc }: { pc: boolean }) {
           />
         </div>
         {list.isError ? (
-          <div className="px-5">
-            <LoadErrorState onRetry={() => void list.refetch()} />
+          // 빈·실패 화면은 남은 높이를 채워 세로 가운데에(주문 탭과 같게)
+          <div className="flex flex-1 flex-col px-5">
+            <LoadErrorState big onRetry={() => void list.refetch()} />
           </div>
         ) : list.isLoading ? (
           <div className="px-5">
             <SkeletonCards count={4} />
           </div>
         ) : threads.length === 0 ? (
-          <div className="px-5">
+          <div className="flex flex-1 flex-col px-5">
             <EmptyState
               big
               icon="chat"
@@ -80,7 +82,13 @@ function ChatsScreen({ pc }: { pc: boolean }) {
                   to={ROUTES.STORE_DETAIL_CHAT_ROOM(storeId, t.id)}
                   className="flex min-h-[72px] items-center gap-3 border-b border-ink-100 px-5 py-3 active:bg-ink-50"
                 >
-                  <span className="size-11 shrink-0 rounded-full bg-ink-50" aria-hidden="true" />
+                  {/* 손님 사진은 사장님 화면에 주지 않아 사람 그림으로(빈 동그라미는 불러오는 중처럼 보임) */}
+                  <span
+                    className="flex size-11 shrink-0 items-center justify-center rounded-full bg-ink-50 text-ink-400"
+                    aria-hidden="true"
+                  >
+                    <Icon name="person" size={22} />
+                  </span>
                   <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                     <span className="truncate text-body font-bold text-ink-900">{t.title}</span>
                     <span className={cx(CHAT_NO_REPLAY, "truncate text-sub text-ink-600")}>
@@ -91,7 +99,9 @@ function ChatsScreen({ pc }: { pc: boolean }) {
                     <span className="text-caption text-ink-400">
                       {t.lastMessageAt ? formatRelativeTime(new Date(t.lastMessageAt)) : ""}
                     </span>
-                    {t.unread ? (
+                    {t.blockedByMe ? (
+                      <span className="text-caption text-ink-400">차단함</span>
+                    ) : t.unread ? (
                       <span className="size-2 rounded-full bg-brand" aria-label="안 읽음" />
                     ) : (
                       <span className="h-2" />
