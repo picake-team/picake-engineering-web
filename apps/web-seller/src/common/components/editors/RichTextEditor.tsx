@@ -48,6 +48,39 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       const toolbar = quill.getModule("toolbar");
       if (!toolbar) return;
 
+      // 화면 읽기: 편집 도구는 아이콘뿐이라 버튼마다 이름을 붙인다
+      const container = (toolbar as { container?: HTMLElement }).container;
+      const buttonNames: Record<string, string> = {
+        "ql-bold": "굵게",
+        "ql-italic": "기울임",
+        "ql-underline": "밑줄",
+        "ql-strike": "취소선",
+        "ql-link": "링크",
+        "ql-image": "사진 넣기",
+        "ql-clean": "서식 지우기",
+      };
+      const pickerNames: Record<string, string> = {
+        "ql-header": "글자 크기",
+        "ql-align": "정렬",
+        "ql-color": "글자 색",
+        "ql-background": "배경 색",
+      };
+      container?.querySelectorAll<HTMLButtonElement>("button").forEach((button) => {
+        if (button.classList.contains("ql-list")) {
+          button.setAttribute(
+            "aria-label",
+            button.value === "ordered" ? "번호 목록" : "글머리 목록",
+          );
+          return;
+        }
+        const name = [...button.classList].map((c) => buttonNames[c]).find(Boolean);
+        if (name) button.setAttribute("aria-label", name);
+      });
+      container?.querySelectorAll<HTMLElement>(".ql-picker").forEach((picker) => {
+        const name = [...picker.classList].map((c) => pickerNames[c]).find(Boolean);
+        picker.querySelector(".ql-picker-label")?.setAttribute("aria-label", name ?? "고르기");
+      });
+
       // 이미지 핸들러 커스터마이징
       toolbar.addHandler("image", () => {
         const input = document.createElement("input");

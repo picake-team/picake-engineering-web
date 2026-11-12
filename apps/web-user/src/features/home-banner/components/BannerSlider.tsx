@@ -1,11 +1,15 @@
 "use client";
 
+import Image from "next/image";
 import { FadeInImage } from "@/apps/web-user/common/components/motion/FadeInImage";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay } from "swiper/modules";
 import { useHomeBanners } from "@/apps/web-user/features/home-banner/hooks/queries/useHomeBanners";
-import type { HomeBannerImageAlign } from "@/apps/web-user/features/home-banner/types/home-banner.type";
+import type {
+  HomeBanner,
+  HomeBannerImageAlign,
+} from "@/apps/web-user/features/home-banner/types/home-banner.type";
 import { Skeleton } from "@/apps/web-user/common/components/skeleton/Skeleton";
 
 /** 정렬값 → object-position (이미지가 화면보다 넓을 때 잘리는 방향 제어) */
@@ -49,8 +53,10 @@ function BannerSlideImage({
   align: HomeBannerImageAlign;
   priority?: boolean;
 }) {
+  // 첫 장은 첫 화면에서 가장 큰 그림이라 서서히 나타나게 하지 않는다(나타나는 0.2초가 그대로 늦어짐)
+  const ImageTag = priority ? Image : FadeInImage;
   return (
-    <FadeInImage
+    <ImageTag
       src={src}
       alt={alt}
       fill
@@ -62,8 +68,8 @@ function BannerSlideImage({
   );
 }
 
-export default function BannerSlider() {
-  const { data: banners = [], isLoading } = useHomeBanners();
+export default function BannerSlider({ initialBanners }: { initialBanners?: HomeBanner[] }) {
+  const { data: banners = [], isLoading } = useHomeBanners(initialBanners);
 
   if (isLoading) {
     return (

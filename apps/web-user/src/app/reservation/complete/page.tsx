@@ -298,7 +298,12 @@ export default function ReservationCompletePage() {
           </div>
         </div>
       </div>
-      <button className="absolute top-[14px] right-[20px]" onClick={handleClose}>
+      <button
+        type="button"
+        aria-label="닫기"
+        className="absolute top-[14px] right-[20px]"
+        onClick={handleClose}
+      >
         <Icon name="close" width={24} height={24} className="text-white" />
       </button>
 

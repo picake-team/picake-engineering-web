@@ -8,6 +8,10 @@ const dirname =
   typeof __dirname !== "undefined" ? __dirname : path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
+  // tsconfig의 "@/apps/web-seller/*" 경로 별칭(두 묶음 모두. storybook 묶음에 빠져 부품 이야기 테스트가 못 돌았음)
+  resolve: {
+    alias: [{ find: /^@\/apps\/web-seller\//, replacement: path.join(dirname, "src") + "/" }],
+  },
   test: {
     projects: [
       {
@@ -30,10 +34,7 @@ export default defineConfig({
       },
       {
         extends: true,
-        // tsconfig의 "@/apps/web-seller/*" 경로 별칭 (순수 로직만 node에서 테스트)
-        resolve: {
-          alias: [{ find: /^@\/apps\/web-seller\//, replacement: path.join(dirname, "src") + "/" }],
-        },
+        // 순수 로직만 node에서 테스트
         test: {
           name: "unit",
           environment: "node",

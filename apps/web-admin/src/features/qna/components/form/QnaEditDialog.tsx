@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/apps/web-admin/common/components/buttons/Button";
 import { Checkbox } from "@/apps/web-admin/common/components/inputs/Checkbox";
 import { Input } from "@/apps/web-admin/common/components/inputs/Input";

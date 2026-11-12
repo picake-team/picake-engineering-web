@@ -14,7 +14,7 @@
   "dependencies": {
     "@picake/design-tokens": "workspace:*",
     "clsx": "^2.1.1",
-    "next": "15.5.18",
+    "next": "15.5.28",
     "posthog-js": "^1.396.6",
     "react": "19.1.2",
     "react-dom": "19.1.2",
