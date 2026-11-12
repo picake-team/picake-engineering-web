@@ -2,7 +2,11 @@
 
 import { useState, useRef } from "react";
 import { useProductList } from "@/apps/web-user/features/product/hooks/queries/useProductList";
-import { Product, ProductType } from "@/apps/web-user/features/product/types/product.type";
+import {
+  Product,
+  ProductType,
+  type ProductListResponse,
+} from "@/apps/web-user/features/product/types/product.type";
 import { ProductList } from "@/apps/web-user/features/product/components/list/ProductList";
 import { PillTabs } from "@/apps/web-user/common/components/tabs/PillTabs";
 import { useInfiniteScroll } from "@/apps/web-user/common/hooks/useInfiniteScroll";
@@ -20,18 +24,32 @@ const PRODUCT_TYPE_TABS = [
 
 interface StoreDetailProductListSectionProps {
   storeId: string;
+  /** 서버가 미리 받은 "전체" 첫 쪽 */
+  initialFirstPage?: ProductListResponse;
 }
 
-export function StoreDetailProductListSection({ storeId }: StoreDetailProductListSectionProps) {
+export function StoreDetailProductListSection({
+  storeId,
+  initialFirstPage,
+}: StoreDetailProductListSectionProps) {
   const [productTypeFilter, setProductTypeFilter] = useState<ProductTypeFilter>("ALL");
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError, refetch } =
-    useProductList({
-      storeId,
-      productType: productTypeFilter === "ALL" ? undefined : productTypeFilter,
-      limit: 20,
-    });
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+    refetch,
+    isPlaceholderData,
+  } = useProductList({
+    storeId,
+    productType: productTypeFilter === "ALL" ? undefined : productTypeFilter,
+    limit: 20,
+    placeholderFirstPage: productTypeFilter === "ALL" ? initialFirstPage : undefined,
+  });
 
   useInfiniteScroll({
     hasNextPage,
@@ -65,7 +83,7 @@ export function StoreDetailProductListSection({ storeId }: StoreDetailProductLis
       {products.length === 0 ? (
         <EmptyState message="등록된 상품이 없어요." fill />
       ) : (
-        <ProductList products={products} />
+        <ProductList products={products} likeDisabled={isPlaceholderData} />
       )}
 
       {/* 무한 스크롤 트리거 */}
