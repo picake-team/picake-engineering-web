@@ -26,7 +26,8 @@ export default function StoreDetailPage({ params }: StoreDetailPageProps) {
   const { data, isLoading } = useStoreDetail(storeId);
   // 사장님이 보낸 가게 링크(?from=link)로 왔으면 방문으로 남긴다(I-45). 없는 가게면 남기지 않는다
   useStoreLinkVisit(data ? storeId : undefined);
-  const { data: productData } = useProductList({ storeId });
+  // 아래 상품 목록(StoreDetailProductListSection, "전체")과 같은 조건이라 같은 요청을 함께 쓴다(개수만 필요)
+  const { data: productData } = useProductList({ storeId, limit: 20 });
   // StoreDetailFeedSection과 동일한 파라미터 → 쿼리 캐시 공유 (추가 요청 없음)
   const { data: feedData } = useStoreFeeds({ storeId });
 
