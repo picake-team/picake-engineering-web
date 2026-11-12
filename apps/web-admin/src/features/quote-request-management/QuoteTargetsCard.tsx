@@ -54,7 +54,10 @@ function contactText(req: AdminQuoteDetailDtoLike, linkUrl: string): string {
   const area = req.areaName ? `${req.areaName} 근처 ` : "";
   return [
     "사장님, 안녕하세요. 케이크 주문 앱 Picake예요.",
-    `${area}손님이 ${req.summary.pickup} 케이크(${req.summary.cake}, 예산 ${req.summary.budget})를 찾고 있어요.`,
+    `${area}손님이 케이크 견적을 받고 싶어 해요.`,
+    `· 픽업: ${req.summary.pickup}`,
+    `· 케이크: ${req.summary.cake}`,
+    `· 예산: ${req.summary.budget}`,
     "가입 없이 아래 링크에서 금액만 남겨 주시면 손님께 전해 드릴게요.",
     linkUrl,
   ].join("\n");

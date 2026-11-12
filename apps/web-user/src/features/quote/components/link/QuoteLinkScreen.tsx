@@ -550,13 +550,15 @@ export function QuoteLinkScreen({ token }: { token: string }) {
           <section className="mb-[20px] rounded-xl bg-gray-50 px-[16px] py-[14px]">
             <p className="text-sm font-bold text-gray-900">다음부터는 Picake로 바로 받아 보세요</p>
             <p className="mt-[4px] text-xs leading-[18px] text-gray-700">
-              근처 손님 요청에 견적만 보내면 돼요. 처음 상품 등록은 대신 해 드리고, 입점일부터 1년
-              동안 이용료·수수료 0원이에요.
+              근처 손님 요청에 견적만 보내면 돼요.{" "}
+              {/* 초기 입점 혜택 약속 문장(기획 P-60 그대로, 바꾸지 않음) */}
+              처음 상품 등록은 저희가 대신 해 드리고, 입점하신 날부터 1년 동안 이용료·수수료는
+              0원이에요.
             </p>
             {/* 다른 사이트라 next/link가 아니라 a(소개 페이지는 info로 리다이렉트) */}
             <a
               href={PATHS.PARTNER_ABOUT}
-              className="mt-[8px] inline-block text-sm font-bold text-gray-900"
+              className="-mb-[10px] mt-[-2px] inline-block py-[10px] text-sm font-bold text-gray-900"
             >
               입점 알아보기 ›
             </a>

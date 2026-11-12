@@ -12,6 +12,7 @@ import getApiMessage from "@/apps/web-seller/common/utils/getApiMessage";
 import { uploadApi } from "@/apps/web-seller/features/upload/apis/upload.api";
 import { dataUrlToFile, shrinkPhoto } from "@/apps/web-seller/features/chat/hooks/useChat";
 import { quoteApi } from "@/apps/web-seller/features/quote/apis/quote.api";
+import { CHAT_NO_REPLAY } from "@/apps/web-seller/features/chat/constants/chat.constants";
 import type {
   QuoteContactType,
   QuoteDeclineReason,
@@ -368,7 +369,8 @@ export function QuoteRequestPanel({ storeId, requestId }: { storeId: string; req
         <StatusPill tone={state.tone}>{state.text}</StatusPill>
       </div>
       {view.photoUrls.length > 0 ? (
-        <div className="mb-3 flex gap-1.5 overflow-x-auto">
+        // 손님 사진·글은 화면 녹화에서 가린다(채팅 말풍선과 같게)
+        <div className={cx(CHAT_NO_REPLAY, "mb-3 flex gap-1.5 overflow-x-auto")}>
           {view.photoUrls.map((url) => (
             <button
               key={url}
@@ -391,10 +393,14 @@ export function QuoteRequestPanel({ storeId, requestId }: { storeId: string; req
         {view.area ? ` · ${view.area} 근처` : ""}
       </p>
       {view.description ? (
-        <p className="mt-1 whitespace-pre-wrap text-sub text-ink-700">“{view.description}”</p>
+        <p className={cx(CHAT_NO_REPLAY, "mt-1 whitespace-pre-wrap text-sub text-ink-700")}>
+          “{view.description}”
+        </p>
       ) : null}
       {view.requestNote ? (
-        <p className="whitespace-pre-wrap text-sub text-ink-700">요청 사항 “{view.requestNote}”</p>
+        <p className={cx(CHAT_NO_REPLAY, "whitespace-pre-wrap text-sub text-ink-700")}>
+          요청 사항 “{view.requestNote}”
+        </p>
       ) : null}
       <p className="mt-1 text-sub text-ink-700">예산 {view.budget}</p>
       <p className="text-caption text-ink-600">견적 마감 {view.deadline}</p>
