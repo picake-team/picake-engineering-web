@@ -180,7 +180,8 @@ export default function PartnerAboutPage() {
         />
 
         <div className="relative">
-          <Reveal>
+          {/* 첫 화면은 JS를 기다리지 않고 바로 나타난다(onLoad) */}
+          <Reveal onLoad>
             <h1 className="text-[44px] leading-[1.14] font-extrabold tracking-[-0.045em] text-gray-900">
               문자, DM, 전화로
               <br />
@@ -195,11 +196,11 @@ export default function PartnerAboutPage() {
             </p>
           </Reveal>
 
-          <Reveal delay={120} className="mt-9">
+          <Reveal onLoad delay={120} className="mt-9">
             <MessageFunnel />
           </Reveal>
 
-          <Reveal delay={200} className="mt-7">
+          <Reveal onLoad delay={200} className="mt-7">
             <SurveyButton id={HERO_CTA_ID} />
             <p className="mt-3.5 text-center text-xs text-gray-600">
               설문에 참여하신 매장부터 입점을 안내드려요
