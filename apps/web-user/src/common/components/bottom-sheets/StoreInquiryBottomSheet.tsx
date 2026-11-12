@@ -70,8 +70,9 @@ export function StoreInquiryBottomSheet({
               icon: {
                 type: "element",
                 element: (
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-white">
-                    <Icon name="chat" width={16} height={16} />
+                  // Picake 채팅이라 Picake 로고(운영자 11-12). 다른 줄 그림처럼 40 동그라미(전화 줄과 같은 연한 주황 바탕)
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-50">
+                    <Icon name="logoPicake" width={26} height={26} />
                   </span>
                 ),
               },

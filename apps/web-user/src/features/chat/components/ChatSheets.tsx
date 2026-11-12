@@ -96,7 +96,7 @@ export function ChatMenuSheet({
         </button>
         <button
           type="button"
-          className={cn(row, !blocked && "text-red-500")}
+          className={cn(row, !blocked && "text-red-400")}
           onClick={onToggleBlock}
         >
           {blocked ? "차단 풀기" : "차단하기"}

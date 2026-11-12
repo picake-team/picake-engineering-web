@@ -1,3 +1,5 @@
+import { kstParts } from "@/apps/web-seller/common/utils/kst-date.util";
+
 /**
  * 날짜를 상대 시간 문자열로 포맷팅
  *
@@ -22,7 +24,10 @@ export const formatRelativeTime = (date: Date | null): string => {
   if (diffMins < 60) return `${diffMins}분 전`;
   if (diffHours < 24) return `${diffHours}시간 전`;
   if (diffDays < 7) return `${diffDays}일 전`;
-  return messageDate.toLocaleDateString("ko-KR");
+  // 디자인 기준: "10월 3일", 올해가 아니면 "2025년 12월 24일"(서울 기준)
+  const p = kstParts(messageDate);
+  const prefix = p.year === kstParts(now).year ? "" : `${p.year}년 `;
+  return `${prefix}${p.month}월 ${p.day}일`;
 };
 
 /**
