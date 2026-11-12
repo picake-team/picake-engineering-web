@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Image from "next/image";
 import { FadeInImage } from "@/apps/web-user/common/components/motion/FadeInImage";
 import { useRouter } from "next/navigation";
 import { Product } from "@/apps/web-user/features/product/types/product.type";
@@ -15,13 +16,21 @@ import { usePrefetchOnVisible } from "@/apps/web-user/common/hooks/usePrefetchOn
 
 interface ProductListProps {
   products: Product[];
+  /** 서버가 로그인 없이 미리 받은 목록을 보이는 동안: 하트는 누르지 않게(새로 받은 뒤 내 상태로 맞춘다) */
+  likeDisabled?: boolean;
 }
 
-export function ProductList({ products }: ProductListProps) {
+export function ProductList({ products, likeDisabled = false }: ProductListProps) {
   return (
     <div className="grid grid-cols-2 gap-x-[8px] gap-y-[32px]">
       {products.map((product, index) => (
-        <ProductItem key={`${product.id}-${index}`} product={product} />
+        <ProductItem
+          key={`${product.id}-${index}`}
+          product={product}
+          likeDisabled={likeDisabled}
+          // 첫 줄 두 장은 첫 화면에 보이므로 먼저 받는다
+          priority={index < 2}
+        />
       ))}
     </div>
   );
@@ -29,11 +38,17 @@ export function ProductList({ products }: ProductListProps) {
 
 interface ProductItemProps {
   product: Product;
+  likeDisabled: boolean;
+  priority: boolean;
 }
 
-function ProductItem({ product }: ProductItemProps) {
+function ProductItem({ product, likeDisabled, priority }: ProductItemProps) {
   const router = useRouter();
   const [isLiked, setIsLiked] = useState(product.isLiked ?? false);
+  // 목록을 새로 받으면(로그인 상태로) 하트도 그 값으로 맞춘다
+  useEffect(() => {
+    setIsLiked(product.isLiked ?? false);
+  }, [product.isLiked]);
 
   const { mutate: addLike, isPending: isAddingLike } = useAddProductLike();
   const { mutate: removeLike, isPending: isRemovingLike } = useRemoveProductLike();
@@ -41,6 +56,7 @@ function ProductItem({ product }: ProductItemProps) {
   const { isAuthenticated } = useAuthStore();
   const openLoginSheet = useLoginSheetStore((s) => s.openLoginSheet);
 
+  const ImageTag = priority ? Image : FadeInImage;
   const detailHref = PATHS.PRODUCT.DETAIL(product.id);
   const cardRef = usePrefetchOnVisible<HTMLDivElement>(detailHref);
 
@@ -54,7 +70,7 @@ function ProductItem({ product }: ProductItemProps) {
       openLoginSheet("like_button");
       return;
     }
-    if (isLikeLoading) return;
+    if (isLikeLoading || likeDisabled) return;
     setIsLiked(!isLiked);
     if (isLiked) {
       removeLike(product.id, { onError: () => setIsLiked(true) });
@@ -69,12 +85,14 @@ function ProductItem({ product }: ProductItemProps) {
       <div className="mb-[10px] w-full relative bg-gray-50">
         {product.images && product.images.length > 0 ? (
           <span className="relative w-full h-full aspect-square block overflow-hidden rounded-xl bg-gray-50">
-            <FadeInImage
+            {/* 첫 줄 두 장은 첫 화면에서 가장 큰 그림이라 서서히 나타나게 하지 않는다(홈 첫 배너와 같음) */}
+            <ImageTag
               src={product.images[0]}
               alt={product.name}
               fill
               sizes="(min-width: 640px) 320px, 50vw"
               className="object-cover"
+              priority={priority}
             />
           </span>
         ) : (

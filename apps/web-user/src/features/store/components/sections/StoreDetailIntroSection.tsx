@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { LikePop } from "@/apps/web-user/common/components/motion/LikePop";
@@ -21,13 +21,22 @@ import {
 
 interface StoreDetailIntroSectionProps {
   store: StoreInfo;
+  /** 서버가 로그인 없이 미리 받은 가게를 보이는 동안: 하트는 누르지 않게(새로 받은 뒤 내 상태로 맞춘다) */
+  likeDisabled?: boolean;
 }
 
-export function StoreDetailIntroSection({ store }: StoreDetailIntroSectionProps) {
+export function StoreDetailIntroSection({
+  store,
+  likeDisabled = false,
+}: StoreDetailIntroSectionProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isAddressExpanded, setIsAddressExpanded] = useState(false);
   const [showCopyToast, setShowCopyToast] = useState(false);
   const [isLiked, setIsLiked] = useState(store.isLiked ?? false);
+  // 가게를 새로 받으면(로그인 상태로) 하트도 그 값으로 맞춘다
+  useEffect(() => {
+    setIsLiked(store.isLiked ?? false);
+  }, [store.isLiked]);
   const [isInquiryOpen, setIsInquiryOpen] = useState(false);
   // "문의"는 늘 보인다 — 채팅(I-11)이 있고, 사장님이 적은 카카오톡 채널·인스타·전화도 같은 창에(I-61 첫 조각)
   const kakaoUrl = storeKakaoChatUrl(store.kakaoChannelId);
@@ -60,7 +69,7 @@ export function StoreDetailIntroSection({ store }: StoreDetailIntroSectionProps)
       openLoginSheet("like_button");
       return;
     }
-    if (isLikeLoading) return;
+    if (isLikeLoading || likeDisabled) return;
     setIsLiked(!isLiked);
     if (isLiked) {
       removeLike(store.id, { onError: () => setIsLiked(true) });
