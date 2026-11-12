@@ -93,7 +93,10 @@ function CardView({ card, onOpen }: { card: ChatCard; onOpen?: () => void }) {
           className="h-[48px] w-[48px] shrink-0 rounded-lg object-cover"
         />
       ) : (
-        <span className="h-[48px] w-[48px] shrink-0 rounded-lg bg-gray-50" />
+        // 사진이 없으면 빈 회색 칸 대신 Picake 로고(손님 견적 화면 요청서 칸과 같게)
+        <span className="flex h-[48px] w-[48px] shrink-0 items-center justify-center rounded-lg bg-gray-50">
+          <Icon name="logoPicake" width={26} height={26} />
+        </span>
       )}
       <span className="flex min-w-0 flex-1 flex-col gap-[2px]">
         <span className="truncate text-sm font-bold text-gray-900">{title}</span>
