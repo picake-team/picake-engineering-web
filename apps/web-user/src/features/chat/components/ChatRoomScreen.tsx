@@ -543,7 +543,8 @@ export function ChatRoomScreen({
               type="button"
               aria-label="사진 보내기"
               onClick={() => fileRef.current?.click()}
-              className="flex h-[44px] w-[36px] shrink-0 items-center justify-center text-gray-700"
+              // 보내기 버튼과 같은 44 동그라미(회색 바탕) — 판매자 앱과 같은 모양(운영자 11-12)
+              className="press flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-full bg-gray-50 text-gray-700"
             >
               <Icon name="plus" width={22} height={22} />
             </button>

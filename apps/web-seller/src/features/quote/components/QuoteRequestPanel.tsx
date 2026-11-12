@@ -6,6 +6,7 @@ import { Chip } from "@/apps/web-seller/common/ui/Choice";
 import { Field, TextArea, TextInput } from "@/apps/web-seller/common/ui/Field";
 import { BottomSheet } from "@/apps/web-seller/common/ui/Sheet";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
+import { InfoRow } from "@/apps/web-seller/common/ui/List";
 import { Checkbox } from "@/apps/web-seller/common/ui/Toggle";
 import { cx } from "@/apps/web-seller/common/ui/cx";
 import getApiMessage from "@/apps/web-seller/common/utils/getApiMessage";
@@ -383,75 +384,95 @@ export function QuoteRequestPanel({ storeId, requestId }: { storeId: string; req
     }
   };
 
+  // 손님 사진·글은 화면 녹화에서 가린다(채팅 말풍선과 같게)
+  const photosRow =
+    view.photoUrls.length > 0 ? (
+      <div className={cx(CHAT_NO_REPLAY, "flex gap-1.5 overflow-x-auto")}>
+        {view.photoUrls.map((url, i) => (
+          <button
+            key={`${i}-${url}`}
+            type="button"
+            onClick={() => setViewer(url)}
+            aria-label="사진 크게 보기"
+          >
+            <img
+              src={url}
+              alt="참고 사진"
+              className="size-16 shrink-0 rounded-control object-cover"
+            />
+          </button>
+        ))}
+      </div>
+    ) : null;
+  // 설명 4줄·요청 사항 2줄까지 보이고 "더 보기"(운영자 11-12)
+  const longText = (view.description ?? "").length + (view.requestNote ?? "").length > 120;
+  const textBox =
+    view.description || view.requestNote ? (
+      <div className={cx(CHAT_NO_REPLAY, "rounded-control bg-ink-50 px-3 py-2.5")}>
+        {view.description ? (
+          <p
+            className={cx("whitespace-pre-wrap text-sub text-ink-900", !textOpen && "line-clamp-4")}
+          >
+            {view.description}
+          </p>
+        ) : null}
+        {view.requestNote ? (
+          <p
+            className={cx(
+              "whitespace-pre-wrap text-sub text-ink-700",
+              view.description && "mt-1.5",
+              !textOpen && "line-clamp-2",
+            )}
+          >
+            <span className="font-semibold text-ink-600">요청 사항 </span>
+            {view.requestNote}
+          </p>
+        ) : null}
+        {!textOpen && longText ? (
+          <button
+            type="button"
+            onClick={() => setTextOpen(true)}
+            className="mt-1 text-sub font-semibold text-ink-900 underline"
+          >
+            더 보기
+          </button>
+        ) : null}
+      </div>
+    ) : null;
+
+  // 정보 줄 모양(주문 상세와 같은 이름 | 값, 운영자 고름 11-12)
   return (
     <div className="w-full rounded-card border border-ink-200 bg-white p-4">
-      <div className="mb-3 flex items-center justify-between gap-2">
+      <div className="mb-2 flex items-center justify-between gap-2">
         <span className="text-body font-bold text-ink-900">손님 견적 요청</span>
         <StatusPill tone={state.tone}>{state.text}</StatusPill>
       </div>
-      {view.photoUrls.length > 0 ? (
-        // 손님 사진·글은 화면 녹화에서 가린다(채팅 말풍선과 같게)
-        <div className={cx(CHAT_NO_REPLAY, "mb-3 flex gap-1.5 overflow-x-auto")}>
-          {view.photoUrls.map((url) => (
-            <button
-              key={url}
-              type="button"
-              onClick={() => setViewer(url)}
-              aria-label="사진 크게 보기"
-            >
-              <img
-                src={url}
-                alt="참고 사진"
-                className="size-20 shrink-0 rounded-control object-cover"
-              />
-            </button>
-          ))}
-        </div>
-      ) : null}
-      <p className="text-sub font-bold text-ink-900">{view.pickup}</p>
-      <p className="text-sub text-ink-900">
-        {view.cake}
-        {view.area ? ` · ${view.area} 근처` : ""}
-      </p>
-      {view.description ? (
-        <p
-          className={cx(
-            CHAT_NO_REPLAY,
-            "mt-1 whitespace-pre-wrap text-sub text-ink-700",
-            !textOpen && "line-clamp-4",
-          )}
-        >
-          “{view.description}”
-        </p>
-      ) : null}
-      {view.requestNote ? (
-        <p
-          className={cx(
-            CHAT_NO_REPLAY,
-            "whitespace-pre-wrap text-sub text-ink-700",
-            !textOpen && "line-clamp-2",
-          )}
-        >
-          요청 사항 “{view.requestNote}”
-        </p>
-      ) : null}
-      {!textOpen && (view.description ?? "").length + (view.requestNote ?? "").length > 120 ? (
-        <button
-          type="button"
-          onClick={() => setTextOpen(true)}
-          className="mt-0.5 text-sub font-semibold text-ink-900 underline"
-        >
-          더 보기
-        </button>
-      ) : null}
-      <p className="mt-1 text-sub text-ink-700">예산 {view.budget}</p>
-      <p className="text-caption text-ink-600">견적 마감 {view.deadline}</p>
+      {photosRow}
+      <div className="mt-1">
+        <InfoRow important={false} className="min-h-9" label="픽업" value={view.pickup} />
+        <InfoRow important={false} className="min-h-9" label="케이크" value={view.cake} />
+        <InfoRow important={false} className="min-h-9" label="예산" value={view.budget} />
+        {view.area ? (
+          <InfoRow important={false} className="min-h-9" label="동네" value={`${view.area} 근처`} />
+        ) : null}
+      </div>
+      {textBox ? <div className="mt-2">{textBox}</div> : null}
+      {/* 손님이 고른 뒤에는 마감 시각이 필요 없어 할 일 한 줄로 바꾼다 */}
+      {view.state === "CHOSEN_ME" ? null : (
+        <p className="mt-2 text-caption text-ink-600">견적 마감 {view.deadline}</p>
+      )}
 
       {view.quote ? (
         <div className="mt-3 rounded-control bg-ink-50 px-3 py-2 text-sub text-ink-900">
           보낸 견적 {view.quote.total.toLocaleString("ko-KR")}원 · {view.quote.similarityLabel}
           {view.quote.edited ? <span className="text-ink-400"> · 고침</span> : null}
         </div>
+      ) : null}
+      {view.state === "CHOSEN_ME" ? (
+        // 고른 뒤 할 일(Picake 예약은 아직 없음, 기획 I-01 전까지 주문·입금은 가게와 직접)
+        <p className="mt-2 text-sub font-semibold text-ink-900">
+          손님과 채팅으로 디자인·픽업 시간·입금 방법을 정해 주세요
+        </p>
       ) : null}
       {error ? <p className="mt-2 text-caption font-semibold text-brand-ink">{error}</p> : null}
 

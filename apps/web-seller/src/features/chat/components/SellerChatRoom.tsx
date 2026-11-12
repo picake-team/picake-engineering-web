@@ -276,6 +276,20 @@ export function SellerChatRoom({
     const el = listRef.current;
     if (el && !room.loading) el.scrollTop = el.scrollHeight;
   }, [room.loading]);
+  // 견적 요청 카드처럼 나중에 내용을 불러와 커지는 글이 있어도, 맨 아래를 보고 있었으면 맨 아래에 둔다
+  // (방을 열면 위 카드가 커지며 최신 글이 아래로 밀려 맨 위 카드에서 멈춰 있던 문제)
+  useEffect(() => {
+    const el = listRef.current;
+    if (!el || room.loading || typeof ResizeObserver === "undefined") return;
+    let last = el.scrollHeight;
+    const ro = new ResizeObserver(() => {
+      const h = el.scrollHeight;
+      if (h !== last && atBottomRef.current) el.scrollTop = h;
+      last = h;
+    });
+    Array.from(el.children).forEach((c) => ro.observe(c));
+    return () => ro.disconnect();
+  }, [room.loading, room.messages.length]);
 
   const onScroll = () => {
     const el = listRef.current;
@@ -594,7 +608,8 @@ export function SellerChatRoom({
               type="button"
               aria-label="사진 보내기"
               onClick={() => fileRef.current?.click()}
-              className="inline-flex size-11 shrink-0 items-center justify-center rounded-full text-ink-900 active:bg-ink-50"
+              // 보내기 버튼과 같은 48 동그라미(회색 바탕)로 입력 칸과 줄을 맞춘다(운영자 고름 11-12)
+              className="press inline-flex size-12 shrink-0 items-center justify-center rounded-full bg-ink-50 text-ink-700"
             >
               <Icon name="camera" size={22} />
             </button>
