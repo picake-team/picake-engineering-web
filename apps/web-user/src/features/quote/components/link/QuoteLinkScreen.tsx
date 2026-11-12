@@ -25,6 +25,7 @@ import type {
   QuoteSimilarity,
 } from "@/apps/web-user/features/quote/types/quote.type";
 import { QuoteLinkChat } from "@/apps/web-user/features/quote/components/link/QuoteLinkChat";
+import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 
 const SIMILARITY: { value: QuoteSimilarity; label: string; detail: string }[] = [
   { value: "EXACT", label: "거의 똑같이", detail: "모양·색·글씨까지 사진대로 만들어요" },
@@ -168,6 +169,14 @@ export function QuoteLinkScreen({ token }: { token: string }) {
   const [declining, setDeclining] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  // 사장님이 링크를 엶(한 번)
+  const viewedRef = useRef(false);
+  useEffect(() => {
+    if (!view || viewedRef.current) return;
+    viewedRef.current = true;
+    trackEvent("view_quote_link", { quote_request_id: view.requestId, state: view.state });
+  }, [view]);
+
   useEffect(() => {
     if (view && !form) {
       setForm(initialForm(view));
@@ -270,6 +279,13 @@ export function QuoteLinkScreen({ token }: { token: string }) {
         ...(form.memo.trim() ? { memo: form.memo.trim() } : {}),
         photoUrls: form.photos,
       });
+      trackEvent("success_quote_link_submit", {
+        quote_request_id: view.requestId,
+        edited: !!view.quote,
+        similarity: form.similarity,
+        photo_count: form.photos.length,
+        contact_types: contacts.map((c) => c.type).join(","),
+      });
       setEditing(false);
       await reload();
     } catch (e) {
@@ -283,6 +299,7 @@ export function QuoteLinkScreen({ token }: { token: string }) {
     setDeclining(true);
     try {
       await quoteLinkApi.decline(token, reason);
+      trackEvent("success_quote_link_decline", { quote_request_id: view.requestId, reason });
       setDeclineOpen(false);
       await reload();
     } catch (e) {
@@ -565,7 +582,9 @@ export function QuoteLinkScreen({ token }: { token: string }) {
           </section>
         )}
 
-        {view.threadId && <QuoteLinkChat token={token} open={view.chatOpen} />}
+        {view.threadId && (
+          <QuoteLinkChat token={token} open={view.chatOpen} requestId={view.requestId} />
+        )}
       </main>
 
       {showForm && (

@@ -7,6 +7,7 @@ import { cn } from "@/apps/web-user/common/lib/utils";
 import getApiMessage from "@/apps/web-user/common/utils/getApiMessage";
 import { quoteLinkApi } from "@/apps/web-user/features/quote/apis/quote.api";
 import { NoticeBox } from "@/apps/web-user/features/quote/components/form/QuoteFormParts";
+import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import { QUOTE_NO_REPLAY } from "@/apps/web-user/features/quote/constants/quote.constant";
 import type { ChatMessage } from "@/apps/web-user/features/chat/types/chat.type";
 
@@ -78,7 +79,15 @@ function Line({ m }: { m: ChatMessage }) {
  * 견적 링크 안 대화(기획 I-11, 입점 전 가게). 가게 계정이 없어 링크 열쇠로 손님과 이야기한다.
  * 실시간 연결 없이 8초마다 새 글을 확인한다. 고른 뒤 14일, 고르지 않으면 마감 뒤 7일까지 쓸 수 있다.
  */
-export function QuoteLinkChat({ token, open }: { token: string; open: boolean }) {
+export function QuoteLinkChat({
+  token,
+  open,
+  requestId,
+}: {
+  token: string;
+  open: boolean;
+  requestId: string;
+}) {
   const queryClient = useQueryClient();
   const { data } = useQuery({
     queryKey: ["quote-link-chat", token],
@@ -108,6 +117,7 @@ export function QuoteLinkChat({ token, open }: { token: string; open: boolean })
         text: body,
       });
       setText("");
+      trackEvent("success_quote_link_chat", { quote_request_id: requestId });
       await queryClient.invalidateQueries({ queryKey: ["quote-link-chat", token] });
     } catch (e) {
       setError(getApiMessage.error(e));
