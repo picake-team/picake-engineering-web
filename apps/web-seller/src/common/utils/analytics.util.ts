@@ -20,7 +20,6 @@ export interface SellerAnalyticsEventMap {
     edited: boolean;
     similarity: string;
     photo_count: number;
-    contact_types: string;
     surface: "app" | "mobile_web" | "pc";
   };
   /** 판매자 앱에서 "어려워요"로 답함 */

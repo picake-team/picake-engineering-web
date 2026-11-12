@@ -1,16 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { Button } from "@/apps/web-user/common/components/buttons/Button";
 import { Icon } from "@/apps/web-user/common/components/icons";
-import { useOpenExternal } from "@/apps/web-user/common/hooks/useOpenExternal";
 import { cn } from "@/apps/web-user/common/lib/utils";
-import type {
-  ConsumerQuote,
-  QuoteContact,
-  QuoteContactType,
-} from "@/apps/web-user/features/quote/types/quote.type";
+import type { ConsumerQuote } from "@/apps/web-user/features/quote/types/quote.type";
 
 const won = (n: number) => `${n.toLocaleString("ko-KR")}원`;
 
@@ -19,52 +13,6 @@ export function quotePriceText(q: Pick<ConsumerQuote, "unitPrice" | "quantity" |
   return q.quantity > 1
     ? `1개 ${won(q.unitPrice)} × ${q.quantity}개 = ${won(q.total)}`
     : won(q.total);
-}
-
-const CONTACT_ICONS: Record<QuoteContactType, string> = {
-  KAKAO: "/images/contents/talk_kakao.png",
-  INSTAGRAM: "/images/contents/talk_insta.png",
-  PHONE: "/images/contents/talk_phone.png",
-  NAVER: "/images/contents/map_naver.png",
-};
-
-/**
- * 가게가 고른 주문 받는 곳(SC-18 10). 스토어 문의 창의 줄과 같은 모양(40 동그라미 그림 + 이름)이지만
- * 창 아래 여백 없이 카드 안에 넣는다.
- */
-export function QuoteContactList({ contacts }: { contacts: QuoteContact[] }) {
-  const { open, toast } = useOpenExternal();
-  return (
-    <>
-      <div className="flex flex-col">
-        {contacts.map((c) => (
-          <button
-            key={c.type}
-            type="button"
-            onClick={() =>
-              open(c.href, {
-                copyText: c.type === "PHONE" ? c.value : c.href,
-                message: c.type === "PHONE" ? "전화번호를 복사했어요" : "주소를 복사했어요",
-              })
-            }
-            className="flex w-full items-center gap-4 py-[10px] text-left"
-          >
-            <Image
-              src={CONTACT_ICONS[c.type]}
-              alt={c.label}
-              width={40}
-              height={40}
-              className="h-10 w-10 rounded-full object-cover"
-            />
-            <span className="text-sm text-gray-900">
-              {c.type === "INSTAGRAM" ? `인스타그램 @${c.value}` : c.label}
-            </span>
-          </button>
-        ))}
-      </div>
-      {toast}
-    </>
-  );
 }
 
 /** 견적 카드(SC-18 3~13). 먼저 온 견적이 위 */

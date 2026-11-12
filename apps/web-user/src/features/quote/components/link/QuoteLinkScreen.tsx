@@ -19,7 +19,6 @@ import {
 import { QUOTE_NO_REPLAY } from "@/apps/web-user/features/quote/constants/quote.constant";
 import { dataUrlToFile, shrinkPhoto } from "@/apps/web-user/features/quote/utils/quote-photo.util";
 import type {
-  QuoteContactType,
   QuoteDeclineReason,
   QuoteLinkView,
   QuoteSimilarity,
@@ -41,13 +40,6 @@ const SIMILARITY: { value: QuoteSimilarity; label: string; detail: string }[] = 
   },
 ];
 
-const CONTACTS: { type: QuoteContactType; label: string; placeholder: string }[] = [
-  { type: "KAKAO", label: "카카오톡 채널", placeholder: "pf.kakao.com/_가게" },
-  { type: "INSTAGRAM", label: "인스타그램", placeholder: "@가게아이디" },
-  { type: "PHONE", label: "전화", placeholder: "010-0000-0000" },
-  { type: "NAVER", label: "네이버", placeholder: "톡톡·예약 주소" },
-];
-
 const DECLINE: { value: QuoteDeclineReason; label: string }[] = [
   { value: "FULLY_BOOKED", label: "그날 주문이 꽉 찼어요" },
   { value: "NOT_OUR_STYLE", label: "이런 디자인은 만들지 않아요" },
@@ -62,22 +54,16 @@ type FormState = {
   price: string;
   priceMayVary: boolean;
   similarity: QuoteSimilarity | null;
-  contacts: Partial<Record<QuoteContactType, string>>;
   memo: string;
   photos: string[];
 };
 
 function initialForm(view: QuoteLinkView): FormState {
   const q = view.quote;
-  const contacts: FormState["contacts"] = {};
-  for (const c of q?.contacts ?? view.prefillContacts) {
-    contacts[c.type] = c.type === "INSTAGRAM" ? `@${c.value}` : c.value;
-  }
   return {
     price: q ? q.unitPrice.toLocaleString("ko-KR") : "",
     priceMayVary: q?.priceMayVary ?? false,
     similarity: q?.similarity ?? null,
-    contacts,
     memo: q?.memo ?? "",
     photos: q?.photoUrls ?? [],
   };
@@ -143,7 +129,8 @@ function RequestCard({ view }: { view: QuoteLinkView }) {
 }
 
 /**
- * 사장님 견적 링크(기획 I-46 SC-19). 가입 없이 금액·비슷한 정도·주문 받는 곳(필요하면 사진·메모)을 보낸다.
+ * 사장님 견적 링크(기획 I-46 SC-19). 가입 없이 금액·비슷한 정도(필요하면 사진·메모)를 보낸다.
+ * 주문 받는 곳은 묻지 않는다(운영자 11-12: 손님이 고르면 아래 대화에서 주문을 정함).
  * 보낸 뒤에는 손님이 고르기 전까지 고칠 수 있고, 손님과 링크 안에서 대화한다(기획 I-11).
  */
 export function QuoteLinkScreen({ token }: { token: string }) {
@@ -229,18 +216,10 @@ export function QuoteLinkScreen({ token }: { token: string }) {
 
   const set = (patch: Partial<FormState>) => setForm((f) => (f ? { ...f, ...patch } : f));
   const price = digits(form.price);
-  const chosenContacts = CONTACTS.filter((c) => form.contacts[c.type] !== undefined);
   // 어려워요로 답한 뒤에도 "견적 보내기로 바꾸기"를 누르면 칸이 열린다
   const showForm =
     view.canEdit && (!view.quote || editing) && (view.state !== "DECLINED" || editing);
   const showDeclined = view.state === "DECLINED" && !editing;
-
-  const toggleContact = (type: QuoteContactType) => {
-    const next = { ...form.contacts };
-    if (next[type] !== undefined) delete next[type];
-    else next[type] = "";
-    set({ contacts: next });
-  };
 
   const onPickPhotos = async (files: FileList | null) => {
     if (!files) return;
@@ -264,18 +243,12 @@ export function QuoteLinkScreen({ token }: { token: string }) {
     setFormError(null);
     if (price < 1000) return setFormError("금액을 적어 주세요.");
     if (!form.similarity) return setFormError("사진과 얼마나 비슷하게 만들 수 있는지 골라 주세요.");
-    const contacts = chosenContacts
-      .map((c) => ({ type: c.type, value: (form.contacts[c.type] ?? "").trim() }))
-      .filter((c) => c.value);
-    if (contacts.length === 0)
-      return setFormError("주문 받는 곳을 하나 이상 골라 주소나 번호를 적어 주세요.");
     setSending(true);
     try {
       await quoteLinkApi.submit(token, {
         unitPrice: price,
         priceMayVary: form.priceMayVary,
         similarity: form.similarity,
-        contacts,
         ...(form.memo.trim() ? { memo: form.memo.trim() } : {}),
         photoUrls: form.photos,
       });
@@ -284,7 +257,6 @@ export function QuoteLinkScreen({ token }: { token: string }) {
         edited: !!view.quote,
         similarity: form.similarity,
         photo_count: form.photos.length,
-        contact_types: contacts.map((c) => c.type).join(","),
       });
       setEditing(false);
       await reload();
@@ -372,12 +344,6 @@ export function QuoteLinkScreen({ token }: { token: string }) {
                 · {view.quote.similarityLabel}
               </span>
             </div>
-            <div className="mt-[6px] flex justify-between gap-[12px] text-sm">
-              <span className="shrink-0 text-gray-500">주문 받는 곳</span>
-              <span className="truncate text-gray-900">
-                {view.quote.contacts.map((c) => c.label).join(" · ")}
-              </span>
-            </div>
             {view.canEdit && (
               <p className="mt-[10px] text-xs text-gray-500">
                 손님이 사장님 견적을 고르면 이 화면과 Picake가 알려 드려요.
@@ -448,39 +414,6 @@ export function QuoteLinkScreen({ token }: { token: string }) {
                   >
                     {s.label}
                   </Pill>
-                ))}
-              </div>
-            </Field>
-
-            <Field
-              label="주문 받는 곳"
-              optional="여러 개 골라도 돼요"
-              caption="손님이 사장님 견적을 고르면 고른 곳으로 연락해요"
-            >
-              <div className="mb-[10px] flex flex-wrap gap-[8px]">
-                {CONTACTS.map((c) => (
-                  <Pill
-                    key={c.type}
-                    selected={form.contacts[c.type] !== undefined}
-                    onClick={() => toggleContact(c.type)}
-                  >
-                    {c.label}
-                  </Pill>
-                ))}
-              </div>
-              <div className="flex flex-col gap-[8px]">
-                {chosenContacts.map((c) => (
-                  <input
-                    key={c.type}
-                    value={form.contacts[c.type] ?? ""}
-                    onChange={(e) =>
-                      set({ contacts: { ...form.contacts, [c.type]: e.target.value } })
-                    }
-                    placeholder={`${c.label} · ${c.placeholder}`}
-                    aria-label={c.label}
-                    inputMode={c.type === "PHONE" ? "tel" : "text"}
-                    className="h-[48px] rounded-xl border border-gray-100 px-[14px] text-sm text-gray-900 outline-none focus:border-gray-900"
-                  />
                 ))}
               </div>
             </Field>
@@ -557,7 +490,8 @@ export function QuoteLinkScreen({ token }: { token: string }) {
               </>
             )}
             <p className="mb-[10px] text-xs text-gray-500">
-              보내면 손님에게 가게 이름·견적·메모·주문 받는 곳이 보여요
+              보내면 손님에게 가게 이름·견적·메모가 보여요. 손님이 고르면 아래 대화에서 주문을
+              정해요
             </p>
             {formError && <p className="mb-[10px] text-sm text-red-400">{formError}</p>}
           </section>

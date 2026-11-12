@@ -19,11 +19,7 @@ import {
   useQuoteRequestDetail,
   useQuoteSection,
 } from "@/apps/web-user/features/quote/hooks/useQuoteRequests";
-import {
-  QuoteCard,
-  QuoteContactList,
-  quotePriceText,
-} from "@/apps/web-user/features/quote/components/QuoteCards";
+import { QuoteCard, quotePriceText } from "@/apps/web-user/features/quote/components/QuoteCards";
 import type { ConsumerQuote } from "@/apps/web-user/features/quote/types/quote.type";
 import { useAlertStore } from "@/apps/web-user/common/store/alert.store";
 import { Skeleton } from "@/apps/web-user/common/components/skeleton";
@@ -225,11 +221,6 @@ function QuoteRequestDetailContent() {
             <p className="mt-[2px] text-xs text-gray-500">
               {quotePriceText(chosen)} · {chosen.similarityLabel}
             </p>
-            {chosen.contacts.length > 0 && (
-              <div className="mt-[6px]">
-                <QuoteContactList contacts={chosen.contacts} />
-              </div>
-            )}
             <div className="mt-[8px]">
               <NoticeBox>
                 {/* 통신판매중개자 고지(법무 점검표 2번) */}

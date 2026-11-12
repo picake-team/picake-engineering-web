@@ -17,7 +17,6 @@ import {
   type AdminQuoteDetailDtoLike,
   type AdminQuoteInputBody,
   type AdminQuoteTargetStatusDto,
-  type QuoteContactType,
   type QuoteDeclineReason,
   type QuoteSimilarity,
 } from "@/apps/web-admin/features/quote-request-management/quote-request-management";
@@ -26,12 +25,6 @@ const SIMILARITY: { value: QuoteSimilarity; label: string }[] = [
   { value: "EXACT", label: "거의 똑같이" },
   { value: "SIMILAR", label: "비슷하게" },
   { value: "INSPIRED", label: "느낌만 살려서" },
-];
-const CONTACTS: { type: QuoteContactType; label: string }[] = [
-  { type: "KAKAO", label: "카카오톡 채널" },
-  { type: "INSTAGRAM", label: "인스타그램" },
-  { type: "PHONE", label: "전화" },
-  { type: "NAVER", label: "네이버" },
 ];
 
 /** "솜사탕케이크를", "케이크샵을" — 받침에 맞춰 을/를 */
@@ -139,7 +132,7 @@ function StoreRow({
           {q.quantity > 1 ? `(1개 ${q.unitPrice.toLocaleString("ko-KR")}원)` : ""} ·{" "}
           {q.similarityLabel}
           {q.priceMayVary ? " · 달라질 수 있음" : ""}
-          {q.edited ? " · 고침" : ""} · {q.contacts.map((c) => c.label).join("·")}
+          {q.edited ? " · 고침" : ""}
           {q.source === "ADMIN"
             ? " · 운영자가 대신 적음"
             : q.source === "SELLER"
@@ -191,9 +184,6 @@ function WriteDialog({
   const [price, setPrice] = useState(q ? String(q.unitPrice) : "");
   const [mayVary, setMayVary] = useState(q?.priceMayVary ?? false);
   const [similarity, setSimilarity] = useState<QuoteSimilarity>(q?.similarity ?? "SIMILAR");
-  const [contacts, setContacts] = useState<Partial<Record<QuoteContactType, string>>>(() =>
-    Object.fromEntries((q?.contacts ?? []).map((c) => [c.type, c.value])),
-  );
   const [memo, setMemo] = useState(q?.memo ?? "");
   const [confirmed, setConfirmed] = useState(false);
   const submit = useQuoteAdminAction(requestId, (body: AdminQuoteInputBody) =>
@@ -203,16 +193,11 @@ function WriteDialog({
     quoteAdminApi.decline(requestId, target.targetId, reason),
   );
   const onSave = async () => {
-    const list = CONTACTS.filter((c) => contacts[c.type]?.trim()).map((c) => ({
-      type: c.type,
-      value: contacts[c.type]!.trim(),
-    }));
     try {
       await submit.mutateAsync({
         unitPrice: Number(price.replace(/[^0-9]/g, "")),
         priceMayVary: mayVary,
         similarity,
-        contacts: list,
         ...(memo.trim() ? { memo: memo.trim() } : {}),
       });
       addAlert({ severity: "success", message: "견적을 적었어요. 손님에게 알림이 갔어요." });
@@ -267,14 +252,6 @@ function WriteDialog({
               </Button>
             ))}
           </div>
-          {CONTACTS.map((c) => (
-            <Input
-              key={c.type}
-              label={`주문 받는 곳 · ${c.label}`}
-              value={contacts[c.type] ?? ""}
-              onChange={(e) => setContacts((cur) => ({ ...cur, [c.type]: e.target.value }))}
-            />
-          ))}
           <label className="flex flex-col gap-1 text-sm">
             메모(선택, 200자)
             <textarea

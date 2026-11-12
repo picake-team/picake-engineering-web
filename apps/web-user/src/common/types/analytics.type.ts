@@ -341,7 +341,6 @@ export interface AnalyticsEventMap {
     edited: boolean;
     similarity: string;
     photo_count: number;
-    contact_types: string;
   };
   /** 링크에서 "어려워요"로 답함 */
   success_quote_link_decline: { quote_request_id: string; reason: string };
