@@ -272,7 +272,7 @@ export function KakaoRegisterVerificationScreen() {
         <h2 className="text-xl font-bold leading-snug tracking-tight text-gray-900">
           핸드폰 번호 인증을 진행해주세요.
         </h2>
-        <p className="mt-1 text-sm leading-relaxed text-[var(--grayscale-gr-500,#82817D)]">
+        <p className="mt-1 text-sm leading-relaxed text-gray-500">
           예약자 확인 및 연락을 위해 필요해요.
         </p>
 

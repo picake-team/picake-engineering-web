@@ -39,12 +39,11 @@ function formatPriceLabel(scale: number): string {
 // ---------------------------------------------------------------------------
 
 const styles = {
-  sectionTitle:
-    "flex h-[45px] items-center text-sm font-bold leading-[140%] text-[var(--grayscale-gr-900,#1A1A1A)]",
-  labelText: "text-sm font-normal leading-[140%] text-[var(--grayscale-gr-900,#1A1A1A)]",
+  sectionTitle: "flex h-[45px] items-center text-sm font-bold leading-[140%] text-gray-900",
+  labelText: "text-sm font-normal leading-[140%] text-gray-900",
   categoryChip:
     "rounded-[26px] border px-3 py-1.5 text-sm font-normal leading-[140%] transition-colors",
-  categoryChipDefault: "border-gray-100 bg-white text-[var(--grayscale-gr-900,#1A1A1A)]",
+  categoryChipDefault: "border-gray-100 bg-white text-gray-900",
   categoryChipSelected: "border-primary bg-primary text-white",
 } as const;
 

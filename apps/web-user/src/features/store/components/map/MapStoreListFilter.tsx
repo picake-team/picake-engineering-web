@@ -91,15 +91,14 @@ const styles = {
     "flex shrink-0 items-center justify-center rounded-[26px] border border-gray-100 bg-white",
   panelHeader:
     "relative flex h-16 shrink-0 items-center justify-center border-b border-gray-100 bg-white rounded-t-[20px]",
-  panelTitle: "text-base font-bold leading-[140%] text-[var(--grayscale-gr-900,#1A1A1A)]",
-  sectionTitle:
-    "flex h-[45px] items-center text-sm font-bold leading-[140%] text-[var(--grayscale-gr-900,#1A1A1A)]",
+  panelTitle: "text-base font-bold leading-[140%] text-gray-900",
+  sectionTitle: "flex h-[45px] items-center text-sm font-bold leading-[140%] text-gray-900",
   sectionContent: "px-5",
   sectionBlock: "mb-10",
-  labelText: "text-sm font-normal leading-[140%] text-[var(--grayscale-gr-900,#1A1A1A)]",
+  labelText: "text-sm font-normal leading-[140%] text-gray-900",
   categoryChip:
     "rounded-[26px] border px-3 py-1.5 text-sm font-normal leading-[140%] transition-colors",
-  categoryChipDefault: "border-gray-100 bg-white text-[var(--grayscale-gr-900,#1A1A1A)]",
+  categoryChipDefault: "border-gray-100 bg-white text-gray-900",
   categoryChipSelected: "border-primary bg-primary text-white",
   panelFooter: "flex h-[74px] shrink-0 items-center border-t border-gray-100 px-5",
   resetButton:

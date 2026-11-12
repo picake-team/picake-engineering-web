@@ -58,7 +58,7 @@ export function OAuthRegisterDuplicateAccountScreen({
         <h2 className="text-xl font-bold leading-snug tracking-tight text-gray-900">
           이미 가입한 계정이 있어요.
         </h2>
-        <p className="mt-1 text-sm leading-relaxed text-[var(--grayscale-gr-500,#82817D)]">
+        <p className="mt-1 text-sm leading-relaxed text-gray-500">
           아래 계정으로 로그인해주세요.
           {provider !== "kakao" && payload.email && (
             <>
@@ -72,15 +72,13 @@ export function OAuthRegisterDuplicateAccountScreen({
         <div className="mt-8 rounded-[12px] border border-solid border-gray-100 bg-white px-[20px] py-[24px]">
           <dl className="flex flex-col gap-2">
             <div className="flex flex-row items-center gap-[40px]">
-              <dt className="min-w-[80px] shrink-0 text-[14px] font-normal text-[var(--grayscale-gr-500,#82817D)]">
-                이름
-              </dt>
+              <dt className="min-w-[80px] shrink-0 text-[14px] font-normal text-gray-500">이름</dt>
               <dd className="min-w-0 flex-1 text-left text-[14px] font-normal text-gray-900">
                 {payload.name}
               </dd>
             </div>
             <div className="flex flex-row items-center gap-[40px]">
-              <dt className="min-w-[80px] shrink-0 text-[14px] font-normal text-[var(--grayscale-gr-500,#82817D)]">
+              <dt className="min-w-[80px] shrink-0 text-[14px] font-normal text-gray-500">
                 핸드폰 번호
               </dt>
               <dd className="min-w-0 flex-1 text-left text-[14px] font-normal tabular-nums text-gray-900">
@@ -88,7 +86,7 @@ export function OAuthRegisterDuplicateAccountScreen({
               </dd>
             </div>
             <div className="flex flex-row items-center gap-[40px]">
-              <dt className="min-w-[80px] shrink-0 text-[14px] font-normal text-[var(--grayscale-gr-500,#82817D)]">
+              <dt className="min-w-[80px] shrink-0 text-[14px] font-normal text-gray-500">
                 로그인수단
               </dt>
               <dd className="min-w-0 flex-1 text-left text-[14px] font-normal text-gray-900">
@@ -97,7 +95,7 @@ export function OAuthRegisterDuplicateAccountScreen({
             </div>
             {payload.email && (
               <div className="flex flex-row items-center gap-[40px]">
-                <dt className="min-w-[80px] shrink-0 text-[14px] font-normal text-[var(--grayscale-gr-500,#82817D)]">
+                <dt className="min-w-[80px] shrink-0 text-[14px] font-normal text-gray-500">
                   계정
                 </dt>
                 <dd className="min-w-0 flex-1 break-all text-left text-[14px] font-normal text-gray-900">

@@ -18,8 +18,8 @@ const THUMB_CSS = `
 
 const styles = {
   label:
-    "absolute whitespace-nowrap text-[13px] font-bold leading-[140%] text-[var(--grayscale-gr-900,#1A1A1A)] -translate-x-1/2 top-0",
-  hint: "mt-2 flex justify-between text-xs font-normal leading-[140%] text-[var(--grayscale-gr-400,#9E9E9D)]",
+    "absolute whitespace-nowrap text-[13px] font-bold leading-[140%] text-gray-900 -translate-x-1/2 top-0",
+  hint: "mt-2 flex justify-between text-xs font-normal leading-[140%] text-gray-400",
 } as const;
 
 export interface DualThumbRangeSliderProps {

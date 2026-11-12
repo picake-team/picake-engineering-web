@@ -60,10 +60,7 @@ export const Input: React.FC<InputProps> = ({
       ? "var(--grayscale-gr-200, #D4D4D3)"
       : "#007bff";
 
-  const inputClassName = [
-    className,
-    isRegister ? "placeholder:text-[var(--grayscale-gr-300,#BEBEBB)]" : "",
-  ]
+  const inputClassName = [className, isRegister ? "placeholder:text-gray-300" : ""]
     .filter(Boolean)
     .join(" ");
 
