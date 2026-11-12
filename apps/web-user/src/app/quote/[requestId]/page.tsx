@@ -111,8 +111,11 @@ function QuoteRequestDetailContent() {
   const open = data.status === "OPEN";
   const quotes = section?.quotes ?? [];
   const chosen = quotes.find((q) => q.chosen) ?? null;
+  // 다른 견적이 있을 때만 "다시 고를 수 있어요"를 보인다
   const rechooseOpen =
-    !!section?.rechooseUntil && new Date(section.rechooseUntil).getTime() > Date.now();
+    quotes.length > 1 &&
+    !!section?.rechooseUntil &&
+    new Date(section.rechooseUntil).getTime() > Date.now();
   const rows: [string, string | null][] = [
     ["픽업", data.summary.pickup],
     ["받을 동네", data.summary.area],
@@ -174,7 +177,7 @@ function QuoteRequestDetailContent() {
               {quotePriceText(chosen)} · {chosen.similarityLabel}
             </p>
             {chosen.contacts.length > 0 && (
-              <div className="-mx-[16px] mt-[8px]">
+              <div className="mt-[6px]">
                 <QuoteContactList contacts={chosen.contacts} />
               </div>
             )}
