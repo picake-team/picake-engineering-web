@@ -4,6 +4,17 @@ import { toastIconFor } from "@/apps/web-seller/common/ui/toast-icon.util";
 const noop = () => undefined;
 
 describe("toastIconFor", () => {
+  it("채팅 새 문의는 홈 답할 채팅 아이콘(서버 제목 '새 문의가 왔어요')", () => {
+    expect(
+      toastIconFor({
+        severity: "info",
+        title: "새 문의가 왔어요",
+        message: "달콤한_마카롱_0000",
+        onClick: noop,
+      }),
+    ).toEqual({ kind: "task", name: "chat" });
+  });
+
   it("주문 알림은 홈 처리할 주문 아이콘과 같게", () => {
     expect(
       toastIconFor({

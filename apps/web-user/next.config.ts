@@ -30,8 +30,7 @@ const nextConfig: NextConfig = {
       // 사장님 입점 소개 페이지는 정보 사이트(web-info)로 옮겼다(2026-10-27). 게이트(`/partner`)의 "소개페이지 바로가기"와
       // 이미 공유된 링크가 계속 동작하도록 남겨 둔다. 2주 동안 문제가 없어 2026-11-10 영구(308)로 올렸다.
       { source: "/partner/about", destination: PARTNER_ABOUT_URL, permanent: true },
-      { source: "/chat", destination: "/", permanent: false },
-      { source: "/chat/:path*", destination: "/", permanent: false },
+      // 옛 채팅을 숨기던 /chat → / 돌려보내기는 새 채팅(기획 I-11)에서 지웠다. 채팅이 닫혀 있으면 화면이 "준비 중"을 보여 준다
     ];
   },
   eslint: {

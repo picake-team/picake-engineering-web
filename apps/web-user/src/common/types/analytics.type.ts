@@ -31,7 +31,8 @@ export type LoginEntryPoint =
   | "mypage"
   | "like_button"
   | "session_expired"
-  | "quote_request";
+  | "quote_request"
+  | "chat";
 
 /** 소셜 로그인 제공자 */
 export type OAuthProvider = "kakao" | "google" | "apple";
@@ -54,6 +55,9 @@ export type ReservationDetailEntryPoint =
   | "reservation_list"
   | "payment_alarm"
   | "reservation_complete";
+
+/** 채팅 입구(기획 I-11): 스토어 문의 창(스토어 상세) / 스토어 문의 창(예약에서 열어 주문 카드가 붙음) / MY 바로가기 */
+export type ChatEntryPoint = "store_inquiry" | "order_inquiry" | "mypage";
 
 /** 간편 입금 결제 수단 */
 export type EasyPaymentMethod = "toss" | "kakao";
@@ -292,6 +296,18 @@ export interface AnalyticsEventMap {
   success_quote_request: { quote_request_id: string; entry_point: QuoteEntryPoint };
   /** 견적 요청을 보내지 못함(pickup_time = 그새 3시간 안이 됨, api_error = 사진 올리기·서버 오류) */
   fail_quote_request: { entry_point: QuoteEntryPoint; fail_reason: QuoteRequestFailReason };
+
+  // ── 채팅(I-11) ── 성공 기준: 문의 → 예약 전환율(같은 가게 store_id로 success_reservation과 잇는다)
+  /** 채팅 입구를 누름(채팅이 열려 있을 때만 보임) */
+  engage_chat_entry: { entry_point: ChatEntryPoint; store_id?: string };
+  /** 글이 보내짐(서버 응답). is_first = 이 가게에 처음 보내 방이 생김. 글 내용은 보내지 않는다 */
+  success_chat_message: {
+    thread_id: string;
+    store_id: string | null;
+    is_first: boolean;
+    photo_count: number;
+    with_card: boolean;
+  };
 }
 
 export type AnalyticsEventName = keyof AnalyticsEventMap;

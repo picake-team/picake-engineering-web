@@ -112,6 +112,31 @@ const StoreSettingsMobilePage = lazyPage(
   () => import("@/apps/web-seller/pages/store/detail/Settings.mobile"),
   "StoreSettingsMobilePage",
 );
+// 채팅(기획 I-11). PC에서도 휴대폰 화면을 가운데에 쓴다(PC는 아래 탭 없이, 높이는 PC 틀 안에)
+const StoreDetailChatsPage = lazyPage(
+  () => import("@/apps/web-seller/pages/store/detail/chats/Chats.mobile"),
+  "StoreDetailChatsPage",
+);
+const StoreDetailChatRoomPage = lazyPage(
+  () => import("@/apps/web-seller/pages/store/detail/chats/Chats.mobile"),
+  "StoreDetailChatRoomPage",
+);
+const StoreDetailChatOrderPage = lazyPage(
+  () => import("@/apps/web-seller/pages/store/detail/chats/Chats.mobile"),
+  "StoreDetailChatOrderPage",
+);
+const StoreDetailChatsMobilePage = lazyPage(
+  () => import("@/apps/web-seller/pages/store/detail/chats/Chats.mobile"),
+  "StoreDetailChatsMobilePage",
+);
+const StoreDetailChatRoomMobilePage = lazyPage(
+  () => import("@/apps/web-seller/pages/store/detail/chats/Chats.mobile"),
+  "StoreDetailChatRoomMobilePage",
+);
+const StoreDetailChatOrderMobilePage = lazyPage(
+  () => import("@/apps/web-seller/pages/store/detail/chats/Chats.mobile"),
+  "StoreDetailChatOrderMobilePage",
+);
 const StoreDetailCalendarMobilePage = lazyPage(
   () => import("@/apps/web-seller/pages/store/detail/Calendar.mobile"),
   "StoreDetailCalendarMobilePage",
@@ -284,6 +309,21 @@ export const ADMIN_ROUTE_CONFIG: AppRouteConfig[] = [
     path: ROUTES.STORE_DETAIL_STATISTICS_ORDERS(":storeId"),
     element: StoreDetailStatisticsPage,
     mobile: StoreDetailStatisticsMobilePage,
+  },
+  {
+    path: ROUTES.STORE_DETAIL_CHATS(":storeId"),
+    element: StoreDetailChatsPage,
+    mobile: StoreDetailChatsMobilePage,
+  },
+  {
+    path: ROUTES.STORE_DETAIL_CHAT_ORDER(":storeId", ":orderId"),
+    element: StoreDetailChatOrderPage,
+    mobile: StoreDetailChatOrderMobilePage,
+  },
+  {
+    path: ROUTES.STORE_DETAIL_CHAT_ROOM(":storeId", ":threadId"),
+    element: StoreDetailChatRoomPage,
+    mobile: StoreDetailChatRoomMobilePage,
   },
   {
     path: ROUTES.STORE_DETAIL_NOTIFICATIONS_LIST(":storeId"),

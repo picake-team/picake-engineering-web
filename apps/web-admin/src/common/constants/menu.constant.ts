@@ -1,5 +1,5 @@
 import React from "react";
-import { BarChart3, Home, ShoppingBag, Store, ShieldCheck } from "lucide-react";
+import { BarChart3, Home, MessageSquare, ShoppingBag, Store, ShieldCheck } from "lucide-react";
 import { ROUTES } from "./paths.constant";
 
 export interface MenuChildItem {
@@ -53,6 +53,12 @@ export function getMenuItems(): MenuItem[] {
         { text: "세그먼트 관리", path: ROUTES.SELLER.SEGMENTS },
         { text: "약관 관리", path: ROUTES.SELLER.TERMS },
       ],
+    },
+    {
+      // 채팅(기획 I-11): 신고는 24시간 안 처리
+      text: "채팅",
+      icon: React.createElement(MessageSquare, { className: "w-5 h-5" }),
+      children: [{ text: "신고 처리", path: ROUTES.CHAT.REPORTS }],
     },
     {
       text: "관리자",

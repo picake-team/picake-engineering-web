@@ -14,6 +14,8 @@ export function toastIconFor(
   if (a.onClick) {
     // 주문 알림은 제목으로만 고른다(내용에는 늘 "… 픽업"이 들어 있다). 서버 seller-order-notification-copy 제목
     const title = a.title ?? "";
+    // 채팅 새 문의(서버 SELLER_CHAT_PUSH_TITLE "새 문의가 왔어요", 기획 I-11) — 홈 "답할 채팅" 아이콘과 같게
+    if (/문의/.test(title)) return { kind: "task", name: "chat" };
     if (/취소/.test(title)) return { kind: "line", name: "close" };
     if (/환불/.test(title)) return { kind: "task", name: "refund" };
     if (/입금/.test(title)) return { kind: "task", name: "deposit" };

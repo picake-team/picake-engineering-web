@@ -11,6 +11,10 @@ function toSettings(row: SellerNotificationSettings): SellerNotificationSettings
     ...(typeof row.morningSummaryEnabled === "boolean"
       ? { morningSummaryEnabled: row.morningSummaryEnabled }
       : {}),
+    ...(typeof row.chatNotificationsEnabled === "boolean"
+      ? { chatNotificationsEnabled: row.chatNotificationsEnabled }
+      : {}),
+    ...(typeof row.chatQuietNight === "boolean" ? { chatQuietNight: row.chatQuietNight } : {}),
   };
 }
 
