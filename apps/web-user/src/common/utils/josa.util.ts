@@ -10,3 +10,17 @@ function hasBatchim(word: string): boolean {
 export function withEulReul(word: string): string {
   return `${word}${hasBatchim(word) ? "을" : "를"}`;
 }
+
+/** "구름베이커리와", "솜사탕케이크과" 대신 받침에 맞춰 와/과 */
+export function withWaGwa(word: string): string {
+  return `${word}${hasBatchim(word) ? "과" : "와"}`;
+}
+
+/** "구름베이커리로", "케이크샵으로"(ㄹ 받침은 "로") */
+export function withRo(word: string): string {
+  const last = word.trim().slice(-1);
+  const code = last.charCodeAt(0) - 0xac00;
+  if (code < 0 || code > 11171) return `${word}로`;
+  const jong = code % 28;
+  return `${word}${jong === 0 || jong === 8 ? "로" : "으로"}`;
+}

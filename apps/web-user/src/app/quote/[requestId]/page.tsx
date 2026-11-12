@@ -14,24 +14,69 @@ import { QUOTE_NO_REPLAY } from "@/apps/web-user/features/quote/constants/quote.
 /** 손님이 직접 쓴 글이라 화면 녹화에서 가리는 줄 */
 const FREE_TEXT_ROWS = ["설명", "요청 사항"];
 import {
+  useChooseQuote,
   useCloseQuoteRequest,
   useQuoteRequestDetail,
+  useQuoteSection,
 } from "@/apps/web-user/features/quote/hooks/useQuoteRequests";
+import {
+  QuoteCard,
+  QuoteContactList,
+  quotePriceText,
+} from "@/apps/web-user/features/quote/components/QuoteCards";
+import type { ConsumerQuote } from "@/apps/web-user/features/quote/types/quote.type";
+import { useAlertStore } from "@/apps/web-user/common/store/alert.store";
+import getApiMessage from "@/apps/web-user/common/utils/getApiMessage";
+import { withEulReul, withRo, withWaGwa } from "@/apps/web-user/common/utils/josa.util";
+
+/** "11월 13일 오후 3시" */
+function kstShort(iso: string): string {
+  return new Intl.DateTimeFormat("ko-KR", {
+    timeZone: "Asia/Seoul",
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+  }).format(new Date(iso));
+}
 import { QuoteStatusBadge } from "@/apps/web-user/features/quote/components/QuoteRequestCard";
 import { NoticeBox } from "@/apps/web-user/features/quote/components/form/QuoteFormParts";
 import { QuoteLoginGate } from "@/apps/web-user/features/quote/components/QuoteLoginGate";
 
 /**
- * 요청 상세(SC-18). 1단계 ①에서는 요청 내용과 "물어보는 중"을 보여 주고,
- * 견적 카드·고르기는 ②에서 붙는다. 이 주소는 카카오 알림톡 [견적 보기] 버튼에 고정돼 있다.
+ * 요청 상세·견적 고르기(SC-18, 기획 I-46 ②). 가게 견적 카드(먼저 온 것이 위), 어려워요 한 줄,
+ * 이 가게로 고르기 → 그 가게와의 채팅. 이 주소는 카카오 알림톡 [견적 보기] 버튼에 고정돼 있다.
  */
 function QuoteRequestDetailContent() {
   const router = useRouter();
   const { requestId } = useParams<{ requestId: string }>();
   const { data, isLoading, isError } = useQuoteRequestDetail(requestId ?? null);
+  const { data: section } = useQuoteSection(requestId ?? null);
   const close = useCloseQuoteRequest();
+  const choose = useChooseQuote();
+  const { showAlert } = useAlertStore();
   const [formOpen, setFormOpen] = useState(false);
   const [closeOpen, setCloseOpen] = useState(false);
+  const [picking, setPicking] = useState<ConsumerQuote | null>(null);
+
+  const goChat = (threadId: string | null) => {
+    if (threadId) router.push(PATHS.CHAT.ROOM(threadId));
+  };
+  const onConfirmChoose = () => {
+    if (!picking || !data) return;
+    choose.mutate(
+      { requestId: data.id, quoteId: picking.id },
+      {
+        onSuccess: (res) => {
+          setPicking(null);
+          goChat(res.threadId);
+        },
+        onError: (e) => {
+          setPicking(null);
+          showAlert({ type: "error", title: "고르지 못했어요", message: getApiMessage.error(e) });
+        },
+      },
+    );
+  };
 
   const header = (
     <header className="sticky top-0 z-10 flex h-[52px] items-center bg-white px-[16px]">
@@ -64,6 +109,10 @@ function QuoteRequestDetailContent() {
   }
 
   const open = data.status === "OPEN";
+  const quotes = section?.quotes ?? [];
+  const chosen = quotes.find((q) => q.chosen) ?? null;
+  const rechooseOpen =
+    !!section?.rechooseUntil && new Date(section.rechooseUntil).getTime() > Date.now();
   const rows: [string, string | null][] = [
     ["픽업", data.summary.pickup],
     ["받을 동네", data.summary.area],
@@ -116,11 +165,63 @@ function QuoteRequestDetailContent() {
           </div>
         </div>
 
+        {chosen && (
+          <div className="mb-[24px] rounded-xl border border-gray-100 px-[16px] py-[14px]">
+            <p className="text-sm font-bold text-gray-900">
+              {withEulReul(chosen.storeName)} 골랐어요
+            </p>
+            <p className="mt-[2px] text-xs text-gray-500">
+              {quotePriceText(chosen)} · {chosen.similarityLabel}
+            </p>
+            {chosen.contacts.length > 0 && (
+              <div className="-mx-[16px] mt-[8px]">
+                <QuoteContactList contacts={chosen.contacts} />
+              </div>
+            )}
+            <div className="mt-[8px]">
+              <NoticeBox>
+                {/* 통신판매중개자 고지(법무 점검표 2번) */}
+                Picake는 가게를 이어 드려요. 주문과 결제는 가게와 직접 해요.
+                {rechooseOpen && section?.rechooseUntil
+                  ? ` 다른 견적은 ${kstShort(section.rechooseUntil)}까지 다시 고를 수 있어요.`
+                  : ""}
+              </NoticeBox>
+            </div>
+          </div>
+        )}
+
         <div className="mb-[10px] flex items-center justify-between">
-          <span className="text-sm font-bold text-gray-900">받은 견적 {data.quoteCount}</span>
+          <span className="text-sm font-bold text-gray-900">받은 견적 {quotes.length}</span>
           <span className="text-xs text-gray-500">견적 마감 {data.summary.deadline}까지</span>
         </div>
-        {open ? (
+        {(section?.askedCount ?? 0) > 0 && open && (
+          <p className="-mt-[4px] mb-[10px] text-xs text-gray-500">
+            Picake가 {section?.askedCount}곳에 물어봤어요
+          </p>
+        )}
+        {quotes.length > 0 && (
+          <div className="mb-[16px] flex flex-col gap-[10px]">
+            {quotes.map((q) => (
+              <QuoteCard
+                key={q.id}
+                quote={q}
+                closed={!q.canChoose && !q.chosen}
+                onChoose={() => setPicking(q)}
+                onChat={() => goChat(q.threadId)}
+              />
+            ))}
+          </div>
+        )}
+        {(section?.declined.length ?? 0) > 0 && (
+          <ul className="mb-[16px] flex flex-col gap-[6px]">
+            {section?.declined.map((d) => (
+              <li key={d.targetId} className="text-xs text-gray-500">
+                {d.storeName} · 이번 요청은 어렵대요
+              </li>
+            ))}
+          </ul>
+        )}
+        {quotes.length > 0 ? null : open ? (
           <div className="flex flex-col items-center gap-[16px] rounded-xl bg-gray-50 px-[20px] py-[32px]">
             <Icon name="noData" width={62} height={57} />
             <p className="text-center text-sm leading-[22px] text-gray-700">
@@ -131,14 +232,24 @@ function QuoteRequestDetailContent() {
           </div>
         ) : (
           <NoticeBox>
-            {data.closeReason === "CONSUMER" ? "닫은 요청이에요." : "견적 받는 기간이 끝났어요."}
+            {data.status === "CONNECTED"
+              ? "가게를 골랐어요."
+              : data.closeReason === "CONSUMER"
+                ? "닫은 요청이에요."
+                : data.closeReason === "ADMIN"
+                  ? "Picake가 마감한 요청이에요."
+                  : "견적 받는 기간이 끝났어요."}
             {data.quoteCount === 0 && " 견적을 보낸 가게가 없었어요."}
           </NoticeBox>
         )}
       </main>
 
       <div className="fixed bottom-0 left-0 right-0 mx-auto flex max-w-[638px] gap-[8px] bg-white px-[20px] pb-[12px] pt-[10px]">
-        {open ? (
+        {chosen ? (
+          <Button size="lg" className="w-full" onClick={() => goChat(chosen.threadId)}>
+            {withWaGwa(chosen.storeName)} 채팅하기
+          </Button>
+        ) : open ? (
           <Button variant="outline" size="lg" className="w-full" onClick={() => setCloseOpen(true)}>
             요청 닫기
           </Button>
@@ -184,6 +295,40 @@ function QuoteRequestDetailContent() {
               </div>
             ))}
         </div>
+      </BottomSheet>
+
+      <BottomSheet
+        isOpen={!!picking}
+        onClose={() => setPicking(null)}
+        title={picking ? `${withRo(picking.storeName)} 고를까요?` : ""}
+        footer={
+          <div className="flex gap-2 px-5 py-3">
+            <Button variant="outline" size="lg" className="flex-1" onClick={() => setPicking(null)}>
+              취소
+            </Button>
+            <Button
+              size="lg"
+              className="flex-1"
+              loading={choose.isPending}
+              onClick={onConfirmChoose}
+            >
+              {choose.isPending ? "고르는 중…" : "고르기"}
+            </Button>
+          </div>
+        }
+      >
+        {picking && (
+          <div className="px-[20px] pb-[16px] text-center">
+            <p className="text-sm font-bold text-gray-900">
+              {quotePriceText(picking)} · {picking.similarityLabel}
+            </p>
+            <p className="mt-[8px] text-sm leading-[22px] text-gray-700">
+              고르면 그 가게와 채팅으로 이어져요. 24시간 안에는 다른 견적으로 바꿀 수 있어요.
+              <br />
+              주문과 결제는 가게와 직접 해요.
+            </p>
+          </div>
+        )}
       </BottomSheet>
 
       <BottomSheet

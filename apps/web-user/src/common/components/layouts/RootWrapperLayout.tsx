@@ -79,6 +79,19 @@ export default function RootWrapperLayout({ children }: RootWrapperLayoutProps) 
 
   const { variant: headerVariant, title: headerTitle, backFallbackPath } = getHeaderConfig();
 
+  // 사장님 견적 링크(가입 없이, 기획 I-46 SC-19)는 손님 앱이 아니라서 머리줄·알림·위치 묻기·로그인 창·
+  // 입금 안내를 띄우지 않는다(이 기기에 남은 손님 로그인이 끝났으면 "로그인" 창이 뜨던 것, 11-12 로컬 확인)
+  if (pathname?.startsWith("/q/")) {
+    return (
+      <div
+        id="root-scroll-container"
+        className="w-full sm:w-[640px] h-screen mx-auto sm:border-x border-gray-200 overflow-y-auto overflow-x-hidden scrollbar-hide"
+      >
+        {children}
+      </div>
+    );
+  }
+
   return (
     <AuthProvider>
       <BuildInfoLogger />

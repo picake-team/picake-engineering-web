@@ -18,6 +18,7 @@ import { useLoginSheetStore } from "@/apps/web-user/common/store/login-sheet.sto
 import { useScrollRestoration } from "@/apps/web-user/common/hooks/useScrollRestoration";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import { useChatUnread } from "@/apps/web-user/features/chat/hooks/useChat";
+import { useUnseenQuoteCount } from "@/apps/web-user/features/quote/hooks/useQuoteRequests";
 
 function getLoginInfo(user: {
   googleId: string;
@@ -62,7 +63,7 @@ const QUICK_LINKS = [
   { icon: "review", label: "내 후기", href: PATHS.MY_REVIEWS },
   { icon: "saved", label: "저장", href: PATHS.MY_SAVED },
   { icon: "recent", label: "최근 본", href: PATHS.RECENT },
-  // 견적 요청(기획 I-46 SC-13 4). 아직 보지 않은 견적 수는 견적 기능(1단계 ②)과 함께 띄운다
+  // 견적 요청(기획 I-46 SC-13 4). 아직 보지 않은 견적 수를 주황 숫자로(1단계 ②)
   { icon: "list", label: "내 견적", href: PATHS.MY_QUOTES },
 ] as const;
 
@@ -91,6 +92,7 @@ export default function MypagePage() {
   const { data: ordersData } = useMyOrders({ type: "UPCOMING" });
   const { data: chatUnread } = useChatUnread();
   const chatUnreadCount = chatUnread?.unreadThreads ?? 0;
+  const { data: unseenQuotes = 0 } = useUnseenQuoteCount(hasHydrated && isAuthenticated);
   const upcomingCount =
     ordersData?.pages
       .flatMap((p) => p.data)
@@ -201,6 +203,11 @@ export default function MypagePage() {
                     {icon === "chat" && chatUnreadCount > 0 && (
                       <span className="absolute -top-[6px] -right-[8px] min-w-[16px] h-[16px] flex items-center justify-center rounded-full bg-primary text-white text-[10px] font-bold px-1">
                         {chatUnreadCount}
+                      </span>
+                    )}
+                    {icon === "list" && unseenQuotes > 0 && (
+                      <span className="absolute -top-[6px] -right-[8px] min-w-[16px] h-[16px] flex items-center justify-center rounded-full bg-primary text-white text-[10px] font-bold px-1">
+                        {unseenQuotes}
                       </span>
                     )}
                   </div>

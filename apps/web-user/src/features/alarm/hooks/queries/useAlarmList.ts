@@ -10,7 +10,8 @@ function mapNotificationsToAlarms(items: AlarmNotificationItem[]): Alarm[] {
     const { date, time } = formatAlarmListLabels(n.createdAt);
     return {
       id: n.id,
-      orderId: n.orderId,
+      orderId: n.orderId ?? undefined,
+      quoteRequestId: n.quoteRequestId ?? undefined,
       read: n.read,
       title: n.title,
       content: n.body,

@@ -2,6 +2,7 @@
  * 사장님 채팅(기획 I-11) — 아래 탭 4번째 "채팅" 목록, 방, 주문 상세에서 먼저 열기.
  * PC에서도 같은 휴대폰 화면을 가운데(640) 띄운다(PC 채팅 화면은 따로 만들지 않음).
  */
+import { StatusPill } from "@/apps/web-seller/common/ui/Badge";
 import React, { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -90,7 +91,10 @@ function ChatsScreen({ pc }: { pc: boolean }) {
                     <Icon name="person" size={22} />
                   </span>
                   <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                    <span className="truncate text-body font-bold text-ink-900">{t.title}</span>
+                    <span className="flex min-w-0 items-center gap-1.5">
+                      {t.quoteRequest ? <StatusPill tone="turn">견적 요청</StatusPill> : null}
+                      <span className="truncate text-body font-bold text-ink-900">{t.title}</span>
+                    </span>
                     <span className={cx(CHAT_NO_REPLAY, "truncate text-sub text-ink-600")}>
                       {t.lastMessagePreview ?? ""}
                     </span>
