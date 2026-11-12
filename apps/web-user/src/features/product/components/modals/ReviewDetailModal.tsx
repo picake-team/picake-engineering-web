@@ -153,7 +153,12 @@ export const ReviewDetailModal: React.FC<ReviewDetailModalProps> = ({
     <div className="fixed inset-0 z-modal-over bg-gray-900 max-w-[640px] mx-auto">
       {/* 헤더 */}
       <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-[20px] py-[14px]">
-        <button type="button" onClick={onClose} className="text-white h-[24px] w-[24px]">
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="뒤로가기"
+          className="text-white h-[24px] w-[24px]"
+        >
           <Icon name="chevronLeft" width={24} height={24} />
         </button>
         <span className="text-white text-sm font-medium">

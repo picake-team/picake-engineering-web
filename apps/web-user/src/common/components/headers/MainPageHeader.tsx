@@ -35,12 +35,12 @@ export function MainPageHeader({
       <h1 className="text-xl font-bold text-gray-900">{title}</h1>
       <div className="flex items-center gap-4">
         {showSearch && (
-          <Link href={PATHS.SEARCH} className="flex items-center justify-center">
+          <Link href={PATHS.SEARCH} aria-label="검색" className="flex items-center justify-center">
             <Icon name="search" width={24} height={24} className="text-gray-900" />
           </Link>
         )}
         {showAlarm && (
-          <Link href={PATHS.ALARM} className="flex items-center justify-center">
+          <Link href={PATHS.ALARM} aria-label="알림" className="flex items-center justify-center">
             <Icon name="alarm" width={24} height={24} className="text-gray-900" />
           </Link>
         )}
@@ -48,6 +48,7 @@ export function MainPageHeader({
           <button
             type="button"
             onClick={onSettingClick}
+            aria-label="설정"
             className="flex items-center justify-center"
           >
             <Icon name="setting" width={24} height={24} className="text-gray-900" />
