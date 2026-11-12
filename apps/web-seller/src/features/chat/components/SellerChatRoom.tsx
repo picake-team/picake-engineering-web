@@ -55,6 +55,29 @@ function RoomSkeleton({ count = 6 }: { count?: number }) {
   );
 }
 
+/** 채팅 사진. 못 불러오면(지워졌거나 주소가 깨짐) 빈칸 대신 회색 칸에 안내 */
+function ChatPhoto({ url, onOpen }: { url: string; onOpen: (url: string) => void }) {
+  const [broken, setBroken] = useState(false);
+  if (broken) {
+    return (
+      <span className="flex size-[120px] flex-col items-center justify-center gap-1 rounded-control bg-ink-50 px-2 text-center text-caption text-ink-400">
+        <Icon name="camera" size={20} />
+        사진을 불러오지 못했어요
+      </span>
+    );
+  }
+  return (
+    <button type="button" onClick={() => onOpen(url)} aria-label="사진 크게 보기">
+      <img
+        src={url}
+        alt=""
+        onError={() => setBroken(true)}
+        className="size-[120px] rounded-control object-cover"
+      />
+    </button>
+  );
+}
+
 function CardView({ card, onOpen }: { card: ChatCard; onOpen?: () => void }) {
   return (
     <button
@@ -123,15 +146,9 @@ function Bubble({
               m.mine && "justify-end",
             )}
           >
-            {m.imageUrls.map((url) => (
-              <button
-                key={url}
-                type="button"
-                onClick={() => onOpenImage(url)}
-                aria-label="사진 크게 보기"
-              >
-                <img src={url} alt="" className="size-[120px] rounded-control object-cover" />
-              </button>
+            {m.imageUrls.map((url, i) => (
+              // 같은 사진을 두 번 보내도 겹치지 않게 순서를 키에 넣는다
+              <ChatPhoto key={`${i}-${url}`} url={url} onOpen={onOpenImage} />
             ))}
           </div>
         ) : null}
@@ -216,6 +233,8 @@ export function SellerChatRoom({
   const thread = room.thread;
   const title = thread?.title ?? initialTitle ?? "채팅";
   const write = thread?.write ?? initialWrite ?? { ok: true };
+  // 방을 못 열었으면(없는 방·다른 스토어 방·불러오기 실패) 입력칸을 숨긴다
+  const composerHidden = room.notFound || (!!room.error && room.messages.length === 0);
   const agreed = thread?.rulesAgreed ?? rulesAgreed;
 
   // 새 글(맨 아래 글·보내는 중인 글)이 생겼을 때만. 위로 올려 옛 글을 불러오는 것은 새 글이 아니다
@@ -283,8 +302,12 @@ export function SellerChatRoom({
     }
   };
 
-  const onPickPhotos = async (files: FileList | null) => {
-    if (!files) return;
+  const onPickPhotos = async (picked: FileList | File[] | null) => {
+    // 붙여 넣기·끌어다 놓기로 사진이 아닌 파일이 오면 뺀다(종류를 모르는 파일은 줄여 보며 걸러짐)
+    const files = picked
+      ? Array.from(picked).filter((f) => !f.type || f.type.startsWith("image/"))
+      : [];
+    if (files.length === 0) return;
     const left = CHAT_LIMITS.IMAGES_MAX - photos.length;
     if (files.length > left) {
       addAlert({
@@ -293,7 +316,7 @@ export function SellerChatRoom({
       });
     }
     const out: string[] = [];
-    for (const f of Array.from(files).slice(0, left)) {
+    for (const f of files.slice(0, left)) {
       try {
         out.push(await shrinkPhoto(f));
       } catch {
@@ -397,15 +420,24 @@ export function SellerChatRoom({
         ) : null}
         {room.loading ? (
           <RoomSkeleton />
+        ) : room.notFound ? (
+          // 없는 방·이 스토어 방이 아님: 다시 시도해도 안 되니 "찾을 수 없어요"(주문·상품 상세와 같은 모양)
+          <div className="flex h-full flex-col">
+            <EmptyState big icon="search" title="채팅을 찾을 수 없어요" />
+          </div>
         ) : room.error && room.messages.length === 0 ? (
-          <LoadErrorState big onRetry={() => void room.reload()} />
+          <div className="flex h-full flex-col">
+            <LoadErrorState big onRetry={() => void room.reload()} />
+          </div>
         ) : room.messages.length === 0 && room.pending.length === 0 ? (
-          <EmptyState
-            big
-            icon="chat"
-            title={fromOrderId ? "손님에게 물어볼 것을 보내 보세요" : "아직 글이 없어요"}
-            description={fromOrderId ? "첫 글에 이 예약 카드가 함께 가요" : undefined}
-          />
+          <div className="flex h-full flex-col">
+            <EmptyState
+              big
+              icon="chat"
+              title={fromOrderId ? "손님에게 물어볼 것을 보내 보세요" : "아직 글이 없어요"}
+              description={fromOrderId ? "첫 글에 이 예약 카드가 함께 가요" : undefined}
+            />
+          </div>
         ) : null}
         <div className="flex flex-col gap-2.5">
           {room.messages.map((m) => {
@@ -501,8 +533,19 @@ export function SellerChatRoom({
         </button>
       ) : null}
 
-      {write.ok ? (
-        <div className="shrink-0 border-t border-ink-100 bg-white px-3 pb-[max(10px,env(safe-area-inset-bottom))] pt-2">
+      {composerHidden ? null : write.ok ? (
+        <div
+          className="shrink-0 border-t border-ink-100 bg-white px-3 pb-[max(10px,env(safe-area-inset-bottom))] pt-2"
+          // PC: 사진을 끌어다 놓아도 보낼 사진에 들어간다
+          onDragOver={(e) => {
+            if (e.dataTransfer.types.includes("Files")) e.preventDefault();
+          }}
+          onDrop={(e) => {
+            if (e.dataTransfer.files.length === 0) return;
+            e.preventDefault();
+            void onPickPhotos(e.dataTransfer.files);
+          }}
+        >
           {photos.length > 0 ? (
             <div className="mb-2 flex gap-1.5 overflow-x-auto">
               {photos.map((src, i) => (
@@ -553,6 +596,13 @@ export function SellerChatRoom({
                 }
               }}
               onChange={(e) => setText(e.target.value)}
+              // PC: 복사한 사진을 붙여 넣으면 보낼 사진에 들어간다(글이 함께 복사됐으면 글로 붙임)
+              onPaste={(e) => {
+                const files = Array.from(e.clipboardData.files);
+                if (files.length === 0 || e.clipboardData.getData("text/plain")) return;
+                e.preventDefault();
+                void onPickPhotos(files);
+              }}
               placeholder="메시지 보내기"
               aria-label="메시지 보내기"
               rows={1}
