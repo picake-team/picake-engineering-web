@@ -55,6 +55,29 @@ function RoomSkeleton({ count = 6 }: { count?: number }) {
   );
 }
 
+/** 채팅 사진. 못 불러오면(지워졌거나 주소가 깨짐) 빈칸 대신 회색 칸에 안내 */
+function ChatPhoto({ url, onOpen }: { url: string; onOpen: (url: string) => void }) {
+  const [broken, setBroken] = useState(false);
+  if (broken) {
+    return (
+      <span className="flex size-[120px] flex-col items-center justify-center gap-1 rounded-control bg-ink-50 px-2 text-center text-caption text-ink-400">
+        <Icon name="camera" size={20} />
+        사진을 불러오지 못했어요
+      </span>
+    );
+  }
+  return (
+    <button type="button" onClick={() => onOpen(url)} aria-label="사진 크게 보기">
+      <img
+        src={url}
+        alt=""
+        onError={() => setBroken(true)}
+        className="size-[120px] rounded-control object-cover"
+      />
+    </button>
+  );
+}
+
 function CardView({ card, onOpen }: { card: ChatCard; onOpen?: () => void }) {
   return (
     <button
@@ -123,15 +146,9 @@ function Bubble({
               m.mine && "justify-end",
             )}
           >
-            {m.imageUrls.map((url) => (
-              <button
-                key={url}
-                type="button"
-                onClick={() => onOpenImage(url)}
-                aria-label="사진 크게 보기"
-              >
-                <img src={url} alt="" className="size-[120px] rounded-control object-cover" />
-              </button>
+            {m.imageUrls.map((url, i) => (
+              // 같은 사진을 두 번 보내도 겹치지 않게 순서를 키에 넣는다
+              <ChatPhoto key={`${i}-${url}`} url={url} onOpen={onOpenImage} />
             ))}
           </div>
         ) : null}
@@ -216,6 +233,8 @@ export function SellerChatRoom({
   const thread = room.thread;
   const title = thread?.title ?? initialTitle ?? "채팅";
   const write = thread?.write ?? initialWrite ?? { ok: true };
+  // 방을 못 열었으면(없는 방·다른 스토어 방·불러오기 실패) 입력칸을 숨긴다
+  const composerHidden = room.notFound || (!!room.error && room.messages.length === 0);
   const agreed = thread?.rulesAgreed ?? rulesAgreed;
 
   // 새 글(맨 아래 글·보내는 중인 글)이 생겼을 때만. 위로 올려 옛 글을 불러오는 것은 새 글이 아니다
@@ -397,15 +416,24 @@ export function SellerChatRoom({
         ) : null}
         {room.loading ? (
           <RoomSkeleton />
+        ) : room.notFound ? (
+          // 없는 방·이 스토어 방이 아님: 다시 시도해도 안 되니 "찾을 수 없어요"(주문·상품 상세와 같은 모양)
+          <div className="flex h-full flex-col">
+            <EmptyState big icon="search" title="채팅을 찾을 수 없어요" />
+          </div>
         ) : room.error && room.messages.length === 0 ? (
-          <LoadErrorState big onRetry={() => void room.reload()} />
+          <div className="flex h-full flex-col">
+            <LoadErrorState big onRetry={() => void room.reload()} />
+          </div>
         ) : room.messages.length === 0 && room.pending.length === 0 ? (
-          <EmptyState
-            big
-            icon="chat"
-            title={fromOrderId ? "손님에게 물어볼 것을 보내 보세요" : "아직 글이 없어요"}
-            description={fromOrderId ? "첫 글에 이 예약 카드가 함께 가요" : undefined}
-          />
+          <div className="flex h-full flex-col">
+            <EmptyState
+              big
+              icon="chat"
+              title={fromOrderId ? "손님에게 물어볼 것을 보내 보세요" : "아직 글이 없어요"}
+              description={fromOrderId ? "첫 글에 이 예약 카드가 함께 가요" : undefined}
+            />
+          </div>
         ) : null}
         <div className="flex flex-col gap-2.5">
           {room.messages.map((m) => {
@@ -501,7 +529,7 @@ export function SellerChatRoom({
         </button>
       ) : null}
 
-      {write.ok ? (
+      {composerHidden ? null : write.ok ? (
         <div className="shrink-0 border-t border-ink-100 bg-white px-3 pb-[max(10px,env(safe-area-inset-bottom))] pt-2">
           {photos.length > 0 ? (
             <div className="mb-2 flex gap-1.5 overflow-x-auto">
