@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { isAxiosError } from "axios";
 import { BottomSheet } from "@/apps/web-user/common/components/bottom-sheets/BottomSheet";
 import { Button } from "@/apps/web-user/common/components/buttons/Button";
 import { Checkbox } from "@/apps/web-user/common/components/inputs/Checkbox";
@@ -201,9 +202,17 @@ export function QuoteLinkScreen({ token }: { token: string }) {
           <p className="text-center text-sm text-gray-700">
             {isError ? getApiMessage.error(error) : "견적 링크를 찾을 수 없어요."}
           </p>
-          <Button variant="outline" size="md" className="w-[160px]" onClick={() => void refetch()}>
-            다시 시도
-          </Button>
+          {/* 없는 링크(404)는 다시 해도 같아서 "다시 시도"를 보이지 않는다. 인터넷 끊김 등만 */}
+          {!(isAxiosError(error) && error.response?.status === 404) && (
+            <Button
+              variant="outline"
+              size="md"
+              className="w-[160px]"
+              onClick={() => void refetch()}
+            >
+              다시 시도
+            </Button>
+          )}
         </div>
       </div>
     );
