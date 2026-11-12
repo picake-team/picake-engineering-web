@@ -70,6 +70,39 @@ describe("fetchConsumerApiResult", () => {
     await expect(fetchConsumerApiResult("/products/x")).resolves.toEqual({ status: "error" });
   });
 
+  it("쉬던 연결이 끊겨 실패하면(other side closed) 한 번 더 해 본다", async () => {
+    const stale = Object.assign(new TypeError("fetch failed"), {
+      cause: Object.assign(new Error("other side closed"), { code: "UND_ERR_SOCKET" }),
+    });
+    const fetchMock = vi.fn<(...args: unknown[]) => Promise<Response>>();
+    fetchMock.mockRejectedValueOnce(stale).mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({ data: { id: "p1" } }),
+    } as Response);
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(fetchConsumerApiResult("/products/p1")).resolves.toEqual({
+      status: "ok",
+      data: { id: "p1" },
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("두 번째도 끊기면 오류, 시간 초과는 다시 하지 않는다", async () => {
+    const stale = Object.assign(new TypeError("fetch failed"), {
+      cause: Object.assign(new Error("reset"), { code: "ECONNRESET" }),
+    });
+    const twice = vi.fn<(...args: unknown[]) => Promise<Response>>().mockRejectedValue(stale);
+    vi.stubGlobal("fetch", twice);
+    await expect(fetchConsumerApiResult("/products/x")).resolves.toEqual({ status: "error" });
+    expect(twice).toHaveBeenCalledTimes(2);
+
+    const timeout = mockFetchOnce(new DOMException("timeout", "TimeoutError"));
+    await expect(fetchConsumerApiResult("/products/x")).resolves.toEqual({ status: "error" });
+    expect(timeout).toHaveBeenCalledTimes(1);
+  });
+
   it("응답에 data가 없으면 오류로 본다", async () => {
     mockFetchOnce({ ok: true, status: 200, json: async () => ({}) });
 
