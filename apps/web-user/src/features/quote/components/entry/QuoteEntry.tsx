@@ -68,12 +68,17 @@ function HomeCardPhotos() {
       <img
         src={back}
         alt=""
+        // 첫 화면 큰 그림(배너)·화면 코드보다 먼저 받지 않게(React가 미리 받기 목록에 넣지 않음)
+        loading="lazy"
+        decoding="async"
         className={photo}
         style={{ width: 92, height: 92, left: 0, bottom: -22, transform: "rotate(-8deg)" }}
       />
       <img
         src={front}
         alt=""
+        loading="lazy"
+        decoding="async"
         className={photo}
         style={{ width: 112, height: 112, right: -14, top: 8, transform: "rotate(6deg)" }}
       />
