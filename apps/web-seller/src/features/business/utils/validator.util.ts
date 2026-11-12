@@ -86,7 +86,7 @@ export const validateStartDate = (startDate: string): string | null => {
   // 날짜 유효성 체크
   const date = new Date(year, month - 1, day);
   if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
-    return "유효하지 않은 날짜입니다. 다시 확인해 주세요.";
+    return "없는 날짜예요. 다시 확인해 주세요.";
   }
 
   // 미래 날짜 체크
