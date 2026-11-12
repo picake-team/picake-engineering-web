@@ -93,7 +93,10 @@ function CardView({ card, onOpen }: { card: ChatCard; onOpen?: () => void }) {
           className="h-[48px] w-[48px] shrink-0 rounded-lg object-cover"
         />
       ) : (
-        <span className="h-[48px] w-[48px] shrink-0 rounded-lg bg-gray-50" />
+        // 사진이 없으면 빈 회색 칸 대신 Picake 로고(손님 견적 화면 요청서 칸과 같게)
+        <span className="flex h-[48px] w-[48px] shrink-0 items-center justify-center rounded-lg bg-gray-50">
+          <Icon name="logoPicake" width={26} height={26} />
+        </span>
       )}
       <span className="flex min-w-0 flex-1 flex-col gap-[2px]">
         <span className="truncate text-sm font-bold text-gray-900">{title}</span>
@@ -543,7 +546,8 @@ export function ChatRoomScreen({
               type="button"
               aria-label="사진 보내기"
               onClick={() => fileRef.current?.click()}
-              className="flex h-[44px] w-[36px] shrink-0 items-center justify-center text-gray-700"
+              // 보내기 버튼과 같은 44 동그라미(회색 바탕) — 판매자 앱과 같은 모양(운영자 11-12)
+              className="press flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-full bg-gray-50 text-gray-700"
             >
               <Icon name="plus" width={22} height={22} />
             </button>

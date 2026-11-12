@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import {
   SITE_BASE_URL,
-  SITE_LOGO_URL,
+  SITE_OG_IMAGE,
   SITE_NAME,
 } from "@/apps/web-user/common/constants/site.constants";
 
@@ -50,7 +50,8 @@ export function buildShareMetadata({
   imageUrl,
 }: BuildShareMetadataInput): Metadata {
   const url = toAbsoluteUrl(path);
-  const ogImage = imageUrl ? toAbsoluteUrl(imageUrl) : SITE_LOGO_URL;
+  // 사진이 없으면 Picake PNG(메신저들이 SVG 로고를 보여 주지 않음)
+  const ogImage = imageUrl ? toAbsoluteUrl(imageUrl) : SITE_OG_IMAGE.url;
 
   return {
     title,

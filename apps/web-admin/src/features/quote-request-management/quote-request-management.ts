@@ -143,7 +143,6 @@ export function formatDateTime(iso: string): string {
 // ───────────── 견적 ②(기획 I-46 SC-46): 가게별 상태·가게 추가·견적 링크·대신 적기·알렸어요·마감 ─────────────
 
 export type QuoteSimilarity = "EXACT" | "SIMILAR" | "INSPIRED";
-export type QuoteContactType = "KAKAO" | "INSTAGRAM" | "PHONE" | "NAVER";
 export type QuoteDeclineReason = "FULLY_BOOKED" | "NOT_OUR_STYLE" | "BUDGET" | "OTHER";
 export type QuoteTargetState =
   | "OPEN"
@@ -171,13 +170,6 @@ export const QUOTE_DECLINE_LABELS: Record<QuoteDeclineReason, string> = {
   OTHER: "다른 이유",
 };
 
-export interface QuoteContactDto {
-  type: QuoteContactType;
-  label: string;
-  value: string;
-  href: string;
-}
-
 export interface AdminQuoteDto {
   id: string;
   storeName: string;
@@ -188,7 +180,6 @@ export interface AdminQuoteDto {
   priceMayVary: boolean;
   similarity: QuoteSimilarity;
   similarityLabel: string;
-  contacts: QuoteContactDto[];
   memo: string | null;
   photoUrls: string[];
   edited: boolean;
@@ -221,7 +212,6 @@ export interface AdminQuoteInputBody {
   unitPrice: number;
   priceMayVary?: boolean;
   similarity: QuoteSimilarity;
-  contacts: { type: QuoteContactType; value: string }[];
   memo?: string;
 }
 

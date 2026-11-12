@@ -6,9 +6,11 @@ import { Chip } from "@/apps/web-seller/common/ui/Choice";
 import { Field, TextArea, TextInput } from "@/apps/web-seller/common/ui/Field";
 import { BottomSheet } from "@/apps/web-seller/common/ui/Sheet";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
+import { InfoRow } from "@/apps/web-seller/common/ui/List";
 import { Checkbox } from "@/apps/web-seller/common/ui/Toggle";
 import { cx } from "@/apps/web-seller/common/ui/cx";
 import getApiMessage from "@/apps/web-seller/common/utils/getApiMessage";
+import { useAlertStore } from "@/apps/web-seller/common/store/alert.store";
 import { uploadApi } from "@/apps/web-seller/features/upload/apis/upload.api";
 import { dataUrlToFile, shrinkPhoto } from "@/apps/web-seller/features/chat/hooks/useChat";
 import { quoteApi } from "@/apps/web-seller/features/quote/apis/quote.api";
@@ -20,7 +22,6 @@ import { PHONE_MAX_WIDTH_PX } from "@/apps/web-seller/common/constants/screen.co
 const surfaceNow = () =>
   sellerSurface(window.matchMedia(`(max-width: ${PHONE_MAX_WIDTH_PX}px)`).matches);
 import type {
-  QuoteContactType,
   QuoteDeclineReason,
   QuoteRequestForShop,
   QuoteSimilarity,
@@ -39,13 +40,6 @@ const SIMILARITY: { value: QuoteSimilarity; label: string; detail: string }[] = 
     label: "느낌만 살려서",
     detail: "색과 분위기를 살려 가게 디자인으로 만들어요",
   },
-];
-
-const CONTACTS: { type: QuoteContactType; label: string; placeholder: string }[] = [
-  { type: "KAKAO", label: "카카오톡 채널", placeholder: "pf.kakao.com/_가게" },
-  { type: "INSTAGRAM", label: "인스타그램", placeholder: "@가게아이디" },
-  { type: "PHONE", label: "전화", placeholder: "010-0000-0000" },
-  { type: "NAVER", label: "네이버", placeholder: "톡톡·예약 주소" },
 ];
 
 const DECLINE: { value: QuoteDeclineReason; label: string }[] = [
@@ -73,8 +67,8 @@ export const quoteViewKey = (storeId: string, requestId: string) =>
   ["seller-quote", storeId, requestId] as const;
 
 /**
- * 견적 보내기 창(기획 I-46 ②, 운영자 결정 11-12: 입점 가게도 주문 받는 곳을 묻는다).
- * 견적 링크(SC-19)와 같은 칸: 금액·비슷한 정도·주문 받는 곳(필수), 사진·메모(접어 둠).
+ * 견적 보내기 창(기획 I-46 ②). 견적 링크(SC-19)와 같은 칸: 금액·비슷한 정도, 사진·메모(접어 둠).
+ * 주문 받는 곳은 묻지 않는다(운영자 11-12: 손님이 고르면 이 채팅방에서 주문을 정함).
  */
 function QuoteSendSheet({
   storeId,
@@ -88,17 +82,11 @@ function QuoteSendSheet({
   onClose: () => void;
 }) {
   const queryClient = useQueryClient();
+  const { addAlert } = useAlertStore();
   const q = view.quote;
   const [price, setPrice] = useState(q ? q.unitPrice.toLocaleString("ko-KR") : "");
   const [mayVary, setMayVary] = useState(q?.priceMayVary ?? false);
   const [similarity, setSimilarity] = useState<QuoteSimilarity | null>(q?.similarity ?? null);
-  const [contacts, setContacts] = useState<Partial<Record<QuoteContactType, string>>>(() => {
-    const out: Partial<Record<QuoteContactType, string>> = {};
-    for (const c of q?.contacts ?? view.prefillContacts) {
-      out[c.type] = c.type === "INSTAGRAM" ? `@${c.value}` : c.value;
-    }
-    return out;
-  });
   const [more, setMore] = useState(!!q && (q.photoUrls.length > 0 || !!q.memo));
   const [memo, setMemo] = useState(q?.memo ?? "");
   const [photos, setPhotos] = useState<string[]>(q?.photoUrls ?? []);
@@ -106,14 +94,6 @@ function QuoteSendSheet({
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const unit = digits(price);
-
-  const toggle = (type: QuoteContactType) =>
-    setContacts((cur) => {
-      const next = { ...cur };
-      if (next[type] !== undefined) delete next[type];
-      else next[type] = "";
-      return next;
-    });
 
   const onPick = async (files: FileList | null) => {
     if (!files) return;
@@ -137,17 +117,12 @@ function QuoteSendSheet({
     setError(null);
     if (unit < 1000) return setError("금액을 적어 주세요");
     if (!similarity) return setError("사진과 얼마나 비슷하게 만들 수 있는지 골라 주세요");
-    const list = CONTACTS.filter((c) => contacts[c.type] !== undefined)
-      .map((c) => ({ type: c.type, value: (contacts[c.type] ?? "").trim() }))
-      .filter((c) => c.value);
-    if (list.length === 0) return setError("주문 받는 곳을 하나 이상 골라 적어 주세요");
     setSending(true);
     try {
       await quoteApi.submit(storeId, view.requestId, {
         unitPrice: unit,
         priceMayVary: mayVary,
         similarity,
-        contacts: list,
         ...(memo.trim() ? { memo: memo.trim() } : {}),
         photoUrls: photos,
       });
@@ -156,10 +131,11 @@ function QuoteSendSheet({
         edited: !!q,
         similarity,
         photo_count: photos.length,
-        contact_types: list.map((c) => c.type).join(","),
         surface: surfaceNow(),
       });
       await queryClient.invalidateQueries({ queryKey: quoteViewKey(storeId, view.requestId) });
+      // 주문 처리처럼 한 일을 아래 안내 띠로(같은 일 = 같은 모양)
+      addAlert({ severity: "success", message: q ? "견적을 고쳤어요" : "견적을 보냈어요" });
       onClose();
     } catch (e) {
       setError(getApiMessage.error(e));
@@ -233,36 +209,6 @@ function QuoteSendSheet({
           ) : null}
         </div>
 
-        <div className="flex flex-col gap-2">
-          <span className="text-sub font-bold text-ink-700">
-            주문 받는 곳 <span className="font-normal text-ink-400">여러 개 골라도 돼요</span>
-          </span>
-          <div className="flex flex-wrap gap-2">
-            {CONTACTS.map((c) => (
-              <Chip
-                key={c.type}
-                selected={contacts[c.type] !== undefined}
-                onClick={() => toggle(c.type)}
-              >
-                {c.label}
-              </Chip>
-            ))}
-          </div>
-          {CONTACTS.filter((c) => contacts[c.type] !== undefined).map((c) => (
-            <TextInput
-              key={c.type}
-              aria-label={c.label}
-              value={contacts[c.type] ?? ""}
-              placeholder={`${c.label} · ${c.placeholder}`}
-              inputMode={c.type === "PHONE" ? "tel" : "text"}
-              onChange={(e) => setContacts((cur) => ({ ...cur, [c.type]: e.target.value }))}
-            />
-          ))}
-          <p className="text-caption text-ink-600">
-            손님이 고르면 Picake 채팅으로 이어지고, 고른 곳으로도 연락할 수 있어요
-          </p>
-        </div>
-
         <button
           type="button"
           onClick={() => setMore((v) => !v)}
@@ -317,7 +263,7 @@ function QuoteSendSheet({
           </>
         ) : null}
         <p className="text-caption text-ink-600">
-          보내면 손님에게 가게 이름·견적·메모·주문 받는 곳이 보여요
+          보내면 손님에게 가게 이름·견적·메모가 보여요. 손님이 고르면 이 채팅방에서 주문을 정해요
         </p>
       </div>
     </BottomSheet>
@@ -330,6 +276,7 @@ function QuoteSendSheet({
  */
 export function QuoteRequestPanel({ storeId, requestId }: { storeId: string; requestId: string }) {
   const queryClient = useQueryClient();
+  const { addAlert } = useAlertStore();
   const {
     data: view,
     isError,
@@ -343,6 +290,8 @@ export function QuoteRequestPanel({ storeId, requestId }: { storeId: string; req
   const [declining, setDeclining] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [viewer, setViewer] = useState<string | null>(null);
+  // 긴 설명·요청 사항은 4줄까지 보이고 "더 보기"로 펼친다(버튼이 화면 아래로 밀리지 않게)
+  const [textOpen, setTextOpen] = useState(false);
 
   if (isError) {
     return (
@@ -373,6 +322,7 @@ export function QuoteRequestPanel({ storeId, requestId }: { storeId: string; req
       });
       await queryClient.invalidateQueries({ queryKey: quoteViewKey(storeId, requestId) });
       setDeclineOpen(false);
+      addAlert({ severity: "success", message: "어려워요로 답했어요" });
     } catch (e) {
       setDeclineOpen(false);
       setError(getApiMessage.error(e));
@@ -381,54 +331,95 @@ export function QuoteRequestPanel({ storeId, requestId }: { storeId: string; req
     }
   };
 
+  // 손님 사진·글은 화면 녹화에서 가린다(채팅 말풍선과 같게)
+  const photosRow =
+    view.photoUrls.length > 0 ? (
+      <div className={cx(CHAT_NO_REPLAY, "flex gap-1.5 overflow-x-auto")}>
+        {view.photoUrls.map((url, i) => (
+          <button
+            key={`${i}-${url}`}
+            type="button"
+            onClick={() => setViewer(url)}
+            aria-label="사진 크게 보기"
+          >
+            <img
+              src={url}
+              alt="참고 사진"
+              className="size-16 shrink-0 rounded-control object-cover"
+            />
+          </button>
+        ))}
+      </div>
+    ) : null;
+  // 설명 4줄·요청 사항 2줄까지 보이고 "더 보기"(운영자 11-12)
+  const longText = (view.description ?? "").length + (view.requestNote ?? "").length > 120;
+  const textBox =
+    view.description || view.requestNote ? (
+      <div className={cx(CHAT_NO_REPLAY, "rounded-control bg-ink-50 px-3 py-2.5")}>
+        {view.description ? (
+          <p
+            className={cx("whitespace-pre-wrap text-sub text-ink-900", !textOpen && "line-clamp-4")}
+          >
+            {view.description}
+          </p>
+        ) : null}
+        {view.requestNote ? (
+          <p
+            className={cx(
+              "whitespace-pre-wrap text-sub text-ink-700",
+              view.description && "mt-1.5",
+              !textOpen && "line-clamp-2",
+            )}
+          >
+            <span className="font-semibold text-ink-600">요청 사항 </span>
+            {view.requestNote}
+          </p>
+        ) : null}
+        {!textOpen && longText ? (
+          <button
+            type="button"
+            onClick={() => setTextOpen(true)}
+            className="mt-1 text-sub font-semibold text-ink-900 underline"
+          >
+            더 보기
+          </button>
+        ) : null}
+      </div>
+    ) : null;
+
+  // 정보 줄 모양(주문 상세와 같은 이름 | 값, 운영자 고름 11-12)
   return (
     <div className="w-full rounded-card border border-ink-200 bg-white p-4">
-      <div className="mb-3 flex items-center justify-between gap-2">
+      <div className="mb-2 flex items-center justify-between gap-2">
         <span className="text-body font-bold text-ink-900">손님 견적 요청</span>
         <StatusPill tone={state.tone}>{state.text}</StatusPill>
       </div>
-      {view.photoUrls.length > 0 ? (
-        // 손님 사진·글은 화면 녹화에서 가린다(채팅 말풍선과 같게)
-        <div className={cx(CHAT_NO_REPLAY, "mb-3 flex gap-1.5 overflow-x-auto")}>
-          {view.photoUrls.map((url) => (
-            <button
-              key={url}
-              type="button"
-              onClick={() => setViewer(url)}
-              aria-label="사진 크게 보기"
-            >
-              <img
-                src={url}
-                alt="참고 사진"
-                className="size-20 shrink-0 rounded-control object-cover"
-              />
-            </button>
-          ))}
-        </div>
-      ) : null}
-      <p className="text-sub font-bold text-ink-900">{view.pickup}</p>
-      <p className="text-sub text-ink-900">
-        {view.cake}
-        {view.area ? ` · ${view.area} 근처` : ""}
-      </p>
-      {view.description ? (
-        <p className={cx(CHAT_NO_REPLAY, "mt-1 whitespace-pre-wrap text-sub text-ink-700")}>
-          “{view.description}”
-        </p>
-      ) : null}
-      {view.requestNote ? (
-        <p className={cx(CHAT_NO_REPLAY, "whitespace-pre-wrap text-sub text-ink-700")}>
-          요청 사항 “{view.requestNote}”
-        </p>
-      ) : null}
-      <p className="mt-1 text-sub text-ink-700">예산 {view.budget}</p>
-      <p className="text-caption text-ink-600">견적 마감 {view.deadline}</p>
+      {photosRow}
+      <div className="mt-1">
+        <InfoRow important={false} className="min-h-9" label="픽업" value={view.pickup} />
+        <InfoRow important={false} className="min-h-9" label="케이크" value={view.cake} />
+        <InfoRow important={false} className="min-h-9" label="예산" value={view.budget} />
+        {view.area ? (
+          <InfoRow important={false} className="min-h-9" label="동네" value={`${view.area} 근처`} />
+        ) : null}
+      </div>
+      {textBox ? <div className="mt-2">{textBox}</div> : null}
+      {/* 손님이 고른 뒤에는 마감 시각이 필요 없어 할 일 한 줄로 바꾼다 */}
+      {view.state === "CHOSEN_ME" ? null : (
+        <p className="mt-2 text-caption text-ink-600">견적 마감 {view.deadline}</p>
+      )}
 
       {view.quote ? (
         <div className="mt-3 rounded-control bg-ink-50 px-3 py-2 text-sub text-ink-900">
           보낸 견적 {view.quote.total.toLocaleString("ko-KR")}원 · {view.quote.similarityLabel}
           {view.quote.edited ? <span className="text-ink-400"> · 고침</span> : null}
         </div>
+      ) : null}
+      {view.state === "CHOSEN_ME" ? (
+        // 고른 뒤 할 일(Picake 예약은 아직 없음, 기획 I-01 전까지 주문·입금은 가게와 직접)
+        <p className="mt-2 text-sub font-semibold text-ink-900">
+          손님과 채팅으로 디자인·픽업 시간·입금 방법을 정해 주세요
+        </p>
       ) : null}
       {error ? <p className="mt-2 text-caption font-semibold text-brand-ink">{error}</p> : null}
 

@@ -19,17 +19,13 @@ import {
   useQuoteRequestDetail,
   useQuoteSection,
 } from "@/apps/web-user/features/quote/hooks/useQuoteRequests";
-import {
-  QuoteCard,
-  QuoteContactList,
-  quotePriceText,
-} from "@/apps/web-user/features/quote/components/QuoteCards";
+import { QuoteCard, quotePriceText } from "@/apps/web-user/features/quote/components/QuoteCards";
 import type { ConsumerQuote } from "@/apps/web-user/features/quote/types/quote.type";
 import { useAlertStore } from "@/apps/web-user/common/store/alert.store";
 import { Skeleton } from "@/apps/web-user/common/components/skeleton";
 import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
 import getApiMessage from "@/apps/web-user/common/utils/getApiMessage";
-import { withEulReul, withRo, withWaGwa } from "@/apps/web-user/common/utils/josa.util";
+import { withEulReul, withWaGwa } from "@/apps/web-user/common/utils/josa.util";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import type { QuoteStoreType } from "@/apps/web-user/common/types/analytics.type";
 
@@ -225,11 +221,6 @@ function QuoteRequestDetailContent() {
             <p className="mt-[2px] text-xs text-gray-500">
               {quotePriceText(chosen)} · {chosen.similarityLabel}
             </p>
-            {chosen.contacts.length > 0 && (
-              <div className="mt-[6px]">
-                <QuoteContactList contacts={chosen.contacts} />
-              </div>
-            )}
             <div className="mt-[8px]">
               <NoticeBox>
                 {/* 통신판매중개자 고지(법무 점검표 2번) */}
@@ -252,6 +243,18 @@ function QuoteRequestDetailContent() {
           <p className="-mt-[4px] mb-[10px] text-xs text-gray-500">
             Picake가 {section?.askedCount}곳에 물어봤어요
           </p>
+        )}
+        {/* 견적을 받은 뒤 닫히거나 마감되면 카드가 흐려지기만 해서, 왜 고를 수 없는지 한 줄(11-12 검토) */}
+        {quotes.length > 0 && !open && !chosen && (
+          <div className="mb-[10px]">
+            <NoticeBox>
+              {data.closeReason === "CONSUMER"
+                ? "닫은 요청이에요. 받은 견적은 볼 수 있지만 고를 수는 없어요."
+                : data.closeReason === "ADMIN"
+                  ? "Picake가 마감한 요청이에요. 받은 견적은 볼 수 있지만 고를 수는 없어요."
+                  : "견적 받는 기간이 끝났어요. 받은 견적은 볼 수 있지만 고를 수는 없어요."}
+            </NoticeBox>
+          </div>
         )}
         {quotes.length > 0 && (
           <div className="mb-[16px] flex flex-col gap-[10px]">
@@ -362,7 +365,7 @@ function QuoteRequestDetailContent() {
       <BottomSheet
         isOpen={!!picking}
         onClose={() => setPicking(null)}
-        title={picking ? `${withRo(picking.storeName)} 고를까요?` : ""}
+        title="이 가게로 고를까요?"
         footer={
           <div className="flex gap-2 px-5 py-3">
             <Button variant="outline" size="lg" className="flex-1" onClick={() => setPicking(null)}>
@@ -381,7 +384,11 @@ function QuoteRequestDetailContent() {
       >
         {picking && (
           <div className="px-[20px] pb-[16px] text-center">
-            <p className="text-sm font-bold text-gray-900">
+            {/* 가게 이름이 길면 창 제목이 닫기 버튼과 겹쳐서 이름은 본문 첫 줄에(11-12 검토) */}
+            <p className="text-base font-bold text-gray-900 [overflow-wrap:anywhere]">
+              {picking.storeName}
+            </p>
+            <p className="mt-[2px] text-sm text-gray-900">
               {quotePriceText(picking)} · {picking.similarityLabel}
             </p>
             <p className="mt-[8px] text-sm leading-[22px] text-gray-700">

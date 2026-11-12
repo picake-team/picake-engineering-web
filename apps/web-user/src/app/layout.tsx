@@ -8,8 +8,8 @@ import { LoadingFallback } from "@/apps/web-user/common/components/fallbacks/Loa
 import RootWrapperLayout from "@/apps/web-user/common/components/layouts/RootWrapperLayout";
 import {
   SITE_BASE_URL,
-  SITE_LOGO_URL,
   SITE_NAME,
+  SITE_OG_IMAGE,
 } from "@/apps/web-user/common/constants/site.constants";
 
 /**
@@ -59,15 +59,8 @@ export const metadata: Metadata = {
     title: "Picake - 케이크 주문 플랫폼",
     description:
       "Picake에서 내 주변 케이크 전문 매장을 찾고 예약하세요. 생일케이크, 레터링케이크, 커스텀케이크 등 다양한 케이크를 간편하게 주문할 수 있어요.",
-    images: [
-      {
-        url: SITE_LOGO_URL,
-        width: 100,
-        height: 100,
-        alt: "Picake - 케이크 주문 플랫폼",
-        type: "image/svg+xml",
-      },
-    ],
+    // 카카오톡·인스타그램은 SVG 미리보기를 보여 주지 않아 PNG
+    images: [SITE_OG_IMAGE],
   },
 
   // Twitter / X Card
@@ -78,7 +71,7 @@ export const metadata: Metadata = {
     title: "Picake - 케이크 주문 플랫폼",
     description:
       "Picake에서 내 주변 케이크 전문 매장을 찾고 예약하세요. 생일케이크, 레터링케이크, 커스텀케이크 등 다양한 케이크를 간편하게 주문할 수 있어요.",
-    images: [SITE_LOGO_URL],
+    images: [SITE_OG_IMAGE.url],
   },
 
   applicationName: SITE_NAME,

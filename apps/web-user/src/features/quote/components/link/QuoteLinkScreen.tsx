@@ -7,6 +7,10 @@ import { BottomSheet } from "@/apps/web-user/common/components/bottom-sheets/Bot
 import { Button } from "@/apps/web-user/common/components/buttons/Button";
 import { Checkbox } from "@/apps/web-user/common/components/inputs/Checkbox";
 import { Icon } from "@/apps/web-user/common/components/icons";
+import { EmptyState } from "@/apps/web-user/common/components/fallbacks/EmptyState";
+import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
+import { Skeleton } from "@/apps/web-user/common/components/skeleton";
+import { Toast } from "@/apps/web-user/common/components/toast/Toast";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { cn } from "@/apps/web-user/common/lib/utils";
 import getApiMessage from "@/apps/web-user/common/utils/getApiMessage";
@@ -19,7 +23,6 @@ import {
 import { QUOTE_NO_REPLAY } from "@/apps/web-user/features/quote/constants/quote.constant";
 import { dataUrlToFile, shrinkPhoto } from "@/apps/web-user/features/quote/utils/quote-photo.util";
 import type {
-  QuoteContactType,
   QuoteDeclineReason,
   QuoteLinkView,
   QuoteSimilarity,
@@ -41,13 +44,6 @@ const SIMILARITY: { value: QuoteSimilarity; label: string; detail: string }[] = 
   },
 ];
 
-const CONTACTS: { type: QuoteContactType; label: string; placeholder: string }[] = [
-  { type: "KAKAO", label: "카카오톡 채널", placeholder: "pf.kakao.com/_가게" },
-  { type: "INSTAGRAM", label: "인스타그램", placeholder: "@가게아이디" },
-  { type: "PHONE", label: "전화", placeholder: "010-0000-0000" },
-  { type: "NAVER", label: "네이버", placeholder: "톡톡·예약 주소" },
-];
-
 const DECLINE: { value: QuoteDeclineReason; label: string }[] = [
   { value: "FULLY_BOOKED", label: "그날 주문이 꽉 찼어요" },
   { value: "NOT_OUR_STYLE", label: "이런 디자인은 만들지 않아요" },
@@ -62,22 +58,16 @@ type FormState = {
   price: string;
   priceMayVary: boolean;
   similarity: QuoteSimilarity | null;
-  contacts: Partial<Record<QuoteContactType, string>>;
   memo: string;
   photos: string[];
 };
 
 function initialForm(view: QuoteLinkView): FormState {
   const q = view.quote;
-  const contacts: FormState["contacts"] = {};
-  for (const c of q?.contacts ?? view.prefillContacts) {
-    contacts[c.type] = c.type === "INSTAGRAM" ? `@${c.value}` : c.value;
-  }
   return {
     price: q ? q.unitPrice.toLocaleString("ko-KR") : "",
     priceMayVary: q?.priceMayVary ?? false,
     similarity: q?.similarity ?? null,
-    contacts,
     memo: q?.memo ?? "",
     photos: q?.photoUrls ?? [],
   };
@@ -85,16 +75,30 @@ function initialForm(view: QuoteLinkView): FormState {
 
 const digits = (v: string) => Number(v.replace(/[^0-9]/g, "")) || 0;
 
-/** 손님 요청서(이름·연락처 없이, 지역은 동네까지) */
+/** 이름 | 값 한 줄(요청서·보낸 견적). 판매자 앱 요청서 카드와 같은 모양 */
+function InfoLine({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex gap-[12px] py-[5px] text-sm">
+      <span className="w-[48px] shrink-0 text-gray-500">{label}</span>
+      <span className="min-w-0 flex-1 font-semibold text-gray-900 [overflow-wrap:anywhere]">
+        {children}
+      </span>
+    </div>
+  );
+}
+
+/** 손님 요청서(이름·연락처 없이, 지역은 동네까지). 픽업·케이크·예산·동네 줄 + 설명·요청 사항 회색 상자 */
 function RequestCard({ view }: { view: QuoteLinkView }) {
   const [viewer, setViewer] = useState<string | null>(null);
+  const [textOpen, setTextOpen] = useState(false);
+  const longText = (view.description ?? "").length + (view.requestNote ?? "").length > 120;
   return (
     <section className="mb-[24px] rounded-xl border border-gray-100 px-[16px] py-[14px]">
       {view.photoUrls.length > 0 && (
-        <div className={cn("mb-[12px] flex gap-[6px] overflow-auto", QUOTE_NO_REPLAY)}>
-          {view.photoUrls.map((url) => (
+        <div className={cn("mb-[8px] flex gap-[6px] overflow-auto", QUOTE_NO_REPLAY)}>
+          {view.photoUrls.map((url, i) => (
             <button
-              key={url}
+              key={`${i}-${url}`}
               type="button"
               onClick={() => setViewer(url)}
               aria-label="사진 크게 보기"
@@ -102,28 +106,52 @@ function RequestCard({ view }: { view: QuoteLinkView }) {
               <img
                 src={url}
                 alt="참고 사진"
-                className="h-[96px] w-[96px] shrink-0 rounded-lg object-cover"
+                className="h-[72px] w-[72px] shrink-0 rounded-lg object-cover"
               />
             </button>
           ))}
         </div>
       )}
-      <p className="text-sm font-bold text-gray-900">{view.pickup}</p>
-      <p className="mt-[2px] text-sm text-gray-900">
-        {view.cake}
-        {view.area ? ` · ${view.area} 근처` : ""}
-      </p>
-      {view.description && (
-        <p className={cn("mt-[6px] whitespace-pre-wrap text-sm text-gray-700", QUOTE_NO_REPLAY)}>
-          설명 &ldquo;{view.description}&rdquo;
-        </p>
+      <InfoLine label="픽업">{view.pickup}</InfoLine>
+      <InfoLine label="케이크">{view.cake}</InfoLine>
+      <InfoLine label="예산">{view.budget}</InfoLine>
+      {view.area && <InfoLine label="동네">{view.area} 근처</InfoLine>}
+      {(view.description || view.requestNote) && (
+        <div className={cn("mt-[8px] rounded-xl bg-gray-50 px-[12px] py-[10px]", QUOTE_NO_REPLAY)}>
+          {view.description && (
+            <p
+              className={cn(
+                "whitespace-pre-wrap text-sm text-gray-900",
+                !textOpen && "line-clamp-4",
+              )}
+            >
+              {view.description}
+            </p>
+          )}
+          {view.requestNote && (
+            <p
+              className={cn(
+                "whitespace-pre-wrap text-sm text-gray-700",
+                view.description && "mt-[6px]",
+                !textOpen && "line-clamp-2",
+              )}
+            >
+              <span className="font-semibold text-gray-500">요청 사항 </span>
+              {view.requestNote}
+            </p>
+          )}
+          {!textOpen && longText && (
+            <button
+              type="button"
+              onClick={() => setTextOpen(true)}
+              // 누르는 칸 40(글자는 그대로, 위아래 여백으로 넓힘)
+              className="-mb-[10px] -mt-[6px] inline-block py-[10px] text-sm font-semibold text-gray-900 underline"
+            >
+              더 보기
+            </button>
+          )}
+        </div>
       )}
-      {view.requestNote && (
-        <p className={cn("mt-[2px] whitespace-pre-wrap text-sm text-gray-700", QUOTE_NO_REPLAY)}>
-          요청 사항 &ldquo;{view.requestNote}&rdquo;
-        </p>
-      )}
-      <p className="mt-[6px] text-sm text-gray-700">예산 {view.budget}</p>
       {viewer && (
         <button
           type="button"
@@ -143,7 +171,8 @@ function RequestCard({ view }: { view: QuoteLinkView }) {
 }
 
 /**
- * 사장님 견적 링크(기획 I-46 SC-19). 가입 없이 금액·비슷한 정도·주문 받는 곳(필요하면 사진·메모)을 보낸다.
+ * 사장님 견적 링크(기획 I-46 SC-19). 가입 없이 금액·비슷한 정도(필요하면 사진·메모)를 보낸다.
+ * 주문 받는 곳은 묻지 않는다(운영자 11-12: 손님이 고르면 아래 대화에서 주문을 정함).
  * 보낸 뒤에는 손님이 고르기 전까지 고칠 수 있고, 손님과 링크 안에서 대화한다(기획 I-11).
  */
 export function QuoteLinkScreen({ token }: { token: string }) {
@@ -168,6 +197,9 @@ export function QuoteLinkScreen({ token }: { token: string }) {
   const [declineOpen, setDeclineOpen] = useState(false);
   const [declining, setDeclining] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  // 보낸 뒤 한 줄 안내(판매자 앱 견적 보내기와 같은 말)
+  const [toast, setToast] = useState<string | null>(null);
+  const formRef = useRef<HTMLElement>(null);
 
   // 사장님이 링크를 엶(한 번)
   const viewedRef = useRef(false);
@@ -199,7 +231,13 @@ export function QuoteLinkScreen({ token }: { token: string }) {
     return (
       <div className="min-h-screen bg-white">
         {header}
-        <p className="py-[40px] text-center text-sm text-gray-400">불러오는 중…</p>
+        {/* 다른 화면과 같은 회색 뼈대(손님 견적 화면과 같게) */}
+        <div className="flex flex-col gap-[12px] px-[20px] pt-[20px]">
+          <Skeleton className="h-[16px] w-[140px] rounded" />
+          <Skeleton className="h-[28px] w-[220px] rounded" />
+          <Skeleton className="mt-[8px] h-[220px] rounded-xl" />
+          <Skeleton className="h-[120px] rounded-xl" />
+        </div>
       </div>
     );
   }
@@ -207,40 +245,35 @@ export function QuoteLinkScreen({ token }: { token: string }) {
     return (
       <div className="min-h-screen bg-white">
         {header}
-        <div className="flex flex-col items-center gap-[16px] px-[20px] py-[48px]">
-          <p className="text-center text-sm text-gray-700">
-            {isError ? getApiMessage.error(error) : "견적 링크를 찾을 수 없어요."}
-          </p>
-          {/* 없는 링크(404)는 다시 해도 같아서 "다시 시도"를 보이지 않는다. 인터넷 끊김 등만 */}
-          {!(isAxiosError(error) && error.response?.status === 404) && (
-            <Button
-              variant="outline"
-              size="md"
-              className="w-[160px]"
-              onClick={() => void refetch()}
-            >
-              다시 시도
-            </Button>
-          )}
-        </div>
+        {/* 없는 링크(404)는 다시 해도 같아서 "다시 시도" 없이, 인터넷 끊김·서버 오류만 다른 화면과 같은 "다시 시도" */}
+        {isAxiosError(error) && error.response?.status === 404 ? (
+          <EmptyState
+            message="견적 링크를 찾을 수 없어요. 받은 메시지의 링크를 다시 확인해 주세요."
+            fill
+          />
+        ) : isError ? (
+          <LoadErrorState fill onRetry={() => void refetch()} />
+        ) : (
+          <EmptyState message="견적 링크를 찾을 수 없어요." fill />
+        )}
       </div>
     );
   }
 
   const set = (patch: Partial<FormState>) => setForm((f) => (f ? { ...f, ...patch } : f));
+  // "견적 고치기"를 누르면 칸이 요청서 아래에 열려 작은 휴대폰에서는 보이지 않아, 칸으로 내려간다
+  const openEditor = () => {
+    setForm(initialForm(view));
+    setEditing(true);
+    requestAnimationFrame(() =>
+      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
+    );
+  };
   const price = digits(form.price);
-  const chosenContacts = CONTACTS.filter((c) => form.contacts[c.type] !== undefined);
   // 어려워요로 답한 뒤에도 "견적 보내기로 바꾸기"를 누르면 칸이 열린다
   const showForm =
     view.canEdit && (!view.quote || editing) && (view.state !== "DECLINED" || editing);
   const showDeclined = view.state === "DECLINED" && !editing;
-
-  const toggleContact = (type: QuoteContactType) => {
-    const next = { ...form.contacts };
-    if (next[type] !== undefined) delete next[type];
-    else next[type] = "";
-    set({ contacts: next });
-  };
 
   const onPickPhotos = async (files: FileList | null) => {
     if (!files) return;
@@ -264,18 +297,12 @@ export function QuoteLinkScreen({ token }: { token: string }) {
     setFormError(null);
     if (price < 1000) return setFormError("금액을 적어 주세요.");
     if (!form.similarity) return setFormError("사진과 얼마나 비슷하게 만들 수 있는지 골라 주세요.");
-    const contacts = chosenContacts
-      .map((c) => ({ type: c.type, value: (form.contacts[c.type] ?? "").trim() }))
-      .filter((c) => c.value);
-    if (contacts.length === 0)
-      return setFormError("주문 받는 곳을 하나 이상 골라 주소나 번호를 적어 주세요.");
     setSending(true);
     try {
       await quoteLinkApi.submit(token, {
         unitPrice: price,
         priceMayVary: form.priceMayVary,
         similarity: form.similarity,
-        contacts,
         ...(form.memo.trim() ? { memo: form.memo.trim() } : {}),
         photoUrls: form.photos,
       });
@@ -284,8 +311,8 @@ export function QuoteLinkScreen({ token }: { token: string }) {
         edited: !!view.quote,
         similarity: form.similarity,
         photo_count: form.photos.length,
-        contact_types: contacts.map((c) => c.type).join(","),
       });
+      setToast(view.quote ? "고친 견적을 보냈어요" : "견적을 보냈어요");
       setEditing(false);
       await reload();
     } catch (e) {
@@ -301,6 +328,7 @@ export function QuoteLinkScreen({ token }: { token: string }) {
       await quoteLinkApi.decline(token, reason);
       trackEvent("success_quote_link_decline", { quote_request_id: view.requestId, reason });
       setDeclineOpen(false);
+      setToast("어려워요로 답했어요");
       await reload();
     } catch (e) {
       setDeclineOpen(false);
@@ -314,12 +342,18 @@ export function QuoteLinkScreen({ token }: { token: string }) {
     <div className="min-h-screen bg-white pb-[120px]">
       {header}
       <main className="px-[20px] pt-[20px]">
-        <h1 className="text-xl font-bold leading-[27.5px] text-gray-900">
-          {view.storeName} 사장님께 온 케이크 요청이에요
+        <p className="text-sm text-gray-500 [overflow-wrap:anywhere]">{view.storeName} 사장님께</p>
+        <h1 className="mt-[2px] text-xl font-bold leading-[27.5px] text-gray-900">
+          케이크 견적 요청이 왔어요
         </h1>
-        <p className="mb-[16px] mt-[4px] text-sm text-gray-500">
-          가입 없이 금액만 보내면 돼요 · {view.deadline}까지
-        </p>
+        {(view.state === "OPEN" || view.state === "SENT") && (
+          <p className="mt-[4px] text-sm text-gray-500">
+            {view.quote
+              ? "손님이 고르면 Picake가 알려 드려요"
+              : `가입 없이 금액만 보내면 돼요 · ${view.deadline}까지`}
+          </p>
+        )}
+        <div className="mb-[16px]" />
         <RequestCard view={view} />
 
         {view.state === "CHOSEN_ME" && (
@@ -353,7 +387,7 @@ export function QuoteLinkScreen({ token }: { token: string }) {
               ). 손님에게는 한 줄로 보여요.
             </NoticeBox>
             {view.canEdit && (
-              <Button variant="outline" size="md" onClick={() => setEditing(true)}>
+              <Button variant="outline" size="md" onClick={openEditor}>
                 견적 보내기로 바꾸기
               </Button>
             )}
@@ -361,38 +395,38 @@ export function QuoteLinkScreen({ token }: { token: string }) {
         )}
 
         {view.quote && !editing && (
-          <section className="mb-[20px] rounded-xl border border-gray-100 px-[16px] py-[14px]">
-            <p className="mb-[8px] text-sm font-bold text-gray-900">보낸 견적</p>
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-500">금액</span>
-              <span className="text-gray-900">
-                {view.quote.quantity > 1
-                  ? `1개 ${view.quote.unitPrice.toLocaleString("ko-KR")}원 × ${view.quote.quantity}개`
-                  : `${view.quote.total.toLocaleString("ko-KR")}원`}{" "}
-                · {view.quote.similarityLabel}
-              </span>
-            </div>
-            <div className="mt-[6px] flex justify-between gap-[12px] text-sm">
-              <span className="shrink-0 text-gray-500">주문 받는 곳</span>
-              <span className="truncate text-gray-900">
-                {view.quote.contacts.map((c) => c.label).join(" · ")}
-              </span>
-            </div>
-            {view.canEdit && (
-              <p className="mt-[10px] text-xs text-gray-500">
-                손님이 사장님 견적을 고르면 이 화면과 Picake가 알려 드려요.
-              </p>
+          <section className="mb-[24px] rounded-xl border border-gray-100 px-[16px] py-[14px]">
+            <p className="mb-[4px] text-base font-bold text-gray-900">보낸 견적</p>
+            <InfoLine label="금액">
+              {view.quote.quantity > 1
+                ? `1개 ${view.quote.unitPrice.toLocaleString("ko-KR")}원 × ${view.quote.quantity}개`
+                : `${view.quote.total.toLocaleString("ko-KR")}원`}
+              {view.quote.priceMayVary && (
+                <span className="block text-xs font-normal text-gray-500">
+                  디자인을 보고 달라질 수 있어요
+                </span>
+              )}
+            </InfoLine>
+            <InfoLine label="디자인">{view.quote.similarityLabel}</InfoLine>
+            {view.quote.memo && (
+              <InfoLine label="메모">
+                <span className="whitespace-pre-wrap font-normal">{view.quote.memo}</span>
+              </InfoLine>
+            )}
+            {view.quote.photoUrls.length > 0 && (
+              <div className="mt-[6px] flex gap-[6px]">
+                {view.quote.photoUrls.map((url, i) => (
+                  <img
+                    key={`${i}-${url}`}
+                    src={url}
+                    alt=""
+                    className="h-[56px] w-[56px] rounded-lg object-cover"
+                  />
+                ))}
+              </div>
             )}
             {view.canEdit && (
-              <Button
-                variant="outline"
-                size="md"
-                className="mt-[12px] w-full"
-                onClick={() => {
-                  setForm(initialForm(view));
-                  setEditing(true);
-                }}
-              >
+              <Button variant="outline" size="md" className="mt-[12px] w-full" onClick={openEditor}>
                 견적 고치기
               </Button>
             )}
@@ -400,7 +434,7 @@ export function QuoteLinkScreen({ token }: { token: string }) {
         )}
 
         {showForm && (
-          <section>
+          <section ref={formRef} className="mb-[24px] scroll-mt-[64px]">
             <p className="mb-[16px] text-base font-bold text-gray-900">
               {view.quote ? "견적 고치기" : "견적 보내기"}
             </p>
@@ -448,39 +482,6 @@ export function QuoteLinkScreen({ token }: { token: string }) {
                   >
                     {s.label}
                   </Pill>
-                ))}
-              </div>
-            </Field>
-
-            <Field
-              label="주문 받는 곳"
-              optional="여러 개 골라도 돼요"
-              caption="손님이 사장님 견적을 고르면 고른 곳으로 연락해요"
-            >
-              <div className="mb-[10px] flex flex-wrap gap-[8px]">
-                {CONTACTS.map((c) => (
-                  <Pill
-                    key={c.type}
-                    selected={form.contacts[c.type] !== undefined}
-                    onClick={() => toggleContact(c.type)}
-                  >
-                    {c.label}
-                  </Pill>
-                ))}
-              </div>
-              <div className="flex flex-col gap-[8px]">
-                {chosenContacts.map((c) => (
-                  <input
-                    key={c.type}
-                    value={form.contacts[c.type] ?? ""}
-                    onChange={(e) =>
-                      set({ contacts: { ...form.contacts, [c.type]: e.target.value } })
-                    }
-                    placeholder={`${c.label} · ${c.placeholder}`}
-                    aria-label={c.label}
-                    inputMode={c.type === "PHONE" ? "tel" : "text"}
-                    className="h-[48px] rounded-xl border border-gray-100 px-[14px] text-sm text-gray-900 outline-none focus:border-gray-900"
-                  />
                 ))}
               </div>
             </Field>
@@ -557,14 +558,27 @@ export function QuoteLinkScreen({ token }: { token: string }) {
               </>
             )}
             <p className="mb-[10px] text-xs text-gray-500">
-              보내면 손님에게 가게 이름·견적·메모·주문 받는 곳이 보여요
+              보내면 손님에게 가게 이름·견적·메모가 보여요. 손님이 고르면 이 화면에서 대화하며
+              주문을 정해요
             </p>
             {formError && <p className="mb-[10px] text-sm text-red-400">{formError}</p>}
           </section>
         )}
 
+        {view.threadId && (
+          <QuoteLinkChat
+            token={token}
+            open={view.chatOpen}
+            requestId={view.requestId}
+            // 같은 손님이 이 가게에 다시 요청하면 지난 대화가 보이는데, 이 요청에 견적을 보내기 전에는 쓸 수 없다
+            closedMessage={
+              !view.quote && view.canEdit ? "견적을 보내면 손님과 대화할 수 있어요." : undefined
+            }
+          />
+        )}
+
         {view.showEntryGuide && view.quote && (
-          <section className="mb-[20px] rounded-xl bg-gray-50 px-[16px] py-[14px]">
+          <section className="mt-[8px] rounded-xl bg-gray-50 px-[16px] py-[14px]">
             <p className="text-sm font-bold text-gray-900">다음부터는 Picake로 바로 받아 보세요</p>
             <p className="mt-[4px] text-xs leading-[18px] text-gray-700">
               근처 손님 요청에 견적만 보내면 돼요.{" "}
@@ -580,10 +594,6 @@ export function QuoteLinkScreen({ token }: { token: string }) {
               입점 알아보기 ›
             </a>
           </section>
-        )}
-
-        {view.threadId && (
-          <QuoteLinkChat token={token} open={view.chatOpen} requestId={view.requestId} />
         )}
       </main>
 
@@ -619,6 +629,15 @@ export function QuoteLinkScreen({ token }: { token: string }) {
             </Button>
           </span>
         </div>
+      )}
+
+      {toast && (
+        <Toast
+          message={toast}
+          iconName="checkCircle"
+          iconClassName="text-green-400"
+          onClose={() => setToast(null)}
+        />
       )}
 
       <BottomSheet

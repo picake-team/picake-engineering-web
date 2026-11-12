@@ -86,6 +86,10 @@ export interface ChatUnread {
   unreadThreads: number;
   /** 답할 방 수(마지막 글이 손님 것) */
   replyNeeded?: number;
+  /** 홈 "답할 채팅": 답할 방 중 마지막 글이 견적 요청 카드인 방을 뺀 수(옛 서버는 없음) */
+  replyNeededChats?: number;
+  /** 홈 "견적 요청": 아직 견적·어려워요로 답하지 않은 받는 중 요청 수(옛 서버는 없음) */
+  quoteRequests?: number;
 }
 
 export interface ChatExistingThread {
