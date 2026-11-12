@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, ButtonPair } from "@/apps/web-seller/common/ui/Button";
 import { Field, TextInput } from "@/apps/web-seller/common/ui/Field";
 import { BottomSheet } from "@/apps/web-seller/common/ui/Sheet";
