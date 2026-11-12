@@ -90,23 +90,31 @@ export function QuoteCard({
         </div>
       )}
 
-      <div className="mt-[12px] flex gap-[8px]">
-        {quote.threadId && (
-          <span className="w-1/2">
-            <Button variant="outline" size="sm" className="w-full" onClick={onChat}>
-              {quote.chosen ? "채팅하기" : "채팅으로 묻기"}
-            </Button>
-          </span>
-        )}
-        {quote.canChoose && (
-          <span className={quote.threadId ? "w-1/2" : "w-full"}>
-            {/* 카드마다 있어 진한 주황 대신 흰 버튼에 주황 글씨(진한 주황은 화면당 하나) */}
-            <Button variant="outline" size="sm" className="w-full !text-primary" onClick={onChoose}>
-              이 가게로 고르기
-            </Button>
-          </span>
-        )}
-      </div>
+      {/* 고른 가게는 화면 아래 큰 "○○과 채팅하기" 하나로(운영자 11-12) */}
+      {((quote.threadId && !quote.chosen) || quote.canChoose) && (
+        <div className="mt-[12px] flex gap-[8px]">
+          {quote.threadId && !quote.chosen && (
+            <span className="w-1/2">
+              <Button variant="outline" size="sm" className="w-full" onClick={onChat}>
+                채팅으로 묻기
+              </Button>
+            </span>
+          )}
+          {quote.canChoose && (
+            <span className={quote.threadId && !quote.chosen ? "w-1/2" : "w-full"}>
+              {/* 카드마다 있어 진한 주황 대신 흰 버튼에 주황 글씨(진한 주황은 화면당 하나) */}
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full !text-primary"
+                onClick={onChoose}
+              >
+                이 가게로 고르기
+              </Button>
+            </span>
+          )}
+        </div>
+      )}
 
       {viewer && (
         <button
