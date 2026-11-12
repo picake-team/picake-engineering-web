@@ -39,12 +39,9 @@ function PastOrderItem({ order, isLast }: { order: OrderResponse; isLast: boolea
   const [isMapSheetOpen, setIsMapSheetOpen] = useState(false);
   const visibleItems = expanded ? order.orderItems : order.orderItems.slice(0, 2);
   const hasMore = order.orderItems.length > 2;
-  const isCancelled = [
-    OrderStatus.CANCEL_COMPLETED,
-    OrderStatus.SELLER_CANCELLED,
-    OrderStatus.BUYER_CANCELLED,
-    OrderStatus.CANCEL_REFUND_COMPLETED,
-  ].includes(order.orderStatus);
+  const isCancelled = [OrderStatus.CANCEL_COMPLETED, OrderStatus.CANCEL_REFUND_COMPLETED].includes(
+    order.orderStatus,
+  );
 
   return (
     <div className="relative pl-[30px]">
@@ -191,8 +188,6 @@ function PastOrderItem({ order, isLast }: { order: OrderResponse; isLast: boolea
 
 const CANCEL_NOSHOW_STATUSES: OrderStatus[] = [
   OrderStatus.CANCEL_COMPLETED,
-  OrderStatus.SELLER_CANCELLED,
-  OrderStatus.BUYER_CANCELLED,
   OrderStatus.CANCEL_REFUND_PENDING,
   OrderStatus.CANCEL_REFUND_COMPLETED,
   OrderStatus.NO_SHOW,
