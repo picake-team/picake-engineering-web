@@ -61,7 +61,7 @@ export async function shrinkPhoto(file: File, maxSide = 1600): Promise<string> {
   }
 }
 
-function dataUrlToFile(dataUrl: string, name: string): File {
+export function dataUrlToFile(dataUrl: string, name: string): File {
   const [head, body] = dataUrl.split(",");
   const mime = head.match(/data:(.*?);/)?.[1] ?? "image/jpeg";
   const bytes = atob(body);

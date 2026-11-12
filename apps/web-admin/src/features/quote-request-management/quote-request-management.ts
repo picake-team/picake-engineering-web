@@ -1,4 +1,4 @@
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminClient } from "@/apps/web-admin/common/config/axios.config";
 import { useQueryErrorAlert } from "@/apps/web-admin/common/hooks/useQueryErrorAlert";
 import type { PaginationMetaDto } from "@/apps/web-admin/common/types/api.dto";
@@ -33,7 +33,7 @@ export interface QuoteRequestSummaryDto {
 export interface AdminQuoteRequestListItemDto {
   id: string;
   status: QuoteRequestStatus;
-  closeReason: "EXPIRED" | "CONSUMER" | null;
+  closeReason: "EXPIRED" | "CONSUMER" | "ADMIN" | null;
   deadlineAt: string;
   thumbnailUrl: string | null;
   quoteCount: number;
@@ -42,6 +42,8 @@ export interface AdminQuoteRequestListItemDto {
   storeCount: number;
   photoCount: number;
   entry: QuoteRequestEntry | null;
+  quantity: number;
+  chosen: boolean;
 }
 
 export interface AdminQuoteRequestStoreDto {
@@ -73,6 +75,9 @@ export interface AdminQuoteRequestDetailDto extends AdminQuoteRequestListItemDto
   consumer: { id: string; nickname: string | null; name: string | null; phone: string };
 }
 
+/** 견적 칸이 쓰는 요청 상세(SC-46) */
+export type AdminQuoteDetailDtoLike = AdminQuoteRequestDetailDto;
+
 export interface AdminQuoteRequestListResponseDto {
   data: AdminQuoteRequestListItemDto[];
   meta: PaginationMetaDto;
@@ -100,6 +105,7 @@ export const quoteRequestManagementApi = {
 const keys = {
   list: (params: AdminQuoteRequestListQueryDto) => ["quote-request-management", "list", params],
   detail: (id: string) => ["quote-request-management", "detail", id],
+  quotes: (id: string) => ["quote-request-management", "quotes", id],
 };
 
 export function useQuoteRequestList(params: AdminQuoteRequestListQueryDto) {
@@ -132,4 +138,140 @@ export function formatDateTime(iso: string): string {
     minute: "2-digit",
     hour12: false,
   }).format(new Date(iso));
+}
+
+// ───────────── 견적 ②(기획 I-46 SC-46): 가게별 상태·가게 추가·견적 링크·대신 적기·알렸어요·마감 ─────────────
+
+export type QuoteSimilarity = "EXACT" | "SIMILAR" | "INSPIRED";
+export type QuoteContactType = "KAKAO" | "INSTAGRAM" | "PHONE" | "NAVER";
+export type QuoteDeclineReason = "FULLY_BOOKED" | "NOT_OUR_STYLE" | "BUDGET" | "OTHER";
+export type QuoteTargetState =
+  | "OPEN"
+  | "SENT"
+  | "DECLINED"
+  | "CHOSEN_ME"
+  | "CHOSEN_OTHER"
+  | "CLOSED"
+  | "FULL";
+
+export const QUOTE_TARGET_STATE_LABELS: Record<QuoteTargetState, string> = {
+  OPEN: "답 기다림",
+  SENT: "견적 보냄",
+  DECLINED: "어려워요",
+  CHOSEN_ME: "손님이 고름",
+  CHOSEN_OTHER: "다른 가게를 고름",
+  CLOSED: "마감",
+  FULL: "견적 다 모임",
+};
+
+export const QUOTE_DECLINE_LABELS: Record<QuoteDeclineReason, string> = {
+  FULLY_BOOKED: "그날 주문이 꽉 찼어요",
+  NOT_OUR_STYLE: "이런 디자인은 만들지 않아요",
+  BUDGET: "예산으로는 어려워요",
+  OTHER: "다른 이유",
+};
+
+export interface QuoteContactDto {
+  type: QuoteContactType;
+  label: string;
+  value: string;
+  href: string;
+}
+
+export interface AdminQuoteDto {
+  id: string;
+  storeName: string;
+  source: "LINK" | "ADMIN" | "SELLER";
+  unitPrice: number;
+  quantity: number;
+  total: number;
+  priceMayVary: boolean;
+  similarity: QuoteSimilarity;
+  similarityLabel: string;
+  contacts: QuoteContactDto[];
+  memo: string | null;
+  photoUrls: string[];
+  edited: boolean;
+  createdAt: string;
+}
+
+export interface AdminQuoteTargetStatusDto {
+  targetId: string;
+  linkUrl: string | null;
+  linkCreatedAt: string | null;
+  linkOpenedAt: string | null;
+  sentToAppAt: string | null;
+  state: QuoteTargetState;
+  quote: AdminQuoteDto | null;
+  declineReason: QuoteDeclineReason | null;
+  hasChat: boolean;
+  awaitingShopReply: boolean;
+}
+
+export interface AdminQuoteSectionDto {
+  targets: AdminQuoteTargetStatusDto[];
+  chosenTargetId: string | null;
+  chosenAt: string | null;
+  chosenNotifiedAt: string | null;
+  chosenIsUnentered: boolean;
+  chosenStalled: boolean;
+}
+
+export interface AdminQuoteInputBody {
+  unitPrice: number;
+  priceMayVary?: boolean;
+  similarity: QuoteSimilarity;
+  contacts: { type: QuoteContactType; value: string }[];
+  memo?: string;
+}
+
+export interface AdminAddStoreBody {
+  storeId?: string;
+  kakaoPlaceId?: string;
+  name?: string;
+  placeUrl?: string;
+  phone?: string;
+}
+
+const base = (id: string) => `/quote-request-management/requests/${id}`;
+
+export const quoteAdminApi = {
+  section: async (id: string): Promise<AdminQuoteSectionDto> =>
+    (await adminClient.get(`${base(id)}/quotes`)).data.data,
+  addStore: async (id: string, body: AdminAddStoreBody): Promise<AdminQuoteSectionDto> =>
+    (await adminClient.post(`${base(id)}/stores`, body)).data.data,
+  createLink: async (id: string, targetId: string): Promise<{ linkUrl: string }> =>
+    (await adminClient.post(`${base(id)}/stores/${targetId}/link`)).data.data,
+  submit: async (id: string, targetId: string, body: AdminQuoteInputBody) =>
+    (await adminClient.put(`${base(id)}/stores/${targetId}/quote`, body)).data.data,
+  decline: async (id: string, targetId: string, reason: QuoteDeclineReason) =>
+    (await adminClient.post(`${base(id)}/stores/${targetId}/decline`, { reason })).data.data,
+  chosenNotified: async (id: string) =>
+    (await adminClient.post(`${base(id)}/chosen-notified`)).data.data,
+  close: async (id: string) => (await adminClient.post(`${base(id)}/close`)).data.data,
+};
+
+export function useQuoteSection(requestId: string | undefined) {
+  const query = useQuery<AdminQuoteSectionDto>({
+    queryKey: keys.quotes(requestId ?? ""),
+    queryFn: () => quoteAdminApi.section(requestId!),
+    enabled: Boolean(requestId),
+  });
+  useQueryErrorAlert(query);
+  return query;
+}
+
+/** 견적 쓰기 뒤 상세·가게별 상태를 함께 다시 읽는다 */
+export function useQuoteAdminAction<T, R = unknown>(
+  requestId: string,
+  fn: (vars: T) => Promise<R>,
+) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: fn,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: keys.quotes(requestId) });
+      void queryClient.invalidateQueries({ queryKey: keys.detail(requestId) });
+    },
+  });
 }

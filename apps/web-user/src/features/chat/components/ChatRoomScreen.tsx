@@ -74,7 +74,12 @@ function ChatPhoto({ url, onOpen }: { url: string; onOpen: (url: string) => void
   );
 }
 
+const QUOTE_CARD_TYPES: ChatCard["type"][] = ["QUOTE_REQUEST", "QUOTE", "QUOTE_CHOSEN"];
+
 function CardView({ card, onOpen }: { card: ChatCard; onOpen?: () => void }) {
+  const isQuote = QUOTE_CARD_TYPES.includes(card.type);
+  // 손님 화면: 내 요청서 카드는 "견적 요청을 보냈어요"(서버 카드 제목은 가게 쪽 말)
+  const title = card.type === "QUOTE_REQUEST" ? "견적 요청을 보냈어요" : card.title;
   return (
     <button
       type="button"
@@ -91,8 +96,11 @@ function CardView({ card, onOpen }: { card: ChatCard; onOpen?: () => void }) {
         <span className="h-[48px] w-[48px] shrink-0 rounded-lg bg-gray-50" />
       )}
       <span className="flex min-w-0 flex-1 flex-col gap-[2px]">
-        <span className="truncate text-sm font-bold text-gray-900">{card.title}</span>
+        <span className="truncate text-sm font-bold text-gray-900">{title}</span>
         {card.subtitle && <span className="truncate text-xs text-gray-500">{card.subtitle}</span>}
+        {isQuote && (
+          <span className="mt-[2px] text-xs font-bold text-primary">견적 자세히 보기 ›</span>
+        )}
         {card.type === "ORDER" && card.orderStatus && (
           <span className="mt-[2px]">
             <OrderStatusBadge status={card.orderStatus} />
@@ -358,6 +366,7 @@ export function ChatRoomScreen({
 
   const openCard = (card: ChatCard) => {
     if (card.type === "ORDER") router.push(PATHS.ORDER.DETAIL(card.refId));
+    else if (QUOTE_CARD_TYPES.includes(card.type)) router.push(PATHS.QUOTE.DETAIL(card.refId));
     else router.push(PATHS.PRODUCT.DETAIL(card.refId));
   };
 
@@ -391,6 +400,12 @@ export function ChatRoomScreen({
         )}
       </header>
 
+      {thread?.unenteredShop && (
+        // 입점 전 가게(견적 링크로 대화): Picake 밖에서 주문·결제한다는 고지(기획 I-11, 법무 점검표 2번)
+        <p className="shrink-0 bg-gray-50 px-[16px] py-[8px] text-xs text-gray-700">
+          Picake는 대화를 이어 드려요. 주문과 결제는 가게와 직접 해요.
+        </p>
+      )}
       <div
         ref={listRef}
         onScroll={onScroll}

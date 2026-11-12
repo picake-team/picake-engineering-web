@@ -1,16 +1,28 @@
 /** 채팅(기획 I-11) — 서버 modules/chat/dto/chat.dto.ts와 같은 모양(손님 웹 features/chat/types와 같음) */
 
 export type ChatSender = "CONSUMER" | "SHOP" | "SYSTEM";
-export type ChatMessageKind = "TEXT" | "IMAGE" | "ORDER" | "PRODUCT";
+export type ChatMessageKind =
+  | "TEXT"
+  | "IMAGE"
+  | "ORDER"
+  | "PRODUCT"
+  | "QUOTE_REQUEST"
+  | "QUOTE"
+  | "QUOTE_CHOSEN";
 
 export interface ChatCard {
-  type: "ORDER" | "PRODUCT";
+  type: "ORDER" | "PRODUCT" | "QUOTE_REQUEST" | "QUOTE" | "QUOTE_CHOSEN";
+  /** 견적 카드면 견적 요청 ID */
   refId: string;
   title: string;
   subtitle?: string | null;
   imageUrl?: string | null;
   orderStatus?: string | null;
   available?: boolean;
+  /** 견적 카드: 이 가게 쪽 지금 상태 */
+  quoteState?: string | null;
+  /** 고름 카드: 손님이 다른 가게를 골랐어요 */
+  otherChosen?: boolean;
 }
 
 export interface ChatMessage {
@@ -42,6 +54,8 @@ export interface ChatThread {
   needsReply: boolean;
   muted: boolean;
   blockedByMe: boolean;
+  /** 마지막 글이 손님 견적 요청서("견적 요청" 표시) */
+  quoteRequest?: boolean;
 }
 
 export interface ChatThreadDetail extends ChatThread {

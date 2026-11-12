@@ -16,6 +16,8 @@ export function toastIconFor(
     const title = a.title ?? "";
     // 채팅 새 문의(서버 SELLER_CHAT_PUSH_TITLE "새 문의가 왔어요", 기획 I-11) — 홈 "답할 채팅" 아이콘과 같게
     if (/문의/.test(title)) return { kind: "task", name: "chat" };
+    // 견적(서버 SELLER_QUOTE_PUSH_TITLES "새 견적 요청이 왔어요"·"손님이 견적을 골랐어요", 기획 I-46) — 채팅 안에서 받는다
+    if (/견적/.test(title)) return { kind: "task", name: "chat" };
     if (/취소/.test(title)) return { kind: "line", name: "close" };
     if (/환불/.test(title)) return { kind: "task", name: "refund" };
     if (/입금/.test(title)) return { kind: "task", name: "deposit" };

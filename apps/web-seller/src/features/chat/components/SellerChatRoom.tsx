@@ -18,6 +18,7 @@ import { canGoBackInApp } from "@/apps/web-seller/common/hooks/useLeaveAfterSave
 import { getOrderStatusLabel } from "@/apps/web-seller/features/order/utils/order-status-ui.util";
 import { chatApi } from "@/apps/web-seller/features/chat/apis/chat.api";
 import { shrinkPhoto, useSellerChatRoom } from "@/apps/web-seller/features/chat/hooks/useChat";
+import { QuoteRequestPanel } from "@/apps/web-seller/features/quote/components/QuoteRequestPanel";
 import {
   CHAT_LIMITS,
   CHAT_NO_REPLAY,
@@ -107,15 +108,39 @@ function CardView({ card, onOpen }: { card: ChatCard; onOpen?: () => void }) {
 
 function Bubble({
   m,
+  storeId,
   readByOther,
   onOpenImage,
   onOpenCard,
 }: {
   m: ChatMessage;
+  storeId: string;
   readByOther: boolean;
   onOpenImage: (url: string) => void;
   onOpenCard: (card: ChatCard) => void;
 }) {
+  // 손님 견적 요청서(기획 I-46 ②, 판매자 앱 A안): 방 맨 위 넓은 카드에서 바로 견적을 보낸다
+  if (m.kind === "QUOTE_REQUEST" && m.card && !m.hidden) {
+    return <QuoteRequestPanel storeId={storeId} requestId={m.card.refId} />;
+  }
+  // 견적·고름 카드는 가운데 회색 띠(누가 보낸 말이 아니라 일어난 일)
+  if ((m.kind === "QUOTE" || m.kind === "QUOTE_CHOSEN") && m.card && !m.hidden) {
+    return (
+      <div className="self-center rounded-card bg-ink-50 px-4 py-2.5 text-center">
+        <p
+          className={cx("text-sub font-bold", m.card.otherChosen ? "text-ink-600" : "text-ink-900")}
+        >
+          {m.kind === "QUOTE_CHOSEN" && !m.card.otherChosen
+            ? "손님이 이 견적을 골랐어요"
+            : m.kind === "QUOTE"
+              ? "견적을 보냈어요"
+              : m.card.title}
+        </p>
+        {m.card.subtitle ? <p className="text-caption text-ink-600">{m.card.subtitle}</p> : null}
+        <p className="text-badge text-ink-400">{timeLabel(m.createdAt)}</p>
+      </div>
+    );
+  }
   const meta = (
     <span className="shrink-0 self-end pb-0.5 text-badge text-ink-400">
       {m.mine && readByOther ? (
@@ -453,6 +478,7 @@ export function SellerChatRoom({
                   m={m}
                   readByOther={m.id === lastMineId && !!otherReadAt && otherReadAt >= m.createdAt}
                   onOpenImage={setViewer}
+                  storeId={storeId}
                   onOpenCard={openCard}
                 />
               </div>
