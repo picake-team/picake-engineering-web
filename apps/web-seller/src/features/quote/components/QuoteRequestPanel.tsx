@@ -6,6 +6,7 @@ import { Chip } from "@/apps/web-seller/common/ui/Choice";
 import { Field, TextArea, TextInput } from "@/apps/web-seller/common/ui/Field";
 import { BottomSheet } from "@/apps/web-seller/common/ui/Sheet";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
+import { Checkbox } from "@/apps/web-seller/common/ui/Toggle";
 import { cx } from "@/apps/web-seller/common/ui/cx";
 import getApiMessage from "@/apps/web-seller/common/utils/getApiMessage";
 import { uploadApi } from "@/apps/web-seller/features/upload/apis/upload.api";
@@ -191,15 +192,9 @@ function QuoteSendSheet({
             />
           )}
         </Field>
-        <label className="-mt-3 flex items-center gap-2 text-sub text-ink-700">
-          <input
-            type="checkbox"
-            checked={mayVary}
-            onChange={(e) => setMayVary(e.target.checked)}
-            className="size-[18px] accent-[#ff653e]"
-          />
+        <Checkbox checked={mayVary} onChange={setMayVary} className="-mt-3">
           디자인을 보고 달라질 수 있어요
-        </label>
+        </Checkbox>
 
         <div className="flex flex-col gap-2">
           <span className="text-sub font-bold text-ink-700">

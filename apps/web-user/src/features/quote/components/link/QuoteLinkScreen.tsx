@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { BottomSheet } from "@/apps/web-user/common/components/bottom-sheets/BottomSheet";
 import { Button } from "@/apps/web-user/common/components/buttons/Button";
+import { Checkbox } from "@/apps/web-user/common/components/inputs/Checkbox";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { cn } from "@/apps/web-user/common/lib/utils";
@@ -211,7 +212,9 @@ export function QuoteLinkScreen({ token }: { token: string }) {
   const set = (patch: Partial<FormState>) => setForm((f) => (f ? { ...f, ...patch } : f));
   const price = digits(form.price);
   const chosenContacts = CONTACTS.filter((c) => form.contacts[c.type] !== undefined);
-  const showForm = view.canEdit && (!view.quote || editing) && view.state !== "DECLINED";
+  // 어려워요로 답한 뒤에도 "견적 보내기로 바꾸기"를 누르면 칸이 열린다
+  const showForm =
+    view.canEdit && (!view.quote || editing) && (view.state !== "DECLINED" || editing);
   const showDeclined = view.state === "DECLINED" && !editing;
 
   const toggleContact = (type: QuoteContactType) => {
@@ -375,14 +378,7 @@ export function QuoteLinkScreen({ token }: { token: string }) {
             <p className="mb-[16px] text-base font-bold text-gray-900">
               {view.quote ? "견적 고치기" : "견적 보내기"}
             </p>
-            <Field
-              label={view.quantity > 1 ? "1개 금액" : "금액"}
-              caption={
-                view.quantity > 1 && price > 0
-                  ? `${view.quantity}개 합계 ${(price * view.quantity).toLocaleString("ko-KR")}원`
-                  : undefined
-              }
-            >
+            <Field label={view.quantity > 1 ? "1개 금액" : "금액"}>
               <div className="flex items-center gap-[8px]">
                 <input
                   inputMode="numeric"
@@ -397,15 +393,20 @@ export function QuoteLinkScreen({ token }: { token: string }) {
                 />
                 <span className="text-sm text-gray-900">원</span>
               </div>
-              <label className="mt-[10px] flex items-center gap-[8px] text-sm text-gray-700">
-                <input
-                  type="checkbox"
+              {view.quantity > 1 && price > 0 && (
+                <p className="mt-[6px] text-right text-xs text-gray-500">
+                  {view.quantity}개 합계 {(price * view.quantity).toLocaleString("ko-KR")}원
+                </p>
+              )}
+              <div className="mt-[10px]">
+                <Checkbox
                   checked={form.priceMayVary}
-                  onChange={(e) => set({ priceMayVary: e.target.checked })}
-                  className="h-[18px] w-[18px] accent-[var(--color-primary,#ff653e)]"
+                  onChange={(v) => set({ priceMayVary: v })}
+                  label={
+                    <span className="text-sm text-gray-700">디자인을 보고 달라질 수 있어요</span>
+                  }
                 />
-                디자인을 보고 달라질 수 있어요
-              </label>
+              </div>
             </Field>
 
             <Field
@@ -558,7 +559,7 @@ export function QuoteLinkScreen({ token }: { token: string }) {
 
       {showForm && (
         <div className="fixed bottom-0 left-0 right-0 z-10 mx-auto flex max-w-[638px] gap-[8px] bg-white px-[20px] pb-[12px] pt-[10px]">
-          {!view.quote && (
+          {!view.quote && !editing && (
             <span className="w-1/3">
               <Button
                 variant="outline"
@@ -570,7 +571,7 @@ export function QuoteLinkScreen({ token }: { token: string }) {
               </Button>
             </span>
           )}
-          {view.quote && (
+          {(view.quote || editing) && (
             <span className="w-1/3">
               <Button
                 variant="outline"

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { BottomSheetOptionList } from "@/apps/web-user/common/components/bottom-sheets/BottomSheetOptionList";
+import Image from "next/image";
 import { Button } from "@/apps/web-user/common/components/buttons/Button";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { useOpenExternal } from "@/apps/web-user/common/hooks/useOpenExternal";
@@ -28,22 +28,40 @@ const CONTACT_ICONS: Record<QuoteContactType, string> = {
   NAVER: "/images/contents/map_naver.png",
 };
 
-/** 가게가 고른 주문 받는 곳(스토어 문의 창과 같은 목록 모양, SC-18 10) */
+/**
+ * 가게가 고른 주문 받는 곳(SC-18 10). 스토어 문의 창의 줄과 같은 모양(40 동그라미 그림 + 이름)이지만
+ * 창 아래 여백 없이 카드 안에 넣는다.
+ */
 export function QuoteContactList({ contacts }: { contacts: QuoteContact[] }) {
   const { open, toast } = useOpenExternal();
   return (
     <>
-      <BottomSheetOptionList
-        items={contacts.map((c) => ({
-          icon: { type: "image" as const, src: CONTACT_ICONS[c.type], alt: c.label },
-          label: c.type === "INSTAGRAM" ? `인스타그램 @${c.value}` : c.label,
-          onClick: () =>
-            open(c.href, {
-              copyText: c.type === "PHONE" ? c.value : c.href,
-              message: c.type === "PHONE" ? "전화번호를 복사했어요" : "주소를 복사했어요",
-            }),
-        }))}
-      />
+      <div className="flex flex-col">
+        {contacts.map((c) => (
+          <button
+            key={c.type}
+            type="button"
+            onClick={() =>
+              open(c.href, {
+                copyText: c.type === "PHONE" ? c.value : c.href,
+                message: c.type === "PHONE" ? "전화번호를 복사했어요" : "주소를 복사했어요",
+              })
+            }
+            className="flex w-full items-center gap-4 py-[10px] text-left"
+          >
+            <Image
+              src={CONTACT_ICONS[c.type]}
+              alt={c.label}
+              width={40}
+              height={40}
+              className="h-10 w-10 rounded-full object-cover"
+            />
+            <span className="text-sm text-gray-900">
+              {c.type === "INSTAGRAM" ? `인스타그램 @${c.value}` : c.label}
+            </span>
+          </button>
+        ))}
+      </div>
       {toast}
     </>
   );
