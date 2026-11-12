@@ -1,6 +1,6 @@
 ---
 name: picake-link-app-deep-links
-description: Picake web-user 도메인의 링크가 iOS/Android 네이티브 앱으로 바로 열리게(Universal Links / App Links) 설정하거나 수정할 때 사용합니다. "카카오 알림톡 버튼 iOS에서 앱으로 안 열려", "유니버설링크 설정해줘", "assetlinks/apple-app-site-association 수정" 같은 요청에 이 skill을 따르세요. SOLAPI 템플릿 등록 자체는 `picake-notify-kakao-template` skill을 쓰고, 이 skill은 그 템플릿 버튼 URL이 브라우저가 아니라 앱으로 열리게 하는 인프라만 다룹니다.
+description: 링크가 iOS·안드로이드 앱으로 바로 열리게(Universal·App Links, assetlinks·AASA). "알림톡 버튼이 앱으로 안 열려"에 쓴다. 템플릿 등록은 picake-notify-kakao-template.
 ---
 
 # 앱 딥링크(Universal Links / App Links) 설정

@@ -1,6 +1,6 @@
 ---
 name: picake-deploy-release
-description: Picake web-user/web-seller/web-admin/web-info(Vercel)의 태그 기반 배포를 진행할 때 사용합니다. backend 배포는 `picake-engineering-backend` 레포의 같은 skill을 씁니다. "배포해줘", "스테이징에 올려줘", "프로덕션 배포", "태그 만들어서 배포", "release" 같은 요청이나 `/push-staging`·`/push-production` 명령이면 이 skill을 따르세요. 배포 실패 원인 파악이나 배포 상태 확인 요청에도 사용합니다.
+description: 웹 4개 앱(Vercel) 태그 배포·배포 상태 확인. "배포해줘", "스테이징에 올려줘", "프로덕션 배포", /push-staging·/push-production에 쓴다. 서버는 backend 레포 같은 스킬.
 ---
 
 # 배포 (태그 기반 CI/CD)
