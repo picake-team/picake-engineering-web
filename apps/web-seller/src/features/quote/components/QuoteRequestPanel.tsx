@@ -412,6 +412,12 @@ export function QuoteRequestPanel({ storeId, requestId }: { storeId: string; req
         ) : null}
       </div>
       {textBox ? <div className="mt-2">{textBox}</div> : null}
+      {view.contentHidden ? (
+        // 처리방침 보유 기간: 끝난 요청의 손님 글·사진은 서버가 보내지 않는다
+        <p className="mt-2 rounded-control bg-ink-50 px-3 py-2.5 text-sub text-ink-600">
+          끝난 요청이라 손님이 쓴 내용과 사진은 보이지 않아요
+        </p>
+      ) : null}
       {/* 손님이 고른 뒤에는 마감 시각이 필요 없어 할 일 한 줄로 바꾼다 */}
       {view.state === "CHOSEN_ME" ? null : (
         <p className="mt-2 text-caption text-ink-600">견적 마감 {view.deadline}</p>

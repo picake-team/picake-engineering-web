@@ -208,6 +208,8 @@ export interface QuoteLinkView {
   description: string | null;
   requestNote: string | null;
   photoUrls: string[];
+  /** 끝난 요청이라 손님이 쓴 내용·사진을 서버가 보내지 않음(옛 서버는 없음) */
+  contentHidden?: boolean;
   state: QuoteTargetState;
   canEdit: boolean;
   quote: Quote | null;
