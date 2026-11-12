@@ -37,7 +37,7 @@ export function ChatListScreen() {
       >
         <Icon name="chevronLeft" width={24} height={24} />
       </button>
-      <span className="flex-1 text-center text-sm font-bold text-gray-900">채팅</span>
+      <h1 className="flex-1 text-center text-sm font-bold text-gray-900">채팅</h1>
       <span className="w-[24px]" />
     </header>
   );

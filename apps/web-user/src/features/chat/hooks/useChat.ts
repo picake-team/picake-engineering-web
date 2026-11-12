@@ -77,6 +77,8 @@ export function useChatRoom(input: {
   const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(!!threadId);
   const [error, setError] = useState<string | null>(null);
+  /** 없는 방·내 방이 아님(404·403): "다시 시도"가 아니라 "찾을 수 없어요" */
+  const [notFound, setNotFound] = useState(false);
   const [pending, setPending] = useState<PendingChatMessage[]>([]);
   const [loadingOlder, setLoadingOlder] = useState(false);
   const lastIdRef = useRef<string | null>(null);
@@ -100,9 +102,12 @@ export function useChatRoom(input: {
       setThread(res.thread);
       setHasMore(res.hasMore);
       setError(null);
+      setNotFound(false);
       void queryClient.invalidateQueries({ queryKey: chatQueryKeys.unread() });
     } catch (e) {
       setError(getApiMessage.error(e));
+      const status = (e as { response?: { status?: number } })?.response?.status;
+      setNotFound(status === 404 || status === 403);
     } finally {
       setLoading(false);
     }
@@ -255,6 +260,7 @@ export function useChatRoom(input: {
       loading,
       loadingOlder,
       error,
+      notFound,
       pending,
       send,
       retry,
@@ -269,6 +275,7 @@ export function useChatRoom(input: {
       loading,
       loadingOlder,
       error,
+      notFound,
       pending,
       send,
       retry,

@@ -22,6 +22,7 @@ import {
 import type { ChatCard, ChatMessage } from "@/apps/web-user/features/chat/types/chat.type";
 import { ChatRoomSkeleton } from "@/apps/web-user/common/components/skeleton/ChatSkeleton";
 import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
+import { EmptyState } from "@/apps/web-user/common/components/fallbacks/EmptyState";
 
 const SEOUL_PARTS = new Intl.DateTimeFormat("ko-KR", {
   timeZone: "Asia/Seoul",
@@ -49,6 +50,28 @@ function timeLabel(iso: string): string {
     hour: "numeric",
     minute: "2-digit",
   }).format(new Date(iso));
+}
+
+/** 채팅 사진. 못 불러오면(지워졌거나 주소가 깨짐) 깨진 그림 대신 회색 칸에 안내 */
+function ChatPhoto({ url, onOpen }: { url: string; onOpen: (url: string) => void }) {
+  const [broken, setBroken] = useState(false);
+  if (broken) {
+    return (
+      <span className="flex h-[120px] w-[120px] items-center justify-center rounded-xl bg-gray-50 px-[8px] text-center text-xs text-gray-400">
+        사진을 불러오지 못했어요
+      </span>
+    );
+  }
+  return (
+    <button type="button" onClick={() => onOpen(url)} aria-label="사진 크게 보기">
+      <img
+        src={url}
+        alt=""
+        onError={() => setBroken(true)}
+        className="chat-photo h-[120px] w-[120px] rounded-xl object-cover"
+      />
+    </button>
+  );
 }
 
 function CardView({ card, onOpen }: { card: ChatCard; onOpen?: () => void }) {
@@ -120,19 +143,9 @@ function Bubble({
               m.mine && "justify-end",
             )}
           >
-            {m.imageUrls.map((url) => (
-              <button
-                key={url}
-                type="button"
-                onClick={() => onOpenImage(url)}
-                aria-label="사진 크게 보기"
-              >
-                <img
-                  src={url}
-                  alt=""
-                  className="chat-photo h-[120px] w-[120px] rounded-xl object-cover"
-                />
-              </button>
+            {m.imageUrls.map((url, i) => (
+              // 같은 사진을 두 번 보내도 겹치지 않게 순서를 키에 넣는다
+              <ChatPhoto key={`${i}-${url}`} url={url} onOpen={onOpenImage} />
             ))}
           </div>
         )}
@@ -211,6 +224,8 @@ export function ChatRoomScreen({
   const thread = room.thread;
   const title = thread?.title ?? initialTitle ?? "채팅";
   const write = thread?.write ?? initialWrite ?? { ok: true };
+  // 방을 못 열었으면(없는 방·내 방이 아님·불러오기 실패) 입력칸·메뉴를 숨긴다
+  const composerHidden = room.notFound || (!!room.error && room.messages.length === 0);
   const agreed = thread?.rulesAgreed ?? rulesAgreed;
   const storeId = thread?.storeId ?? start?.storeId ?? null;
 
@@ -361,8 +376,8 @@ export function ChatRoomScreen({
         >
           <Icon name="chevronLeft" width={24} height={24} />
         </button>
-        <span className="flex-1 truncate text-base font-bold text-gray-900">{title}</span>
-        {threadId ? (
+        <h1 className="flex-1 truncate text-base font-bold text-gray-900">{title}</h1>
+        {threadId && !composerHidden ? (
           <button
             type="button"
             aria-label="채팅 메뉴"
@@ -389,8 +404,11 @@ export function ChatRoomScreen({
         )}
         {room.loading ? (
           <ChatRoomSkeleton />
+        ) : room.notFound ? (
+          // 없는 방·내 방이 아님: 다시 시도해도 안 되니 "찾을 수 없어요"
+          <EmptyState message="채팅을 찾을 수 없어요." fill />
         ) : room.error && room.messages.length === 0 ? (
-          <LoadErrorState className="py-[60px]" onRetry={() => void room.reload()} />
+          <LoadErrorState fill onRetry={() => void room.reload()} />
         ) : room.messages.length === 0 && room.pending.length === 0 ? (
           <p className="py-[40px] text-center text-sm text-gray-500">
             {title}에 궁금한 것을 물어보세요
@@ -486,7 +504,7 @@ export function ChatRoomScreen({
         </button>
       )}
 
-      {write.ok ? (
+      {composerHidden ? null : write.ok ? (
         <div className="shrink-0 border-t border-gray-50 bg-white px-[12px] pb-[max(10px,env(safe-area-inset-bottom))] pt-[8px]">
           {photos.length > 0 && (
             <div className="mb-[8px] flex gap-[6px] overflow-x-auto">
