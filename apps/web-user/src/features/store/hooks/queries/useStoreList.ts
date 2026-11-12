@@ -38,7 +38,8 @@ export function useStoreList({
     getNextPageParam: (lastPage) =>
       lastPage.meta.hasNext ? lastPage.meta.currentPage + 1 : undefined,
     initialPageParam: 1,
-    enabled: !!search?.trim(),
+    // 검색 화면은 검색어가 있거나 홈 카테고리로 왔을 때만 이 목록을 그린다.
+    // 검색어로 막으면 카테고리로 본 "스토어" 탭이 늘 "검색 결과가 없어요"가 된다(서버는 검색어 없이 필터만으로도 찾는다)
   });
   // 조회 실패는 목록 화면이 "불러오지 못했어요 · 다시 시도"로 알린다(오류 창 없음)
 

@@ -24,11 +24,14 @@ import {
   sortStoresForMapList,
   type MapListSortBy,
 } from "@/apps/web-user/features/store/utils/map.util";
+import type { ProductEntryPoint } from "@/apps/web-user/common/types/analytics.type";
 
 interface SearchStoreListSectionProps {
   search?: string;
   filter?: StoreListFilter;
   sortBy?: MapListSortBy;
+  /** 상품 사진을 눌러 상세로 갈 때의 entry_point. 검색어 없이 홈 카테고리로 왔으면 "category" */
+  entryPoint?: Extract<ProductEntryPoint, "search" | "category">;
   /** 검색 결과 개수를 상위(검색 화면)로 보고 — 애널리틱스 이벤트용 */
   onResultCountChange?: (count: number) => void;
 }
@@ -37,6 +40,7 @@ export function SearchStoreListSection({
   search,
   filter,
   sortBy = "distance",
+  entryPoint = "search",
   onResultCountChange,
 }: SearchStoreListSectionProps) {
   const router = useRouter();
@@ -186,7 +190,7 @@ export function SearchStoreListSection({
                   imageHeight={120}
                   edgeToEdge={20}
                   onImageClick={(image) =>
-                    router.push(`${PATHS.PRODUCT.DETAIL(image.id)}?entry_point=search`)
+                    router.push(`${PATHS.PRODUCT.DETAIL(image.id)}?entry_point=${entryPoint}`)
                   }
                 />
               )}

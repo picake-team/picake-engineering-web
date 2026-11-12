@@ -76,6 +76,13 @@ export default function SearchPage() {
   sortByRef.current = sortBy;
   const listFilterRef = useRef(listFilter);
   listFilterRef.current = listFilter;
+  // 검색어 없이 카테고리로 결과를 보는 중. 홈 카테고리로 들어왔으면 필터에서 그 카테고리를 꺼도
+  // 결과(전체 상품)와 필터 버튼을 그대로 둔다(끄는 순간 빈 검색 화면이 되어 돌아갈 길이 없던 것)
+  const isBrowsingCategory =
+    !submittedTerm.trim() &&
+    (!!categoryParam || (listFilter.productCategoryTypes?.length ?? 0) > 0);
+  const isBrowsingCategoryRef = useRef(isBrowsingCategory);
+  isBrowsingCategoryRef.current = isBrowsingCategory;
 
   useEffect(() => {
     const q = searchParams.get("q");
@@ -98,8 +105,10 @@ export default function SearchPage() {
     releaseSoftKeyboard();
   }, []);
 
-  // 검색 화면(입력 전) 노출
+  // 검색 화면(입력 전) 노출. 홈 카테고리로 와서 결과를 바로 보는 것은 검색 화면 노출로 세지 않는다
+  // (세면 "검색 화면을 열고 검색한 비율"이 카테고리 방문만큼 낮게 보인다)
   useEffect(() => {
+    if (categoryParam) return;
     trackEvent("view_search");
   }, []);
 
@@ -107,7 +116,11 @@ export default function SearchPage() {
   // (submittedTerm/activeTab/sortBy/listFilter는 ref로만 읽어 탭 전환 시 이전 카운트로 조기 발화되지 않게 함)
   useEffect(() => {
     const submitted = submittedTermRef.current;
-    if (resultCount == null || !submitted.trim()) return;
+    if (resultCount == null) return;
+    // 결과를 보이지 않는 상태(검색어도 카테고리도 없음)면 보내지 않는다
+    if (!submitted.trim() && !isBrowsingCategoryRef.current) return;
+    // 카테고리로 보는 중에 필터를 적용해도 success_filter_apply로 처리한다
+    // (처리하지 않으면 플래그가 남아, 나중에 검색어로 찾을 때 엉뚱하게 "필터 적용"으로 보내진다)
     if (pendingFilterApplyRef.current) {
       pendingFilterApplyRef.current = false;
       const filter = listFilterRef.current;
@@ -122,6 +135,8 @@ export default function SearchPage() {
       lastViewedResultKeyRef.current = `${activeTabRef.current}:${submitted}`;
       return;
     }
+    // 검색어 없이 카테고리로 보는 중에는 검색어 이벤트(view_search_result)를 보내지 않는다
+    if (!submitted.trim()) return;
     const key = `${activeTabRef.current}:${submitted}`;
     if (lastViewedResultKeyRef.current === key) return;
     lastViewedResultKeyRef.current = key;
@@ -142,9 +157,6 @@ export default function SearchPage() {
     handleSearch(searchTerm);
   };
 
-  // 검색어 없이 카테고리(필터 "유형")만으로 결과를 보는 중
-  const isBrowsingCategory =
-    !submittedTerm.trim() && (listFilter.productCategoryTypes?.length ?? 0) > 0;
   const isSearching = !!submittedTerm.trim() || isBrowsingCategory;
   // 필터 시트에서 조건이나 정렬을 바꾼 상태면 아이콘을 on으로 표시
   const isFilterActive = hasActiveFilter(listFilter) || sortBy !== DEFAULT_SORT_BY;
@@ -230,6 +242,7 @@ export default function SearchPage() {
                 search={submittedTerm}
                 filter={listFilter}
                 sortBy={sortBy}
+                entryPoint={isBrowsingCategory ? "category" : "search"}
                 onResultCountChange={handleResultCount}
               />
             )}

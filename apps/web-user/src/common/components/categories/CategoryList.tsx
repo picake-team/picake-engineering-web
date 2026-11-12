@@ -43,8 +43,8 @@ export default function CategoryList() {
             <Link
               key={value}
               href={buildCategorySearchHref(value)}
-              // 그림 칸(36)보다 넓게 눌리도록 둘레를 넓힌다
-              className="press relative flex w-9 flex-col items-center gap-2 after:absolute after:-inset-x-3 after:-inset-y-2 after:content-['']"
+              // 그림 칸(36)보다 넓게 눌리도록 둘레를 10씩 넓힌다(가장 좁은 320 폭에서도 옆 칸과 겹치지 않게)
+              className="press relative flex w-9 flex-col items-center gap-2 after:absolute after:-inset-x-2.5 after:-inset-y-2 after:content-['']"
             >
               <Image
                 src={CATEGORY_ICONS[value] as string}
