@@ -104,7 +104,11 @@ export const MAP_KEYWORD_SEARCH_MIN_MOVE_RATIO = 0.2;
 /** 지도 목록 필터: 사이즈 옵션 (백엔드 CakeSizeDisplayName 표시명과 동일) */
 export const MAP_LIST_SIZE_OPTIONS: string[] = ["도시락", "미니", "1호", "2호", "3호"];
 
-/** 지도 목록 필터: 유형 옵션 (API ProductCategoryType 값, 라벨) */
+/**
+ * 유형 옵션 (API ProductCategoryType 값, 라벨). 검색·지도 필터 "유형"과 홈 카테고리가 같이 쓴다.
+ * 사장님이 상품에 직접 고르는 10개만 둔다. "커스텀"(LETTERING)은 상품 종류(기본·커스텀 케이크)를 따라
+ * 서버가 저절로 붙이는 값이라 빼고, 기본·커스텀은 가게 상세의 탭으로 나눠 본다.
+ */
 export const MAP_LIST_CATEGORY_OPTIONS: { value: ProductCategoryType; label: string }[] = [
   { value: ProductCategoryType.BIRTHDAY, label: "생일" },
   { value: ProductCategoryType.LOVER, label: "연인" },
@@ -112,7 +116,6 @@ export const MAP_LIST_CATEGORY_OPTIONS: { value: ProductCategoryType; label: str
   { value: ProductCategoryType.FAMILY, label: "가족" },
   { value: ProductCategoryType.ANNIVERSARY, label: "기념일" },
   { value: ProductCategoryType.SAME_DAY_PICKUP, label: "당일픽업" },
-  { value: ProductCategoryType.LETTERING, label: "커스텀" },
   { value: ProductCategoryType.CHARACTER, label: "캐릭터" },
   { value: ProductCategoryType.SIMPLE, label: "심플" },
   { value: ProductCategoryType.FLOWER, label: "꽃" },
