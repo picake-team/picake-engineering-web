@@ -230,11 +230,11 @@ export function DualThumbRangeSlider({
         </span>
         <div ref={trackRef} className="relative h-6 w-full" role="group" aria-label={ariaLabel}>
           <div
-            className="absolute left-0 right-0 top-1/2 h-1 -translate-y-1/2 rounded-full bg-[var(--grayscale-gr-50,#F5F5F5)]"
+            className="absolute left-0 right-0 top-1/2 h-1 -translate-y-1/2 rounded-full bg-gray-50"
             aria-hidden
           />
           <div
-            className="absolute top-1/2 h-1 -translate-y-1/2 rounded-full bg-[var(--primary-or-400,#FF653E)]"
+            className="absolute top-1/2 h-1 -translate-y-1/2 rounded-full bg-primary"
             style={{ left: `${fillLeft}%`, width: `${fillWidth}%` }}
             aria-hidden
           />

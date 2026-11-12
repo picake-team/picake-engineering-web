@@ -44,8 +44,7 @@ const styles = {
   labelText: "text-sm font-normal leading-[140%] text-[var(--grayscale-gr-900,#1A1A1A)]",
   categoryChip:
     "rounded-[26px] border px-3 py-1.5 text-sm font-normal leading-[140%] transition-colors",
-  categoryChipDefault:
-    "border-[var(--grayscale-gr-100,#EBEBEA)] bg-[var(--grayscale-gr-00,#FFFFFF)] text-[var(--grayscale-gr-900,#1A1A1A)]",
+  categoryChipDefault: "border-gray-100 bg-white text-[var(--grayscale-gr-900,#1A1A1A)]",
   categoryChipSelected: "border-primary bg-primary text-white",
 } as const;
 

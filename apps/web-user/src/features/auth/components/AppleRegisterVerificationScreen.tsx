@@ -279,7 +279,7 @@ export function AppleRegisterVerificationScreen() {
       <Header variant="back-title" title="회원가입" />
 
       <div className="flex-1 px-5 pt-6">
-        <h2 className="text-xl font-bold leading-snug tracking-tight text-[var(--grayscale-gr-900,#1F1F1E)]">
+        <h2 className="text-xl font-bold leading-snug tracking-tight text-gray-900">
           핸드폰 번호 인증을 진행해주세요.
         </h2>
         <p className="mt-1 text-sm leading-relaxed text-[var(--grayscale-gr-500,#82817D)]">
@@ -288,10 +288,7 @@ export function AppleRegisterVerificationScreen() {
 
         <div className="mt-8 flex flex-col">
           <div className="flex flex-col gap-[10px] py-3">
-            <label
-              htmlFor="apple-register-name"
-              className="text-sm font-bold text-[var(--grayscale-gr-900,#1F1F1E)]"
-            >
+            <label htmlFor="apple-register-name" className="text-sm font-bold text-gray-900">
               이름
             </label>
             <Input
@@ -312,10 +309,7 @@ export function AppleRegisterVerificationScreen() {
           </div>
 
           <div className="mt-4 flex flex-col gap-[10px]">
-            <label
-              htmlFor="apple-register-phone"
-              className="text-sm font-bold text-[var(--grayscale-gr-900,#1F1F1E)]"
-            >
+            <label htmlFor="apple-register-phone" className="text-sm font-bold text-gray-900">
               핸드폰 번호
             </label>
             <div className="flex flex-row items-start gap-2">
@@ -338,7 +332,7 @@ export function AppleRegisterVerificationScreen() {
                 variant="outline"
                 onClick={handleSendVerificationCode}
                 disabled={!phone || !!phoneError || sendPending}
-                className="box-border inline-flex !h-[42px] !max-h-[42px] !min-h-[42px] shrink-0 !w-auto !items-center !justify-center !rounded-lg !border !border-[var(--grayscale-gr-100,#EBEBEA)] !bg-white !px-5 !py-0 !text-sm !font-bold !leading-tight !text-[var(--grayscale-gr-900,#1F1F1E)] sm:!w-auto disabled:!border-[var(--grayscale-gr-100,#EBEBEA)] disabled:!bg-gray-50 disabled:!text-gray-400"
+                className="box-border inline-flex !h-[42px] !max-h-[42px] !min-h-[42px] shrink-0 !w-auto !items-center !justify-center !rounded-lg !border !border-gray-100 !bg-white !px-5 !py-0 !text-sm !font-bold !leading-tight !text-gray-900 sm:!w-auto disabled:!border-gray-100 disabled:!bg-gray-50 disabled:!text-gray-400"
               >
                 {sendPending ? (
                   <span className="inline-flex items-center gap-2">
@@ -380,10 +374,7 @@ export function AppleRegisterVerificationScreen() {
                   aria-label="인증번호"
                   aria-invalid={!!verificationCodeError}
                 />
-                <p
-                  className="text-right text-xs font-normal text-[var(--system-blu-400,#009BF5)]"
-                  aria-live="polite"
-                >
+                <p className="text-right text-xs font-normal text-blue-400" aria-live="polite">
                   {formatCountdownMmSs(remainingSeconds)} 내 입력
                 </p>
               </div>

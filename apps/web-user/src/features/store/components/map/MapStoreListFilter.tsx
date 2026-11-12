@@ -84,13 +84,13 @@ function getCategoriesTagLabel(types: ProductCategoryType[]): string {
 // ---------------------------------------------------------------------------
 
 const filterTagStyle =
-  "inline-flex h-9 items-center rounded-[26px] border border-[var(--primary-or-100,#FFD2C7)] bg-[var(--primary-or-50,#FFEFEB)] font-bold text-[14px] leading-[140%] text-[var(--primary-or-400,#FF653E)]";
+  "inline-flex h-9 items-center rounded-[26px] border border-primary-100 bg-primary-50 font-bold text-[14px] leading-[140%] text-primary";
 
 const styles = {
   filterButton:
-    "flex shrink-0 items-center justify-center rounded-[26px] border border-[var(--grayscale-gr-100,#EBEBEA)] bg-[var(--grayscale-gr-00,#FFFFFF)]",
+    "flex shrink-0 items-center justify-center rounded-[26px] border border-gray-100 bg-white",
   panelHeader:
-    "relative flex h-16 shrink-0 items-center justify-center border-b border-[var(--grayscale-gr-100,#EBEBEA)] bg-[var(--grayscale-gr-00,#FFF)] rounded-t-[20px]",
+    "relative flex h-16 shrink-0 items-center justify-center border-b border-gray-100 bg-white rounded-t-[20px]",
   panelTitle: "text-base font-bold leading-[140%] text-[var(--grayscale-gr-900,#1A1A1A)]",
   sectionTitle:
     "flex h-[45px] items-center text-sm font-bold leading-[140%] text-[var(--grayscale-gr-900,#1A1A1A)]",
@@ -99,15 +99,12 @@ const styles = {
   labelText: "text-sm font-normal leading-[140%] text-[var(--grayscale-gr-900,#1A1A1A)]",
   categoryChip:
     "rounded-[26px] border px-3 py-1.5 text-sm font-normal leading-[140%] transition-colors",
-  categoryChipDefault:
-    "border-[var(--grayscale-gr-100,#EBEBEA)] bg-[var(--grayscale-gr-00,#FFFFFF)] text-[var(--grayscale-gr-900,#1A1A1A)]",
+  categoryChipDefault: "border-gray-100 bg-white text-[var(--grayscale-gr-900,#1A1A1A)]",
   categoryChipSelected: "border-primary bg-primary text-white",
-  panelFooter:
-    "flex h-[74px] shrink-0 items-center border-t border-[var(--grayscale-gr-100,#EBEBEA)] px-5",
+  panelFooter: "flex h-[74px] shrink-0 items-center border-t border-gray-100 px-5",
   resetButton:
-    "flex items-center justify-center rounded-xl border border-[var(--grayscale-gr-100,#EBEBEA)] bg-[var(--grayscale-gr-00,#FFFFFF)] font-bold text-[var(--grayscale-gr-900,#1F1F1E)]",
-  applyButton:
-    "flex flex-1 items-center justify-center rounded-xl font-bold text-[var(--grayscale-gr-00,#FFFFFF)]",
+    "flex items-center justify-center rounded-xl border border-gray-100 bg-white font-bold text-gray-900",
+  applyButton: "flex flex-1 items-center justify-center rounded-xl font-bold text-white",
 } as const;
 
 // ---------------------------------------------------------------------------
