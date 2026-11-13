@@ -57,7 +57,7 @@ export default function RootLayout({
       <body>
         {/*
           web-user의 RootWrapperLayout과 같은 스크롤 컨테이너. 모바일은 전체 폭, 640px 이상은 가운데 640px
-          열로 보이고, 스크롤은 문서가 아니라 이 안에서 일어난다 (StickySurveyCta 등이 이 전제로 짜여 있다).
+          열로 보이고, 스크롤은 문서가 아니라 이 안에서 일어난다 (StickyJoinCta 등이 이 전제로 짜여 있다).
         */}
         <PostHogProvider>
           <BuildInfoLogger />
