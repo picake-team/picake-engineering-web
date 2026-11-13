@@ -4,6 +4,7 @@ import React, { useEffect, useId } from "react";
 import clsx from "clsx";
 import { Button } from "@/apps/web-user/common/components/buttons/Button";
 import { usePresence } from "@/apps/web-user/common/hooks/usePresence";
+import { usePageScrollLock } from "@/apps/web-user/common/hooks/usePageScrollLock";
 
 /** 닫힐 때 사라지는 시간(공용 움직임 값 popup-out = fast) */
 const MODAL_EXIT_MS = 150;
@@ -82,14 +83,14 @@ export const Modal: React.FC<ModalProps> = ({
 
     if (isOpen) {
       document.addEventListener("keydown", handleEsc);
-      document.body.style.overflow = "hidden";
     }
 
     return () => {
       document.removeEventListener("keydown", handleEsc);
-      document.body.style.overflow = "";
     };
   }, [isOpen, onClose]);
+
+  usePageScrollLock(isOpen);
 
   const titleId = useId();
   // 살짝 커지며 나오고(popup-in), 닫힐 때는 살짝 작아지며 사라진다(그동안 글은 열려 있던 때 그대로)

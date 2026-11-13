@@ -13,6 +13,7 @@ import {
 } from "@/apps/web-user/features/store/constants/map.constant";
 import type { ProductCategoryType } from "@/apps/web-user/features/product/types/product.type";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
+import { usePageScrollLock } from "@/apps/web-user/common/hooks/usePageScrollLock";
 
 // ---------------------------------------------------------------------------
 // 필터 활성 여부
@@ -144,17 +145,16 @@ export function MapStoreListFilter({
 
   useEffect(() => {
     if (!panelOpen) return;
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") setPanelOpen(false);
     };
     document.addEventListener("keydown", onKeyDown);
     return () => {
-      document.body.style.overflow = prevOverflow;
       document.removeEventListener("keydown", onKeyDown);
     };
   }, [panelOpen]);
+
+  usePageScrollLock(panelOpen);
 
   // 패널 열릴 때 현재 필터로 드래프트 동기화
   useEffect(() => {

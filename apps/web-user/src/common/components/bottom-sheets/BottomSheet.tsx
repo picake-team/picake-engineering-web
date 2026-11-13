@@ -5,6 +5,7 @@ import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import clsx from "clsx";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { usePresence } from "@/apps/web-user/common/hooks/usePresence";
+import { usePageScrollLock } from "@/apps/web-user/common/hooks/usePageScrollLock";
 
 /** 아래로 끌어내려 닫히는 최소 거리(px) */
 const CLOSE_THRESHOLD_PX = 100;
@@ -110,6 +111,9 @@ export function BottomSheet({
         if (inContent && isInNestedScroll(target, content)) return;
         dragging = true;
         startY = e.touches[0].clientY;
+        // 시작하는 움직임부터 막는다. 첫 움직임을 놓아두면 브라우저가 스크롤(뒤 화면·당겨서 늘어나는 효과)을 시작해
+        // 그 뒤 움직임은 막을 수 없게 된다
+        if (e.cancelable) e.preventDefault();
         return;
       }
       delta = Math.max(0, dy);
@@ -160,18 +164,8 @@ export function BottomSheet({
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
-  // 바텀시트 열릴 때 스크롤 방지
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
+  // 바텀시트 열릴 때 뒤 화면 스크롤 방지
+  usePageScrollLock(isOpen);
 
   // 닫힐 때도 내려가는 움직임이 끝날 때까지 그린다(그동안 내용은 마지막으로 열려 있던 때 그대로)
   const presence = usePresence(isOpen, BOTTOM_SHEET_EXIT_MS, { title, children, footer });
@@ -236,7 +230,11 @@ export function BottomSheet({
         <div
           ref={contentRef}
           onScroll={(e) => setScrolled(e.currentTarget.scrollTop > 0)}
-          className={clsx("flex-1 overflow-y-auto overscroll-contain", !fullScreen && "pt-[4px]")}
+          className={clsx(
+            // 스크롤 막대는 숨긴다(화면 전체와 같음). 창이 열리며 맨 위로 돌릴 때 오른쪽에 짧은 회색 막대가 보였다
+            "flex-1 overflow-y-auto overscroll-contain scrollbar-hide",
+            !fullScreen && "pt-[4px]",
+          )}
         >
           {shown.children}
         </div>
