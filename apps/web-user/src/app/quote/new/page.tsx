@@ -241,6 +241,8 @@ function QuoteNewContent() {
           pickupHourFrom: draft.hourFrom ?? undefined,
           pickupHourTo: draft.hourTo ?? undefined,
           onlyDesignatedStores: draft.onlyDesignatedStores,
+          // 보내기 화면에 "받는 가게에 이름·휴대폰 번호가 전달돼요" 안내가 있다(운영자 결정 11-13)
+          shareContact: true,
           ...(draft.onlyDesignatedStores || !draft.area
             ? {}
             : {

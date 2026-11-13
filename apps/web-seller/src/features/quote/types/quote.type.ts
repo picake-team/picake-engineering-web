@@ -39,6 +39,8 @@ export interface QuoteRequestForShop {
   photoUrls: string[];
   /** 끝난 요청이라 손님이 쓴 내용·사진을 서버가 보내지 않음(옛 서버는 없음) */
   contentHidden?: boolean;
+  /** 손님 이름·휴대폰(보낼 때 "받는 가게에 전달돼요" 안내를 본 요청에만, 손님 글과 같은 기간. 옛 서버는 없음) */
+  customer?: { name: string; phone: string } | null;
   state: QuoteTargetState;
   canEdit: boolean;
   quote: Quote | null;

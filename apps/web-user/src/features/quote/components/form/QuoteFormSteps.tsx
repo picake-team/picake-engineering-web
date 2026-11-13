@@ -694,6 +694,11 @@ export function StepConfirm({ now, onEdit }: { now: Date; onEdit: (step: number)
         ))}
       </div>
       <DeadlineNotice draft={draft} now={now} />
+      {/* 제3자 제공 안내(받는 곳·목적·항목·기간). 보내기를 누르면 동의(예약 창의 "판매자에게 전달돼요"와 같은 방식) */}
+      <p className="mt-[12px] text-xs leading-[18px] text-gray-500">
+        보내면 요청을 받는 가게에 이름·휴대폰 번호가 전달돼요(견적·주문 상담용). 고르지 않은
+        가게에서는 요청이 끝나면 보이지 않아요.
+      </p>
     </div>
   );
 }

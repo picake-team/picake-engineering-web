@@ -24,6 +24,8 @@ export interface CreateQuoteRequestBody {
   pickupHourFrom?: number;
   pickupHourTo?: number;
   onlyDesignatedStores?: boolean;
+  /** 보내기 화면의 "받는 가게에 이름·휴대폰 번호가 전달돼요" 안내를 보고 보냄(늘 true) */
+  shareContact?: boolean;
   areaName?: string;
   areaSido?: string;
   areaLatitude?: number;
@@ -217,6 +219,8 @@ export interface QuoteLinkView {
   showEntryGuide: boolean;
   threadId: string | null;
   chatOpen: boolean;
+  /** 손님 이름·휴대폰(보낼 때 안내를 본 요청에만, 손님 글과 같은 기간: 고르지 않은 가게는 요청이 끝날 때까지, 고른 가게는 픽업 다음 날까지) */
+  customer?: { name: string; phone: string } | null;
   chatOpenUntil: string | null;
 }
 
