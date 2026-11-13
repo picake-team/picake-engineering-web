@@ -545,10 +545,13 @@ export function QuoteLinkScreen({ token }: { token: string }) {
                 {form.memo.length}/{MEMO_MAX}
               </p>
             </Field>
-            <p className="mb-[10px] text-xs text-gray-500">
-              보내면 손님에게 가게 이름·견적·메모가 보여요. 손님이 고르면 이 화면에서 대화하며
-              주문을 정해요
-            </p>
+            {/* 다른 안내와 같은 파란 안내 상자(운영자 11-13) */}
+            <div className="mb-[10px]">
+              <NoticeBox tone="blue">
+                보내면 손님에게 가게 이름·견적·메모가 보여요. 손님이 고르면 이 화면에서 대화하며
+                주문을 정해요.
+              </NoticeBox>
+            </div>
             {formError && <p className="mb-[10px] text-sm text-red-400">{formError}</p>}
           </section>
         )}
