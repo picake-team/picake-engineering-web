@@ -131,7 +131,6 @@ function StoreRow({
           {q.total.toLocaleString("ko-KR")}원
           {q.quantity > 1 ? `(1개 ${q.unitPrice.toLocaleString("ko-KR")}원)` : ""} ·{" "}
           {q.similarityLabel}
-          {q.priceMayVary ? " · 달라질 수 있음" : ""}
           {q.edited ? " · 고침" : ""}
           {q.source === "ADMIN"
             ? " · 운영자가 대신 적음"
@@ -182,7 +181,6 @@ function WriteDialog({
   const { addAlert } = useAlertStore();
   const q = target.quote;
   const [price, setPrice] = useState(q ? String(q.unitPrice) : "");
-  const [mayVary, setMayVary] = useState(q?.priceMayVary ?? false);
   const [similarity, setSimilarity] = useState<QuoteSimilarity>(q?.similarity ?? "SIMILAR");
   const [memo, setMemo] = useState(q?.memo ?? "");
   const [confirmed, setConfirmed] = useState(false);
@@ -196,7 +194,6 @@ function WriteDialog({
     try {
       await submit.mutateAsync({
         unitPrice: Number(price.replace(/[^0-9]/g, "")),
-        priceMayVary: mayVary,
         similarity,
         ...(memo.trim() ? { memo: memo.trim() } : {}),
       });
@@ -232,14 +229,6 @@ function WriteDialog({
             value={price}
             onChange={(e) => setPrice(e.target.value)}
           />
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={mayVary}
-              onChange={(e) => setMayVary(e.target.checked)}
-            />
-            디자인을 보고 달라질 수 있어요
-          </label>
           <div className="flex gap-2">
             {SIMILARITY.map((s) => (
               <Button
