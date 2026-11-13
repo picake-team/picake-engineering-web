@@ -99,13 +99,24 @@ export function QuoteLinkChat({
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  // 처음 열 때는 위(요청서)부터 보이게 두고, 내가 보낸 뒤에만 대화 끝으로 내린다
+  // 보낸 뒤에는 대화 끝으로 내린다
   const scrollAfterSend = useRef(false);
+  // 대화 탭을 열면(처음 한 번) 마지막 글과 입력칸이 보이게 내린다. 탭을 누를 때 맨 위로 올리는 움직임이 끝난 뒤에
+  const openedRef = useRef(false);
   // "보낸 견적" 카드는 바로 위 "보낸 견적" 칸과 같아 대화에서는 뺀다
   const messages = (data?.messages ?? []).filter((m) => m.kind !== "QUOTE");
   const write = data?.thread?.write;
   const canWrite = open && (write?.ok ?? true);
+
+  useEffect(() => {
+    if (openedRef.current || !data) return;
+    openedRef.current = true;
+    if (messages.length === 0) return;
+    // 다시 불러와도(8초마다) 한 번만 내리도록 정리 함수는 두지 않는다(닫힌 뒤에는 ref가 비어 아무 일 없음)
+    window.setTimeout(() => bottomRef.current?.scrollIntoView({ block: "end" }), 350);
+  }, [data, messages.length]);
 
   useEffect(() => {
     if (!scrollAfterSend.current) return;
@@ -198,6 +209,7 @@ export function QuoteLinkChat({
           ? "신고가 들어오면 Picake가 대화를 봐요."
           : "이름·연락처는 서로 보이지 않아요. 신고가 들어오면 Picake가 대화를 봐요."}
       </p>
+      <div ref={bottomRef} className="scroll-mb-[16px]" />
     </section>
   );
 }
