@@ -20,11 +20,11 @@ Picake 플랫폼을 위한 Next.js 기반 사용자 웹 애플리케이션입니
 - **지도**: 위치 기반 스토어 검색 (Map)
 - **검색**: 통합 검색 기능
 - **Q&A**: 상품/스토어 문의
-- **견적 요청**(기획 I-46 1단계 ①, 2026-11-09): 요청서 6단계(`/quote/new`, 쓰던 내용은 기기에 남아 로그인을 다녀와도 이어짐, 사진은 보낼 때 업로드), 보낸 뒤, 요청 상세, MY 내 견적 요청. 입구는 홈 카드·검색 결과/스토어 상세 아래 칸·지도 미입점 카드·MY 바로가기. 동네·가게 찾기는 `app/api/kakao-local`(카카오 로컬, 키는 서버에만)
+- **견적 요청**(기획 I-46, ① 2026-11-09·② 2026-11-12): 요청서 6단계(`/quote/new`, 쓰던 내용은 기기에 남아 로그인을 다녀와도 이어짐, 사진은 보낼 때 업로드), 보낸 뒤, 요청 상세(받은 견적·고르기, 고르면 그 가게 채팅으로), MY 내 견적 요청. 입점 전 가게는 운영자가 DM으로 보낸 견적 링크에서 가입 없이 견적을 보내고 손님과 대화한다(링크는 검색에 안 걸리고 PostHog·Sentry에서 열쇠를 지움, 미리보기는 사장님 문구). 입구는 홈 카드·검색 결과/스토어 상세 아래 칸·지도 미입점 카드·MY 바로가기. 동네·가게 찾기는 `app/api/kakao-local`(카카오 로컬, 키는 서버에만)
 - **상태 관리**: Zustand를 활용한 전역 상태 관리
 - **API 통신**: TanStack Query + Axios를 활용한 서버 상태 관리
 - **에러 처리**: Error Boundary, global-error, Sentry 연동
-- **분석**: PostHog (환경 변수 설정 시). 이벤트 정의는 `common/types/analytics.type.ts`(기획팀 Data Taxonomy 시트와 같게), 모든 이벤트에 `app`·`environment`·`surface`(app = 손님 앱 웹뷰, web = 브라우저). 로그인하면 회원 번호로 사람을 묶고(`identify`, 이름·전화번호는 보내지 않음) 로그아웃하면 끊는다(`reset`, 2026-11-10~, 판매자 웹도 같음). 견적 요청서는 `view_quote_step` → `request_quote_request` → `success_quote_request`·`fail_quote_request`. 채팅(I-11)은 `engage_chat_entry`(입구: 스토어 문의 창·예약에서 연 문의 창·MY) → `success_chat_message`(글 내용 없이 방·가게·처음인지·사진 수)
+- **분석**: PostHog (환경 변수 설정 시). 이벤트 정의는 `common/types/analytics.type.ts`(기획팀 Data Taxonomy 시트와 같게), 모든 이벤트에 `app`·`environment`·`surface`(app = 손님 앱 웹뷰, web = 브라우저). 로그인하면 회원 번호로 사람을 묶고(`identify`, 이름·전화번호는 보내지 않음) 로그아웃하면 끊는다(`reset`, 2026-11-10~, 판매자 웹도 같음). 견적 요청서는 `view_quote_step` → `request_quote_request` → `success_quote_request`·`fail_quote_request`. 견적 ②(받은 견적·고르기)는 `view_quote_detail` → `engage_quote_chat`·`request_quote_choose` → `success_quote_choose`·`fail_quote_choose`, 사장님 견적 링크(`/q`, 로그인 없음)는 `view_quote_link` → `success_quote_link_submit`·`success_quote_link_decline`·`success_quote_link_chat`(판매자 앱은 `success_quote_send`·`success_quote_decline`). 채팅(I-11)은 `engage_chat_entry`(입구: 스토어 문의 창·예약에서 연 문의 창·MY) → `success_chat_message`(글 내용 없이 방·가게·처음인지·사진 수)
 - **반응형 UI**: 모바일 우선 반응형 디자인 (Flutter WebView 환경 최적화)
 - **디자인 기준**: 화면을 만들거나 고칠 때 [손님 앱 디자인 기준](손님%20앱%20디자인%20기준.md)(지금 있는 부품에 맞추기, 누름 효과·스크롤 자리 등 동작, 다시 꺼내지 않을 것)을 먼저 봅니다.
 - **디자인 값**: 색·글자 크기·모서리·움직임은 공통 패키지 `@picake/design-tokens`의 손님 화면 preset(web-info와 같이 씀, `tailwind.config.ts`의 `presets`). 값과 tailwind 이름은 Storybook "Common/디자인 값"(`yarn web-user:storybook`)에서 보고, 새 화면은 숫자·색 코드를 클래스에 직접 쓰지 않고 이 이름을 씁니다([공통 디자인 값](../common/structure/프로젝트%20구조%20-%20가이드.md#공통-디자인-값-packagesdesign-tokens-2026-11-08))
@@ -71,6 +71,7 @@ Picake 플랫폼을 위한 Next.js 기반 사용자 웹 애플리케이션입니
 - **보낸 뒤**: `/quote/sent?requestId=`
 - **요청 상세**: `/quote/:requestId` - 카카오 알림톡 [견적 보기] 버튼에 고정된 주소라 바꾸지 않는다
 - **내 견적 요청**: `/mypage/quote` - 진행 중 / 지난 요청
+- **견적 링크(사장님)**: `/q/:token` - 입점 전 가게가 가입 없이 견적 보내기·고치기·어려워요·손님과 대화. 손님 앱 머리·아래 탭 없이 따로 그린다(`RootWrapperLayout`)
 
 ### 마이페이지
 

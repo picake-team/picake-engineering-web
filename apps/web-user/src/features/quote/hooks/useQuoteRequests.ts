@@ -68,3 +68,40 @@ export function useCloseQuoteRequest() {
     },
   });
 }
+
+/** 받은 견적(SC-18). 열면 서버가 새 견적을 본 것으로 적으니 안 본 수도 다시 읽는다 */
+export function useQuoteSection(id: string | null, enabled = true) {
+  const queryClient = useQueryClient();
+  return useQuery({
+    queryKey: quoteQueryKeys.quotes(id ?? ""),
+    queryFn: async () => {
+      const section = await quoteApi.getQuotes(id as string);
+      if (section.quotes.some((q) => q.unseen)) {
+        void queryClient.invalidateQueries({ queryKey: quoteQueryKeys.unseen });
+      }
+      return section;
+    },
+    enabled: !!id && enabled,
+  });
+}
+
+export function useChooseQuote() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ requestId, quoteId }: { requestId: string; quoteId: string }) =>
+      quoteApi.choose(requestId, quoteId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: quoteQueryKeys.all });
+    },
+  });
+}
+
+/** MY "내 견적"의 아직 보지 않은 견적 수 */
+export function useUnseenQuoteCount(enabled: boolean) {
+  return useQuery({
+    queryKey: quoteQueryKeys.unseen,
+    queryFn: () => quoteApi.getUnseenCount(),
+    enabled,
+    staleTime: 30_000,
+  });
+}

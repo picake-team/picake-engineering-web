@@ -52,6 +52,7 @@ import {
   findCalendarOrderConflicts,
   formatCalendarConflictMessage,
 } from "@/apps/web-seller/features/store/utils/store-calendar-conflict.util";
+import { NO_REPLAY } from "@/apps/web-seller/common/constants/replay.constant";
 const HALF_HOUR_OPTIONS = buildHalfHourTimeOptions();
 
 function startOfMonth(d: Date): Date {
@@ -598,7 +599,7 @@ export const StoreCalendarPage: React.FC = () => {
                               {previewOrders.map((order) => (
                                 <span
                                   key={order.id}
-                                  className="truncate text-[10px] leading-tight text-foreground/85 sm:text-xs"
+                                  className={`${NO_REPLAY} truncate text-[10px] leading-tight text-foreground/85 sm:text-xs`}
                                   title={`${formatSeoulPickupHm(order.pickupDate)} ${reservationDisplayName(order)} ${reservationDisplayPhone(order)}`}
                                 >
                                   {formatSeoulPickupHm(order.pickupDate)}{" "}
@@ -679,13 +680,17 @@ export const StoreCalendarPage: React.FC = () => {
                                 <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 border-t border-border/60 pt-3 text-xs sm:grid-cols-3">
                                   <div className="min-w-0 sm:col-span-1">
                                     <dt className="text-muted-foreground">예약자명</dt>
-                                    <dd className="mt-0.5 truncate font-medium text-foreground">
+                                    <dd
+                                      className={`${NO_REPLAY} mt-0.5 truncate font-medium text-foreground`}
+                                    >
                                       {reservationDisplayName(o)}
                                     </dd>
                                   </div>
                                   <div className="min-w-0 sm:col-span-1">
                                     <dt className="text-muted-foreground">휴대폰</dt>
-                                    <dd className="mt-0.5 truncate font-medium tabular-nums text-foreground">
+                                    <dd
+                                      className={`${NO_REPLAY} mt-0.5 truncate font-medium tabular-nums text-foreground`}
+                                    >
                                       {reservationDisplayPhone(o)}
                                     </dd>
                                   </div>

@@ -18,8 +18,8 @@ const THUMB_CSS = `
 
 const styles = {
   label:
-    "absolute whitespace-nowrap text-[13px] font-bold leading-[140%] text-[var(--grayscale-gr-900,#1A1A1A)] -translate-x-1/2 top-0",
-  hint: "mt-2 flex justify-between text-xs font-normal leading-[140%] text-[var(--grayscale-gr-400,#9E9E9D)]",
+    "absolute whitespace-nowrap text-[13px] font-bold leading-[140%] text-gray-900 -translate-x-1/2 top-0",
+  hint: "mt-2 flex justify-between text-xs font-normal leading-[140%] text-gray-400",
 } as const;
 
 export interface DualThumbRangeSliderProps {
@@ -230,11 +230,11 @@ export function DualThumbRangeSlider({
         </span>
         <div ref={trackRef} className="relative h-6 w-full" role="group" aria-label={ariaLabel}>
           <div
-            className="absolute left-0 right-0 top-1/2 h-1 -translate-y-1/2 rounded-full bg-[var(--grayscale-gr-50,#F5F5F5)]"
+            className="absolute left-0 right-0 top-1/2 h-1 -translate-y-1/2 rounded-full bg-gray-50"
             aria-hidden
           />
           <div
-            className="absolute top-1/2 h-1 -translate-y-1/2 rounded-full bg-[var(--primary-or-400,#FF653E)]"
+            className="absolute top-1/2 h-1 -translate-y-1/2 rounded-full bg-primary"
             style={{ left: `${fillLeft}%`, width: `${fillWidth}%` }}
             aria-hidden
           />

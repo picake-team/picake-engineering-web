@@ -83,7 +83,7 @@ export const StoreDetailNotificationSettingsMobilePage: React.FC = () => {
           <>
             <ListRow
               title="채팅 알림 받기"
-              description="손님이 문의하면 휴대폰 알림. 끄면 채팅 탭 숫자만 보여요"
+              description="손님이 문의하거나 견적을 요청하면 휴대폰 알림. 끄면 채팅 탭 숫자만 보여요"
               trailing={
                 <Switch
                   label="채팅 알림 받기"

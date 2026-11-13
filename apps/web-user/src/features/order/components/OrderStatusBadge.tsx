@@ -8,8 +8,6 @@ const ORDER_STATUS_LABEL: Record<string, string> = {
   [OrderStatus.PICKUP_PENDING]: "픽업대기",
   [OrderStatus.PICKUP_COMPLETED]: "픽업완료",
   [OrderStatus.CANCEL_COMPLETED]: "예약취소",
-  [OrderStatus.SELLER_CANCELLED]: "판매자취소",
-  [OrderStatus.BUYER_CANCELLED]: "구매자취소",
   [OrderStatus.CANCEL_REFUND_PENDING]: "환불대기",
   // 환불 완료도 사용자에겐 취소된 예약이므로 "예약취소"로 통일해 노출
   [OrderStatus.CANCEL_REFUND_COMPLETED]: "예약취소",
@@ -24,8 +22,6 @@ const STATUS_COLOR: Record<string, string> = {
   [OrderStatus.PICKUP_PENDING]: "text-blue-400 bg-blue-50",
   [OrderStatus.PICKUP_COMPLETED]: "text-gray-500 bg-gray-50",
   [OrderStatus.CANCEL_COMPLETED]: "text-gray-500 bg-gray-50",
-  [OrderStatus.SELLER_CANCELLED]: "text-gray-500 bg-gray-50",
-  [OrderStatus.BUYER_CANCELLED]: "text-gray-500 bg-gray-50",
   [OrderStatus.CANCEL_REFUND_PENDING]: "text-red-400 bg-red-50",
   [OrderStatus.CANCEL_REFUND_COMPLETED]: "text-gray-500 bg-gray-50",
   [OrderStatus.NO_SHOW]: "text-red-400 bg-red-50",

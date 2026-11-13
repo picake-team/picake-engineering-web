@@ -124,8 +124,10 @@ export const StoreDetailHomeMobilePage: React.FC = () => {
   const tasksLoaded = taskQueries.every((q) => q.total !== undefined);
   // 답할 채팅(기획 I-11): "처리할 일"에 한 줄 더한다
   const chat = useSellerChatUnread(storeId);
-  const chatReply = chat.data?.replyNeeded ?? 0;
-  const taskTotal = taskQueries.reduce((sum, q) => sum + (q.total ?? 0), 0) + chatReply;
+  // 견적 요청(기획 I-46): 채팅방으로 받은 요청 중 아직 답하지 않은 것. 그 방은 "답할 채팅"에서 뺀다
+  const quoteOpen = chat.data?.quoteRequests ?? 0;
+  const chatReply = chat.data?.replyNeededChats ?? chat.data?.replyNeeded ?? 0;
+  const taskTotal = taskQueries.reduce((sum, q) => sum + (q.total ?? 0), 0) + quoteOpen + chatReply;
 
   // 주간 달력 점·고른 날 픽업: 그 주 픽업 주문(취소된 주문은 빼고 셈)
   const weekQuery = useCalendarMonthOrders(storeId, weekStart, weekEnd);
@@ -243,6 +245,19 @@ export const StoreDetailHomeMobilePage: React.FC = () => {
               last={false}
             />
           ))}
+          <ListRowLink
+            to={ROUTES.STORE_DETAIL_CHATS(storeId)}
+            tall
+            dimmed={quoteOpen === 0}
+            leading={
+              <RowIconBox>
+                <TaskIcon name="quote" active={quoteOpen > 0} />
+              </RowIconBox>
+            }
+            title="견적 요청"
+            description="마감 전에 견적을 보내 주세요"
+            trailing={<RowCount value={quoteOpen} dimmed={quoteOpen === 0} />}
+          />
           <ListRowLink
             to={ROUTES.STORE_DETAIL_CHATS(storeId)}
             tall

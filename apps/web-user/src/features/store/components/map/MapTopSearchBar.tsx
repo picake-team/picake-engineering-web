@@ -37,8 +37,7 @@ export function MapPickupFilterChip({
 }) {
   const { dateLine, periodLine } = formatMapPickupFilterForSearchBar(filter);
 
-  const labelClass =
-    "block w-full truncate text-[11px] font-bold leading-[14px] text-[var(--primary-or-400,#FF653E)]";
+  const labelClass = "block w-full truncate text-[11px] font-bold leading-[14px] text-primary";
 
   return (
     <div
@@ -186,7 +185,7 @@ export function MapTopSearchBar({
             >
               <Icon name="closeCircle" width={20} height={20} className="text-gray-300" />
             </button>
-            <div className="h-3 w-px shrink-0 bg-[var(--grayscale-gr-100,#EBEBEA)]" aria-hidden />
+            <div className="h-3 w-px shrink-0 bg-gray-100" aria-hidden />
             {pickupFilter != null ? (
               <button
                 type="button"

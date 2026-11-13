@@ -185,7 +185,7 @@ export default function MapSearchPage() {
                 <Icon name="closeCircle" width={20} height={20} className="text-gray-300" />
               </button>
             )}
-            <div className="h-3 w-px shrink-0 bg-[var(--grayscale-gr-100,#EBEBEA)]" aria-hidden />
+            <div className="h-3 w-px shrink-0 bg-gray-100" aria-hidden />
             {pickupFilter != null ? (
               <button
                 type="button"

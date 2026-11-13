@@ -1,5 +1,4 @@
-import posthog from "posthog-js";
-import { isPostHogEnabled } from "@/apps/web-user/common/config/posthog.config";
+import { withPostHog } from "@/apps/web-user/common/config/posthog.config";
 import type {
   AnalyticsEventMap,
   AnalyticsEventName,
@@ -15,13 +14,5 @@ export function trackEvent<T extends AnalyticsEventName>(
   event: T,
   ...args: AnalyticsEventMap[T] extends never ? [] : [properties: AnalyticsEventMap[T]]
 ): void {
-  if (!isPostHogEnabled()) {
-    return;
-  }
-
-  try {
-    posthog.capture(event, args[0]);
-  } catch (error) {
-    console.error("PostHog 이벤트 전송 실패:", error);
-  }
+  withPostHog((posthog) => posthog.capture(event, args[0]));
 }

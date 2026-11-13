@@ -1,16 +1,28 @@
 /** 채팅(기획 I-11) — 서버 modules/chat/dto/chat.dto.ts와 같은 모양(손님 웹 features/chat/types와 같음) */
 
 export type ChatSender = "CONSUMER" | "SHOP" | "SYSTEM";
-export type ChatMessageKind = "TEXT" | "IMAGE" | "ORDER" | "PRODUCT";
+export type ChatMessageKind =
+  | "TEXT"
+  | "IMAGE"
+  | "ORDER"
+  | "PRODUCT"
+  | "QUOTE_REQUEST"
+  | "QUOTE"
+  | "QUOTE_CHOSEN";
 
 export interface ChatCard {
-  type: "ORDER" | "PRODUCT";
+  type: "ORDER" | "PRODUCT" | "QUOTE_REQUEST" | "QUOTE" | "QUOTE_CHOSEN";
+  /** 견적 카드면 견적 요청 ID */
   refId: string;
   title: string;
   subtitle?: string | null;
   imageUrl?: string | null;
   orderStatus?: string | null;
   available?: boolean;
+  /** 견적 카드: 이 가게 쪽 지금 상태 */
+  quoteState?: string | null;
+  /** 고름 카드: 손님이 다른 가게를 골랐어요 */
+  otherChosen?: boolean;
 }
 
 export interface ChatMessage {
@@ -42,6 +54,8 @@ export interface ChatThread {
   needsReply: boolean;
   muted: boolean;
   blockedByMe: boolean;
+  /** 마지막 글이 손님 견적 요청서("견적 요청" 표시) */
+  quoteRequest?: boolean;
 }
 
 export interface ChatThreadDetail extends ChatThread {
@@ -72,6 +86,10 @@ export interface ChatUnread {
   unreadThreads: number;
   /** 답할 방 수(마지막 글이 손님 것) */
   replyNeeded?: number;
+  /** 홈 "답할 채팅": 답할 방 중 마지막 글이 견적 요청 카드인 방을 뺀 수(옛 서버는 없음) */
+  replyNeededChats?: number;
+  /** 홈 "견적 요청": 아직 견적·어려워요로 답하지 않은 받는 중 요청 수(옛 서버는 없음) */
+  quoteRequests?: number;
 }
 
 export interface ChatExistingThread {

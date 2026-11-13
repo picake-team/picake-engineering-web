@@ -2,12 +2,11 @@
 
 import { Suspense, useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import posthog from "posthog-js";
-import { PostHogProvider as PHProvider, usePostHog } from "posthog-js/react";
 import {
   initPostHog,
-  isPostHogEnabled,
+  isReplayBlockedPath,
   syncPostHogUser,
+  withPostHog,
 } from "@/apps/web-user/common/config/posthog.config";
 import { useAuthHasHydrated, useAuthStore } from "@/apps/web-user/common/store/auth.store";
 
@@ -18,32 +17,29 @@ import { useAuthHasHydrated, useAuthStore } from "@/apps/web-user/common/store/a
 function PostHogPageView() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const ph = usePostHog();
 
   useEffect(() => {
-    if (!pathname || !ph || !isPostHogEnabled()) {
-      return;
-    }
-
+    if (!pathname) return;
     let url = window.origin + pathname;
     const queryString = searchParams?.toString();
     if (queryString) {
       url += `?${queryString}`;
     }
+    withPostHog((ph) => ph.capture("$pageview", { $current_url: url }));
+  }, [pathname, searchParams]);
 
-    ph.capture("$pageview", { $current_url: url });
-  }, [pathname, searchParams, ph]);
-
-  // /auth/* 는 OAuth 콜백·가입 플로우라 화면 녹화(세션 리플레이) 자체를 꺼서
-  // 이메일 등 화면에 노출되는 정보가 리플레이로 남지 않게 한다.
+  // 로그인·가입(/auth)과 사장님 견적 링크(/q)는 화면 녹화(세션 리플레이)를 끈다.
+  // startSessionRecording()은 처음 설정(disable_session_recording)을 덮어쓰므로 화면마다 다시 판단한다.
   useEffect(() => {
-    if (!ph || !isPostHogEnabled()) return;
-    if (pathname?.startsWith("/auth")) {
-      ph.stopSessionRecording();
-    } else {
-      ph.startSessionRecording();
-    }
-  }, [pathname, ph]);
+    const blocked = isReplayBlockedPath(pathname);
+    withPostHog((ph) => {
+      if (blocked) {
+        ph.stopSessionRecording();
+      } else {
+        ph.startSessionRecording();
+      }
+    });
+  }, [pathname]);
 
   return null;
 }
@@ -63,11 +59,11 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
   }, [authHydrated, accessToken]);
 
   return (
-    <PHProvider client={posthog}>
+    <>
       <Suspense fallback={null}>
         <PostHogPageView />
       </Suspense>
       {children}
-    </PHProvider>
+    </>
   );
 }

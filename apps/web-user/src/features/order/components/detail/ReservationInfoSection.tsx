@@ -8,7 +8,6 @@ import { OrderActionButtons } from "@/apps/web-user/features/mypage/order/compon
 import { OrderDetailSectionTitle } from "./OrderDetailSectionTitle";
 
 // 버튼 자체를 숨기는 상태
-const HIDDEN_STATUSES: OrderStatus[] = [OrderStatus.BUYER_CANCELLED];
 
 function formatPickupDateTime(iso: string) {
   const d = new Date(iso);
@@ -38,7 +37,6 @@ export function ReservationInfoSection({
   onMapClick,
   onChangePickupDate,
 }: ReservationInfoSectionProps) {
-  const hideActions = HIDDEN_STATUSES.includes(order.orderStatus);
   const showChangePickup = order.orderStatus === OrderStatus.RESERVATION_REQUESTED;
 
   return (
@@ -77,18 +75,14 @@ export function ReservationInfoSection({
           </dd>
         </div>
       </dl>
-      {!hideActions && (
-        <div className="mt-5">
-          <OrderActionButtons
-            buttons={[
-              { label: "스토어 문의", icon: "reviewQna", onClick: onInquiryClick },
-              ...(showChangePickup
-                ? [{ label: "픽업 날짜 변경", onClick: onChangePickupDate }]
-                : []),
-            ]}
-          />
-        </div>
-      )}
+      <div className="mt-5">
+        <OrderActionButtons
+          buttons={[
+            { label: "스토어 문의", icon: "reviewQna", onClick: onInquiryClick },
+            ...(showChangePickup ? [{ label: "픽업 날짜 변경", onClick: onChangePickupDate }] : []),
+          ]}
+        />
+      </div>
     </section>
   );
 }

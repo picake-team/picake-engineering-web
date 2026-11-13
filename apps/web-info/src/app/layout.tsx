@@ -4,8 +4,8 @@ import { PostHogProvider } from "@/apps/web-info/common/components/providers/Pos
 import BuildInfoLogger from "@/apps/web-info/common/components/debug/BuildInfoLogger";
 import {
   SITE_BASE_URL,
-  SITE_LOGO_URL,
   SITE_NAME,
+  SITE_OG_IMAGE,
 } from "@/apps/web-info/common/constants/site.constants";
 
 const DESCRIPTION =
@@ -30,7 +30,8 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     title: "Picake 소개",
     description: DESCRIPTION,
-    images: [{ url: SITE_LOGO_URL, width: 100, height: 100, alt: "Picake", type: "image/svg+xml" }],
+    // 카카오톡·인스타그램은 SVG 미리보기를 보여 주지 않아 PNG(사장님께 소개 링크를 DM으로 보낼 때)
+    images: [SITE_OG_IMAGE],
   },
   applicationName: SITE_NAME,
   referrer: "origin-when-cross-origin",

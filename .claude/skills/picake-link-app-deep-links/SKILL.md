@@ -1,6 +1,6 @@
 ---
 name: picake-link-app-deep-links
-description: Picake web-user 도메인의 링크가 iOS/Android 네이티브 앱으로 바로 열리게(Universal Links / App Links) 설정하거나 수정할 때 사용합니다. "카카오 알림톡 버튼 iOS에서 앱으로 안 열려", "유니버설링크 설정해줘", "assetlinks/apple-app-site-association 수정" 같은 요청에 이 skill을 따르세요. SOLAPI 템플릿 등록 자체는 `picake-notify-kakao-template` skill을 쓰고, 이 skill은 그 템플릿 버튼 URL이 브라우저가 아니라 앱으로 열리게 하는 인프라만 다룹니다.
+description: 링크가 iOS·안드로이드 앱으로 바로 열리게(Universal·App Links, assetlinks·AASA). "알림톡 버튼이 앱으로 안 열려"에 쓴다. 템플릿 등록은 picake-notify-kakao-template.
 ---
 
 # 앱 딥링크(Universal Links / App Links) 설정
@@ -41,6 +41,9 @@ description: Picake web-user 도메인의 링크가 iOS/Android 네이티브 앱
 - `app/order/layout.tsx` — `/order/*` 전체(상세·취소 등) 커버
 - `app/mypage/order/page.tsx` — `/mypage/order`
 - `app/mypage/reviews/write/page.tsx` — `/mypage/reviews/write`
+- `app/quote/[requestId]/layout.tsx` — `/quote/:requestId`(견적 알림톡 [견적 보기]·[요청 보기], 2026-11-11). 요청서 쓰기 `/quote/new`·보낸 뒤 `/quote/sent`에는 달지 않음
+
+이미 손님 앱(웹뷰) 안이면 넘기지 않습니다(`isWebViewEnvironment()`, Flutter가 넣는 `window.mylocation`으로 판단, 2026-11-11). 앱 웹뷰 UA에도 iPhone이 들어 있어 막지 않으면 앱 안에서 같은 화면을 다시 `picake://`로 열려고 합니다.
 
 **iOS/Android가 근본적으로 다른 점(재활성화 시 참고)**:
 
@@ -55,7 +58,7 @@ AASA는 **앱 설치 시점에 iOS가 캐싱**합니다. 웹을 배포해도 이
 
 ## 4. 새 딥링크 경로 추가 시 체크리스트
 
-1. `apps/backend/.../user-order-alimtalk.constants.ts`에 버튼 URL 추가(경로가 새로 생기는 경우)
+1. `apps/backend/.../user-order-alimtalk.constants.ts`에 버튼 URL 추가(경로가 새로 생기는 경우) — 견적처럼 `scripts/alimtalk-templates/templates.json`에만 있는 버튼 주소도 빠뜨리지 말 것(견적 [견적 보기]가 11-10~11-11 아이폰에서 앱으로 안 열렸던 이유)
 2. iOS: `UNIVERSAL_LINK_COMPONENTS`는 현재 미사용이라 급하지 않지만, `IosCustomSchemeRedirect`를 새 경로의 페이지/레이아웃에도 마운트해야 실제로 동작합니다.
 3. Android는 이 저장소에서 할 일 없음(네이티브 AndroidManifest 쪽) — 앱담당자에게 intent-filter 갱신 필요 여부 확인
 4. 배포 후 `curl https://staging.picakes.com/.well-known/apple-app-site-association`, `curl https://staging.picakes.com/.well-known/assetlinks.json`로 실제 응답에 반영됐는지 직접 확인 — `NEXT_PUBLIC_*` 값이 아니라 서버 컴포넌트/route handler가 만드는 JSON이라 브라우저 캐시 문제만 없으면 즉시 반영됩니다.

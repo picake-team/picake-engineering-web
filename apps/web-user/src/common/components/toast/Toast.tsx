@@ -46,7 +46,10 @@ export function Toast({
 
   // 토스트는 제자리에서 나타났다 사라진다(공용 움직임 값: 나타날 때 base·enter, 사라질 때 fast·exit)
   return (
+    // 화면 읽기 프로그램도 안내를 읽게(판매자 앱 안내 띠·스낵바와 같게)
     <div
+      role="status"
+      aria-live="polite"
       className={`fixed left-1/2 -translate-x-1/2 w-max max-w-[calc(100%-40px)] z-50 transition-opacity ${
         position === "center" ? "top-1/2 -translate-y-1/2" : "bottom-[100px]"
       } ${visible ? "opacity-100 duration-base ease-enter" : "opacity-0 duration-fast ease-exit"}`}

@@ -14,6 +14,7 @@ import { flattenAndDeduplicateInfiniteData } from "@/apps/web-user/common/utils/
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { EmptyState } from "@/apps/web-user/common/components/fallbacks/EmptyState";
 import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
+import type { ProductEntryPoint } from "@/apps/web-user/common/types/analytics.type";
 
 interface SearchProductListSectionProps {
   search?: string;
@@ -21,6 +22,8 @@ interface SearchProductListSectionProps {
   maxPrice?: number;
   productCategoryTypes?: ProductCategoryType[];
   sortBy?: MapListSortBy;
+  /** 상품 상세 view_product_detail의 entry_point. 검색어 없이 홈 카테고리로 왔으면 "category" */
+  entryPoint?: Extract<ProductEntryPoint, "search" | "category">;
   /** 검색 결과 개수를 상위(검색 화면)로 보고 — 애널리틱스 이벤트용 */
   onResultCountChange?: (count: number) => void;
 }
@@ -35,27 +38,37 @@ export function SearchProductListSection({
   maxPrice,
   productCategoryTypes,
   sortBy = "distance",
+  entryPoint = "search",
   onResultCountChange,
 }: SearchProductListSectionProps) {
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError, refetch } =
-    useProductList({
-      search: search?.trim() || undefined,
-      sortBy: toProductSortBy(sortBy),
-      minPrice,
-      maxPrice,
-      productCategoryTypes,
-    });
+  const {
+    data,
+    dataUpdatedAt,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+    refetch,
+  } = useProductList({
+    search: search?.trim() || undefined,
+    sortBy: toProductSortBy(sortBy),
+    minPrice,
+    maxPrice,
+    productCategoryTypes,
+  });
 
   useInfiniteScroll({ hasNextPage, isFetchingNextPage, fetchNextPage, loadMoreRef });
 
   const products = flattenAndDeduplicateInfiniteData<Product>(data);
   const totalCount = data?.pages[0]?.meta.totalItems;
 
+  // 개수가 같아도 새 결과를 받을 때마다 알린다(필터를 적용해 개수가 그대로면 "필터 적용" 이벤트가 빠지던 것)
   useEffect(() => {
     if (totalCount != null) onResultCountChange?.(totalCount);
-  }, [totalCount, onResultCountChange]);
+  }, [totalCount, dataUpdatedAt, onResultCountChange]);
 
   if (isError && !data) return <LoadErrorState fill onRetry={() => void refetch()} />;
   if (isLoading) return <></>;
@@ -74,7 +87,7 @@ export function SearchProductListSection({
           <CakeListItem
             key={product.id}
             product={product}
-            href={`${PATHS.PRODUCT.DETAIL(product.id)}?entry_point=search`}
+            href={`${PATHS.PRODUCT.DETAIL(product.id)}?entry_point=${entryPoint}`}
           />
         ))}
       </div>
