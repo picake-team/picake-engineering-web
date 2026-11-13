@@ -11,3 +11,7 @@ export const SITE_OG_IMAGE = {
 } as const;
 
 export const SITE_NAME = "Picake";
+
+/** 공식 채널(picake-hq marketing/channels.md와 같은 주소). 구조화 데이터의 sameAs에 쓴다 */
+export const INSTAGRAM_URL = "https://www.instagram.com/picake_app/";
+export const KAKAO_CHANNEL_URL = "https://pf.kakao.com/_MgxdPX";
