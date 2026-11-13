@@ -87,7 +87,6 @@ function QuoteSendSheet({
   const [price, setPrice] = useState(q ? q.unitPrice.toLocaleString("ko-KR") : "");
   const [mayVary, setMayVary] = useState(q?.priceMayVary ?? false);
   const [similarity, setSimilarity] = useState<QuoteSimilarity | null>(q?.similarity ?? null);
-  const [more, setMore] = useState(!!q && (q.photoUrls.length > 0 || !!q.memo));
   const [memo, setMemo] = useState(q?.memo ?? "");
   const [photos, setPhotos] = useState<string[]>(q?.photoUrls ?? []);
   const [uploading, setUploading] = useState(false);
@@ -211,59 +210,59 @@ function QuoteSendSheet({
           ) : null}
         </div>
 
-        <button
-          type="button"
-          onClick={() => setMore((v) => !v)}
-          className="flex h-12 items-center justify-between border-b border-ink-100 text-sub text-ink-900"
-        >
-          <span>
-            비슷하게 만든 케이크 사진 · 메모 <span className="text-ink-400">선택</span>
+        {/* 접는 줄 없이 바로 보여 준다(손님 견적 링크와 같게, 운영자 11-13) */}
+        <div className="flex flex-col gap-2">
+          <span className="text-sub font-bold text-ink-700">
+            비슷하게 만든 케이크 사진{" "}
+            <span className="font-normal text-ink-400">선택 · {PHOTOS_MAX}장까지</span>
           </span>
-          <Icon name="chevronDown" size={18} className={cx(more && "rotate-180")} />
-        </button>
-        {more ? (
-          <>
-            <div className="flex gap-2">
-              {photos.map((url) => (
-                <div key={url} className="relative">
-                  <img src={url} alt="" className="size-[72px] rounded-control object-cover" />
-                  <button
-                    type="button"
-                    aria-label="사진 빼기"
-                    onClick={() => setPhotos((p) => p.filter((x) => x !== url))}
-                    className="absolute -right-1.5 -top-1.5 flex size-5 items-center justify-center rounded-full bg-ink-900 text-white"
-                  >
-                    <Icon name="close" size={12} />
-                  </button>
-                </div>
-              ))}
-              {photos.length < PHOTOS_MAX ? (
-                <label className="flex size-[72px] cursor-pointer items-center justify-center rounded-control border border-ink-200 text-ink-400">
-                  {uploading ? "…" : <Icon name="camera" size={20} />}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    hidden
-                    onChange={(e) => void onPick(e.target.files)}
-                  />
-                </label>
-              ) : null}
-            </div>
-            <Field label="메모" counter={`${memo.length}/${MEMO_MAX}`}>
-              {(p) => (
-                <TextArea
-                  id={p.id}
-                  rows={3}
-                  maxLength={MEMO_MAX}
-                  value={memo}
-                  placeholder="고를 수 있는 맛, 포함 사항 등"
-                  onChange={(e) => setMemo(e.target.value)}
+          <div className="flex gap-2">
+            {photos.map((url) => (
+              <div key={url} className="relative">
+                <img src={url} alt="" className="size-[72px] rounded-control object-cover" />
+                <button
+                  type="button"
+                  aria-label="사진 빼기"
+                  onClick={() => setPhotos((p) => p.filter((x) => x !== url))}
+                  className="absolute -right-1.5 -top-1.5 flex size-5 items-center justify-center rounded-full bg-ink-900 text-white"
+                >
+                  <Icon name="close" size={12} />
+                </button>
+              </div>
+            ))}
+            {photos.length < PHOTOS_MAX ? (
+              <label className="flex size-[72px] cursor-pointer items-center justify-center rounded-control border border-ink-200 text-ink-400">
+                {uploading ? "…" : <Icon name="camera" size={20} />}
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  hidden
+                  onChange={(e) => void onPick(e.target.files)}
                 />
-              )}
-            </Field>
-          </>
-        ) : null}
+              </label>
+            ) : null}
+          </div>
+        </div>
+        <Field
+          label={
+            <>
+              메모 <span className="font-normal text-ink-400">선택</span>
+            </>
+          }
+          counter={`${memo.length}/${MEMO_MAX}`}
+        >
+          {(p) => (
+            <TextArea
+              id={p.id}
+              rows={3}
+              maxLength={MEMO_MAX}
+              value={memo}
+              placeholder="고를 수 있는 맛, 포함 사항 등"
+              onChange={(e) => setMemo(e.target.value)}
+            />
+          )}
+        </Field>
         <p className="text-caption text-ink-600">
           보내면 손님에게 가게 이름·견적·메모가 보여요. 손님이 고르면 이 채팅방에서 주문을 정해요
         </p>
