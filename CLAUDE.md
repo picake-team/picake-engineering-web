@@ -12,7 +12,7 @@ Picake(디저트 주문 플랫폼)의 **웹 프론트엔드** 레포입니다. Y
 | `picake-hq` (비공개)         | 회사 운영·운영 자동화 (매일 브리핑, 주간 회의, 데이터 리포트·인프라 점검 skill)                                                       | 형제 폴더 `../picake-hq`                  |
 
 - 문서에 나오는 `apps/backend/...` 경로와 `deploy-*-backend-ec2.yml`은 backend 레포의 것입니다.
-- 판매자 휴대폰 화면(판매자 앱)을 만들거나 고치면 [`docs/web-seller/판매자 앱 디자인 기준.md`](docs/web-seller/판매자%20앱%20디자인%20기준.md)를 먼저 보고 `apps/web-seller/src/common/ui` 부품만 씁니다(높이 48/40/36, 흰색·회색·주황만, 연한·흐린 주황 금지, 날짜는 앱 창). 화면을 검토·다듬을 때(“사장님 앱 검토해줘”, “더 있을 것 같아”)는 skill `picake-app-review`(두 앱 공용, 전·후 그림으로 골라 받기)를 따릅니다. 손님 화면은 [`docs/web-user/손님 앱 디자인 기준.md`](docs/web-user/손님%20앱%20디자인%20기준.md)를 먼저 봅니다(지금 있는 부품에 맞추고 꾸미지 않기).
+- 판매자 휴대폰 화면(판매자 앱)을 만들거나 고치면 [`docs/web-seller/판매자 앱 디자인 기준.md`](docs/web-seller/판매자%20앱%20디자인%20기준.md)를 먼저 보고 `apps/web-seller/src/common/ui` 부품만 씁니다(높이 48/40/36, 흰색·회색·주황만, 연한·흐린 주황 금지, 날짜는 앱 창). 화면을 검토·다듬을 때(“사장님 앱 검토해줘”, “더 있을 것 같아”)는 skill `picake-app-review`(두 앱 공용, 전·후 그림으로 골라 받기)를 따릅니다. 손님 화면은 [`docs/web-user/손님 앱 디자인 기준.md`](docs/web-user/손님%20앱%20디자인%20기준.md)를 먼저 봅니다(지금 있는 부품에 맞추고 꾸미지 않기). 외부 디자인 skill(`design-taste-frontend`·`emil-design-eng`)은 소개 페이지처럼 새로 디자인할 때만 참고하고, 손님·사장님 앱 화면에서는 위 기준 문서와 `picake-app-review`가 먼저입니다.
 - 공통 디자인 값(Picake 색, 움직임 시간·곡선·프리셋, 손님 화면 tailwind preset)은 `packages/design-tokens`(`@picake/design-tokens`)에 있고 web-user·web-info·web-seller가 씁니다. 움직임은 화면마다 `duration-200 ease-out`을 직접 적지 않고 `duration-base ease-enter`·`animate-sheet-in` 같은 이름을 씁니다. 바꾸면 세 앱 화면이 같이 바뀝니다. 두 앱 이상이 같이 쓰는 값만 두고, 판매자 휴대폰 화면 값은 `apps/web-seller/src/common/ui/tokens.ts`에 둡니다.
 - 프로젝트 공통 문서는 이 레포 `docs/common`이 정본입니다. 구조는 `docs/common/structure/프로젝트 구조 - 가이드.md`, AI 에이전트 설정은 `docs/common/structure/AI 코딩 에이전트 - 가이드.md`를 참고하세요.
 
@@ -36,11 +36,15 @@ yarn common:lint && yarn common:format:check
 - **공개 레포입니다.** 비밀번호·토큰·키, 개인 휴대폰 번호, 계정 비밀번호를 코드·문서·skill·커밋에 적지 않습니다. 심사 기록처럼 남겨야 할 내용에 이런 값이 들어가면 `{…}`로 가리고 값은 운영자 비밀번호 관리자에 둡니다(2026-11-05 iOS 심사 skill에서 비밀번호가 노출돼 바꾼 일이 있음). 비공개로 남길 기록은 `picake-hq`에 씁니다.
 - PR 필수 체크는 `test-web (web-user|web-seller|web-admin|web-info)`입니다. web-info의 `test`는 빌드(`next build`) 검사입니다. `test-web-e2e`는 결과만 보고합니다(필수 아님).
 
-## 운영 skill (picake-hq 레포)
+## 다른 레포의 skill
 
-아래 요청은 이 레포에 skill이 없습니다. 형제 폴더 `../picake-hq`(비공개)의 skill 문서를 읽고 그 절차를 따르세요(없으면 `picake-team/picake-hq`를 clone).
+아래 요청은 이 레포에 skill이 없습니다. 형제 폴더의 skill 문서를 읽고 그 절차를 따르세요(없으면 clone). 반대로 소셜 로그인·앱 딥링크·약관·스토어 심사 skill은 backend 코드도 다루지만 이 레포에 있습니다.
 
-| 요청 예                                               | skill 문서                                                  |
-| ----------------------------------------------------- | ----------------------------------------------------------- |
-| "사용자 데이터 보여줘", "전환율 어때", "회원수"       | `../picake-hq/.claude/skills/picake-data-report/SKILL.md`   |
-| "인프라 상태 어때", "이번 달 비용", "서버 업그레이드" | `../picake-hq/.claude/skills/picake-infra-monitor/SKILL.md` |
+| 요청 예                                               | skill 문서                                                                   |
+| ----------------------------------------------------- | ---------------------------------------------------------------------------- |
+| "알림톡 템플릿 만들어줘", "솔라피에 등록"             | `../picake-engineering-backend/.claude/skills/picake-notify-kakao-template/` |
+| "앱 확인해줘", "알림 오는지 봐줘"                     | `../picake-engineering-app/.claude/skills/picake-app-test/`                  |
+| "앱 올려줘", "스토어에 내줘"                          | `../picake-engineering-app/.claude/skills/picake-app-release/`               |
+| "사용자 데이터 보여줘", "전환율 어때", "회원수"       | `../picake-hq/.claude/skills/picake-data-report/` (비공개)                   |
+| "인프라 상태 어때", "이번 달 비용", "서버 업그레이드" | `../picake-hq/.claude/skills/picake-infra-monitor/` (비공개)                 |
+| "웹 속도 어때", "페이지 느려"                         | `../picake-hq/.claude/skills/picake-web-performance/` (비공개)               |
