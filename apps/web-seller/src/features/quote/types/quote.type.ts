@@ -41,6 +41,8 @@ export interface QuoteRequestForShop {
   contentHidden?: boolean;
   /** 손님 이름·휴대폰(보낼 때 "받는 가게에 전달돼요" 안내를 본 요청에만, 손님 글과 같은 기간. 옛 서버는 없음) */
   customer?: { name: string; phone: string } | null;
+  /** 손님이 이 견적으로 만든 살아 있는 예약(주문) ID(기획 I-01, 옛 서버는 없음) */
+  orderId?: string | null;
   state: QuoteTargetState;
   canEdit: boolean;
   quote: Quote | null;

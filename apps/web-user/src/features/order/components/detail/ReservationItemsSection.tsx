@@ -8,6 +8,7 @@ import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { OrderDetailSectionTitle } from "./OrderDetailSectionTitle";
 import { ReservationItemCard } from "./ReservationItemCard";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
+import { QuoteOrderCard } from "./QuoteOrderCard";
 
 interface ReservationItemsSectionProps {
   order: OrderResponse;
@@ -47,6 +48,7 @@ export function ReservationItemsSection({ order, onChangeOptions }: ReservationI
   return (
     <section className="px-5">
       <OrderDetailSectionTitle right={renderCancelControl()}>예약 상품</OrderDetailSectionTitle>
+      {order.quote && <QuoteOrderCard order={order} />}
       <div className="space-y-3">
         {order.orderItems.map((item) => (
           <ReservationItemCard

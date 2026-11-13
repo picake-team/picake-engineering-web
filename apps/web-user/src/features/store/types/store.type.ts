@@ -117,6 +117,8 @@ export interface StoreInfo {
   minProductPrice: number | null;
   /** 영업 캘린더 (스토어 목록·상세 API) */
   businessCalendar?: StoreBusinessCalendar;
+  /** 환불·취소 규정(상세 API, 견적 예약 창에서 씀) */
+  refundCancellationPolicy?: RefundCancellationPolicy;
   createdAt: Date;
   updatedAt: Date;
 }

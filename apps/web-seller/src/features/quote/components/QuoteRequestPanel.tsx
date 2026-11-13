@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button, ButtonPair } from "@/apps/web-seller/common/ui/Button";
 import { StatusPill } from "@/apps/web-seller/common/ui/Badge";
@@ -271,6 +273,7 @@ function QuoteSendSheet({
  */
 export function QuoteRequestPanel({ storeId, requestId }: { storeId: string; requestId: string }) {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { addAlert } = useAlertStore();
   const {
     data: view,
@@ -444,10 +447,21 @@ export function QuoteRequestPanel({ storeId, requestId }: { storeId: string; req
         </div>
       ) : null}
       {view.state === "CHOSEN_ME" ? (
-        // 고른 뒤 할 일(Picake 예약은 아직 없음, 기획 I-01 전까지 주문·입금은 가게와 직접)
+        // 고른 뒤: 손님이 "이 견적으로 예약하기"를 하면 주문 탭에 예약신청으로 들어온다(기획 I-01)
         <p className="mt-2 text-sub font-semibold text-ink-900">
-          손님과 채팅으로 디자인·픽업 시간·입금 방법을 정해 주세요
+          {view.orderId
+            ? "손님이 이 견적으로 예약을 신청했어요. 주문에서 예약을 확인해 주세요"
+            : "손님과 채팅으로 디자인·픽업 시간을 정해 주세요. 손님이 예약하면 주문으로 들어와요"}
         </p>
+      ) : null}
+      {view.state === "CHOSEN_ME" && view.orderId ? (
+        <Button
+          block
+          className="mt-3"
+          onClick={() => navigate(ROUTES.STORE_DETAIL_ORDERS_DETAIL(storeId, view.orderId!))}
+        >
+          예약 보기
+        </Button>
       ) : null}
       {error ? <p className="mt-2 text-caption font-semibold text-brand-ink">{error}</p> : null}
 

@@ -322,6 +322,10 @@ export interface AnalyticsEventMap {
   engage_quote_chat: { quote_request_id: string; store_type: QuoteStoreType; chosen: boolean };
   /** 고르기 창에서 "고르기"를 누름(서버 응답 전). rechoose = 이미 고른 뒤 다른 견적으로 바꿈 */
   request_quote_choose: { quote_request_id: string; store_type: QuoteStoreType; rechoose: boolean };
+  /** 고른 견적으로 예약하기(기획 I-01): 예약신청을 누름 → 성공(예약 ID) / 실패 */
+  request_quote_reservation: { quote_request_id: string };
+  success_quote_reservation: { quote_request_id: string; reservation_id: string };
+  fail_quote_reservation: { quote_request_id: string; fail_reason: string };
   /** 견적을 골랐음(서버 응답) */
   success_quote_choose: {
     quote_request_id: string;
