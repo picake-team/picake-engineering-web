@@ -99,7 +99,8 @@ export function QuoteLinkChat({
   const inputRef = useRef<HTMLTextAreaElement>(null);
   // 처음 열 때는 위(요청서)부터 보이게 두고, 내가 보낸 뒤에만 대화 끝으로 내린다
   const scrollAfterSend = useRef(false);
-  const messages = data?.messages ?? [];
+  // "보낸 견적" 카드는 바로 위 "보낸 견적" 칸과 같아 대화에서는 뺀다
+  const messages = (data?.messages ?? []).filter((m) => m.kind !== "QUOTE");
   const write = data?.thread?.write;
   const canWrite = open && (write?.ok ?? true);
 
@@ -140,11 +141,9 @@ export function QuoteLinkChat({
 
   let prevDay = "";
   return (
-    <section className="mb-[24px]">
-      <p className="text-base font-bold text-gray-900">손님과 대화</p>
-      <p className="mb-[14px] mt-[2px] text-xs text-gray-500">
-        이름·연락처는 서로 보이지 않아요. 신고가 들어오면 Picake가 대화를 봐요.
-      </p>
+    // 요청서·보낸 견적과 같은 테두리 상자로 묶어 페이지 글과 섞이지 않게 한다(안쪽 스크롤 상자는 두지 않음)
+    <section className="mb-[24px] rounded-xl border border-gray-100 px-[16px] py-[14px]">
+      <p className="mb-[14px] text-base font-bold text-gray-900">손님과 대화</p>
       <div className="flex flex-col gap-[10px]">
         {messages.length === 0 && (
           <p className="py-[16px] text-center text-sm text-gray-400">
@@ -192,6 +191,9 @@ export function QuoteLinkChat({
         </p>
       )}
       {error && <p className="mt-[6px] text-sm text-red-400">{error}</p>}
+      <p className="mt-[10px] text-xs text-gray-400">
+        이름·연락처는 서로 보이지 않아요. 신고가 들어오면 Picake가 대화를 봐요.
+      </p>
     </section>
   );
 }
