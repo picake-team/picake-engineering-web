@@ -25,7 +25,8 @@ function copyQuietly(text: string) {
 
 /**
  * 카카오톡 채팅·인스타·메일·전화 같은 바깥 앱 열기 + 열리지 않았을 때 대신할 길.
- * 2026-11-11 안드로이드 손님 앱이 `apps://`의 https·mailto·tel을 넘기지 않는 것을 확인(판매자 앱은 됨, 앱담당자에게 요청).
+ * 스토어에 남은 예전(Flutter) 안드로이드 손님 앱은 `apps://`의 https·mailto·tel을 넘기지 않는다(2026-11-11 확인, 판매자 앱은 됨).
+ * 새 앱(Capacitor, picake-engineering-app)은 넘기지만 예전 앱이 남아 있는 동안은 대신할 길을 둔다.
  * 앱에서는 누를 때 값을 미리 복사해 두고(누른 순간에만 복사가 허용됨), 1.5초 안에 화면이 내려가지 않으면 안내를 띄운다.
  */
 export function useOpenExternal() {

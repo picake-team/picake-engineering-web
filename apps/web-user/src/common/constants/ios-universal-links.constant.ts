@@ -19,7 +19,7 @@ import { NODE_ENV, type NodeEnv } from "@/apps/web-user/common/constants/environ
  * 내리고 Safari를 다시 띄우는 현상이 확인됐습니다(카카오톡·메모 앱 등 진입 경로 무관하게 재현,
  * 앱 쪽 코드에 외부 브라우저를 여는 경로 없음 확인 — iOS 자체 동작으로 판단). 대신 커스텀 스킴
  * (`picake://`)으로 전환했습니다 — `common/components/deep-link/IosCustomSchemeRedirect.tsx`가
- * `/order/*`, `/mypage/order`, `/mypage/reviews/write`에서 이 URL의 경로+쿼리를 그대로
+ * `/order/*`, `/mypage/order`, `/mypage/reviews/write`, `/quote/:requestId`, `/chat/:threadId`에서 이 URL의 경로+쿼리를 그대로
  * `picake://`로 바꿔 리다이렉트합니다. 이 파일의 `IOS_APP_ID_BY_ENV`는 그래서 빈 문자열로
  * 두어(아래 `getAppleAppSiteAssociation`이 `details: []`를 반환) AASA에서 appID 자체를
  * 아예 선언하지 않습니다 — Bundle ID는 이미 확인해뒀으니(`com.product.picake`, 환경 공용),
@@ -38,7 +38,7 @@ export type AppleAppSiteAssociation = {
 
 /**
  * 알림톡 WL 버튼 등에서 앱으로 열려야 하는 경로 패턴.
- * `USER_ORDER_ALIMTALK_BUTTON_URLS`(backend), `paths.constant.ts`(web-user) 기준.
+ * `USER_ORDER_ALIMTALK_BUTTON_URLS`·`scripts/alimtalk-templates/templates.json`(backend), `paths.constant.ts`(web-user) 기준.
  * 범위를 넓히거나 좁힐 때는 두 상수와 함께 맞춰주세요.
  */
 const UNIVERSAL_LINK_COMPONENTS: AppleAppSiteAssociationDetail["components"] = [
@@ -49,6 +49,8 @@ const UNIVERSAL_LINK_COMPONENTS: AppleAppSiteAssociationDetail["components"] = [
     comment: "리뷰 작성 (알림톡 [후기 작성하기])",
   },
   { "/": "/mypage/order", comment: "내 주문 목록" },
+  { "/": "/quote/*", comment: "견적 요청 상세 (알림톡 [견적 보기])" },
+  { "/": "/chat/*", comment: "채팅방 (알림톡 [답변 보기])" },
 ];
 
 /** Team ID + Bundle ID — 환경 구분 없이 공용(위 주석 참고). 확인된 값이지만 현재 미사용(아래 참고). */
