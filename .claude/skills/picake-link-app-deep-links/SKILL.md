@@ -42,7 +42,7 @@ description: 링크가 iOS·안드로이드 앱으로 바로 열리게(Universal
 - `app/mypage/order/page.tsx` — `/mypage/order`
 - `app/mypage/reviews/write/page.tsx` — `/mypage/reviews/write`
 - `app/quote/[requestId]/layout.tsx` — `/quote/:requestId`(견적 알림톡 [견적 보기]·[요청 보기], 2026-11-11). 요청서 쓰기 `/quote/new`·보낸 뒤 `/quote/sent`에는 달지 않음
-- `/chat/:id`(채팅 알림톡 [답변 보기])에는 **아직 달지 않았습니다** — 아이폰에서는 사파리로 열립니다(앱 쪽 경로 `/chat/`은 준비됨). 달기 전에 스토어에 남은 예전 앱이 `picake://chat/…`을 여는지 확인합니다
+- `app/chat/[threadId]/layout.tsx` — `/chat/:threadId`(채팅 알림톡 [답변 보기], 2026-11-14). 목록 `/chat`·가게에서 문의 시작 `/chat/store/:storeId`에는 달지 않음
 
 이미 손님 앱(웹뷰) 안이면 넘기지 않습니다(`isWebViewEnvironment()`, 앱이 넣는 `window.mylocation`으로 판단, 2026-11-11). 앱 웹뷰 UA에도 iPhone이 들어 있어 막지 않으면 앱 안에서 같은 화면을 다시 `picake://`로 열려고 합니다.
 
