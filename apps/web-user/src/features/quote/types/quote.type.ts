@@ -198,6 +198,8 @@ export interface ReserveQuoteBody {
   pickupDate: string;
   reservationContactName?: string;
   reservationPhone?: string;
+  /** 예약 창에서 본 합계(그사이 사장님이 견적을 고치면 서버가 다시 확인하게 함) */
+  expectedTotal?: number;
 }
 
 export interface ChooseQuoteResponse {

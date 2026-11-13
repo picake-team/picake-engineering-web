@@ -103,7 +103,8 @@ export function useReserveQuote() {
   return useMutation({
     mutationFn: ({ requestId, body }: { requestId: string; body: ReserveQuoteBody }) =>
       quoteApi.reserve(requestId, body),
-    onSuccess: () => {
+    // 성공하면 예약 보기로, 실패하면(사장님이 견적을 고침 등) 바뀐 견적을 다시 읽는다
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: quoteQueryKeys.all });
     },
   });

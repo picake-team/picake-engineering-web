@@ -34,10 +34,14 @@ function timeOf(ymd: string, hour: number | null): Date | null {
   return day;
 }
 
-/** 요청서 픽업 날짜("2026-11-21")를 그 날 0시로 */
+/** 요청서 픽업 날짜("2026-11-21")를 그 날 0시로. 이미 지난 날짜면 비워 둔다(손님이 새로 고름) */
 function dayOf(ymd: string): Date | null {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(ymd);
-  return m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : null;
+  if (!m) return null;
+  const day = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return day.getTime() < today.getTime() ? null : day;
 }
 
 /**
@@ -119,6 +123,7 @@ export function QuoteReservationSheet({
         requestId,
         body: {
           pickupDate: selected.toISOString(),
+          expectedTotal: quote.total,
           ...(reserverName.trim() && { reservationContactName: reserverName.trim() }),
           ...(reserverPhone.trim() && { reservationPhone: reserverPhone.trim() }),
         },
@@ -138,6 +143,8 @@ export function QuoteReservationSheet({
             fail_reason: "api_error",
           });
           showAlert({ type: "error", title: "예약하지 못했어요", message: getApiMessage.error(e) });
+          // 금액이 바뀌었거나 그사이 예약됐으면 창을 닫고 바뀐 견적 화면을 보여 준다
+          onClose();
         },
       },
     );
