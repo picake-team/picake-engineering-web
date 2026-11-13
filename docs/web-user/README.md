@@ -6,7 +6,7 @@ Picake 플랫폼을 위한 Next.js 기반 사용자 웹 애플리케이션입니
 
 ### ✅ 구현 완료
 
-- **인증 시스템**: Flutter WebView 연동 + Google/Kakao/Apple OAuth 콜백 + 앱스토어 심사용 로그인
+- **인증 시스템**: 앱(웹뷰) 연동 + Google/Kakao/Apple OAuth 콜백 + 앱스토어 심사용 로그인
 - **iOS 딥링크**: 커스텀 스킴(`picake://`)으로 앱 열기 (유니버설 링크는 비활성화)
 - **홈 / 탐색**: 상품 목록, 배너 슬라이더, 카테고리 필터, 검색, 지역 기반 필터링
 - **상품**: 상품 목록, 상세 페이지, 줌/핀치 이미지 뷰어 (react-zoom-pan-pinch)
@@ -25,7 +25,7 @@ Picake 플랫폼을 위한 Next.js 기반 사용자 웹 애플리케이션입니
 - **API 통신**: TanStack Query + Axios를 활용한 서버 상태 관리
 - **에러 처리**: Error Boundary, global-error, Sentry 연동
 - **분석**: PostHog (환경 변수 설정 시). 이벤트 정의는 `common/types/analytics.type.ts`(기획팀 Data Taxonomy 시트와 같게), 모든 이벤트에 `app`·`environment`·`surface`(app = 손님 앱 웹뷰, web = 브라우저). 로그인하면 회원 번호로 사람을 묶고(`identify`, 이름·전화번호는 보내지 않음) 로그아웃하면 끊는다(`reset`, 2026-11-10~, 판매자 웹도 같음). 견적 요청서는 `view_quote_step` → `request_quote_request` → `success_quote_request`·`fail_quote_request`. 견적 ②(받은 견적·고르기)는 `view_quote_detail` → `engage_quote_chat`·`request_quote_choose` → `success_quote_choose`·`fail_quote_choose`, 사장님 견적 링크(`/q`, 로그인 없음)는 `view_quote_link` → `success_quote_link_submit`·`success_quote_link_decline`·`success_quote_link_chat`(판매자 앱은 `success_quote_send`·`success_quote_decline`). 채팅(I-11)은 `engage_chat_entry`(입구: 스토어 문의 창·예약에서 연 문의 창·MY) → `success_chat_message`(글 내용 없이 방·가게·처음인지·사진 수)
-- **반응형 UI**: 모바일 우선 반응형 디자인 (Flutter WebView 환경 최적화)
+- **반응형 UI**: 모바일 우선 반응형 디자인 (앱 웹뷰 환경 최적화)
 - **디자인 기준**: 화면을 만들거나 고칠 때 [손님 앱 디자인 기준](손님%20앱%20디자인%20기준.md)(지금 있는 부품에 맞추기, 누름 효과·스크롤 자리 등 동작, 다시 꺼내지 않을 것)을 먼저 봅니다.
 - **디자인 값**: 색·글자 크기·모서리·움직임은 공통 패키지 `@picake/design-tokens`의 손님 화면 preset(web-info와 같이 씀, `tailwind.config.ts`의 `presets`). 값과 tailwind 이름은 Storybook "Common/디자인 값"(`yarn web-user:storybook`)에서 보고, 새 화면은 숫자·색 코드를 클래스에 직접 쓰지 않고 이 이름을 씁니다([공통 디자인 값](../common/structure/프로젝트%20구조%20-%20가이드.md#공통-디자인-값-packagesdesign-tokens-2026-11-08))
 - **SEO 최적화**: Next.js 메타데이터 API 활용
@@ -51,7 +51,7 @@ Picake 플랫폼을 위한 Next.js 기반 사용자 웹 애플리케이션입니
 - **Kakao 회원가입 콜백**: `/auth/register/kakao`
 - **Apple 회원가입**: `/auth/register/apple`
 
-> 로그인·회원가입은 앱에서도 web-user(웹뷰 안)가 처리합니다. Flutter 앱은 토큰을 따로 보관하지 않고 푸시 토큰·위치만 주고받습니다([사용자 - 웹뷰 인증 가이드](../common/feature/사용자%20-%20웹뷰%20인증.md)). Apple 로그인의 dev 환경은 별도 지원 없이 staging 도메인으로 대체됩니다.
+> 로그인·회원가입은 앱에서도 web-user(웹뷰 안)가 처리합니다. 앱은 토큰을 따로 보관하지 않고 푸시 토큰·위치만 주고받습니다([사용자 - 웹뷰 인증 가이드](../common/feature/사용자%20-%20웹뷰%20인증.md)). Apple 로그인의 dev 환경은 별도 지원 없이 staging 도메인으로 대체됩니다.
 > 앱스토어 심사용 로그인(`review-login`)은 심사관 계정으로 로그인해야 하는 요구사항에 대응하기 위한 별도 플로우입니다.
 
 ### 상품 / 스토어

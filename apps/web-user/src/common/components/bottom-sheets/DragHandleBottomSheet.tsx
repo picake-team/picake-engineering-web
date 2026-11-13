@@ -4,6 +4,7 @@ import { motionDuration, motionEasing } from "@picake/design-tokens";
 import { useEffect, useRef, type ReactNode } from "react";
 import clsx from "clsx";
 import { usePresence } from "@/apps/web-user/common/hooks/usePresence";
+import { usePageScrollLock } from "@/apps/web-user/common/hooks/usePageScrollLock";
 
 /** 닫힐 때 내려가는 시간(공용 움직임 값 sheet-out = medium) */
 const SHEET_EXIT_MS = 250;
@@ -51,17 +52,8 @@ export function DragHandleBottomSheet({
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
-  // 바텀시트 열릴 때 body 스크롤 방지
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
+  // 바텀시트 열릴 때 뒤 화면 스크롤 방지
+  usePageScrollLock(isOpen);
 
   // 아래로 끌어내려 닫기: 시트 어디서든 아래로 드래그하면 시트가 따라 내려가고, 임계값 이상이면 닫힘.
   // touchmove는 passive:false로 등록해야 드래그 중 pull-to-refresh/스크롤을 막을 수 있어 React 핸들러 대신 직접 등록.
@@ -95,6 +87,8 @@ export function DragHandleBottomSheet({
         if (dy <= 0) return;
         dragging = true;
         startY = e.touches[0].clientY;
+        // 시작하는 움직임부터 막는다(놓아두면 브라우저가 뒤 화면 스크롤을 시작해 그 뒤는 막을 수 없음)
+        if (e.cancelable) e.preventDefault();
         return;
       }
       delta = Math.max(0, dy);

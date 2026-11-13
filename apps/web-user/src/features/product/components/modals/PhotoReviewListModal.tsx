@@ -3,6 +3,7 @@
 import React, { useEffect } from "react";
 import Image from "next/image";
 import { Icon } from "@/apps/web-user/common/components/icons";
+import { usePageScrollLock } from "@/apps/web-user/common/hooks/usePageScrollLock";
 
 interface PhotoReviewImage {
   id: string;
@@ -32,14 +33,14 @@ export const PhotoReviewListModal: React.FC<PhotoReviewListModalProps> = ({
 
     if (isOpen) {
       document.addEventListener("keydown", handleEsc);
-      document.body.style.overflow = "hidden";
     }
 
     return () => {
       document.removeEventListener("keydown", handleEsc);
-      document.body.style.overflow = "";
     };
   }, [isOpen, onClose]);
+
+  usePageScrollLock(isOpen);
 
   if (!isOpen) return null;
 

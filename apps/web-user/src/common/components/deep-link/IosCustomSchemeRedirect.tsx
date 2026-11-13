@@ -8,7 +8,7 @@ import { isWebViewEnvironment } from "@/apps/web-user/common/utils/webview.bridg
  *
  * iOS는 Universal Links로 앱이 열려도 웹뷰 네비게이션 직후 앱을 백그라운드로 내리고 Safari를
  * 다시 띄우는 자체 동작이 있어(2026-08-03 앱담당자 확인, `ios-universal-links.constant.ts` 참고),
- * 알림톡 버튼이 여는 `/order/*`, `/mypage/order`, `/mypage/reviews/write`, `/quote/:requestId`에서
+ * 알림톡 버튼이 여는 `/order/*`, `/mypage/order`, `/mypage/reviews/write`, `/quote/:requestId`, `/chat/:threadId`에서
  * 이 컴포넌트를 마운트해 현재 경로+쿼리를 `picake://`로 즉시 리다이렉트합니다. 앱이 설치되어 있지
  * 않으면 커스텀 스킴 navigation이 조용히 무시되고 현재 웹페이지가 그대로 보입니다(에러 없음).
  *

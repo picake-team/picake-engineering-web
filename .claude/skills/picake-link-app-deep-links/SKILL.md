@@ -11,8 +11,8 @@ description: 링크가 iOS·안드로이드 앱으로 바로 열리게(Universal
 
 ## 0. 전체 그림
 
-- **신뢰 앵커 파일은 web-user가 서빙**하지만, **실제로 앱을 열리게 하는 설정(Associated Domains capability / intent-filter autoVerify)은 네이티브 앱 쪽**입니다. 네이티브 iOS/Android 앱은 이 모노레포(`apps/*`)에 없고 **별도 저장소**에 있습니다 — 이 skill로 web-user 쪽 파일을 다 맞게 고쳐도, 네이티브 앱 쪽에 Associated Domains/intent-filter가 없으면 여전히 브라우저로 열립니다. 앱담당자 확인이 필요한 부분은 명확히 구분해서 안내하세요.
-- 딥링크로 열려야 하는 실제 경로 목록은 **백엔드 `USER_ORDER_ALIMTALK_BUTTON_URLS`**(`apps/backend/src/modules/notification/constants/user-order-alimtalk.constants.ts`)가 원본입니다. 새 버튼 URL이 추가되면 아래 파일들의 경로 목록도 같이 업데이트해야 합니다.
+- **신뢰 앵커 파일은 web-user가 서빙**하지만, **실제로 앱을 열리게 하는 설정(Associated Domains capability / intent-filter autoVerify)은 네이티브 앱 쪽**입니다. 네이티브 앱은 앱 레포 `picake-engineering-app`(형제 폴더 `../picake-engineering-app`)에 있습니다 — Android는 `apps/customer/android/app/src/{prod,staging}/AndroidManifest.xml`의 intent-filter와 `PicakeShellPlugin.isDeepLinkPath`, iOS는 `apps/customer/ios`(Associated Domains, 지금은 Universal Links를 꺼 둠). 경로 목록 정본은 앱 레포 `docs/bridge-contract.md` §4. 이 skill로 web-user 쪽 파일을 다 맞게 고쳐도, 앱 쪽에 경로가 없으면 여전히 브라우저로 열립니다.
+- 딥링크로 열려야 하는 경로는 **알림톡 버튼 주소**가 원본입니다: 주문은 `USER_ORDER_ALIMTALK_BUTTON_URLS`(`apps/backend/src/modules/notification/constants/user-order-alimtalk.constants.ts`), 견적·채팅은 등록한 템플릿 `apps/backend/scripts/alimtalk-templates/templates.json`의 버튼(`/quote/#{요청ID}`, `/chat/#{채팅ID}`). 새 버튼 주소가 생기면 아래 파일들과 앱 레포의 경로 목록도 같이 고칩니다.
 
 ## 1. Android (App Links) — 이미 구성되어 있음, 참고용 패턴
 
@@ -23,7 +23,7 @@ description: 링크가 iOS·안드로이드 앱으로 바로 열리게(Universal
 
 - staging: `package_name: "com.pickage.package.staging"`
 - production: `package_name: "com.pickage.package"`
-- `sha256_cert_fingerprints`는 **Play Console의 App signing key certificate SHA-256**입니다(로컬 keystore 서명과 다를 수 있음 — Play App Signing 사용 시 Play Console이 재서명하기 때문). 앱담당자에게 요청할 때 "로컬 keystore 말고 Play Console → 앱 무결성 → 앱 서명 키 인증서"에서 받아달라고 명시하세요.
+- `sha256_cert_fingerprints`는 **Play Console의 App signing key certificate SHA-256**입니다(로컬 keystore 서명과 다를 수 있음 — Play App Signing 사용 시 Play Console이 재서명하기 때문). 값은 Play Console → 앱 무결성 → 앱 서명 키 인증서에서 받습니다(로컬 keystore 값을 넣지 않음).
 - Android App Links는 **도메인 전체를 신뢰**하고, 실제로 어떤 경로만 앱으로 열지는 네이티브 `AndroidManifest.xml`의 intent-filter(`autoVerify="true"`)에서 결정합니다 — `assetlinks.json` 자체엔 경로 화이트리스트가 없습니다(iOS와의 중요한 차이).
 
 ## 2. iOS — ⚠️ Universal Links는 비활성화 상태, 커스텀 스킴(`picake://`) 사용 중 (2026-08-03~)
@@ -42,8 +42,9 @@ description: 링크가 iOS·안드로이드 앱으로 바로 열리게(Universal
 - `app/mypage/order/page.tsx` — `/mypage/order`
 - `app/mypage/reviews/write/page.tsx` — `/mypage/reviews/write`
 - `app/quote/[requestId]/layout.tsx` — `/quote/:requestId`(견적 알림톡 [견적 보기]·[요청 보기], 2026-11-11). 요청서 쓰기 `/quote/new`·보낸 뒤 `/quote/sent`에는 달지 않음
+- `app/chat/[threadId]/layout.tsx` — `/chat/:threadId`(채팅 알림톡 [답변 보기], 2026-11-14). 목록 `/chat`·가게에서 문의 시작 `/chat/store/:storeId`에는 달지 않음
 
-이미 손님 앱(웹뷰) 안이면 넘기지 않습니다(`isWebViewEnvironment()`, Flutter가 넣는 `window.mylocation`으로 판단, 2026-11-11). 앱 웹뷰 UA에도 iPhone이 들어 있어 막지 않으면 앱 안에서 같은 화면을 다시 `picake://`로 열려고 합니다.
+이미 손님 앱(웹뷰) 안이면 넘기지 않습니다(`isWebViewEnvironment()`, 앱이 넣는 `window.mylocation`으로 판단, 2026-11-11). 앱 웹뷰 UA에도 iPhone이 들어 있어 막지 않으면 앱 안에서 같은 화면을 다시 `picake://`로 열려고 합니다.
 
 **iOS/Android가 근본적으로 다른 점(재활성화 시 참고)**:
 
@@ -54,12 +55,12 @@ description: 링크가 iOS·안드로이드 앱으로 바로 열리게(Universal
 
 ## 3. 배포 후 반드시 확인할 것 — 캐시로 인해 기존 사용자에게 즉시 반영 안 될 수 있음
 
-AASA는 **앱 설치 시점에 iOS가 캐싱**합니다. 웹을 배포해도 이미 설치된 앱은 예전(Universal Links 켜진) AASA를 계속 들고 있을 수 있어, 앱 신규 설치/업데이트가 있어야 새 AASA(빈 값)를 다시 받아가 커스텀 스킴 경로로 전환됩니다. **기존 사용자에게 이 수정이 실제로 언제 반영되는지는 앱 쪽 배포(신규 빌드 배포 여부/시점)에 달려있으므로, 앱담당자에게 롤아웃 계획을 확인하세요.**
+AASA는 **앱 설치 시점에 iOS가 캐싱**합니다. 웹을 배포해도 이미 설치된 앱은 예전(Universal Links 켜진) AASA를 계속 들고 있을 수 있어, 앱 신규 설치/업데이트가 있어야 새 AASA(빈 값)를 다시 받아가 커스텀 스킴 경로로 전환됩니다. **기존 사용자에게 이 수정이 실제로 언제 반영되는지는 앱 새 빌드를 언제 내는지(앱 레포 스킬 `picake-app-release`)에 달려 있습니다.**
 
 ## 4. 새 딥링크 경로 추가 시 체크리스트
 
 1. `apps/backend/.../user-order-alimtalk.constants.ts`에 버튼 URL 추가(경로가 새로 생기는 경우) — 견적처럼 `scripts/alimtalk-templates/templates.json`에만 있는 버튼 주소도 빠뜨리지 말 것(견적 [견적 보기]가 11-10~11-11 아이폰에서 앱으로 안 열렸던 이유)
 2. iOS: `UNIVERSAL_LINK_COMPONENTS`는 현재 미사용이라 급하지 않지만, `IosCustomSchemeRedirect`를 새 경로의 페이지/레이아웃에도 마운트해야 실제로 동작합니다.
-3. Android는 이 저장소에서 할 일 없음(네이티브 AndroidManifest 쪽) — 앱담당자에게 intent-filter 갱신 필요 여부 확인
+3. Android: 앱 레포의 intent-filter(prod·staging 매니페스트)와 `isDeepLinkPath`(Android·iOS 같이)에 경로를 더하고 앱을 다시 낸다(앱 레포 스킬 `picake-app-release`). 판매자가 보내는 견적 링크 `/q/`처럼 브라우저로 열어야 하는 경로는 넣지 않는다
 4. 배포 후 `curl https://staging.picakes.com/.well-known/apple-app-site-association`, `curl https://staging.picakes.com/.well-known/assetlinks.json`로 실제 응답에 반영됐는지 직접 확인 — `NEXT_PUBLIC_*` 값이 아니라 서버 컴포넌트/route handler가 만드는 JSON이라 브라우저 캐시 문제만 없으면 즉시 반영됩니다.
-5. 네이티브 앱(별도 저장소)에 Associated Domains(iOS)/intent-filter autoVerify(Android)가 살아있는지는 이 저장소 범위 밖 — 앱담당자 확인 필요.
+5. 앱 레포에 Associated Domains(iOS)/intent-filter autoVerify(Android)가 살아 있는지, 스토어 서명 키의 SHA-256이 `assetlinks.json`과 같은지 확인한다(Play App Signing 키는 Play Console에서).

@@ -1,24 +1,24 @@
 ---
 name: picake-review-ios-app-store
-description: 손님 앱(웹뷰) iOS 앱스토어 심사 준비·반려 대응, 심사노트 초안. "iOS 심사 준비", "리젝됐어", "심사노트 써줘"에 쓴다. 네이티브 앱 설정은 앱담당자.
+description: 손님·사장님 앱 스토어 심사 준비·반려 대응, 심사노트 초안(App Store 중심, Google Play 앱 액세스 포함). "iOS 심사 준비", "리젝됐어", "심사노트 써줘", "심사용 로그인"에 쓴다. 앱 코드는 앱 레포 picake-engineering-app.
 ---
 
-# iOS 앱스토어 심사 대응
+# 앱 스토어 심사 대응 (iOS 중심)
 
 > **이 문서의 `apps/backend/...` 경로와 `deploy-*-backend-ec2.yml` 워크플로우는 별도 레포 [`picake-engineering-backend`](https://github.com/picake-team/picake-engineering-backend)의 것입니다.** 로컬에서는 이 레포의 형제 폴더(`../picake-engineering-backend`)에서 확인하세요. `apps/web-*` 경로는 이 레포입니다.
 
 > **현재 상태(2026-08-30 기준): 심사 승인 완료, iOS 앱스토어 배포 성공.** 4차 반려(§1의 2.1(a)+1.5, §3-2)까지 대응한 재심사에서 통과됨. 이 문서는 이력 참고용으로 계속 유지하고, 새 반려가 오면 §4 절차대로 대응해 §1에 이어서 기록하세요.
 
-> **판매자 앱(2026-11-05~ 준비 중, 기획 I-48)도 이 기록을 기준으로 준비합니다.** 판매자 앱은 `web-seller`를 같은 방식(Flutter 웹뷰)으로 감싼 별도 앱입니다. 2026-11-05 기준 판매자 쪽에는 Apple 로그인(4.8)·심사용 로그인(2.1(a))·미리 채운 심사용 가게(2.1(a) 데모 콘텐츠)가 없었고, 앱 안 탈퇴(5.1.1(v))는 판매자 마이페이지에 이미 있습니다. 심사용 로그인·심사용 가게는 2026-11-07에 만들었습니다(§2-1). Apple 로그인은 앱담당자의 Apple 설정 뒤에 켭니다. Support URL은 손님 앱과 같은 `https://picakes.com/mypage/support`를 씁니다. 스토어 계정(App Store Connect·Play Console)과 Flutter 코드는 앱담당자가 가지고 있습니다.
+> **판매자 앱(2026-11-05~ 준비 중, 기획 I-48)도 이 기록을 기준으로 준비합니다.** 판매자 앱은 `web-seller`를 같은 방식(웹뷰 앱 껍데기)으로 감싼 별도 앱입니다. 2026-11-05 기준 판매자 쪽에는 Apple 로그인(4.8)·심사용 로그인(2.1(a))·미리 채운 심사용 가게(2.1(a) 데모 콘텐츠)가 없었고, 앱 안 탈퇴(5.1.1(v))는 판매자 마이페이지에 이미 있습니다. 심사용 로그인·심사용 가게는 2026-11-07에 만들었습니다(§2-1). Apple 로그인은 아직 없고, 앱담당자의 Apple 설정 뒤에 만들어 켭니다(`SELLER_APPLE_LOGIN_ENABLED`, [[picake-auth-social-login]] §5). Support URL은 손님 앱과 같은 `https://picakes.com/mypage/support`를 씁니다. 스토어 계정(App Store Connect·Play Console) 주인은 앱담당자이고 운영자가 초대받아 있습니다(역할에 따라 고칠 수 있는 칸이 다름). 앱 코드는 앱 레포 `picake-engineering-app`(2026-11-13 Flutter → Capacitor)에 있습니다.
 
 > **비밀번호·개인 연락처를 이 문서에 적지 마세요.** 이 레포는 공개 레포입니다. 2026-11-05에 §3-2의 구글 데모 계정 비밀번호와 운영자 개인 번호를 지웠습니다. git 기록에는 남아 있으므로 그 계정 비밀번호는 바꿔야 합니다.
 
-Picake web-user는 겉면만 Flutter로 감싼 **웹뷰 앱**입니다 — 로그인부터 주문·결제까지 대부분의 로직이 `apps/web-user`(Next.js)와 `apps/backend`에 있고, 네이티브 Flutter 쪽은 스플래시, FCM 푸시 토큰, 위치 브릿지(`window.mylocation`), 딥링크 스킴 처리 정도만 담당합니다(`apps/web-user/src/common/utils/webview.bridge.ts` 참고). 이 구조 자체가 Apple 심사에서 반복적으로 걸리는 지점이므로, **반려 메일을 받으면 먼저 이 문서에서 해당 가이드라인 번호를 찾아 이미 구현된 대응이 있는지 확인하고, 없는 부분만 새로 작업하세요.**
+Picake web-user는 겉면만 앱 껍데기로 감싼 **웹뷰 앱**입니다 — 로그인부터 주문·결제까지 대부분의 로직이 `apps/web-user`(Next.js)와 `apps/backend`에 있고, 네이티브 쪽(앱 레포)은 스플래시, FCM 푸시 토큰, 위치 브릿지(`window.mylocation`), 딥링크 스킴 처리 정도만 담당합니다(`apps/web-user/src/common/utils/webview.bridge.ts` 참고). 이 구조 자체가 Apple 심사에서 반복적으로 걸리는 지점이므로, **반려 메일을 받으면 먼저 이 문서에서 해당 가이드라인 번호를 찾아 이미 구현된 대응이 있는지 확인하고, 없는 부분만 새로 작업하세요.**
 
 ## 0. 이 저장소에서 할 수 있는 일 vs 없는 일
 
-- 네이티브 Flutter iOS 앱은 **별도 저장소**(이 레포·backend 레포에 없음, `picake-engineering-app` 레포로 옮길 예정, `find`로 확인해도 `.xcodeproj`/`pubspec.yaml`이 없음). 여기서 실제로 고칠 수 있는 건 web-user/backend 코드뿐입니다.
-- 다음 항목은 **앱담당자 확인이 필요** — 임의로 답하거나 추측해서 심사노트에 쓰지 않습니다:
+- 네이티브 앱(Info.plist 권한 문구, 앱 아이콘, Associated Domains 등)은 앱 레포 `picake-engineering-app`(형제 폴더)에서 고친다(앱 레포 스킬 `picake-app-release`). 이 레포에서 고칠 수 있는 건 web-user/backend 코드다.
+- 다음 항목은 **스토어 콘솔·실제 설정 확인이 필요** — 임의로 답하거나 추측해서 심사노트에 쓰지 않습니다(권한 문구·아이콘은 앱 레포에서 확인, 콘솔 항목은 앱담당자 또는 초대받은 운영자):
   - Info.plist 권한 사용 설명 문구(위치·알림 등), 앱 아이콘, 스크린샷, 앱 이름/부제
   - App Store Connect의 **App Privacy(개인정보 수집 항목 설문)** — 실제 수집 항목(휴대폰번호, 위치, 소셜 로그인 식별자 등, [[picake-legal-terms]] skill의 개인정보처리방침 항목과 일치해야 함)과 어긋나면 그 자체로 반려 사유가 됨
   - Associated Domains capability 설정 여부(현재 iOS는 Universal Links를 껐으므로 **켜져 있으면 안 됨** — 아래 §1의 딥링크 항목 참고)
@@ -37,21 +37,19 @@ Picake web-user는 겉면만 Flutter로 감싼 **웹뷰 앱**입니다 — 로�
 
 ### 4.8 Sign in with Apple — 실제 반려 이력 2건, 둘 다 대응 완료
 
-**1차 반려(2026-08-02)**: Google 로그인을 제공하면서 Apple 로그인 자체가 없었음. `apps/web-user`에 Apple 로그인 구현 완료 — 상세는 [[picake-auth-social-login]] skill §5, 작업 배경은 memory `project-apple-signin-web-user` 참고.
+**1차 반려(2026-08-02)**: Google 로그인을 제공하면서 Apple 로그인 자체가 없었음. `apps/web-user`에 Apple 로그인 구현 완료 — 상세는 [[picake-auth-social-login]] skill §5.
 
 **2차 반려(2026-08-04, 가이드라인 4 — 디자인/UX 요구사항)**: "Apple로 로그인 사용 후 인증 프레임워크가 이미 제공한 이름/이메일을 사용자에게 다시 입력하도록 요구함." 원인은 Apple OAuth authorize URL이 `scope=email`만 요청해 Apple의 `user`(이름) 객체를 아예 안 받았고, 그래서 `AppleRegisterVerificationScreen.tsx`의 "이름" 필드가 항상 빈 채로 강제 입력을 요구했기 때문 — 이메일은 원래도 사용자에게 재입력을 요구하지 않았음(백엔드가 조용히 전달).
 **수정 완료(2026-08-04)**: `getAppleOAuthLoginUrl()`(`oauth-login-url.util.ts`)의 scope를 `name email`로 변경 → Apple이 **최초 인가 1회 한정**으로 보내는 `user` JSON(form_post 바디)을 `/auth/login/apple/route.ts`가 파싱(`extractAppleDisplayName`)해 `appleName` 쿼리로 콜백(`login/apple/callback/page.tsx`) → 회원가입 화면(`AppleRegisterVerificationScreen.tsx`)까지 전달, "이름" 필드를 미리 채워둠(수정은 여전히 가능 — Apple도 편집 가능한 pre-filled 필드는 허용). **재발 방지 포인트**: Apple은 두 번째 로그인부터는 `user`를 다시 안 보내므로(계정 재인가 등) 그때는 정상적으로 빈 입력을 받는 게 맞음 — "왜 이번엔 이름이 안 채워지지"라고 이걸 다시 버그로 오인하지 말 것.
 **제출 전 확인**: `NEXT_PUBLIC_APPLE_CLIENT_ID`가 `web-user-staging`/`web-user-production` Vercel 프로젝트에 실제로 설정돼 있는지, staging Return URL이 Apple 쪽에 등록됐는지 — 이 두 가지는 로컬에서 재현 불가능하므로 실기기/스테이징에서 **탈퇴 후 재가입** 등으로 최초 인가 상태를 만들어 이름이 실제로 채워지는지 검증하세요(같은 Apple 계정으로 이미 한 번 이 앱에 인가했다면 `user`가 다시 안 옴 — Apple ID 설정 > 로그인 및 보안 > Apple로 로그인 사용 중인 앱에서 Picake 연결을 해제해야 최초 인가 상태로 재현 가능).
 
-### 4 (Design) 위치 기능이 제3자 지도 앱으로만 연결됨 — 진행 중, 오진단했던 사례 주의
+### 4 (Design) 위치 기능이 제3자 지도 앱으로만 연결됨 — 2026-08-17 반려, 이후 다시 지적되지 않음
 
-**반려 내용(2026-08-17)**: "The app's location feature is not integrated with the built-in mapping functionality, which limits users to a third-party maps app." → "revise the app to give users the option to launch the native Apple Maps app." (원문 전체는 `.claude/exchange.md` 참고 — 이 반려는 심사관이 데모 계정으로 **주문을 한 번도 하지 않은 상태**에서 나온 지적임, 심사 계정에 주문 이력 없음이 확인됨.)
+**반려 내용(2026-08-17)**: 위치 기능이 기본 지도(Apple 지도)와 이어지지 않고 제3자 지도 앱으로만 연결된다 → Apple 지도를 열 수 있게 하라는 요구. 심사 계정에 주문 이력이 없는 상태에서 나온 지적이었다.
 
-**처음에 잘못 짚었던 지점**: 저장소에서 "외부 지도 앱으로 나가는" 코드는 `NavigationBottomSheet.tsx`(`apps/web-user/src/common/components/bottom-sheets/`) 하나뿐이라, 커밋 `a085d951`에서 여기에 Apple 지도(`maps.apple.com`) 옵션을 추가했음. **하지만 이 컴포넌트는 `ConfirmedOrderCard`/`OrderDetailView`/`PastOrderList`/`UpcomingOrderList`/`ReservationInfoSection` 등 전부 주문이 존재해야만 렌더링되는 화면에서만 쓰인다.** 심사 계정(§2의 리뷰 로그인 계정이든 구글 데모 계정이든)엔 사전 시딩된 주문이 없으므로(코드에도 주문 시딩 로직 없음, `prisma/seed.ts` 등 확인됨), 심사관이 실제로 결제까지 끝내지 않는 한 이 화면 자체를 볼 수 없다 — 즉 **이 수정은 심사관이 도달 불가능한 곳을 고친 것이라 이번 반려를 해결 못 했을 가능성이 높음.**
+**한 일**: 길찾기 창(`apps/web-user/src/common/components/bottom-sheets/NavigationBottomSheet.tsx`)에 Apple 지도(`maps.apple.com`)를 더했다(`a085d951`). 다만 이 창은 주문이 있어야 보이는 화면(`ConfirmedOrderCard`·`OrderDetailView` 등)에서만 쓰여 심사관은 못 봤을 수 있다. 로그인·주문 없이 닿는 위치 기능은 하단 "지도" 탭(`/map`, `MapPageClient.tsx`, 카카오맵)뿐이고 여기에는 Apple 지도 연결이 없다.
 
-**로그인/주문 없이 심사관이 실제로 도달 가능한 유일한 "위치 기능"**: 하단 내비게이션의 "지도" 탭(`/map`, `MapPageClient.tsx`). 카카오맵 JS SDK로 전체 화면 지도를 그리고, 마커 클릭 시 스토어 상세로 이동하거나(`MapStoreCard`) 입점 요청 카드가 뜰 뿐(`MapUnenteredStoreCard`), **여기에도 Apple 지도로 연결되는 지점이 전혀 없다.** 스토어 상세 페이지(`/store/[storeId]/page.tsx`)도 상품/후기/피드 탭뿐, "찾아오시는 길" 류의 지도 섹션 자체가 없음. 반려 문구가 정확히 뭘 가리키는지(지도 탭 자체를 MapKit으로 바꾸라는 건지, 카카오맵은 유지하되 "애플 지도에서 보기" 버튼만 추가하면 되는지, 한국 외 지역도 봐야 하는지)가 불명확해 **코드부터 고치지 말고 Apple에 먼저 질의하기로 함**(질문 초안은 `.claude/exchange.md` 맨 아래 "Reply to Apple (draft)" 참고, App Store Connect Resolution Center에 제출 예정).
-
-**다음 담당자가 이어받을 때 확인할 것**: Apple 답변이 왔으면 그 내용에 맞춰 `/map` 탭 쪽(MapStoreCard 등)에 실제 작업을 진행하고, 이 섹션과 §1의 4.8 인접 위치에 결과를 갱신할 것. `a085d951`(주문 화면의 Apple 지도 옵션)은 나쁜 수정은 아니지만 **이 반려의 해결책이라고 단정하지 말 것** — 별개로 유지해도 무방하나 재현/검증 없이 "완료"로 표시하지 않는다.
+**결과**: 다음 반려(08-18, 2.1(a)+1.5)와 08-30 승인 때 다시 나오지 않았다. 다시 나오면 반려 문구를 그대로 받아, 지도 탭 가게 카드(`MapStoreCard`)에 "Apple 지도에서 보기"를 넣을지부터 정한다 — 주문 화면만 고치고 해결됐다고 하지 않는다.
 
 ### 5.1.1(v) 계정 삭제 — 대응 완료
 
@@ -71,7 +69,7 @@ Picake web-user는 겉면만 Flutter로 감싼 **웹뷰 앱**입니다 — 로�
 2. 활성 지역이 극소수(예: 강남구 하나)라면, 심사관이 그 지역으로 자동/수동 유도되는지 실기기로 직접 검증 — 특히 GPS 위치가 한국이 아닌 경우(Apple 심사는 대체로 해외에서 진행) `Header.tsx`의 "outside" 분기(`handleOutsideConfirm`)가 기본 지역(강남구)으로 정상 리셋되는지 확인.
 3. 가능하면 활성 지역을 1곳보다 늘려서(실제 셀러 온보딩 또는 데모용 스토어/상품 등록) 심사관이 지역을 이리저리 눌러봐도 빈 화면을 안 만나게 하는 게 가장 안전합니다.
 
-**3차 반려(2026-08-17, 별개 사유 — 인증 코드 요구)**: 이번엔 "제공한 데모 계정 아이디/비밀번호만으로는 부족하고, 콘텐츠 접근·기능 검증을 위한 **인증 코드**가 추가로 필요하다"는 지적으로, 위 활성 지역 버그와는 다른 사유임(원문은 `.claude/exchange.md` 참고). Apple은 통화로 코드를 받거나, 데모 계정이 코드 검증을 건너뛰게 하거나, 고정 코드를 Review Notes에 적어달라고 제안함. 대응은 §2의 심사용 로그인(코드는 이미 고정값)을 안내하는 것으로 충분해 보이나, **이 반려가 왜 발생했는지(심사관이 §2의 탭-10회 진입법을 못 찾았는지, 아니면 구글 로그인 자체에서 2단계 인증을 요구했는지)는 확인되지 않음** — 재발 방지를 위해 심사노트(§3)에 §2의 로그인 방법을 반드시 명시하고, 구글 데모 계정(`picakeee@gmail.com`)도 함께 제공해 Apple에 재확인 요청함. Apple 응답이 오면 실제 원인을 여기 갱신할 것.
+**3차 반려(2026-08-17, 별개 사유 — 인증 코드 요구)**: 이번엔 "제공한 데모 계정 아이디/비밀번호만으로는 부족하고, 콘텐츠 접근·기능 검증을 위한 **인증 코드**가 추가로 필요하다"는 지적으로, 위 활성 지역 버그와는 다른 사유임. Apple은 통화로 코드를 받거나, 데모 계정이 코드 검증을 건너뛰게 하거나, 고정 코드를 Review Notes에 적어달라고 제안함. 대응은 §2의 심사용 로그인(코드는 이미 고정값)을 안내하는 것으로 충분해 보이나, **이 반려가 왜 발생했는지(심사관이 §2의 탭-10회 진입법을 못 찾았는지, 아니면 구글 로그인 자체에서 2단계 인증을 요구했는지)는 확인되지 않음** — 재발 방지를 위해 심사노트(§3)에 §2의 로그인 방법을 반드시 명시하고, 구글 데모 계정(`picakeee@gmail.com`)도 함께 제공해 Apple에 재확인 요청함. Apple 응답이 오면 실제 원인을 여기 갱신할 것.
 
 **4차 반려(2026-08-18 리뷰, Submission ID `ce18c36d-a87a-48d5-b722-60c43c98a365`, 빌드 1.0.0 (16)) — 이번엔 명확히 "Sign in with Apple 과정"으로 한정**: 메일 원문: "in addition to the demo account username and password you provided, we need an authentication code to complete the **Sign in with Apple** process."
 
@@ -140,6 +138,10 @@ time you use the review login, so you can process them from the beginning.
 To check push notifications: 스토어 (Store) tab → gear icon → 알림 설정 → 테스트 알림 보내기.
 Account deletion: 마이페이지 → 회원 탈퇴 (the review account can always be deleted).
 ```
+
+## 2-2. Google Play 심사 (앱 액세스·데이터 보안)
+
+Play Console에는 App Store 심사노트 대신 **앱 콘텐츠 → 앱 액세스**에 들어가는 방법을 적는다. 손님 앱은 §2, 판매자 앱은 §2-1의 심사용 로그인을 같은 글로 쓰고(코드는 붙일 때만 채운다), **데이터 보안** 설문은 App Store의 App Privacy와 같은 기준([[picake-legal-terms]] 처리방침의 수집 항목)으로 맞춘다.
 
 ## 3. App Store Connect 심사노트(App Review Information → Notes) 문구 초안
 
@@ -244,7 +246,7 @@ Thank you.
 1. 반려 메일의 **가이드라인 번호와 정확한 문구**를 사용자에게 그대로 받습니다 — 요약하지 말고 원문 그대로.
 2. §1에서 해당 번호를 찾아 이미 대응이 있는지 확인. 있으면 왜 이번에도 걸렸는지(코드 값 미갱신, Vercel 환경변수 누락 등 §1 각 항목의 "제출 전 확인" 문구) 먼저 의심합니다.
 3. 새로운 사유라면 원인을 코드에서 먼저 확인(추측 금지) 후 수정하고, 이 skill 문서(§1)에 새 항목으로 추가해 다음 제출/다음 담당자가 반복하지 않도록 합니다.
-4. 네이티브 앱 쪽(Info.plist, 권한 문구, App Privacy 설문) 관련 반려면 §0의 "앱담당자 확인 필요" 목록에 해당 여부를 먼저 판단하고, 맞다면 이 저장소에서 할 수 있는 일이 없다는 걸 명확히 안내합니다.
+4. 네이티브 앱 쪽(Info.plist, 권한 문구) 관련 반려면 앱 레포에서 고쳐 다시 내고, App Privacy 설문처럼 콘솔 항목이면 §0 목록대로 콘솔에서 고칩니다.
 
 ## 5. 제출 전 체크리스트
 
@@ -256,7 +258,8 @@ Thank you.
 - [ ] 로그인 없이 홈/상품/스토어 진입이 실제로 되는지 확인 (강제 로그인 벽 없음)
 - [ ] 마이페이지 > 설정 > 계정에서 탈퇴가 실제로 끝까지 되는지 확인, 심사 계정에 진행 중 주문이 남아있지 않은지 확인
 - [ ] `curl https://picakes.com/.well-known/apple-app-site-association`가 `{ applinks: { details: [] } }`인지(Universal Links 비활성 유지) 확인
-- [ ] App Store Connect의 App Privacy 설문이 [[picake-legal-terms]] skill의 개인정보처리방침(수집 항목)과 일치하는지 앱담당자에게 확인 요청
+- [ ] App Store Connect의 App Privacy 설문(Play는 데이터 보안)이 [[picake-legal-terms]] skill의 개인정보처리방침(수집 항목)과 일치하는지 콘솔에서 확인
+- [ ] (판매자 앱) Apple 로그인이 켜져 있고(`SELLER_APPLE_LOGIN_ENABLED`) 실제로 끝까지 되는지 — 카카오·구글 로그인이 있으면 4.8 대상
 - [ ] §3 심사노트에 최신 코드 값·연락처를 채워 App Store Connect에 실제로 붙여넣기
 - [ ] Review Notes에 §2 심사용 로그인을 1순위로 명시했는지, 소셜 로그인 데모 계정(구글 등)을 백업으로 쓸 경우 2단계 인증 대응 연락처를 함께 적었는지 확인 — 소셜 계정은 낯선 기기 로그인 시 계정 소유자에게만 코드가 가는 구조라 계정을 미리 가입시켜놔도 못 피함 (§1의 2.1(a) 4차 반려 항목, §3-2 참고)
 - [ ] App Store Connect의 Support URL이 실제 지원/문의 정보가 있는 페이지(`https://picakes.com/mypage/support`)를 가리키는지 확인 (§1의 1.5 항목 참고 — 4차 반려 재심사에서 승인 확인됨, 이후 필드가 다시 바뀌지 않았는지만 재확인)
