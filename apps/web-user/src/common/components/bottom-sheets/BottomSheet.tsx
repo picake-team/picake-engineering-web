@@ -1,33 +1,17 @@
 "use client";
 
-import { motionDuration, motionEasing } from "@picake/design-tokens";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import clsx from "clsx";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { usePresence } from "@/apps/web-user/common/hooks/usePresence";
 import { usePageScrollLock } from "@/apps/web-user/common/hooks/usePageScrollLock";
+import { useSheetDragToClose } from "@/apps/web-user/common/hooks/useSheetDragToClose";
 
-/** 아래로 끌어내려 닫히는 최소 거리(px) */
-const CLOSE_THRESHOLD_PX = 100;
 /**
  * 닫힐 때 내려가는 시간(공용 움직임 값 sheet-out = medium).
  * 창을 열릴 때만 그리는 곳(`{open && <창 />}`)은 `usePresence(open, BOTTOM_SHEET_EXIT_MS, …)`로 이만큼 더 그려 둔다
  */
 export const BOTTOM_SHEET_EXIT_MS = 250;
-
-/** 손짓이 콘텐츠 안의 다른 스크롤 영역(또는 data-no-sheet-drag)에서 시작했는지 */
-function isInNestedScroll(target: Node, content: HTMLElement): boolean {
-  let el: HTMLElement | null = target instanceof HTMLElement ? target : target.parentElement;
-  while (el && el !== content) {
-    if (el.hasAttribute("data-no-sheet-drag")) return true;
-    const overflowY = getComputedStyle(el).overflowY;
-    if ((overflowY === "auto" || overflowY === "scroll") && el.scrollHeight > el.clientHeight) {
-      return true;
-    }
-    el = el.parentElement;
-  }
-  return false;
-}
 
 interface BottomSheetProps {
   isOpen: boolean;
@@ -60,6 +44,7 @@ export function BottomSheet({
   scrollResetKey,
 }: BottomSheetProps) {
   const sheetRef = useRef<HTMLDivElement>(null);
+  const scrimRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
   // 제목 아래 선은 내용을 내렸을 때만 그린다(운영자 고름 11-13: 선에 내용이 붙어 보이지 않게, 판매자 앱 창과 같은 모양)
@@ -73,84 +58,10 @@ export function BottomSheet({
     setScrolled(false);
   }, [scrollResetKey]);
 
-  // 아래로 끌어내려 닫기: 콘텐츠가 맨 위일 때(또는 헤더/푸터에서) 아래로 드래그하면 시트가 따라 내려가고,
-  // 임계값 이상이면 닫힘. 그 외에는 원래 위치로 스냅백.
-  useEffect(() => {
-    const sheet = sheetRef.current;
-    const content = contentRef.current;
-    if (!isOpen || !sheet || !content) return;
-    // 끌어내려 닫히던 중에 다시 열리면 끌던 자리를 지운다
-    sheet.style.transition = "";
-    sheet.style.transform = "";
-
-    let startY = 0;
-    let dragging = false;
-    let delta = 0;
-
-    const setTransform = (y: number, animate: boolean) => {
-      sheet.style.transition = animate
-        ? `transform ${motionDuration.base}ms ${motionEasing.enter}`
-        : "none";
-      sheet.style.transform = y ? `translateY(${y}px)` : "";
-    };
-
-    const onTouchStart = (e: TouchEvent) => {
-      startY = e.touches[0].clientY;
-      dragging = false;
-      delta = 0;
-    };
-
-    const onTouchMove = (e: TouchEvent) => {
-      const dy = e.touches[0].clientY - startY;
-      if (!dragging) {
-        const target = e.target as Node;
-        const inContent = content.contains(target);
-        // 콘텐츠 안에서는 최상단이고 아래로 당길 때만 드래그 시작
-        if (dy <= 0 || (inContent && content.scrollTop > 0)) return;
-        // 창 안의 다른 스크롤(시간 휠 등)에서 시작한 손짓은 그 스크롤이 받는다(창이 같이 끌려 내려가지 않게)
-        if (inContent && isInNestedScroll(target, content)) return;
-        dragging = true;
-        startY = e.touches[0].clientY;
-        // 시작하는 움직임부터 막는다. 첫 움직임을 놓아두면 브라우저가 스크롤(뒤 화면·당겨서 늘어나는 효과)을 시작해
-        // 그 뒤 움직임은 막을 수 없게 된다
-        if (e.cancelable) e.preventDefault();
-        return;
-      }
-      delta = Math.max(0, dy);
-      // 드래그 중에는 브라우저 기본 스크롤/pull-to-refresh 방지
-      if (e.cancelable) e.preventDefault();
-      setTransform(delta, false);
-    };
-
-    const onTouchEnd = () => {
-      if (!dragging) return;
-      dragging = false;
-      if (delta > CLOSE_THRESHOLD_PX) {
-        onClose();
-      } else {
-        setTransform(0, true);
-      }
-      delta = 0;
-    };
-
-    sheet.addEventListener("touchstart", onTouchStart, { passive: true });
-    sheet.addEventListener("touchmove", onTouchMove, { passive: false });
-    sheet.addEventListener("touchend", onTouchEnd);
-    sheet.addEventListener("touchcancel", onTouchEnd);
-    return () => {
-      sheet.removeEventListener("touchstart", onTouchStart);
-      sheet.removeEventListener("touchmove", onTouchMove);
-      sheet.removeEventListener("touchend", onTouchEnd);
-      sheet.removeEventListener("touchcancel", onTouchEnd);
-    };
-  }, [isOpen, onClose]);
-
-  // 바깥 영역 클릭 시 닫기
-  const handleBackdropClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
+  // 아래로 끌어내려 닫기: 내용이 맨 위일 때(또는 제목·아래 버튼 줄에서) 아래로 끌면 창이 따라 내려가고
+  // 뒤 어두운 면이 옅어진다. 많이 끌었거나 빠르게 내리면 닫고, 아니면 제자리로(두 앱 공용 sheetGesture).
+  // 바깥(어두운 면)을 누르면 닫힘
+  useSheetDragToClose({ open: isOpen, sheetRef, scrimRef, contentRef, onClose });
 
   // ESC 키로 닫기
   useEffect(() => {
@@ -176,14 +87,21 @@ export function BottomSheet({
   return (
     <div
       className={clsx(
-        "fixed mx-auto inset-0 bg-black/50",
-        leaving
-          ? "pointer-events-none animate-scrim-out"
-          : "animate-scrim-in motion-reduce:animate-fade-in",
+        "fixed mx-auto inset-0",
+        leaving && "pointer-events-none",
         zIndexClassName ?? "z-50",
       )}
-      onClick={handleBackdropClick}
     >
+      {/* 뒤 어두운 면(창과 따로 두어 끄는 동안 이것만 옅어진다). 누르면 닫힘 */}
+      <div
+        ref={scrimRef}
+        aria-hidden
+        onClick={onClose}
+        className={clsx(
+          "absolute inset-0 bg-black/50",
+          leaving ? "animate-scrim-out" : "animate-scrim-in motion-reduce:animate-fade-in",
+        )}
+      />
       <div
         ref={sheetRef}
         role="dialog"
