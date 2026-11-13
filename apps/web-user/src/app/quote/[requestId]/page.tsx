@@ -41,6 +41,7 @@ function kstShort(iso: string): string {
 import { QuoteStatusBadge } from "@/apps/web-user/features/quote/components/QuoteRequestCard";
 import { NoticeBox } from "@/apps/web-user/features/quote/components/form/QuoteFormParts";
 import { QuoteLoginGate } from "@/apps/web-user/features/quote/components/QuoteLoginGate";
+import { QuoteReservationSheet } from "@/apps/web-user/features/quote/components/QuoteReservationSheet";
 
 /**
  * 요청 상세·견적 고르기(SC-18, 기획 I-46 ②). 가게 견적 카드(먼저 온 것이 위), 어려워요 한 줄,
@@ -62,6 +63,7 @@ function QuoteRequestDetailContent() {
   const [formOpen, setFormOpen] = useState(false);
   const [closeOpen, setCloseOpen] = useState(false);
   const [picking, setPicking] = useState<ConsumerQuote | null>(null);
+  const [reserveOpen, setReserveOpen] = useState(false);
 
   // 요청 상세에서 받은 견적을 봄(열 때 한 번, 견적 ② 성공 기준: 받은 견적 → 고른 요청)
   const viewedRef = useRef(false);
@@ -223,8 +225,12 @@ function QuoteRequestDetailContent() {
             </p>
             <div className="mt-[8px]">
               <NoticeBox>
-                {/* 통신판매중개자 고지(법무 점검표 2번) */}
-                Picake는 가게를 이어 드려요. 주문과 결제는 가게와 직접 해요.
+                {/* 통신판매중개자 고지(법무 점검표 2번). 입점 가게는 이 견적으로 Picake 예약(기획 I-01) */}
+                {chosen.isPicakeStore
+                  ? section?.reservationOrderId
+                    ? "이 견적으로 예약했어요. 예약 상태와 입금 안내는 예약 화면에서 볼 수 있어요."
+                    : "이 견적으로 예약하면 사장님이 확인한 뒤 입금 안내가 가요. 금액이 바뀌면 사장님이 견적을 고쳐 드려요."
+                  : "Picake는 가게를 이어 드려요. 주문과 결제는 가게와 직접 해요."}
                 {rechooseOpen && section?.rechooseUntil
                   ? ` 다른 견적은 ${kstShort(section.rechooseUntil)}까지 다시 고를 수 있어요.`
                   : ""}
@@ -310,7 +316,43 @@ function QuoteRequestDetailContent() {
       </main>
 
       <div className="fixed bottom-0 left-0 right-0 mx-auto flex max-w-[638px] gap-[8px] bg-white px-[20px] pb-[12px] pt-[10px]">
-        {chosen ? (
+        {chosen && section?.reservationOrderId ? (
+          <>
+            <span className="w-1/3">
+              <Button
+                variant="outline"
+                size="lg"
+                className="w-full"
+                onClick={() => onQuoteChat(chosen)}
+              >
+                채팅하기
+              </Button>
+            </span>
+            <Link href={PATHS.ORDER.DETAIL(section.reservationOrderId)} className="flex-1">
+              <Button size="lg" className="w-full">
+                예약 보기
+              </Button>
+            </Link>
+          </>
+        ) : chosen && section?.canReserve ? (
+          <>
+            <span className="w-1/3">
+              <Button
+                variant="outline"
+                size="lg"
+                className="w-full"
+                onClick={() => onQuoteChat(chosen)}
+              >
+                채팅하기
+              </Button>
+            </span>
+            <span className="flex-1">
+              <Button size="lg" className="w-full" onClick={() => setReserveOpen(true)}>
+                이 견적으로 예약하기
+              </Button>
+            </span>
+          </>
+        ) : chosen ? (
           <Button size="lg" className="w-full" onClick={() => onQuoteChat(chosen)}>
             {withWaGwa(chosen.storeName)} 채팅하기
           </Button>
@@ -326,6 +368,18 @@ function QuoteRequestDetailContent() {
           </Link>
         )}
       </div>
+
+      {chosen?.isPicakeStore && (
+        <QuoteReservationSheet
+          isOpen={reserveOpen}
+          onClose={() => setReserveOpen(false)}
+          requestId={data.id}
+          quote={chosen}
+          pickupDate={data.pickupDate}
+          pickupHourFrom={data.pickupHourFrom}
+          fallbackImageUrl={data.photoUrls[0] ?? null}
+        />
+      )}
 
       <BottomSheet isOpen={formOpen} onClose={() => setFormOpen(false)} title="요청서">
         <div className="px-[20px] pb-[24px]">
@@ -394,7 +448,9 @@ function QuoteRequestDetailContent() {
             <p className="mt-[8px] text-sm leading-[22px] text-gray-700">
               고르면 그 가게와 채팅으로 이어져요. 24시간 안에는 다른 견적으로 바꿀 수 있어요.
               <br />
-              주문과 결제는 가게와 직접 해요.
+              {picking.isPicakeStore
+                ? "고른 뒤 이 견적으로 바로 예약할 수 있어요."
+                : "주문과 결제는 가게와 직접 해요."}
             </p>
           </div>
         )}

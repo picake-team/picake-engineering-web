@@ -122,113 +122,159 @@ export const OrderDetailSpreadsheetView: React.FC<OrderDetailSpreadsheetViewProp
 
   return (
     <div className="space-y-4">
+      {/* 견적으로 만든 예약(기획 I-01): 상품·옵션 대신 손님 요청서와 내 견적 */}
+      {order.quote ? (
+        <div className={ORDER_DETAIL_SHEET}>
+          <div className={ORDER_DETAIL_SHEET_HEADER}>
+            <h2 className={ORDER_DETAIL_SHEET_TITLE}>견적 예약</h2>
+          </div>
+          <div className="overflow-x-auto">
+            <SheetTable>
+              <tbody>
+                <SheetKvRow label="케이크">{order.productName || "—"}</SheetKvRow>
+                <SheetKvRow label="견적">
+                  {`${order.totalQuantity}개 · ${order.totalPrice.toLocaleString("ko-KR")}원 · ${order.quote.similarityLabel}`}
+                </SheetKvRow>
+                <SheetKvRow label="손님 요청서">
+                  <span className={cn(NO_REPLAY, "whitespace-pre-wrap")}>
+                    {order.quote.contentHidden
+                      ? "픽업이 지나 손님이 쓴 내용은 보이지 않아요"
+                      : order.quote.description?.trim() || "—"}
+                  </span>
+                </SheetKvRow>
+                <SheetKvRow label="요청 사항">
+                  <span className={cn(NO_REPLAY, "whitespace-pre-wrap")}>
+                    {order.quote.requestNote?.trim() || "—"}
+                  </span>
+                </SheetKvRow>
+                <SheetKvRow label="참고 사진">
+                  {order.quote.requestPhotoUrls.length > 0 ? (
+                    <span className={cn(NO_REPLAY, "flex flex-wrap gap-2")}>
+                      {order.quote.requestPhotoUrls.map((src) => (
+                        <a key={src} href={src} target="_blank" rel="noreferrer">
+                          <img src={src} alt="참고 사진" className="size-16 rounded object-cover" />
+                        </a>
+                      ))}
+                    </span>
+                  ) : (
+                    "—"
+                  )}
+                </SheetKvRow>
+                <SheetKvRow label="내 견적 메모">{order.quote.memo?.trim() || "—"}</SheetKvRow>
+              </tbody>
+            </SheetTable>
+          </div>
+        </div>
+      ) : null}
       {/* 주문 항목 */}
-      <div className={ORDER_DETAIL_SHEET}>
-        <div className={ORDER_DETAIL_SHEET_HEADER}>
-          <h2 className={ORDER_DETAIL_SHEET_TITLE}>주문 항목</h2>
+      {order.quote ? null : (
+        <div className={ORDER_DETAIL_SHEET}>
+          <div className={ORDER_DETAIL_SHEET_HEADER}>
+            <h2 className={ORDER_DETAIL_SHEET_TITLE}>주문 항목</h2>
+          </div>
+          <div className="overflow-x-auto">
+            <SheetTable className="min-w-[800px]">
+              <thead>
+                <tr>
+                  <th className={ORDER_DETAIL_TH_COL}>#</th>
+                  <th className={ORDER_DETAIL_TH_COL}>사이즈</th>
+                  <th className={cn(ORDER_DETAIL_TH_COL, "text-right")}>수량</th>
+                  <th className={cn(ORDER_DETAIL_TH_COL, "text-right")}>단가</th>
+                  <th className={cn(ORDER_DETAIL_TH_COL, "text-right")}>소계</th>
+                  <th className={ORDER_DETAIL_TH_COL}>추가 옵션</th>
+                  <th className={ORDER_DETAIL_TH_COL}>요청</th>
+                </tr>
+              </thead>
+              <tbody>
+                {order.orderItems.map((item, index) => {
+                  const lineTotal = item.itemPrice * item.quantity;
+                  return (
+                    <tr key={item.id} className="even:bg-slate-50/40">
+                      <td
+                        className={cn(
+                          ORDER_DETAIL_TD_CELL,
+                          "text-center tabular-nums text-slate-500",
+                        )}
+                      >
+                        {index + 1}
+                      </td>
+                      <td className={cn(ORDER_DETAIL_TD_CELL, "min-w-[120px] whitespace-pre-wrap")}>
+                        {formatSizeLine(item)}
+                      </td>
+                      <td className={cn(ORDER_DETAIL_TD_CELL, "text-right tabular-nums")}>
+                        {item.quantity}
+                      </td>
+                      <td className={cn(ORDER_DETAIL_TD_CELL, "text-right tabular-nums")}>
+                        {item.itemPrice.toLocaleString()}원
+                      </td>
+                      <td
+                        className={cn(
+                          ORDER_DETAIL_TD_CELL,
+                          "text-right font-semibold tabular-nums text-slate-900",
+                        )}
+                      >
+                        {lineTotal.toLocaleString()}원
+                      </td>
+                      <td className={cn(ORDER_DETAIL_TD_CELL, "min-w-[200px] max-w-[280px]")}>
+                        {item.selectedOptions.length > 0 ? (
+                          <ul className="space-y-1">
+                            {item.selectedOptions.map((option) => (
+                              <li
+                                key={option.optionId}
+                                // 손님이 쓴 레터링·올린 사진은 화면 녹화에서 가린다
+                                className={cn(
+                                  "whitespace-pre-wrap",
+                                  (option.type === "TEXT" || option.type === "IMAGE") && NO_REPLAY,
+                                )}
+                              >
+                                <span className="text-slate-500">{option.name}: </span>
+                                {option.type === "IMAGE" ? (
+                                  <span className="mt-1 flex flex-wrap gap-1.5">
+                                    {(option.imageUrls ?? []).map((url, idx) => (
+                                      <button
+                                        key={`${item.id}-${option.optionId}-img-${idx}`}
+                                        type="button"
+                                        onClick={() =>
+                                          onReferenceImageClick(option.imageUrls ?? [], idx)
+                                        }
+                                        className="relative h-9 w-9 shrink-0 overflow-hidden rounded border border-slate-200 bg-slate-100 transition hover:border-primary hover:ring-1 hover:ring-primary/30 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1"
+                                        aria-label={`${option.name} ${idx + 1} 크게 보기`}
+                                      >
+                                        <img
+                                          src={url}
+                                          alt=""
+                                          className="h-full w-full object-cover"
+                                        />
+                                      </button>
+                                    ))}
+                                  </span>
+                                ) : (
+                                  formatSelectedOptionValue(option)
+                                )}
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <span className={ORDER_DETAIL_MUTED}>—</span>
+                        )}
+                      </td>
+                      <td
+                        className={cn(
+                          ORDER_DETAIL_TD_CELL,
+                          "max-w-[200px] whitespace-pre-wrap",
+                          NO_REPLAY,
+                        )}
+                      >
+                        {item.requestMessage?.trim() || "—"}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </SheetTable>
+          </div>
         </div>
-        <div className="overflow-x-auto">
-          <SheetTable className="min-w-[800px]">
-            <thead>
-              <tr>
-                <th className={ORDER_DETAIL_TH_COL}>#</th>
-                <th className={ORDER_DETAIL_TH_COL}>사이즈</th>
-                <th className={cn(ORDER_DETAIL_TH_COL, "text-right")}>수량</th>
-                <th className={cn(ORDER_DETAIL_TH_COL, "text-right")}>단가</th>
-                <th className={cn(ORDER_DETAIL_TH_COL, "text-right")}>소계</th>
-                <th className={ORDER_DETAIL_TH_COL}>추가 옵션</th>
-                <th className={ORDER_DETAIL_TH_COL}>요청</th>
-              </tr>
-            </thead>
-            <tbody>
-              {order.orderItems.map((item, index) => {
-                const lineTotal = item.itemPrice * item.quantity;
-                return (
-                  <tr key={item.id} className="even:bg-slate-50/40">
-                    <td
-                      className={cn(
-                        ORDER_DETAIL_TD_CELL,
-                        "text-center tabular-nums text-slate-500",
-                      )}
-                    >
-                      {index + 1}
-                    </td>
-                    <td className={cn(ORDER_DETAIL_TD_CELL, "min-w-[120px] whitespace-pre-wrap")}>
-                      {formatSizeLine(item)}
-                    </td>
-                    <td className={cn(ORDER_DETAIL_TD_CELL, "text-right tabular-nums")}>
-                      {item.quantity}
-                    </td>
-                    <td className={cn(ORDER_DETAIL_TD_CELL, "text-right tabular-nums")}>
-                      {item.itemPrice.toLocaleString()}원
-                    </td>
-                    <td
-                      className={cn(
-                        ORDER_DETAIL_TD_CELL,
-                        "text-right font-semibold tabular-nums text-slate-900",
-                      )}
-                    >
-                      {lineTotal.toLocaleString()}원
-                    </td>
-                    <td className={cn(ORDER_DETAIL_TD_CELL, "min-w-[200px] max-w-[280px]")}>
-                      {item.selectedOptions.length > 0 ? (
-                        <ul className="space-y-1">
-                          {item.selectedOptions.map((option) => (
-                            <li
-                              key={option.optionId}
-                              // 손님이 쓴 레터링·올린 사진은 화면 녹화에서 가린다
-                              className={cn(
-                                "whitespace-pre-wrap",
-                                (option.type === "TEXT" || option.type === "IMAGE") && NO_REPLAY,
-                              )}
-                            >
-                              <span className="text-slate-500">{option.name}: </span>
-                              {option.type === "IMAGE" ? (
-                                <span className="mt-1 flex flex-wrap gap-1.5">
-                                  {(option.imageUrls ?? []).map((url, idx) => (
-                                    <button
-                                      key={`${item.id}-${option.optionId}-img-${idx}`}
-                                      type="button"
-                                      onClick={() =>
-                                        onReferenceImageClick(option.imageUrls ?? [], idx)
-                                      }
-                                      className="relative h-9 w-9 shrink-0 overflow-hidden rounded border border-slate-200 bg-slate-100 transition hover:border-primary hover:ring-1 hover:ring-primary/30 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1"
-                                      aria-label={`${option.name} ${idx + 1} 크게 보기`}
-                                    >
-                                      <img
-                                        src={url}
-                                        alt=""
-                                        className="h-full w-full object-cover"
-                                      />
-                                    </button>
-                                  ))}
-                                </span>
-                              ) : (
-                                formatSelectedOptionValue(option)
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <span className={ORDER_DETAIL_MUTED}>—</span>
-                      )}
-                    </td>
-                    <td
-                      className={cn(
-                        ORDER_DETAIL_TD_CELL,
-                        "max-w-[200px] whitespace-pre-wrap",
-                        NO_REPLAY,
-                      )}
-                    >
-                      {item.requestMessage?.trim() || "—"}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </SheetTable>
-        </div>
-      </div>
+      )}
 
       {/* 주문 기본 정보 */}
       <div className={ORDER_DETAIL_SHEET}>

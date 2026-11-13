@@ -187,6 +187,19 @@ export interface ConsumerQuoteSection {
   chosenTargetId: string | null;
   chosenAt: string | null;
   rechooseUntil: string | null;
+  /** 고른 입점 가게 견적으로 예약할 수 있는지(기획 I-01, 옛 서버는 없음) */
+  canReserve?: boolean;
+  /** 고른 견적으로 만든 살아 있는 예약(주문) ID */
+  reservationOrderId?: string | null;
+}
+
+/** 견적으로 예약하기(기획 I-01) */
+export interface ReserveQuoteBody {
+  pickupDate: string;
+  reservationContactName?: string;
+  reservationPhone?: string;
+  /** 예약 창에서 본 합계(그사이 사장님이 견적을 고치면 서버가 다시 확인하게 함) */
+  expectedTotal?: number;
 }
 
 export interface ChooseQuoteResponse {

@@ -76,7 +76,9 @@ export default function ReservationCompletePage() {
     }
   }, [orderData]);
 
-  const isLoading = isOrderLoading || isProductLoading;
+  // 견적으로 만든 예약(기획 I-01)은 상품이 없어 주문에 남긴 이름·사진·주소로 보여 준다
+  const isQuoteOrder = !!orderData && !orderData.productId;
+  const isLoading = isOrderLoading || (!isQuoteOrder && isProductLoading);
 
   if (!orderId) {
     return (
@@ -86,7 +88,7 @@ export default function ReservationCompletePage() {
     );
   }
 
-  if (isLoading || !orderData || !productData) {
+  if (isLoading || !orderData || (!isQuoteOrder && !productData)) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-sm text-gray-500">로딩 중...</div>
@@ -94,15 +96,15 @@ export default function ReservationCompletePage() {
     );
   }
 
-  const cakeImageUrl = productData.images[0] || "";
-  const cakeTitle = productData.name;
-  const basePrice = productData.salePrice;
+  const cakeImageUrl = productData?.images[0] || orderData.productImages[0] || "";
+  const cakeTitle = productData?.name ?? orderData.productName;
+  const basePrice = productData?.salePrice ?? 0;
 
   const pickupAddressText = [
     orderData.pickupRoadAddress ||
       orderData.pickupAddress ||
-      productData.pickupRoadAddress ||
-      productData.pickupAddress,
+      productData?.pickupRoadAddress ||
+      productData?.pickupAddress,
     orderData.pickupDetailAddress,
   ]
     .filter(Boolean)
@@ -179,6 +181,24 @@ export default function ReservationCompletePage() {
             </div>
           </div>
           <div className="flex flex-col gap-[20px] animate-rise motion-reduce:animate-none [animation-delay:240ms]">
+            {isQuoteOrder && (
+              <div className="flex items-center justify-between rounded-lg border border-gray-100 px-[16px] py-[12px]">
+                <div className="flex flex-col gap-[4px]">
+                  <span className="text-xs text-gray-500">예약상품</span>
+                  <span className="flex items-center gap-[2px] text-sm text-gray-900">
+                    {cakeTitle}
+                    <Icon name="quantity" width="8px" height="8px" />
+                    {orderData.totalQuantity}
+                  </span>
+                </div>
+                <div className="flex flex-col items-end gap-[4px]">
+                  <span className="text-xs text-gray-500">총 금액</span>
+                  <span className="text-sm text-gray-900">
+                    {orderData.totalPrice.toLocaleString()}원
+                  </span>
+                </div>
+              </div>
+            )}
             {orderData.orderItems.map((item, index) => {
               const isOpen = openIndexes.has(index);
               const sizePrice = item.sizePrice || 0;

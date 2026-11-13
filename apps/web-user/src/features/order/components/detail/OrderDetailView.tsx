@@ -156,7 +156,10 @@ export function OrderDetailView({ order }: OrderDetailViewProps) {
           order={order}
           onChangeOptions={(item) => setOptionEditTargetItem(item)}
         />
-        <NoticeSection refundCancellationPolicy={order.storeRefundCancellationPolicy} />
+        <NoticeSection
+          refundCancellationPolicy={order.storeRefundCancellationPolicy}
+          isQuote={!!order.quote}
+        />
 
         <NavigationBottomSheet
           isOpen={isMapSheetOpen}
