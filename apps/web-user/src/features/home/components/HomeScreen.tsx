@@ -138,7 +138,7 @@ export default function HomeScreen({ initialBanners }: { initialBanners?: HomeBa
       {/* 배너 */}
       <BannerSlider initialBanners={initialBanners} />
       {/* 검색 바 */}
-      <div className="w-full relative -mt-[30px] pt-[20px] pb-[56px] px-[24px] z-10 rounded-t-4xl bg-white bg-[url('/images/contents/category_bg.png')] bg-bottom bg-no-repeat shadow-[0_-4px_32px_0_rgba(0,0,0,0.15)]">
+      <div className="w-full relative -mt-[30px] pt-[20px] pb-[48px] px-[24px] z-10 rounded-t-4xl bg-white bg-[url('/images/contents/category_bg.png')] bg-bottom bg-no-repeat shadow-[0_-4px_32px_0_rgba(0,0,0,0.15)]">
         <div ref={searchBarRef} className="w-full mb-[20px]">
           {/* 홈에서는 입력받지 않고 누르면 바로 검색 페이지로 이동 */}
           <SearchBar placeholder="어떤 케이크를 찾으시나요?" asButton />

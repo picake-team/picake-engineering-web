@@ -36,7 +36,8 @@ export default function CategoryList() {
   const rows = [items.slice(0, PER_ROW), items.slice(PER_ROW)];
 
   return (
-    <nav aria-label="카테고리" className="flex flex-col gap-6 py-5">
+    // 검색창 아래 20 + 8 = 28, 두 줄 사이 20, 아래 여백은 홈 판(pb-48)이 맡는다(운영자 11-13 "위아래 여백 줄임")
+    <nav aria-label="카테고리" className="flex flex-col gap-5 pt-2">
       {rows.map((row, index) => (
         <div key={index} className="flex justify-between">
           {row.map(({ value, label }) => (
