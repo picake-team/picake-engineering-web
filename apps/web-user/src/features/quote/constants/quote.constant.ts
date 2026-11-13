@@ -1,4 +1,8 @@
-import type { QuoteCakeSize, QuoteCream } from "@/apps/web-user/features/quote/types/quote.type";
+import type {
+  QuoteCakeSize,
+  QuoteContactType,
+  QuoteCream,
+} from "@/apps/web-user/features/quote/types/quote.type";
 import { NO_REPLAY } from "@/apps/web-user/common/constants/replay.constant";
 
 /** 요청서 규칙(기획 I-46 요청서 표, backend와 같은 숫자) */
@@ -57,3 +61,35 @@ export const QUOTE_DRAFT_STORAGE_KEY = "picake:quoteDraft";
  * 입력칸은 PostHog가 원래 가린다.
  */
 export const QUOTE_NO_REPLAY = NO_REPLAY;
+
+/** 견적 링크 "손님이 연락할 곳" 칸(서버가 주소·아이디·번호를 다시 확인한다) */
+export const QUOTE_CONTACT_OPTIONS: {
+  type: QuoteContactType;
+  label: string;
+  short: string;
+  placeholder: string;
+  inputMode: "url" | "text" | "tel";
+}[] = [
+  {
+    type: "KAKAO",
+    label: "카카오톡 채널",
+    short: "카카오톡",
+    placeholder: "pf.kakao.com/_채널",
+    inputMode: "url",
+  },
+  {
+    type: "INSTAGRAM",
+    label: "인스타그램",
+    short: "인스타",
+    placeholder: "@아이디",
+    inputMode: "text",
+  },
+  {
+    type: "NAVER",
+    label: "네이버 톡톡",
+    short: "톡톡",
+    placeholder: "talk.naver.com/…",
+    inputMode: "url",
+  },
+  { type: "PHONE", label: "전화", short: "전화", placeholder: "가게 전화번호", inputMode: "tel" },
+];

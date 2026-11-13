@@ -138,6 +138,11 @@ function StoreRow({
               ? " · 판매자 앱"
               : " · 링크"}
           {q.memo && <div className="mt-1 whitespace-pre-wrap">메모: {q.memo}</div>}
+          {(q.contacts?.length ?? 0) > 0 && (
+            <div className="mt-1 break-all">
+              연락할 곳: {q.contacts?.map((c) => `${c.label} ${c.value}`).join(" · ")}
+            </div>
+          )}
         </div>
       )}
       {!q && status?.declineReason && (
