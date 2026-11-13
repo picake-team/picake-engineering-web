@@ -436,18 +436,24 @@ export function QuoteLinkScreen({ token }: { token: string }) {
     <div className="flex flex-col gap-[12px]">
       {notice && <NoticeBox>{notice}</NoticeBox>}
       <Card className="py-[18px]">
-        <span
-          className={cn(
-            "inline-flex h-[22px] items-center rounded-full px-[8px] text-xs font-bold",
-            badge.gray ? "bg-gray-50 text-gray-600" : "bg-primary-50 text-primary",
-          )}
-        >
-          {badge.text}
-        </span>
-        <p className="mt-[10px] text-xl font-bold leading-[28px] text-gray-900 [overflow-wrap:anywhere]">
-          {view.pickup}
-        </p>
-        <p className="mt-[2px] text-base font-bold text-gray-900">{view.cake}</p>
+        {/* 누구에게 온 요청인지(가게 이름)와 어떤 케이크인지(제목)를 맨 위에(운영자 11-13) */}
+        <div className="flex items-center gap-[8px]">
+          <span className="min-w-0 flex-1 truncate text-sm text-gray-500">
+            {view.storeName} 사장님께
+          </span>
+          <span
+            className={cn(
+              "inline-flex h-[22px] shrink-0 items-center rounded-full px-[8px] text-xs font-bold",
+              badge.gray ? "bg-gray-50 text-gray-600" : "bg-primary-50 text-primary",
+            )}
+          >
+            {badge.text}
+          </span>
+        </div>
+        <h1 className="mt-[8px] text-xl font-bold leading-[28px] text-gray-900 [overflow-wrap:anywhere]">
+          {view.cake}
+        </h1>
+        <p className="mt-[4px] text-base font-bold text-gray-900">{view.pickup} 픽업</p>
         <p className="mt-[2px] text-base font-bold text-primary">예산 {view.budget}</p>
         <RequestPhotos urls={view.photoUrls} onOpen={setViewer} />
         {view.contentHidden && (
@@ -501,9 +507,9 @@ export function QuoteLinkScreen({ token }: { token: string }) {
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-bold text-gray-900">{view.pickup}</p>
+          <p className="truncate text-sm font-bold text-gray-900">{view.cake}</p>
           <p className="truncate text-xs text-gray-500">
-            {view.cake} · 예산 {view.budget}
+            {view.pickup} 픽업 · 예산 {view.budget}
           </p>
         </div>
       </Card>
