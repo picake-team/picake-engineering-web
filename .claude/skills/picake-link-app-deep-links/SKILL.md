@@ -11,7 +11,7 @@ description: 링크가 iOS·안드로이드 앱으로 바로 열리게(Universal
 
 ## 0. 전체 그림
 
-- **신뢰 앵커 파일은 web-user가 서빙**하지만, **실제로 앱을 열리게 하는 설정(Associated Domains capability / intent-filter autoVerify)은 네이티브 앱 쪽**입니다. 네이티브 iOS/Android 앱은 이 모노레포(`apps/*`)에 없고 **별도 저장소**에 있습니다 — 이 skill로 web-user 쪽 파일을 다 맞게 고쳐도, 네이티브 앱 쪽에 Associated Domains/intent-filter가 없으면 여전히 브라우저로 열립니다. 앱담당자 확인이 필요한 부분은 명확히 구분해서 안내하세요.
+- **신뢰 앵커 파일은 web-user가 서빙**하지만, **실제로 앱을 열리게 하는 설정(Associated Domains capability / intent-filter autoVerify)은 네이티브 앱 쪽**입니다. 네이티브 앱은 앱 레포 `picake-engineering-app`(형제 폴더 `../picake-engineering-app`)에 있습니다 — Android는 `apps/customer/android/app/src/{prod,staging}/AndroidManifest.xml`의 intent-filter와 `PicakeShellPlugin.isDeepLinkPath`, iOS는 `apps/customer/ios`(Associated Domains, 지금은 Universal Links를 꺼 둠). 경로 목록 정본은 앱 레포 `docs/bridge-contract.md` §4. 이 skill로 web-user 쪽 파일을 다 맞게 고쳐도, 앱 쪽에 경로가 없으면 여전히 브라우저로 열립니다.
 - 딥링크로 열려야 하는 실제 경로 목록은 **백엔드 `USER_ORDER_ALIMTALK_BUTTON_URLS`**(`apps/backend/src/modules/notification/constants/user-order-alimtalk.constants.ts`)가 원본입니다. 새 버튼 URL이 추가되면 아래 파일들의 경로 목록도 같이 업데이트해야 합니다.
 
 ## 1. Android (App Links) — 이미 구성되어 있음, 참고용 패턴
@@ -43,7 +43,7 @@ description: 링크가 iOS·안드로이드 앱으로 바로 열리게(Universal
 - `app/mypage/reviews/write/page.tsx` — `/mypage/reviews/write`
 - `app/quote/[requestId]/layout.tsx` — `/quote/:requestId`(견적 알림톡 [견적 보기]·[요청 보기], 2026-11-11). 요청서 쓰기 `/quote/new`·보낸 뒤 `/quote/sent`에는 달지 않음
 
-이미 손님 앱(웹뷰) 안이면 넘기지 않습니다(`isWebViewEnvironment()`, Flutter가 넣는 `window.mylocation`으로 판단, 2026-11-11). 앱 웹뷰 UA에도 iPhone이 들어 있어 막지 않으면 앱 안에서 같은 화면을 다시 `picake://`로 열려고 합니다.
+이미 손님 앱(웹뷰) 안이면 넘기지 않습니다(`isWebViewEnvironment()`, 앱이 넣는 `window.mylocation`으로 판단, 2026-11-11). 앱 웹뷰 UA에도 iPhone이 들어 있어 막지 않으면 앱 안에서 같은 화면을 다시 `picake://`로 열려고 합니다.
 
 **iOS/Android가 근본적으로 다른 점(재활성화 시 참고)**:
 
@@ -60,6 +60,6 @@ AASA는 **앱 설치 시점에 iOS가 캐싱**합니다. 웹을 배포해도 이
 
 1. `apps/backend/.../user-order-alimtalk.constants.ts`에 버튼 URL 추가(경로가 새로 생기는 경우) — 견적처럼 `scripts/alimtalk-templates/templates.json`에만 있는 버튼 주소도 빠뜨리지 말 것(견적 [견적 보기]가 11-10~11-11 아이폰에서 앱으로 안 열렸던 이유)
 2. iOS: `UNIVERSAL_LINK_COMPONENTS`는 현재 미사용이라 급하지 않지만, `IosCustomSchemeRedirect`를 새 경로의 페이지/레이아웃에도 마운트해야 실제로 동작합니다.
-3. Android는 이 저장소에서 할 일 없음(네이티브 AndroidManifest 쪽) — 앱담당자에게 intent-filter 갱신 필요 여부 확인
+3. Android: 앱 레포의 intent-filter(prod·staging 매니페스트)와 `isDeepLinkPath`(Android·iOS 같이)에 경로를 더하고 앱을 다시 낸다(앱 레포 스킬 `picake-app-release`). 판매자가 보내는 견적 링크 `/q/`처럼 브라우저로 열어야 하는 경로는 넣지 않는다
 4. 배포 후 `curl https://staging.picakes.com/.well-known/apple-app-site-association`, `curl https://staging.picakes.com/.well-known/assetlinks.json`로 실제 응답에 반영됐는지 직접 확인 — `NEXT_PUBLIC_*` 값이 아니라 서버 컴포넌트/route handler가 만드는 JSON이라 브라우저 캐시 문제만 없으면 즉시 반영됩니다.
-5. 네이티브 앱(별도 저장소)에 Associated Domains(iOS)/intent-filter autoVerify(Android)가 살아있는지는 이 저장소 범위 밖 — 앱담당자 확인 필요.
+5. 앱 레포에 Associated Domains(iOS)/intent-filter autoVerify(Android)가 살아 있는지, 스토어 서명 키의 SHA-256이 `assetlinks.json`과 같은지 확인한다(Play App Signing 키는 Play Console에서).
