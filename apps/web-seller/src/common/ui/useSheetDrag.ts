@@ -2,22 +2,15 @@
  * 아래에서 올라오는 창을 손잡이·제목 부분에서 아래로 끌어 닫기(앱처럼).
  * - 끄는 동안 창이 손가락을 따라 내려가고 뒤 어둡게 한 면도 같이 옅어진다.
  * - 창 높이의 30%(최대 120px)보다 많이 끌었거나 빠르게 내렸으면 닫고, 아니면 제자리로 돌아간다.
+ *   놓은 뒤에는 손가락 속도를 이어받아 바로 출발해 부드럽게 멈춘다(빨리 던질수록 빨리 닫힘).
+ *   규칙·값은 손님 앱과 같은 `sheetGesture`(@picake/design-tokens).
  * - 버튼(닫기 ×)·입력 칸에서 시작하면 끌지 않는다. enabled가 false(처리 중)면 끌지 않는다.
  */
 import { useRef } from "react";
 import type React from "react";
+import { sheetGesture, sheetReleaseMs, shouldCloseSheet } from "@picake/design-tokens";
 
-const CLOSE_DISTANCE_MAX = 120;
-const CLOSE_DISTANCE_RATIO = 0.3;
-/** px/ms. 이보다 빠르게 내리면 조금만 끌어도 닫는다 */
-const FLICK_VELOCITY = 0.6;
-const FLICK_MIN_DISTANCE = 24;
-
-export function shouldCloseSheet(dy: number, velocity: number, panelHeight: number) {
-  if (dy <= 0) return false;
-  if (velocity > FLICK_VELOCITY && dy > FLICK_MIN_DISTANCE) return true;
-  return dy > Math.min(CLOSE_DISTANCE_MAX, panelHeight * CLOSE_DISTANCE_RATIO);
-}
+export { shouldCloseSheet };
 
 export function useSheetDrag({
   panelRef,
@@ -38,15 +31,17 @@ export function useSheetDrag({
     v: number;
   } | null>(null);
 
-  const paint = (dy: number, animate: boolean) => {
+  /** ms를 주면 그 시간 동안 옮기고(놓은 뒤), 없으면 바로(끄는 중) */
+  const paint = (dy: number, ms?: number) => {
     const panel = panelRef.current;
     if (!panel) return;
-    const ease = animate ? "200ms cubic-bezier(0.2, 0, 0, 1)" : "none";
-    panel.style.transition = animate ? `transform ${ease}` : "none";
-    panel.style.transform = dy > 0 ? `translateY(${dy}px)` : "";
+    const ease = ms ? `${ms}ms ${sheetGesture.releaseEasing}` : "";
+    panel.style.transition = ms ? `transform ${ease}` : "none";
+    panel.style.transform = dy > 0 ? `translate3d(0, ${dy}px, 0)` : "";
+    panel.style.willChange = ms ? "" : "transform";
     const backdrop = backdropRef.current;
     if (backdrop) {
-      backdrop.style.transition = animate ? `opacity ${ease}` : "none";
+      backdrop.style.transition = ms ? `opacity ${ease}` : "none";
       backdrop.style.opacity =
         dy > 0 ? String(Math.max(0, 1 - dy / (panel.offsetHeight || 1))) : "";
     }
@@ -66,10 +61,11 @@ export function useSheetDrag({
     const d = drag.current;
     if (!d || e.pointerId !== d.id) return;
     const now = performance.now();
-    d.v = (e.clientY - d.lastY) / Math.max(1, now - d.lastT);
+    // 마지막 몇 움직임을 고르게(손가락 떨림에 흔들리지 않게)
+    d.v = d.v * 0.4 + ((e.clientY - d.lastY) / Math.max(1, now - d.lastT)) * 0.6;
     d.lastY = e.clientY;
     d.lastT = now;
-    paint(Math.max(0, e.clientY - d.startY), false);
+    paint(Math.max(0, e.clientY - d.startY));
   };
 
   const finish = (e: React.PointerEvent<HTMLElement>) => {
@@ -79,12 +75,15 @@ export function useSheetDrag({
     const panel = panelRef.current;
     const dy = Math.max(0, d.lastY - d.startY);
     const height = panel?.offsetHeight ?? 0;
-    if (e.type === "pointerup" && shouldCloseSheet(dy, d.v, height)) {
-      // 끝까지 내려 보낸 뒤 닫는다
-      paint(height, true);
-      window.setTimeout(onClose, 180);
+    // 손을 멈췄다 놓으면 속도는 0으로 본다
+    const v = performance.now() - d.lastT > 80 ? 0 : d.v;
+    if (e.type === "pointerup" && shouldCloseSheet(dy, v, height)) {
+      // 손가락 속도를 이어받아 끝까지 내려 보낸 뒤 닫는다
+      const ms = sheetReleaseMs(height - dy, v);
+      paint(height, ms);
+      window.setTimeout(onClose, ms);
     } else {
-      paint(0, true);
+      paint(0, sheetGesture.settleMs);
     }
   };
 

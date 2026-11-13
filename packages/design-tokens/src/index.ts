@@ -264,6 +264,40 @@ const motionAnimation = {
 export const motionStaggerMs = 80;
 
 /**
+ * 아래 창을 손으로 끌어 닫기(두 앱 공용). 11-10 판매자 앱 검토에서 정한 값을 손님 앱에도 쓴다(11-14).
+ * - 창 높이의 30%(최대 120px)보다 많이 끌었거나, 0.6px/ms보다 빠르게 24px 넘게 내리면 닫는다
+ * - 놓고 닫힐 때는 손가락 속도를 이어받아 바로 출발해 부드럽게 멈춘다(release). 빨리 던질수록 빨리 닫힌다
+ * - 닫지 않으면 바로 출발해 제자리에 부드럽게 멈춘다(settle). 천천히 출발하는 곡선은 놓는 순간 멈칫해 보인다
+ * - 끄는 동안 뒤 어두운 면도 창이 내려간 만큼 옅어진다
+ */
+export const sheetGesture = {
+  closeRatio: 0.3,
+  closeMaxPx: 120,
+  /** px/ms */
+  flickVelocity: 0.6,
+  flickMinPx: 24,
+  /** 손가락 속도 정도로 출발해 부드럽게 멈춘다(ease-out). 0,0,0.2,1은 놓는 순간 손가락보다 몇 배 빨라져 튀어 보였다 */
+  releaseEasing: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+  releaseMinMs: motionDuration.fast,
+  /** 창이 나가는 시간(sheet-out = medium)보다 길지 않게 — 창을 그만 그리는 시점이 그 시간이다 */
+  releaseMaxMs: motionDuration.medium,
+  settleMs: motionDuration.base,
+} as const;
+
+/** 끈 거리(dy)·놓을 때 속도(px/ms, 아래가 +)·창 높이로 닫을지 */
+export function shouldCloseSheet(dy: number, velocity: number, height: number): boolean {
+  if (dy <= 0) return false;
+  if (velocity > sheetGesture.flickVelocity && dy > sheetGesture.flickMinPx) return true;
+  return dy > Math.min(sheetGesture.closeMaxPx, height * sheetGesture.closeRatio);
+}
+
+/** 놓은 뒤 남은 거리를 내려가는 시간(ms). 손가락 속도를 이어받되 너무 느리거나 빠르지 않게 */
+export function sheetReleaseMs(remainingPx: number, velocity: number): number {
+  const ms = remainingPx / Math.max(velocity, 1.5);
+  return Math.round(Math.min(sheetGesture.releaseMaxMs, Math.max(sheetGesture.releaseMinMs, ms)));
+}
+
+/**
  * 눌렀을 때 모양(11-11 운영자: 두 앱 모두 "살짝 작아지고 어두워짐").
  * - `press`: 버튼·카드. 0.97로 작아지고 조금 어두워진다(흰 바탕은 회색 50 정도). 동작 줄이기면 작아지지 않는다
  * - `press-bg`: 목록 줄. 회색 바탕만
