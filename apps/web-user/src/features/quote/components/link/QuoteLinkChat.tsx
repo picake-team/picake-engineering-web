@@ -79,12 +79,15 @@ export function QuoteLinkChat({
   open,
   requestId,
   closedMessage,
+  contactShared = false,
 }: {
   token: string;
   open: boolean;
   requestId: string;
   /** 쓸 수 없을 때 안내(이 요청에 아직 견적을 보내지 않았으면 "견적을 보내면…") */
   closedMessage?: string;
+  /** 위에 손님 연락처가 보이면 "서로 안 보여요" 문장을 뺀다 */
+  contactShared?: boolean;
 }) {
   const queryClient = useQueryClient();
   const { data } = useQuery({
@@ -192,7 +195,9 @@ export function QuoteLinkChat({
       )}
       {error && <p className="mt-[6px] text-sm text-red-400">{error}</p>}
       <p className="mt-[10px] text-xs text-gray-400">
-        이름·연락처는 서로 보이지 않아요. 신고가 들어오면 Picake가 대화를 봐요.
+        {contactShared
+          ? "신고가 들어오면 Picake가 대화를 봐요."
+          : "이름·연락처는 서로 보이지 않아요. 신고가 들어오면 Picake가 대화를 봐요."}
       </p>
     </section>
   );
