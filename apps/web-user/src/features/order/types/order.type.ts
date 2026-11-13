@@ -135,10 +135,27 @@ export interface OrderItemResponse {
 /**
  * 주문 응답
  */
+/** 견적으로 만든 예약(기획 I-01)의 견적·요청서. 상품 예약은 null */
+export interface OrderQuoteInfo {
+  quoteRequestId: string;
+  /** 사진과 얼마나 비슷하게(거의 똑같이·비슷하게·느낌만 살려서) */
+  similarityLabel: string;
+  /** 사장님 견적 메모·사진 */
+  memo: string | null;
+  quotePhotoUrls: string[];
+  /** 손님 요청서 글·사진(픽업 24시간 뒤에는 서버가 가림) */
+  description: string | null;
+  requestNote: string | null;
+  requestPhotoUrls: string[];
+  contentHidden: boolean;
+}
+
 export interface OrderResponse {
   id: string;
   userId: string;
-  productId: string;
+  /** 견적으로 만든 예약이면 null(옛 서버는 늘 있음) */
+  productId: string | null;
+  quote?: OrderQuoteInfo | null;
   productName: string;
   productImages: string[];
   storeId: string;

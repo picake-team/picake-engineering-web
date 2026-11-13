@@ -182,6 +182,8 @@ export interface AdminQuoteDto {
   similarityLabel: string;
   memo: string | null;
   photoUrls: string[];
+  /** 가게가 적은 손님이 연락할 곳(손님에게는 고른 뒤에만 보임, 11-13). 옛 서버는 늘 빈 목록 */
+  contacts?: { type: string; label: string; value: string }[];
   edited: boolean;
   createdAt: string;
 }

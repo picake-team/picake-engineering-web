@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReserveQuoteBody } from "@/apps/web-user/features/quote/types/quote.type";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAlertStore } from "@/apps/web-user/common/store/alert.store";
 import getApiMessage from "@/apps/web-user/common/utils/getApiMessage";
@@ -91,6 +92,19 @@ export function useChooseQuote() {
     mutationFn: ({ requestId, quoteId }: { requestId: string; quoteId: string }) =>
       quoteApi.choose(requestId, quoteId),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: quoteQueryKeys.all });
+    },
+  });
+}
+
+/** 고른 견적으로 예약하기(기획 I-01) */
+export function useReserveQuote() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ requestId, body }: { requestId: string; body: ReserveQuoteBody }) =>
+      quoteApi.reserve(requestId, body),
+    // 성공하면 예약 보기로, 실패하면(사장님이 견적을 고침 등) 바뀐 견적을 다시 읽는다
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: quoteQueryKeys.all });
     },
   });

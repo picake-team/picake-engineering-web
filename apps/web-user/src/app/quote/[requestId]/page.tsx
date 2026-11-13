@@ -20,7 +20,9 @@ import {
   useQuoteSection,
 } from "@/apps/web-user/features/quote/hooks/useQuoteRequests";
 import { QuoteCard, quotePriceText } from "@/apps/web-user/features/quote/components/QuoteCards";
-import type { ConsumerQuote } from "@/apps/web-user/features/quote/types/quote.type";
+import type { ConsumerQuote, QuoteContact } from "@/apps/web-user/features/quote/types/quote.type";
+import { useOpenExternal } from "@/apps/web-user/common/hooks/useOpenExternal";
+import { storeKakaoChatUrl } from "@/apps/web-user/common/utils/external-link.util";
 import { useAlertStore } from "@/apps/web-user/common/store/alert.store";
 import { Skeleton } from "@/apps/web-user/common/components/skeleton";
 import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
@@ -41,6 +43,7 @@ function kstShort(iso: string): string {
 import { QuoteStatusBadge } from "@/apps/web-user/features/quote/components/QuoteRequestCard";
 import { NoticeBox } from "@/apps/web-user/features/quote/components/form/QuoteFormParts";
 import { QuoteLoginGate } from "@/apps/web-user/features/quote/components/QuoteLoginGate";
+import { QuoteReservationSheet } from "@/apps/web-user/features/quote/components/QuoteReservationSheet";
 
 /**
  * 요청 상세·견적 고르기(SC-18, 기획 I-46 ②). 가게 견적 카드(먼저 온 것이 위), 어려워요 한 줄,
@@ -62,6 +65,8 @@ function QuoteRequestDetailContent() {
   const [formOpen, setFormOpen] = useState(false);
   const [closeOpen, setCloseOpen] = useState(false);
   const [picking, setPicking] = useState<ConsumerQuote | null>(null);
+  const [reserveOpen, setReserveOpen] = useState(false);
+  const { open: openExternal, toast: externalToast } = useOpenExternal();
 
   // 요청 상세에서 받은 견적을 봄(열 때 한 번, 견적 ② 성공 기준: 받은 견적 → 고른 요청)
   const viewedRef = useRef(false);
@@ -89,6 +94,12 @@ function QuoteRequestDetailContent() {
       chosen: q.chosen,
     });
     goChat(q.threadId);
+  };
+  // 고른 가게가 적은 연락할 곳(카카오톡 채널은 1:1 채팅으로 바로). 앱에서 열리지 않으면 값을 복사해 둔다
+  const onContact = (c: QuoteContact) => {
+    const url = c.type === "KAKAO" ? (storeKakaoChatUrl(c.value) ?? c.href) : c.href;
+    const what = c.type === "PHONE" ? "번호" : c.type === "INSTAGRAM" ? "아이디" : "주소";
+    openExternal(url, { copyText: c.value, message: `${c.label} ${what}를 복사했어요` });
   };
   const onConfirmChoose = () => {
     if (!picking || !data) return;
@@ -223,13 +234,36 @@ function QuoteRequestDetailContent() {
             </p>
             <div className="mt-[8px]">
               <NoticeBox>
-                {/* 통신판매중개자 고지(법무 점검표 2번) */}
-                Picake는 가게를 이어 드려요. 주문과 결제는 가게와 직접 해요.
+                {/* 통신판매중개자 고지(법무 점검표 2번). 입점 가게는 이 견적으로 Picake 예약(기획 I-01) */}
+                {chosen.isPicakeStore
+                  ? section?.reservationOrderId
+                    ? "이 견적으로 예약했어요. 예약 상태와 입금 안내는 예약 화면에서 볼 수 있어요."
+                    : "이 견적으로 예약하면 사장님이 확인한 뒤 입금 안내가 가요. 금액이 바뀌면 사장님이 견적을 고쳐 드려요."
+                  : "Picake는 가게를 이어 드려요. 주문과 결제는 가게와 직접 해요."}
                 {rechooseOpen && section?.rechooseUntil
                   ? ` 다른 견적은 ${kstShort(section.rechooseUntil)}까지 다시 고를 수 있어요.`
                   : ""}
               </NoticeBox>
             </div>
+            {/* 가게가 적은 연락할 곳은 고른 뒤에만 서버가 보낸다(운영자 결정 11-13). 대화는 아래 버튼 */}
+            {(chosen.contacts?.length ?? 0) > 0 && (
+              <div className="mt-[12px]">
+                <p className="mb-[8px] text-xs text-gray-500">가게에 연락하기</p>
+                <div className="grid grid-cols-2 gap-[8px]">
+                  {chosen.contacts?.map((c) => (
+                    <Button
+                      key={c.type}
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => onContact(c)}
+                    >
+                      {c.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -310,7 +344,43 @@ function QuoteRequestDetailContent() {
       </main>
 
       <div className="fixed bottom-0 left-0 right-0 mx-auto flex max-w-[638px] gap-[8px] bg-white px-[20px] pb-[12px] pt-[10px]">
-        {chosen ? (
+        {chosen && section?.reservationOrderId ? (
+          <>
+            <span className="w-1/3">
+              <Button
+                variant="outline"
+                size="lg"
+                className="w-full"
+                onClick={() => onQuoteChat(chosen)}
+              >
+                채팅하기
+              </Button>
+            </span>
+            <Link href={PATHS.ORDER.DETAIL(section.reservationOrderId)} className="flex-1">
+              <Button size="lg" className="w-full">
+                예약 보기
+              </Button>
+            </Link>
+          </>
+        ) : chosen && section?.canReserve ? (
+          <>
+            <span className="w-1/3">
+              <Button
+                variant="outline"
+                size="lg"
+                className="w-full"
+                onClick={() => onQuoteChat(chosen)}
+              >
+                채팅하기
+              </Button>
+            </span>
+            <span className="flex-1">
+              <Button size="lg" className="w-full" onClick={() => setReserveOpen(true)}>
+                이 견적으로 예약하기
+              </Button>
+            </span>
+          </>
+        ) : chosen ? (
           <Button size="lg" className="w-full" onClick={() => onQuoteChat(chosen)}>
             {withWaGwa(chosen.storeName)} 채팅하기
           </Button>
@@ -326,6 +396,20 @@ function QuoteRequestDetailContent() {
           </Link>
         )}
       </div>
+
+      {externalToast}
+
+      {chosen?.isPicakeStore && (
+        <QuoteReservationSheet
+          isOpen={reserveOpen}
+          onClose={() => setReserveOpen(false)}
+          requestId={data.id}
+          quote={chosen}
+          pickupDate={data.pickupDate}
+          pickupHourFrom={data.pickupHourFrom}
+          fallbackImageUrl={data.photoUrls[0] ?? null}
+        />
+      )}
 
       <BottomSheet isOpen={formOpen} onClose={() => setFormOpen(false)} title="요청서">
         <div className="px-[20px] pb-[24px]">
@@ -394,7 +478,9 @@ function QuoteRequestDetailContent() {
             <p className="mt-[8px] text-sm leading-[22px] text-gray-700">
               고르면 그 가게와 채팅으로 이어져요. 24시간 안에는 다른 견적으로 바꿀 수 있어요.
               <br />
-              주문과 결제는 가게와 직접 해요.
+              {picking.isPicakeStore
+                ? "고른 뒤 이 견적으로 바로 예약할 수 있어요."
+                : "주문과 결제는 가게와 직접 해요."}
             </p>
           </div>
         )}

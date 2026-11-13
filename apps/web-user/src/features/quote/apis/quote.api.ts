@@ -9,6 +9,7 @@ import type {
 import type {
   ChooseQuoteResponse,
   ConsumerQuoteSection,
+  ReserveQuoteBody,
   Quote,
   QuoteDeclineReason,
   QuoteInputBody,
@@ -47,6 +48,11 @@ export const quoteApi = {
   },
   choose: async (id: string, quoteId: string): Promise<ChooseQuoteResponse> => {
     const response = await consumerClient.post(`/quote-requests/${id}/choose`, { quoteId });
+    return response.data.data;
+  },
+  /** 고른 견적으로 예약하기(기획 I-01). 예약신청 주문 ID를 돌려준다 */
+  reserve: async (id: string, body: ReserveQuoteBody): Promise<{ orderId: string }> => {
+    const response = await consumerClient.post(`/quote-requests/${id}/reservation`, body);
     return response.data.data;
   },
   getUnseenCount: async (): Promise<number> => {

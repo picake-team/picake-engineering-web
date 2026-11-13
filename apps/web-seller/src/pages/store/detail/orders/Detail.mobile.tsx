@@ -215,6 +215,78 @@ function OrderItemBlock({
   );
 }
 
+/** 견적으로 만든 예약(기획 I-01): 상품·옵션 대신 손님 요청서와 내 견적 */
+function QuoteOrderBlock({
+  order,
+  onOpenImages,
+}: {
+  order: OrderResponseDto;
+  onOpenImages: (images: string[], index: number) => void;
+}) {
+  const q = order.quote;
+  if (!q) return null;
+  const images = q.requestPhotoUrls;
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex gap-3">
+        <Thumb size={64} src={orderThumbSrc(order)} />
+        <div className="flex min-w-0 flex-col gap-1">
+          <span className="text-body font-bold text-ink-900">{order.productName}</span>
+          <span className="text-sub text-ink-600">
+            {`${order.totalQuantity}개 · ${formatWon(order.totalPrice)} · ${q.similarityLabel}`}
+          </span>
+        </div>
+      </div>
+      {q.description?.trim() ? (
+        <div
+          className={`${NO_REPLAY} flex flex-col gap-1 rounded-control border border-ink-100 px-4 py-3`}
+        >
+          <span className="text-sub font-bold text-ink-700">손님 요청서</span>
+          <span className="whitespace-pre-wrap break-words text-body text-ink-900">
+            {q.description.trim()}
+          </span>
+        </div>
+      ) : null}
+      {q.requestNote?.trim() ? (
+        <div
+          className={`${NO_REPLAY} flex flex-col gap-1 rounded-control border border-ink-100 px-4 py-3`}
+        >
+          <span className="text-sub font-bold text-ink-700">요청 사항</span>
+          <span className="whitespace-pre-wrap break-words text-body text-ink-900">
+            {q.requestNote.trim()}
+          </span>
+        </div>
+      ) : null}
+      {images.length > 0 ? (
+        <div className="flex flex-col gap-2">
+          <span className="text-sub font-bold text-ink-700">참고 사진 {images.length}장</span>
+          <div className={`${NO_REPLAY} flex flex-wrap gap-2`}>
+            {images.map((src, i) => (
+              <button
+                key={src}
+                type="button"
+                aria-label={`참고 사진 ${i + 1} 크게 보기`}
+                onClick={() => onOpenImages(images, i)}
+                className="rounded-control"
+              >
+                <Thumb size={88} src={src} />
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : null}
+      {q.contentHidden ? (
+        <p className="rounded-control bg-ink-50 px-3 py-2.5 text-sub text-ink-600">
+          픽업이 지나 손님이 쓴 내용과 사진은 보이지 않아요
+        </p>
+      ) : null}
+      {q.memo?.trim() ? (
+        <InfoRow important={false} label="내 견적 메모" value={q.memo.trim()} />
+      ) : null}
+    </div>
+  );
+}
+
 /** 취소·환불·사유(있을 때만, SC-76 ⑦). 누가 왜 바꿨는지를 경위·사유 줄로 */
 function CancelSection({ order }: { order: OrderResponseDto }) {
   const rows: {
@@ -451,7 +523,13 @@ export const StoreDetailOrderDetailMobilePage: React.FC = () => {
       ) : null}
 
       <Divider />
-      <SectionTitle>주문 항목</SectionTitle>
+      <SectionTitle>{order.quote ? "견적 예약" : "주문 항목"}</SectionTitle>
+      {order.quote ? (
+        <QuoteOrderBlock
+          order={order}
+          onOpenImages={(images, index) => setLightbox({ images, index })}
+        />
+      ) : null}
       {order.orderItems.map((item) => (
         <OrderItemBlock
           key={item.id}

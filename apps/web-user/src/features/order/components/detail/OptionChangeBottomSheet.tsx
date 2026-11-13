@@ -48,7 +48,7 @@ export function OptionChangeBottomSheet({
   onSuccess,
 }: OptionChangeBottomSheetProps) {
   const queryClient = useQueryClient();
-  const { data: product } = useProductDetail(order.productId);
+  const { data: product } = useProductDetail(order.productId ?? "");
   const { mutateAsync: uploadFile } = useUploadFile();
   const { mutate: updateItem } = useUpdateReservationOrderItem();
   // 사진 업로드 → 변경 요청 전 구간을 잠그는 제출 락
@@ -160,7 +160,7 @@ export function OptionChangeBottomSheet({
             // 판매자가 옵션을 바꿈(409): 최신 옵션을 불러와 다시 고르게 한다
             if (isAxiosError(error) && error.response?.status === 409) {
               queryClient.invalidateQueries({
-                queryKey: productQueryKeys.detail(order.productId),
+                queryKey: productQueryKeys.detail(order.productId ?? ""),
               });
             }
           },
