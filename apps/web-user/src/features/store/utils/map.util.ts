@@ -284,28 +284,81 @@ export function isStoreNameSimilar(name1: string, name2: string): boolean {
   return n1.includes(n2) || n2.includes(n1);
 }
 
-/** 지도 bounds 내에 있는 스토어만 필터 (카카오 map.getBounds() 반환값 기준) */
-export function getStoresInMapBounds(map: unknown, stores: StoreInfo[]): StoreInfo[] {
+/** 지도 범위(위·경도 사각형) */
+export type MapBox = { minLat: number; maxLat: number; minLng: number; maxLng: number };
+
+/**
+ * 카카오 map.getBounds()를 사각형으로. padRatio만큼 사방으로 넓힌다(0.5면 화면 너비·높이의 절반씩 → 가로·세로 2배).
+ * 지도가 아직 없으면 null.
+ */
+export function getMapBox(map: unknown, padRatio = 0): MapBox | null {
   const m = map as {
     getBounds?: () => {
       getSouthWest?: () => { getLat(): number; getLng(): number };
       getNorthEast?: () => { getLat(): number; getLng(): number };
     };
   };
-  if (!m?.getBounds) return [];
+  if (!m?.getBounds) return null;
   const bounds = m.getBounds();
-  if (!bounds?.getSouthWest || !bounds?.getNorthEast) return [];
+  if (!bounds?.getSouthWest || !bounds?.getNorthEast) return null;
   const sw = bounds.getSouthWest();
   const ne = bounds.getNorthEast();
   const minLat = Math.min(sw.getLat(), ne.getLat());
   const maxLat = Math.max(sw.getLat(), ne.getLat());
   const minLng = Math.min(sw.getLng(), ne.getLng());
   const maxLng = Math.max(sw.getLng(), ne.getLng());
+  const padLat = (maxLat - minLat) * padRatio;
+  const padLng = (maxLng - minLng) * padRatio;
+  return {
+    minLat: minLat - padLat,
+    maxLat: maxLat + padLat,
+    minLng: minLng - padLng,
+    maxLng: maxLng + padLng,
+  };
+}
+
+export function isInMapBox(box: MapBox, lat: number, lng: number): boolean {
+  return lat >= box.minLat && lat <= box.maxLat && lng >= box.minLng && lng <= box.maxLng;
+}
+
+/**
+ * 지도 bounds 내에 있는 스토어만 필터 (카카오 map.getBounds() 반환값 기준).
+ * padRatio를 주면 화면 밖 둘레까지 포함한다(마커를 미리 그려 둘 때). 목록은 보이는 범위(0) 그대로.
+ */
+export function getStoresInMapBounds(map: unknown, stores: StoreInfo[], padRatio = 0): StoreInfo[] {
+  const box = getMapBox(map, padRatio);
+  return box ? getStoresInBox(stores, box) : [];
+}
+
+export function getStoresInBox(stores: StoreInfo[], box: MapBox): StoreInfo[] {
   return stores.filter((store) => {
     if (store.latitude == null || store.longitude == null) return false;
-    const { latitude: lat, longitude: lng } = store;
-    return lat >= minLat && lat <= maxLat && lng >= minLng && lng <= maxLng;
+    return isInMapBox(box, store.latitude, store.longitude);
   });
+}
+
+/**
+ * 사각형 안의 장소를 중심에서 가까운 순으로 최대 limit개. 위도 1도와 경도 1도의 길이 차이는 위도로 맞춘다.
+ * 미입점 마커를 넓은 범위에서 너무 많이 그리지 않게 할 때 쓴다.
+ */
+export function pickNearestInBox<T>(
+  items: Iterable<T>,
+  getLatLng: (item: T) => { lat: number; lng: number },
+  box: MapBox,
+  center: { lat: number; lng: number },
+  limit: number,
+): T[] {
+  const lngScale = Math.cos((center.lat * Math.PI) / 180);
+  const inside: { item: T; d: number }[] = [];
+  for (const item of items) {
+    const { lat, lng } = getLatLng(item);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng) || !isInMapBox(box, lat, lng)) continue;
+    const dLat = lat - center.lat;
+    const dLng = (lng - center.lng) * lngScale;
+    inside.push({ item, d: dLat * dLat + dLng * dLng });
+  }
+  inside.sort((a, b) => a.d - b.d);
+  return inside.slice(0, limit).map((x) => x.item);
 }
 
 /** 좌표가 있는 스토어만 필터 (타입 가드) */

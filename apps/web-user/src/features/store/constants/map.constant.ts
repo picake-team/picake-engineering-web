@@ -96,10 +96,30 @@ export const KAKAO_PLACES_KEYWORD = "주문제작 케이크";
 export const MAP_IDLE_DEBOUNCE_MS = 200;
 
 /**
+ * 미입점(카카오 검색)을 지도 칸보다 사방으로 이 비율(칸 너비·높이 기준)만큼 넓게 검색해 기억해 둔다.
+ * 카카오 지도는 칸 밖 마커를 스스로 숨기고(display: none) 손을 뗀 뒤에야 다시 계산하므로 마커는 칸 안만 그린다.
+ * 대신 근처로 옮기면 검색을 기다리지 않고 기억해 둔 장소를 바로 그린다.
+ */
+export const MAP_UNENTERED_SEARCH_PAD_RATIO = 0.25;
+
+/**
  * 카카오 키워드 재검색 최소 이동 비율.
  * 같은 줌 레벨에서 지도 중심이 화면 span의 이 비율 미만으로 움직였으면 미입점 재검색을 생략합니다.
+ * 검색을 MAP_UNENTERED_SEARCH_PAD_RATIO만큼 넓게 하므로, 그 안에서 움직이는 동안은 다시 검색하지 않아도 됩니다.
  */
-export const MAP_KEYWORD_SEARCH_MIN_MOVE_RATIO = 0.2;
+export const MAP_KEYWORD_SEARCH_MIN_MOVE_RATIO = 0.25;
+
+/** 미입점 검색 결과를 몇 쪽(한 쪽 15곳)까지 받을지 — 넓힌 범위에서도 화면 안이 비지 않게 */
+export const MAP_UNENTERED_SEARCH_PAGES = 2;
+
+/**
+ * 미입점 마커를 한 번에 그리는 최대 수(지도 가운데에서 가까운 순).
+ * 예전(검색 1쪽 15곳, 화면 안 14곳쯤)과 비슷한 밀도로 두어 입점 가게가 묻히지 않게 한다.
+ */
+export const MAP_UNENTERED_MAX_MARKERS = 20;
+
+/** 미입점 검색 결과를 기억해 두는 최대 수 — 지나온 곳으로 돌아가면 검색을 기다리지 않고 바로 그린다 */
+export const MAP_UNENTERED_CACHE_MAX = 300;
 
 /** 지도 목록 필터: 사이즈 옵션 (백엔드 CakeSizeDisplayName 표시명과 동일) */
 export const MAP_LIST_SIZE_OPTIONS: string[] = ["도시락", "미니", "1호", "2호", "3호"];

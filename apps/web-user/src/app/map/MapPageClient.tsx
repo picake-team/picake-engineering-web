@@ -36,12 +36,20 @@ import {
   MAP_IDLE_DEBOUNCE_MS,
   MAP_KEYWORD_SEARCH_MIN_MOVE_RATIO,
   MAP_TILE_PRELOAD_BUFFER_PX,
+  MAP_UNENTERED_SEARCH_PAD_RATIO,
+  MAP_UNENTERED_SEARCH_PAGES,
+  MAP_UNENTERED_MAX_MARKERS,
+  MAP_UNENTERED_CACHE_MAX,
 } from "@/apps/web-user/features/store/constants/map.constant";
 import {
   escapeHtmlForOverlay,
   getPositionKey,
   isStoreNameSimilar,
   getStoresInMapBounds,
+  getStoresInBox,
+  getMapBox,
+  pickNearestInBox,
+  type MapBox,
   filterStoresWithCoordinates,
   mapPickupFilterToOverlayInstant,
   mapPickupFilterToStoreListQuery,
@@ -141,7 +149,9 @@ export default function MapPageClient() {
   /** 카카오 키워드 검색(미입점) 마커·오버레이 — place id 기준으로 재사용(diff)해 재검색마다 전체 재생성하지 않음 */
   const kakaoMarkerEntriesRef = useRef<Map<string, { marker: any; overlay: any }>>(new Map());
   const isUserInteractingRef = useRef(false); // 드래그·줌 제스처 진행 중 여부 (제스처 중 DOM 갱신 보류용)
-  const pendingKeywordDataRef = useRef<any[] | null>(null); // 제스처 중 도착한 키워드 검색 결과 (다음 idle에 반영)
+  /** 미입점 검색 결과 기억(place id → 장소, 오래된 것부터 지움). 지나온 곳으로 돌아가면 검색을 기다리지 않고 바로 그린다 */
+  const kakaoPlacesCacheRef = useRef<Map<string, any>>(new Map());
+  const keywordSearchSeqRef = useRef(0); // 마지막 미입점 검색 번호 — 늦게 온 이전 검색 결과·다음 쪽 요청을 버린다
   /** 플랫폼 입점 스토어 마커·오버레이 — storeId 기준으로 재사용(diff)해 idle마다 전체 재생성하지 않음 */
   const platformMarkerEntriesRef = useRef<
     Map<string, { marker: any; overlay: any; dim: boolean; overlayHtml: string; store: StoreInfo }>
@@ -167,14 +177,40 @@ export default function MapPageClient() {
   searchQueryRef.current = searchQuery;
   pickupFilterRef.current = pickupFilter;
 
-  // 목록에 쓸 스토어: 검색 모드면 검색 결과 중 지도 범위 내, 아니면 지도 범위 내 플랫폼 스토어(픽업 필터는 API에서 반영)
+  /**
+   * 화면에 실제로 보이는 지도 범위. 지도 칸은 타일을 미리 받으려고 화면보다 사방 MAP_TILE_PRELOAD_BUFFER_PX씩 커서
+   * map.getBounds()는 화면 밖까지 들어 있다 → 칸 안쪽 좌표로 다시 구한다(못 구하면 칸 전체).
+   */
+  const getVisibleMapBox = useCallback((map: any): MapBox | null => {
+    const node = mapContainerRef.current;
+    const proj = map?.getProjection?.();
+    const b = MAP_TILE_PRELOAD_BUFFER_PX;
+    if (node && proj?.coordsFromContainerPoint && window.kakao?.maps?.Point) {
+      const w = node.clientWidth;
+      const h = node.clientHeight;
+      if (w > 2 * b && h > 2 * b) {
+        const sw = proj.coordsFromContainerPoint(new window.kakao.maps.Point(b, h - b));
+        const ne = proj.coordsFromContainerPoint(new window.kakao.maps.Point(w - b, b));
+        return {
+          minLat: Math.min(sw.getLat(), ne.getLat()),
+          maxLat: Math.max(sw.getLat(), ne.getLat()),
+          minLng: Math.min(sw.getLng(), ne.getLng()),
+          maxLng: Math.max(sw.getLng(), ne.getLng()),
+        };
+      }
+    }
+    return getMapBox(map);
+  }, []);
+
+  // 목록에 쓸 스토어: 검색 모드면 검색 결과 중 화면에 보이는 것, 아니면 화면에 보이는 플랫폼 스토어(픽업 필터는 API에서 반영)
   const getStoresForList = useCallback((): StoreInfo[] => {
     const map = mapInstanceRef.current;
     if (!map) return [];
     const source =
       searchStoresRef.current !== null ? searchStoresRef.current : platformStoresRef.current;
-    return getStoresInMapBounds(map, source);
-  }, []);
+    const box = getVisibleMapBox(map);
+    return box ? getStoresInBox(source, box) : [];
+  }, [getVisibleMapBox]);
 
   const getStoresForListRef = useRef(getStoresForList);
   getStoresForListRef.current = getStoresForList;
@@ -195,12 +231,22 @@ export default function MapPageClient() {
     handlePointerUp: listSheetHandlePointerUp,
   } = listSheet;
 
-  // ---- 지도 범위 내 스토어 (마커 표시용): 검색 모드면 검색 결과만, 아니면 지도 범위 내 플랫폼 스토어(픽업 필터는 API에서 반영)
+  // ---- 마커로 그릴 스토어: 검색 모드면 검색 결과만, 아니면 지도 칸 범위의 플랫폼 스토어(픽업 필터는 API에서 반영).
+  // 지도 칸은 화면보다 사방 MAP_TILE_PRELOAD_BUFFER_PX 커서 그만큼 화면 밖도 미리 그려진다. 칸 밖은 카카오가 숨기므로 더 넓히지 않는다.
   const getStoresToShow = useCallback((map: any): StoreInfo[] => {
     return searchStoresRef.current !== null
       ? searchStoresRef.current
       : getStoresInMapBounds(map, platformStoresRef.current);
   }, []);
+
+  /** 미입점(카카오 검색) 마커를 보여도 되는지: 지도 검색·픽업 필터 중에는 안 보임 */
+  const isUnenteredAllowed = useCallback(
+    () =>
+      searchStoresRef.current === null &&
+      !searchQueryRef.current &&
+      pickupFilterRef.current == null,
+    [],
+  );
 
   /** 카카오 검색 장소가 플랫폼 스토어와 같은 위치/이름이면 미입점 마커에서 제외 */
   const isPlatformStoreDuplicate = useCallback((lat: number, lng: number, placeName: string) => {
@@ -228,7 +274,6 @@ export default function MapPageClient() {
       entry.overlay.setMap(null);
     });
     kakaoMarkerEntriesRef.current.clear();
-    pendingKeywordDataRef.current = null;
     resetPlatformMarkerImages();
     selectedMarkerRef.current = null;
   }, [resetPlatformMarkerImages]);
@@ -417,89 +462,133 @@ export default function MapPageClient() {
     [],
   );
 
+  /** 미입점 검색 결과를 기억해 둔다. 다시 본 곳은 최근으로 옮기고, 넘치면 오래된 것부터 지운다 */
+  const rememberKakaoPlaces = useCallback((data: any[]) => {
+    const cache = kakaoPlacesCacheRef.current;
+    data.forEach((place) => {
+      const id = String(place.id ?? `${place.y},${place.x}`);
+      cache.delete(id);
+      cache.set(id, place);
+    });
+    while (cache.size > MAP_UNENTERED_CACHE_MAX) {
+      const oldest = cache.keys().next().value;
+      if (oldest === undefined) break;
+      cache.delete(oldest);
+    }
+  }, []);
+
   /**
-   * 키워드 검색 결과를 미입점 마커에 반영.
-   * place id 기준 diff — 이미 그려진 마커는 재사용하고 결과에서 빠진 것만 제거해
+   * 기억해 둔 미입점 장소 중 지도 칸 안에서 가운데와 가까운 순으로 최대 MAP_UNENTERED_MAX_MARKERS개를 그린다.
+   * place id 기준 diff — 이미 그려진 마커는 재사용하고 빠진 것만 제거해
    * 재검색마다 전체 마커·오버레이를 제거·재생성하는 무거운 DOM 작업(터치 끊김 원인)을 없앤다.
+   * 제스처(드래그·줌) 중에는 그리지 않고 idle에서 다시 부른다.
    */
-  const applyKeywordSearchResults = useCallback(
-    (data: any[]) => {
-      const map = mapInstanceRef.current;
-      if (!window.kakao?.maps || !map) return;
-      const entries = kakaoMarkerEntriesRef.current;
-
-      const places = data.filter(
-        (place) =>
-          !isPlatformStoreDuplicate(Number(place.y), Number(place.x), place.place_name ?? ""),
+  const drawKakaoMarkers = useCallback(() => {
+    const map = mapInstanceRef.current;
+    if (!window.kakao?.maps || !map) return;
+    if (isUserInteractingRef.current) return;
+    const box = getMapBox(map); // 칸 밖은 카카오가 숨기므로 칸 안만
+    const center = map.getCenter?.();
+    if (!box || !center) return;
+    if (!markerImageRef.current) {
+      markerImageRef.current = new window.kakao.maps.MarkerImage(
+        "/images/contents/map-unopened.png",
+        new window.kakao.maps.Size(32, 37),
+        { offset: new window.kakao.maps.Point(16, 37) },
       );
-      const getPlaceKey = (place: any) => String(place.id ?? `${place.y},${place.x}`);
-      const nextIds = new Set(places.map(getPlaceKey));
+    }
+    if (!focusedMarkerImageRef.current) {
+      focusedMarkerImageRef.current = new window.kakao.maps.MarkerImage(
+        "/images/contents/map-unopened-focus.png",
+        new window.kakao.maps.Size(35, 40),
+        { offset: new window.kakao.maps.Point(17.5, 40) },
+      );
+    }
+    const entries = kakaoMarkerEntriesRef.current;
 
-      // 결과에서 빠진 마커·오버레이만 제거
-      entries.forEach((entry, id) => {
-        if (nextIds.has(id)) return;
-        entry.marker.setMap(null);
-        entry.overlay.setMap(null);
-        if (selectedMarkerRef.current === entry.marker) selectedMarkerRef.current = null;
-        entries.delete(id);
+    const candidates = [...kakaoPlacesCacheRef.current.values()].filter(
+      (place) =>
+        !isPlatformStoreDuplicate(Number(place.y), Number(place.x), place.place_name ?? ""),
+    );
+    const places = pickNearestInBox(
+      candidates,
+      (place) => ({ lat: Number(place.y), lng: Number(place.x) }),
+      box,
+      { lat: center.getLat(), lng: center.getLng() },
+      MAP_UNENTERED_MAX_MARKERS,
+    );
+    const getPlaceKey = (place: any) => String(place.id ?? `${place.y},${place.x}`);
+    const nextIds = new Set(places.map(getPlaceKey));
+
+    // 범위에서 빠진 마커·오버레이만 제거
+    entries.forEach((entry, id) => {
+      if (nextIds.has(id)) return;
+      entry.marker.setMap(null);
+      entry.overlay.setMap(null);
+      if (selectedMarkerRef.current === entry.marker) selectedMarkerRef.current = null;
+      entries.delete(id);
+    });
+
+    places.forEach((place) => {
+      const id = getPlaceKey(place);
+      if (entries.has(id)) return; // 이미 그려진 마커 재사용
+      const lat = Number(place.y);
+      const lng = Number(place.x);
+      const position = new window.kakao.maps.LatLng(lat, lng);
+      const marker = new window.kakao.maps.Marker({
+        map,
+        position,
+        image: markerImageRef.current,
       });
-
-      places.forEach((place) => {
-        const id = getPlaceKey(place);
-        if (entries.has(id)) return; // 이미 그려진 마커 재사용
-        const lat = Number(place.y);
-        const lng = Number(place.x);
-        const position = new window.kakao.maps.LatLng(lat, lng);
-        const marker = new window.kakao.maps.Marker({
-          map,
-          position,
-          image: markerImageRef.current,
+      window.kakao.maps.event.addListener(marker, "click", () => {
+        trackEvent("engage_store_pin", { store_id: "none" });
+        setSelectedStore(null);
+        setSelectedUnenteredStore({
+          kakaoPlaceId: String(place.id ?? ""),
+          name: place.place_name ?? "",
+          address: place.address_name || undefined,
+          roadAddress: place.road_address_name || undefined,
+          phone: place.phone || undefined,
+          categoryName: place.category_name || undefined,
+          placeUrl: place.place_url || undefined,
+          latitude: lat,
+          longitude: lng,
         });
-        window.kakao.maps.event.addListener(marker, "click", () => {
-          trackEvent("engage_store_pin", { store_id: "none" });
-          setSelectedStore(null);
-          setSelectedUnenteredStore({
-            kakaoPlaceId: String(place.id ?? ""),
-            name: place.place_name ?? "",
-            address: place.address_name || undefined,
-            roadAddress: place.road_address_name || undefined,
-            phone: place.phone || undefined,
-            categoryName: place.category_name || undefined,
-            placeUrl: place.place_url || undefined,
-            latitude: lat,
-            longitude: lng,
-          });
-          if (listSheetPanelOffsetRef.current > 0) closeListSheet();
-          if (markerImageRef.current)
-            kakaoMarkerEntriesRef.current.forEach((e) => e.marker.setImage(markerImageRef.current));
-          resetPlatformMarkerImages();
-          if (focusedMarkerImageRef.current) {
-            marker.setImage(focusedMarkerImageRef.current);
-            selectedMarkerRef.current = marker;
-          }
-          if (map?.panTo) {
-            isCenteringFromClickRef.current = true;
-            map.panTo(position);
-          }
-        });
-        const safeName = escapeHtmlForOverlay(place.place_name ?? "");
-        const overlay = new window.kakao.maps.CustomOverlay({
-          map,
-          position,
-          yAnchor: 0,
-          content: `<div class="flex flex-col items-center pointer-events-none" style="margin-top:-4px;"><p class="text-center text-[14px] leading-[1.4] font-bold text-gray-900" style="text-shadow:${MAP_MARKER_LABEL_TEXT_SHADOW}">${safeName}</p><p class="text-center text-[11px] leading-[1.4] font-bold text-gray-500" style="text-shadow:${MAP_MARKER_LABEL_TEXT_SHADOW}">미입점</p></div>`,
-        });
-        entries.set(id, { marker, overlay });
+        if (listSheetPanelOffsetRef.current > 0) closeListSheet();
+        if (markerImageRef.current)
+          kakaoMarkerEntriesRef.current.forEach((e) => e.marker.setImage(markerImageRef.current));
+        resetPlatformMarkerImages();
+        if (focusedMarkerImageRef.current) {
+          marker.setImage(focusedMarkerImageRef.current);
+          selectedMarkerRef.current = marker;
+        }
+        if (map?.panTo) {
+          isCenteringFromClickRef.current = true;
+          map.panTo(position);
+        }
       });
-    },
-    [isPlatformStoreDuplicate, closeListSheet, resetPlatformMarkerImages, listSheetPanelOffsetRef],
-  );
+      const safeName = escapeHtmlForOverlay(place.place_name ?? "");
+      const overlay = new window.kakao.maps.CustomOverlay({
+        map,
+        position,
+        yAnchor: 0,
+        content: `<div class="flex flex-col items-center pointer-events-none" style="margin-top:-4px;"><p class="text-center text-[14px] leading-[1.4] font-bold text-gray-900" style="text-shadow:${MAP_MARKER_LABEL_TEXT_SHADOW}">${safeName}</p><p class="text-center text-[11px] leading-[1.4] font-bold text-gray-500" style="text-shadow:${MAP_MARKER_LABEL_TEXT_SHADOW}">미입점</p></div>`,
+      });
+      entries.set(id, { marker, overlay });
+    });
+  }, [
+    isPlatformStoreDuplicate,
+    closeListSheet,
+    resetPlatformMarkerImages,
+    listSheetPanelOffsetRef,
+  ]);
 
-  const applyKeywordSearchResultsRef = useRef(applyKeywordSearchResults);
-  applyKeywordSearchResultsRef.current = applyKeywordSearchResults;
+  const drawKakaoMarkersRef = useRef(drawKakaoMarkers);
+  drawKakaoMarkersRef.current = drawKakaoMarkers;
 
   /**
-   * 카카오 키워드 검색으로 주변 미입점(주문제작 케이크) 마커 표시. 지도 검색·픽업 필터 시에는 표시하지 않음.
+   * 카카오 키워드 검색으로 주변 미입점(주문제작 케이크) 장소를 받아 기억하고 마커로 그린다. 지도 검색·픽업 필터 시에는 표시하지 않음.
+   * 지도 칸보다 조금 넓은 범위에서 가운데와 가까운 순으로 MAP_UNENTERED_SEARCH_PAGES쪽(쪽마다 15곳)까지 받는다.
    * skipIfNearLastSearch: 같은 줌에서 지도가 조금만 움직였으면 재검색을 생략해 드래그마다 네트워크 요청이 발생하지 않게 함.
    */
   const searchPlaces = useCallback(
@@ -535,40 +624,40 @@ export default function MapPageClient() {
       };
       if (!placesServiceRef.current)
         placesServiceRef.current = new window.kakao.maps.services.Places();
-      if (!markerImageRef.current) {
-        markerImageRef.current = new window.kakao.maps.MarkerImage(
-          "/images/contents/map-unopened.png",
-          new window.kakao.maps.Size(32, 37),
-          { offset: new window.kakao.maps.Point(16, 37) },
+
+      const seq = ++keywordSearchSeqRef.current;
+      const box = currentMap ? getMapBox(currentMap, MAP_UNENTERED_SEARCH_PAD_RATIO) : null;
+      const options: Record<string, unknown> = {
+        location: centerLatLng,
+        sort: window.kakao.maps.services.SortBy.DISTANCE,
+      };
+      if (box) {
+        options.bounds = new window.kakao.maps.LatLngBounds(
+          new window.kakao.maps.LatLng(box.minLat, box.minLng),
+          new window.kakao.maps.LatLng(box.maxLat, box.maxLng),
         );
-      }
-      if (!focusedMarkerImageRef.current) {
-        focusedMarkerImageRef.current = new window.kakao.maps.MarkerImage(
-          "/images/contents/map-unopened-focus.png",
-          new window.kakao.maps.Size(35, 40),
-          { offset: new window.kakao.maps.Point(17.5, 40) },
-        );
+      } else {
+        options.useMapBounds = true;
       }
 
       placesServiceRef.current.keywordSearch(
         KAKAO_PLACES_KEYWORD,
-        (data: any[], status: string) => {
-          if (status !== window.kakao.maps.services.Status.OK || !Array.isArray(data)) {
-            clearKakaoMarkers();
-            return;
-          }
+        (data: any[], status: string, pagination: any) => {
+          if (seq !== keywordSearchSeqRef.current) return; // 그 사이 새 검색을 시작함
+          // 결과 없음·오류: 기억해 둔 장소만 그대로(범위를 벗어난 마커는 idle에서 빠진다)
+          if (status !== window.kakao.maps.services.Status.OK || !Array.isArray(data)) return;
           if (!mapInstanceRef.current) return;
-          // 드래그·줌 도중 응답이 도착하면 DOM 갱신을 보류하고 다음 idle에서 반영 (프레임 드랍·터치 끊김 방지)
-          if (isUserInteractingRef.current) {
-            pendingKeywordDataRef.current = data;
-            return;
+          rememberKakaoPlaces(data);
+          // 드래그·줌 도중이면 그리기를 건너뛰고 다음 idle에서 그린다 (프레임 드랍·터치 끊김 방지)
+          if (isUnenteredAllowed()) drawKakaoMarkersRef.current();
+          if (pagination?.hasNextPage && pagination.current < MAP_UNENTERED_SEARCH_PAGES) {
+            pagination.nextPage();
           }
-          applyKeywordSearchResultsRef.current(data);
         },
-        { location: centerLatLng, useMapBounds: true },
+        options,
       );
     },
-    [clearKakaoMarkers],
+    [clearKakaoMarkers, rememberKakaoPlaces, isUnenteredAllowed],
   );
 
   /** URL 검색 또는 픽업 필터 시 미입점 마커 제거, 해제 시에만 키워드 검색 재실행 */
@@ -580,6 +669,7 @@ export default function MapPageClient() {
       clearKakaoMarkers();
       setSelectedUnenteredStore(null);
     } else if (searchStoresRef.current === null) {
+      drawKakaoMarkersRef.current(); // 기억해 둔 미입점부터 바로
       searchPlaces(mapInstanceRef.current.getCenter());
     }
   }, [searchQuery, pickupFilter, clearKakaoMarkers, searchPlaces]);
@@ -655,23 +745,17 @@ export default function MapPageClient() {
             idleDebounceTimerRef.current = null;
             // 타이머 대기 중 새 제스처가 시작됐으면 건너뜀 — 제스처 종료 후 idle에서 다시 처리됨
             if (isUserInteractingRef.current) return;
-            // 제스처 중 보류해 둔 키워드 검색 결과가 있으면 지금 반영
-            if (pendingKeywordDataRef.current) {
-              const pending = pendingKeywordDataRef.current;
-              pendingKeywordDataRef.current = null;
-              applyKeywordSearchResultsRef.current(pending);
-            }
             drawPlatformStoreMarkersRef.current();
             trackEvent("success_map_area_search", {
               trigger_type: lastMapGestureRef.current ?? "drag",
               result_count: getStoresForListRef.current().length,
             });
             lastMapGestureRef.current = null;
-            const allowKakaoUnopened =
-              searchStoresRef.current === null &&
-              !searchQueryRef.current &&
-              pickupFilterRef.current == null;
-            if (allowKakaoUnopened) searchPlaces(map.getCenter(), { skipIfNearLastSearch: true });
+            if (isUnenteredAllowed()) {
+              // 기억해 둔 미입점을 먼저 그리고(검색을 기다리지 않음), 많이 움직였을 때만 새로 검색
+              drawKakaoMarkersRef.current();
+              searchPlaces(map.getCenter(), { skipIfNearLastSearch: true });
+            }
             if (listSheetPanelOffsetRef.current > 0) {
               setListSheetStores(getStoresForListRef.current());
             }
@@ -716,6 +800,7 @@ export default function MapPageClient() {
     [
       clearKakaoMarkers,
       searchPlaces,
+      isUnenteredAllowed,
       updateUserLocationMarker,
       userLocation,
       closeListSheet,
@@ -762,13 +847,13 @@ export default function MapPageClient() {
       if (lastMapGestureRef.current === "current_location") {
         trackEvent("success_map_area_search", {
           trigger_type: "current_location",
-          result_count: getStoresToShow(map).length,
+          result_count: getStoresForList().length,
         });
         lastMapGestureRef.current = null;
       }
     }
     usedUserLocationForCenterRef.current = true;
-  }, [userLocation, searchQuery, pickupFilter, searchPlaces, getStoresToShow]);
+  }, [userLocation, searchQuery, pickupFilter, searchPlaces, getStoresForList]);
 
   // 현재위치 변경 또는 지도 준비 완료 시 현재위치 마커(점) 갱신
   useEffect(() => {
@@ -786,6 +871,7 @@ export default function MapPageClient() {
     const map = mapInstanceRef.current;
     if (map) {
       drawPlatformStoreMarkers();
+      if (isUnenteredAllowed()) drawKakaoMarkersRef.current(); // 입점 가게와 겹치는 미입점 빼기
       if (searchStoresRef.current === null) searchPlaces(map.getCenter());
     }
     // 목록 패널이 열려 있을 때 필터 변경 시 목록 즉시 반영
@@ -806,6 +892,7 @@ export default function MapPageClient() {
   }, [
     platformStores,
     drawPlatformStoreMarkers,
+    isUnenteredAllowed,
     searchPlaces,
     getStoresForList,
     setListSheetStores,
