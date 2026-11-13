@@ -6,6 +6,8 @@ export interface Tab {
   id: string;
   label: string;
   content: React.ReactNode;
+  /** 탭 이름 옆 작은 숫자(예: 답할 대화). 0이나 없으면 안 보임 */
+  badge?: number;
 }
 
 export interface TabsProps {
@@ -19,6 +21,10 @@ export interface TabsProps {
   swipeable?: boolean;
   /** 탭이 전환될 때(클릭/스와이프 공통) 호출 — 애널리틱스 등 부가 로직용 */
   onTabChange?: (tabId: string) => void;
+  /** 주면 바깥에서 고른 탭을 정한다(버튼으로 다른 탭으로 보낼 때). 바꾸는 것은 onTabChange에서 */
+  activeTab?: string;
+  /** 내용 칸 여백·바탕(기본 좌우 20·위아래 24, 흰 바탕) */
+  contentClassName?: string;
 }
 
 /** 스와이프로 인정할 최소 가로 이동 거리(px) */
@@ -46,8 +52,11 @@ export function Tabs({
   scrollOffset = 52,
   swipeable = false,
   onTabChange,
+  activeTab: controlledTab,
+  contentClassName,
 }: TabsProps) {
-  const [activeTab, setActiveTab] = useState<string>(defaultTab || tabs[0]?.id || "");
+  const [ownTab, setActiveTab] = useState<string>(defaultTab || tabs[0]?.id || "");
+  const activeTab = controlledTab ?? ownTab;
   // sticky 탭 바는 붙어있을 때 위치가 52px로 고정돼 위치 계산이 불가하므로,
   // 바로 앞에 둔 비-sticky 앵커로 스크롤한다(scrollIntoView가 스크롤 컨테이너를 자동 탐색).
   const anchorRef = useRef<HTMLDivElement>(null);
@@ -157,6 +166,11 @@ export function Tabs({
               className={`h-full flex items-center justify-center ${activeTab === tab.id ? "font-bold text-gray-900 border-b-2 border-gray-900" : "font-medium text-gray-500 border-b-2 border-transparent"}`}
             >
               {tab.label}
+              {!!tab.badge && (
+                <span className="ml-[4px] flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-primary-50 px-[5px] text-2xs font-bold text-primary">
+                  {tab.badge}
+                </span>
+              )}
             </span>
           </button>
         ))}
@@ -167,7 +181,7 @@ export function Tabs({
         ref={contentRef}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
-        className={`py-[24px] px-[20px] ${swipeable ? "flex flex-col" : ""}`}
+        className={`${contentClassName ?? "py-[24px] px-[20px]"} ${swipeable ? "flex flex-col" : ""}`}
         style={swipeable ? { minHeight: contentMinHeight } : undefined}
       >
         {/* key로 탭이 바뀔 때마다 진입 애니메이션을 다시 재생시킨다 */}

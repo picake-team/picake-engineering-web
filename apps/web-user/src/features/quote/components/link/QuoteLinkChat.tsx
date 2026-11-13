@@ -144,9 +144,8 @@ export function QuoteLinkChat({
 
   let prevDay = "";
   return (
-    // 요청서·보낸 견적과 같은 테두리 상자로 묶어 페이지 글과 섞이지 않게 한다(안쪽 스크롤 상자는 두지 않음)
-    <section className="mb-[24px] rounded-xl border border-gray-100 px-[16px] py-[14px]">
-      <p className="mb-[14px] text-base font-bold text-gray-900">손님과 대화</p>
+    // 견적 링크 "대화" 탭의 흰 카드(탭 이름이 제목이라 따로 두지 않음, 안쪽 스크롤 상자는 두지 않음)
+    <section aria-label="손님과 대화" className="rounded-2xl bg-white px-[16px] py-[16px]">
       <div className="flex flex-col gap-[10px]">
         {messages.length === 0 && (
           <p className="py-[16px] text-center text-sm text-gray-400">

@@ -151,6 +151,17 @@ export type QuoteTargetState =
   | "CLOSED"
   | "FULL";
 
+/** 손님이 연락할 곳(선택, 기획 I-46 SC-19). 손님에게는 이 가게를 고른 뒤에만 온다(운영자 결정 11-13) */
+export type QuoteContactType = "KAKAO" | "INSTAGRAM" | "NAVER" | "PHONE";
+
+export interface QuoteContact {
+  type: QuoteContactType;
+  label: string;
+  value: string;
+  /** 누르면 열 주소(전화는 tel:) */
+  href: string;
+}
+
 export interface Quote {
   id: string;
   targetId: string;
@@ -167,6 +178,8 @@ export interface Quote {
   similarityDetail: string;
   memo: string | null;
   photoUrls: string[];
+  /** 손님이 연락할 곳(옛 서버는 늘 빈 목록) */
+  contacts?: QuoteContact[];
   edited: boolean;
   createdAt: string;
   updatedAt: string;
@@ -235,6 +248,8 @@ export interface QuoteLinkView {
   /** 손님 이름·휴대폰(보낼 때 안내를 본 요청에만, 손님 글과 같은 기간: 고르지 않은 가게는 요청이 끝날 때까지, 고른 가게는 픽업 다음 날까지) */
   customer?: { name: string; phone: string } | null;
   chatOpenUntil: string | null;
+  /** 연락할 곳 미리 채움(보낸 견적이 있으면 그것) */
+  prefillContacts?: QuoteContact[];
 }
 
 export interface QuoteInputBody {
@@ -243,4 +258,6 @@ export interface QuoteInputBody {
   similarity: QuoteSimilarity;
   memo?: string;
   photoUrls?: string[];
+  /** 손님이 연락할 곳(빈 목록이면 지움) */
+  contacts?: { type: QuoteContactType; value: string }[];
 }

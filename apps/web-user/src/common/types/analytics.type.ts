@@ -345,6 +345,8 @@ export interface AnalyticsEventMap {
     edited: boolean;
     similarity: string;
     photo_count: number;
+    /** 손님이 연락할 곳을 몇 개 적었나(0이면 대화만, 11-13) */
+    contact_count: number;
   };
   /** 링크에서 "어려워요"로 답함 */
   success_quote_link_decline: { quote_request_id: string; reason: string };

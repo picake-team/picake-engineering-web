@@ -20,7 +20,9 @@ import {
   useQuoteSection,
 } from "@/apps/web-user/features/quote/hooks/useQuoteRequests";
 import { QuoteCard, quotePriceText } from "@/apps/web-user/features/quote/components/QuoteCards";
-import type { ConsumerQuote } from "@/apps/web-user/features/quote/types/quote.type";
+import type { ConsumerQuote, QuoteContact } from "@/apps/web-user/features/quote/types/quote.type";
+import { useOpenExternal } from "@/apps/web-user/common/hooks/useOpenExternal";
+import { storeKakaoChatUrl } from "@/apps/web-user/common/utils/external-link.util";
 import { useAlertStore } from "@/apps/web-user/common/store/alert.store";
 import { Skeleton } from "@/apps/web-user/common/components/skeleton";
 import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
@@ -64,6 +66,7 @@ function QuoteRequestDetailContent() {
   const [closeOpen, setCloseOpen] = useState(false);
   const [picking, setPicking] = useState<ConsumerQuote | null>(null);
   const [reserveOpen, setReserveOpen] = useState(false);
+  const { open: openExternal, toast: externalToast } = useOpenExternal();
 
   // 요청 상세에서 받은 견적을 봄(열 때 한 번, 견적 ② 성공 기준: 받은 견적 → 고른 요청)
   const viewedRef = useRef(false);
@@ -91,6 +94,12 @@ function QuoteRequestDetailContent() {
       chosen: q.chosen,
     });
     goChat(q.threadId);
+  };
+  // 고른 가게가 적은 연락할 곳(카카오톡 채널은 1:1 채팅으로 바로). 앱에서 열리지 않으면 값을 복사해 둔다
+  const onContact = (c: QuoteContact) => {
+    const url = c.type === "KAKAO" ? (storeKakaoChatUrl(c.value) ?? c.href) : c.href;
+    const what = c.type === "PHONE" ? "번호" : c.type === "INSTAGRAM" ? "아이디" : "주소";
+    openExternal(url, { copyText: c.value, message: `${c.label} ${what}를 복사했어요` });
   };
   const onConfirmChoose = () => {
     if (!picking || !data) return;
@@ -236,6 +245,25 @@ function QuoteRequestDetailContent() {
                   : ""}
               </NoticeBox>
             </div>
+            {/* 가게가 적은 연락할 곳은 고른 뒤에만 서버가 보낸다(운영자 결정 11-13). 대화는 아래 버튼 */}
+            {(chosen.contacts?.length ?? 0) > 0 && (
+              <div className="mt-[12px]">
+                <p className="mb-[8px] text-xs text-gray-500">가게에 연락하기</p>
+                <div className="grid grid-cols-2 gap-[8px]">
+                  {chosen.contacts?.map((c) => (
+                    <Button
+                      key={c.type}
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => onContact(c)}
+                    >
+                      {c.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -368,6 +396,8 @@ function QuoteRequestDetailContent() {
           </Link>
         )}
       </div>
+
+      {externalToast}
 
       {chosen?.isPicakeStore && (
         <QuoteReservationSheet
