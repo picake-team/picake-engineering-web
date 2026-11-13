@@ -60,9 +60,6 @@ export function QuoteCard({
         <span className="text-sm font-bold text-primary">{quote.similarityLabel}</span>
       </div>
       <p className="mt-[2px] text-xs text-gray-500">{quote.similarityDetail}</p>
-      {quote.priceMayVary && (
-        <p className="mt-[2px] text-xs text-gray-500">디자인을 보고 달라질 수 있어요</p>
-      )}
 
       {quote.memo && (
         <div className="relative mt-[10px] rounded-xl bg-gray-50 px-[12px] py-[10px]">

@@ -7,7 +7,6 @@ import { Field, TextArea, TextInput } from "@/apps/web-seller/common/ui/Field";
 import { BottomSheet } from "@/apps/web-seller/common/ui/Sheet";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
 import { InfoRow } from "@/apps/web-seller/common/ui/List";
-import { Checkbox } from "@/apps/web-seller/common/ui/Toggle";
 import { cx } from "@/apps/web-seller/common/ui/cx";
 import getApiMessage from "@/apps/web-seller/common/utils/getApiMessage";
 import { useAlertStore } from "@/apps/web-seller/common/store/alert.store";
@@ -85,7 +84,6 @@ function QuoteSendSheet({
   const { addAlert } = useAlertStore();
   const q = view.quote;
   const [price, setPrice] = useState(q ? q.unitPrice.toLocaleString("ko-KR") : "");
-  const [mayVary, setMayVary] = useState(q?.priceMayVary ?? false);
   const [similarity, setSimilarity] = useState<QuoteSimilarity | null>(q?.similarity ?? null);
   const [memo, setMemo] = useState(q?.memo ?? "");
   const [photos, setPhotos] = useState<string[]>(q?.photoUrls ?? []);
@@ -120,7 +118,6 @@ function QuoteSendSheet({
     try {
       await quoteApi.submit(storeId, view.requestId, {
         unitPrice: unit,
-        priceMayVary: mayVary,
         similarity,
         ...(memo.trim() ? { memo: memo.trim() } : {}),
         photoUrls: photos,
@@ -184,9 +181,6 @@ function QuoteSendSheet({
             />
           )}
         </Field>
-        <Checkbox checked={mayVary} onChange={setMayVary} className="-mt-3">
-          디자인을 보고 달라질 수 있어요
-        </Checkbox>
 
         <div className="flex flex-col gap-2">
           <span className="text-sub font-bold text-ink-700">

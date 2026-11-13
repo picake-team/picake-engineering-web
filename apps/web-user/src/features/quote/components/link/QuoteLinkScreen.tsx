@@ -5,7 +5,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 import { BottomSheet } from "@/apps/web-user/common/components/bottom-sheets/BottomSheet";
 import { Button } from "@/apps/web-user/common/components/buttons/Button";
-import { Checkbox } from "@/apps/web-user/common/components/inputs/Checkbox";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { EmptyState } from "@/apps/web-user/common/components/fallbacks/EmptyState";
 import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
@@ -56,7 +55,6 @@ const PHOTOS_MAX = 3;
 
 type FormState = {
   price: string;
-  priceMayVary: boolean;
   similarity: QuoteSimilarity | null;
   memo: string;
   photos: string[];
@@ -66,7 +64,6 @@ function initialForm(view: QuoteLinkView): FormState {
   const q = view.quote;
   return {
     price: q ? q.unitPrice.toLocaleString("ko-KR") : "",
-    priceMayVary: q?.priceMayVary ?? false,
     similarity: q?.similarity ?? null,
     memo: q?.memo ?? "",
     photos: q?.photoUrls ?? [],
@@ -305,7 +302,6 @@ export function QuoteLinkScreen({ token }: { token: string }) {
     try {
       await quoteLinkApi.submit(token, {
         unitPrice: price,
-        priceMayVary: form.priceMayVary,
         similarity: form.similarity,
         ...(form.memo.trim() ? { memo: form.memo.trim() } : {}),
         photoUrls: form.photos,
@@ -430,11 +426,6 @@ export function QuoteLinkScreen({ token }: { token: string }) {
               {view.quote.quantity > 1
                 ? `1개 ${view.quote.unitPrice.toLocaleString("ko-KR")}원 × ${view.quote.quantity}개`
                 : `${view.quote.total.toLocaleString("ko-KR")}원`}
-              {view.quote.priceMayVary && (
-                <span className="block text-xs font-normal text-gray-500">
-                  디자인을 보고 달라질 수 있어요
-                </span>
-              )}
             </InfoLine>
             <InfoLine label="디자인">{view.quote.similarityLabel}</InfoLine>
             {view.quote.memo && (
@@ -487,15 +478,6 @@ export function QuoteLinkScreen({ token }: { token: string }) {
                   {view.quantity}개 합계 {(price * view.quantity).toLocaleString("ko-KR")}원
                 </p>
               )}
-              <div className="mt-[10px]">
-                <Checkbox
-                  checked={form.priceMayVary}
-                  onChange={(v) => set({ priceMayVary: v })}
-                  label={
-                    <span className="text-sm text-gray-700">디자인을 보고 달라질 수 있어요</span>
-                  }
-                />
-              </div>
             </Field>
 
             <Field
