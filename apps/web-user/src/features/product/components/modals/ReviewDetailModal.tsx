@@ -7,6 +7,7 @@ import { Navigation } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
 import { Review } from "@/apps/web-user/features/review/types/review.type";
 import { Icon } from "@/apps/web-user/common/components/icons";
+import { usePageScrollLock } from "@/apps/web-user/common/hooks/usePageScrollLock";
 
 interface ImageWithReview {
   url: string;
@@ -62,7 +63,6 @@ export const ReviewDetailModal: React.FC<ReviewDetailModalProps> = ({
 
     if (isOpen) {
       document.addEventListener("keydown", handleEsc);
-      document.body.style.overflow = "hidden";
       setCurrentIndex(initialSlideIndex);
       setIsExpanded(false);
       setIsTextExpanded(false);
@@ -71,9 +71,10 @@ export const ReviewDetailModal: React.FC<ReviewDetailModalProps> = ({
 
     return () => {
       document.removeEventListener("keydown", handleEsc);
-      document.body.style.overflow = "";
     };
   }, [isOpen, onClose, swiper, initialSlideIndex]);
+
+  usePageScrollLock(isOpen);
 
   // 슬라이드 중 화살표 표시 (모바일)
   useEffect(() => {

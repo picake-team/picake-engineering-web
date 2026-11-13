@@ -15,6 +15,7 @@ import {
 } from "@/apps/web-user/common/utils/webview.bridge";
 import { reverseGeocode } from "@/apps/web-user/common/utils/kakao-geocode.util";
 import { Icon } from "@/apps/web-user/common/components/icons";
+import { usePageScrollLock } from "@/apps/web-user/common/hooks/usePageScrollLock";
 
 interface RegionSelectSheetProps {
   isOpen: boolean;
@@ -97,13 +98,8 @@ export function RegionSelectSheet({
     });
   }, [isOpen]);
 
-  // 스크롤 방지
-  useEffect(() => {
-    document.body.style.overflow = isOpen ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
+  // 뒤 화면 스크롤 방지
+  usePageScrollLock(isOpen);
 
   // 위치 대기 중 address가 업데이트되면 자동으로 매칭 처리
   // address가 클릭 직전 값과 동일하면 GPS 응답이 아직 도착 안 한 stale 상태이므로 무시.

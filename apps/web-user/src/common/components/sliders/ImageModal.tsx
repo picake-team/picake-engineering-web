@@ -12,6 +12,7 @@ import {
 } from "react-zoom-pan-pinch";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { SliderImage } from "./ImageSlider";
+import { usePageScrollLock } from "@/apps/web-user/common/hooks/usePageScrollLock";
 
 interface ImageModalProps {
   /** 모달 열림 상태 */
@@ -72,14 +73,14 @@ export const ImageModal: React.FC<ImageModalProps> = ({
 
     if (isOpen) {
       document.addEventListener("keydown", handleEsc);
-      document.body.style.overflow = "hidden";
     }
 
     return () => {
       document.removeEventListener("keydown", handleEsc);
-      document.body.style.overflow = "";
     };
   }, [isOpen, onClose, swiper]);
+
+  usePageScrollLock(isOpen);
 
   if (!isOpen || images.length === 0) return null;
 
