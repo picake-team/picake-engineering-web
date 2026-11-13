@@ -79,8 +79,8 @@ analytics 이벤트는 `request_social_auth` / `success_login` / `fail_social_au
 
 ## 5. Apple 로그인 — 확정된 결정 사항 (2026-08 기준)
 
-- **범위: web-user(소비자)만.** web-seller는 이번 대상 아님 — `Seller` 테이블/셀러 컨트롤러는 건드리지 않습니다. Google처럼 seller용 별도 Client 분리 불필요.
-  - **2026-11-05 바뀜: 판매자에도 Apple 로그인을 넣기로 함**(판매자 앱 심사 4.8 대비, 기획 I-48). 작업할 때 주의: `web-seller`는 Vite 정적 앱이라 Apple이 `form_post`로 보내는 응답을 받을 서버 경로(web-user의 `route.ts` 같은 것)가 없습니다. 백엔드가 받아 `code`만 판매자 웹 콜백으로 넘기는 방식을 검토하세요. Services ID에 판매자 도메인·Return URL을 추가하는 일은 Apple 계정을 가진 앱담당자가 합니다.
+- **범위: 지금은 web-user(손님)만.** `Seller` 테이블·판매자 컨트롤러에는 Apple 필드가 없습니다.
+  - **판매자 Apple 로그인(2026-11-05 결정, 기획 I-48, 판매자 앱 심사 4.8 대비) — 아직 만들지 않음.** 판매자 웹에는 버튼 스위치 `SELLER_APPLE_LOGIN_ENABLED`(`apps/web-seller/src/features/auth/components/mobile/socialLogin.ts`, 지금 `false`)만 있습니다. 주의: `web-seller`는 Vite 정적 앱이라 Apple이 `form_post`로 보내는 응답을 받을 서버 경로(web-user의 `route.ts` 같은 것)가 없습니다 — 백엔드가 받아 `code`만 판매자 웹 콜백으로 넘기는 방식을 검토하세요. Services ID에 판매자 도메인·Return URL을 더하는 일은 Apple 개발자 계정 주인(앱담당자)만 할 수 있습니다.
 - **환경: dev는 별도 지원 안 함, staging 도메인으로 대체.** Apple Services ID의 Return URL은 HTTPS 도메인만 등록 가능해 `localhost`를 쓸 수 없습니다. 그래서 dev(로컬)에서도 Apple 버튼의 redirect_uri는 항상 `https://staging.picakes.com`으로 고정합니다 — 즉 dev에서 Apple 로그인을 누르면 실제 콜백 처리는 **스테이징에 배포된 프론트/백엔드가 담당**합니다(로컬로 돌아오지 않음). 별도 "dev용 Return URL"을 Apple에 등록할 필요가 없습니다.
 - **등록된 자격 정보** (Apple Developer 계정 소유, dev/staging/prod 구분 없이 공용 — Kakao의 `KAKAO_CLIENT_ID`/Firebase의 `FIREBASE_PRIVATE_KEY`와 동일한 "환경 무관 공용 시크릿" 패턴):
   - Services ID(=client_id): `com.product.picake.web`
@@ -95,13 +95,12 @@ analytics 이벤트는 `request_social_auth` / `success_login` / `fail_social_au
 
 **백엔드 GitHub Actions Secrets** (`deploy-staging-backend-ec2.yml`, `deploy-production-backend-ec2.yml` 둘 다에 동일 값으로 매핑 — Kakao 시크릿처럼 `STAGING_`/`PRODUCTION_` 접두어 없이 공용 1세트):
 
-| Secret              | 값                                                                                                                                                                                                           |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `APPLE_TEAM_ID`     | `S5AJRJ2DLR`                                                                                                                                                                                                 |
-| `APPLE_KEY_ID`      | `MVGV5R9ZTY`                                                                                                                                                                                                 |
-| `APPLE_PRIVATE_KEY` | `.p8` 파일 내용. `FIREBASE_PRIVATE_KEY`와 동일하게 개행을 `\n`으로 이스케이프해 한 줄로 저장하고, 코드에서 `privateKey.replace(/\\n/g, "\n")`로 복원 (`apps/backend/src/modules/fcm/fcm.service.ts:49` 참고) |
-| `APPLE_CLIENT_ID`   | `com.product.picake.web` (Services ID)                                                                                                                                                                       |
-
+| Secret                               | 값                                                                                                                                                                                                             |
+| ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `APPLE_TEAM_ID`                      | `S5AJRJ2DLR`                                                                                                                                                                                                   |
+| `APPLE_KEY_ID`                       | `MVGV5R9ZTY`                                                                                                                                                                                                   |
+| `APPLE_PRIVATE_KEY`                  | `.p8` 파일 내용. `FIREBASE_PRIVATE_KEY`와 동일하게 개행을 `\n`으로 이스케이프해 한 줄로 저장하고, 코드에서 `privateKey.replace(/\\n/g, "\n")`로 복원 (`apps/backend/src/modules/fcm/fcm.service.ts:49` 참고)   |
+| `APPLE_CLIENT_ID`                    | `com.product.picake.web` (Services ID)                                                                                                                                                                         |
 | `APPLE_REFRESH_TOKEN_ENCRYPTION_KEY` | 32byte hex(64자) — `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`로 1회 생성. 탈퇴 시 revoke용으로 저장하는 `refresh_token`을 AES-256-GCM으로 암호화하는 키(`TokenEncryptionUtil`) |
 
 **redirect_uri용 신규 백엔드 env var는 만들지 않았습니다 — `PUBLIC_USER_DOMAIN` 재사용은 불가능했습니다.** 처음엔 재사용 가능하다고 판단했지만, dev의 `PUBLIC_USER_DOMAIN`이 `http://localhost:3001`이라 Apple Return URL(HTTPS 도메인만 허용)엔 못 씁니다. 대신 `auth.constants.ts`에 `getAppleRedirectBaseUrl(nodeEnv)`를 추가해 `NODE_ENV`로 직접 분기합니다(production만 `picakes.com`, 나머지는 `staging.picakes.com`) — web-user의 `getAppleAppSiteAssociation`(AASA)이 이미 쓰던 것과 동일한 패턴입니다. `auth-apple-oauth.service.ts` 생성자에서 이 값 + `OAUTH_REDIRECT_PATHS.APPLE`로 redirect_uri를 조립합니다.
@@ -112,7 +111,7 @@ analytics 이벤트는 `request_social_auth` / `success_login` / `fail_social_au
 | ----------------------------- | ----------------------------------------------------- |
 | `NEXT_PUBLIC_APPLE_CLIENT_ID` | `com.product.picake.web` — staging/production 동일 값 |
 
-**⚠️ Vercel 대시보드 등록은 수동으로 해야 합니다.** 이 세션엔 Vercel 환경변수를 설정하는 MCP 도구/CLI가 없어서(Vercel CLI 미설치, `mcp__vercel__*`엔 env var set 도구가 없음) 로컬 `.env.development`·GitHub Secrets·워크플로만 자동 반영했고, `NEXT_PUBLIC_APPLE_CLIENT_ID`는 `web-user-staging`/`web-user-production` 두 프로젝트에 직접 추가해야 합니다.
+**Vercel 두 프로젝트(`web-user-staging`/`web-user-production`)에도 넣어야 합니다**(대시보드 또는 Vercel MCP·CLI). 로컬 `.env.development`·GitHub Secrets·워크플로만 바꾸고 끝내면 배포된 화면에서 버튼이 동작하지 않습니다.
 
 프론트도 redirect base용 신규 env var 없이 `NODE_ENV` 분기 함수만 추가합니다(`oauth-login-url.util.ts`의 `getAppleRedirectBaseUrl()`, `environment.constants.ts`의 `NODE_ENV` 상수 재사용) — `getGoogleOAuthLoginUrl`/`getKakaoOAuthLoginUrl`처럼 `window.location.origin`을 쓰지 않는 것이 Apple만의 예외 포인트입니다.
 
@@ -130,7 +129,7 @@ analytics 이벤트는 `request_social_auth` / `success_login` / `fail_social_au
 
 ### DB(Prisma) — Apple은 Consumer 전용, `buildAnonymizedWithdrawalData` 공용 빌더에 넣지 말 것
 
-`appleId`/`appleEmail`/`appleRefreshToken`은 `Consumer`에만 추가했고 `Seller`엔 없습니다(§0의 web-seller 미지원 결정). `auth-withdraw.service.ts`의 `buildAnonymizedWithdrawalData()`는 Consumer/Seller 탈퇴에서 **공용으로 재사용**되는 함수라, 여기에 `appleId: null` 등을 넣으면 `Seller.update()` 호출에서 존재하지 않는 컬럼이라 타입 에러가 납니다. Apple 필드는 `consumer.update({ data: { ...buildAnonymizedWithdrawalData(...), appleId: null, appleEmail: null, appleRefreshToken: null } })`처럼 **consumer 분기 호출부에서만** 스프레드로 추가하세요.
+`appleId`/`appleEmail`/`appleRefreshToken`은 `Consumer`에만 추가했고 `Seller`엔 없습니다(§5 범위 — 판매자는 아직). `auth-withdraw.service.ts`의 `buildAnonymizedWithdrawalData()`는 Consumer/Seller 탈퇴에서 **공용으로 재사용**되는 함수라, 여기에 `appleId: null` 등을 넣으면 `Seller.update()` 호출에서 존재하지 않는 컬럼이라 타입 에러가 납니다. Apple 필드는 `consumer.update({ data: { ...buildAnonymizedWithdrawalData(...), appleId: null, appleEmail: null, appleRefreshToken: null } })`처럼 **consumer 분기 호출부에서만** 스프레드로 추가하세요.
 
 ### 새 provider 추가 시 "표준 파일 목록"에 없는 숨은 지점 (반드시 grep으로 확인)
 

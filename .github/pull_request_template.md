@@ -22,7 +22,7 @@
 
 <!-- 변경사항이 영향을 주는 앱이나 패키지를 선택해주세요 -->
 
-<!-- 백엔드는 picake-engineering-backend, Flutter 앱은 picake-engineering-app 레포에 이슈/PR을 올려주세요 -->
+<!-- 백엔드는 picake-engineering-backend, 앱은 picake-engineering-app 레포에 이슈/PR을 올려주세요 -->
 
 - [ ] web-user
 - [ ] web-seller

@@ -14,7 +14,7 @@ title: "[WEB-USER][BUG]"
 
 <!-- 해당하는 항목에 x를 표시해주세요 -->
 
-<!-- 백엔드는 picake-engineering-backend, Flutter 앱은 picake-engineering-app 레포에 이슈/PR을 올려주세요 -->
+<!-- 백엔드는 picake-engineering-backend, 앱은 picake-engineering-app 레포에 이슈/PR을 올려주세요 -->
 
 - [ ] web-user
 - [ ] web-seller

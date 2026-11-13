@@ -31,7 +31,7 @@ description: 약관·개인정보처리방침·통신판매업·사업자 정보
 | 고객센터 이메일    | picakeee@gmail.com                                                            | 위와 동일 출처                                                                          |
 | 도메인             | production: `picakes.com` / staging: `staging.picakes.com`                    |                                                                                         |
 
-**참고**: `apps/web-admin/src/features/terms/samples/consumer/`, `apps/web-admin/src/features/terms/samples/seller/`에 6종 약관의 "샘플약관" HTML이 이미 존재한다 (관리자 페이지 약관 등록 폼의 초안 채우기용, `terms-content-samples.util.ts`가 로드). 사업자정보나 약관 갱신 작업을 시작하기 전에 **먼저 이 폴더를 확인**하라 — 매번 새로 작성하지 말고 여기 있는 내용을 기준으로 보정하는 것이 원칙이다 (2026-08-04: 통신판매업신고번호 placeholder 채움, 신고증 기준 주소 보정, 애플 로그인 추가 반영 후 v1.2로 스테이징·프로덕션에 반영 완료. 구매자 개인정보 처리방침 v1.3(견적 요청 제3자 제공, 기획 I-46)은 2026-11-09 공지, 11-17 시행 — 원문은 picake-hq `legal/drafts/`).
+**참고**: `apps/web-admin/src/features/terms/samples/consumer/`, `apps/web-admin/src/features/terms/samples/seller/`에 6종 약관의 "샘플약관" HTML이 이미 존재한다 (관리자 페이지 약관 등록 폼의 초안 채우기용, `terms-content-samples.util.ts`가 로드). 사업자정보나 약관 갱신 작업을 시작하기 전에 **먼저 이 폴더를 확인**하라 — 매번 새로 작성하지 말고 여기 있는 내용을 기준으로 보정하는 것이 원칙이다 (2026-08-04: 통신판매업신고번호 placeholder 채움, 신고증 기준 주소 보정, 애플 로그인 추가 반영 후 v1.2로 스테이징·프로덕션에 반영 완료. 그 뒤 버전(견적 요청 제3자 제공을 넣은 구매자 처리방침 등, 기획 I-46)은 picake-hq `legal/drafts/`·`legal/terms/`가 정본이라 지금 버전·시행일은 거기서 본다).
 
 ## 2. 문서 타입별 법정 최소 요건
 

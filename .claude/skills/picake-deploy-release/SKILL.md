@@ -198,6 +198,7 @@ curl -s -o /dev/null -w "%{http_code}\n" https://info.picakes.com/seller/about  
 ## 10. 보고
 
 - 태그명, run 결과, (production이면) PR 번호·머지 커밋
+- run의 `Notify Discord`(【PICAKE】개발) 단계가 success인지
 - 실동작 검증 결과, 확인해볼 화면 경로
 - staging이었다면 운영 배포는 `/push-production`이라고 안내
 
