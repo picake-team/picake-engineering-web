@@ -87,7 +87,7 @@ function InfoLine({ label, children }: { label: string; children: React.ReactNod
   );
 }
 
-/** 손님 요청서(이름·연락처 없이, 지역은 동네까지). 픽업·케이크·예산·동네 줄 + 설명·요청 사항 회색 상자 */
+/** 손님 요청서(지역은 동네까지, 이름·휴대폰은 아래 "손님 연락처" 상자). 픽업·케이크·예산·동네 줄 + 설명·요청 사항 회색 상자 */
 function RequestCard({ view }: { view: QuoteLinkView }) {
   const [viewer, setViewer] = useState<string | null>(null);
   const [textOpen, setTextOpen] = useState(false);
@@ -370,6 +370,28 @@ export function QuoteLinkScreen({ token }: { token: string }) {
             </NoticeBox>
           </div>
         )}
+        {view.customer && (
+          <section
+            className={cn(
+              "mb-[24px] rounded-xl border border-gray-100 px-[16px] py-[14px]",
+              QUOTE_NO_REPLAY,
+            )}
+          >
+            <p className="mb-[4px] text-base font-bold text-gray-900">손님 연락처</p>
+            <InfoLine label="이름">{view.customer.name}</InfoLine>
+            <InfoLine label="휴대폰">
+              <a href={`tel:${view.customer.phone.replace(/[^0-9]/g, "")}`} className="underline">
+                {view.customer.phone}
+              </a>
+            </InfoLine>
+            <p className="mt-[6px] text-xs text-gray-500">
+              견적·주문 상담에만 써 주세요.{" "}
+              {view.state === "CHOSEN_ME"
+                ? "픽업 다음 날까지 보여요."
+                : "손님이 다른 가게를 고르거나 요청이 끝나면 보이지 않아요."}
+            </p>
+          </section>
+        )}
         {view.state === "CHOSEN_OTHER" && (
           <div className="mb-[20px]">
             <NoticeBox>손님이 다른 견적을 골랐어요. 견적을 보내 주셔서 고마워요.</NoticeBox>
@@ -555,6 +577,7 @@ export function QuoteLinkScreen({ token }: { token: string }) {
             token={token}
             open={view.chatOpen}
             requestId={view.requestId}
+            contactShared={!!view.customer}
             // 같은 손님이 이 가게에 다시 요청하면 지난 대화가 보이는데, 이 요청에 견적을 보내기 전에는 쓸 수 없다
             closedMessage={
               !view.quote && view.canEdit ? "견적을 보내면 손님과 대화할 수 있어요." : undefined
