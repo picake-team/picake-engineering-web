@@ -197,7 +197,6 @@ export function QuoteLinkScreen({ token }: { token: string }) {
   });
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState<FormState | null>(null);
-  const [more, setMore] = useState(false);
   const [sending, setSending] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [declineOpen, setDeclineOpen] = useState(false);
@@ -218,7 +217,6 @@ export function QuoteLinkScreen({ token }: { token: string }) {
   useEffect(() => {
     if (view && !form) {
       setForm(initialForm(view));
-      setMore(!!view.quote && (view.quote.photoUrls.length > 0 || !!view.quote.memo));
     }
   }, [view, form]);
 
@@ -495,77 +493,54 @@ export function QuoteLinkScreen({ token }: { token: string }) {
               </div>
             </Field>
 
-            <button
-              type="button"
-              onClick={() => setMore((v) => !v)}
-              className="mb-[16px] flex w-full items-center justify-between border-b border-gray-50 py-[10px] text-sm text-gray-900"
-            >
-              <span>
-                비슷하게 만든 케이크 사진 · 메모 <span className="text-xs text-gray-400">선택</span>
-              </span>
-              <Icon
-                name="selectArrow"
-                width={20}
-                height={20}
-                className={cn("transition-transform duration-base", more && "rotate-180")}
-              />
-            </button>
-            {more && (
-              <>
-                <Field label="사진" optional={`${PHOTOS_MAX}장까지`}>
-                  <div className="flex gap-[8px]">
-                    {form.photos.map((url) => (
-                      <div key={url} className="relative">
-                        <img
-                          src={url}
-                          alt=""
-                          className="h-[72px] w-[72px] rounded-lg object-cover"
-                        />
-                        <button
-                          type="button"
-                          aria-label="사진 빼기"
-                          onClick={() => set({ photos: form.photos.filter((p) => p !== url) })}
-                          className="absolute -right-[6px] -top-[6px] flex h-[20px] w-[20px] items-center justify-center rounded-full bg-gray-900 text-white"
-                        >
-                          <Icon name="close" width={12} height={12} />
-                        </button>
-                      </div>
-                    ))}
-                    {form.photos.length < PHOTOS_MAX && (
-                      <button
-                        type="button"
-                        onClick={() => fileRef.current?.click()}
-                        className="flex h-[72px] w-[72px] items-center justify-center rounded-lg border border-gray-100 text-gray-400"
-                        aria-label="사진 넣기"
-                      >
-                        <Icon name="plus" width={20} height={20} />
-                      </button>
-                    )}
-                    <input
-                      ref={fileRef}
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      hidden
-                      onChange={(e) => void onPickPhotos(e.target.files)}
-                    />
+            <Field label="비슷하게 만든 케이크 사진" optional={`선택 · ${PHOTOS_MAX}장까지`}>
+              <div className="flex gap-[8px]">
+                {form.photos.map((url) => (
+                  <div key={url} className="relative">
+                    <img src={url} alt="" className="h-[72px] w-[72px] rounded-lg object-cover" />
+                    <button
+                      type="button"
+                      aria-label="사진 빼기"
+                      onClick={() => set({ photos: form.photos.filter((p) => p !== url) })}
+                      className="absolute -right-[6px] -top-[6px] flex h-[20px] w-[20px] items-center justify-center rounded-full bg-gray-900 text-white"
+                    >
+                      <Icon name="close" width={12} height={12} />
+                    </button>
                   </div>
-                </Field>
-                <Field label="메모" optional="고를 수 있는 맛, 포함 사항 등">
-                  <textarea
-                    value={form.memo}
-                    maxLength={MEMO_MAX}
-                    onChange={(e) => set({ memo: e.target.value })}
-                    rows={3}
-                    aria-label="메모"
-                    className="w-full resize-none rounded-xl border border-gray-100 px-[14px] py-[12px] text-sm text-gray-900 outline-none focus:border-gray-900"
-                  />
-                  <p className="mt-[4px] text-right text-xs text-gray-400">
-                    {form.memo.length}/{MEMO_MAX}
-                  </p>
-                </Field>
-              </>
-            )}
+                ))}
+                {form.photos.length < PHOTOS_MAX && (
+                  <button
+                    type="button"
+                    onClick={() => fileRef.current?.click()}
+                    className="flex h-[72px] w-[72px] items-center justify-center rounded-lg border border-gray-100 text-gray-400"
+                    aria-label="사진 넣기"
+                  >
+                    <Icon name="plus" width={20} height={20} />
+                  </button>
+                )}
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  hidden
+                  onChange={(e) => void onPickPhotos(e.target.files)}
+                />
+              </div>
+            </Field>
+            <Field label="메모" optional="선택 · 고를 수 있는 맛, 포함 사항 등">
+              <textarea
+                value={form.memo}
+                maxLength={MEMO_MAX}
+                onChange={(e) => set({ memo: e.target.value })}
+                rows={3}
+                aria-label="메모"
+                className="w-full resize-none rounded-xl border border-gray-100 px-[14px] py-[12px] text-sm text-gray-900 outline-none focus:border-gray-900"
+              />
+              <p className="mt-[4px] text-right text-xs text-gray-400">
+                {form.memo.length}/{MEMO_MAX}
+              </p>
+            </Field>
             <p className="mb-[10px] text-xs text-gray-500">
               보내면 손님에게 가게 이름·견적·메모가 보여요. 손님이 고르면 이 화면에서 대화하며
               주문을 정해요
@@ -574,7 +549,8 @@ export function QuoteLinkScreen({ token }: { token: string }) {
           </section>
         )}
 
-        {view.threadId && (
+        {/* 견적을 고치는 동안에는 대화를 숨겨 칸만 보이게 한다 */}
+        {view.threadId && !(editing && view.quote) && (
           <QuoteLinkChat
             token={token}
             open={view.chatOpen}

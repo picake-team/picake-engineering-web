@@ -1,7 +1,7 @@
 "use client";
 
 import { motionDuration, motionEasing } from "@picake/design-tokens";
-import { useEffect, useId, useRef, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import clsx from "clsx";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { usePresence } from "@/apps/web-user/common/hooks/usePresence";
@@ -61,12 +61,15 @@ export function BottomSheet({
   const sheetRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
+  // 제목 아래 선은 내용을 내렸을 때만 그린다(운영자 고름 11-13: 선에 내용이 붙어 보이지 않게, 판매자 앱 창과 같은 모양)
+  const [scrolled, setScrolled] = useState(false);
 
   // scrollResetKey 변경 시 콘텐츠 스크롤을 맨 위로 리셋
   useEffect(() => {
     if (contentRef.current) {
       contentRef.current.scrollTop = 0;
     }
+    setScrolled(false);
   }, [scrollResetKey]);
 
   // 아래로 끌어내려 닫기: 콘텐츠가 맨 위일 때(또는 헤더/푸터에서) 아래로 드래그하면 시트가 따라 내려가고,
@@ -205,14 +208,16 @@ export function BottomSheet({
         <div
           className={clsx(
             "relative",
-            fullScreen ? "h-[52px]" : "h-[64px] border-b border-gray-100",
+            "border-b transition-colors duration-base",
+            fullScreen ? "h-[52px]" : "h-[56px]",
+            scrolled ? "border-gray-100" : "border-transparent",
           )}
         >
           <h2
             id={titleId}
             className={clsx(
               "flex items-center justify-center text-base font-bold text-center text-gray-900",
-              fullScreen ? "h-[52px]" : "h-[64px]",
+              fullScreen ? "h-[52px]" : "h-[56px]",
             )}
           >
             {shown.title}
@@ -228,7 +233,11 @@ export function BottomSheet({
         </div>
 
         {/* Content - 스크롤 가능 영역 */}
-        <div ref={contentRef} className="flex-1 overflow-y-auto overscroll-contain">
+        <div
+          ref={contentRef}
+          onScroll={(e) => setScrolled(e.currentTarget.scrollTop > 0)}
+          className={clsx("flex-1 overflow-y-auto overscroll-contain", !fullScreen && "pt-[4px]")}
+        >
           {shown.children}
         </div>
 
