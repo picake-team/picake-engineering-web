@@ -4,7 +4,13 @@ import {
   KAKAO_CHANNEL_CHAT_URL,
   SELLER_SIGNUP_URL,
 } from "@/apps/web-info/common/constants/partner.constants";
-import { SITE_OG_IMAGE } from "@/apps/web-info/common/constants/site.constants";
+import {
+  INSTAGRAM_URL,
+  KAKAO_CHANNEL_URL,
+  SITE_BASE_URL,
+  SITE_OG_IMAGE,
+} from "@/apps/web-info/common/constants/site.constants";
+import { JsonLd } from "@/apps/web-info/common/components/seo/JsonLd";
 import { StickyJoinCta } from "@/apps/web-info/features/seller/components/StickyJoinCta";
 import photoBento from "@/apps/web-info/features/seller/assets/photo-bento.jpg";
 import photoFlower from "@/apps/web-info/features/seller/assets/photo-flower.jpg";
@@ -43,12 +49,22 @@ import screenQuoteSend from "@/apps/web-info/features/seller/assets/screen-quote
  * 사진: Unsplash 라이선스(상업 사용·수정 무료, 출처 표시 의무 없음)
  *   lettering K5m3jklvfvQ(@sincerelymedia) · bento rIiGJGOPLIw(@regsultik) · strawberry cZFU60dKB6U(@amir_v_ali) · flower lqM8r5cg5k4(Kash Tandon)
  */
-const TITLE = "사장님 입점 소개";
+/**
+ * 검색·AI 답변용 문구(2026-11-14). 사장님이 검색할 말(주문제작 케이크·예약·견적)과 한글·영문 이름(픽케이크·Picake)을 앞에 둔다.
+ * 설명 첫 문장은 "○○는 …예요" 한 문장 정의라 AI 답변이 그대로 인용하기 좋다. 사실은 아래 근거 주석과 같다.
+ */
+const TITLE = "주문제작 케이크 예약·견적 받기 | 픽케이크 사장님 입점";
 const DESCRIPTION =
-  "사진으로 묻는 손님께 금액만 보내면, 고른 견적으로 예약 신청이 들어와요. 정해진 케이크는 주문서로 받고, 입점하신 날부터 1년 동안 이용료·수수료는 0원이에요.";
+  "픽케이크(Picake)는 주문제작 케이크를 주문서와 견적으로 예약받는 서비스예요. 사진으로 묻는 손님께 금액만 보내면 고른 견적으로 예약 신청이 들어오고, 정해진 케이크는 주문서로 받아요. 입점하신 날부터 1년 동안 이용료·수수료는 0원이에요.";
+/** DM 링크 미리보기는 검색 제목보다 첫 화면 문장이 눈에 띈다 */
+const SHARE_TITLE = "사진으로 묻는 손님께 금액만 보내세요 | 픽케이크 사장님 입점";
+const SHARE_DESCRIPTION =
+  "디자인마다 가격이 다른 케이크는 견적으로, 정해진 케이크는 주문서로. 입점하신 날부터 1년 동안 이용료·수수료 0원.";
+const PAGE_URL = `${SITE_BASE_URL}/seller/about`;
 
 export const metadata: Metadata = {
-  title: TITLE,
+  // 레이아웃의 "%s | Picake"를 붙이지 않는다(제목이 길어져 검색 결과에서 잘린다)
+  title: { absolute: TITLE },
   description: DESCRIPTION,
   // 정보 사이트의 공개 랜딩이라 검색에 노출한다
   alternates: { canonical: "/seller/about" },
@@ -58,10 +74,48 @@ export const metadata: Metadata = {
     locale: "ko_KR",
     url: "/seller/about",
     siteName: "Picake",
-    title: `${TITLE} | Picake`,
-    description: DESCRIPTION,
+    title: SHARE_TITLE,
+    description: SHARE_DESCRIPTION,
     images: [SITE_OG_IMAGE],
   },
+};
+
+/**
+ * 구조화 데이터: 운영사(Organization)와 이 페이지(WebPage)가 무엇을 소개하는지(Service).
+ * 화면에 있는 사실만 쓴다. 가격은 "입점일부터 1년 0원"이라 숫자 가격(price)으로 쓰지 않고 설명으로만 둔다.
+ */
+const STRUCTURED_DATA = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://picakes.com/#organization",
+      name: "Picake",
+      alternateName: ["픽케이크"],
+      url: "https://picakes.com",
+      logo: SITE_OG_IMAGE.url,
+      sameAs: [INSTAGRAM_URL, KAKAO_CHANNEL_URL],
+    },
+    {
+      "@type": "WebPage",
+      "@id": `${PAGE_URL}#webpage`,
+      url: PAGE_URL,
+      name: TITLE,
+      description: DESCRIPTION,
+      inLanguage: "ko-KR",
+      publisher: { "@id": "https://picakes.com/#organization" },
+      audience: { "@type": "BusinessAudience", audienceType: "주문제작 케이크 가게 사장님" },
+      mainEntity: {
+        "@type": "Service",
+        name: "픽케이크 사장님 입점",
+        serviceType: "주문제작 케이크 예약·견적 관리",
+        provider: { "@id": "https://picakes.com/#organization" },
+        areaServed: { "@type": "Country", name: "대한민국" },
+        description:
+          "손님이 사진·픽업 날짜·예산으로 견적을 물으면 사장님이 금액을 보내고, 손님이 고르면 그 견적으로 예약 신청이 들어온다. 정해진 케이크는 사이즈·맛·레터링·참고 사진·픽업 시간을 담은 주문서로 받는다. 가게 링크로 들어온 손님 수와 예약 수를 보여 준다. 입점일부터 1년 동안 이용료·수수료 0원, 처음 상품 등록 대행, 네이버 예약 상품 가져오기, 손님 입금은 가게 계좌로 바로, 매장 픽업 주문.",
+      },
+    },
+  ],
 };
 
 const HERO_CTA_ID = "seller-hero-cta";
@@ -171,6 +225,7 @@ function Chapter({
 export default function SellerAboutPage() {
   return (
     <main className={`relative min-h-screen w-full ${PAPER} text-gray-900`}>
+      <JsonLd data={STRUCTURED_DATA} />
       {/* 1. 첫 화면: 케이크 사진 위에 한 문장. JS를 기다리지 않고 바로 보인다 */}
       <section className={`relative h-[700px] overflow-hidden ${COCOA} text-white`}>
         <Image
@@ -178,6 +233,8 @@ export default function SellerAboutPage() {
           alt=""
           fill
           priority
+          // 첫 화면의 가장 큰 그림(LCP)이라 먼저 받는다(priority만으로는 fetchpriority가 붙지 않았다, Lighthouse 2026-11-14)
+          fetchPriority="high"
           sizes="(min-width: 640px) 640px, 100vw"
           className="object-cover"
           style={{ objectPosition: "46% 50%" }}
@@ -190,11 +247,14 @@ export default function SellerAboutPage() {
           Picake
         </p>
         <div className="absolute inset-x-5 bottom-8">
-          <p className={KICKER_ON_DARK}>주문제작 케이크 가게 사장님께</p>
-          <h1 className="mt-2.5 text-[clamp(28px,8.4vw,34px)] leading-[1.3] font-bold tracking-[-0.035em]">
-            사진으로 묻는 손님께
-            <br />
-            금액만 보내세요
+          {/* 머리말도 h1 안에 둔다. 검색엔진이 읽는 제목에 "주문제작 케이크"가 들어가고, 보이는 모양은 같다 */}
+          <h1>
+            <span className={`block ${KICKER_ON_DARK}`}>주문제작 케이크 가게 사장님께</span>
+            <span className="mt-2.5 block text-[clamp(28px,8.4vw,34px)] leading-[1.3] font-bold tracking-[-0.035em]">
+              사진으로 묻는 손님께
+              <br />
+              금액만 보내세요
+            </span>
           </h1>
           <p className="mt-3 text-base leading-[1.6] text-white/85">
             손님이 고르면 그 견적으로 예약 신청이 들어와요. 정해진 케이크는 주문서로 받아요.
