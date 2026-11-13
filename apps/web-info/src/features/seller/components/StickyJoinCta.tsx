@@ -45,7 +45,7 @@ export function StickyJoinCta({ watchIds }: StickyJoinCtaProps) {
           href={SELLER_SIGNUP_URL}
           tabIndex={show ? 0 : -1}
           aria-hidden={!show}
-          className="flex h-[54px] w-full items-center justify-center rounded-xl bg-primary text-[17px] font-bold text-white shadow-[0_12px_28px_-12px_rgba(27,21,18,0.6)] transition-transform duration-150 active:scale-[0.98]"
+          className="flex h-[54px] w-full items-center justify-center rounded-xl bg-primary text-[17px] font-bold text-gray-900 shadow-[0_12px_28px_-12px_rgba(27,21,18,0.6)] transition-transform duration-150 active:scale-[0.98]"
         >
           입점 신청하기
         </a>

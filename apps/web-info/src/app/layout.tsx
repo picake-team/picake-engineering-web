@@ -37,12 +37,11 @@ export const metadata: Metadata = {
   referrer: "origin-when-cross-origin",
 };
 
-// web-user와 같은 뷰포트 설정 — 모바일에서 보이는 모습을 그대로 유지한다
+// web-user와 같은 폭 설정 — 모바일에서 보이는 모습을 그대로 유지한다(확대는 막지 않는다)
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  // 손님 앱과 달리 소개 사이트는 글을 읽는 곳이라 확대를 막지 않는다(접근성, Lighthouse meta-viewport, 2026-11-14)
   // 밝은 화면만 쓴다. 휴대폰이 어두운 모드여도 브라우저(삼성 인터넷 등)가 색을 억지로 어둡게 바꾸지 않게(판매자 앱과 같음)
   colorScheme: "only light",
 };
