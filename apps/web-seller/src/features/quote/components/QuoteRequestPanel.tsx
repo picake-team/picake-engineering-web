@@ -1,3 +1,4 @@
+import { photoPartsLabel } from "@/apps/web-seller/features/quote/types/quote.type";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
@@ -339,20 +340,39 @@ export function QuoteRequestPanel({ storeId, requestId }: { storeId: string; req
   const photosRow =
     view.photoUrls.length > 0 ? (
       <div className={cx(CHAT_NO_REPLAY, "flex gap-1.5 overflow-x-auto")}>
-        {view.photoUrls.map((url, i) => (
-          <button
-            key={`${i}-${url}`}
-            type="button"
-            onClick={() => setViewer(url)}
-            aria-label="사진 크게 보기"
-          >
-            <img
-              src={url}
-              alt="참고 사진"
-              className="size-16 shrink-0 rounded-control object-cover"
-            />
-          </button>
-        ))}
+        {view.photoUrls.map((url, i) => {
+          // 사진이 여러 장이면 번호와 손님이 고른 "가져올 것"(기획 I-112)
+          const multi = view.photoUrls.length > 1;
+          const label = photoPartsLabel(view.photoDetails?.[i]?.parts);
+          return (
+            <button
+              key={`${i}-${url}`}
+              type="button"
+              onClick={() => setViewer(url)}
+              aria-label={multi ? `${i + 1}번 사진 크게 보기(${label})` : "사진 크게 보기"}
+              className="shrink-0"
+            >
+              <span className="relative block">
+                <img src={url} alt="참고 사진" className="size-16 rounded-control object-cover" />
+                {multi ? (
+                  <span className="absolute left-1 top-1 flex size-[18px] items-center justify-center rounded-full bg-ink-900/60 text-badge font-bold text-white">
+                    {i + 1}
+                  </span>
+                ) : null}
+              </span>
+              {multi ? (
+                <span
+                  className={cx(
+                    "mt-1 block text-center text-caption font-semibold",
+                    label === "전체" ? "text-ink-700" : "text-brand-ink",
+                  )}
+                >
+                  {label}
+                </span>
+              ) : null}
+            </button>
+          );
+        })}
       </div>
     ) : null;
   // 설명 4줄·요청 사항 2줄까지 보이고 "더 보기"(운영자 11-12)

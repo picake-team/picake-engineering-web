@@ -1,4 +1,5 @@
 import HomeScreen from "@/apps/web-user/features/home/components/HomeScreen";
+import { magazineDesigns } from "@/apps/web-user/features/design/utils/design.util";
 import { fetchConsumerApi } from "@/apps/web-user/common/utils/server-api.util";
 import type { HomeBannerListResponse } from "@/apps/web-user/features/home-banner/types/home-banner.type";
 
@@ -13,5 +14,7 @@ export default async function HomePage() {
   const banners = await fetchConsumerApi<HomeBannerListResponse>("/home-banners", {
     revalidate,
   });
-  return <HomeScreen initialBanners={banners?.data} />;
+  // 홈 매거진 카드(기획 I-112)는 서버에서 시즌을 정해 넘긴다(60초마다 다시 만든다)
+  const magazineIds = magazineDesigns().map((d) => d.id);
+  return <HomeScreen initialBanners={banners?.data} magazineIds={magazineIds} />;
 }

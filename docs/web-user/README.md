@@ -21,6 +21,7 @@ Picake 플랫폼을 위한 Next.js 기반 사용자 웹 애플리케이션입니
 - **검색**: 통합 검색 기능
 - **Q&A**: 상품/스토어 문의
 - **견적 요청**(기획 I-46, ① 2026-11-09·② 2026-11-12): 요청서 6단계(`/quote/new`, 쓰던 내용은 기기에 남아 로그인을 다녀와도 이어짐, 사진은 보낼 때 업로드), 보낸 뒤, 요청 상세(받은 견적·고르기, 고르면 그 가게 채팅으로), MY 내 견적 요청. 입점 전 가게는 운영자가 DM으로 보낸 견적 링크에서 가입 없이 견적을 보내고 손님과 대화한다(링크는 검색에 안 걸리고 PostHog·Sentry에서 열쇠를 지움, 미리보기는 사장님 문구). 입구는 홈 카드·검색 결과/스토어 상세 아래 칸·지도 미입점 카드·MY 바로가기. 동네·가게 찾기는 `app/api/kakao-local`(카카오 로컬, 키는 서버에만) 입점 가게 견적을 고르면 "이 견적으로 예약하기"(기획 I-01): 상품 예약 창과 같은 픽업 일시 → 주문확인(`QuoteReservationSheet`, 아래쪽은 공용 `ReservationContactAgreements`) → 예약 완료, 예약 상세에는 견적 카드(`QuoteOrderCard`).
+- **케이크 디자인 모음**(기획 I-112, 2026-11-14): 홈 매거진 칸, 검색 결과 "디자인" 탭, 디자인 상세(`/design/:id`, 사진에서 읽은 것·비슷한 디자인·♥), 저장 "디자인" 탭. 콘텐츠는 `features/design/constants/designs.constant.ts`와 `public/images/designs/`(무료 사진 36장, 미리 읽은 값). 견적 요청서에서 디자인 모음 사진을 고르거나 손님 사진을 올리면(서버 AI 사진 읽기, 하루 20번, "사진 읽기 끄기") 설명·크기·크림·요청 사항을 채운다(✦·되돌리기, 손님이 고친 칸은 그대로, 규칙은 `design-fill.util.ts`). 사진은 3장까지 섞고 사진마다 "가져올 것"을 고르면 서버 `photoDetails`로 가게·관리자에게 "2 · 장식만"처럼 보인다
 - **상태 관리**: Zustand를 활용한 전역 상태 관리
 - **API 통신**: TanStack Query + Axios를 활용한 서버 상태 관리
 - **에러 처리**: Error Boundary, global-error, Sentry 연동
@@ -41,6 +42,7 @@ Picake 플랫폼을 위한 Next.js 기반 사용자 웹 애플리케이션입니
 - **홈페이지**: `/` - 메인 페이지 (상품 목록, 배너, 카테고리)
 - **검색**: `/search` - 통합 검색
 - **지도**: `/map` - 지역 기반 스토어 지도 검색
+- **케이크 디자인**: `/design/:designId?from=home|search|saved|similar` - 디자인 상세(기획 I-112), 목록은 `/search?tab=design`
 
 ### 인증 관련 (OAuth 콜백)
 
@@ -67,7 +69,7 @@ Picake 플랫폼을 위한 Next.js 기반 사용자 웹 애플리케이션입니
 
 ### 견적 요청
 
-- **요청서**: `/quote/new` - `?entry=HOME|SEARCH|MAP|STORE|MYPAGE`, 가게 화면에서는 `storeId`·`kakaoPlaceId`·`only=1`
+- **요청서**: `/quote/new` - `?entry=HOME|SEARCH|MAP|STORE|MYPAGE|DESIGN`, 가게 화면에서는 `storeId`·`kakaoPlaceId`·`only=1`, 디자인에서는 `designId=a,b`
 - **보낸 뒤**: `/quote/sent?requestId=`
 - **요청 상세**: `/quote/:requestId` - 카카오 알림톡 [견적 보기] 버튼에 고정된 주소라 바꾸지 않는다
 - **내 견적 요청**: `/mypage/quote` - 진행 중 / 지난 요청
@@ -76,7 +78,7 @@ Picake 플랫폼을 위한 Next.js 기반 사용자 웹 애플리케이션입니
 ### 마이페이지
 
 - **마이페이지**: `/mypage` - 사용자 정보
-- **저장 목록**: `/saved`, `/mypage/saved` - 좋아요/저장 목록
+- **저장 목록**: `/saved`, `/mypage/saved` - 좋아요/저장 목록(상품·스토어·디자인)
 
 ### 커뮤니케이션
 

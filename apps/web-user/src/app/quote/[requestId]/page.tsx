@@ -1,5 +1,6 @@
 "use client";
 
+import { photoBadge } from "@/apps/web-user/features/design/utils/design-fill.util";
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -415,14 +416,23 @@ function QuoteRequestDetailContent() {
         <div className="px-[20px] pb-[24px]">
           {data.photoUrls.length > 0 && (
             <div className={cn("mb-[12px] flex gap-[6px] overflow-auto", QUOTE_NO_REPLAY)}>
-              {data.photoUrls.map((url) => (
-                <img
-                  key={url}
-                  src={url}
-                  alt="참고 사진"
-                  className="h-[100px] w-[100px] shrink-0 rounded-lg object-cover"
-                />
-              ))}
+              {data.photoUrls.map((url, i) => {
+                const badge = photoBadge(data.photoDetails, i, data.photoUrls.length);
+                return (
+                  <div key={url} className="relative shrink-0">
+                    <img
+                      src={url}
+                      alt="참고 사진"
+                      className="h-[100px] w-[100px] rounded-lg object-cover"
+                    />
+                    {badge && (
+                      <span className="absolute left-[5px] top-[5px] rounded-full bg-white/90 px-[7px] py-[2px] text-2xs font-bold text-gray-900">
+                        {badge}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
           {rows

@@ -2,7 +2,16 @@
 
 export type QuoteCakeSize = "LUNCHBOX" | "MINI" | "NO1" | "NO2" | "NO3" | "LARGER";
 export type QuoteCream = "FRESH_CREAM" | "BUTTER_CREAM" | "CREAM_CHEESE";
-export type QuoteRequestEntry = "HOME" | "SEARCH" | "MAP" | "STORE" | "MYPAGE";
+export type QuoteRequestEntry = "HOME" | "SEARCH" | "MAP" | "STORE" | "MYPAGE" | "DESIGN";
+
+/** 사진에서 가져올 것(기획 I-112) */
+export type QuotePhotoPart = "ALL" | "SHAPE" | "COLOR" | "DECORATION" | "LETTERING";
+
+/** 참고 사진 한 장의 정보: 어느 디자인에서 왔는지(손님 사진은 null), 가져올 것 */
+export interface QuotePhotoDetail {
+  designId: string | null;
+  parts: QuotePhotoPart[];
+}
 export type QuoteRequestStatus = "OPEN" | "CONNECTED" | "CLOSED";
 export type QuoteRequestCloseReason = "EXPIRED" | "CONSUMER" | "ADMIN";
 export type QuoteRequestListTab = "ONGOING" | "PAST";
@@ -35,6 +44,8 @@ export interface CreateQuoteRequestBody {
   stores?: QuoteStoreInput[];
   description?: string;
   photoUrls?: string[];
+  /** photoUrls와 같은 순서 */
+  photoDetails?: QuotePhotoDetail[];
   size: QuoteCakeSize;
   quantity: number;
   creams?: QuoteCream[];
@@ -93,6 +104,8 @@ export interface QuoteRequestStore {
 export interface QuoteRequestDetail extends QuoteRequestListItem {
   description: string | null;
   photoUrls: string[];
+  /** photoUrls와 같은 순서(옛 서버는 없음) */
+  photoDetails?: QuotePhotoDetail[];
   creams: QuoteCream[];
   flavorNote: string | null;
   budgetMin: number;
@@ -236,6 +249,8 @@ export interface QuoteLinkView {
   description: string | null;
   requestNote: string | null;
   photoUrls: string[];
+  /** photoUrls와 같은 순서(옛 서버는 없음) */
+  photoDetails?: QuotePhotoDetail[];
   /** 끝난 요청이라 손님이 쓴 내용·사진을 서버가 보내지 않음(옛 서버는 없음) */
   contentHidden?: boolean;
   state: QuoteTargetState;

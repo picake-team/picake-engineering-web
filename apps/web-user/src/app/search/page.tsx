@@ -1,5 +1,6 @@
 "use client";
 
+import { DesignSearchSection } from "@/apps/web-user/features/design/components/DesignListSections";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { SearchProductListSection } from "@/apps/web-user/features/product/components/sections/SearchProductListSection";
@@ -53,7 +54,9 @@ export default function SearchPage() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [searchTerm, setSearchTerm] = useState(searchParams.get("q") || "");
   const [submittedTerm, setSubmittedTerm] = useState(searchParams.get("q") || "");
-  const [activeTab, setActiveTab] = useState<"product" | "store">("product");
+  const [activeTab, setActiveTab] = useState<"product" | "store" | "design">(() =>
+    searchParams.get("tab") === "design" ? "design" : "product",
+  );
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [listFilter, setListFilter] = useState<StoreListFilter>(() =>
     categoryParam ? { productCategoryTypes: [categoryParam] } : {},
@@ -157,7 +160,9 @@ export default function SearchPage() {
     handleSearch(searchTerm);
   };
 
-  const isSearching = !!submittedTerm.trim() || isBrowsingCategory;
+  // 홈 매거진 "더 보기"(?tab=design)로 들어오면 검색어 없이 디자인 모음 전체를 보인다
+  const browsingDesigns = searchParams.get("tab") === "design";
+  const isSearching = !!submittedTerm.trim() || isBrowsingCategory || browsingDesigns;
   // 필터 시트에서 조건이나 정렬을 바꾼 상태면 아이콘을 on으로 표시
   const isFilterActive = hasActiveFilter(listFilter) || sortBy !== DEFAULT_SORT_BY;
 
@@ -211,10 +216,11 @@ export default function SearchPage() {
               {[
                 { key: "product", label: "상품" },
                 { key: "store", label: "스토어" },
+                { key: "design", label: "디자인" },
               ].map(({ key, label }) => (
                 <button
                   key={key}
-                  onClick={() => setActiveTab(key as "product" | "store")}
+                  onClick={() => setActiveTab(key as "product" | "store" | "design")}
                   className={`flex-1 h-[36px] text-sm border rounded-full ${
                     activeTab === key
                       ? "text-primary bg-primary-50 border-primary-100"
@@ -227,7 +233,12 @@ export default function SearchPage() {
             </div>
           </div>
           <div className="px-5 pb-[100px]">
-            {activeTab === "product" ? (
+            {activeTab === "design" ? (
+              <DesignSearchSection
+                category={listFilter.productCategoryTypes?.[0] ?? categoryParam ?? null}
+                search={submittedTerm}
+              />
+            ) : activeTab === "product" ? (
               <SearchProductListSection
                 search={submittedTerm}
                 minPrice={listFilter.minPrice}

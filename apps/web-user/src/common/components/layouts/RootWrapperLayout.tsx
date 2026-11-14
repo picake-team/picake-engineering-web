@@ -72,6 +72,9 @@ export default function RootWrapperLayout({ children }: RootWrapperLayoutProps) 
     if (pathname?.startsWith("/quote/")) return { variant: "minimal" };
     if (pathname === "/mypage") return { variant: "minimal" };
     if (pathname === "/saved") return { variant: "minimal" };
+    // 케이크 디자인 상세(기획 I-112)
+    if (pathname?.startsWith("/design/"))
+      return { variant: "back-title", title: "케이크 디자인", backFallbackPath: PATHS.HOME };
     if (pathname?.startsWith("/product/")) return { variant: "product" };
     if (pathname?.startsWith("/store/")) return { variant: "product" };
     return { variant: "main" };

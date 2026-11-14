@@ -27,9 +27,17 @@ export function useCreateQuoteRequest() {
     }) => {
       const photoUrls: string[] = [];
       for (const [index, photo] of photos.entries()) {
-        const uploaded = await uploadApi.uploadFile(
-          dataUrlToFile(photo.dataUrl, `quote-${Date.now()}-${index}.jpg`),
-        );
+        const name = `quote-${Date.now()}-${index}.jpg`;
+        // 디자인 모음 사진은 앱에 함께 배포한 파일 주소라 내려받아 올린다
+        let file: File;
+        if (photo.dataUrl.startsWith("data:")) file = dataUrlToFile(photo.dataUrl, name);
+        else {
+          const res = await fetch(photo.dataUrl);
+          if (!res.ok)
+            throw new Error("디자인 사진을 불러오지 못했어요. 사진을 빼고 다시 넣어 주세요.");
+          file = new File([await res.blob()], name, { type: "image/jpeg" });
+        }
+        const uploaded = await uploadApi.uploadFile(file);
         photoUrls.push(uploaded.fileUrl);
       }
       return quoteApi.create({ ...body, photoUrls });

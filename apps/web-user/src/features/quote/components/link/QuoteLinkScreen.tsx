@@ -1,5 +1,7 @@
 "use client";
 
+import type { QuotePhotoDetail } from "@/apps/web-user/features/quote/types/quote.type";
+import { photoBadge } from "@/apps/web-user/features/design/utils/design-fill.util";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
@@ -145,18 +147,36 @@ function Card({ className, children }: { className?: string; children: React.Rea
 }
 
 /** 손님 사진: 첫 장은 크게, 나머지(2장까지)는 옆에 작게. 누르면 크게 본다 */
-function RequestPhotos({ urls, onOpen }: { urls: string[]; onOpen: (url: string) => void }) {
+function RequestPhotos({
+  urls,
+  details,
+  onOpen,
+}: {
+  urls: string[];
+  details?: QuotePhotoDetail[];
+  onOpen: (url: string) => void;
+}) {
   if (urls.length === 0) return null;
   const [first, ...rest] = urls;
+  // 사진이 여러 장이면 번호와 손님이 고른 "가져올 것"(기획 I-112)
+  const badge = (i: number) => {
+    const text = photoBadge(details, i, urls.length);
+    return text ? (
+      <span className="absolute left-[6px] top-[6px] rounded-full bg-white/90 px-[8px] py-[2px] text-2xs font-bold text-gray-900">
+        {text}
+      </span>
+    ) : null;
+  };
   return (
     <div className={cn("mt-[14px] flex h-[180px] gap-[6px]", QUOTE_NO_REPLAY)}>
       <button
         type="button"
         onClick={() => onOpen(first)}
         aria-label="사진 크게 보기"
-        className="press min-w-0 flex-1 overflow-hidden rounded-xl bg-gray-50"
+        className="press relative min-w-0 flex-1 overflow-hidden rounded-xl bg-gray-50"
       >
         <img src={first} alt="참고 사진" className="h-full w-full object-cover" />
+        {badge(0)}
       </button>
       {rest.length > 0 && (
         <div className="flex w-[88px] shrink-0 flex-col gap-[6px]">
@@ -166,9 +186,10 @@ function RequestPhotos({ urls, onOpen }: { urls: string[]; onOpen: (url: string)
               type="button"
               onClick={() => onOpen(url)}
               aria-label="사진 크게 보기"
-              className="press min-h-0 flex-1 overflow-hidden rounded-xl bg-gray-50"
+              className="press relative min-h-0 flex-1 overflow-hidden rounded-xl bg-gray-50"
             >
               <img src={url} alt="참고 사진" className="h-full w-full object-cover" />
+              {badge(i + 1)}
             </button>
           ))}
         </div>
@@ -455,7 +476,7 @@ export function QuoteLinkScreen({ token }: { token: string }) {
         </h1>
         <p className="mt-[4px] text-base font-bold text-gray-900">{view.pickup} 픽업</p>
         <p className="mt-[2px] text-base font-bold text-primary">예산 {view.budget}</p>
-        <RequestPhotos urls={view.photoUrls} onOpen={setViewer} />
+        <RequestPhotos urls={view.photoUrls} details={view.photoDetails} onOpen={setViewer} />
         {view.contentHidden && (
           // 처리방침 보유 기간: 끝난 요청의 손님 글·사진은 서버가 보내지 않는다
           <p className="mt-[10px] rounded-xl bg-gray-50 px-[12px] py-[10px] text-sm text-gray-500">
