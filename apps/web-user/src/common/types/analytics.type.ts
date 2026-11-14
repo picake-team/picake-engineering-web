@@ -83,9 +83,6 @@ export type QuoteEntryPoint = "home" | "search" | "map" | "store" | "mypage" | "
 /** 케이크 디자인 모음(I-112)을 본 곳 */
 export type DesignEntryPoint = "home" | "search" | "saved" | "similar" | "direct";
 
-/** 견적 요청서 사진 읽기 결과 */
-export type PhotoReadResult = "done" | "unreadable" | "limit" | "error";
-
 /** 견적 요청서 단계(이 가게에만 물어보면 where·stores 없이 4단계) */
 export type QuoteStepName = "when" | "where" | "stores" | "cake" | "size_budget" | "confirm";
 
@@ -337,8 +334,10 @@ export interface AnalyticsEventMap {
   engage_quote_photo_parts: { parts: string };
   /** 사진 보고 채운 칸을 되돌림 */
   engage_quote_autofill_revert: never;
-  /** 손님 사진을 AI가 읽음(결과) */
-  success_quote_photo_read: { result: PhotoReadResult };
+  /** 손님 사진을 AI가 읽어 칸을 채움 */
+  success_quote_photo_read: never;
+  /** 손님 사진을 읽지 못함(unreadable = 케이크가 아님·못 읽음, limit = 하루 횟수, error = 분당 제한·서버 오류) */
+  fail_quote_photo_read: { reason: "unreadable" | "limit" | "error" };
   /** 사진 읽기 끄기·켜기 */
   engage_quote_photo_read_toggle: { off: boolean };
 

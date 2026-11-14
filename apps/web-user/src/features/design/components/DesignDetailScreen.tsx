@@ -1,21 +1,23 @@
 "use client";
 
-import { Suspense, useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FadeInImage } from "@/apps/web-user/common/components/motion/FadeInImage";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { LikePop } from "@/apps/web-user/common/components/motion/LikePop";
 import { Button } from "@/apps/web-user/common/components/buttons/Button";
+import { BottomSheet } from "@/apps/web-user/common/components/bottom-sheets/BottomSheet";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import type { DesignEntryPoint } from "@/apps/web-user/common/types/analytics.type";
 import {
   useDesignLikes,
   useToggleDesignLike,
 } from "@/apps/web-user/features/design/hooks/useDesignLikes";
+import { designRows } from "@/apps/web-user/features/design/utils/design-fill.util";
 import {
-  OCCASION_LABEL,
   designDetailHref,
+  designHashtags,
   designImageSrc,
   designQuoteHref,
   getDesign,
@@ -24,42 +26,47 @@ import {
 
 const FROM: DesignEntryPoint[] = ["home", "search", "saved", "similar", "direct"];
 
-export function DesignDetailScreen({ designId }: { designId: string }) {
-  return (
-    <Suspense fallback={null}>
-      <DesignDetailContent designId={designId} />
-    </Suspense>
-  );
-}
-
-function DesignDetailContent({ designId }: { designId: string }) {
-  const design = getDesign(designId);
-  const router = useRouter();
+/** 들어온 곳(?from=)을 읽어 화면 보기 이벤트만 보낸다(이 부분만 Suspense라 나머지는 서버에서 그린다) */
+function DesignViewTracker({
+  designId,
+  onFrom,
+}: {
+  designId: string;
+  onFrom: (f: DesignEntryPoint) => void;
+}) {
   const params = useSearchParams();
   const fromParam = params.get("from") as DesignEntryPoint | null;
   const from: DesignEntryPoint = fromParam && FROM.includes(fromParam) ? fromParam : "direct";
+  const tracked = useRef<string | null>(null);
+  useEffect(() => {
+    onFrom(from);
+    if (tracked.current === designId) return;
+    tracked.current = designId;
+    trackEvent("view_design_detail", { design_id: designId, entry_point: from });
+  }, [designId, from, onFrom]);
+  return null;
+}
+
+/** 케이크 디자인 상세(기획 I-112 ③) */
+export function DesignDetailScreen({ designId }: { designId: string }) {
+  const design = getDesign(designId);
+  const router = useRouter();
+  const [from, setFrom] = useState<DesignEntryPoint>("direct");
+  const [creditOpen, setCreditOpen] = useState(false);
   const { data } = useDesignLikes();
   const toggle = useToggleDesignLike();
   const liked = data?.myLikes.includes(designId) ?? false;
   const count = data?.counts[designId] ?? 0;
 
-  const tracked = useRef<string | null>(null);
-  useEffect(() => {
-    if (tracked.current === designId) return;
-    tracked.current = designId;
-    trackEvent("view_design_detail", { design_id: designId, entry_point: from });
-  }, [designId, from]);
-
   if (!design) return null;
   const similar = similarDesigns(design);
-  const tags = [
-    ...design.occasions.map((o) => OCCASION_LABEL[o]).filter((t): t is string => !!t),
-    design.seasonal === "CHRISTMAS" ? "크리스마스" : null,
-    design.style,
-  ].filter((t, i, a): t is string => !!t && a.indexOf(t) === i);
+  const rows = designRows(design.parts);
 
   return (
     <div className="bg-white pb-[100px]">
+      <Suspense fallback={null}>
+        <DesignViewTracker designId={designId} onFrom={setFrom} />
+      </Suspense>
       <div className="relative aspect-square w-full overflow-hidden bg-gray-50">
         <FadeInImage
           src={designImageSrc(design.image.file)}
@@ -69,42 +76,49 @@ function DesignDetailContent({ designId }: { designId: string }) {
           sizes="(max-width: 640px) 100vw, 640px"
           className="object-cover"
         />
-        <span className="absolute right-[12px] top-[12px] rounded-full bg-white/90 px-[10px] py-[4px] text-xs font-semibold text-gray-900">
+        {/* 출처는 "참고 사진"을 누르면(운영자 11-14 고름) */}
+        <button
+          type="button"
+          onClick={() => setCreditOpen(true)}
+          aria-label="참고 사진 안내와 사진 출처"
+          className="absolute right-[12px] top-[12px] flex items-center gap-[3px] rounded-full bg-white/90 px-[10px] py-[4px] text-xs font-semibold text-gray-900"
+        >
           참고 사진
-        </span>
+          <span aria-hidden className="text-gray-700">
+            ⓘ
+          </span>
+        </button>
       </div>
-      <p className="px-[20px] pt-[8px] text-xs text-gray-400">
-        무료 사진 · {design.credit.author} / {design.credit.site}
-      </p>
 
-      <div className="px-[20px] pt-[14px]">
+      <div className="px-[20px] pt-[16px]">
         <h1 className="text-xl font-bold text-gray-900">{design.name}</h1>
-        <div className="mt-[8px] flex flex-wrap gap-[6px]">
-          {tags.map((t) => (
-            <span
-              key={t}
-              className="rounded-full bg-gray-50 px-[10px] py-[4px] text-xs text-gray-700"
+        <div className="mt-[6px] flex flex-wrap gap-x-[10px]">
+          {designHashtags(design).map((t) => (
+            <Link
+              key={t.label}
+              href={t.href}
+              className="py-[2px] text-sm font-semibold text-primary"
             >
-              {t}
-            </span>
+              {t.label}
+            </Link>
           ))}
         </div>
       </div>
 
-      <section className="px-[20px] pt-[26px]">
-        <h2 className="mb-[10px] text-base font-bold text-gray-900">사진에서 읽은 것</h2>
+      <section className="px-[20px] pt-[18px]">
         <div className="border-t border-gray-50">
-          {design.read.map((r) => (
+          {rows.map((r) => (
             <div key={r.label} className="flex border-b border-gray-50 py-[10px] text-sm">
-              <span className="w-[84px] shrink-0 text-gray-500">{r.label}</span>
-              <span className={r.value ? "text-gray-900" : "text-gray-400"}>
-                {r.value ?? "사진으로는 알 수 없어요"}
-              </span>
+              <span className="w-[56px] shrink-0 text-gray-500">{r.label}</span>
+              <span className="text-gray-900">{r.value}</span>
             </div>
           ))}
         </div>
         <p className="mt-[10px] text-2sm text-gray-500">
-          <span className="text-primary">✦</span> 사진에서 읽었어요 · 가게마다 조금 달라요
+          <span aria-hidden className="text-primary">
+            ✦
+          </span>{" "}
+          사진에서 읽었어요 · 가게마다 조금 달라요
         </p>
       </section>
 
@@ -171,6 +185,17 @@ function DesignDetailContent({ designId }: { designId: string }) {
           </span>
         </div>
       </div>
+
+      <BottomSheet isOpen={creditOpen} onClose={() => setCreditOpen(false)} title="참고 사진이에요">
+        <div className="px-[20px] pb-[28px]">
+          <p className="text-sm leading-[22px] text-gray-700">
+            Picake가 고른 무료 사진이에요. 손으로 만드는 케이크라 가게마다 조금 달라요.
+          </p>
+          <p className="mt-[14px] text-2sm text-gray-500">
+            사진 {design.credit.author} · {design.credit.site}
+          </p>
+        </div>
+      </BottomSheet>
     </div>
   );
 }

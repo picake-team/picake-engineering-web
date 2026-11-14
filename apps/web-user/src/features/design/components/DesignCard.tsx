@@ -31,7 +31,13 @@ export function DesignCard({
   const router = useRouter();
   return (
     <div
+      role="link"
+      tabIndex={0}
+      aria-label={design.name}
       onClick={() => router.push(designDetailHref(design.id, from))}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") router.push(designDetailHref(design.id, from));
+      }}
       className="press min-w-0 cursor-pointer bg-white"
     >
       <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-gray-50">

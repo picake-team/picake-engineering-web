@@ -112,6 +112,8 @@ interface QuoteDraftState {
   setPhotos: (photos: QuoteDraftPhoto[]) => void;
   /** 사진 보고 채운 칸 되돌리기 */
   revertAutoFill: () => void;
+  /** AI가 읽은 결과·읽는 상태만 바꾼다(되돌리기를 누른 뒤면 다시 채우지 않는다) */
+  updatePhotoRead: (id: string, patch: Pick<QuoteDraftPhoto, "read" | "readState">) => void;
 }
 
 /** 사진들로 칸을 채운 결과(손님이 고친 칸은 그대로) */
@@ -144,8 +146,20 @@ export const useQuoteDraftStore = create<QuoteDraftState>()(
       reset: () => set({ draft: EMPTY_QUOTE_DRAFT, step: 1, started: false }),
       setPhotos: (photos) =>
         set((s) => ({
-          draft: withAutoFill({ ...s.draft, photos, autoFillDismissed: false }),
+          draft: withAutoFill({
+            ...s.draft,
+            // 한 장만 남으면 "가져올 것" 칩이 안 보이므로 전체로 되돌린다
+            photos: photos.length === 1 ? [{ ...photos[0], parts: ["ALL"] }] : photos,
+            autoFillDismissed: false,
+          }),
           started: true,
+        })),
+      updatePhotoRead: (id, patch) =>
+        set((s) => ({
+          draft: withAutoFill({
+            ...s.draft,
+            photos: s.draft.photos.map((p) => (p.id === id ? { ...p, ...patch } : p)),
+          }),
         })),
       revertAutoFill: () =>
         set((s) => ({

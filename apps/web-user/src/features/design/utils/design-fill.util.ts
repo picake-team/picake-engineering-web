@@ -53,14 +53,6 @@ export function partsChipLabel(parts: DesignPart[]): string {
     : picked.map((p) => DESIGN_PART_LABEL[p]).join("·");
 }
 
-/** "모양은", "글자는", "색·장식은" */
-function topic(labels: string[]): string {
-  const last = labels[labels.length - 1];
-  const code = last.charCodeAt(last.length - 1) - 0xac00;
-  const batchim = code >= 0 && code <= 11171 && code % 28 !== 0;
-  return `${labels.join("·")}${batchim ? "은" : "는"}`;
-}
-
 const PART_KEY = {
   SHAPE: "shape",
   COLOR: "color",
@@ -68,51 +60,68 @@ const PART_KEY = {
   LETTERING: "lettering",
 } as const;
 
-/** 사진들로 채울 값. 채울 것이 없으면 null */
+export const REQUEST_NOTE_MAX = 200;
+
+/** 사진에서 읽은 것 4줄(값이 없는 줄은 뺀다). 상세 화면과 요청서 설명이 같이 쓴다 */
+export function designRows(parts: FillSource["parts"]): { label: string; value: string }[] {
+  return DESIGN_PART_ORDER.flatMap((part) => {
+    const value = parts[PART_KEY[part]];
+    return value ? [{ label: DESIGN_PART_LABEL[part], value }] : [];
+  });
+}
+
+/**
+ * 사진들로 채울 값. 채울 것이 없으면 null.
+ * 설명은 "사진에서 읽은 것"과 같은 분류로 한 줄씩("모양: …"). 사진이 여러 장이면 칸마다
+ * 손님이 그 칸을 고른 사진을 먼저, 없으면 "전체"인 앞 사진을 따르고 "(n번 사진)"을 붙인다.
+ * 읽은 값이 없는 손님 사진에서 고른 칸은 "글자: 3번 사진처럼"으로 적는다.
+ */
 export function buildDesignFill(photos: FillPhoto[]): DesignFill | null {
   if (!photos.some((p) => p.design) && photos.every((p) => isAllParts(p.parts))) return null;
+  const multi = photos.length > 1;
+  const wants = (p: FillPhoto, part: Exclude<DesignPart, "ALL">) =>
+    isAllParts(p.parts) || p.parts.includes(part);
+  // 칸마다 따를 사진 순서: 그 칸을 직접 고른 사진 → 전체인 사진
+  const order = (part: Exclude<DesignPart, "ALL">) => [
+    ...photos
+      .map((p, i) => ({ p, i }))
+      .filter(({ p }) => !isAllParts(p.parts) && p.parts.includes(part)),
+    ...photos.map((p, i) => ({ p, i })).filter(({ p }) => isAllParts(p.parts)),
+  ];
 
-  const single = photos.length === 1 ? photos[0] : null;
-  if (single?.design) {
-    const d = single.design;
-    return {
-      description: d.description.slice(0, DESCRIPTION_MAX),
-      size: d.size,
-      creams: d.creams,
-      requestNote: d.requestNote,
-      conflicts: [],
-    };
-  }
-
-  const segments: string[] = [];
-  photos.forEach((p, i) => {
-    const n = `${i + 1}번 사진처럼`;
-    if (isAllParts(p.parts)) {
-      if (p.design) segments.push(p.design.description.replace(/^사진처럼/, n));
-      return;
+  const lines: string[] = [];
+  for (const part of DESIGN_PART_ORDER) {
+    const label = DESIGN_PART_LABEL[part];
+    for (const { p, i } of order(part)) {
+      const value = p.design?.parts[PART_KEY[part]];
+      if (value) {
+        lines.push(`${label}: ${value}${multi ? ` (${i + 1}번 사진)` : ""}`);
+        break;
+      }
+      // 손님이 이 사진에서 그 칸을 직접 골랐는데 읽은 값이 없으면 번호로(다른 사진 값으로 바꾸지 않는다)
+      if (!isAllParts(p.parts)) {
+        lines.push(`${label}: ${i + 1}번 사진처럼`);
+        break;
+      }
     }
-    const picked = DESIGN_PART_ORDER.filter((part) => p.parts.includes(part));
-    const frags = p.design
-      ? picked.map((part) => p.design?.parts[PART_KEY[part]]).filter((f): f is string => !!f)
-      : [];
-    const labels = picked.map((part) => DESIGN_PART_LABEL[part]);
-    segments.push(
-      frags.length ? `${topic(labels)} ${n} ${frags.join(", ")}` : `${topic(labels)} ${n}`,
-    );
-  });
+  }
+  if (!lines.length) return null;
+  if (!multi) lines.unshift("사진처럼 만들어 주세요");
 
-  const from = (want: DesignPart) =>
-    photos.filter((p) => p.design && (isAllParts(p.parts) || p.parts.includes(want)));
-  const sizes = from("SHAPE")
-    .map((p) => p.design?.size)
-    .filter((s): s is QuoteCakeSize => !!s);
-  const creamSets = from("COLOR")
-    .map((p) => p.design?.creams ?? [])
+  const sources = (part: Exclude<DesignPart, "ALL">) =>
+    order(part)
+      .map(({ p }) => p.design)
+      .filter((d): d is FillSource => !!d);
+  const sizes = sources("SHAPE")
+    .map((d) => d.size)
+    .filter((v): v is QuoteCakeSize => !!v);
+  const creamSets = sources("COLOR")
+    .map((d) => d.creams)
     .filter((c) => c.length > 0);
   const notes = [
     ...new Set(
       photos
-        .filter((p) => p.design && isAllParts(p.parts) && p.design.requestNote)
+        .filter((p) => p.design && wants(p, "DECORATION") && p.design.requestNote)
         .map((p) => p.design?.requestNote as string),
     ),
   ];
@@ -121,11 +130,10 @@ export function buildDesignFill(photos: FillPhoto[]): DesignFill | null {
   if (new Set(creamSets.map((c) => [...c].sort().join())).size > 1) conflicts.push("creams");
 
   return {
-    // 사진마다 한 줄(가게가 "2번 사진"을 찾아 읽기 쉽게)
-    description: segments.join("\n").slice(0, DESCRIPTION_MAX),
+    description: lines.join("\n").slice(0, DESCRIPTION_MAX),
     size: sizes[0] ?? null,
     creams: creamSets[0] ?? [],
-    requestNote: notes.join(", "),
+    requestNote: notes.join(", ").slice(0, REQUEST_NOTE_MAX),
     conflicts,
   };
 }

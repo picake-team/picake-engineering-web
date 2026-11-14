@@ -8,15 +8,19 @@ import {
   designDetailHref,
   designImageSrc,
   designQuoteHref,
-  magazineDesigns,
+  getDesign,
 } from "@/apps/web-user/features/design/utils/design.util";
 
 /**
  * 홈 "케이크 디자인" 매거진 칸(기획 I-112 ①): 세로로 큰 사진 카드를 넘긴다.
  * 카드는 디자인 상세로, 아래 흰 칸은 바로 견적 요청서로 간다.
  */
-export function DesignMagazineSection() {
-  const designs = useMemo(() => magazineDesigns(), []);
+export function DesignMagazineSection({ designIds }: { designIds: string[] }) {
+  // 시즌(크리스마스 12월 25일까지)은 서버에서 정해 넘긴다(서버 그림과 휴대폰 그림이 어긋나지 않게)
+  const designs = useMemo(
+    () => designIds.map((id) => getDesign(id)).filter((d) => d !== null),
+    [designIds],
+  );
   const scrollRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
   const [active, setActive] = useState(0);
@@ -99,7 +103,10 @@ export function DesignMagazineSection() {
                   이 디자인으로 견적 받기
                 </span>
                 <span className="mt-[2px] block truncate text-xs text-gray-500">
-                  <span className="text-primary">✦</span> 사진만 고르면 요청서가 채워져요
+                  <span aria-hidden className="text-primary">
+                    ✦
+                  </span>{" "}
+                  사진만 고르면 요청서가 채워져요
                 </span>
               </span>
               <span className="text-gray-400">›</span>

@@ -29,7 +29,13 @@ const getHomeProductHref = (productId: string) =>
 /**
  * 손님 홈. 배너는 서버가 미리 받아 넘기면(initialBanners) 첫 HTML에 그림이 들어가 바로 받기 시작한다(첫 화면 LCP).
  */
-export default function HomeScreen({ initialBanners }: { initialBanners?: HomeBanner[] }) {
+export default function HomeScreen({
+  initialBanners,
+  magazineIds = [],
+}: {
+  initialBanners?: HomeBanner[];
+  magazineIds?: string[];
+}) {
   // 뒤로 오면 보던 자리 그대로(새로 들어오면 맨 위부터)
   useScrollRestoration();
   // 홈 화면 노출
@@ -155,7 +161,7 @@ export default function HomeScreen({ initialBanners }: { initialBanners?: HomeBa
           <QuoteHomeCard />
         </div>
         {/* 케이크 디자인 매거진(기획 I-112): 견적 카드 아래, 신규케이크 위 */}
-        <DesignMagazineSection />
+        <DesignMagazineSection designIds={magazineIds} />
         <CakeListSlider
           title="신규케이크"
           products={latestProducts}

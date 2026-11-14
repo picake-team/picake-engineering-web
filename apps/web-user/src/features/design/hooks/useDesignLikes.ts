@@ -48,8 +48,9 @@ export function useToggleDesignLike() {
     },
     onError: (_e, _v, ctx) => {
       if (ctx?.prev) queryClient.setQueryData(key, ctx.prev);
-      else void queryClient.invalidateQueries({ queryKey: key });
     },
+    // 로그인 직후 첫 불러오기를 취소했을 수 있어 끝나면 다시 받아 맞춘다
+    onSettled: () => void queryClient.invalidateQueries({ queryKey: ["design", "likes"] }),
   });
 
   return (designId: string, currentlyLiked: boolean) => {

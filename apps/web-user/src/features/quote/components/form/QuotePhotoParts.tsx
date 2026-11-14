@@ -69,7 +69,8 @@ export function QuotePhotoTile({
           onClick={onParts}
           aria-label={`${index + 1}번 사진에서 가져올 것: ${partsChipLabel(parts)}`}
           className={cn(
-            "absolute bottom-[5px] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-white px-[8px] py-[3px] text-2xs font-semibold shadow-[0_1px_4px_rgba(0,0,0,0.2)]",
+            // 누르는 칸은 보이는 칩보다 넓게(40 기준)
+            "absolute bottom-[5px] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-white px-[8px] py-[3px] text-2xs font-semibold shadow-[0_1px_4px_rgba(0,0,0,0.2)] after:absolute after:-inset-x-[6px] after:-bottom-[5px] after:-top-[12px] after:content-['']",
             isAllParts(parts) ? "text-gray-900" : "text-primary",
           )}
         >
@@ -113,6 +114,8 @@ export function PhotoPartsSheet({
       <button
         key={p}
         type="button"
+        role="checkbox"
+        aria-checked={on}
         onClick={() => toggle(p)}
         className="press-bg flex w-full items-center gap-[12px] border-b border-gray-50 py-[13px] text-left"
       >
@@ -218,7 +221,10 @@ export function DesignPickSheet({
         <p className="text-2sm text-gray-500">
           {room}장 더 넣을 수 있어요 · 고른 순서가 사진 번호예요
         </p>
-        <div className="mb-[12px] mt-[10px] flex gap-[18px] border-b border-gray-100 text-sm">
+        <div
+          role="tablist"
+          className="mb-[12px] mt-[10px] flex gap-[18px] border-b border-gray-100 text-sm"
+        >
           {(
             [
               ["saved", `저장한 디자인 ${saved.length}`],
@@ -228,9 +234,11 @@ export function DesignPickSheet({
             <button
               key={key}
               type="button"
+              role="tab"
+              aria-selected={activeTab === key}
               onClick={() => setTab(key)}
               className={cn(
-                "-mb-px border-b-2 py-[8px]",
+                "-mb-px min-w-[40px] border-b-2 py-[8px]",
                 activeTab === key
                   ? "border-gray-900 font-bold text-gray-900"
                   : "border-transparent text-gray-400",
@@ -242,14 +250,25 @@ export function DesignPickSheet({
         </div>
         {list.length === 0 ? (
           <p className="py-[40px] text-center text-sm text-gray-500">
-            {activeTab === "saved" ? "저장한 디자인이 없어요" : "넣을 수 있는 디자인이 없어요"}
+            {activeTab === "saved"
+              ? saved.length
+                ? "저장한 디자인을 모두 넣었어요"
+                : "저장한 디자인이 없어요"
+              : "넣을 수 있는 디자인이 없어요"}
           </p>
         ) : (
           <div className="grid grid-cols-3 gap-x-[8px] gap-y-[12px] pb-[12px]">
             {list.map((d) => {
               const order = picked.indexOf(d.id);
               return (
-                <button key={d.id} type="button" onClick={() => toggle(d.id)} className="text-left">
+                <button
+                  key={d.id}
+                  type="button"
+                  aria-pressed={order >= 0}
+                  aria-label={order >= 0 ? `${d.name}, ${order + 1}번으로 고름` : d.name}
+                  onClick={() => toggle(d.id)}
+                  className="text-left"
+                >
                   <span
                     className={cn(
                       "relative block aspect-square overflow-hidden rounded-xl bg-gray-50",

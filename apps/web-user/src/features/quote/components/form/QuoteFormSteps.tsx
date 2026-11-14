@@ -35,7 +35,6 @@ import {
   partsChipLabel,
 } from "@/apps/web-user/features/design/utils/design-fill.util";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
-import type { PhotoReadResult } from "@/apps/web-user/common/types/analytics.type";
 import {
   DistanceSlider,
   Field,
@@ -409,41 +408,51 @@ const PHOTO_READ_MESSAGE: Partial<Record<PhotoReadState, string>> = {
 };
 
 /** 손님 사진을 AI가 읽어 칸을 채운다(기획 I-112 ⑥). 읽는 동안 사진을 빼면 결과를 버린다 */
+/** 지금 서버에서 읽고 있는 사진(새로 고침 뒤 "읽는 중"이 남아 있으면 다시 읽는다) */
+const inFlightReads = new Set<string>();
+
 function readOwnPhoto(id: string, dataUrl: string) {
+  if (inFlightReads.has(id)) return;
+  inFlightReads.add(id);
   const store = useQuoteDraftStore.getState;
-  const finish = (patch: Partial<QuoteDraftPhoto>, result: PhotoReadResult) => {
-    const photos = store().draft.photos;
-    if (!photos.some((p) => p.id === id)) return;
-    store().setPhotos(photos.map((p) => (p.id === id ? { ...p, ...patch } : p)));
-    trackEvent("success_quote_photo_read", { result });
+  const finish = (patch: Pick<QuoteDraftPhoto, "read" | "readState">) => {
+    inFlightReads.delete(id);
+    const photo = store().draft.photos.find((p) => p.id === id);
+    // 그사이 사진을 뺐거나 사진 읽기를 껐으면 결과를 버린다
+    if (!photo || photo.readState !== "reading") return;
+    store().updatePhotoRead(id, patch);
   };
   designApi
     .readPhoto(dataUrl)
     .then((res) => {
-      if ("unreadable" in res) finish({ read: null, readState: "failed" }, "unreadable");
-      else
-        finish(
-          {
-            read: {
-              parts: res.parts,
-              description: res.description,
-              size: res.size,
-              creams: res.creams,
-              requestNote: res.requestNote,
-            },
-            readState: "done",
-          },
-          "done",
-        );
+      if ("unreadable" in res) {
+        finish({ read: null, readState: "failed" });
+        trackEvent("fail_quote_photo_read", { reason: "unreadable" });
+        return;
+      }
+      finish({
+        read: {
+          parts: res.parts,
+          description: res.description,
+          size: res.size,
+          creams: res.creams,
+          requestNote: res.requestNote,
+        },
+        readState: "done",
+      });
+      trackEvent("success_quote_photo_read");
     })
     .catch((e) => {
-      const limit = (e as { response?: { status?: number } })?.response?.status === 429;
-      finish({ read: null, readState: limit ? "limit" : "failed" }, limit ? "limit" : "error");
+      const r = (e as { response?: { status?: number; data?: { message?: unknown } } })?.response;
+      // 하루 횟수(429 "오늘은…")만 "다 썼어요", 분당 제한·오류는 못 읽음
+      const limit = r?.status === 429 && JSON.stringify(r?.data?.message ?? "").includes("오늘은");
+      finish({ read: null, readState: limit ? "limit" : "failed" });
+      trackEvent("fail_quote_photo_read", { reason: limit ? "limit" : "error" });
     });
 }
 
 export function StepCake() {
-  const { draft, update, setPhotos, revertAutoFill } = useQuoteDraftStore();
+  const { draft, update, setPhotos, revertAutoFill, updatePhotoRead } = useQuoteDraftStore();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [adding, setAdding] = useState(false);
   const [readOff, setReadOff] = useState(false);
@@ -460,7 +469,16 @@ export function StepCake() {
   const noteFilled = isAutoFilled("requestNote", draft, draft.autoFill);
   const filledFrom = draft.photos.filter((p) => p.designId || p.read).length;
 
-  useEffect(() => setReadOff(isPhotoReadOff()), []);
+  useEffect(() => {
+    const off = isPhotoReadOff();
+    setReadOff(off);
+    // 읽는 중에 화면을 닫았다 열었으면 다시 읽는다(끈 상태면 끔으로)
+    for (const p of useQuoteDraftStore.getState().draft.photos) {
+      if (p.designId || p.readState !== "reading" || inFlightReads.has(p.id)) continue;
+      if (off) updatePhotoRead(p.id, { read: p.read, readState: "off" });
+      else readOwnPhoto(p.id, p.dataUrl);
+    }
+  }, [updatePhotoRead]);
 
   const onPick = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const picked = Array.from(e.target.files ?? []);
@@ -469,6 +487,8 @@ export function StepCake() {
     setAdding(true);
     try {
       const results = await Promise.allSettled(picked.slice(0, room).map(shrinkPhoto));
+      // 줄이는 동안 디자인 사진을 넣었을 수 있어 남은 칸을 다시 센다
+      const left = QUOTE_LIMITS.MAX_PHOTOS - useQuoteDraftStore.getState().draft.photos.length;
       const shrunk = results.flatMap((r) => (r.status === "fulfilled" ? [r.value] : []));
       if (shrunk.length < results.length) {
         showAlert({
@@ -478,7 +498,7 @@ export function StepCake() {
         });
       }
       const off = isPhotoReadOff();
-      const added: QuoteDraftPhoto[] = shrunk.map((dataUrl) => ({
+      const added: QuoteDraftPhoto[] = shrunk.slice(0, Math.max(0, left)).map((dataUrl) => ({
         id: `${Date.now()}-${Math.random()}`,
         dataUrl,
         parts: ["ALL"],
@@ -496,16 +516,20 @@ export function StepCake() {
     setReadOff(off);
     setPhotoReadOff(off);
     trackEvent("engage_quote_photo_read_toggle", { off });
-    if (!off) {
+    const photos = useQuoteDraftStore.getState().draft.photos.filter((p) => !p.designId);
+    if (off) {
+      // 끄면 읽고 있던 사진의 결과도 쓰지 않는다
+      photos
+        .filter((p) => p.readState === "reading")
+        .forEach((p) => updatePhotoRead(p.id, { read: p.read, readState: "off" }));
+    } else {
       // 다시 켜면 아직 읽지 않은 사진을 읽는다
-      const photos = useQuoteDraftStore.getState().draft.photos;
-      const pending = photos.filter((p) => !p.designId && p.readState === "off");
-      if (pending.length) {
-        setPhotos(
-          photos.map((p) => (pending.includes(p) ? { ...p, readState: "reading" as const } : p)),
-        );
-        pending.forEach((p) => readOwnPhoto(p.id, p.dataUrl));
-      }
+      photos
+        .filter((p) => p.readState === "off")
+        .forEach((p) => {
+          updatePhotoRead(p.id, { read: p.read, readState: "reading" });
+          readOwnPhoto(p.id, p.dataUrl);
+        });
     }
   };
 
@@ -521,8 +545,9 @@ export function StepCake() {
           room > 0 ? (
             <button
               type="button"
+              disabled={adding}
               onClick={() => setPickOpen(true)}
-              className="shrink-0 text-2sm text-gray-500"
+              className="-my-[11px] shrink-0 py-[11px] pl-[12px] text-2sm text-gray-500 disabled:opacity-50"
             >
               디자인 모음에서 고르기 ›
             </button>
@@ -630,7 +655,7 @@ export function StepCake() {
               </span>
               <button
                 type="button"
-                className="text-gray-500 underline"
+                className="-my-[11px] py-[11px] pl-[12px] text-gray-500 underline"
                 onClick={() => {
                   revertAutoFill();
                   trackEvent("engage_quote_autofill_revert");
@@ -723,11 +748,11 @@ export function StepSizeBudget() {
           <p className="mt-[6px] text-2sm text-primary">
             ✦{" "}
             {draft.autoFill?.conflicts?.includes("size")
-              ? "사진마다 달라서 앞 사진을 따랐어요"
+              ? "사진마다 크기가 달라 보여요. 맞는지 확인해 주세요"
               : "사진 보고 골랐어요"}{" "}
             <button
               type="button"
-              className="ml-[4px] text-gray-500 underline"
+              className="-my-[11px] ml-[4px] py-[11px] text-gray-500 underline"
               onClick={() => update({ size: null })}
             >
               되돌리기

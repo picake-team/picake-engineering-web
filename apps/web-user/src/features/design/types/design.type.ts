@@ -17,13 +17,10 @@ export interface DesignCredit {
   checkedAt: string;
 }
 
-/** "사진에서 읽은 것" 한 줄. value가 없으면 "사진으로는 알 수 없어요" */
-export interface DesignReadRow {
-  label: string;
-  value: string | null;
-}
-
-/** 여러 장을 합칠 때 쓰는 조각(명사구) */
+/**
+ * 사진에서 읽은 것 4가지(모양·색·장식·글자). 상세 화면 줄, "가져올 것" 칩, 요청서 설명 줄,
+ * 가게 화면이 모두 이 이름을 쓴다. null은 사진에 없는 것(줄을 숨긴다)
+ */
 export interface DesignParts {
   shape: string;
   color: string;
@@ -34,13 +31,15 @@ export interface DesignParts {
 export interface Design {
   id: string;
   name: string;
+  /** 홈 카테고리로 거를 때(넓게) */
   occasions: ProductCategoryType[];
+  /** 해시태그로 보이는 상황: 사진 속 글자 등으로 확실한 것만 */
+  tagOccasions: ProductCategoryType[];
   /** 카드 둘째 줄의 모양 말(도시락·빈티지…) */
   style: string;
   seasonal: "CHRISTMAS" | null;
   image: { file: string; thumb: string; width: number; height: number };
   credit: DesignCredit;
-  read: DesignReadRow[];
   parts: DesignParts;
   /** 한 장만 골랐을 때 설명 칸에 넣는 글("사진처럼 …") */
   description: string;

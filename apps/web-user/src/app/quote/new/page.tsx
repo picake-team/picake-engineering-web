@@ -426,7 +426,11 @@ function QuoteNewContent() {
                     message: "4단계에서 사진을 빼고 다시 넣어 주세요.",
                   });
                 }
-                if (room > 0) setPhotos([...draft.photos, ...extraPhotos.slice(0, room)]);
+                if (room > 0) {
+                  setPhotos([...draft.photos, ...extraPhotos.slice(0, room)]);
+                  // 디자인을 보고 이어 쓴 요청은 들어온 곳을 디자인으로(기획 I-112 숫자)
+                  update({ entry: "DESIGN" });
+                }
               }
               const extra = pendingInit?.stores?.[0];
               if (

@@ -45,7 +45,7 @@ export function searchDesigns(
   const words = q.trim().toLowerCase().split(/\s+/).filter(Boolean);
   if (words.length) {
     items = items.filter((d) => {
-      const text = [d.name, d.style, d.description, ...d.read.map((r) => r.value ?? "")]
+      const text = [d.name, d.style, d.description, ...Object.values(d.parts)]
         .join(" ")
         .toLowerCase();
       return words.every((w) => text.includes(w));
@@ -80,17 +80,35 @@ export const OCCASION_LABEL: Partial<Record<ProductCategoryType, string>> = {
   FLOWER: "꽃",
 };
 
-/** "생일·친구 · 도시락" */
+/** 카드 둘째 줄: 사진으로 확실한 상황 + 모양("생일 · 도시락") */
 export function designCaption(d: Design): string {
-  const occ = d.occasions
+  const occ = d.tagOccasions
     .filter((o) => o !== "LETTERING" && o !== "SIMPLE" && o !== "FLOWER")
     .map((o) => OCCASION_LABEL[o])
     .filter(Boolean)
     .slice(0, 2)
     .join("·");
   return [occ || (d.seasonal === "CHRISTMAS" ? "크리스마스" : null), d.style]
-    .filter(Boolean)
+    .filter((v, i, all): v is string => !!v && all.indexOf(v) === i)
     .join(" · ");
+}
+
+/** 상세 이름 아래 해시태그: 사진으로 확실한 상황(누르면 그 상황 목록) + 모양(누르면 그 말로 찾기) */
+export function designHashtags(d: Design): { label: string; href: string }[] {
+  const tags = d.tagOccasions
+    .filter((o) => OCCASION_LABEL[o])
+    .map((o) => ({ label: `#${OCCASION_LABEL[o]}`, href: `/search?tab=design&category=${o}` }));
+  if (d.seasonal === "CHRISTMAS")
+    tags.push({
+      label: "#크리스마스",
+      href: `/search?tab=design&q=${encodeURIComponent("크리스마스")}`,
+    });
+  if (!tags.some((t) => t.label === `#${d.style}`))
+    tags.push({
+      label: `#${d.style}`,
+      href: `/search?tab=design&q=${encodeURIComponent(d.style)}`,
+    });
+  return tags;
 }
 
 /** 사진 읽기 끄기(그 휴대폰에 기억) */
