@@ -1,8 +1,6 @@
 "use client";
 
-import type { QuotePhotoDetail } from "@/apps/web-user/features/quote/types/quote.type";
-import { photoBadge } from "@/apps/web-user/features/design/utils/design-fill.util";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 import { BottomSheet } from "@/apps/web-user/common/components/bottom-sheets/BottomSheet";
@@ -13,6 +11,7 @@ import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/Load
 import { Skeleton } from "@/apps/web-user/common/components/skeleton";
 import { Tabs } from "@/apps/web-user/common/components/tabs/Tabs";
 import { Toast } from "@/apps/web-user/common/components/toast/Toast";
+import { ImageLightbox } from "@/apps/web-user/common/components/images/ImageLightbox";
 import { CharCountHint } from "@/apps/web-user/common/components/textareas/TextArea";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { cn } from "@/apps/web-user/common/lib/utils";
@@ -148,31 +147,22 @@ function Card({ className, children }: { className?: string; children: React.Rea
 }
 
 /** 손님 사진: 첫 장은 크게, 나머지(2장까지)는 옆에 작게. 누르면 크게 본다 */
-function RequestPhotos({
-  urls,
-  details,
-  onOpen,
-}: {
-  urls: string[];
-  details?: QuotePhotoDetail[];
-  onOpen: (url: string) => void;
-}) {
+function RequestPhotos({ urls, onOpen }: { urls: string[]; onOpen: (index: number) => void }) {
   if (urls.length === 0) return null;
   const [first, ...rest] = urls;
-  // 사진이 여러 장이면 번호와 손님이 고른 "가져올 것"(기획 I-112)
-  const badge = (i: number) => {
-    const text = photoBadge(details, i, urls.length);
-    return text ? (
-      <span className="absolute left-[6px] top-[6px] rounded-full bg-white/90 px-[8px] py-[2px] text-2xs font-bold text-gray-900">
-        {text}
+  // 사진이 여러 장이면 번호만(설명의 "1번 사진처럼"과 맞춤. 가져올 것은 설명 글에 있어 사진에는 쓰지 않는다 —
+  // 사장님 화면은 판매자 앱과 같게, 운영자 11-14)
+  const badge = (i: number) =>
+    urls.length > 1 ? (
+      <span className="absolute left-[6px] top-[6px] flex h-[20px] w-[20px] items-center justify-center rounded-full bg-gray-900/60 text-xs font-bold text-white">
+        {i + 1}
       </span>
     ) : null;
-  };
   return (
     <div className={cn("mt-[14px] flex h-[180px] gap-[6px]", QUOTE_NO_REPLAY)}>
       <button
         type="button"
-        onClick={() => onOpen(first)}
+        onClick={() => onOpen(0)}
         aria-label="사진 크게 보기"
         className="press relative min-w-0 flex-1 overflow-hidden rounded-xl bg-gray-50"
       >
@@ -185,7 +175,7 @@ function RequestPhotos({
             <button
               key={`${i}-${url}`}
               type="button"
-              onClick={() => onOpen(url)}
+              onClick={() => onOpen(i + 1)}
               aria-label="사진 크게 보기"
               className="press relative min-h-0 flex-1 overflow-hidden rounded-xl bg-gray-50"
             >
@@ -199,20 +189,34 @@ function RequestPhotos({
   );
 }
 
-/** 손님 설명·요청 사항(길면 줄여 보이고 "더 보기") */
+/**
+ * 손님 설명·요청 사항(설명 6줄·요청 사항 2줄까지 보이고 "더 보기").
+ * 실제로 잘렸을 때만 "더 보기"(글자 수로 재면 줄이 많은 짧은 설명의 "· 글자:" 줄이 안 보였음, 11-14)
+ */
 function RequestText({ view }: { view: QuoteLinkView }) {
   const [open, setOpen] = useState(false);
+  const descRef = useRef<HTMLParagraphElement>(null);
+  const noteRef = useRef<HTMLParagraphElement>(null);
+  const [long, setLong] = useState(false);
+  useLayoutEffect(() => {
+    if (open) return;
+    const over = (el: HTMLElement | null) => !!el && el.scrollHeight > el.clientHeight + 1;
+    setLong(over(descRef.current) || over(noteRef.current));
+  }, [view.description, view.requestNote, open]);
   if (!view.description && !view.requestNote) return null;
-  const long = (view.description ?? "").length + (view.requestNote ?? "").length > 120;
   return (
     <div className={cn("mt-[10px] rounded-xl bg-gray-50 px-[12px] py-[10px]", QUOTE_NO_REPLAY)}>
       {view.description && (
-        <p className={cn("whitespace-pre-wrap text-sm text-gray-900", !open && "line-clamp-4")}>
+        <p
+          ref={descRef}
+          className={cn("whitespace-pre-wrap text-sm text-gray-900", !open && "line-clamp-6")}
+        >
           {view.description}
         </p>
       )}
       {view.requestNote && (
         <p
+          ref={noteRef}
           className={cn(
             "whitespace-pre-wrap text-sm text-gray-700",
             view.description && "mt-[6px]",
@@ -271,7 +275,8 @@ export function QuoteLinkScreen({ token }: { token: string }) {
   const [formError, setFormError] = useState<string | null>(null);
   const [declineOpen, setDeclineOpen] = useState(false);
   const [declining, setDeclining] = useState(false);
-  const [viewer, setViewer] = useState<string | null>(null);
+  // 크게 보는 손님 사진 번호
+  const [viewer, setViewer] = useState<number | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   // 보낸 뒤 한 줄 안내(판매자 앱 견적 보내기와 같은 말)
   const [toast, setToast] = useState<string | null>(null);
@@ -477,7 +482,7 @@ export function QuoteLinkScreen({ token }: { token: string }) {
         </h1>
         <p className="mt-[4px] text-base font-bold text-gray-900">{view.pickup} 픽업</p>
         <p className="mt-[2px] text-base font-bold text-primary">예산 {view.budget}</p>
-        <RequestPhotos urls={view.photoUrls} details={view.photoDetails} onOpen={setViewer} />
+        <RequestPhotos urls={view.photoUrls} onOpen={setViewer} />
         {view.contentHidden && (
           // 처리방침 보유 기간: 끝난 요청의 손님 글·사진은 서버가 보내지 않는다
           <p className="mt-[10px] rounded-xl bg-gray-50 px-[12px] py-[10px] text-sm text-gray-500">
@@ -871,19 +876,16 @@ export function QuoteLinkScreen({ token }: { token: string }) {
         </div>
       )}
 
-      {viewer && (
-        <button
-          type="button"
-          aria-label="닫기"
-          onClick={() => setViewer(null)}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80"
-        >
-          <img
-            src={viewer}
-            alt=""
-            className="max-h-[80vh] max-w-[92vw] rounded-lg object-contain"
+      {viewer !== null && view && (
+        // 판매자 앱 요청서 카드와 같은 사진 보기(확대·돌리기·넘기기·저장, 운영자 11-14)
+        <div className={QUOTE_NO_REPLAY}>
+          <ImageLightbox
+            images={view.photoUrls}
+            initialIndex={viewer}
+            alt="참고 사진"
+            onClose={() => setViewer(null)}
           />
-        </button>
+        </div>
       )}
 
       {toast && (
