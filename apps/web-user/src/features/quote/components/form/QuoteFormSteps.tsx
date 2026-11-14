@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { Calendar } from "@/apps/web-user/common/components/calendars/Calendar";
 import { TextArea } from "@/apps/web-user/common/components/textareas/TextArea";
 import { Toggle } from "@/apps/web-user/common/components/inputs/Toggle";
+import { ImageModal } from "@/apps/web-user/common/components/sliders/ImageModal";
 import { QuoteWriteHelpSheet } from "@/apps/web-user/features/quote/components/form/QuoteWriteHelpSheet";
 import { DualThumbRangeSlider } from "@/apps/web-user/common/components/sliders/DualThumbRangeSlider";
 import { cn } from "@/apps/web-user/common/lib/utils";
@@ -452,6 +454,8 @@ export function StepCake() {
   const [readOff, setReadOff] = useState(false);
   const [pickOpen, setPickOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  // 크게 보는 사진 번호(상품 상세와 같은 ImageModal: 넘기기·두 손가락 확대)
+  const [viewing, setViewing] = useState<number | null>(null);
   const { showAlert } = useAlertStore();
   const hasPhoto = draft.photos.length > 0;
   const multi = draft.photos.length >= 2;
@@ -570,6 +574,7 @@ export function StepCake() {
               photo={p}
               index={i}
               multi={multi}
+              onOpen={() => setViewing(i)}
               onRemove={() => setPhotos(draft.photos.filter((x) => x.id !== p.id))}
             />
           ))}
@@ -657,6 +662,19 @@ export function StepCake() {
         )}
       </Field>
       <QuoteWriteHelpSheet isOpen={helpOpen} onClose={() => setHelpOpen(false)} />
+      {viewing !== null &&
+        createPortal(
+          // 손님 사진이 세션 녹화에 남지 않게
+          <div className={QUOTE_NO_REPLAY}>
+            <ImageModal
+              isOpen
+              onClose={() => setViewing(null)}
+              images={draft.photos.map((p) => ({ id: p.id, url: p.dataUrl }))}
+              initialIndex={Math.min(viewing, draft.photos.length - 1)}
+            />
+          </div>,
+          document.body,
+        )}
       <DesignPickSheet
         isOpen={pickOpen}
         room={room}
