@@ -252,9 +252,8 @@ function QuoteNewContent() {
       photo_count: draft.photos.length,
       store_count: draft.stores.length,
       design_photo_count: draft.photos.filter((p) => p.designId).length,
-      auto_filled_count: (["description", "size", "creams", "requestNote"] as const).filter((f) =>
-        isAutoFilled(f, draft, draft.autoFill),
-      ).length,
+      // 사진 보고 채우는 칸은 설명 하나(11-14부터): 채운 그대로 보내면 1
+      auto_filled_count: isAutoFilled("description", draft, draft.autoFill) ? 1 : 0,
     });
     create.mutate(
       {
@@ -292,7 +291,8 @@ function QuoteNewContent() {
           ),
           description: draft.description.trim() || undefined,
           size: draft.size,
-          quantity: draft.quantity,
+          // 개수는 묻지 않는다(운영자 11-14). 단체 주문은 요청 사항·채팅으로
+          quantity: 1,
           creams: draft.creams,
           flavorNote: draft.flavorNote.trim() || undefined,
           budgetMin: draft.budgetMin,

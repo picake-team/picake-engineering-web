@@ -67,7 +67,6 @@ export interface QuoteDraft {
   description: string;
   requestNote: string;
   size: QuoteCakeSize | null;
-  quantity: number;
   creams: QuoteCream[];
   flavorNote: string;
   budgetMin: number;
@@ -89,7 +88,6 @@ export const EMPTY_QUOTE_DRAFT: QuoteDraft = {
   description: "",
   requestNote: "",
   size: null,
-  quantity: 1,
   creams: [],
   flavorNote: "",
   budgetMin: 30_000,

@@ -44,7 +44,6 @@ import {
   FillNote,
   Pill,
   StepTitle,
-  Stepper,
 } from "@/apps/web-user/features/quote/components/form/QuoteFormParts";
 import {
   AreaSearchSheet,
@@ -433,12 +432,7 @@ function readOwnPhoto(id: string, dataUrl: string) {
         return;
       }
       finish({
-        read: {
-          parts: res.parts,
-          size: res.size,
-          creams: res.creams,
-          requestNote: res.requestNote,
-        },
+        read: { parts: res.parts },
         readState: "done",
       });
       trackEvent("success_quote_photo_read");
@@ -467,7 +461,6 @@ export function StepCake() {
   const reading = ownPhotos.some((p) => p.readState === "reading");
   const readProblem = ownPhotos.map((p) => p.readState).find((st) => st && PHOTO_READ_MESSAGE[st]);
   const descFilled = isAutoFilled("description", draft, draft.autoFill);
-  const noteFilled = isAutoFilled("requestNote", draft, draft.autoFill);
   const filledFrom = draft.photos.filter((p) => p.designId || p.read).length;
 
   useEffect(() => {
@@ -672,7 +665,6 @@ export function StepCake() {
           showCount
           placeholder="알레르기, 초·토퍼 등"
         />
-        {noteFilled && <FillNote>사진 보고 채웠어요</FillNote>}
       </Field>
       <QuoteWriteHelpSheet isOpen={helpOpen} onClose={() => setHelpOpen(false)} />
       <DesignPickSheet
@@ -697,13 +689,6 @@ export function StepSizeBudget() {
   const { draft, update } = useQuoteDraftStore();
   const [writing, setWriting] = useState(draft.flavorNote.length > 0);
   const size = QUOTE_SIZE_OPTIONS.find((s) => s.value === draft.size);
-  const sizeFilled = isAutoFilled("size", draft, draft.autoFill);
-  const creamsFilled = isAutoFilled("creams", draft, draft.autoFill);
-  // 사진 보고 채웠는데 크림은 알 수 없었다
-  const creamsUnknown =
-    !creamsFilled &&
-    draft.creams.length === 0 &&
-    (draft.autoFill?.description !== undefined || draft.autoFill?.size !== undefined);
   const step = (v: number) => Math.round(v / QUOTE_LIMITS.BUDGET_STEP) * QUOTE_LIMITS.BUDGET_STEP;
   const budgetText = (min: number, max: number) =>
     max >= QUOTE_LIMITS.BUDGET_MAX
@@ -726,39 +711,8 @@ export function StepSizeBudget() {
             >
               <span>{s.label}</span>
               <span className="text-2xs font-normal text-gray-500">{s.people}</span>
-              {sizeFilled && draft.size === s.value && (
-                <span className="absolute right-[6px] top-[3px] text-xs text-primary">✦</span>
-              )}
             </Pill>
           ))}
-        </div>
-        {sizeFilled && (
-          <FillNote
-            action={
-              <button
-                type="button"
-                className="-my-[11px] shrink-0 py-[11px] pl-[8px] text-gray-500 underline"
-                onClick={() => update({ size: null })}
-              >
-                되돌리기
-              </button>
-            }
-          >
-            {draft.autoFill?.conflicts?.includes("size")
-              ? "사진마다 크기가 달라 보여요. 맞는지 확인해 주세요"
-              : "사진 보고 골랐어요"}
-          </FillNote>
-        )}
-      </Field>
-      <Field label="개수">
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-500">단체 주문이면 늘려 주세요</span>
-          <Stepper
-            value={draft.quantity}
-            min={1}
-            max={QUOTE_LIMITS.MAX_QUANTITY}
-            onChange={(quantity) => update({ quantity })}
-          />
         </div>
       </Field>
       <Field label="맛·크림" optional="선택 · 안 고르면 가게가 알려 줘요">
@@ -791,8 +745,6 @@ export function StepSizeBudget() {
             className="mt-[10px] h-[42px] w-full rounded-[6px] border border-gray-100 px-[12px] text-sm outline-none focus:border-gray-900"
           />
         )}
-        {creamsFilled && <FillNote>사진 보고 골랐어요</FillNote>}
-        {creamsUnknown && <FillNote>사진으로는 크림을 알 수 없어 비워 뒀어요</FillNote>}
       </Field>
       <Field
         label="예산"
@@ -800,11 +752,6 @@ export function StepSizeBudget() {
           <span className="text-sm font-bold text-gray-900">
             {budgetText(draft.budgetMin, draft.budgetMax)}
           </span>
-        }
-        caption={
-          draft.quantity > 1
-            ? `1개 기준이에요 · ${draft.quantity}개면 ${budgetText(draft.budgetMin * draft.quantity, draft.budgetMax >= QUOTE_LIMITS.BUDGET_MAX ? QUOTE_LIMITS.BUDGET_MAX * 100 : draft.budgetMax * draft.quantity)}`
-            : undefined
         }
       >
         <DualThumbRangeSlider
@@ -880,20 +827,16 @@ export function StepConfirm({ now, onEdit }: { now: Date; onEdit: (step: number)
       : []),
     {
       label: "케이크",
-      value: [`${size?.label ?? ""} ${draft.quantity}개`, creams.join("·")]
-        .filter(Boolean)
-        .join(" · "),
+      value: [size?.label ?? "", creams.join("·")].filter(Boolean).join(" · "),
       step: 5,
     },
-    { label: "예산", value: draft.quantity > 1 ? `1개 ${budget}` : budget, step: 5 },
+    { label: "예산", value: budget, step: 5 },
   ];
 
   return (
     <div>
       <StepTitle title="이대로 보낼까요?" description="보내면 Picake가 가게에 물어봐 드려요" />
-      {(["description", "size", "creams", "requestNote"] as const).some((f) =>
-        isAutoFilled(f, draft, draft.autoFill),
-      ) && (
+      {isAutoFilled("description", draft, draft.autoFill) && (
         <p className="mb-[10px] text-2sm text-primary">
           ✦ 사진 보고 채운 내용이 있어요. 맞는지 확인해 주세요
         </p>

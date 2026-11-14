@@ -62,10 +62,6 @@ describe("buildDesignFill", () => {
     expect(buildDesignFill([{ design: bento, parts: ["ALL"] }])).toEqual({
       description:
         '사진처럼 만들어 주세요\n· 모양: 흰 크림 도시락 케이크\n· 색: 흰색 크림\n· 장식: 작은 빨간 하트\n· 글자: 검은 필기체 "happy birthday" 레터링',
-      size: "LUNCHBOX",
-      creams: [],
-      requestNote: "사진처럼 초 1개",
-      conflicts: [],
     });
   });
 
@@ -74,7 +70,6 @@ describe("buildDesignFill", () => {
     expect(fill?.description).toBe(
       '사진에서 장식·글자만 참고해 주세요\n· 장식: 작은 빨간 하트\n· 글자: 검은 필기체 "happy birthday" 레터링',
     );
-    expect(fill?.size).toBeNull();
   });
 
   it("손님 사진만 있고 모두 전체면 채우지 않는다", () => {
@@ -89,8 +84,6 @@ describe("buildDesignFill", () => {
     expect(fill?.description).toBe(
       '1번 사진처럼\n· 모양: 흰 크림 도시락 케이크\n· 색: 흰색 크림\n· 장식: 작은 빨간 하트\n· 글자: 검은 필기체 "happy birthday" 레터링\n\n2번 사진에서 장식만\n· 장식: 분홍 크림 프릴 테두리',
     );
-    expect(fill?.size).toBe("LUNCHBOX");
-    expect(fill?.requestNote).toBe("사진처럼 초 1개");
   });
 
   it("읽은 값이 없는 손님 사진은 번호로", () => {
@@ -101,70 +94,56 @@ describe("buildDesignFill", () => {
     expect(fill?.description).toBe(
       "1번 사진에서 모양·색만\n· 모양: 하트 모양 케이크\n· 색: 연분홍 크림\n\n2번 사진도 참고해 주세요",
     );
-    expect(fill?.creams).toEqual(["BUTTER_CREAM"]);
   });
 
-  it("크기가 사진마다 다르면 모양을 고른 사진을 따르고 알린다", () => {
-    const mini: Design = { ...heart, id: "mini", size: "MINI" };
-    const fill = buildDesignFill([
-      { design: bento, parts: ["ALL"] },
-      { design: mini, parts: ["SHAPE"] },
-    ]);
-    expect(fill?.size).toBe("MINI");
-    expect(fill?.conflicts).toEqual(["size"]);
-  });
-
-  it("요청 사항은 200자까지", () => {
-    const long = { ...bento, requestNote: "가".repeat(150) };
-    const long2 = { ...heart, requestNote: "나".repeat(150) };
+  it("설명은 500자까지", () => {
+    const long = { ...bento, parts: { ...bento.parts, decoration: "가".repeat(300) } };
+    const long2 = { ...heart, parts: { ...heart.parts, decoration: "나".repeat(300) } };
     const fill = buildDesignFill([
       { design: long, parts: ["ALL"] },
       { design: long2, parts: ["ALL"] },
     ]);
-    expect(fill?.requestNote.length).toBe(200);
+    expect(fill?.description.length).toBe(500);
+  });
+
+  it("채우는 칸은 설명 하나뿐(크기·크림·요청 사항은 손님이 고른다)", () => {
+    expect(Object.keys(buildDesignFill([{ design: bento, parts: ["ALL"] }]) ?? {})).toEqual([
+      "description",
+    ]);
   });
 });
 
 describe("applyDesignFill", () => {
-  const empty = { description: "", size: null, creams: [], requestNote: "" };
+  const empty = { description: "" };
 
-  it("빈 칸을 채우고 채운 값을 기억한다", () => {
+  it("빈 설명을 채우고 채운 값을 기억한다", () => {
     const next = buildDesignFill([{ design: bento, parts: ["ALL"] }]);
     const { patch, auto } = applyDesignFill(empty, undefined, next);
-    expect(patch).toEqual({
-      description: next?.description,
-      size: "LUNCHBOX",
-      requestNote: "사진처럼 초 1개",
-    });
+    expect(patch).toEqual({ description: next?.description });
     expect(auto.description).toBe(next?.description);
-    const now = { ...empty, ...patch };
-    expect(isAutoFilled("description", now, auto)).toBe(true);
-    expect(isAutoFilled("creams", now, auto)).toBe(false);
+    expect(isAutoFilled("description", { ...empty, ...patch }, auto)).toBe(true);
   });
 
-  it("손님이 고친 칸은 건드리지 않는다", () => {
+  it("손님이 고친 설명은 건드리지 않는다", () => {
     const first = applyDesignFill(
       empty,
       undefined,
       buildDesignFill([{ design: bento, parts: ["ALL"] }]),
     );
-    const edited = { ...empty, ...first.patch, description: "제가 쓴 설명" };
+    const edited = { description: "제가 쓴 설명" };
     const next = buildDesignFill([{ design: heart, parts: ["ALL"] }]);
-    const { patch } = applyDesignFill(edited, first.auto, next);
-    expect(patch.description).toBeUndefined();
-    // 크기는 채운 그대로였으니 새 사진(크기 없음)에 맞춰 비운다
-    expect(patch.size).toBeNull();
-    expect(patch.creams).toEqual(["BUTTER_CREAM"]);
+    expect(applyDesignFill(edited, first.auto, next).patch.description).toBeUndefined();
+    expect(isAutoFilled("description", edited, first.auto)).toBe(false);
   });
 
-  it("사진을 다 빼면 채운 칸만 비운다", () => {
+  it("사진을 다 빼면 채운 그대로인 설명만 비운다", () => {
     const first = applyDesignFill(
       empty,
       undefined,
       buildDesignFill([{ design: bento, parts: ["ALL"] }]),
     );
-    const now = { ...empty, ...first.patch, requestNote: "알레르기 없어요" };
-    const { patch } = applyDesignFill(now, first.auto, null);
-    expect(patch).toEqual({ description: "", size: null });
+    expect(applyDesignFill({ ...empty, ...first.patch }, first.auto, null).patch).toEqual({
+      description: "",
+    });
   });
 });
