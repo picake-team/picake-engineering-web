@@ -1,29 +1,50 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { Calendar } from "@/apps/web-user/common/components/calendars/Calendar";
 import { TextArea } from "@/apps/web-user/common/components/textareas/TextArea";
+import { Toggle } from "@/apps/web-user/common/components/inputs/Toggle";
+import { ImageModal } from "@/apps/web-user/common/components/sliders/ImageModal";
+import { QuoteWriteHelpSheet } from "@/apps/web-user/features/quote/components/form/QuoteWriteHelpSheet";
 import { DualThumbRangeSlider } from "@/apps/web-user/common/components/sliders/DualThumbRangeSlider";
 import { cn } from "@/apps/web-user/common/lib/utils";
 import {
-  QUOTE_CREAM_OPTIONS,
   QUOTE_LIMITS,
   QUOTE_NO_REPLAY,
   QUOTE_SIZE_OPTIONS,
 } from "@/apps/web-user/features/quote/constants/quote.constant";
 import {
   useQuoteDraftStore,
+  type PhotoReadState,
   type QuoteDraft,
+  type QuoteDraftPhoto,
 } from "@/apps/web-user/features/quote/store/quote-draft.store";
+import {
+  DesignPickSheet,
+  QuotePhotoTile,
+} from "@/apps/web-user/features/quote/components/form/QuotePhotoParts";
+import { designApi } from "@/apps/web-user/features/design/apis/design.api";
+import {
+  designPhotos,
+  isPhotoReadOff,
+  setPhotoReadOff,
+} from "@/apps/web-user/features/design/utils/design.util";
+import {
+  isAllParts,
+  isAutoFilled,
+  partsChipLabel,
+} from "@/apps/web-user/features/design/utils/design-fill.util";
+import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import {
   DistanceSlider,
   Field,
   HourRangeSheet,
   NoticeBox,
+  FillNote,
   Pill,
   StepTitle,
-  Stepper,
 } from "@/apps/web-user/features/quote/components/form/QuoteFormParts";
 import {
   AreaSearchSheet,
@@ -383,21 +404,88 @@ export function StepStores() {
 }
 
 /* ───────────── 4단계: 어떤 케이크 ───────────── */
+const PHOTO_READ_MESSAGE: Partial<Record<PhotoReadState, string>> = {
+  failed: "사진을 읽지 못했어요. 직접 적어 주세요",
+  limit: "오늘은 사진 읽기를 다 썼어요. 직접 적어 주세요",
+};
+
+/** 손님 사진을 AI가 읽어 칸을 채운다(기획 I-112 ⑥). 읽는 동안 사진을 빼면 결과를 버린다 */
+/** 지금 서버에서 읽고 있는 사진(새로 고침 뒤 "읽는 중"이 남아 있으면 다시 읽는다) */
+const inFlightReads = new Set<string>();
+
+function readOwnPhoto(id: string, dataUrl: string) {
+  if (inFlightReads.has(id)) return;
+  inFlightReads.add(id);
+  const store = useQuoteDraftStore.getState;
+  const finish = (patch: Pick<QuoteDraftPhoto, "read" | "readState">) => {
+    inFlightReads.delete(id);
+    const photo = store().draft.photos.find((p) => p.id === id);
+    // 그사이 사진을 뺐거나 사진 읽기를 껐으면 결과를 버린다
+    if (!photo || photo.readState !== "reading") return;
+    store().updatePhotoRead(id, patch);
+  };
+  designApi
+    .readPhoto(dataUrl)
+    .then((res) => {
+      if ("unreadable" in res) {
+        finish({ read: null, readState: "failed" });
+        trackEvent("fail_quote_photo_read", { reason: "unreadable" });
+        return;
+      }
+      finish({
+        read: { parts: res.parts },
+        readState: "done",
+      });
+      trackEvent("success_quote_photo_read");
+    })
+    .catch((e) => {
+      const r = (e as { response?: { status?: number; data?: { message?: unknown } } })?.response;
+      // 하루 횟수(429 "오늘은…")만 "다 썼어요", 분당 제한·오류는 못 읽음
+      const limit = r?.status === 429 && JSON.stringify(r?.data?.message ?? "").includes("오늘은");
+      finish({ read: null, readState: limit ? "limit" : "failed" });
+      trackEvent("fail_quote_photo_read", { reason: limit ? "limit" : "error" });
+    });
+}
+
 export function StepCake() {
-  const { draft, update } = useQuoteDraftStore();
+  const { draft, update, setPhotos, updatePhotoRead } = useQuoteDraftStore();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [adding, setAdding] = useState(false);
+  const [readOff, setReadOff] = useState(false);
+  const [pickOpen, setPickOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
+  // 크게 보는 사진 번호(상품 상세와 같은 ImageModal: 넘기기·두 손가락 확대)
+  const [viewing, setViewing] = useState<number | null>(null);
   const { showAlert } = useAlertStore();
   const hasPhoto = draft.photos.length > 0;
+  const multi = draft.photos.length >= 2;
+  const ownPhotos = draft.photos.filter((p) => !p.designId);
+  const room = QUOTE_LIMITS.MAX_PHOTOS - draft.photos.length;
+  const reading = ownPhotos.some((p) => p.readState === "reading");
+  const readProblem = ownPhotos.map((p) => p.readState).find((st) => st && PHOTO_READ_MESSAGE[st]);
+  const descFilled = isAutoFilled("description", draft, draft.autoFill);
+  const filledFrom = draft.photos.filter((p) => p.designId || p.read).length;
+
+  useEffect(() => {
+    const off = isPhotoReadOff();
+    setReadOff(off);
+    // 읽는 중에 화면을 닫았다 열었으면 다시 읽는다(끈 상태면 끔으로)
+    for (const p of useQuoteDraftStore.getState().draft.photos) {
+      if (p.designId || p.readState !== "reading" || inFlightReads.has(p.id)) continue;
+      if (off) updatePhotoRead(p.id, { read: p.read, readState: "off" });
+      else readOwnPhoto(p.id, p.dataUrl);
+    }
+  }, [updatePhotoRead]);
 
   const onPick = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const picked = Array.from(e.target.files ?? []);
     e.target.value = "";
-    const remaining = QUOTE_LIMITS.MAX_PHOTOS - draft.photos.length;
-    if (!picked.length || remaining <= 0) return;
+    if (!picked.length || room <= 0) return;
     setAdding(true);
     try {
-      const results = await Promise.allSettled(picked.slice(0, remaining).map(shrinkPhoto));
+      const results = await Promise.allSettled(picked.slice(0, room).map(shrinkPhoto));
+      // 줄이는 동안 디자인 사진을 넣었을 수 있어 남은 칸을 다시 센다
+      const left = QUOTE_LIMITS.MAX_PHOTOS - useQuoteDraftStore.getState().draft.photos.length;
       const shrunk = results.flatMap((r) => (r.status === "fulfilled" ? [r.value] : []));
       if (shrunk.length < results.length) {
         showAlert({
@@ -406,24 +494,64 @@ export function StepCake() {
           message: "열 수 없는 사진이 있어요. 다른 사진(JPG·PNG)으로 올려 주세요.",
         });
       }
-      const current = useQuoteDraftStore.getState().draft.photos;
-      update({
-        photos: [
-          ...current,
-          ...shrunk.map((dataUrl) => ({ id: `${Date.now()}-${Math.random()}`, dataUrl })),
-        ],
-      });
+      const off = isPhotoReadOff();
+      const added: QuoteDraftPhoto[] = shrunk.slice(0, Math.max(0, left)).map((dataUrl) => ({
+        id: `${Date.now()}-${Math.random()}`,
+        dataUrl,
+        parts: ["ALL"],
+        readState: off ? "off" : "reading",
+      }));
+      setPhotos([...useQuoteDraftStore.getState().draft.photos, ...added]);
+      if (!off) added.forEach((p) => readOwnPhoto(p.id, p.dataUrl));
     } finally {
       setAdding(false);
     }
   };
 
+  const toggleReadOff = () => {
+    const off = !readOff;
+    setReadOff(off);
+    setPhotoReadOff(off);
+    trackEvent("engage_quote_photo_read_toggle", { off });
+    const photos = useQuoteDraftStore.getState().draft.photos.filter((p) => !p.designId);
+    if (off) {
+      // 끄면 읽고 있던 사진의 결과도 쓰지 않는다
+      photos
+        .filter((p) => p.readState === "reading")
+        .forEach((p) => updatePhotoRead(p.id, { read: p.read, readState: "off" }));
+    } else {
+      // 다시 켜면 아직 읽지 않은 사진을 읽는다
+      photos
+        .filter((p) => p.readState === "off")
+        .forEach((p) => {
+          updatePhotoRead(p.id, { read: p.read, readState: "reading" });
+          readOwnPhoto(p.id, p.dataUrl);
+        });
+    }
+  };
+
   return (
-    <div>
+    // 설명 칸이 "다음" 버튼 위까지 남는 높이를 채운다(운영자 11-14)
+    <div className="flex flex-1 flex-col">
       <StepTitle title="어떤 케이크인가요?" description="사진이나 설명 중 하나만 있으면 돼요" />
-      <Field label="참고 사진" optional={`${QUOTE_LIMITS.MAX_PHOTOS}장까지`}>
+      <Field
+        label="참고 사진"
+        optional={`${QUOTE_LIMITS.MAX_PHOTOS}장까지`}
+        right={
+          room > 0 ? (
+            <button
+              type="button"
+              disabled={adding}
+              onClick={() => setPickOpen(true)}
+              className="-my-[11px] shrink-0 py-[11px] pl-[12px] text-2sm text-gray-500 disabled:opacity-50"
+            >
+              디자인 모음에서 고르기 ›
+            </button>
+          ) : undefined
+        }
+      >
         <div className="flex w-full gap-[6px] overflow-auto">
-          {draft.photos.length < QUOTE_LIMITS.MAX_PHOTOS && (
+          {room > 0 && (
             <button
               type="button"
               disabled={adding}
@@ -437,32 +565,18 @@ export function StepCake() {
               <span className="text-center text-sm text-gray-300">
                 {adding ? "올리는 중…" : hasPhoto ? "사진 추가" : "참고할 사진을 올려 주세요"} (
                 {draft.photos.length}/{QUOTE_LIMITS.MAX_PHOTOS})
-                {!hasPhoto && <span className="block text-xs">인스타에서 본 사진도 괜찮아요</span>}
               </span>
             </button>
           )}
-          {draft.photos.map((p) => (
-            <div
+          {draft.photos.map((p, i) => (
+            <QuotePhotoTile
               key={p.id}
-              className={cn(
-                "relative h-[100px] w-[100px] shrink-0 rounded-lg border border-gray-100",
-                QUOTE_NO_REPLAY,
-              )}
-            >
-              <button
-                type="button"
-                aria-label="사진 빼기"
-                className="absolute right-[5px] top-[5px]"
-                onClick={() => update({ photos: draft.photos.filter((x) => x.id !== p.id) })}
-              >
-                <Icon name="removePhoto" width={20} height={20} />
-              </button>
-              <img
-                src={p.dataUrl}
-                alt="참고 사진"
-                className="h-full w-full rounded-lg object-cover"
-              />
-            </div>
+              photo={p}
+              index={i}
+              multi={multi}
+              onOpen={() => setViewing(i)}
+              onRemove={() => setPhotos(draft.photos.filter((x) => x.id !== p.id))}
+            />
           ))}
           <input
             ref={inputRef}
@@ -473,45 +587,117 @@ export function StepCake() {
             onChange={onPick}
           />
         </div>
+        {/* 사진 읽기 켜고 끄기(운영자 11-14 고름): 못 읽었으면 아래 줄에 알린다 */}
+        {ownPhotos.length > 0 && (
+          <div className="mt-[8px] flex items-center gap-[12px] rounded-lg border border-gray-100 px-[12px] py-[10px]">
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-gray-900">
+                <span className="text-primary">✦</span> 사진 보고 설명 채우기
+              </p>
+              <p
+                className={cn(
+                  "mt-[2px] text-2sm",
+                  !readOff && readProblem ? "text-gray-700" : "text-gray-500",
+                )}
+              >
+                {readOff
+                  ? "꺼져 있어요. 켜면 직접 올린 사진을 읽어요"
+                  : readProblem
+                    ? PHOTO_READ_MESSAGE[readProblem]
+                    : "직접 올린 사진은 AI가 읽어요"}
+              </p>
+            </div>
+            <Toggle checked={!readOff} onChange={toggleReadOff} ariaLabel="사진 보고 설명 채우기" />
+          </div>
+        )}
+        {/* 스위치 아래에 안내(운영자 11-14 순서 바꿈) */}
         {hasPhoto && (
-          <div className="mt-[6px]">
+          <div className="mt-[8px]">
             <NoticeBox>손으로 만드는 케이크라 사진과 조금 다를 수 있어요</NoticeBox>
           </div>
         )}
       </Field>
       <Field
         label="설명"
+        // 마지막 칸이라 아래 여백 없이 "다음" 버튼 위까지 채운다
+        className="mb-0 flex flex-1 flex-col"
         caption={hasPhoto ? undefined : "원하는 케이크와 케이크에 쓸 글자를 적어 주세요"}
+        right={
+          <button
+            type="button"
+            onClick={() => setHelpOpen(true)}
+            className="-my-[11px] shrink-0 py-[11px] pl-[12px] text-2sm text-gray-500"
+          >
+            무엇을 쓸까요? ›
+          </button>
+        }
       >
-        <TextArea
-          value={draft.description}
-          onChange={(description) => update({ description })}
-          maxLength={QUOTE_LIMITS.DESCRIPTION_MAX}
-          showCount
-          placeholder={
-            hasPhoto
-              ? '예: 글씨는 "지수야 생일 축하해"로, 강아지 대신 곰돌이'
-              : '예: 하늘색 바탕에 곰돌이, 글씨는 "지수야 생일 축하해"'
-          }
-        />
+        <div className="relative flex flex-1 flex-col">
+          <TextArea
+            value={draft.description}
+            onChange={(description) => update({ description })}
+            containerClassName="flex flex-1 flex-col"
+            // 남는 높이를 채우고, 화면이 작으면 200에서 멈춘다(그때는 페이지가 내려간다)
+            className="h-auto min-h-[200px] flex-1 leading-[22px]"
+            maxLength={QUOTE_LIMITS.DESCRIPTION_MAX}
+            showCount
+            placeholder={
+              reading && !draft.description
+                ? ""
+                : hasPhoto
+                  ? '예: 글씨는 "지수야 생일 축하해"로, 강아지 대신 곰돌이'
+                  : '예: 하늘색 바탕에 곰돌이, 글씨는 "지수야 생일 축하해"'
+            }
+          />
+          {reading && !draft.description && (
+            <span className="pointer-events-none absolute left-[13px] top-[11px] text-sm text-primary">
+              ✦ 사진 읽는 중…
+            </span>
+          )}
+        </div>
+        {reading && (
+          <p className="mt-[6px] text-2sm text-gray-500">읽는 동안 다른 칸을 써도 돼요</p>
+        )}
+        {descFilled && (
+          <FillNote sub="케이크에 쓸 글자가 다르면 꼭 고쳐 주세요">
+            {filledFrom > 1 ? `사진 ${filledFrom}장을 보고 채웠어요` : "사진 보고 채웠어요"}
+          </FillNote>
+        )}
       </Field>
-      <Field label="요청 사항" optional="선택">
-        <TextArea
-          value={draft.requestNote}
-          onChange={(requestNote) => update({ requestNote })}
-          maxLength={QUOTE_LIMITS.REQUEST_NOTE_MAX}
-          showCount
-          placeholder="알레르기, 초·토퍼 등"
-        />
-      </Field>
+      <QuoteWriteHelpSheet isOpen={helpOpen} onClose={() => setHelpOpen(false)} />
+      {viewing !== null &&
+        createPortal(
+          // 손님 사진이 세션 녹화에 남지 않게
+          <div className={QUOTE_NO_REPLAY}>
+            <ImageModal
+              isOpen
+              onClose={() => setViewing(null)}
+              images={draft.photos.map((p) => ({ id: p.id, url: p.dataUrl }))}
+              initialIndex={Math.min(viewing, draft.photos.length - 1)}
+            />
+          </div>,
+          document.body,
+        )}
+      <DesignPickSheet
+        isOpen={pickOpen}
+        room={room}
+        exclude={draft.photos.flatMap((p) => (p.designId ? [p.designId] : []))}
+        onClose={() => setPickOpen(false)}
+        onPick={(picks) => {
+          trackEvent("engage_quote_design_pick", { count: picks.length });
+          setPhotos([
+            ...useQuoteDraftStore.getState().draft.photos,
+            ...picks.flatMap((x) => designPhotos([x.designId], x.parts)),
+          ]);
+        }}
+      />
     </div>
   );
 }
 
-/* ───────────── 5단계: 크기와 예산 ───────────── */
+/* ───────────── 5단계: 크기·예산·요청 사항 ───────────── */
 export function StepSizeBudget() {
   const { draft, update } = useQuoteDraftStore();
-  const [writing, setWriting] = useState(draft.flavorNote.length > 0);
   const size = QUOTE_SIZE_OPTIONS.find((s) => s.value === draft.size);
   const step = (v: number) => Math.round(v / QUOTE_LIMITS.BUDGET_STEP) * QUOTE_LIMITS.BUDGET_STEP;
   const budgetText = (min: number, max: number) =>
@@ -531,7 +717,7 @@ export function StepSizeBudget() {
               key={s.value}
               selected={draft.size === s.value}
               onClick={() => update({ size: s.value })}
-              className="h-[44px] flex-col gap-0 rounded-[12px] px-[8px] leading-tight"
+              className="relative h-[44px] flex-col gap-0 rounded-[12px] px-[8px] leading-tight"
             >
               <span>{s.label}</span>
               <span className="text-2xs font-normal text-gray-500">{s.people}</span>
@@ -539,59 +725,12 @@ export function StepSizeBudget() {
           ))}
         </div>
       </Field>
-      <Field label="개수">
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-500">단체 주문이면 늘려 주세요</span>
-          <Stepper
-            value={draft.quantity}
-            min={1}
-            max={QUOTE_LIMITS.MAX_QUANTITY}
-            onChange={(quantity) => update({ quantity })}
-          />
-        </div>
-      </Field>
-      <Field label="맛·크림" optional="선택 · 안 고르면 가게가 알려 줘요">
-        <div className="flex flex-wrap gap-[8px]">
-          {QUOTE_CREAM_OPTIONS.map((c) => (
-            <Pill
-              key={c.value}
-              selected={draft.creams.includes(c.value)}
-              onClick={() =>
-                update({
-                  creams: draft.creams.includes(c.value)
-                    ? draft.creams.filter((x) => x !== c.value)
-                    : [...draft.creams, c.value],
-                })
-              }
-            >
-              {c.label}
-            </Pill>
-          ))}
-          <Pill selected={writing} onClick={() => setWriting((v) => !v)}>
-            + 직접 쓰기
-          </Pill>
-        </div>
-        {writing && (
-          <input
-            value={draft.flavorNote}
-            maxLength={QUOTE_LIMITS.FLAVOR_NOTE_MAX}
-            onChange={(e) => update({ flavorNote: e.target.value })}
-            placeholder="예: 초코 시트"
-            className="mt-[10px] h-[42px] w-full rounded-[6px] border border-gray-100 px-[12px] text-sm outline-none focus:border-gray-900"
-          />
-        )}
-      </Field>
       <Field
         label="예산"
         right={
           <span className="text-sm font-bold text-gray-900">
             {budgetText(draft.budgetMin, draft.budgetMax)}
           </span>
-        }
-        caption={
-          draft.quantity > 1
-            ? `1개 기준이에요 · ${draft.quantity}개면 ${budgetText(draft.budgetMin * draft.quantity, draft.budgetMax >= QUOTE_LIMITS.BUDGET_MAX ? QUOTE_LIMITS.BUDGET_MAX * 100 : draft.budgetMax * draft.quantity)}`
-            : undefined
         }
       >
         <DualThumbRangeSlider
@@ -605,6 +744,16 @@ export function StepSizeBudget() {
           ariaLabel="예산"
         />
       </Field>
+      {/* 요청 사항은 크기·예산과 같은 "조건" 단계에(운영자 11-14 "다") */}
+      <Field label="요청 사항" optional="선택">
+        <TextArea
+          value={draft.requestNote}
+          onChange={(requestNote) => update({ requestNote })}
+          maxLength={QUOTE_LIMITS.REQUEST_NOTE_MAX}
+          showCount
+          placeholder="알레르기, 초·토퍼, 맛(예: 초코 시트) 등"
+        />
+      </Field>
     </div>
   );
 }
@@ -613,10 +762,6 @@ export function StepSizeBudget() {
 export function StepConfirm({ now, onEdit }: { now: Date; onEdit: (step: number) => void }) {
   const { draft } = useQuoteDraftStore();
   const size = QUOTE_SIZE_OPTIONS.find((s) => s.value === draft.size);
-  const creams = [
-    ...draft.creams.map((c) => QUOTE_CREAM_OPTIONS.find((o) => o.value === c)?.label),
-    draft.flavorNote.trim() || null,
-  ].filter(Boolean);
   const budget =
     draft.budgetMax >= QUOTE_LIMITS.BUDGET_MAX
       ? `${won(draft.budgetMin)} 이상`
@@ -647,22 +792,30 @@ export function StepConfirm({ now, onEdit }: { now: Date; onEdit: (step: number)
     },
     { label: "받을 동네", value: area, step: draft.onlyDesignatedStores ? 1 : 2 },
     ...(draft.photos.length
-      ? [{ label: "참고 사진", value: `${draft.photos.length}장`, step: 4 }]
+      ? [
+          {
+            label: "참고 사진",
+            value: draft.photos.some((p) => !isAllParts(p.parts ?? []))
+              ? `${draft.photos.length}장 · ${draft.photos
+                  .map((p, i) => `${i + 1}번 ${partsChipLabel(p.parts ?? [])}`)
+                  .join(", ")}`
+              : `${draft.photos.length}장`,
+            step: 4,
+          },
+        ]
       : []),
     ...(draft.description.trim()
       ? [{ label: "설명", value: draft.description.trim(), step: 4, clamp: true }]
       : []),
     ...(draft.requestNote.trim()
-      ? [{ label: "요청 사항", value: draft.requestNote.trim(), step: 4, clamp: true }]
+      ? [{ label: "요청 사항", value: draft.requestNote.trim(), step: 5, clamp: true }]
       : []),
     {
-      label: "케이크",
-      value: [`${size?.label ?? ""} ${draft.quantity}개`, creams.join("·")]
-        .filter(Boolean)
-        .join(" · "),
+      label: "크기",
+      value: size?.label ?? "",
       step: 5,
     },
-    { label: "예산", value: draft.quantity > 1 ? `1개 ${budget}` : budget, step: 5 },
+    { label: "예산", value: budget, step: 5 },
   ];
 
   return (

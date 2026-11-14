@@ -1,3 +1,4 @@
+// 손님 웹 `common/components/images/ImageLightbox.tsx`(사장님 견적 링크)에 같은 것이 있다. 고치면 같이 고친다(11-14)
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ChevronLeft,

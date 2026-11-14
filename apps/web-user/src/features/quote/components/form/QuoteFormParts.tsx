@@ -34,15 +34,17 @@ export function Field({
   right,
   children,
   caption,
+  className,
 }: {
   label: string;
   optional?: string;
   right?: ReactNode;
   children: ReactNode;
   caption?: ReactNode;
+  className?: string;
 }) {
   return (
-    <section className="mb-[24px]">
+    <section className={cn("mb-[24px]", className)}>
       <div className="mb-[10px] flex items-center justify-between">
         <span className="text-sm font-bold text-gray-900">
           {label}
@@ -74,10 +76,11 @@ export function NoticeBox({
       )}
     >
       <Icon
+        // 12px 글자 첫 줄(18px) 가운데에 맞춘 14px(운영자 11-14: 16px은 아래로 처져 보였음)
         name="warning"
-        width={16}
-        height={16}
-        className={cn("mt-[1px] shrink-0", tone === "blue" ? "text-blue-400" : "text-gray-400")}
+        width={14}
+        height={14}
+        className={cn("mt-[2px] shrink-0", tone === "blue" ? "text-blue-400" : "text-gray-400")}
       />
       <span>{children}</span>
     </p>
@@ -333,6 +336,33 @@ export function FixedFooter({ children }: { children: ReactNode }) {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-10 mx-auto max-w-[638px] bg-white px-[20px] pb-[12px] pt-[10px]">
       {children}
+    </div>
+  );
+}
+
+/**
+ * 사진 보고 채운 칸 아래 표시. 위 안내(NoticeBox)와 같은 회색 상자에 ✦만 주황(운영자 11-14 E).
+ * 손님이 칸을 고치면 부르는 쪽에서 감춘다
+ */
+export function FillNote({
+  children,
+  sub,
+  action,
+}: {
+  children: ReactNode;
+  sub?: ReactNode;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="mt-[8px] flex items-start gap-[8px] rounded-xl bg-gray-50 px-[12px] py-[10px] text-xs leading-[18px] text-gray-700">
+      <span aria-hidden className="w-[16px] shrink-0 text-center text-primary">
+        ✦
+      </span>
+      <div className="min-w-0 flex-1">
+        <p>{children}</p>
+        {sub && <p className="text-gray-500">{sub}</p>}
+      </div>
+      {action}
     </div>
   );
 }

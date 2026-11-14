@@ -10,6 +10,10 @@ import { ListRowButton } from "@/apps/web-seller/common/ui/List";
 import { Field, TextArea } from "@/apps/web-seller/common/ui/Field";
 import { EmptyState, LoadErrorState } from "@/apps/web-seller/common/ui/Surface";
 import { ImageLightbox } from "@/apps/web-seller/common/components/images/ImageLightbox";
+import {
+  isSellerAppWebView,
+  saveImageToDevice,
+} from "@/apps/web-seller/common/utils/webview.bridge";
 import { formatKstMonthDayWeek, kstTime } from "@/apps/web-seller/common/utils/kst-date.util";
 import { useAlertStore } from "@/apps/web-seller/common/store/alert.store";
 import getApiMessage from "@/apps/web-seller/common/utils/getApiMessage";
@@ -57,7 +61,7 @@ function RoomSkeleton({ count = 6 }: { count?: number }) {
 }
 
 /** 채팅 사진. 못 불러오면(지워졌거나 주소가 깨짐) 빈칸 대신 회색 칸에 안내 */
-function ChatPhoto({ url, onOpen }: { url: string; onOpen: (url: string) => void }) {
+function ChatPhoto({ url, onOpen }: { url: string; onOpen: () => void }) {
   const [broken, setBroken] = useState(false);
   if (broken) {
     return (
@@ -68,7 +72,7 @@ function ChatPhoto({ url, onOpen }: { url: string; onOpen: (url: string) => void
     );
   }
   return (
-    <button type="button" onClick={() => onOpen(url)} aria-label="사진 크게 보기">
+    <button type="button" onClick={onOpen} aria-label="사진 크게 보기">
       <img
         src={url}
         alt=""
@@ -116,7 +120,8 @@ function Bubble({
   m: ChatMessage;
   storeId: string;
   readByOther: boolean;
-  onOpenImage: (url: string) => void;
+  /** 이 글의 사진들과 누른 번호(같은 글의 사진끼리 넘겨 본다) */
+  onOpenImage: (images: string[], index: number) => void;
   onOpenCard: (card: ChatCard) => void;
 }) {
   // 손님 견적 요청서(기획 I-46 ②, 판매자 앱 A안): 방 맨 위 넓은 카드에서 바로 견적을 보낸다
@@ -173,7 +178,7 @@ function Bubble({
           >
             {m.imageUrls.map((url, i) => (
               // 같은 사진을 두 번 보내도 겹치지 않게 순서를 키에 넣는다
-              <ChatPhoto key={`${i}-${url}`} url={url} onOpen={onOpenImage} />
+              <ChatPhoto key={`${i}-${url}`} url={url} onOpen={() => onOpenImage(m.imageUrls, i)} />
             ))}
           </div>
         ) : null}
@@ -241,7 +246,7 @@ export function SellerChatRoom({
   const [reportOpen, setReportOpen] = useState(false);
   const [reason, setReason] = useState<ChatReportReason | null>(null);
   const [reportDetail, setReportDetail] = useState("");
-  const [viewer, setViewer] = useState<string | null>(null);
+  const [viewer, setViewer] = useState<{ images: string[]; index: number } | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const atBottomRef = useRef(true);
   const [newBelow, setNewBelow] = useState(false);
@@ -491,7 +496,7 @@ export function SellerChatRoom({
                 <Bubble
                   m={m}
                   readByOther={m.id === lastMineId && !!otherReadAt && otherReadAt >= m.createdAt}
-                  onOpenImage={setViewer}
+                  onOpenImage={(images, index) => setViewer({ images, index })}
                   storeId={storeId}
                   onOpenCard={openCard}
                 />
@@ -673,7 +678,13 @@ export function SellerChatRoom({
       {viewer ? (
         // 주문 상세 참고 사진과 같은 사진 보기(확대·넘기기)
         <div className={CHAT_NO_REPLAY}>
-          <ImageLightbox images={[viewer]} alt="채팅 사진" onClose={() => setViewer(null)} />
+          <ImageLightbox
+            images={viewer.images}
+            initialIndex={viewer.index}
+            alt="채팅 사진"
+            onClose={() => setViewer(null)}
+            onSave={isSellerAppWebView() ? (src) => saveImageToDevice(src) : undefined}
+          />
         </div>
       ) : null}
 

@@ -6,7 +6,7 @@ import type { PaginationMetaDto } from "@/apps/web-admin/common/types/api.dto";
 /** 견적 요청(기획 I-46) — backend `/v1/admin/quote-request-management` */
 
 export type QuoteRequestStatus = "OPEN" | "CONNECTED" | "CLOSED";
-export type QuoteRequestEntry = "HOME" | "SEARCH" | "MAP" | "STORE" | "MYPAGE";
+export type QuoteRequestEntry = "HOME" | "SEARCH" | "MAP" | "STORE" | "MYPAGE" | "DESIGN";
 
 export const QUOTE_REQUEST_STATUS_LABELS: Record<QuoteRequestStatus, string> = {
   OPEN: "견적 받는 중",
@@ -20,6 +20,7 @@ export const QUOTE_REQUEST_ENTRY_LABELS: Record<QuoteRequestEntry, string> = {
   MAP: "지도",
   STORE: "가게 상세",
   MYPAGE: "MY",
+  DESIGN: "디자인 모음",
 };
 
 export interface QuoteRequestSummaryDto {
@@ -63,6 +64,10 @@ export interface AdminQuoteRequestStoreDto {
 export interface AdminQuoteRequestDetailDto extends AdminQuoteRequestListItemDto {
   description: string | null;
   photoUrls: string[];
+  /** photoUrls와 같은 순서(기획 I-112, 옛 서버는 없음) */
+  photoDetails?: QuotePhotoDetail[];
+  /** 요청서에 쓴 디자인 모음 번호 */
+  designIds?: string[];
   requestNote: string | null;
   onlyDesignatedStores: boolean;
   areaName: string | null;
@@ -266,4 +271,27 @@ export function useQuoteAdminAction<T, R = unknown>(
       void queryClient.invalidateQueries({ queryKey: keys.detail(requestId) });
     },
   });
+}
+
+/** 사진에서 가져올 것(기획 I-112, 손님이 요청서에서 고름) */
+export type QuotePhotoPart = "ALL" | "SHAPE" | "COLOR" | "DECORATION" | "LETTERING";
+export interface QuotePhotoDetail {
+  designId: string | null;
+  parts: QuotePhotoPart[];
+}
+const PART_LABEL: Record<QuotePhotoPart, string> = {
+  ALL: "전체",
+  SHAPE: "모양",
+  COLOR: "색",
+  DECORATION: "장식",
+  LETTERING: "글자",
+};
+/** "전체", "장식만", "색·장식" */
+export function photoPartsLabel(parts: QuotePhotoPart[] | undefined): string {
+  if (!parts?.length || parts.includes("ALL")) return PART_LABEL.ALL;
+  const order: QuotePhotoPart[] = ["SHAPE", "COLOR", "DECORATION", "LETTERING"];
+  const picked = order.filter((p) => parts.includes(p));
+  return picked.length === 1
+    ? `${PART_LABEL[picked[0]]}만`
+    : picked.map((p) => PART_LABEL[p]).join("·");
 }

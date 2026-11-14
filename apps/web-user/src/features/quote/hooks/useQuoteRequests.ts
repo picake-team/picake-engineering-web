@@ -1,5 +1,6 @@
 "use client";
 
+import { designImageSrc, getDesign } from "@/apps/web-user/features/design/utils/design.util";
 import type { ReserveQuoteBody } from "@/apps/web-user/features/quote/types/quote.type";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAlertStore } from "@/apps/web-user/common/store/alert.store";
@@ -27,9 +28,19 @@ export function useCreateQuoteRequest() {
     }) => {
       const photoUrls: string[] = [];
       for (const [index, photo] of photos.entries()) {
-        const uploaded = await uploadApi.uploadFile(
-          dataUrlToFile(photo.dataUrl, `quote-${Date.now()}-${index}.jpg`),
-        );
+        const name = `quote-${Date.now()}-${index}.jpg`;
+        // 디자인 모음 사진은 앱에 함께 배포한 파일 주소라 내려받아 올린다
+        let file: File;
+        if (photo.dataUrl.startsWith("data:")) file = dataUrlToFile(photo.dataUrl, name);
+        else {
+          // 기기에 남긴 주소 대신 지금 앱의 디자인 파일 주소로(나중 배포에서 파일 이름이 바뀌어도 보내지게)
+          const design = photo.designId ? getDesign(photo.designId) : null;
+          const res = await fetch(design ? designImageSrc(design.image.file) : photo.dataUrl);
+          if (!res.ok)
+            throw new Error("디자인 사진을 불러오지 못했어요. 사진을 빼고 다시 넣어 주세요.");
+          file = new File([await res.blob()], name, { type: "image/jpeg" });
+        }
+        const uploaded = await uploadApi.uploadFile(file);
         photoUrls.push(uploaded.fileUrl);
       }
       return quoteApi.create({ ...body, photoUrls });

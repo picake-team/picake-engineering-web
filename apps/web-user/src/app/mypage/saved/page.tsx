@@ -5,6 +5,10 @@ import { Tabs, Tab } from "@/apps/web-user/common/components/tabs/Tabs";
 import { useLikedStores } from "@/apps/web-user/features/like/hooks/queries/useLikedStores";
 import { useLikedProducts } from "@/apps/web-user/features/like/hooks/queries/useLikedProducts";
 import { LikedStoreListSection } from "@/apps/web-user/features/like/components/sections/LikedStoreListSection";
+import {
+  LikedDesignSection,
+  useLikedDesignCount,
+} from "@/apps/web-user/features/design/components/DesignListSections";
 import { LikedProductListSection } from "@/apps/web-user/features/like/components/sections/LikedProductListSection";
 
 export default function SavedPage() {
@@ -13,6 +17,7 @@ export default function SavedPage() {
 
   const storeCount = storeData?.pages[0]?.meta.totalItems ?? 0;
   const productCount = productData?.pages[0]?.meta.totalItems ?? 0;
+  const designCount = useLikedDesignCount();
 
   const tabs: Tab[] = [
     {
@@ -24,6 +29,11 @@ export default function SavedPage() {
       id: "store",
       label: `스토어 ${storeCount}`,
       content: <LikedStoreListSection />,
+    },
+    {
+      id: "design",
+      label: `디자인 ${designCount}`,
+      content: <LikedDesignSection />,
     },
   ];
 

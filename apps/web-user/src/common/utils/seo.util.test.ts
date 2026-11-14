@@ -89,6 +89,20 @@ describe("buildSitemapEntries", () => {
     expect(entries[1].lastModified).toBeUndefined();
   });
 
+  it("케이크 디자인 상세 주소를 더한다", () => {
+    const entries = buildSitemapEntries({
+      baseUrl: BASE_URL,
+      products: [],
+      stores: [],
+      designIds: ["bento"],
+    });
+
+    expect(entries.map((entry) => entry.url)).toEqual([
+      "https://picakes.com",
+      "https://picakes.com/design/bento",
+    ]);
+  });
+
   it("상품·스토어가 없어도 홈은 포함한다", () => {
     const entries = buildSitemapEntries({ baseUrl: BASE_URL, products: [], stores: [] });
 

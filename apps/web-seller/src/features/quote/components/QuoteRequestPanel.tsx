@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -17,7 +17,12 @@ import { dataUrlToFile, shrinkPhoto } from "@/apps/web-seller/features/chat/hook
 import { quoteApi } from "@/apps/web-seller/features/quote/apis/quote.api";
 import { CHAT_NO_REPLAY } from "@/apps/web-seller/features/chat/constants/chat.constants";
 import { trackSellerEvent } from "@/apps/web-seller/common/utils/analytics.util";
-import { sellerSurface } from "@/apps/web-seller/common/utils/webview.bridge";
+import {
+  isSellerAppWebView,
+  saveImageToDevice,
+  sellerSurface,
+} from "@/apps/web-seller/common/utils/webview.bridge";
+import { ImageLightbox } from "@/apps/web-seller/common/components/images/ImageLightbox";
 import { PHONE_MAX_WIDTH_PX } from "@/apps/web-seller/common/constants/screen.constant";
 
 const surfaceNow = () =>
@@ -292,9 +297,19 @@ export function QuoteRequestPanel({ storeId, requestId }: { storeId: string; req
   const [declineOpen, setDeclineOpen] = useState(false);
   const [declining, setDeclining] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [viewer, setViewer] = useState<string | null>(null);
-  // 긴 설명·요청 사항은 4줄까지 보이고 "더 보기"로 펼친다(버튼이 화면 아래로 밀리지 않게)
+  // 크게 보는 사진 번호(주문 상세와 같은 ImageLightbox: 확대·돌리기·넘기기·사진 저장)
+  const [viewer, setViewer] = useState<number | null>(null);
+  // 긴 설명·요청 사항은 줄여 보이고 "더 보기"로 펼친다(버튼이 화면 아래로 밀리지 않게)
   const [textOpen, setTextOpen] = useState(false);
+  // 실제로 잘렸을 때만 "더 보기"(글자 수로 재면 줄이 많은 짧은 설명의 "· 글자:" 줄이 안 보였음, 11-14)
+  const descRef = useRef<HTMLParagraphElement>(null);
+  const noteRef = useRef<HTMLParagraphElement>(null);
+  const [clamped, setClamped] = useState(false);
+  useLayoutEffect(() => {
+    if (textOpen) return;
+    const over = (el: HTMLElement | null) => !!el && el.scrollHeight > el.clientHeight + 1;
+    setClamped(over(descRef.current) || over(noteRef.current));
+  }, [view?.description, view?.requestNote, textOpen]);
 
   if (isError) {
     return (
@@ -339,36 +354,45 @@ export function QuoteRequestPanel({ storeId, requestId }: { storeId: string; req
   const photosRow =
     view.photoUrls.length > 0 ? (
       <div className={cx(CHAT_NO_REPLAY, "flex gap-1.5 overflow-x-auto")}>
-        {view.photoUrls.map((url, i) => (
-          <button
-            key={`${i}-${url}`}
-            type="button"
-            onClick={() => setViewer(url)}
-            aria-label="사진 크게 보기"
-          >
-            <img
-              src={url}
-              alt="참고 사진"
-              className="size-16 shrink-0 rounded-control object-cover"
-            />
-          </button>
-        ))}
+        {view.photoUrls.map((url, i) => {
+          // 사진이 여러 장이면 번호만(설명의 "1번 사진처럼"과 맞춤. 가져올 것은 설명 글에 있어 사진 밑에는 쓰지 않는다, 운영자 11-14)
+          const multi = view.photoUrls.length > 1;
+          return (
+            <button
+              key={`${i}-${url}`}
+              type="button"
+              onClick={() => setViewer(i)}
+              aria-label={multi ? `${i + 1}번 사진 크게 보기` : "사진 크게 보기"}
+              className="shrink-0"
+            >
+              <span className="relative block">
+                <img src={url} alt="참고 사진" className="size-16 rounded-control object-cover" />
+                {multi ? (
+                  <span className="absolute left-1 top-1 flex size-[18px] items-center justify-center rounded-full bg-ink-900/60 text-badge font-bold text-white">
+                    {i + 1}
+                  </span>
+                ) : null}
+              </span>
+            </button>
+          );
+        })}
       </div>
     ) : null;
-  // 설명 4줄·요청 사항 2줄까지 보이고 "더 보기"(운영자 11-12)
-  const longText = (view.description ?? "").length + (view.requestNote ?? "").length > 120;
+  // 설명 6줄(한 장이면 "· 글자:"까지 보이게, 11-14)·요청 사항 2줄까지 보이고 "더 보기"(운영자 11-12)
   const textBox =
     view.description || view.requestNote ? (
       <div className={cx(CHAT_NO_REPLAY, "rounded-control bg-ink-50 px-3 py-2.5")}>
         {view.description ? (
           <p
-            className={cx("whitespace-pre-wrap text-sub text-ink-900", !textOpen && "line-clamp-4")}
+            ref={descRef}
+            className={cx("whitespace-pre-wrap text-sub text-ink-900", !textOpen && "line-clamp-6")}
           >
             {view.description}
           </p>
         ) : null}
         {view.requestNote ? (
           <p
+            ref={noteRef}
             className={cx(
               "whitespace-pre-wrap text-sub text-ink-700",
               view.description && "mt-1.5",
@@ -379,7 +403,7 @@ export function QuoteRequestPanel({ storeId, requestId }: { storeId: string; req
             {view.requestNote}
           </p>
         ) : null}
-        {!textOpen && longText ? (
+        {!textOpen && clamped ? (
           <button
             type="button"
             onClick={() => setTextOpen(true)}
@@ -508,19 +532,16 @@ export function QuoteRequestPanel({ storeId, requestId }: { storeId: string; req
           ))}
         </div>
       </BottomSheet>
-      {viewer ? (
-        <button
-          type="button"
-          aria-label="닫기"
-          onClick={() => setViewer(null)}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80"
-        >
-          <img
-            src={viewer}
-            alt=""
-            className="max-h-[80vh] max-w-[92vw] rounded-control object-contain"
+      {viewer !== null ? (
+        <div className={CHAT_NO_REPLAY}>
+          <ImageLightbox
+            images={view.photoUrls}
+            initialIndex={viewer}
+            alt="참고 사진"
+            onClose={() => setViewer(null)}
+            onSave={isSellerAppWebView() ? (src) => saveImageToDevice(src) : undefined}
           />
-        </button>
+        </div>
       ) : null}
     </div>
   );

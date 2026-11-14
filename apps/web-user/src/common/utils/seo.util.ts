@@ -81,6 +81,8 @@ interface BuildSitemapInput {
   baseUrl: string;
   products: SitemapSourceItem[];
   stores: SitemapSourceItem[];
+  /** 케이크 디자인 상세(기획 I-112, 앱에 넣어 둔 디자인이라 서버를 부르지 않음) */
+  designIds?: string[];
 }
 
 /** 홈 + 상품 상세 + 스토어 상세 주소 목록 (id만 사용 — 목록 응답의 다른 필드는 쓰지 않음) */
@@ -88,6 +90,7 @@ export function buildSitemapEntries({
   baseUrl,
   products,
   stores,
+  designIds = [],
 }: BuildSitemapInput): MetadataRoute.Sitemap {
   return [
     { url: baseUrl, changeFrequency: "daily", priority: 1 },
@@ -102,6 +105,11 @@ export function buildSitemapEntries({
       lastModified: toLastModified(product.updatedAt),
       changeFrequency: "weekly" as const,
       priority: 0.8,
+    })),
+    ...designIds.map((id) => ({
+      url: `${baseUrl}/design/${id}`,
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
     })),
   ];
 }

@@ -1,7 +1,6 @@
 import type {
   QuoteCakeSize,
   QuoteContactType,
-  QuoteCream,
 } from "@/apps/web-user/features/quote/types/quote.type";
 import { NO_REPLAY } from "@/apps/web-user/common/constants/replay.constant";
 
@@ -11,9 +10,7 @@ export const QUOTE_LIMITS = {
   MAX_PHOTOS: 3,
   DESCRIPTION_MAX: 500,
   REQUEST_NOTE_MAX: 200,
-  FLAVOR_NOTE_MAX: 30,
   MAX_STORES: 5,
-  MAX_QUANTITY: 50,
   BUDGET_MIN: 10_000,
   BUDGET_MAX: 100_000,
   BUDGET_STEP: 10_000,
@@ -32,12 +29,6 @@ export const QUOTE_SIZE_OPTIONS: {
   { value: "NO2", label: "2호", people: "4~6명", diameter: "2호는 지름 약 18cm예요" },
   { value: "NO3", label: "3호", people: "6~8명", diameter: "3호는 지름 약 21cm예요" },
   { value: "LARGER", label: "더 크게", people: "8명+", diameter: "3호(지름 약 21cm)보다 커요" },
-];
-
-export const QUOTE_CREAM_OPTIONS: { value: QuoteCream; label: string }[] = [
-  { value: "FRESH_CREAM", label: "생크림" },
-  { value: "BUTTER_CREAM", label: "버터크림" },
-  { value: "CREAM_CHEESE", label: "크림치즈" },
 ];
 
 /** 거리 막대: 1·2·3·4·5·10·20km·시도 전체(마지막 칸) */

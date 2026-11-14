@@ -150,10 +150,23 @@ export const OrderDetailSpreadsheetView: React.FC<OrderDetailSpreadsheetViewProp
                 <SheetKvRow label="참고 사진">
                   {order.quote.requestPhotoUrls.length > 0 ? (
                     <span className={cn(NO_REPLAY, "flex flex-wrap gap-2")}>
-                      {order.quote.requestPhotoUrls.map((src) => (
-                        <a key={src} href={src} target="_blank" rel="noreferrer">
+                      {order.quote.requestPhotoUrls.map((src, i, all) => (
+                        // 새 탭 대신 옵션 사진과 같은 사진 보기(사장님 앱 사진은 모두 같게, 11-14)
+                        <button
+                          key={src}
+                          type="button"
+                          onClick={() => onReferenceImageClick(all, i)}
+                          aria-label={`참고 사진 ${i + 1} 크게 보기`}
+                          className="relative"
+                        >
                           <img src={src} alt="참고 사진" className="size-16 rounded object-cover" />
-                        </a>
+                          {/* 요청서 설명의 "1번 사진처럼"과 맞추는 번호(11-14) */}
+                          {all.length > 1 ? (
+                            <span className="absolute left-1 top-1 flex size-[18px] items-center justify-center rounded-full bg-black/60 text-[11px] font-bold text-white">
+                              {i + 1}
+                            </span>
+                          ) : null}
+                        </button>
                       ))}
                     </span>
                   ) : (
