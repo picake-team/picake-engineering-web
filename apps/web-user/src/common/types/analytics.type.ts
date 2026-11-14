@@ -309,7 +309,7 @@ export interface AnalyticsEventMap {
     store_count: number;
     /** 디자인 모음에서 고른 사진 수 */
     design_photo_count: number;
-    /** 사진 보고 채운 칸을 그대로 둔 수(설명·크기·크림·요청 사항 중) */
+    /** 사진 보고 채운 설명을 그대로 보냈으면 1, 아니면 0(11-14부터 채우는 칸은 설명 하나) */
     auto_filled_count: number;
   };
   /** 견적 요청이 만들어짐(서버 응답) */
@@ -335,8 +335,6 @@ export interface AnalyticsEventMap {
   };
   /** 요청서에서 디자인 모음 사진을 넣음 */
   engage_quote_design_pick: { count: number };
-  /** 요청서 사진의 "가져올 것"을 바꿈 */
-  engage_quote_photo_parts: { parts: string };
   /** 손님 사진을 AI가 읽어 칸을 채움 */
   success_quote_photo_read: never;
   /** 손님 사진을 읽지 못함(unreadable = 케이크가 아님·못 읽음, limit = 하루 횟수, error = 분당 제한·서버 오류) */
