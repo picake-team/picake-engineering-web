@@ -37,6 +37,8 @@ export interface QuoteRequestForShop {
   description: string | null;
   requestNote: string | null;
   photoUrls: string[];
+  /** photoUrls와 같은 순서: 디자인 모음 사진인지·가져올 것(기획 I-112, 옛 서버는 없음) */
+  photoDetails?: QuotePhotoDetail[];
   /** 끝난 요청이라 손님이 쓴 내용·사진을 서버가 보내지 않음(옛 서버는 없음) */
   contentHidden?: boolean;
   /** 손님 이름·휴대폰(보낼 때 "받는 가게에 전달돼요" 안내를 본 요청에만, 손님 글과 같은 기간. 옛 서버는 없음) */
@@ -55,4 +57,27 @@ export interface QuoteInputBody {
   similarity: QuoteSimilarity;
   memo?: string;
   photoUrls?: string[];
+}
+
+/** 사진에서 가져올 것(기획 I-112, 손님이 요청서에서 고름) */
+export type QuotePhotoPart = "ALL" | "SHAPE" | "COLOR" | "DECORATION" | "LETTERING";
+export interface QuotePhotoDetail {
+  designId: string | null;
+  parts: QuotePhotoPart[];
+}
+const PART_LABEL: Record<QuotePhotoPart, string> = {
+  ALL: "전체",
+  SHAPE: "모양",
+  COLOR: "색",
+  DECORATION: "장식",
+  LETTERING: "글자",
+};
+/** "전체", "장식만", "색·장식" */
+export function photoPartsLabel(parts: QuotePhotoPart[] | undefined): string {
+  if (!parts?.length || parts.includes("ALL")) return PART_LABEL.ALL;
+  const order: QuotePhotoPart[] = ["SHAPE", "COLOR", "DECORATION", "LETTERING"];
+  const picked = order.filter((p) => parts.includes(p));
+  return picked.length === 1
+    ? `${PART_LABEL[picked[0]]}만`
+    : picked.map((p) => PART_LABEL[p]).join("·");
 }

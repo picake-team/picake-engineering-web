@@ -19,6 +19,12 @@ import {
   type QuoteDraft,
   type QuoteDraftStore,
 } from "@/apps/web-user/features/quote/store/quote-draft.store";
+import {
+  designImageSrc,
+  designPhotos,
+  getDesign,
+} from "@/apps/web-user/features/design/utils/design.util";
+import { isAutoFilled } from "@/apps/web-user/features/design/utils/design-fill.util";
 import type { QuoteRequestEntry } from "@/apps/web-user/features/quote/types/quote.type";
 import { FixedFooter } from "@/apps/web-user/features/quote/components/form/QuoteFormParts";
 import {
@@ -47,7 +53,7 @@ function draftSummary(draft: QuoteDraft): string {
     : "쓰던 내용이 이 휴대폰에 남아 있어요";
 }
 
-const ENTRIES: QuoteRequestEntry[] = ["HOME", "SEARCH", "MAP", "STORE", "MYPAGE"];
+const ENTRIES: QuoteRequestEntry[] = ["HOME", "SEARCH", "MAP", "STORE", "MYPAGE", "DESIGN"];
 
 const STEP_NAMES: Record<number, QuoteStepName> = {
   1: "when",
@@ -98,6 +104,10 @@ function readInit(params: URLSearchParams): Partial<QuoteDraft> | null {
   if (store && params.get("only") === "1") init.onlyDesignatedStores = true;
   const q = params.get("q");
   if (q) init.description = q;
+  // 디자인 모음에서 "이 디자인으로 견적 받기"(?entry=DESIGN&designId=…)
+  const designIds = (params.get("designId") ?? "").split(",").filter(Boolean);
+  const photos = designPhotos(designIds).slice(0, QUOTE_LIMITS.MAX_PHOTOS);
+  if (photos.length) init.photos = photos;
   return init;
 }
 
@@ -108,7 +118,7 @@ function hasContent(d: QuoteDraft) {
 function QuoteNewContent() {
   const router = useRouter();
   const params = useSearchParams();
-  const { draft, step, setStep, start, update, reset } = useQuoteDraftStore();
+  const { draft, step, setStep, start, update, reset, setPhotos } = useQuoteDraftStore();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const openLoginSheet = useLoginSheetStore((s) => s.openLoginSheet);
   const { showAlert } = useAlertStore();
@@ -164,6 +174,7 @@ function QuoteNewContent() {
       .catch(() => undefined);
   }
 
+  const pendingDesign = getDesign(pendingInit?.photos?.[0]?.designId);
   const only = draft.onlyDesignatedStores;
   const order = useMemo(() => (only ? [1, 4, 5, 6] : [1, 2, 3, 4, 5, 6]), [only]);
   const position = Math.max(0, order.indexOf(step));
@@ -232,6 +243,10 @@ function QuoteNewContent() {
       only_store: draft.onlyDesignatedStores,
       photo_count: draft.photos.length,
       store_count: draft.stores.length,
+      design_photo_count: draft.photos.filter((p) => p.designId).length,
+      auto_filled_count: (["description", "size", "creams", "requestNote"] as const).filter((f) =>
+        isAutoFilled(f, draft, draft.autoFill),
+      ).length,
     });
     create.mutate(
       {
@@ -276,6 +291,12 @@ function QuoteNewContent() {
           budgetMax: draft.budgetMax >= QUOTE_LIMITS.BUDGET_MAX ? undefined : draft.budgetMax,
           requestNote: draft.requestNote.trim() || undefined,
           entry: draft.entry ?? undefined,
+          photoDetails: draft.photos.length
+            ? draft.photos.map((p) => ({
+                designId: p.designId ?? null,
+                parts: p.parts?.length ? p.parts : ["ALL"],
+              }))
+            : undefined,
         },
       },
       {
@@ -362,6 +383,19 @@ function QuoteNewContent() {
         title="쓰던 요청서가 있어요"
       >
         <p className="px-[20px] pt-[4px] text-sm text-gray-500">{draftSummary(draft)}</p>
+        {pendingDesign && (
+          <div className="mx-[20px] mt-[14px] flex items-center gap-[10px] rounded-xl border border-gray-100 p-[10px]">
+            <img
+              src={designImageSrc(pendingDesign.image.thumb)}
+              alt=""
+              className="h-[44px] w-[44px] shrink-0 rounded-lg bg-gray-50 object-cover"
+            />
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-gray-900">{pendingDesign.name}</p>
+              <p className="text-2sm text-gray-500">쓰던 요청서에 이 사진을 더할까요?</p>
+            </div>
+          </div>
+        )}
         <div className="flex gap-[8px] px-[20px] pb-[20px] pt-[16px]">
           <Button
             variant="outline"
@@ -379,7 +413,21 @@ function QuoteNewContent() {
             size="lg"
             className="flex-1"
             onClick={() => {
-              // 이어 쓰기: 쓰던 내용에 그 가게를 더한다
+              // 이어 쓰기: 쓰던 내용에 그 가게·디자인 사진을 더한다(사진은 3장까지)
+              const extraPhotos = (pendingInit?.photos ?? []).filter(
+                (p) => !draft.photos.some((x) => x.designId && x.designId === p.designId),
+              );
+              if (extraPhotos.length) {
+                const room = QUOTE_LIMITS.MAX_PHOTOS - draft.photos.length;
+                if (room < extraPhotos.length) {
+                  showAlert({
+                    type: "warning",
+                    title: "사진은 3장까지예요",
+                    message: "4단계에서 사진을 빼고 다시 넣어 주세요.",
+                  });
+                }
+                if (room > 0) setPhotos([...draft.photos, ...extraPhotos.slice(0, room)]);
+              }
               const extra = pendingInit?.stores?.[0];
               if (
                 extra &&
@@ -391,7 +439,7 @@ function QuoteNewContent() {
               setPendingInit(null);
             }}
           >
-            이어 쓰기
+            {pendingDesign ? "이 사진 더해 이어 쓰기" : "이어 쓰기"}
           </Button>
         </div>
       </BottomSheet>

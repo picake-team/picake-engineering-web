@@ -12,6 +12,7 @@ import {
 import { ROUTES } from "@/apps/web-admin/common/constants/paths.constant";
 import {
   QUOTE_REQUEST_ENTRY_LABELS,
+  photoPartsLabel,
   QUOTE_REQUEST_STATUS_LABELS,
   formatDateTime,
   useQuoteRequestDetail,
@@ -78,15 +79,22 @@ export const QuoteRequestDetailPage: React.FC = () => {
                 "-"
               ) : (
                 <div className="flex flex-wrap gap-2">
-                  {data.photoUrls.map((url) => (
-                    <a key={url} href={url} target="_blank" rel="noreferrer">
-                      <img
-                        src={url}
-                        alt="참고 사진"
-                        className="h-28 w-28 rounded-md object-cover"
-                      />
-                    </a>
-                  ))}
+                  {data.photoUrls.map((url, i) => {
+                    const d = data.photoDetails?.[i];
+                    return (
+                      <a key={url} href={url} target="_blank" rel="noreferrer" className="w-28">
+                        <img
+                          src={url}
+                          alt="참고 사진"
+                          className="h-28 w-28 rounded-md object-cover"
+                        />
+                        <span className="mt-1 block text-xs text-gray-600">
+                          {i + 1}번 · {photoPartsLabel(d?.parts)}
+                          {d?.designId ? ` · 디자인 ${d.designId}` : d ? " · 손님 사진" : ""}
+                        </span>
+                      </a>
+                    );
+                  })}
                 </div>
               )}
             </Row>

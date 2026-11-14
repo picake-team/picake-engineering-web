@@ -7,6 +7,15 @@ import {
   QUOTE_DRAFT_STORAGE_KEY,
   type QuoteDistance,
 } from "@/apps/web-user/features/quote/constants/quote.constant";
+import type { DesignPart } from "@/apps/web-user/features/design/types/design.type";
+import {
+  applyDesignFill,
+  buildDesignFill,
+  revertDesignFill,
+  type FillSource,
+  type QuoteAutoFill,
+} from "@/apps/web-user/features/design/utils/design-fill.util";
+import { getDesign } from "@/apps/web-user/features/design/utils/design.util";
 import type {
   QuoteAreaOption,
   QuoteCakeSize,
@@ -28,10 +37,22 @@ export interface QuoteDraftStore {
   isPicakeStore: boolean;
 }
 
-/** 참고 사진: 로그인 전이라 서버에 올리기 전까지 줄인 사진(data URL)으로 둔다 */
+/** 손님 사진을 AI가 읽은 상태(기획 I-112 ⑥) */
+export type PhotoReadState = "reading" | "done" | "failed" | "limit" | "off";
+
+/**
+ * 참고 사진: 로그인 전이라 서버에 올리기 전까지 줄인 사진(data URL)으로 둔다.
+ * 디자인 모음 사진은 파일 대신 디자인 번호와 사진 주소(/images/designs/…)로 기억한다(저장 공간이 모자라도 남게).
+ */
 export interface QuoteDraftPhoto {
   id: string;
   dataUrl: string;
+  designId?: string;
+  /** 이 사진에서 가져올 것(없으면 전체) */
+  parts?: DesignPart[];
+  /** 손님 사진을 AI가 읽은 값 */
+  read?: FillSource | null;
+  readState?: PhotoReadState;
 }
 
 export interface QuoteDraft {
@@ -52,6 +73,10 @@ export interface QuoteDraft {
   flavorNote: string;
   budgetMin: number;
   budgetMax: number;
+  /** 사진 보고 마지막으로 채운 값(✦ 표시·되돌리기) */
+  autoFill?: QuoteAutoFill;
+  /** 되돌리기를 눌렀으면 사진이 바뀔 때까지 다시 채우지 않는다 */
+  autoFillDismissed?: boolean;
 }
 
 export const EMPTY_QUOTE_DRAFT: QuoteDraft = {
@@ -83,6 +108,23 @@ interface QuoteDraftState {
   setStep: (step: number) => void;
   start: (init?: Partial<QuoteDraft>) => void;
   reset: () => void;
+  /** 사진을 바꾸고(넣기·빼기·가져올 것·읽은 값) 그에 맞춰 칸을 다시 채운다 */
+  setPhotos: (photos: QuoteDraftPhoto[]) => void;
+  /** 사진 보고 채운 칸 되돌리기 */
+  revertAutoFill: () => void;
+}
+
+/** 사진들로 칸을 채운 결과(손님이 고친 칸은 그대로) */
+export function withAutoFill(draft: QuoteDraft): QuoteDraft {
+  if (draft.autoFillDismissed) return draft;
+  const next = buildDesignFill(
+    draft.photos.map((p) => ({
+      design: p.designId ? getDesign(p.designId) : (p.read ?? null),
+      parts: p.parts ?? ["ALL"],
+    })),
+  );
+  const { patch, auto } = applyDesignFill(draft, draft.autoFill, next);
+  return { ...draft, ...patch, autoFill: auto };
 }
 
 /**
@@ -97,8 +139,23 @@ export const useQuoteDraftStore = create<QuoteDraftState>()(
       started: false,
       update: (patch) => set((s) => ({ draft: { ...s.draft, ...patch }, started: true })),
       setStep: (step) => set({ step }),
-      start: (init) => set({ draft: { ...EMPTY_QUOTE_DRAFT, ...init }, step: 1, started: true }),
+      start: (init) =>
+        set({ draft: withAutoFill({ ...EMPTY_QUOTE_DRAFT, ...init }), step: 1, started: true }),
       reset: () => set({ draft: EMPTY_QUOTE_DRAFT, step: 1, started: false }),
+      setPhotos: (photos) =>
+        set((s) => ({
+          draft: withAutoFill({ ...s.draft, photos, autoFillDismissed: false }),
+          started: true,
+        })),
+      revertAutoFill: () =>
+        set((s) => ({
+          draft: {
+            ...s.draft,
+            ...revertDesignFill(s.draft, s.draft.autoFill),
+            autoFill: {},
+            autoFillDismissed: true,
+          },
+        })),
     }),
     {
       name: QUOTE_DRAFT_STORAGE_KEY,
@@ -111,7 +168,10 @@ export const useQuoteDraftStore = create<QuoteDraftState>()(
             // 저장 공간이 모자라면 사진을 빼고 남긴다
             try {
               const parsed = JSON.parse(value);
-              parsed.state.draft.photos = [];
+              // 디자인 모음 사진은 주소만이라 남긴다
+              parsed.state.draft.photos = (parsed.state.draft.photos ?? []).filter(
+                (p: QuoteDraftPhoto) => p.designId,
+              );
               window.localStorage.setItem(name, JSON.stringify(parsed));
             } catch {
               /* 저장 못 해도 화면은 계속 쓴다 */

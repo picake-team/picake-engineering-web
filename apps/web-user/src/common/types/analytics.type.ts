@@ -78,7 +78,13 @@ export type ReservationFilterName = "all" | "pickup_waiting" | "pickup_complete"
 export type MapAreaSearchTrigger = "drag" | "zoom" | "current_location";
 
 /** 견적 요청서로 들어온 곳(서버 QuoteRequest.entry를 소문자로, 주소로 바로 열면 direct) */
-export type QuoteEntryPoint = "home" | "search" | "map" | "store" | "mypage" | "direct";
+export type QuoteEntryPoint = "home" | "search" | "map" | "store" | "mypage" | "design" | "direct";
+
+/** 케이크 디자인 모음(I-112)을 본 곳 */
+export type DesignEntryPoint = "home" | "search" | "saved" | "similar" | "direct";
+
+/** 견적 요청서 사진 읽기 결과 */
+export type PhotoReadResult = "done" | "unreadable" | "limit" | "error";
 
 /** 견적 요청서 단계(이 가게에만 물어보면 where·stores 없이 4단계) */
 export type QuoteStepName = "when" | "where" | "stores" | "cake" | "size_budget" | "confirm";
@@ -304,11 +310,37 @@ export interface AnalyticsEventMap {
     only_store: boolean;
     photo_count: number;
     store_count: number;
+    /** 디자인 모음에서 고른 사진 수 */
+    design_photo_count: number;
+    /** 사진 보고 채운 칸을 그대로 둔 수(설명·크기·크림·요청 사항 중) */
+    auto_filled_count: number;
   };
   /** 견적 요청이 만들어짐(서버 응답) */
   success_quote_request: { quote_request_id: string; entry_point: QuoteEntryPoint };
   /** 견적 요청을 보내지 못함(pickup_time = 그새 3시간 안이 됨, api_error = 사진 올리기·서버 오류) */
   fail_quote_request: { entry_point: QuoteEntryPoint; fail_reason: QuoteRequestFailReason };
+
+  // ── 케이크 디자인 모음(I-112) ──
+  /** 홈 매거진 칸이 화면에 보임(한 번) */
+  view_design_magazine: never;
+  /** 디자인 상세를 봄 */
+  view_design_detail: { design_id: string; entry_point: DesignEntryPoint };
+  /** 검색 결과 디자인 탭을 봄 */
+  view_design_list: { category: string | null; result_count: number };
+  /** 디자인 ♥ */
+  engage_design_like: { design_id: string; liked: boolean };
+  /** "이 디자인으로 견적 받기"(상세·매거진 카드) */
+  request_design_quote: { design_id: string; entry_point: DesignEntryPoint };
+  /** 요청서에서 디자인 모음 사진을 넣음 */
+  engage_quote_design_pick: { count: number };
+  /** 요청서 사진의 "가져올 것"을 바꿈 */
+  engage_quote_photo_parts: { parts: string };
+  /** 사진 보고 채운 칸을 되돌림 */
+  engage_quote_autofill_revert: never;
+  /** 손님 사진을 AI가 읽음(결과) */
+  success_quote_photo_read: { result: PhotoReadResult };
+  /** 사진 읽기 끄기·켜기 */
+  engage_quote_photo_read_toggle: { off: boolean };
 
   // ── 견적 ②(I-46): 손님이 견적을 보고 고름. 성공 기준: 받은 견적 → 고른 요청 비율 ──
   /** 요청 상세에서 받은 견적을 봄(열 때 한 번). unseen_count = 처음 보는 견적 수 */
