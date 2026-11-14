@@ -102,7 +102,8 @@ export default function SearchPage() {
   // 홈 카테고리로 들어와 결과를 보는 중이면 키보드를 올리지 않는다.
   // 홈에서 미리 띄워둔 임시 입력은 실제 입력에 포커스를 넘긴 뒤 정리한다.
   useEffect(() => {
-    if (!searchParams.get("q") && !categoryParam) {
+    // 디자인 탭으로 바로 온 경우(홈 매거진 "더 보기"·저장 탭)는 둘러보기라 키보드를 올리지 않는다(11-14)
+    if (!searchParams.get("q") && !categoryParam && searchParams.get("tab") !== "design") {
       inputRef.current?.focus({ preventScroll: true });
     }
     releaseSoftKeyboard();
@@ -111,7 +112,7 @@ export default function SearchPage() {
   // 검색 화면(입력 전) 노출. 홈 카테고리로 와서 결과를 바로 보는 것은 검색 화면 노출로 세지 않는다
   // (세면 "검색 화면을 열고 검색한 비율"이 카테고리 방문만큼 낮게 보인다)
   useEffect(() => {
-    if (categoryParam) return;
+    if (categoryParam || searchParams.get("tab") === "design") return;
     trackEvent("view_search");
   }, []);
 

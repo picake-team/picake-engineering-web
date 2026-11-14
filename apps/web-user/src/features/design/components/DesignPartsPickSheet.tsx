@@ -20,7 +20,7 @@ const PART_KEY = {
 
 /**
  * 디자인 상세 "이 디자인으로 견적 받기" → "이 사진에서 무엇을 가져갈까요?"(기획 I-112, 운영자 11-14 고름).
- * 처음은 전체. 요청서의 "가져올 것" 칩과 같은 고르기다.
+ * 처음은 전체. 요청서 "디자인 모음에서 고르기"도 같은 창을 쓴다(요청서에서는 바꾸지 않음, 바꾸려면 사진을 빼고 다시 넣음).
  */
 export function DesignPartsPickSheet({
   isOpen,
@@ -79,7 +79,7 @@ export function DesignPartsPickSheet({
       }
     >
       <div className="px-[20px]">
-        <p className="mb-[4px] text-2sm text-gray-500">요청서에서 언제든 바꿀 수 있어요</p>
+        <p className="mb-[4px] text-2sm text-gray-500">고른 것만 요청서 설명에 적어 드려요</p>
         {row("ALL", "사진처럼 다")}
         {options.map((p) => row(p, design.parts[PART_KEY[p]]))}
       </div>

@@ -90,14 +90,37 @@ describe("buildDesignFill", () => {
     );
   });
 
-  it("설명은 500자까지", () => {
+  it("여러 장이면 한 줄 값을 40자로 줄이고(…), 채우는 설명은 350자 안에서 줄 단위로", () => {
     const long = { ...bento, parts: { ...bento.parts, decoration: "가".repeat(300) } };
     const long2 = { ...heart, parts: { ...heart.parts, decoration: "나".repeat(300) } };
     const fill = buildDesignFill([
       { design: long, parts: ["ALL"] },
       { design: long2, parts: ["ALL"] },
     ]);
-    expect(fill?.description.length).toBe(500);
+    expect(fill?.description).toContain(`· 장식: ${"가".repeat(39)}…`);
+    expect(fill!.description.length).toBeLessThanOrEqual(350);
+    // 줄 중간에서 자르지 않는다
+    for (const line of fill!.description.split("\n")) {
+      expect(line === "" || /사진/.test(line) || line.startsWith("· ")).toBe(true);
+    }
+  });
+
+  it("AI가 읽은 사진 3장도 350자를 넘지 않고, 넘치면 마지막 줄부터 뺀다", () => {
+    const read = {
+      parts: {
+        shape: "흰 크림 2단 원형 케이크, 윗단과 아랫단에 꽃 장식이 많이 있음",
+        color: "흰색 바탕에 연분홍·주황·빨강·연보라 꽃",
+        decoration: "위아래 구슬 모양 파이핑, 윗면과 옆면에 장미 모양 꽃 장식 여러 개, 잎 장식",
+        lettering: '"축환갑 인생은 60부터~" 연분홍 손글씨, "어머님 사랑하고 감사합니다" 연분홍',
+      },
+    };
+    const fill = buildDesignFill([
+      { design: read, parts: ["ALL"] },
+      { design: read, parts: ["ALL"] },
+      { design: read, parts: ["ALL"] },
+    ]);
+    expect(fill!.description.length).toBeLessThanOrEqual(350);
+    expect(fill!.description.startsWith("1번 사진처럼")).toBe(true);
   });
 
   it("채우는 칸은 설명 하나뿐(크기·크림·요청 사항은 손님이 고른다)", () => {

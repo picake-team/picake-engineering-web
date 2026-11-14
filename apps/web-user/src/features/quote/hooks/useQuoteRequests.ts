@@ -1,5 +1,6 @@
 "use client";
 
+import { designImageSrc, getDesign } from "@/apps/web-user/features/design/utils/design.util";
 import type { ReserveQuoteBody } from "@/apps/web-user/features/quote/types/quote.type";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAlertStore } from "@/apps/web-user/common/store/alert.store";
@@ -32,7 +33,9 @@ export function useCreateQuoteRequest() {
         let file: File;
         if (photo.dataUrl.startsWith("data:")) file = dataUrlToFile(photo.dataUrl, name);
         else {
-          const res = await fetch(photo.dataUrl);
+          // 기기에 남긴 주소 대신 지금 앱의 디자인 파일 주소로(나중 배포에서 파일 이름이 바뀌어도 보내지게)
+          const design = photo.designId ? getDesign(photo.designId) : null;
+          const res = await fetch(design ? designImageSrc(design.image.file) : photo.dataUrl);
           if (!res.ok)
             throw new Error("디자인 사진을 불러오지 못했어요. 사진을 빼고 다시 넣어 주세요.");
           file = new File([await res.blob()], name, { type: "image/jpeg" });

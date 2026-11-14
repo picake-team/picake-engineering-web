@@ -565,7 +565,6 @@ export function StepCake() {
               <span className="text-center text-sm text-gray-300">
                 {adding ? "올리는 중…" : hasPhoto ? "사진 추가" : "참고할 사진을 올려 주세요"} (
                 {draft.photos.length}/{QUOTE_LIMITS.MAX_PHOTOS})
-                {!hasPhoto && <span className="block text-xs">인스타에서 본 사진도 괜찮아요</span>}
               </span>
             </button>
           )}
@@ -822,11 +821,6 @@ export function StepConfirm({ now, onEdit }: { now: Date; onEdit: (step: number)
   return (
     <div>
       <StepTitle title="이대로 보낼까요?" description="보내면 Picake가 가게에 물어봐 드려요" />
-      {isAutoFilled("description", draft, draft.autoFill) && (
-        <p className="mb-[10px] text-2sm text-primary">
-          ✦ 사진 보고 채운 내용이 있어요. 맞는지 확인해 주세요
-        </p>
-      )}
       <div className="mb-[24px] rounded-xl border border-gray-100 px-[16px] py-[4px]">
         {rows.map((r) => (
           <div

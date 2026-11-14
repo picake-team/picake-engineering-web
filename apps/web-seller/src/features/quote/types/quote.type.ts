@@ -65,19 +65,3 @@ export interface QuotePhotoDetail {
   designId: string | null;
   parts: QuotePhotoPart[];
 }
-const PART_LABEL: Record<QuotePhotoPart, string> = {
-  ALL: "전체",
-  SHAPE: "모양",
-  COLOR: "색",
-  DECORATION: "장식",
-  LETTERING: "글자",
-};
-/** "전체", "장식만", "색·장식" */
-export function photoPartsLabel(parts: QuotePhotoPart[] | undefined): string {
-  if (!parts?.length || parts.includes("ALL")) return PART_LABEL.ALL;
-  const order: QuotePhotoPart[] = ["SHAPE", "COLOR", "DECORATION", "LETTERING"];
-  const picked = order.filter((p) => parts.includes(p));
-  return picked.length === 1
-    ? `${PART_LABEL[picked[0]]}만`
-    : picked.map((p) => PART_LABEL[p]).join("·");
-}

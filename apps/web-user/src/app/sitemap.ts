@@ -9,6 +9,7 @@ import {
   type SitemapPage,
   type SitemapSourceItem,
 } from "@/apps/web-user/common/utils/seo.util";
+import { visibleDesigns } from "@/apps/web-user/features/design/utils/design.util";
 import type { ProductListResponse } from "@/apps/web-user/features/product/types/product.type";
 import type { StoreListResponse } from "@/apps/web-user/features/store/types/store.type";
 
@@ -38,5 +39,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     collectAllPages(fetchStorePage),
   ]);
 
-  return buildSitemapEntries({ baseUrl: SITE_BASE_URL, products, stores });
+  return buildSitemapEntries({
+    baseUrl: SITE_BASE_URL,
+    products,
+    stores,
+    designIds: visibleDesigns().map((d) => d.id),
+  });
 }

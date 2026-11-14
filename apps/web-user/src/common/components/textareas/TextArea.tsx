@@ -72,11 +72,13 @@ export const TextArea: React.FC<TextAreaProps> = ({
 
 /**
  * 글자 수 안내: 평소엔 숨기고 거의 찼을 때만 "200자까지 쓸 수 있어요 · 2자 남았어요"(운영자 11-14).
- * 남은 글자가 최대의 10%(적어도 10자) 이하일 때 보인다.
+ * 남은 글자가 최대의 10%(적어도 10자, 짧은 칸은 절반) 이하일 때 보인다.
  */
 export function CharCountHint({ length, maxLength }: { length: number; maxLength: number }) {
   const left = Math.max(0, maxLength - length);
-  if (left > Math.max(10, Math.ceil(maxLength * 0.1))) return null;
+  // 최대의 10%(적어도 10자), 짧은 칸은 절반까지 남았을 때부터(최대 10자 칸이 처음부터 보이던 것)
+  if (left > Math.min(Math.max(10, Math.ceil(maxLength * 0.1)), Math.floor(maxLength / 2)))
+    return null;
   return (
     <p aria-live="polite" className="mt-[6px] text-right text-xs text-primary">
       {maxLength}자까지 쓸 수 있어요{left > 0 ? ` · ${left}자 남았어요` : ""}
