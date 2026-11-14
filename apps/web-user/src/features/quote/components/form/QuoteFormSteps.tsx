@@ -9,7 +9,6 @@ import { QuoteWriteHelpSheet } from "@/apps/web-user/features/quote/components/f
 import { DualThumbRangeSlider } from "@/apps/web-user/common/components/sliders/DualThumbRangeSlider";
 import { cn } from "@/apps/web-user/common/lib/utils";
 import {
-  QUOTE_CREAM_OPTIONS,
   QUOTE_LIMITS,
   QUOTE_NO_REPLAY,
   QUOTE_SIZE_OPTIONS,
@@ -657,15 +656,6 @@ export function StepCake() {
           </FillNote>
         )}
       </Field>
-      <Field label="요청 사항" optional="선택">
-        <TextArea
-          value={draft.requestNote}
-          onChange={(requestNote) => update({ requestNote })}
-          maxLength={QUOTE_LIMITS.REQUEST_NOTE_MAX}
-          showCount
-          placeholder="알레르기, 초·토퍼 등"
-        />
-      </Field>
       <QuoteWriteHelpSheet isOpen={helpOpen} onClose={() => setHelpOpen(false)} />
       <DesignPickSheet
         isOpen={pickOpen}
@@ -684,10 +674,9 @@ export function StepCake() {
   );
 }
 
-/* ───────────── 5단계: 크기와 예산 ───────────── */
+/* ───────────── 5단계: 크기·예산·요청 사항 ───────────── */
 export function StepSizeBudget() {
   const { draft, update } = useQuoteDraftStore();
-  const [writing, setWriting] = useState(draft.flavorNote.length > 0);
   const size = QUOTE_SIZE_OPTIONS.find((s) => s.value === draft.size);
   const step = (v: number) => Math.round(v / QUOTE_LIMITS.BUDGET_STEP) * QUOTE_LIMITS.BUDGET_STEP;
   const budgetText = (min: number, max: number) =>
@@ -715,37 +704,6 @@ export function StepSizeBudget() {
           ))}
         </div>
       </Field>
-      <Field label="맛·크림" optional="선택 · 안 고르면 가게가 알려 줘요">
-        <div className="flex flex-wrap gap-[8px]">
-          {QUOTE_CREAM_OPTIONS.map((c) => (
-            <Pill
-              key={c.value}
-              selected={draft.creams.includes(c.value)}
-              onClick={() =>
-                update({
-                  creams: draft.creams.includes(c.value)
-                    ? draft.creams.filter((x) => x !== c.value)
-                    : [...draft.creams, c.value],
-                })
-              }
-            >
-              {c.label}
-            </Pill>
-          ))}
-          <Pill selected={writing} onClick={() => setWriting((v) => !v)}>
-            + 직접 쓰기
-          </Pill>
-        </div>
-        {writing && (
-          <input
-            value={draft.flavorNote}
-            maxLength={QUOTE_LIMITS.FLAVOR_NOTE_MAX}
-            onChange={(e) => update({ flavorNote: e.target.value })}
-            placeholder="예: 초코 시트"
-            className="mt-[10px] h-[42px] w-full rounded-[6px] border border-gray-100 px-[12px] text-sm outline-none focus:border-gray-900"
-          />
-        )}
-      </Field>
       <Field
         label="예산"
         right={
@@ -765,6 +723,16 @@ export function StepSizeBudget() {
           ariaLabel="예산"
         />
       </Field>
+      {/* 요청 사항은 크기·예산과 같은 "조건" 단계에(운영자 11-14 "다") */}
+      <Field label="요청 사항" optional="선택">
+        <TextArea
+          value={draft.requestNote}
+          onChange={(requestNote) => update({ requestNote })}
+          maxLength={QUOTE_LIMITS.REQUEST_NOTE_MAX}
+          showCount
+          placeholder="알레르기, 초·토퍼, 맛(예: 초코 시트) 등"
+        />
+      </Field>
     </div>
   );
 }
@@ -773,10 +741,6 @@ export function StepSizeBudget() {
 export function StepConfirm({ now, onEdit }: { now: Date; onEdit: (step: number) => void }) {
   const { draft } = useQuoteDraftStore();
   const size = QUOTE_SIZE_OPTIONS.find((s) => s.value === draft.size);
-  const creams = [
-    ...draft.creams.map((c) => QUOTE_CREAM_OPTIONS.find((o) => o.value === c)?.label),
-    draft.flavorNote.trim() || null,
-  ].filter(Boolean);
   const budget =
     draft.budgetMax >= QUOTE_LIMITS.BUDGET_MAX
       ? `${won(draft.budgetMin)} 이상`
@@ -823,11 +787,11 @@ export function StepConfirm({ now, onEdit }: { now: Date; onEdit: (step: number)
       ? [{ label: "설명", value: draft.description.trim(), step: 4, clamp: true }]
       : []),
     ...(draft.requestNote.trim()
-      ? [{ label: "요청 사항", value: draft.requestNote.trim(), step: 4, clamp: true }]
+      ? [{ label: "요청 사항", value: draft.requestNote.trim(), step: 5, clamp: true }]
       : []),
     {
-      label: "케이크",
-      value: [size?.label ?? "", creams.join("·")].filter(Boolean).join(" · "),
+      label: "크기",
+      value: size?.label ?? "",
       step: 5,
     },
     { label: "예산", value: budget, step: 5 },

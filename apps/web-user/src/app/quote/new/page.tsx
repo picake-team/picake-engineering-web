@@ -293,8 +293,7 @@ function QuoteNewContent() {
           size: draft.size,
           // 개수는 묻지 않는다(운영자 11-14). 단체 주문은 요청 사항·채팅으로
           quantity: 1,
-          creams: draft.creams,
-          flavorNote: draft.flavorNote.trim() || undefined,
+          // 맛·크림은 묻지 않는다(운영자 11-14). 원하면 요청 사항에
           budgetMin: draft.budgetMin,
           budgetMax: draft.budgetMax >= QUOTE_LIMITS.BUDGET_MAX ? undefined : draft.budgetMax,
           requestNote: draft.requestNote.trim() || undefined,
