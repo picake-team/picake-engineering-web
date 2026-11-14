@@ -77,6 +77,13 @@ export const metadata: Metadata = {
   applicationName: SITE_NAME,
   category: "Food & Dining",
   referrer: "origin-when-cross-origin",
+  // 네이버 서치어드바이저 사이트 소유 확인(picakes.com). 공개해도 되는 값이고, 지우면 네이버 등록이 풀린다.
+  // 구글은 picakes.com 도메인 전체가 DNS로 확인돼 있어 여기 넣지 않는다.
+  verification: {
+    other: {
+      "naver-site-verification": "6793b0b84befbe95e58a77a00d06f13c51b9946f",
+    },
+  },
 };
 
 export const viewport: Viewport = {
