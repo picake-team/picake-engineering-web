@@ -202,18 +202,6 @@ export function applyDesignFill(
   return { patch, auto };
 }
 
-/** "되돌리기": 채운 값 그대로인 칸을 비운다 */
-export function revertDesignFill(
-  current: FillableFields,
-  auto: QuoteAutoFill | undefined,
-): Partial<FillableFields> {
-  const patch: Partial<FillableFields> = {};
-  for (const f of FIELDS) {
-    if (isAutoFilled(f, current, auto)) Object.assign(patch, { [f]: EMPTY[f] });
-  }
-  return patch;
-}
-
 /** 가게·손님 화면의 사진 이름표: "1 · 전체", "2 · 장식만"(사진이 한 장이면 없음) */
 export function photoBadge(
   details: { parts: DesignPart[] }[] | undefined,

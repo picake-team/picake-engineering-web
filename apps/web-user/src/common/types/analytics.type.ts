@@ -337,8 +337,6 @@ export interface AnalyticsEventMap {
   engage_quote_design_pick: { count: number };
   /** 요청서 사진의 "가져올 것"을 바꿈 */
   engage_quote_photo_parts: { parts: string };
-  /** 사진 보고 채운 칸을 되돌림 */
-  engage_quote_autofill_revert: never;
   /** 손님 사진을 AI가 읽어 칸을 채움 */
   success_quote_photo_read: never;
   /** 손님 사진을 읽지 못함(unreadable = 케이크가 아님·못 읽음, limit = 하루 횟수, error = 분당 제한·서버 오류) */

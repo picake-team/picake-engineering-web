@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { Calendar } from "@/apps/web-user/common/components/calendars/Calendar";
 import { TextArea } from "@/apps/web-user/common/components/textareas/TextArea";
+import { Toggle } from "@/apps/web-user/common/components/inputs/Toggle";
+import { QuoteWriteHelpSheet } from "@/apps/web-user/features/quote/components/form/QuoteWriteHelpSheet";
 import { DualThumbRangeSlider } from "@/apps/web-user/common/components/sliders/DualThumbRangeSlider";
 import { cn } from "@/apps/web-user/common/lib/utils";
 import {
@@ -451,11 +453,12 @@ function readOwnPhoto(id: string, dataUrl: string) {
 }
 
 export function StepCake() {
-  const { draft, update, setPhotos, revertAutoFill, updatePhotoRead } = useQuoteDraftStore();
+  const { draft, update, setPhotos, updatePhotoRead } = useQuoteDraftStore();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [adding, setAdding] = useState(false);
   const [readOff, setReadOff] = useState(false);
   const [pickOpen, setPickOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
   const { showAlert } = useAlertStore();
   const hasPhoto = draft.photos.length > 0;
   const multi = draft.photos.length >= 2;
@@ -592,37 +595,49 @@ export function StepCake() {
             <NoticeBox>손으로 만드는 케이크라 사진과 조금 다를 수 있어요</NoticeBox>
           </div>
         )}
+        {/* 사진 읽기 켜고 끄기(운영자 11-14 고름): 못 읽었으면 아래 줄에 알린다 */}
         {ownPhotos.length > 0 && (
-          <p className="mt-[8px] text-2sm text-gray-500">
-            {readOff ? (
-              <>
-                사진 읽기를 껐어요 ·{" "}
-                <button type="button" className="underline" onClick={toggleReadOff}>
-                  켜기
-                </button>
-              </>
-            ) : (
-              <>
-                <span className="text-primary">✦</span> 직접 올린 사진은 AI가 읽어 채워요 ·{" "}
-                <button type="button" className="underline" onClick={toggleReadOff}>
-                  사진 읽기 끄기
-                </button>
-              </>
-            )}
-          </p>
-        )}
-        {!readOff && readProblem && (
-          <p className="mt-[4px] text-2sm text-gray-700">{PHOTO_READ_MESSAGE[readProblem]}</p>
+          <div className="mt-[8px] flex items-center gap-[12px] rounded-lg border border-gray-100 px-[12px] py-[10px]">
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-gray-900">
+                <span className="text-primary">✦</span> 사진 보고 설명 채우기
+              </p>
+              <p
+                className={cn(
+                  "mt-[2px] text-2sm",
+                  !readOff && readProblem ? "text-gray-700" : "text-gray-500",
+                )}
+              >
+                {readOff
+                  ? "꺼져 있어요. 켜면 직접 올린 사진을 읽어요"
+                  : readProblem
+                    ? PHOTO_READ_MESSAGE[readProblem]
+                    : "직접 올린 사진은 AI가 읽어요"}
+              </p>
+            </div>
+            <Toggle checked={!readOff} onChange={toggleReadOff} ariaLabel="사진 보고 설명 채우기" />
+          </div>
         )}
       </Field>
       <Field
         label="설명"
         caption={hasPhoto ? undefined : "원하는 케이크와 케이크에 쓸 글자를 적어 주세요"}
+        right={
+          <button
+            type="button"
+            onClick={() => setHelpOpen(true)}
+            className="-my-[11px] shrink-0 py-[11px] pl-[12px] text-2sm text-gray-500"
+          >
+            무엇을 쓸까요? ›
+          </button>
+        }
       >
         <div className="relative">
           <TextArea
             value={draft.description}
             onChange={(description) => update({ description })}
+            // 사진 보고 채운 여러 줄이 한눈에 보이게(운영자 11-14)
+            className="h-[200px] leading-[22px]"
             maxLength={QUOTE_LIMITS.DESCRIPTION_MAX}
             showCount
             placeholder={
@@ -644,21 +659,9 @@ export function StepCake() {
         )}
         {descFilled && (
           <>
-            <div className="mt-[6px] flex items-center justify-between text-2sm">
-              <span className="text-primary">
-                ✦ {filledFrom > 1 ? `사진 ${filledFrom}장을 보고 채웠어요` : "사진 보고 채웠어요"}
-              </span>
-              <button
-                type="button"
-                className="-my-[11px] py-[11px] pl-[12px] text-gray-500 underline"
-                onClick={() => {
-                  revertAutoFill();
-                  trackEvent("engage_quote_autofill_revert");
-                }}
-              >
-                되돌리기
-              </button>
-            </div>
+            <p className="mt-[6px] text-2sm text-primary">
+              ✦ {filledFrom > 1 ? `사진 ${filledFrom}장을 보고 채웠어요` : "사진 보고 채웠어요"}
+            </p>
             <p className="mt-[4px] text-xs text-gray-500">
               케이크에 쓸 글자가 다르면 꼭 고쳐 주세요
             </p>
@@ -675,6 +678,7 @@ export function StepCake() {
         />
         {noteFilled && <p className="mt-[6px] text-2sm text-primary">✦ 사진 보고 채웠어요</p>}
       </Field>
+      <QuoteWriteHelpSheet isOpen={helpOpen} onClose={() => setHelpOpen(false)} />
       <DesignPickSheet
         isOpen={pickOpen}
         room={room}

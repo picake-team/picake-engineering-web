@@ -5,7 +5,6 @@ import {
   buildDesignFill,
   isAutoFilled,
   partsChipLabel,
-  revertDesignFill,
 } from "@/apps/web-user/features/design/utils/design-fill.util";
 
 const base: Omit<Design, "id" | "parts" | "description" | "size" | "creams" | "requestNote"> = {
@@ -167,15 +166,5 @@ describe("applyDesignFill", () => {
     const now = { ...empty, ...first.patch, requestNote: "알레르기 없어요" };
     const { patch } = applyDesignFill(now, first.auto, null);
     expect(patch).toEqual({ description: "", size: null });
-  });
-
-  it("되돌리기는 채운 값 그대로인 칸만 비운다", () => {
-    const first = applyDesignFill(
-      empty,
-      undefined,
-      buildDesignFill([{ design: bento, parts: ["ALL"] }]),
-    );
-    const now = { ...empty, ...first.patch, description: "고친 설명" };
-    expect(revertDesignFill(now, first.auto)).toEqual({ size: null, requestNote: "" });
   });
 });
