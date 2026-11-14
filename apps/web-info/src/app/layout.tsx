@@ -35,6 +35,13 @@ export const metadata: Metadata = {
   },
   applicationName: SITE_NAME,
   referrer: "origin-when-cross-origin",
+  // 네이버 서치어드바이저 사이트 소유 확인(info.picakes.com). 공개해도 되는 값이고, 지우면 네이버 등록이 풀린다.
+  // 구글은 picakes.com 도메인 전체가 DNS로 확인돼 있어 여기 넣지 않는다.
+  verification: {
+    other: {
+      "naver-site-verification": "7f41a4b880856e2c57dccdcbb9a46fba1dd35d34",
+    },
+  },
 };
 
 // web-user와 같은 폭 설정 — 모바일에서 보이는 모습을 그대로 유지한다(확대는 막지 않는다)
