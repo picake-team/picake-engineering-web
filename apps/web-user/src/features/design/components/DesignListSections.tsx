@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
 import { useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/apps/web-user/common/components/buttons/Button";
@@ -51,9 +52,19 @@ export function DesignSearchSection({
 /** 저장 › 디자인 탭: 좋아요한 디자인(최근 순) */
 export function LikedDesignSection() {
   const router = useRouter();
-  const { data, isLoading } = useDesignLikes();
+  const { data, isLoading, isError, refetch } = useDesignLikes();
   const designs = (data?.myLikes ?? []).map((id) => getDesign(id)).filter((d) => d !== null);
-  if (isLoading) return null;
+  // 다른 저장 탭과 같게: 불러오는 중은 회색 칸, 못 불러오면 "다시 시도"(빈 화면으로 보이지 않게)
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-2 gap-[10px] px-[20px] pt-[16px]">
+        {Array.from({ length: 4 }, (_, i) => (
+          <div key={i} className="aspect-[3/4] animate-pulse rounded-xl bg-gray-50" />
+        ))}
+      </div>
+    );
+  }
+  if (isError) return <LoadErrorState onRetry={() => void refetch()} />;
   if (designs.length === 0) {
     return (
       <div className="flex min-h-[calc(100vh-260px)] flex-col items-center justify-center px-5 text-center">

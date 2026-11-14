@@ -22,7 +22,6 @@ import {
   designImageSrc,
   designQuoteHref,
   getDesign,
-  similarDesigns,
 } from "@/apps/web-user/features/design/utils/design.util";
 
 const FROM: DesignEntryPoint[] = ["home", "search", "saved", "similar", "direct"];
@@ -49,7 +48,14 @@ function DesignViewTracker({
 }
 
 /** 케이크 디자인 상세(기획 I-112 ③) */
-export function DesignDetailScreen({ designId }: { designId: string }) {
+export function DesignDetailScreen({
+  designId,
+  similarIds,
+}: {
+  designId: string;
+  /** 서버가 정한 비슷한 디자인(페이지와 휴대폰 날짜가 달라도 같게) */
+  similarIds: string[];
+}) {
   const design = getDesign(designId);
   const router = useRouter();
   const [from, setFrom] = useState<DesignEntryPoint>("direct");
@@ -61,7 +67,7 @@ export function DesignDetailScreen({ designId }: { designId: string }) {
   const count = data?.counts[designId] ?? 0;
 
   if (!design) return null;
-  const similar = similarDesigns(design);
+  const similar = similarIds.map((id) => getDesign(id)).filter((d) => d !== null);
   const rows = designRows(design.parts);
 
   return (

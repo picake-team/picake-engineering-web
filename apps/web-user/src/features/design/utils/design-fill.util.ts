@@ -33,6 +33,38 @@ export interface DesignFill {
 }
 
 export const DESCRIPTION_MAX = 500;
+/**
+ * 채우는 설명은 이만큼까지(손님이 케이크에 쓸 글자 등을 더 쓸 자리를 남긴다, 11-14 상용 전 검토).
+ * AI가 읽은 사진 3장이면 500자를 넘어 줄 중간이 잘리고 더 쓸 수 없었다
+ */
+export const FILL_MAX = 350;
+/** 한 줄 값(한 장이면 길게, 여러 장이면 짧게) */
+const VALUE_MAX = 80;
+const VALUE_MAX_MULTI = 40;
+
+function clip(text: string, max: number): string {
+  const chars = Array.from(text);
+  return chars.length > max
+    ? `${chars
+        .slice(0, max - 1)
+        .join("")
+        .trimEnd()}…`
+    : text;
+}
+
+/** 줄 단위로 max 안까지(줄 중간에서 자르지 않는다) */
+function fitLines(text: string, max: number): string {
+  if (text.length <= max) return text;
+  const out: string[] = [];
+  let len = 0;
+  for (const line of text.split("\n")) {
+    const add = (out.length ? 1 : 0) + line.length;
+    if (len + add > max) break;
+    out.push(line);
+    len += add;
+  }
+  return out.join("\n").trimEnd();
+}
 
 export function isAllParts(parts: DesignPart[]): boolean {
   return parts.length === 0 || parts.includes("ALL");
@@ -94,13 +126,15 @@ export function buildDesignFill(photos: FillPhoto[]): DesignFill | null {
         : "사진처럼 만들어 주세요";
     const lines = parts.flatMap((part) => {
       const value = p.design?.parts[PART_KEY[part]];
-      return value ? [`· ${DESIGN_PART_LABEL[part]}: ${value}`] : [];
+      return value
+        ? [`· ${DESIGN_PART_LABEL[part]}: ${clip(value, multi ? VALUE_MAX_MULTI : VALUE_MAX)}`]
+        : [];
     });
     blocks.push([head, ...lines].join("\n"));
   });
   if (!blocks.length) return null;
 
-  return { description: blocks.join(multi ? "\n\n" : "\n").slice(0, DESCRIPTION_MAX) };
+  return { description: fitLines(blocks.join(multi ? "\n\n" : "\n"), FILL_MAX) };
 }
 
 /** 요청서에 남겨 둔 "마지막으로 채운 설명". 손님이 고친 설명은 다시 채우지 않는다 */

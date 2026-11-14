@@ -17,6 +17,11 @@ import {
   visibleDesigns,
 } from "@/apps/web-user/features/design/utils/design.util";
 
+const thumbOf = (photo: QuoteDraftPhoto) => {
+  const design = photo.designId ? getDesign(photo.designId) : null;
+  return design ? designImageSrc(design.image.thumb) : photo.dataUrl;
+};
+
 /**
  * 요청서 참고 사진 한 칸: 2장 이상이면 번호(가져올 것은 고를 때 정하고 여기서는 바꾸지 않는다, 운영자 11-14).
  * 사진을 누르면 크게 보기(onOpen)
@@ -48,7 +53,8 @@ export function QuotePhotoTile({
         className="block h-full w-full"
       >
         <img
-          src={photo.dataUrl}
+          // 디자인 사진은 100칸에 맞는 작은 그림(원본은 크게 볼 때만)
+          src={thumbOf(photo)}
           alt="참고 사진"
           className="h-full w-full rounded-lg bg-gray-50 object-cover"
         />
@@ -60,7 +66,7 @@ export function QuotePhotoTile({
       )}
       <button
         type="button"
-        aria-label="사진 빼기"
+        aria-label={`참고 사진 ${index + 1} 빼기`}
         className="absolute right-[5px] top-[5px]"
         onClick={onRemove}
       >
