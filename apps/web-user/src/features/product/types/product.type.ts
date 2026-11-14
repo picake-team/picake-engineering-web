@@ -162,6 +162,11 @@ export interface ProductListQueryParams {
   productType?: ProductType;
   productCategoryTypes?: ProductCategoryType[];
   regions?: string;
+  /** 케이크 사이즈 표시명(도시락·미니·1호…), 스토어 목록과 같은 값 */
+  sizes?: string[];
+  /** 거리순(sortBy=distance)일 때만: 기준점 위도·경도 */
+  latitude?: number;
+  longitude?: number;
 }
 
 /**
