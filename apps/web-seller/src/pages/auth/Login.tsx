@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import { ROUTES } from "@/apps/web-seller/common/constants/paths.constant";
+import { SELLER_INTRO_URL } from "@/apps/web-seller/common/constants/seller-intro.constant";
 import { AuthBrandedCard } from "@/apps/web-seller/common/components/layouts/AuthBrandedCard";
 import googleIcon from "@/apps/web-seller/assets/images/google.png";
 import kakaoIcon from "@/apps/web-seller/assets/images/kakaotalk.png";
@@ -11,7 +12,19 @@ export function LoginPage() {
       title="Picake 판매자 센터"
       description="아래에서 로그인 방식을 선택해 주세요."
       footer={
-        <div className="flex justify-center">
+        <div className="flex items-center justify-center gap-2">
+          {/* 처음 온 사장님이 무엇인지 볼 곳(기획 I-49). 글자는 "처음이세요?"만(운영자 11-14), 화면 읽기에는 가는 곳을 말한다 */}
+          <a
+            href={SELLER_INTRO_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="처음이세요? 픽케이크 사장님 소개 보기"
+            className="inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-sm font-medium text-zinc-600 transition-colors hover:bg-white hover:text-zinc-900"
+          >
+            처음이세요?
+            <ChevronRight className="size-4 opacity-60" aria-hidden />
+          </a>
+          <span aria-hidden className="h-3 w-px bg-zinc-200" />
           <Link
             to={ROUTES.AUTH.FIND_ACCOUNT}
             className="inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-sm font-medium text-zinc-600 transition-colors hover:bg-white hover:text-zinc-900"
