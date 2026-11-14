@@ -267,9 +267,15 @@ function QuoteOrderBlock({
                 type="button"
                 aria-label={`참고 사진 ${i + 1} 크게 보기`}
                 onClick={() => onOpenImages(images, i)}
-                className="rounded-control"
+                className="relative rounded-control"
               >
                 <Thumb size={88} src={src} />
+                {/* 요청서 설명의 "1번 사진처럼"과 맞추는 번호(요청서 카드와 같은 모양, 11-14) */}
+                {images.length > 1 ? (
+                  <span className="absolute left-1 top-1 flex size-[18px] items-center justify-center rounded-full bg-ink-900/60 text-badge font-bold text-white">
+                    {i + 1}
+                  </span>
+                ) : null}
               </button>
             ))}
           </div>
