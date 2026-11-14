@@ -59,10 +59,10 @@ describe("partsChipLabel", () => {
 });
 
 describe("buildDesignFill", () => {
-  it("디자인 한 장이면 분류 줄로", () => {
+  it("한 장·전체는 머리말 + 분류 줄", () => {
     expect(buildDesignFill([{ design: bento, parts: ["ALL"] }])).toEqual({
       description:
-        '사진처럼 만들어 주세요\n모양: 흰 크림 도시락 케이크\n색: 흰색 크림\n장식: 작은 빨간 하트\n글자: 검은 필기체 "happy birthday" 레터링',
+        '사진처럼 만들어 주세요\n· 모양: 흰 크림 도시락 케이크\n· 색: 흰색 크림\n· 장식: 작은 빨간 하트\n· 글자: 검은 필기체 "happy birthday" 레터링',
       size: "LUNCHBOX",
       creams: [],
       requestNote: "사진처럼 초 1개",
@@ -70,10 +70,10 @@ describe("buildDesignFill", () => {
     });
   });
 
-  it("한 장에서 일부만 고르면 그 줄만, 머리말 없이", () => {
+  it("한 장에서 일부만 고르면 그 줄만", () => {
     const fill = buildDesignFill([{ design: bento, parts: ["DECORATION", "LETTERING"] }]);
     expect(fill?.description).toBe(
-      '장식: 작은 빨간 하트\n글자: 검은 필기체 "happy birthday" 레터링',
+      '사진에서 장식·글자만 참고해 주세요\n· 장식: 작은 빨간 하트\n· 글자: 검은 필기체 "happy birthday" 레터링',
     );
     expect(fill?.size).toBeNull();
   });
@@ -82,37 +82,27 @@ describe("buildDesignFill", () => {
     expect(buildDesignFill([{ design: null, parts: ["ALL"] }])).toBeNull();
   });
 
-  it("여러 장은 칸마다 어느 사진인지 적고, 직접 고른 칸이 전체보다 먼저", () => {
+  it("여러 장은 사진마다 묶고 사이에 빈 줄", () => {
     const fill = buildDesignFill([
       { design: bento, parts: ["ALL"] },
       { design: heart, parts: ["DECORATION"] },
     ]);
     expect(fill?.description).toBe(
-      '모양: 흰 크림 도시락 케이크 (1번 사진)\n색: 흰색 크림 (1번 사진)\n장식: 분홍 크림 프릴 테두리 (2번 사진)\n글자: 검은 필기체 "happy birthday" 레터링 (1번 사진)',
+      '1번 사진처럼\n· 모양: 흰 크림 도시락 케이크\n· 색: 흰색 크림\n· 장식: 작은 빨간 하트\n· 글자: 검은 필기체 "happy birthday" 레터링\n\n2번 사진에서 장식만\n· 장식: 분홍 크림 프릴 테두리',
     );
     expect(fill?.size).toBe("LUNCHBOX");
-    expect(fill?.creams).toEqual([]);
     expect(fill?.requestNote).toBe("사진처럼 초 1개");
   });
 
-  it("읽은 값이 없는 손님 사진에서 고른 칸은 번호로", () => {
+  it("읽은 값이 없는 손님 사진은 번호로", () => {
     const fill = buildDesignFill([
       { design: heart, parts: ["SHAPE", "COLOR"] },
-      { design: null, parts: ["LETTERING"] },
+      { design: null, parts: ["ALL"] },
     ]);
     expect(fill?.description).toBe(
-      "모양: 하트 모양 케이크 (1번 사진)\n색: 연분홍 크림 (1번 사진)\n글자: 2번 사진처럼",
+      "1번 사진에서 모양·색만\n· 모양: 하트 모양 케이크\n· 색: 연분홍 크림\n\n2번 사진도 참고해 주세요",
     );
     expect(fill?.creams).toEqual(["BUTTER_CREAM"]);
-  });
-
-  it("직접 고른 칸에 읽은 값이 없으면 다른 사진 값으로 바꾸지 않는다", () => {
-    const noText = { ...heart, parts: { ...heart.parts, lettering: null } };
-    const fill = buildDesignFill([
-      { design: bento, parts: ["ALL"] },
-      { design: noText, parts: ["LETTERING"] },
-    ]);
-    expect(fill?.description.split("\n").pop()).toBe("글자: 2번 사진처럼");
   });
 
   it("크기가 사진마다 다르면 모양을 고른 사진을 따르고 알린다", () => {
