@@ -1,6 +1,5 @@
 /** 케이크 디자인 모음(기획 I-112) — 파일로 함께 배포하는 참고 사진과 미리 읽어 둔 값 */
 import type { ProductCategoryType } from "@/apps/web-user/features/product/types/product.type";
-import type { QuoteCakeSize, QuoteCream } from "@/apps/web-user/features/quote/types/quote.type";
 
 /** 사진에서 가져올 것. ALL = 전체 */
 export type DesignPart = "ALL" | "SHAPE" | "COLOR" | "DECORATION" | "LETTERING";
@@ -41,10 +40,7 @@ export interface Design {
   image: { file: string; thumb: string; width: number; height: number };
   credit: DesignCredit;
   parts: DesignParts;
-  /** 한 장만 골랐을 때 설명 칸에 넣는 글("사진처럼 …") */
+  /** 상세 화면 검색 설명(메타 description)에 쓰는 한 문장 */
   description: string;
-  size: QuoteCakeSize | null;
-  creams: QuoteCream[];
-  requestNote: string;
   magazine: { order: number; title: string; subtitle: string } | null;
 }

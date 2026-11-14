@@ -17,16 +17,21 @@ import {
   visibleDesigns,
 } from "@/apps/web-user/features/design/utils/design.util";
 
-/** 요청서 참고 사진 한 칸: 2장 이상이면 번호(가져올 것은 고를 때 정하고 여기서는 바꾸지 않는다, 운영자 11-14) */
+/**
+ * 요청서 참고 사진 한 칸: 2장 이상이면 번호(가져올 것은 고를 때 정하고 여기서는 바꾸지 않는다, 운영자 11-14).
+ * 사진을 누르면 크게 보기(onOpen)
+ */
 export function QuotePhotoTile({
   photo,
   index,
   multi,
+  onOpen,
   onRemove,
 }: {
   photo: QuoteDraftPhoto;
   index: number;
   multi: boolean;
+  onOpen: () => void;
   onRemove: () => void;
 }) {
   return (
@@ -36,11 +41,18 @@ export function QuotePhotoTile({
         !photo.designId && QUOTE_NO_REPLAY,
       )}
     >
-      <img
-        src={photo.dataUrl}
-        alt="참고 사진"
-        className="h-full w-full rounded-lg bg-gray-50 object-cover"
-      />
+      <button
+        type="button"
+        aria-label={`참고 사진 ${index + 1} 크게 보기`}
+        onClick={onOpen}
+        className="block h-full w-full"
+      >
+        <img
+          src={photo.dataUrl}
+          alt="참고 사진"
+          className="h-full w-full rounded-lg bg-gray-50 object-cover"
+        />
+      </button>
       {multi && (
         <span className="absolute left-[5px] top-[5px] flex h-[20px] w-[20px] items-center justify-center rounded-full bg-gray-900/60 text-xs font-bold text-white">
           {index + 1}

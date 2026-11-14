@@ -1,15 +1,16 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { Calendar } from "@/apps/web-user/common/components/calendars/Calendar";
 import { TextArea } from "@/apps/web-user/common/components/textareas/TextArea";
 import { Toggle } from "@/apps/web-user/common/components/inputs/Toggle";
+import { ImageModal } from "@/apps/web-user/common/components/sliders/ImageModal";
 import { QuoteWriteHelpSheet } from "@/apps/web-user/features/quote/components/form/QuoteWriteHelpSheet";
 import { DualThumbRangeSlider } from "@/apps/web-user/common/components/sliders/DualThumbRangeSlider";
 import { cn } from "@/apps/web-user/common/lib/utils";
 import {
-  QUOTE_CREAM_OPTIONS,
   QUOTE_LIMITS,
   QUOTE_NO_REPLAY,
   QUOTE_SIZE_OPTIONS,
@@ -44,7 +45,6 @@ import {
   FillNote,
   Pill,
   StepTitle,
-  Stepper,
 } from "@/apps/web-user/features/quote/components/form/QuoteFormParts";
 import {
   AreaSearchSheet,
@@ -433,12 +433,7 @@ function readOwnPhoto(id: string, dataUrl: string) {
         return;
       }
       finish({
-        read: {
-          parts: res.parts,
-          size: res.size,
-          creams: res.creams,
-          requestNote: res.requestNote,
-        },
+        read: { parts: res.parts },
         readState: "done",
       });
       trackEvent("success_quote_photo_read");
@@ -459,6 +454,8 @@ export function StepCake() {
   const [readOff, setReadOff] = useState(false);
   const [pickOpen, setPickOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  // 크게 보는 사진 번호(상품 상세와 같은 ImageModal: 넘기기·두 손가락 확대)
+  const [viewing, setViewing] = useState<number | null>(null);
   const { showAlert } = useAlertStore();
   const hasPhoto = draft.photos.length > 0;
   const multi = draft.photos.length >= 2;
@@ -467,7 +464,6 @@ export function StepCake() {
   const reading = ownPhotos.some((p) => p.readState === "reading");
   const readProblem = ownPhotos.map((p) => p.readState).find((st) => st && PHOTO_READ_MESSAGE[st]);
   const descFilled = isAutoFilled("description", draft, draft.autoFill);
-  const noteFilled = isAutoFilled("requestNote", draft, draft.autoFill);
   const filledFrom = draft.photos.filter((p) => p.designId || p.read).length;
 
   useEffect(() => {
@@ -535,7 +531,8 @@ export function StepCake() {
   };
 
   return (
-    <div>
+    // 설명 칸이 "다음" 버튼 위까지 남는 높이를 채운다(운영자 11-14)
+    <div className="flex flex-1 flex-col">
       <StepTitle title="어떤 케이크인가요?" description="사진이나 설명 중 하나만 있으면 돼요" />
       <Field
         label="참고 사진"
@@ -578,6 +575,7 @@ export function StepCake() {
               photo={p}
               index={i}
               multi={multi}
+              onOpen={() => setViewing(i)}
               onRemove={() => setPhotos(draft.photos.filter((x) => x.id !== p.id))}
             />
           ))}
@@ -622,6 +620,8 @@ export function StepCake() {
       </Field>
       <Field
         label="설명"
+        // 마지막 칸이라 아래 여백 없이 "다음" 버튼 위까지 채운다
+        className="mb-0 flex flex-1 flex-col"
         caption={hasPhoto ? undefined : "원하는 케이크와 케이크에 쓸 글자를 적어 주세요"}
         right={
           <button
@@ -633,12 +633,13 @@ export function StepCake() {
           </button>
         }
       >
-        <div className="relative">
+        <div className="relative flex flex-1 flex-col">
           <TextArea
             value={draft.description}
             onChange={(description) => update({ description })}
-            // 사진 보고 채운 여러 줄이 한눈에 보이게(운영자 11-14)
-            className="h-[200px] leading-[22px]"
+            containerClassName="flex flex-1 flex-col"
+            // 남는 높이를 채우고, 화면이 작으면 200에서 멈춘다(그때는 페이지가 내려간다)
+            className="h-auto min-h-[200px] flex-1 leading-[22px]"
             maxLength={QUOTE_LIMITS.DESCRIPTION_MAX}
             showCount
             placeholder={
@@ -664,17 +665,20 @@ export function StepCake() {
           </FillNote>
         )}
       </Field>
-      <Field label="요청 사항" optional="선택">
-        <TextArea
-          value={draft.requestNote}
-          onChange={(requestNote) => update({ requestNote })}
-          maxLength={QUOTE_LIMITS.REQUEST_NOTE_MAX}
-          showCount
-          placeholder="알레르기, 초·토퍼 등"
-        />
-        {noteFilled && <FillNote>사진 보고 채웠어요</FillNote>}
-      </Field>
       <QuoteWriteHelpSheet isOpen={helpOpen} onClose={() => setHelpOpen(false)} />
+      {viewing !== null &&
+        createPortal(
+          // 손님 사진이 세션 녹화에 남지 않게
+          <div className={QUOTE_NO_REPLAY}>
+            <ImageModal
+              isOpen
+              onClose={() => setViewing(null)}
+              images={draft.photos.map((p) => ({ id: p.id, url: p.dataUrl }))}
+              initialIndex={Math.min(viewing, draft.photos.length - 1)}
+            />
+          </div>,
+          document.body,
+        )}
       <DesignPickSheet
         isOpen={pickOpen}
         room={room}
@@ -692,18 +696,10 @@ export function StepCake() {
   );
 }
 
-/* ───────────── 5단계: 크기와 예산 ───────────── */
+/* ───────────── 5단계: 크기·예산·요청 사항 ───────────── */
 export function StepSizeBudget() {
   const { draft, update } = useQuoteDraftStore();
-  const [writing, setWriting] = useState(draft.flavorNote.length > 0);
   const size = QUOTE_SIZE_OPTIONS.find((s) => s.value === draft.size);
-  const sizeFilled = isAutoFilled("size", draft, draft.autoFill);
-  const creamsFilled = isAutoFilled("creams", draft, draft.autoFill);
-  // 사진 보고 채웠는데 크림은 알 수 없었다
-  const creamsUnknown =
-    !creamsFilled &&
-    draft.creams.length === 0 &&
-    (draft.autoFill?.description !== undefined || draft.autoFill?.size !== undefined);
   const step = (v: number) => Math.round(v / QUOTE_LIMITS.BUDGET_STEP) * QUOTE_LIMITS.BUDGET_STEP;
   const budgetText = (min: number, max: number) =>
     max >= QUOTE_LIMITS.BUDGET_MAX
@@ -726,73 +722,9 @@ export function StepSizeBudget() {
             >
               <span>{s.label}</span>
               <span className="text-2xs font-normal text-gray-500">{s.people}</span>
-              {sizeFilled && draft.size === s.value && (
-                <span className="absolute right-[6px] top-[3px] text-xs text-primary">✦</span>
-              )}
             </Pill>
           ))}
         </div>
-        {sizeFilled && (
-          <FillNote
-            action={
-              <button
-                type="button"
-                className="-my-[11px] shrink-0 py-[11px] pl-[8px] text-gray-500 underline"
-                onClick={() => update({ size: null })}
-              >
-                되돌리기
-              </button>
-            }
-          >
-            {draft.autoFill?.conflicts?.includes("size")
-              ? "사진마다 크기가 달라 보여요. 맞는지 확인해 주세요"
-              : "사진 보고 골랐어요"}
-          </FillNote>
-        )}
-      </Field>
-      <Field label="개수">
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-500">단체 주문이면 늘려 주세요</span>
-          <Stepper
-            value={draft.quantity}
-            min={1}
-            max={QUOTE_LIMITS.MAX_QUANTITY}
-            onChange={(quantity) => update({ quantity })}
-          />
-        </div>
-      </Field>
-      <Field label="맛·크림" optional="선택 · 안 고르면 가게가 알려 줘요">
-        <div className="flex flex-wrap gap-[8px]">
-          {QUOTE_CREAM_OPTIONS.map((c) => (
-            <Pill
-              key={c.value}
-              selected={draft.creams.includes(c.value)}
-              onClick={() =>
-                update({
-                  creams: draft.creams.includes(c.value)
-                    ? draft.creams.filter((x) => x !== c.value)
-                    : [...draft.creams, c.value],
-                })
-              }
-            >
-              {c.label}
-            </Pill>
-          ))}
-          <Pill selected={writing} onClick={() => setWriting((v) => !v)}>
-            + 직접 쓰기
-          </Pill>
-        </div>
-        {writing && (
-          <input
-            value={draft.flavorNote}
-            maxLength={QUOTE_LIMITS.FLAVOR_NOTE_MAX}
-            onChange={(e) => update({ flavorNote: e.target.value })}
-            placeholder="예: 초코 시트"
-            className="mt-[10px] h-[42px] w-full rounded-[6px] border border-gray-100 px-[12px] text-sm outline-none focus:border-gray-900"
-          />
-        )}
-        {creamsFilled && <FillNote>사진 보고 골랐어요</FillNote>}
-        {creamsUnknown && <FillNote>사진으로는 크림을 알 수 없어 비워 뒀어요</FillNote>}
       </Field>
       <Field
         label="예산"
@@ -800,11 +732,6 @@ export function StepSizeBudget() {
           <span className="text-sm font-bold text-gray-900">
             {budgetText(draft.budgetMin, draft.budgetMax)}
           </span>
-        }
-        caption={
-          draft.quantity > 1
-            ? `1개 기준이에요 · ${draft.quantity}개면 ${budgetText(draft.budgetMin * draft.quantity, draft.budgetMax >= QUOTE_LIMITS.BUDGET_MAX ? QUOTE_LIMITS.BUDGET_MAX * 100 : draft.budgetMax * draft.quantity)}`
-            : undefined
         }
       >
         <DualThumbRangeSlider
@@ -818,6 +745,16 @@ export function StepSizeBudget() {
           ariaLabel="예산"
         />
       </Field>
+      {/* 요청 사항은 크기·예산과 같은 "조건" 단계에(운영자 11-14 "다") */}
+      <Field label="요청 사항" optional="선택">
+        <TextArea
+          value={draft.requestNote}
+          onChange={(requestNote) => update({ requestNote })}
+          maxLength={QUOTE_LIMITS.REQUEST_NOTE_MAX}
+          showCount
+          placeholder="알레르기, 초·토퍼, 맛(예: 초코 시트) 등"
+        />
+      </Field>
     </div>
   );
 }
@@ -826,10 +763,6 @@ export function StepSizeBudget() {
 export function StepConfirm({ now, onEdit }: { now: Date; onEdit: (step: number) => void }) {
   const { draft } = useQuoteDraftStore();
   const size = QUOTE_SIZE_OPTIONS.find((s) => s.value === draft.size);
-  const creams = [
-    ...draft.creams.map((c) => QUOTE_CREAM_OPTIONS.find((o) => o.value === c)?.label),
-    draft.flavorNote.trim() || null,
-  ].filter(Boolean);
   const budget =
     draft.budgetMax >= QUOTE_LIMITS.BUDGET_MAX
       ? `${won(draft.budgetMin)} 이상`
@@ -876,24 +809,20 @@ export function StepConfirm({ now, onEdit }: { now: Date; onEdit: (step: number)
       ? [{ label: "설명", value: draft.description.trim(), step: 4, clamp: true }]
       : []),
     ...(draft.requestNote.trim()
-      ? [{ label: "요청 사항", value: draft.requestNote.trim(), step: 4, clamp: true }]
+      ? [{ label: "요청 사항", value: draft.requestNote.trim(), step: 5, clamp: true }]
       : []),
     {
-      label: "케이크",
-      value: [`${size?.label ?? ""} ${draft.quantity}개`, creams.join("·")]
-        .filter(Boolean)
-        .join(" · "),
+      label: "크기",
+      value: size?.label ?? "",
       step: 5,
     },
-    { label: "예산", value: draft.quantity > 1 ? `1개 ${budget}` : budget, step: 5 },
+    { label: "예산", value: budget, step: 5 },
   ];
 
   return (
     <div>
       <StepTitle title="이대로 보낼까요?" description="보내면 Picake가 가게에 물어봐 드려요" />
-      {(["description", "size", "creams", "requestNote"] as const).some((f) =>
-        isAutoFilled(f, draft, draft.autoFill),
-      ) && (
+      {isAutoFilled("description", draft, draft.autoFill) && (
         <p className="mb-[10px] text-2sm text-primary">
           ✦ 사진 보고 채운 내용이 있어요. 맞는지 확인해 주세요
         </p>

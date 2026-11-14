@@ -252,9 +252,8 @@ function QuoteNewContent() {
       photo_count: draft.photos.length,
       store_count: draft.stores.length,
       design_photo_count: draft.photos.filter((p) => p.designId).length,
-      auto_filled_count: (["description", "size", "creams", "requestNote"] as const).filter((f) =>
-        isAutoFilled(f, draft, draft.autoFill),
-      ).length,
+      // 사진 보고 채우는 칸은 설명 하나(11-14부터): 채운 그대로 보내면 1
+      auto_filled_count: isAutoFilled("description", draft, draft.autoFill) ? 1 : 0,
     });
     create.mutate(
       {
@@ -292,9 +291,9 @@ function QuoteNewContent() {
           ),
           description: draft.description.trim() || undefined,
           size: draft.size,
-          quantity: draft.quantity,
-          creams: draft.creams,
-          flavorNote: draft.flavorNote.trim() || undefined,
+          // 개수는 묻지 않는다(운영자 11-14). 단체 주문은 요청 사항·채팅으로
+          quantity: 1,
+          // 맛·크림은 묻지 않는다(운영자 11-14). 원하면 요청 사항에
           budgetMin: draft.budgetMin,
           budgetMax: draft.budgetMax >= QUOTE_LIMITS.BUDGET_MAX ? undefined : draft.budgetMax,
           requestNote: draft.requestNote.trim() || undefined,
@@ -345,7 +344,8 @@ function QuoteNewContent() {
   if (!hydrated) return null;
 
   return (
-    <div className="min-h-screen bg-white pb-[100px]">
+    // 세로로 채우는 틀: 4단계 설명 칸이 남는 높이를 채운다(운영자 11-14)
+    <div className="flex min-h-screen flex-col bg-white pb-[100px] supports-[height:100dvh]:min-h-dvh">
       <header className="sticky top-0 z-10 flex h-[52px] items-center justify-between bg-white px-[16px]">
         <button type="button" aria-label={position === 0 ? "닫기" : "이전 단계"} onClick={goBack}>
           <Icon name={position === 0 ? "close" : "chevronLeft"} width={24} height={24} />
@@ -357,7 +357,7 @@ function QuoteNewContent() {
       </header>
       <main
         key={current}
-        className={`px-[20px] pt-[24px] motion-reduce:animate-none ${
+        className={`flex flex-1 flex-col px-[20px] pt-[24px] motion-reduce:animate-none ${
           stepDirRef.current === "forward"
             ? "animate-step-in-forward"
             : stepDirRef.current === "backward"

@@ -18,7 +18,6 @@ import { getDesign } from "@/apps/web-user/features/design/utils/design.util";
 import type {
   QuoteAreaOption,
   QuoteCakeSize,
-  QuoteCream,
   QuoteRequestEntry,
 } from "@/apps/web-user/features/quote/types/quote.type";
 
@@ -67,9 +66,6 @@ export interface QuoteDraft {
   description: string;
   requestNote: string;
   size: QuoteCakeSize | null;
-  quantity: number;
-  creams: QuoteCream[];
-  flavorNote: string;
   budgetMin: number;
   budgetMax: number;
   /** 사진 보고 마지막으로 채운 값(✦ 표시) */
@@ -89,9 +85,6 @@ export const EMPTY_QUOTE_DRAFT: QuoteDraft = {
   description: "",
   requestNote: "",
   size: null,
-  quantity: 1,
-  creams: [],
-  flavorNote: "",
   budgetMin: 30_000,
   budgetMax: 50_000,
 };

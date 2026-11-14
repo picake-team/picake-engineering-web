@@ -34,15 +34,17 @@ export function Field({
   right,
   children,
   caption,
+  className,
 }: {
   label: string;
   optional?: string;
   right?: ReactNode;
   children: ReactNode;
   caption?: ReactNode;
+  className?: string;
 }) {
   return (
-    <section className="mb-[24px]">
+    <section className={cn("mb-[24px]", className)}>
       <div className="mb-[10px] flex items-center justify-between">
         <span className="text-sm font-bold text-gray-900">
           {label}
@@ -74,10 +76,11 @@ export function NoticeBox({
       )}
     >
       <Icon
+        // 12px 글자 첫 줄(18px) 가운데에 맞춘 14px(운영자 11-14: 16px은 아래로 처져 보였음)
         name="warning"
-        width={16}
-        height={16}
-        className={cn("mt-[1px] shrink-0", tone === "blue" ? "text-blue-400" : "text-gray-400")}
+        width={14}
+        height={14}
+        className={cn("mt-[2px] shrink-0", tone === "blue" ? "text-blue-400" : "text-gray-400")}
       />
       <span>{children}</span>
     </p>

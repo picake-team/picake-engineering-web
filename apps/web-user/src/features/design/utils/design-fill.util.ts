@@ -1,10 +1,9 @@
 /**
- * 고른 사진으로 견적 요청서 칸 채우기(기획 I-112 ⑤).
- * 디자인 모음 사진은 미리 읽어 둔 값을 정해 둔 문장 틀로 합친다(AI를 부르지 않는다).
- * 손님이 직접 올린 사진은 읽은 값이 없어 "가져올 것"만 설명에 적는다.
+ * 고른 사진으로 견적 요청서 설명 칸 채우기(기획 I-112 ⑤).
+ * 디자인 모음 사진은 미리 읽어 둔 값을, 손님 사진은 AI가 읽은 값을 "· 모양: …" 줄로 쓴다.
+ * 채우는 칸은 설명 하나뿐이다(운영자 11-14: 크기·크림·요청 사항은 손님이 고른다).
  */
 import type { Design, DesignPart } from "@/apps/web-user/features/design/types/design.type";
-import type { QuoteCakeSize, QuoteCream } from "@/apps/web-user/features/quote/types/quote.type";
 
 export const DESIGN_PART_ORDER: Exclude<DesignPart, "ALL">[] = [
   "SHAPE",
@@ -21,9 +20,8 @@ export const DESIGN_PART_LABEL: Record<DesignPart, string> = {
   LETTERING: "글자",
 };
 
-/** 채울 값을 가진 사진: 디자인 모음(미리 읽은 값) 또는 AI가 읽은 손님 사진 */
-/** 칸을 채우는 데 쓰는 값(디자인 모음 사진·AI가 읽은 손님 사진 모두) */
-export type FillSource = Pick<Design, "parts" | "size" | "creams" | "requestNote">;
+/** 설명을 채우는 데 쓰는 값(디자인 모음 사진·AI가 읽은 손님 사진 모두) */
+export type FillSource = Pick<Design, "parts">;
 
 export interface FillPhoto {
   design: FillSource | null;
@@ -32,11 +30,6 @@ export interface FillPhoto {
 
 export interface DesignFill {
   description: string;
-  size: QuoteCakeSize | null;
-  creams: QuoteCream[];
-  requestNote: string;
-  /** 사진마다 달라서 앞 사진을 따른 칸 */
-  conflicts: ("size" | "creams")[];
 }
 
 export const DESCRIPTION_MAX = 500;
@@ -60,8 +53,6 @@ const PART_KEY = {
   DECORATION: "decoration",
   LETTERING: "lettering",
 } as const;
-
-export const REQUEST_NOTE_MAX = 200;
 
 /** 사진에서 읽은 것 4줄(값이 없는 줄은 뺀다). 상세 화면과 요청서 설명이 같이 쓴다 */
 export function designRows(parts: FillSource["parts"]): { label: string; value: string }[] {
@@ -109,58 +100,20 @@ export function buildDesignFill(photos: FillPhoto[]): DesignFill | null {
   });
   if (!blocks.length) return null;
 
-  // 크기·크림은 그 칸을 직접 고른 사진을 먼저, 없으면 전체인 사진을 따른다
-  const sources = (part: Exclude<DesignPart, "ALL">) =>
-    [
-      ...photos.filter((p) => !isAllParts(p.parts) && p.parts.includes(part)),
-      ...photos.filter((p) => isAllParts(p.parts)),
-    ]
-      .map((p) => p.design)
-      .filter((d): d is FillSource => !!d);
-  const sizes = sources("SHAPE")
-    .map((d) => d.size)
-    .filter((v): v is QuoteCakeSize => !!v);
-  const creamSets = sources("COLOR")
-    .map((d) => d.creams)
-    .filter((c) => c.length > 0);
-  const notes = [
-    ...new Set(
-      photos
-        .filter((p) => p.design && chosen(p).includes("DECORATION") && p.design.requestNote)
-        .map((p) => p.design?.requestNote as string),
-    ),
-  ];
-  const conflicts: DesignFill["conflicts"] = [];
-  if (new Set(sizes).size > 1) conflicts.push("size");
-  if (new Set(creamSets.map((c) => [...c].sort().join())).size > 1) conflicts.push("creams");
-
-  return {
-    description: blocks.join(multi ? "\n\n" : "\n").slice(0, DESCRIPTION_MAX),
-    size: sizes[0] ?? null,
-    creams: creamSets[0] ?? [],
-    requestNote: notes.join(", ").slice(0, REQUEST_NOTE_MAX),
-    conflicts,
-  };
+  return { description: blocks.join(multi ? "\n\n" : "\n").slice(0, DESCRIPTION_MAX) };
 }
 
-/** 요청서에 남겨 둔 "마지막으로 채운 값". 손님이 고친 칸은 다시 채우지 않는다 */
+/** 요청서에 남겨 둔 "마지막으로 채운 설명". 손님이 고친 설명은 다시 채우지 않는다 */
 export interface QuoteAutoFill {
   description?: string;
-  size?: QuoteCakeSize | null;
-  creams?: QuoteCream[];
-  requestNote?: string;
-  conflicts?: DesignFill["conflicts"];
 }
 
 export interface FillableFields {
   description: string;
-  size: QuoteCakeSize | null;
-  creams: QuoteCream[];
-  requestNote: string;
 }
 
-const EMPTY: FillableFields = { description: "", size: null, creams: [], requestNote: "" };
-const FIELDS = ["description", "size", "creams", "requestNote"] as const;
+const EMPTY: FillableFields = { description: "" };
+const FIELDS = ["description"] as const;
 
 function same(a: unknown, b: unknown): boolean {
   return JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
@@ -199,7 +152,6 @@ export function applyDesignFill(
     if (!same(cur, value)) Object.assign(patch, { [f]: value });
     if (next && !isEmpty(value)) Object.assign(auto, { [f]: value });
   }
-  if (next?.conflicts.length) auto.conflicts = next.conflicts;
   return { patch, auto };
 }
 
