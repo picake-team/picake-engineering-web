@@ -121,7 +121,8 @@ export function buildDesignFill(photos: FillPhoto[]): DesignFill | null {
   if (new Set(creamSets.map((c) => [...c].sort().join())).size > 1) conflicts.push("creams");
 
   return {
-    description: segments.join(", ").slice(0, DESCRIPTION_MAX),
+    // 사진마다 한 줄(가게가 "2번 사진"을 찾아 읽기 쉽게)
+    description: segments.join("\n").slice(0, DESCRIPTION_MAX),
     size: sizes[0] ?? null,
     creams: creamSets[0] ?? [],
     requestNote: notes.join(", "),

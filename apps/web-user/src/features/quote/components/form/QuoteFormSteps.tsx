@@ -591,6 +591,9 @@ export function StepCake() {
             )}
           </p>
         )}
+        {!readOff && readProblem && (
+          <p className="mt-[4px] text-2sm text-gray-700">{PHOTO_READ_MESSAGE[readProblem]}</p>
+        )}
       </Field>
       <Field
         label="설명"
@@ -640,9 +643,6 @@ export function StepCake() {
               케이크에 쓸 글자가 다르면 꼭 고쳐 주세요
             </p>
           </>
-        )}
-        {!reading && !descFilled && readProblem && (
-          <p className="mt-[6px] text-2sm text-gray-700">{PHOTO_READ_MESSAGE[readProblem]}</p>
         )}
       </Field>
       <Field label="요청 사항" optional="선택">

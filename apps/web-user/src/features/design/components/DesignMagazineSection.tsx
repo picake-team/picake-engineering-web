@@ -60,12 +60,12 @@ export function DesignMagazineSection() {
       <div
         ref={scrollRef}
         onScroll={onScroll}
-        className="scrollbar-hide mt-[16px] flex snap-x snap-mandatory gap-[12px] overflow-x-auto px-[14%] pb-[10px] pt-[4px] sm:px-5"
+        className="scrollbar-hide mt-[16px] flex snap-x snap-mandatory gap-[12px] overflow-x-auto px-[14vw] pb-[10px] pt-[4px] sm:px-5"
       >
         {designs.map((d, i) => (
           <div
             key={d.id}
-            className="relative aspect-[5/7] w-[72%] max-w-[300px] shrink-0 snap-center overflow-hidden rounded-2xl bg-gray-50 shadow-[0_6px_18px_rgba(0,0,0,0.12)] sm:snap-start"
+            className="relative aspect-[5/7] w-[72vw] max-w-[300px] shrink-0 snap-center overflow-hidden rounded-2xl bg-gray-50 shadow-[0_6px_18px_rgba(0,0,0,0.12)] sm:snap-start"
           >
             <Link href={designDetailHref(d.id, "home")} className="absolute inset-0">
               <FadeInImage

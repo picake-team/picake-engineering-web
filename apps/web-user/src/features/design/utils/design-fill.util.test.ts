@@ -80,7 +80,7 @@ describe("buildDesignFill", () => {
       { design: heart, parts: ["DECORATION"] },
     ]);
     expect(fill?.description).toBe(
-      '1번 사진처럼 흰 크림 도시락 케이크에 작은 빨간 하트, 가운데 "happy birthday" 레터링, 장식은 2번 사진처럼 분홍 크림 프릴 테두리',
+      '1번 사진처럼 흰 크림 도시락 케이크에 작은 빨간 하트, 가운데 "happy birthday" 레터링\n장식은 2번 사진처럼 분홍 크림 프릴 테두리',
     );
     expect(fill?.size).toBe("LUNCHBOX");
     // 2번은 장식만이라 크림을 가져오지 않는다
@@ -94,7 +94,7 @@ describe("buildDesignFill", () => {
       { design: null, parts: ["LETTERING"] },
     ]);
     expect(fill?.description).toBe(
-      "모양·색은 1번 사진처럼 하트 모양 케이크, 연분홍 크림, 글자는 2번 사진처럼",
+      "모양·색은 1번 사진처럼 하트 모양 케이크, 연분홍 크림\n글자는 2번 사진처럼",
     );
     expect(fill?.creams).toEqual(["BUTTER_CREAM"]);
   });
