@@ -16,7 +16,6 @@ const base: Omit<Design, "id" | "parts" | "description" | "size" | "creams" | "r
   image: { file: "", thumb: "", width: 1, height: 1 },
   credit: { kind: "FREE_PHOTO", author: "", site: "Pexels", pageUrl: "", checkedAt: "2026-11-14" },
   tagOccasions: [],
-  tip: null,
   magazine: null,
 };
 
@@ -69,6 +68,14 @@ describe("buildDesignFill", () => {
       requestNote: "사진처럼 초 1개",
       conflicts: [],
     });
+  });
+
+  it("한 장에서 일부만 고르면 그 줄만, 머리말 없이", () => {
+    const fill = buildDesignFill([{ design: bento, parts: ["DECORATION", "LETTERING"] }]);
+    expect(fill?.description).toBe(
+      '장식: 작은 빨간 하트\n글자: 검은 필기체 "happy birthday" 레터링',
+    );
+    expect(fill?.size).toBeNull();
   });
 
   it("손님 사진만 있고 모두 전체면 채우지 않는다", () => {

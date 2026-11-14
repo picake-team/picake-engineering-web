@@ -106,7 +106,7 @@ export function buildDesignFill(photos: FillPhoto[]): DesignFill | null {
     }
   }
   if (!lines.length) return null;
-  if (!multi) lines.unshift("사진처럼 만들어 주세요");
+  if (!multi && isAllParts(photos[0].parts)) lines.unshift("사진처럼 만들어 주세요");
 
   const sources = (part: Exclude<DesignPart, "ALL">) =>
     order(part)
@@ -216,6 +216,8 @@ export function photoBadge(
   index: number,
   total: number,
 ): string | null {
-  if (total < 2) return null;
-  return `${index + 1} · ${partsChipLabel(details?.[index]?.parts ?? ["ALL"])}`;
+  const parts = details?.[index]?.parts ?? ["ALL"];
+  // 한 장이면 전체일 때는 없음, 일부만 고르면 "장식만"
+  if (total < 2) return isAllParts(parts) ? null : partsChipLabel(parts);
+  return `${index + 1} · ${partsChipLabel(parts)}`;
 }

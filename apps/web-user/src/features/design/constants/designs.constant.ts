@@ -42,7 +42,6 @@ export const DESIGNS: Design[] = [
     size: null,
     creams: [],
     requestNote: "",
-    tip: "가게에 '리스는 초록 짜기로, 글씨는 빨간색'이라고 적으면 사진에 더 가까워요",
     magazine: {
       order: 1,
       title: "크리스마스엔\n초록 리스",
@@ -88,7 +87,6 @@ export const DESIGNS: Design[] = [
     size: null,
     creams: [],
     requestNote: "",
-    tip: "사진은 떡케이크로 보여요. 떡으로 할지 크림 케이크로 할지 가게에 같이 적어 주세요",
     magazine: { order: 2, title: "한글 레터링\n백일 케이크", subtitle: "백일·돌 글자만 바꿔서" },
   },
   {
@@ -128,7 +126,6 @@ export const DESIGNS: Design[] = [
     size: null,
     creams: [],
     requestNote: "",
-    tip: "가게에 '테두리는 하늘색, 장미는 분홍 위주에 남색 몇 송이'라고 적으면 사진에 더 가까워요",
     magazine: { order: 3, title: "레트로 감성\n빈티지 케이크", subtitle: "파스텔 짜기 테두리" },
   },
   {
@@ -162,7 +159,6 @@ export const DESIGNS: Design[] = [
     size: null,
     creams: [],
     requestNote: "",
-    tip: "가게에 '숫자만 작게 가운데'라고 적으면 사진에 더 가까워요",
     magazine: { order: 4, title: "하트 모양\n빈티지", subtitle: "숫자 하나로 충분해요" },
   },
   {
@@ -200,7 +196,6 @@ export const DESIGNS: Design[] = [
     size: "LUNCHBOX",
     creams: [],
     requestNote: "사진처럼 초 1개",
-    tip: "가게에 '하트는 빨간 점처럼 작게'라고 적으면 사진에 더 가까워요",
     magazine: { order: 5, title: "혼자 먹기 좋은\n도시락 케이크", subtitle: "1~2명이 딱 좋아요" },
   },
   {
@@ -239,7 +234,6 @@ export const DESIGNS: Design[] = [
     size: null,
     creams: [],
     requestNote: "사진처럼 초 1개",
-    tip: "가게에 '옆면은 흰 크림 줄 장식으로'라고 적으면 사진에 더 가까워요",
     magazine: {
       order: 6,
       title: "언제나 옳은\n딸기 케이크",
@@ -281,7 +275,6 @@ export const DESIGNS: Design[] = [
     size: null,
     creams: [],
     requestNote: "",
-    tip: "가게에 '민트 바탕에 분홍 짜기, 체리는 꼭지째'라고 적으면 사진에 더 가까워요",
     magazine: null,
   },
   {
@@ -319,7 +312,6 @@ export const DESIGNS: Design[] = [
     size: null,
     creams: [],
     requestNote: "",
-    tip: "가게에 '테두리는 연분홍 프릴로 두툼하게'라고 적으면 사진에 더 가까워요",
     magazine: null,
   },
   {
@@ -357,7 +349,6 @@ export const DESIGNS: Design[] = [
     size: null,
     creams: [],
     requestNote: "",
-    tip: "가게에 '장미는 진분홍, 잎은 초록 짜기로'라고 적으면 사진에 더 가까워요",
     magazine: null,
   },
   {
@@ -395,7 +386,6 @@ export const DESIGNS: Design[] = [
     size: null,
     creams: [],
     requestNote: "",
-    tip: "가게에 '분홍은 붓질처럼, 체리는 작게 여러 개'라고 적으면 사진에 더 가까워요",
     magazine: null,
   },
   {
@@ -433,7 +423,6 @@ export const DESIGNS: Design[] = [
     size: null,
     creams: [],
     requestNote: "",
-    tip: "꽃을 생화로 할지 크림으로 짤지 가게에 같이 적어 주세요",
     magazine: null,
   },
   {
@@ -472,7 +461,6 @@ export const DESIGNS: Design[] = [
     size: null,
     creams: [],
     requestNote: "",
-    tip: "가게에 '체리는 꼭지째, 리본은 흰색'이라고 적으면 사진에 더 가까워요",
     magazine: null,
   },
   {
@@ -511,7 +499,6 @@ export const DESIGNS: Design[] = [
     size: null,
     creams: [],
     requestNote: "",
-    tip: "가게에 '검정 리본을 길게 늘어뜨려서'라고 적으면 사진에 더 가까워요",
     magazine: null,
   },
   {
@@ -549,7 +536,6 @@ export const DESIGNS: Design[] = [
     size: null,
     creams: [],
     requestNote: "",
-    tip: "가게에 '리본은 연분홍으로 여러 개 묶어서'라고 적으면 사진에 더 가까워요",
     magazine: null,
   },
   {
@@ -583,7 +569,6 @@ export const DESIGNS: Design[] = [
     size: "LUNCHBOX",
     creams: [],
     requestNote: "",
-    tip: "가게에 '딸기와 데이지는 작게 여러 개'라고 적으면 사진에 더 가까워요",
     magazine: null,
   },
   {
@@ -621,7 +606,6 @@ export const DESIGNS: Design[] = [
     size: null,
     creams: [],
     requestNote: "",
-    tip: "가게에 '꽃은 파랑 위주로'라고 적으면 사진에 더 가까워요",
     magazine: null,
   },
   {
@@ -664,7 +648,6 @@ export const DESIGNS: Design[] = [
     size: null,
     creams: [],
     requestNote: "사진처럼 금색 글자 장식",
-    tip: "가게에 '글자는 금색 글자 장식으로, 없으면 금색 짜기로'라고 적으면 사진에 더 가까워요",
     magazine: null,
   },
   {
@@ -698,7 +681,6 @@ export const DESIGNS: Design[] = [
     size: null,
     creams: [],
     requestNote: "",
-    tip: "가게에 '체리는 금박을 입혀서'라고 적으면 사진에 더 가까워요",
     magazine: null,
   },
   {
@@ -740,7 +722,6 @@ export const DESIGNS: Design[] = [
     size: "LUNCHBOX",
     creams: [],
     requestNote: "사진처럼 초 1개",
-    tip: "가게에 '장식 없이 글씨만'이라고 적으면 사진에 더 가까워요",
     magazine: null,
   },
   {
@@ -773,7 +754,6 @@ export const DESIGNS: Design[] = [
     size: null,
     creams: [],
     requestNote: "",
-    tip: "가게에 '테두리는 분홍과 빨강 두 줄로'라고 적으면 사진에 더 가까워요",
     magazine: null,
   },
   {
@@ -817,7 +797,6 @@ export const DESIGNS: Design[] = [
     size: null,
     creams: [],
     requestNote: "",
-    tip: "꽃을 크림으로 짤지 생화·조화로 할지 가게에 같이 적어 주세요",
     magazine: null,
   },
   {
@@ -857,7 +836,6 @@ export const DESIGNS: Design[] = [
     size: null,
     creams: [],
     requestNote: "",
-    tip: "꽃잎은 생화예요. 올릴지 크림으로 대신할지 가게에 같이 적어 주세요",
     magazine: null,
   },
   {
@@ -895,7 +873,6 @@ export const DESIGNS: Design[] = [
     size: null,
     creams: [],
     requestNote: "",
-    tip: "가게에 '꽃은 한쪽에 크게 모아서'라고 적으면 사진에 더 가까워요",
     magazine: null,
   },
   {
@@ -933,7 +910,6 @@ export const DESIGNS: Design[] = [
     size: null,
     creams: [],
     requestNote: "",
-    tip: "가게에 '글자마다 색을 다르게'라고 적으면 사진에 더 가까워요",
     magazine: null,
   },
   {
@@ -967,7 +943,6 @@ export const DESIGNS: Design[] = [
     size: null,
     creams: [],
     requestNote: "",
-    tip: "가게에 '다른 장식 없이 하트와 느낌표만'이라고 적으면 사진에 더 가까워요",
     magazine: null,
   },
   {
@@ -1006,7 +981,6 @@ export const DESIGNS: Design[] = [
     size: null,
     creams: [],
     requestNote: "",
-    tip: "가게에 '윗면만 파랑과 흰색이 섞이게, 옆면은 흰색'이라고 적으면 사진에 더 가까워요",
     magazine: null,
   },
   {
@@ -1041,7 +1015,6 @@ export const DESIGNS: Design[] = [
     size: null,
     creams: [],
     requestNote: "",
-    tip: "가게에 '옆면은 집 모양 쿠키로 둘러서'라고 적으면 사진에 더 가까워요",
     magazine: null,
   },
   {
@@ -1079,7 +1052,6 @@ export const DESIGNS: Design[] = [
     size: null,
     creams: [],
     requestNote: "",
-    tip: "가게에 '글자는 쿠키로 옆면에'라고 적으면 사진에 더 가까워요",
     magazine: null,
   },
   {
@@ -1113,7 +1085,6 @@ export const DESIGNS: Design[] = [
     size: null,
     creams: [],
     requestNote: "",
-    tip: "가게에 '옆면은 크림 없이 시트가 보이게, 딸기 위에 흰 가루'라고 적으면 사진에 더 가까워요",
     magazine: null,
   },
   {
@@ -1147,7 +1118,6 @@ export const DESIGNS: Design[] = [
     size: null,
     creams: [],
     requestNote: '사진처럼 불꽃 초 2개와 은색 숫자 "21" 장식',
-    tip: "리본·천 주름은 슈가크래프트(퐁당) 작업이에요. 되는 가게인지, 크림으로 비슷하게 할지 같이 적어 주세요",
     magazine: null,
   },
   {
@@ -1185,7 +1155,6 @@ export const DESIGNS: Design[] = [
     size: null,
     creams: [],
     requestNote: "",
-    tip: "가게에 '옆면은 매끈하지 않게 결을 살려서'라고 적으면 사진에 더 가까워요",
     magazine: null,
   },
   {
@@ -1219,7 +1188,6 @@ export const DESIGNS: Design[] = [
     size: null,
     creams: [],
     requestNote: "사진처럼 불꽃 초 1개",
-    tip: "가게에 '장식 없이 옆면 물결 결만'이라고 적으면 사진에 더 가까워요",
     magazine: null,
   },
   {
@@ -1257,7 +1225,6 @@ export const DESIGNS: Design[] = [
     size: null,
     creams: [],
     requestNote: "",
-    tip: "꽃을 생화로 할지 크림으로 짤지 가게에 같이 적어 주세요",
     magazine: null,
   },
   {
@@ -1295,7 +1262,6 @@ export const DESIGNS: Design[] = [
     size: null,
     creams: [],
     requestNote: "",
-    tip: "가게에 '팔레트 나이프로, 파스텔 색'이라고 적으면 사진에 더 가까워요",
     magazine: null,
   },
   {
@@ -1334,7 +1300,6 @@ export const DESIGNS: Design[] = [
     size: null,
     creams: [],
     requestNote: "",
-    tip: "가게에 '가운데 원판은 레터링 판이나 인쇄로'라고 적으면 사진에 더 가까워요",
     magazine: null,
   },
   {
@@ -1369,7 +1334,6 @@ export const DESIGNS: Design[] = [
     size: "LUNCHBOX",
     creams: [],
     requestNote: "",
-    tip: "가게에 '틱택토 칸은 검은 선, 하트는 빨강'이라고 적으면 사진에 더 가까워요",
     magazine: null,
   },
 ];

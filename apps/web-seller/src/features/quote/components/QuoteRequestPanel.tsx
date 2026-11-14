@@ -344,6 +344,8 @@ export function QuoteRequestPanel({ storeId, requestId }: { storeId: string; req
           // 사진이 여러 장이면 번호와 손님이 고른 "가져올 것"(기획 I-112)
           const multi = view.photoUrls.length > 1;
           const label = photoPartsLabel(view.photoDetails?.[i]?.parts);
+          // 한 장이어도 손님이 일부만 골랐으면("장식만") 보인다
+          const showLabel = multi || label !== "전체";
           return (
             <button
               key={`${i}-${url}`}
@@ -360,7 +362,7 @@ export function QuoteRequestPanel({ storeId, requestId }: { storeId: string; req
                   </span>
                 ) : null}
               </span>
-              {multi ? (
+              {showLabel ? (
                 <span
                   className={cx(
                     "mt-1 block text-center text-caption font-semibold",
