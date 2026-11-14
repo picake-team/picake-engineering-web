@@ -106,7 +106,15 @@ function readInit(params: URLSearchParams): Partial<QuoteDraft> | null {
   if (q) init.description = q;
   // 디자인 모음에서 "이 디자인으로 견적 받기"(?entry=DESIGN&designId=…)
   const designIds = (params.get("designId") ?? "").split(",").filter(Boolean);
-  const photos = designPhotos(designIds).slice(0, QUOTE_LIMITS.MAX_PHOTOS);
+  // 디자인 상세 "무엇을 가져갈까요?"에서 고른 것(없으면 전체)
+  const PARTS = ["SHAPE", "COLOR", "DECORATION", "LETTERING"] as const;
+  const parts = (params.get("parts") ?? "")
+    .split(",")
+    .filter((x): x is (typeof PARTS)[number] => (PARTS as readonly string[]).includes(x));
+  const photos = designPhotos(designIds, parts.length ? parts : ["ALL"]).slice(
+    0,
+    QUOTE_LIMITS.MAX_PHOTOS,
+  );
   if (photos.length) init.photos = photos;
   return init;
 }

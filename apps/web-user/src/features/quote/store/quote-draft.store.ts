@@ -148,8 +148,7 @@ export const useQuoteDraftStore = create<QuoteDraftState>()(
         set((s) => ({
           draft: withAutoFill({
             ...s.draft,
-            // 한 장만 남으면 "가져올 것" 칩이 안 보이므로 전체로 되돌린다
-            photos: photos.length === 1 ? [{ ...photos[0], parts: ["ALL"] }] : photos,
+            photos,
             autoFillDismissed: false,
           }),
           started: true,

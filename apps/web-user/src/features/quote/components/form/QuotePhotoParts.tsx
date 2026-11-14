@@ -63,7 +63,7 @@ export function QuotePhotoTile({
       >
         <Icon name="removePhoto" width={20} height={20} />
       </button>
-      {multi && (
+      {(multi || !isAllParts(parts)) && (
         <button
           type="button"
           onClick={onParts}

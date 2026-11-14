@@ -15,6 +15,7 @@ import {
   useToggleDesignLike,
 } from "@/apps/web-user/features/design/hooks/useDesignLikes";
 import { designRows } from "@/apps/web-user/features/design/utils/design-fill.util";
+import { DesignPartsPickSheet } from "@/apps/web-user/features/design/components/DesignPartsPickSheet";
 import {
   designDetailHref,
   designHashtags,
@@ -53,6 +54,7 @@ export function DesignDetailScreen({ designId }: { designId: string }) {
   const router = useRouter();
   const [from, setFrom] = useState<DesignEntryPoint>("direct");
   const [creditOpen, setCreditOpen] = useState(false);
+  const [pickOpen, setPickOpen] = useState(false);
   const { data } = useDesignLikes();
   const toggle = useToggleDesignLike();
   const liked = data?.myLikes.includes(designId) ?? false;
@@ -105,7 +107,9 @@ export function DesignDetailScreen({ designId }: { designId: string }) {
         </div>
       </div>
 
+      {/* 사진 속 케이크는 참고용: 무엇을 가져갈지는 "견적 받기"를 누르면 고른다(운영자 11-14 고름) */}
       <section className="px-[20px] pt-[18px]">
+        <p className="mb-[6px] text-2sm font-semibold text-gray-500">사진 속 케이크 · 참고용</p>
         <div className="border-t border-gray-50">
           {rows.map((r) => (
             <div key={r.label} className="flex border-b border-gray-50 py-[10px] text-sm">
@@ -114,19 +118,7 @@ export function DesignDetailScreen({ designId }: { designId: string }) {
             </div>
           ))}
         </div>
-        <p className="mt-[10px] text-2sm text-gray-500">
-          <span aria-hidden className="text-primary">
-            ✦
-          </span>{" "}
-          사진에서 읽었어요 · 가게마다 조금 달라요
-        </p>
       </section>
-
-      {design.tip && (
-        <p className="mx-[20px] mt-[16px] rounded-xl bg-gray-50 px-[14px] py-[12px] text-2sm leading-[20px] text-gray-700">
-          {design.tip}
-        </p>
-      )}
 
       {similar.length > 0 && (
         <section className="pt-[26px]">
@@ -174,17 +166,24 @@ export function DesignDetailScreen({ designId }: { designId: string }) {
             {count > 0 && <span className="text-xs font-bold text-gray-900">{count}</span>}
           </button>
           <span className="flex-1">
-            <Button
-              onClick={() => {
-                trackEvent("request_design_quote", { design_id: design.id, entry_point: from });
-                router.push(designQuoteHref([design.id]));
-              }}
-            >
-              이 디자인으로 견적 받기
-            </Button>
+            <Button onClick={() => setPickOpen(true)}>이 디자인으로 견적 받기</Button>
           </span>
         </div>
       </div>
+
+      <DesignPartsPickSheet
+        isOpen={pickOpen}
+        design={design}
+        onClose={() => setPickOpen(false)}
+        onNext={(parts) => {
+          trackEvent("request_design_quote", {
+            design_id: design.id,
+            entry_point: from,
+            parts: parts.join(","),
+          });
+          router.push(designQuoteHref([design.id], parts));
+        }}
+      />
 
       <BottomSheet isOpen={creditOpen} onClose={() => setCreditOpen(false)} title="참고 사진이에요">
         <div className="px-[20px] pb-[28px]">

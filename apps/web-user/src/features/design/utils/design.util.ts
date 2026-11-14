@@ -1,5 +1,5 @@
 import { DESIGNS } from "@/apps/web-user/features/design/constants/designs.constant";
-import type { Design } from "@/apps/web-user/features/design/types/design.type";
+import type { Design, DesignPart } from "@/apps/web-user/features/design/types/design.type";
 import type { ProductCategoryType } from "@/apps/web-user/features/product/types/product.type";
 import type { QuoteDraftPhoto } from "@/apps/web-user/features/quote/store/quote-draft.store";
 
@@ -130,7 +130,7 @@ export function setPhotoReadOff(off: boolean) {
 }
 
 /** 디자인 모음 사진을 요청서 사진으로(파일 대신 주소와 디자인 번호) */
-export function designPhotos(ids: string[]): QuoteDraftPhoto[] {
+export function designPhotos(ids: string[], parts: DesignPart[] = ["ALL"]): QuoteDraftPhoto[] {
   return ids
     .map((id) => getDesign(id))
     .filter((d) => d !== null)
@@ -138,7 +138,7 @@ export function designPhotos(ids: string[]): QuoteDraftPhoto[] {
       id: `design-${d.id}-${Date.now()}`,
       dataUrl: designImageSrc(d.image.file),
       designId: d.id,
-      parts: ["ALL"],
+      parts,
     }));
 }
 
@@ -147,5 +147,7 @@ export const designDetailHref = (id: string, from?: string) =>
   `/design/${encodeURIComponent(id)}${from ? `?from=${from}` : ""}`;
 
 /** 디자인 상세·매거진에서 요청서로 가는 주소 */
-export const designQuoteHref = (ids: string[]) =>
-  `/quote/new?entry=DESIGN&designId=${ids.map(encodeURIComponent).join(",")}`;
+export const designQuoteHref = (ids: string[], parts?: DesignPart[]) =>
+  `/quote/new?entry=DESIGN&designId=${ids.map(encodeURIComponent).join(",")}${
+    parts && !parts.includes("ALL") && parts.length ? `&parts=${parts.join(",")}` : ""
+  }`;

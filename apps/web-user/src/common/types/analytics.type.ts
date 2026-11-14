@@ -327,7 +327,12 @@ export interface AnalyticsEventMap {
   /** 디자인 ♥ */
   engage_design_like: { design_id: string; liked: boolean };
   /** "이 디자인으로 견적 받기"(상세·매거진 카드) */
-  request_design_quote: { design_id: string; entry_point: DesignEntryPoint };
+  request_design_quote: {
+    design_id: string;
+    entry_point: DesignEntryPoint;
+    /** 상세 "무엇을 가져갈까요?"에서 고른 것(ALL 또는 SHAPE,COLOR…, 매거진 카드는 없음) */
+    parts?: string;
+  };
   /** 요청서에서 디자인 모음 사진을 넣음 */
   engage_quote_design_pick: { count: number };
   /** 요청서 사진의 "가져올 것"을 바꿈 */

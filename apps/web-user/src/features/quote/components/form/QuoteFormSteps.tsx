@@ -877,12 +877,11 @@ export function StepConfirm({ now, onEdit }: { now: Date; onEdit: (step: number)
       ? [
           {
             label: "참고 사진",
-            value:
-              draft.photos.length > 1 && draft.photos.some((p) => !isAllParts(p.parts ?? []))
-                ? `${draft.photos.length}장 · ${draft.photos
-                    .map((p, i) => `${i + 1}번 ${partsChipLabel(p.parts ?? [])}`)
-                    .join(", ")}`
-                : `${draft.photos.length}장`,
+            value: draft.photos.some((p) => !isAllParts(p.parts ?? []))
+              ? `${draft.photos.length}장 · ${draft.photos
+                  .map((p, i) => `${i + 1}번 ${partsChipLabel(p.parts ?? [])}`)
+                  .join(", ")}`
+              : `${draft.photos.length}장`,
             step: 4,
           },
         ]

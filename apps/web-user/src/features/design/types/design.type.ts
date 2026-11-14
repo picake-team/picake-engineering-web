@@ -46,6 +46,5 @@ export interface Design {
   size: QuoteCakeSize | null;
   creams: QuoteCream[];
   requestNote: string;
-  tip: string | null;
   magazine: { order: number; title: string; subtitle: string } | null;
 }
