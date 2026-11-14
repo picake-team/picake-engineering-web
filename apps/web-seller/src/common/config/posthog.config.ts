@@ -70,10 +70,23 @@ function initClient(posthog: PostHog): void {
     capture_pageleave: true,
     person_profiles: "identified_only",
     before_send: sanitizeEvent,
+    // 로그인 화면에서 앱을 열면 처음부터 녹화하지 않는다. 화면을 옮길 때 켜고 끄는 일은
+    // PostHogPageView가 isReplayBlockedPath로 맡는다(전에는 열자마자 잠깐 녹화된 뒤 꺼졌다)
+    disable_session_recording: isReplayBlockedPath(window.location.pathname),
     loaded: (ph) => {
       ph.register(SUPER_PROPERTIES);
     },
   });
+}
+
+/**
+ * 화면 녹화(세션 리플레이)를 하지 않는 주소.
+ * - /auth/*: 로그인·가입·OAuth 콜백이라 휴대폰 번호·이메일이 화면에 보인다
+ * startSessionRecording()은 disable_session_recording 설정을 덮어쓰므로 화면을 옮길 때마다 이 함수로 판단한다.
+ */
+export function isReplayBlockedPath(pathname: string | null | undefined): boolean {
+  if (!pathname) return false;
+  return pathname.startsWith("/auth");
 }
 
 /** PostHog를 켰는지(키가 있을 때만) */
