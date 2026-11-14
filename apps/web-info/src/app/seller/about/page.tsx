@@ -25,6 +25,7 @@ import screenOrder from "@/apps/web-info/features/seller/assets/screen-order.png
 import screenQuoteRequest from "@/apps/web-info/features/seller/assets/screen-quote-request.png";
 import screenQuoteReserved from "@/apps/web-info/features/seller/assets/screen-quote-reserved.png";
 import screenQuoteSend from "@/apps/web-info/features/seller/assets/screen-quote-send.png";
+import kakaoIcon from "@/apps/web-info/features/seller/assets/kakaotalk.png";
 
 /**
  * 사장님 입점 소개 페이지 (`https://info.picakes.com/seller/about`). 2026-11-14 다시 만듦(기획 I-49).
@@ -497,8 +498,16 @@ export default function SellerAboutPage() {
             href={KAKAO_CHANNEL_CHAT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex h-[54px] w-full items-center justify-center rounded-xl border border-white/35 text-[17px] font-bold text-white transition-transform duration-150 active:scale-[0.98]"
+            // 카카오 버튼은 손님 앱·판매자 앱 로그인과 같은 모양(노랑 #FFEB00·진한 글자·카카오톡 아이콘 20px). 높이·모서리는 위 버튼과 맞춘다
+            className="flex h-[54px] w-full items-center justify-center gap-1.5 rounded-xl bg-[#FFEB00] text-[17px] font-bold text-gray-900 transition-transform duration-150 active:scale-[0.98]"
           >
+            <Image
+              src={kakaoIcon}
+              alt=""
+              width={20}
+              height={20}
+              className="size-5 shrink-0 object-contain"
+            />
             카카오톡으로 물어보기
           </a>
         </div>
