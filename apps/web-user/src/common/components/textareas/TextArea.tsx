@@ -1,3 +1,4 @@
+import { cn } from "@/apps/web-user/common/lib/utils";
 import React from "react";
 
 /**
@@ -55,13 +56,27 @@ export const TextArea: React.FC<TextAreaProps> = ({
         placeholder={placeholder}
         disabled={disabled}
         maxLength={maxLength}
-        className={`w-full h-[96px] py-[10px] px-[12px] text-sm border border-gray-100 rounded-lg outline-none resize-none transition-colors duration-base focus:border-gray-900 ${className}`}
+        // className으로 높이 등을 바꿀 수 있게(겹치는 값은 뒤의 것이 이긴다)
+        className={cn(
+          "w-full h-[96px] py-[10px] px-[12px] text-sm border border-gray-100 rounded-lg outline-none resize-none transition-colors duration-base focus:border-gray-900",
+          className,
+        )}
       />
-      {showCount && maxLength && (
-        <div className="mt-[6px] text-xs text-gray-400 text-right">
-          {value.length}/{maxLength}
-        </div>
-      )}
+      {showCount && maxLength && <CharCountHint length={value.length} maxLength={maxLength} />}
     </div>
   );
 };
+
+/**
+ * 글자 수 안내: 평소엔 숨기고 거의 찼을 때만 "200자까지 쓸 수 있어요 · 2자 남았어요"(운영자 11-14).
+ * 남은 글자가 최대의 10%(적어도 10자) 이하일 때 보인다.
+ */
+export function CharCountHint({ length, maxLength }: { length: number; maxLength: number }) {
+  const left = Math.max(0, maxLength - length);
+  if (left > Math.max(10, Math.ceil(maxLength * 0.1))) return null;
+  return (
+    <p aria-live="polite" className="mt-[6px] text-right text-xs text-primary">
+      {maxLength}자까지 쓸 수 있어요{left > 0 ? ` · ${left}자 남았어요` : ""}
+    </p>
+  );
+}

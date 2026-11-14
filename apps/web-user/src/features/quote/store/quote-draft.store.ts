@@ -11,7 +11,6 @@ import type { DesignPart } from "@/apps/web-user/features/design/types/design.ty
 import {
   applyDesignFill,
   buildDesignFill,
-  revertDesignFill,
   type FillSource,
   type QuoteAutoFill,
 } from "@/apps/web-user/features/design/utils/design-fill.util";
@@ -73,10 +72,8 @@ export interface QuoteDraft {
   flavorNote: string;
   budgetMin: number;
   budgetMax: number;
-  /** 사진 보고 마지막으로 채운 값(✦ 표시·되돌리기) */
+  /** 사진 보고 마지막으로 채운 값(✦ 표시) */
   autoFill?: QuoteAutoFill;
-  /** 되돌리기를 눌렀으면 사진이 바뀔 때까지 다시 채우지 않는다 */
-  autoFillDismissed?: boolean;
 }
 
 export const EMPTY_QUOTE_DRAFT: QuoteDraft = {
@@ -110,15 +107,12 @@ interface QuoteDraftState {
   reset: () => void;
   /** 사진을 바꾸고(넣기·빼기·가져올 것·읽은 값) 그에 맞춰 칸을 다시 채운다 */
   setPhotos: (photos: QuoteDraftPhoto[]) => void;
-  /** 사진 보고 채운 칸 되돌리기 */
-  revertAutoFill: () => void;
-  /** AI가 읽은 결과·읽는 상태만 바꾼다(되돌리기를 누른 뒤면 다시 채우지 않는다) */
+  /** AI가 읽은 결과·읽는 상태만 바꾼다 */
   updatePhotoRead: (id: string, patch: Pick<QuoteDraftPhoto, "read" | "readState">) => void;
 }
 
 /** 사진들로 칸을 채운 결과(손님이 고친 칸은 그대로) */
 export function withAutoFill(draft: QuoteDraft): QuoteDraft {
-  if (draft.autoFillDismissed) return draft;
   const next = buildDesignFill(
     draft.photos.map((p) => ({
       design: p.designId ? getDesign(p.designId) : (p.read ?? null),
@@ -146,11 +140,7 @@ export const useQuoteDraftStore = create<QuoteDraftState>()(
       reset: () => set({ draft: EMPTY_QUOTE_DRAFT, step: 1, started: false }),
       setPhotos: (photos) =>
         set((s) => ({
-          draft: withAutoFill({
-            ...s.draft,
-            photos,
-            autoFillDismissed: false,
-          }),
+          draft: withAutoFill({ ...s.draft, photos }),
           started: true,
         })),
       updatePhotoRead: (id, patch) =>
@@ -159,15 +149,6 @@ export const useQuoteDraftStore = create<QuoteDraftState>()(
             ...s.draft,
             photos: s.draft.photos.map((p) => (p.id === id ? { ...p, ...patch } : p)),
           }),
-        })),
-      revertAutoFill: () =>
-        set((s) => ({
-          draft: {
-            ...s.draft,
-            ...revertDesignFill(s.draft, s.draft.autoFill),
-            autoFill: {},
-            autoFillDismissed: true,
-          },
         })),
     }),
     {

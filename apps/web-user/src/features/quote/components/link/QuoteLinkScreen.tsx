@@ -13,6 +13,7 @@ import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/Load
 import { Skeleton } from "@/apps/web-user/common/components/skeleton";
 import { Tabs } from "@/apps/web-user/common/components/tabs/Tabs";
 import { Toast } from "@/apps/web-user/common/components/toast/Toast";
+import { CharCountHint } from "@/apps/web-user/common/components/textareas/TextArea";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { cn } from "@/apps/web-user/common/lib/utils";
 import getApiMessage from "@/apps/web-user/common/utils/getApiMessage";
@@ -694,9 +695,7 @@ export function QuoteLinkScreen({ token }: { token: string }) {
                 aria-label="메모"
                 className="w-full resize-none rounded-xl border border-gray-100 px-[14px] py-[12px] text-sm text-gray-900 outline-none focus:border-gray-900"
               />
-              <p className="mt-[4px] text-right text-xs text-gray-400">
-                {form.memo.length}/{MEMO_MAX}
-              </p>
+              <CharCountHint length={form.memo.length} maxLength={MEMO_MAX} />
             </Field>
             <Field
               label="손님이 연락할 곳"
