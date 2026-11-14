@@ -565,7 +565,6 @@ export function StepCake() {
               <span className="text-center text-sm text-gray-300">
                 {adding ? "올리는 중…" : hasPhoto ? "사진 추가" : "참고할 사진을 올려 주세요"} (
                 {draft.photos.length}/{QUOTE_LIMITS.MAX_PHOTOS})
-                {!hasPhoto && <span className="block text-xs">인스타에서 본 사진도 괜찮아요</span>}
               </span>
             </button>
           )}
