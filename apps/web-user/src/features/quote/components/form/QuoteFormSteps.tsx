@@ -41,6 +41,7 @@ import {
   Field,
   HourRangeSheet,
   NoticeBox,
+  FillNote,
   Pill,
   StepTitle,
   Stepper,
@@ -434,7 +435,6 @@ function readOwnPhoto(id: string, dataUrl: string) {
       finish({
         read: {
           parts: res.parts,
-          description: res.description,
           size: res.size,
           creams: res.creams,
           requestNote: res.requestNote,
@@ -590,11 +590,6 @@ export function StepCake() {
             onChange={onPick}
           />
         </div>
-        {hasPhoto && (
-          <div className="mt-[6px]">
-            <NoticeBox>손으로 만드는 케이크라 사진과 조금 다를 수 있어요</NoticeBox>
-          </div>
-        )}
         {/* 사진 읽기 켜고 끄기(운영자 11-14 고름): 못 읽었으면 아래 줄에 알린다 */}
         {ownPhotos.length > 0 && (
           <div className="mt-[8px] flex items-center gap-[12px] rounded-lg border border-gray-100 px-[12px] py-[10px]">
@@ -616,6 +611,12 @@ export function StepCake() {
               </p>
             </div>
             <Toggle checked={!readOff} onChange={toggleReadOff} ariaLabel="사진 보고 설명 채우기" />
+          </div>
+        )}
+        {/* 스위치 아래에 안내(운영자 11-14 순서 바꿈) */}
+        {hasPhoto && (
+          <div className="mt-[8px]">
+            <NoticeBox>손으로 만드는 케이크라 사진과 조금 다를 수 있어요</NoticeBox>
           </div>
         )}
       </Field>
@@ -658,14 +659,9 @@ export function StepCake() {
           <p className="mt-[6px] text-2sm text-gray-500">읽는 동안 다른 칸을 써도 돼요</p>
         )}
         {descFilled && (
-          <>
-            <p className="mt-[6px] text-2sm text-primary">
-              ✦ {filledFrom > 1 ? `사진 ${filledFrom}장을 보고 채웠어요` : "사진 보고 채웠어요"}
-            </p>
-            <p className="mt-[4px] text-xs text-gray-500">
-              케이크에 쓸 글자가 다르면 꼭 고쳐 주세요
-            </p>
-          </>
+          <FillNote sub="케이크에 쓸 글자가 다르면 꼭 고쳐 주세요">
+            {filledFrom > 1 ? `사진 ${filledFrom}장을 보고 채웠어요` : "사진 보고 채웠어요"}
+          </FillNote>
         )}
       </Field>
       <Field label="요청 사항" optional="선택">
@@ -676,7 +672,7 @@ export function StepCake() {
           showCount
           placeholder="알레르기, 초·토퍼 등"
         />
-        {noteFilled && <p className="mt-[6px] text-2sm text-primary">✦ 사진 보고 채웠어요</p>}
+        {noteFilled && <FillNote>사진 보고 채웠어요</FillNote>}
       </Field>
       <QuoteWriteHelpSheet isOpen={helpOpen} onClose={() => setHelpOpen(false)} />
       <DesignPickSheet
@@ -737,19 +733,21 @@ export function StepSizeBudget() {
           ))}
         </div>
         {sizeFilled && (
-          <p className="mt-[6px] text-2sm text-primary">
-            ✦{" "}
+          <FillNote
+            action={
+              <button
+                type="button"
+                className="-my-[11px] shrink-0 py-[11px] pl-[8px] text-gray-500 underline"
+                onClick={() => update({ size: null })}
+              >
+                되돌리기
+              </button>
+            }
+          >
             {draft.autoFill?.conflicts?.includes("size")
               ? "사진마다 크기가 달라 보여요. 맞는지 확인해 주세요"
-              : "사진 보고 골랐어요"}{" "}
-            <button
-              type="button"
-              className="-my-[11px] ml-[4px] py-[11px] text-gray-500 underline"
-              onClick={() => update({ size: null })}
-            >
-              되돌리기
-            </button>
-          </p>
+              : "사진 보고 골랐어요"}
+          </FillNote>
         )}
       </Field>
       <Field label="개수">
@@ -793,12 +791,8 @@ export function StepSizeBudget() {
             className="mt-[10px] h-[42px] w-full rounded-[6px] border border-gray-100 px-[12px] text-sm outline-none focus:border-gray-900"
           />
         )}
-        {creamsFilled && <p className="mt-[6px] text-2sm text-primary">✦ 사진 보고 골랐어요</p>}
-        {creamsUnknown && (
-          <p className="mt-[6px] text-2sm text-gray-500">
-            사진으로는 크림을 알 수 없어 비워 뒀어요
-          </p>
-        )}
+        {creamsFilled && <FillNote>사진 보고 골랐어요</FillNote>}
+        {creamsUnknown && <FillNote>사진으로는 크림을 알 수 없어 비워 뒀어요</FillNote>}
       </Field>
       <Field
         label="예산"

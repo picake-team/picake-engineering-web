@@ -22,7 +22,8 @@ export const DESIGN_PART_LABEL: Record<DesignPart, string> = {
 };
 
 /** 채울 값을 가진 사진: 디자인 모음(미리 읽은 값) 또는 AI가 읽은 손님 사진 */
-export type FillSource = Pick<Design, "parts" | "description" | "size" | "creams" | "requestNote">;
+/** 칸을 채우는 데 쓰는 값(디자인 모음 사진·AI가 읽은 손님 사진 모두) */
+export type FillSource = Pick<Design, "parts" | "size" | "creams" | "requestNote">;
 
 export interface FillPhoto {
   design: FillSource | null;

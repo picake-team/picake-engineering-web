@@ -336,3 +336,30 @@ export function FixedFooter({ children }: { children: ReactNode }) {
     </div>
   );
 }
+
+/**
+ * 사진 보고 채운 칸 아래 표시. 위 안내(NoticeBox)와 같은 회색 상자에 ✦만 주황(운영자 11-14 E).
+ * 손님이 칸을 고치면 부르는 쪽에서 감춘다
+ */
+export function FillNote({
+  children,
+  sub,
+  action,
+}: {
+  children: ReactNode;
+  sub?: ReactNode;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="mt-[8px] flex items-start gap-[8px] rounded-xl bg-gray-50 px-[12px] py-[10px] text-xs leading-[18px] text-gray-700">
+      <span aria-hidden className="w-[16px] shrink-0 text-center text-primary">
+        ✦
+      </span>
+      <div className="min-w-0 flex-1">
+        <p>{children}</p>
+        {sub && <p className="text-gray-500">{sub}</p>}
+      </div>
+      {action}
+    </div>
+  );
+}

@@ -8,10 +8,8 @@ export interface DesignLikesResponse {
   myLikes: string[];
 }
 
-/** 손님 사진을 AI가 읽은 결과. 케이크가 아니거나 읽지 못하면 unreadable */
-export type PhotoReadResponse =
-  | (FillSource & { read: { label: string; value: string | null }[] })
-  | { unreadable: true };
+/** 손님 사진을 AI가 읽은 결과(따를 것 4칸·크기·크림·요청 사항). 케이크가 아니거나 읽지 못하면 unreadable */
+export type PhotoReadResponse = FillSource | { unreadable: true };
 
 export const designApi = {
   getLikes: async (): Promise<DesignLikesResponse> => {
