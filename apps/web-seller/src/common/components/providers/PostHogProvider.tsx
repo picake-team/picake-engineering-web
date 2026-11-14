@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import {
   initPostHog,
+  isReplayBlockedPath,
   syncPostHogUser,
   withPostHog,
 } from "@/apps/web-seller/common/config/posthog.config";
@@ -23,8 +24,9 @@ export function PostHogPageView() {
 
   // /auth/* 는 OAuth 콜백·가입 플로우라 화면 녹화(세션 리플레이) 자체를 꺼서
   // 이메일 등 화면에 노출되는 정보가 리플레이로 남지 않게 한다.
+  // 처음 연 화면이 /auth면 초기화 때부터 꺼져 있다(posthog.config의 disable_session_recording).
   useEffect(() => {
-    const blocked = location.pathname.startsWith("/auth");
+    const blocked = isReplayBlockedPath(location.pathname);
     withPostHog((ph) => {
       if (blocked) {
         ph.stopSessionRecording();
