@@ -15,12 +15,15 @@ import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { EmptyState } from "@/apps/web-user/common/components/fallbacks/EmptyState";
 import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
 import type { ProductEntryPoint } from "@/apps/web-user/common/types/analytics.type";
+import { useUserLocation } from "@/apps/web-user/common/hooks/useUserLocation";
 
 interface SearchProductListSectionProps {
   search?: string;
   minPrice?: number;
   maxPrice?: number;
   productCategoryTypes?: ProductCategoryType[];
+  /** 필터 "사이즈"(도시락·미니·1호…) */
+  sizes?: string[];
   sortBy?: MapListSortBy;
   /** 상품 상세 view_product_detail의 entry_point. 검색어 없이 홈 카테고리로 왔으면 "category" */
   entryPoint?: Extract<ProductEntryPoint, "search" | "category">;
@@ -28,8 +31,13 @@ interface SearchProductListSectionProps {
   onResultCountChange?: (count: number) => void;
 }
 
-function toProductSortBy(sortBy: MapListSortBy): SortBy {
-  return sortBy === "review" ? SortBy.RATING_AVG : SortBy.POPULAR;
+/**
+ * 필터 정렬 → 서버 정렬. "거리순"은 내 위치를 알 때만 진짜 거리순이고(지도·앱에서 받은 위치),
+ * 모르면 인기순으로 보낸다(위치를 묻는 창은 띄우지 않는다)
+ */
+function toProductSortBy(sortBy: MapListSortBy, hasLocation: boolean): SortBy {
+  if (sortBy === "review") return SortBy.RATING_AVG;
+  return sortBy === "distance" && hasLocation ? SortBy.DISTANCE : SortBy.POPULAR;
 }
 
 export function SearchProductListSection({
@@ -37,11 +45,14 @@ export function SearchProductListSection({
   minPrice,
   maxPrice,
   productCategoryTypes,
+  sizes,
   sortBy = "distance",
   entryPoint = "search",
   onResultCountChange,
 }: SearchProductListSectionProps) {
   const loadMoreRef = useRef<HTMLDivElement>(null);
+  const { location } = useUserLocation();
+  const apiSortBy = toProductSortBy(sortBy, location != null);
 
   const {
     data,
@@ -54,10 +65,13 @@ export function SearchProductListSection({
     refetch,
   } = useProductList({
     search: search?.trim() || undefined,
-    sortBy: toProductSortBy(sortBy),
+    sortBy: apiSortBy,
     minPrice,
     maxPrice,
     productCategoryTypes,
+    sizes,
+    latitude: apiSortBy === SortBy.DISTANCE ? location?.latitude : undefined,
+    longitude: apiSortBy === SortBy.DISTANCE ? location?.longitude : undefined,
   });
 
   useInfiniteScroll({ hasNextPage, isFetchingNextPage, fetchNextPage, loadMoreRef });

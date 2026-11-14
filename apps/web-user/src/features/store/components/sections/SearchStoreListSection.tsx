@@ -63,7 +63,14 @@ export function SearchStoreListSection({
   } = useStoreList({
     search,
     ...filter,
-    sortBy: "popular",
+    // "거리순"은 내 위치를 알 때만 서버 거리순(위치를 묻는 창은 띄우지 않는다), 모르면 인기순
+    ...(sortBy === "distance" && userLocation
+      ? {
+          sortBy: "distance",
+          latitude: userLocation.latitude,
+          longitude: userLocation.longitude,
+        }
+      : { sortBy: "popular" }),
   });
   const totalCount = data?.pages[0]?.meta.totalCount;
 
