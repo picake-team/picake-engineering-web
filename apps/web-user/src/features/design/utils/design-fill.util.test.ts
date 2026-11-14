@@ -7,7 +7,7 @@ import {
   partsChipLabel,
 } from "@/apps/web-user/features/design/utils/design-fill.util";
 
-const base: Omit<Design, "id" | "parts" | "description" | "size" | "creams" | "requestNote"> = {
+const base: Omit<Design, "id" | "parts" | "description"> = {
   name: "",
   occasions: [],
   style: "",
@@ -28,9 +28,6 @@ const bento: Design = {
     lettering: '검은 필기체 "happy birthday" 레터링',
   },
   description: '사진처럼 흰 크림 도시락 케이크에 작은 빨간 하트, 가운데 "happy birthday" 레터링',
-  size: "LUNCHBOX",
-  creams: [],
-  requestNote: "사진처럼 초 1개",
 };
 
 const heart: Design = {
@@ -43,9 +40,6 @@ const heart: Design = {
     lettering: '"18"',
   },
   description: '사진처럼 연분홍 하트 모양 케이크에 분홍 크림 프릴 테두리, 가운데 "18"',
-  size: null,
-  creams: ["BUTTER_CREAM"],
-  requestNote: "",
 };
 
 describe("partsChipLabel", () => {

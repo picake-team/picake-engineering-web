@@ -39,9 +39,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       '사진처럼 흰 크림 원형 케이크 윗면에 초록 크림으로 리스를 짜고 빨간 점 열매를 올린 뒤, 리스 오른쪽 아래에 빨간 필기체로 "Merry Christmas"라고 써 주세요.',
-    size: null,
-    creams: [],
-    requestNote: "",
     magazine: {
       order: 1,
       title: "크리스마스엔\n초록 리스",
@@ -84,9 +81,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       '사진처럼 흰 원형 떡케이크(백설기) 윗면 오른쪽에 금색으로 "백일"을 세로로 크게 넣고, 왼쪽에 흰 장미 두 송이와 짙은 초록 잎을 올려 주세요.',
-    size: null,
-    creams: [],
-    requestNote: "",
     magazine: { order: 2, title: "한글 레터링\n백일 케이크", subtitle: "백일·돌 글자만 바꿔서" },
   },
   {
@@ -123,9 +117,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       "사진처럼 연노랑 크림 원형 케이크 윗면 둘레를 하늘색 물결 테두리로 짜고 가운데에 분홍·자주·남색 장미와 초록 잎을 모은 뒤, 옆면은 늘어진 줄 장식과 진주, 작은 꽃으로 꾸며 주세요.",
-    size: null,
-    creams: [],
-    requestNote: "",
     magazine: { order: 3, title: "레트로 감성\n빈티지 케이크", subtitle: "파스텔 짜기 테두리" },
   },
   {
@@ -156,9 +147,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       '사진처럼 연분홍 크림 하트 모양 케이크 둘레를 연분홍 조개 모양으로 위·가운데·아래 세 줄 짜고 분홍 진주 알갱이와 반짝이를 올린 뒤, 윗면 가운데에 분홍색으로 "18"만 작게 넣어 주세요.',
-    size: null,
-    creams: [],
-    requestNote: "",
     magazine: { order: 4, title: "하트 모양\n빈티지", subtitle: "숫자 하나로 충분해요" },
   },
   {
@@ -193,9 +181,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       '사진처럼 흰 크림 도시락 케이크 윗면에 검은 필기체로 "happy birthday"를 두 줄로 쓰고, 빈 곳에 빨간 작은 하트를 점처럼 흩어 찍어 주세요.',
-    size: "LUNCHBOX",
-    creams: [],
-    requestNote: "사진처럼 초 1개",
     magazine: { order: 5, title: "혼자 먹기 좋은\n도시락 케이크", subtitle: "1~2명이 딱 좋아요" },
   },
   {
@@ -231,9 +216,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       "사진처럼 아이보리 크림 높은 원형 케이크 윗면 둘레를 흰 크림으로 짜고 딸기를 올린 뒤, 옆면은 흰 크림 줄을 늘어뜨리고 아래는 구슬 모양으로 둘러 주세요.",
-    size: null,
-    creams: [],
-    requestNote: "사진처럼 초 1개",
     magazine: {
       order: 6,
       title: "언제나 옳은\n딸기 케이크",
@@ -272,9 +254,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       "사진처럼 연민트 크림 원형 케이크 윗면 가장자리를 따라 연분홍 크림을 작게 여러 개 짜서 그중 몇 개에 꼭지 달린 체리를 올리고, 아래 둘레도 연분홍 크림으로 짜 주세요.",
-    size: null,
-    creams: [],
-    requestNote: "",
     magazine: null,
   },
   {
@@ -309,9 +288,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       '사진처럼 흰 크림 높은 원형 케이크 위아래 둘레를 연분홍 크림으로 프릴처럼 두툼하게 짜고, 가운데에 갈색 필기체로 "Happy Birthday"라고 써 주세요.',
-    size: null,
-    creams: [],
-    requestNote: "",
     magazine: null,
   },
   {
@@ -346,9 +322,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       "사진처럼 흰 크림 원형 케이크 윗면 가운데에 진분홍 장미와 초록 잎을 한 묶음으로 짜고 옆면 둘레에도 장미와 잎을 두른 뒤, 흰 진주 알갱이를 몇 개 올려 주세요.",
-    size: null,
-    creams: [],
-    requestNote: "",
     magazine: null,
   },
   {
@@ -383,9 +356,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       '사진처럼 흰 크림 원형 케이크 윗면에 분홍 크림을 붓질하듯 바르고 흰 필기체로 "Happy Birthday"를 쓴 뒤, 윗면과 옆면에 작은 빨간 체리를 그려 주세요.',
-    size: null,
-    creams: [],
-    requestNote: "",
     magazine: null,
   },
   {
@@ -420,9 +390,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       "사진처럼 흰 크림 높은 원형 케이크 윗면 한쪽에 분홍 카네이션과 흰 꽃, 안개꽃을 모아 올리고 옆면에도 카네이션을 붙인 뒤, 크고 작은 흰 진주 알갱이를 위에서 옆으로 흘러내리듯 뿌려 주세요.",
-    size: null,
-    creams: [],
-    requestNote: "",
     magazine: null,
   },
   {
@@ -458,9 +425,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       '사진처럼 분홍 크림 하트 모양 케이크 둘레를 분홍 프릴로 짜고 빨간 체리와 흰 리본을 군데군데 올린 뒤, 가운데에 금색 필기체로 "Chapter 30"이라고 써 주세요.',
-    size: null,
-    creams: [],
-    requestNote: "",
     magazine: null,
   },
   {
@@ -496,9 +460,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       '사진처럼 흰 크림 원형 케이크 위아래 둘레를 흰 조개 모양으로 짜고 옆면에 검은 줄을 두른 뒤, 검정 리본을 여러 개 묶어 길게 늘어뜨리고 윗면에 검은색으로 "29"를 써 주세요.',
-    size: null,
-    creams: [],
-    requestNote: "",
     magazine: null,
   },
   {
@@ -533,9 +494,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       '사진처럼 아이보리 크림 원형 케이크 둘레와 옆면을 크림 짜기로 꾸미고 분홍 리본을 여러 개 묶어 늘어뜨린 뒤, 윗면에 분홍 필기체로 "Happy Birthday"라고 써 주세요.',
-    size: null,
-    creams: [],
-    requestNote: "",
     magazine: null,
   },
   {
@@ -566,9 +524,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       '사진처럼 분홍 크림 도시락 케이크 윗면에 작은 딸기와 흰 데이지 꽃을 그리고, 가운데에 흰 필기체로 "Pink Girl Summer"라고 써 주세요.',
-    size: "LUNCHBOX",
-    creams: [],
-    requestNote: "",
     magazine: null,
   },
   {
@@ -603,9 +558,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       '사진처럼 연한 회녹색 크림 원형 케이크 윗면 위아래에 파랑·흰 꽃과 초록 잎, 주황 방울 송이를 반달 모양으로 짜고, 가운데에 아이보리색으로 "THANK you"라고 써 주세요.',
-    size: null,
-    creams: [],
-    requestNote: "",
     magazine: null,
   },
   {
@@ -645,9 +597,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       '사진처럼 아이보리 크림 하트 모양 케이크 둘레를 흰 크림 꽃과 짜기로 두르고 진주 알갱이를 흩뿌린 뒤, 가운데에 금색 필기체 "engaged" 글자 장식을 눕혀 올려 주세요.',
-    size: null,
-    creams: [],
-    requestNote: "사진처럼 금색 글자 장식",
     magazine: null,
   },
   {
@@ -678,9 +627,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       "사진처럼 연분홍 크림 원형 케이크 윗면 둘레를 프릴로 짜고 금박 입힌 체리를 빙 둘러 올린 뒤, 옆면은 늘어진 줄 장식과 금색 진주 알갱이로 꾸며 주세요.",
-    size: null,
-    creams: [],
-    requestNote: "",
     magazine: null,
   },
   {
@@ -719,9 +665,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       '사진처럼 아이보리 크림 도시락 케이크 윗면에 다른 장식 없이 검은 손글씨로 "happy birthday"만 두 줄로 써 주세요.',
-    size: "LUNCHBOX",
-    creams: [],
-    requestNote: "사진처럼 초 1개",
     magazine: null,
   },
   {
@@ -751,9 +694,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       '사진처럼 분홍 크림 하트 모양 케이크 윗면 둘레를 분홍과 빨강 두 줄로, 아래 둘레를 빨강·아이보리·분홍으로 짜고, 가운데에 흰색으로 "Love"라고 써 주세요.',
-    size: null,
-    creams: [],
-    requestNote: "",
     magazine: null,
   },
   {
@@ -794,9 +734,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       '사진처럼 아이보리 크림 원형 케이크 윗면 둘레에 연보라 장미와 분홍 꽃을 두르고 분홍 리본을 묶은 뒤, 가운데에 금색으로 "happy birthday princess"라고 써 주세요.',
-    size: null,
-    creams: [],
-    requestNote: "",
     magazine: null,
   },
   {
@@ -833,9 +770,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       "사진처럼 흰 크림 원형 케이크 윗면 가운데에 동그랗게 결을 내고, 둘레에 딸기와 작은 크림 짜기, 분홍 꽃잎을 번갈아 올려 주세요.",
-    size: null,
-    creams: [],
-    requestNote: "",
     magazine: null,
   },
   {
@@ -870,9 +804,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       "사진처럼 연분홍 크림 높은 원형 케이크 윗면 한쪽에 살구·분홍·보라·파랑 꽃을 크게 모아 짜고 둘레에 초록 덩굴을 이은 뒤, 옆면은 초록 무늬 띠를 두르고 위아래를 금색으로 마무리해 주세요.",
-    size: null,
-    creams: [],
-    requestNote: "",
     magazine: null,
   },
   {
@@ -907,9 +838,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       '사진처럼 흰 크림 원형 케이크 윗면에 분홍·노랑·보라·청록 손글씨로 "HAPPY BIRTHDAY"를 쓰고, 구름 안에 "-30"과 노란 해, 하트를 그려 주세요.',
-    size: null,
-    creams: [],
-    requestNote: "",
     magazine: null,
   },
   {
@@ -940,9 +868,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       "사진처럼 흰 크림 원형 케이크 윗면 가운데에 빨간 선으로 작은 하트와 느낌표만 그려 주세요.",
-    size: null,
-    creams: [],
-    requestNote: "",
     magazine: null,
   },
   {
@@ -978,9 +903,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       '사진처럼 흰 크림 원형 케이크 윗면만 파랑과 흰색이 섞이게 바르고 둘레를 파랑 크림으로 짠 뒤, 가운데에 금색 필기체로 "happy birthday"라고 쓰고 금박을 조금 올려 주세요.',
-    size: null,
-    creams: [],
-    requestNote: "",
     magazine: null,
   },
   {
@@ -1012,9 +934,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       "사진처럼 흰 크림 원형 케이크 옆면에 흰 아이싱으로 창문을 그린 집 모양 쿠키를 빙 둘러 세우고, 윗면 둘레에 로즈마리를 리스처럼 두른 뒤 집 모양 쿠키 두 개와 체리를 올려 주세요.",
-    size: null,
-    creams: [],
-    requestNote: "",
     magazine: null,
   },
   {
@@ -1049,9 +968,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       '사진처럼 흰 크림 높은 원형 케이크 옆면에 쿠키 글자로 "XMAS"를 붙이고, 윗면에 빨간 열매를 뿌린 뒤 로즈마리를 나무처럼 세워 주세요.',
-    size: null,
-    creams: [],
-    requestNote: "",
     magazine: null,
   },
   {
@@ -1082,9 +998,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       "사진처럼 낮은 원형 케이크 윗면에만 연분홍 크림을 바르고 가운데에 딸기를 모아 흰 가루를 살짝 뿌린 뒤, 로즈마리 가지를 두르고 옆면은 크림 없이 시트가 보이게 해 주세요.",
-    size: null,
-    creams: [],
-    requestNote: "",
     magazine: null,
   },
   {
@@ -1115,9 +1028,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       '사진처럼 흰 원형 케이크를 큰 흰 리본과 천 주름으로 선물처럼 감싸고 아래를 흰 구슬로 두른 뒤, 받침에 은색 "HAPPY BIRTHDAY" 글씨 띠와 숫자 "21"을 놓아 주세요.',
-    size: null,
-    creams: [],
-    requestNote: '사진처럼 불꽃 초 2개와 은색 숫자 "21" 장식',
     magazine: null,
   },
   {
@@ -1152,9 +1062,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       "사진처럼 흰 크림 낮은 원형 케이크 옆면을 거친 결로 바르고, 윗면 한쪽에 블루베리와 블랙베리를 모아 올려 주세요.",
-    size: null,
-    creams: [],
-    requestNote: "",
     magazine: null,
   },
   {
@@ -1185,9 +1092,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       "사진처럼 흰 크림 높은 원형 케이크 옆면을 가로 물결 결로 바르고, 다른 장식 없이 깔끔하게 만들어 주세요.",
-    size: null,
-    creams: [],
-    requestNote: "사진처럼 불꽃 초 1개",
     magazine: null,
   },
   {
@@ -1222,9 +1126,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       "사진처럼 아이보리 크림 원형 케이크 윗면 한쪽에 흰 장미와 연보라 꽃, 연두 꽃을 반달 모양으로 둘러 올려 주세요.",
-    size: null,
-    creams: [],
-    requestNote: "",
     magazine: null,
   },
   {
@@ -1259,9 +1160,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       "사진처럼 아이보리 크림 원형 케이크에 분홍·하늘·민트·보라 크림을 팔레트 나이프로 꽃잎처럼 덧바르고, 진주 알갱이를 몇 개 올려 주세요.",
-    size: null,
-    creams: [],
-    requestNote: "",
     magazine: null,
   },
   {
@@ -1297,9 +1195,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       '사진처럼 연민트 크림 원형 케이크 둘레를 분홍 크림으로 뾰족하게 짜고 옆면과 테두리에 알록달록 스프링클을 뿌린 뒤, 가운데에 금색 테를 두른 흰 원판을 올리고 금색 필기체로 "Happy Birthday"를 넣어 주세요.',
-    size: null,
-    creams: [],
-    requestNote: "",
     magazine: null,
   },
   {
@@ -1331,9 +1226,6 @@ export const DESIGNS: Design[] = [
     },
     description:
       '사진처럼 흰 크림 도시락 케이크 둘레를 흰 크림으로 짜고, 윗면에 검은 선으로 틱택토 칸을 그려 "PA" "PA" "PÁ"를 넣고 빨간 하트를 그려 주세요.',
-    size: "LUNCHBOX",
-    creams: [],
-    requestNote: "",
     magazine: null,
   },
 ];
