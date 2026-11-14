@@ -33,6 +33,9 @@ export function useProductList({
   productType,
   productCategoryTypes,
   regions,
+  sizes,
+  latitude,
+  longitude,
   enabled = true,
   placeholderFirstPage,
 }: UseProductListOptions = {}) {
@@ -47,6 +50,9 @@ export function useProductList({
       productType,
       productCategoryTypes,
       regions,
+      sizes,
+      latitude,
+      longitude,
     }),
     queryFn: ({ pageParam = 1 }) => {
       const params: GetProductsParams = {
@@ -74,6 +80,14 @@ export function useProductList({
       }
       if (regions) {
         params.regions = regions;
+      }
+      if (sizes && sizes.length > 0) {
+        params.sizes = sizes;
+      }
+      // 거리순은 기준점이 있어야 한다(서버가 없으면 400). 없으면 부르는 쪽이 인기순으로 보낸다
+      if (sortBy === SortBy.DISTANCE && latitude != null && longitude != null) {
+        params.latitude = latitude;
+        params.longitude = longitude;
       }
       return productApi.getProducts(params);
     },

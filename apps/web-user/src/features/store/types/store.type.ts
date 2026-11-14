@@ -71,6 +71,9 @@ export interface StoreListParams extends StoreListFilter {
   /** YYYY-MM-DD, period와 함께 전달 */
   pickupFilterDate?: string;
   pickupFilterPeriod?: StoreListPickupFilterPeriod;
+  /** 거리순(sortBy=distance)일 때만: 기준점 위도·경도 */
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface StoreProductRepresentativeImage {

@@ -245,6 +245,7 @@ export default function SearchPage() {
                 minPrice={listFilter.minPrice}
                 maxPrice={listFilter.maxPrice}
                 productCategoryTypes={listFilter.productCategoryTypes}
+                sizes={listFilter.sizes}
                 sortBy={sortBy}
                 entryPoint={isBrowsingCategory ? "category" : "search"}
                 onResultCountChange={handleResultCount}

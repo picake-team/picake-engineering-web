@@ -14,7 +14,16 @@ export function useStoreList({
   maxPrice,
   productCategoryTypes,
   sortBy,
-}: { search?: string; limit?: number; sortBy?: string } & StoreListFilter = {}) {
+  latitude,
+  longitude,
+}: {
+  search?: string;
+  limit?: number;
+  sortBy?: string;
+  /** 거리순일 때만 기준점 */
+  latitude?: number;
+  longitude?: number;
+} & StoreListFilter = {}) {
   const query = useInfiniteQuery<StoreListResponse>({
     queryKey: storeQueryKeys.list({
       search,
@@ -23,6 +32,8 @@ export function useStoreList({
       maxPrice,
       productCategoryTypes,
       sortBy,
+      latitude,
+      longitude,
     }),
     queryFn: ({ pageParam = 1 }) =>
       storeApi.getList({
@@ -34,6 +45,9 @@ export function useStoreList({
         maxPrice,
         productCategoryTypes,
         sortBy,
+        ...(sortBy === "distance" && latitude != null && longitude != null
+          ? { latitude, longitude }
+          : {}),
       }),
     getNextPageParam: (lastPage) =>
       lastPage.meta.hasNext ? lastPage.meta.currentPage + 1 : undefined,
