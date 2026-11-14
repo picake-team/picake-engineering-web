@@ -27,11 +27,15 @@ export function DesignPartsPickSheet({
   design,
   onClose,
   onNext,
+  confirmLabel = "견적 요청서 쓰기",
+  zIndexClassName,
 }: {
   isOpen: boolean;
   design: Design;
   onClose: () => void;
   onNext: (parts: DesignPart[]) => void;
+  confirmLabel?: string;
+  zIndexClassName?: string;
 }) {
   const [picked, setPicked] = useState<DesignPart[]>(["ALL"]);
   const options = DESIGN_PART_ORDER.filter((p) => design.parts[PART_KEY[p]]);
@@ -65,10 +69,11 @@ export function DesignPartsPickSheet({
       isOpen={isOpen}
       onClose={onClose}
       title="이 사진에서 무엇을 가져갈까요?"
+      zIndexClassName={zIndexClassName}
       footer={
         <div className="px-[20px] pb-[20px] pt-[8px]">
           <Button size="lg" onClick={() => onNext(picked)}>
-            견적 요청서 쓰기
+            {confirmLabel}
           </Button>
         </div>
       }

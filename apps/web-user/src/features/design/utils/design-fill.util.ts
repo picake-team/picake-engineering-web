@@ -72,45 +72,49 @@ export function designRows(parts: FillSource["parts"]): { label: string; value: 
 
 /**
  * 사진들로 채울 값. 채울 것이 없으면 null.
- * 설명은 "사진에서 읽은 것"과 같은 분류로 한 줄씩("모양: …"). 사진이 여러 장이면 칸마다
- * 손님이 그 칸을 고른 사진을 먼저, 없으면 "전체"인 앞 사진을 따르고 "(n번 사진)"을 붙인다.
- * 읽은 값이 없는 손님 사진에서 고른 칸은 "글자: 3번 사진처럼"으로 적는다.
+ * 설명은 사진마다 묶어 "· 모양: …"처럼 한 줄씩 쓴다(운영자 11-14 "깔끔하게").
+ * - 한 장·전체: "사진처럼 만들어 주세요" + 줄들
+ * - 한 장·일부: "사진에서 장식·글자만 참고해 주세요" + 고른 줄들
+ * - 여러 장: "1번 사진처럼" / "2번 사진에서 장식만" + 줄들, 사진 사이는 빈 줄.
+ *   읽은 값이 없는 손님 사진은 "3번 사진도 참고해 주세요"
  */
 export function buildDesignFill(photos: FillPhoto[]): DesignFill | null {
   if (!photos.some((p) => p.design) && photos.every((p) => isAllParts(p.parts))) return null;
   const multi = photos.length > 1;
-  const wants = (p: FillPhoto, part: Exclude<DesignPart, "ALL">) =>
-    isAllParts(p.parts) || p.parts.includes(part);
-  // 칸마다 따를 사진 순서: 그 칸을 직접 고른 사진 → 전체인 사진
-  const order = (part: Exclude<DesignPart, "ALL">) => [
-    ...photos
-      .map((p, i) => ({ p, i }))
-      .filter(({ p }) => !isAllParts(p.parts) && p.parts.includes(part)),
-    ...photos.map((p, i) => ({ p, i })).filter(({ p }) => isAllParts(p.parts)),
-  ];
+  const chosen = (p: FillPhoto) =>
+    isAllParts(p.parts) ? DESIGN_PART_ORDER : DESIGN_PART_ORDER.filter((x) => p.parts.includes(x));
 
-  const lines: string[] = [];
-  for (const part of DESIGN_PART_ORDER) {
-    const label = DESIGN_PART_LABEL[part];
-    for (const { p, i } of order(part)) {
-      const value = p.design?.parts[PART_KEY[part]];
-      if (value) {
-        lines.push(`${label}: ${value}${multi ? ` (${i + 1}번 사진)` : ""}`);
-        break;
-      }
-      // 손님이 이 사진에서 그 칸을 직접 골랐는데 읽은 값이 없으면 번호로(다른 사진 값으로 바꾸지 않는다)
-      if (!isAllParts(p.parts)) {
-        lines.push(`${label}: ${i + 1}번 사진처럼`);
-        break;
-      }
+  const blocks: string[] = [];
+  photos.forEach((p, i) => {
+    const parts = chosen(p);
+    const partial = !isAllParts(p.parts);
+    if (!p.design && !partial) {
+      if (multi) blocks.push(`${i + 1}번 사진도 참고해 주세요`);
+      return;
     }
-  }
-  if (!lines.length) return null;
-  if (!multi && isAllParts(photos[0].parts)) lines.unshift("사진처럼 만들어 주세요");
+    const what = parts.map((x) => DESIGN_PART_LABEL[x]).join("·");
+    const head = multi
+      ? partial
+        ? `${i + 1}번 사진에서 ${what}만`
+        : `${i + 1}번 사진처럼`
+      : partial
+        ? `사진에서 ${what}만 참고해 주세요`
+        : "사진처럼 만들어 주세요";
+    const lines = parts.flatMap((part) => {
+      const value = p.design?.parts[PART_KEY[part]];
+      return value ? [`· ${DESIGN_PART_LABEL[part]}: ${value}`] : [];
+    });
+    blocks.push([head, ...lines].join("\n"));
+  });
+  if (!blocks.length) return null;
 
+  // 크기·크림은 그 칸을 직접 고른 사진을 먼저, 없으면 전체인 사진을 따른다
   const sources = (part: Exclude<DesignPart, "ALL">) =>
-    order(part)
-      .map(({ p }) => p.design)
+    [
+      ...photos.filter((p) => !isAllParts(p.parts) && p.parts.includes(part)),
+      ...photos.filter((p) => isAllParts(p.parts)),
+    ]
+      .map((p) => p.design)
       .filter((d): d is FillSource => !!d);
   const sizes = sources("SHAPE")
     .map((d) => d.size)
@@ -121,7 +125,7 @@ export function buildDesignFill(photos: FillPhoto[]): DesignFill | null {
   const notes = [
     ...new Set(
       photos
-        .filter((p) => p.design && wants(p, "DECORATION") && p.design.requestNote)
+        .filter((p) => p.design && chosen(p).includes("DECORATION") && p.design.requestNote)
         .map((p) => p.design?.requestNote as string),
     ),
   ];
@@ -130,7 +134,7 @@ export function buildDesignFill(photos: FillPhoto[]): DesignFill | null {
   if (new Set(creamSets.map((c) => [...c].sort().join())).size > 1) conflicts.push("creams");
 
   return {
-    description: lines.join("\n").slice(0, DESCRIPTION_MAX),
+    description: blocks.join(multi ? "\n\n" : "\n").slice(0, DESCRIPTION_MAX),
     size: sizes[0] ?? null,
     creams: creamSets[0] ?? [],
     requestNote: notes.join(", ").slice(0, REQUEST_NOTE_MAX),

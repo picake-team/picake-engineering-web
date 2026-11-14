@@ -20,7 +20,6 @@ import {
 } from "@/apps/web-user/features/quote/store/quote-draft.store";
 import {
   DesignPickSheet,
-  PhotoPartsSheet,
   QuotePhotoTile,
 } from "@/apps/web-user/features/quote/components/form/QuotePhotoParts";
 import { designApi } from "@/apps/web-user/features/design/apis/design.api";
@@ -457,7 +456,6 @@ export function StepCake() {
   const [adding, setAdding] = useState(false);
   const [readOff, setReadOff] = useState(false);
   const [pickOpen, setPickOpen] = useState(false);
-  const [partsFor, setPartsFor] = useState<string | null>(null);
   const { showAlert } = useAlertStore();
   const hasPhoto = draft.photos.length > 0;
   const multi = draft.photos.length >= 2;
@@ -533,8 +531,6 @@ export function StepCake() {
     }
   };
 
-  const partsIndex = draft.photos.findIndex((p) => p.id === partsFor);
-
   return (
     <div>
       <StepTitle title="어떤 케이크인가요?" description="사진이나 설명 중 하나만 있으면 돼요" />
@@ -580,7 +576,6 @@ export function StepCake() {
               index={i}
               multi={multi}
               onRemove={() => setPhotos(draft.photos.filter((x) => x.id !== p.id))}
-              onParts={() => setPartsFor(p.id)}
             />
           ))}
           <input
@@ -685,19 +680,12 @@ export function StepCake() {
         room={room}
         exclude={draft.photos.flatMap((p) => (p.designId ? [p.designId] : []))}
         onClose={() => setPickOpen(false)}
-        onPick={(ids) => {
-          trackEvent("engage_quote_design_pick", { count: ids.length });
-          setPhotos([...useQuoteDraftStore.getState().draft.photos, ...designPhotos(ids)]);
-        }}
-      />
-      <PhotoPartsSheet
-        photo={partsIndex >= 0 ? draft.photos[partsIndex] : null}
-        index={Math.max(0, partsIndex)}
-        onClose={() => setPartsFor(null)}
-        onApply={(parts) => {
-          trackEvent("engage_quote_photo_parts", { parts: parts.join(",") });
-          setPhotos(draft.photos.map((x) => (x.id === partsFor ? { ...x, parts } : x)));
-          setPartsFor(null);
+        onPick={(picks) => {
+          trackEvent("engage_quote_design_pick", { count: picks.length });
+          setPhotos([
+            ...useQuoteDraftStore.getState().draft.photos,
+            ...picks.flatMap((x) => designPhotos([x.designId], x.parts)),
+          ]);
         }}
       />
     </div>
