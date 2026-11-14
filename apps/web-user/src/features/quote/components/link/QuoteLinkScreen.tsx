@@ -737,8 +737,7 @@ export function QuoteLinkScreen({ token }: { token: string }) {
           <p className="mt-[4px] text-xs leading-[18px] text-gray-700">
             근처 손님 요청에 견적만 보내면 돼요.{" "}
             {/* 초기 입점 혜택 약속 문장(기획 P-60 그대로, 바꾸지 않음) */}
-            처음 상품 등록은 저희가 대신 해 드리고, 입점하신 날부터 1년 동안 이용료·수수료는
-            0원이에요.
+            처음 상품 등록은 저희가 대신 해 드리고, 이용료·수수료는 0원이에요.
           </p>
           {/* 다른 사이트라 next/link가 아니라 a(소개 페이지는 info로 리다이렉트) */}
           <a
