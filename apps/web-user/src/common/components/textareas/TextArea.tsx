@@ -33,6 +33,8 @@ interface TextAreaProps extends Omit<
   label?: React.ReactNode;
   /** 글자 수 표시 여부 */
   showCount?: boolean;
+  /** 바깥 칸(글자 수 안내까지 감싸는 div)에 더할 class. 남는 높이를 채울 때 "flex flex-1 flex-col" */
+  containerClassName?: string;
 }
 
 export const TextArea: React.FC<TextAreaProps> = ({
@@ -44,10 +46,11 @@ export const TextArea: React.FC<TextAreaProps> = ({
   disabled,
   className = "",
   showCount,
+  containerClassName,
   ...props
 }) => {
   return (
-    <div className="w-full">
+    <div className={cn("w-full", containerClassName)}>
       {label && <label className="block mb-[10px] text-sm font-bold text-gray-900">{label}</label>}
       <textarea
         {...props}

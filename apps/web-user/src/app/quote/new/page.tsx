@@ -344,7 +344,8 @@ function QuoteNewContent() {
   if (!hydrated) return null;
 
   return (
-    <div className="min-h-screen bg-white pb-[100px]">
+    // 세로로 채우는 틀: 4단계 설명 칸이 남는 높이를 채운다(운영자 11-14)
+    <div className="flex min-h-screen flex-col bg-white pb-[100px] supports-[height:100dvh]:min-h-dvh">
       <header className="sticky top-0 z-10 flex h-[52px] items-center justify-between bg-white px-[16px]">
         <button type="button" aria-label={position === 0 ? "닫기" : "이전 단계"} onClick={goBack}>
           <Icon name={position === 0 ? "close" : "chevronLeft"} width={24} height={24} />
@@ -356,7 +357,7 @@ function QuoteNewContent() {
       </header>
       <main
         key={current}
-        className={`px-[20px] pt-[24px] motion-reduce:animate-none ${
+        className={`flex flex-1 flex-col px-[20px] pt-[24px] motion-reduce:animate-none ${
           stepDirRef.current === "forward"
             ? "animate-step-in-forward"
             : stepDirRef.current === "backward"

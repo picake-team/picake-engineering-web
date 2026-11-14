@@ -531,7 +531,8 @@ export function StepCake() {
   };
 
   return (
-    <div>
+    // 설명 칸이 "다음" 버튼 위까지 남는 높이를 채운다(운영자 11-14)
+    <div className="flex flex-1 flex-col">
       <StepTitle title="어떤 케이크인가요?" description="사진이나 설명 중 하나만 있으면 돼요" />
       <Field
         label="참고 사진"
@@ -619,6 +620,8 @@ export function StepCake() {
       </Field>
       <Field
         label="설명"
+        // 마지막 칸이라 아래 여백 없이 "다음" 버튼 위까지 채운다
+        className="mb-0 flex flex-1 flex-col"
         caption={hasPhoto ? undefined : "원하는 케이크와 케이크에 쓸 글자를 적어 주세요"}
         right={
           <button
@@ -630,12 +633,13 @@ export function StepCake() {
           </button>
         }
       >
-        <div className="relative">
+        <div className="relative flex flex-1 flex-col">
           <TextArea
             value={draft.description}
             onChange={(description) => update({ description })}
-            // 사진 보고 채운 여러 줄이 한눈에 보이게(운영자 11-14)
-            className="h-[200px] leading-[22px]"
+            containerClassName="flex flex-1 flex-col"
+            // 남는 높이를 채우고, 화면이 작으면 200에서 멈춘다(그때는 페이지가 내려간다)
+            className="h-auto min-h-[200px] flex-1 leading-[22px]"
             maxLength={QUOTE_LIMITS.DESCRIPTION_MAX}
             showCount
             placeholder={
