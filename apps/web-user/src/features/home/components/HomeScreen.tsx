@@ -2,7 +2,7 @@
 
 /**
  * 손님 홈(2026-11-15 새 화면, 운영자가 칸마다 고름). 맨 위 줄(로고·알림)은 이 화면이 그린다(공통 머리줄 없음).
- * 로고·알림 → 배너(아래 흰 판이 30px 겹침) → 흰 판에 검색창·카테고리(두 줄, 옆으로 밀기) → 회색 띠 → 어떤 날(두 줄 사진)
+ * 로고·알림 → 배너(아래 흰 판이 30px 겹침) → 흰 판에 검색창·카테고리(6칸씩 두 줄 + 당일픽업 줄) → 회색 띠 → 어떤 날(동그란 사진 한 줄)
  * → 회색 띠 → 이런 디자인(카드 줄 끝에 견적 카드) → 회색 띠 → 바로 예약할 수 있는 케이크(탭).
  * 동네는 홈에 두지 않고 검색 결과에서 거른다. 배너는 서버가 미리 받아 넘기면(initialBanners) 첫 HTML에 그림이 들어간다(LCP).
  */
@@ -68,8 +68,8 @@ export default function HomeScreen({
           <CategoryTiles />
         </div>
       </div>
-      <GrayBand className="mb-[24px]" />
-      <section className="pb-[28px]">
+      <GrayBand />
+      <section className="py-[28px]">
         <SectionTitle accent="어떤 날" rest=" 케이크가 필요하세요?" />
         <OccasionGrid showSeason={showSeason} />
       </section>
