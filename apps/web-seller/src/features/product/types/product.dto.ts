@@ -35,12 +35,9 @@ export enum ProductCategoryType {
   FLOWER = "FLOWER",
   RIBBON = "RIBBON",
   FRUIT = "FRUIT",
-  VINTAGE = "VINTAGE",
-  SIMPLE = "SIMPLE",
-  // 모양
   HEART = "HEART",
-  SCULPTED = "SCULPTED",
   TWO_TIER = "TWO_TIER",
+  SIMPLE = "SIMPLE",
   // 서비스
   SAME_DAY_PICKUP = "SAME_DAY_PICKUP",
 }
