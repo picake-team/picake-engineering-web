@@ -1,9 +1,8 @@
 "use client";
 
+import { EmptyState } from "@/apps/web-user/common/components/fallbacks/EmptyState";
 import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
 import { useEffect, useMemo, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/apps/web-user/common/components/buttons/Button";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import type { ProductCategoryType } from "@/apps/web-user/features/product/types/product.type";
 import { DesignGrid } from "@/apps/web-user/features/design/components/DesignCard";
@@ -62,7 +61,6 @@ export function DesignSearchSection({
 
 /** 저장 › 디자인 탭: 좋아요한 디자인(최근 순) */
 export function LikedDesignSection() {
-  const router = useRouter();
   const { data, isLoading, isError, refetch } = useDesignLikes();
   const designs = (data?.myLikes ?? []).map((id) => getDesign(id)).filter((d) => d !== null);
   // 다른 저장 탭과 같게: 불러오는 중은 회색 칸, 못 불러오면 "다시 시도"(빈 화면으로 보이지 않게)
@@ -75,20 +73,10 @@ export function LikedDesignSection() {
       </div>
     );
   }
-  if (isError) return <LoadErrorState onRetry={() => void refetch()} />;
-  if (designs.length === 0) {
-    return (
-      <div className="flex min-h-[calc(100vh-260px)] flex-col items-center justify-center px-5 text-center">
-        <p className="text-base font-bold text-gray-900">저장한 디자인이 없어요</p>
-        <p className="mt-[8px] text-sm text-gray-500">디자인 모음에서 ♥를 누르면 여기에 모여요</p>
-        <div className="mt-[18px] w-[160px]">
-          <Button variant="outline" size="md" onClick={() => router.push("/search?tab=design")}>
-            디자인 둘러보기
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  // 빈 상태·실패는 상품·스토어 탭과 같은 부품·문구로(11-15 운영자)
+  if (isError) return <LoadErrorState fill fillOffset={60} onRetry={() => void refetch()} />;
+  if (designs.length === 0)
+    return <EmptyState message="저장한 디자인이 없어요." fill fillOffset={60} />;
   return (
     <div className="px-5 pb-[24px] pt-[18px]">
       <DesignGrid designs={designs} from="saved" />
