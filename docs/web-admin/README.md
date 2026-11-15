@@ -47,7 +47,7 @@ Picake 플랫폼을 위한 React + Vite 기반 내부 관리자 시스템입니�
 - **견적 요청**: `/consumer/quote-requests`, 상세 `/consumer/quote-requests/:requestId`
 - **채팅**: 신고 `/chat-reports`, 상세 `/chat-reports/:reportId`
 - **홈 배너**: `/consumer/home-banners`
-- **약관**: `/consumer/terms`
+- **약관**: `/consumer/terms` (HTML 미리보기는 `dompurify`로 거른 내용, 판매자 약관도 같음)
 - **공지사항**: `/consumer/notices`
 - **Q&A**: `/consumer/qnas`
 
