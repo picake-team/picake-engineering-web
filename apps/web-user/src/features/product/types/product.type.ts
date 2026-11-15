@@ -29,18 +29,34 @@ export enum ProductType {
 }
 
 /** 상품 카테고리 타입 (복수 선택 가능) */
+/**
+ * 상품 카테고리(2026-11-15 다시 나눔, 서버와 같은 값). 묶음과 이름은 constants/product-category.constant.ts
+ */
 export enum ProductCategoryType {
+  // 상황
   BIRTHDAY = "BIRTHDAY", // 생일
-  LOVER = "LOVER", // 연인
-  FRIEND = "FRIEND", // 친구
-  FAMILY = "FAMILY", // 가족
-  ANNIVERSARY = "ANNIVERSARY", // 기념일
-  SAME_DAY_PICKUP = "SAME_DAY_PICKUP", // 당일픽업
-  LETTERING = "LETTERING", // 커스텀
-  CHARACTER = "CHARACTER", // 캐릭터
-  SIMPLE = "SIMPLE", // 심플
-  FLOWER = "FLOWER", // 꽃
+  COUPLE = "COUPLE", // 연인·기념일
+  THANKS = "THANKS", // 부모님·감사
+  BABY = "BABY", // 백일·돌
+  CONGRATS = "CONGRATS", // 축하
+  WEDDING = "WEDDING", // 결혼·프로포즈
+  SEASON = "SEASON", // 시즌(크리스마스 등)
+  // 디자인
+  LETTERING = "LETTERING", // 레터링
+  DRAWING = "DRAWING", // 드로잉
   PHOTO = "PHOTO", // 사진
+  CHARACTER = "CHARACTER", // 캐릭터
+  FLOWER = "FLOWER", // 꽃
+  RIBBON = "RIBBON", // 리본
+  FRUIT = "FRUIT", // 과일
+  VINTAGE = "VINTAGE", // 빈티지
+  SIMPLE = "SIMPLE", // 심플
+  // 모양
+  HEART = "HEART", // 하트
+  SCULPTED = "SCULPTED", // 입체
+  TWO_TIER = "TWO_TIER", // 2단
+  // 서비스
+  SAME_DAY_PICKUP = "SAME_DAY_PICKUP", // 당일픽업
 }
 
 export enum VisibleStatus {

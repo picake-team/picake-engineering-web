@@ -10,12 +10,8 @@ export const DESIGNS: Design[] = [
   {
     id: "christmas-wreath-lettering",
     name: "크리스마스 리스",
-    occasions: [
-      ProductCategoryType.LETTERING,
-      ProductCategoryType.FAMILY,
-      ProductCategoryType.FRIEND,
-    ],
-    tagOccasions: [ProductCategoryType.LETTERING],
+    occasions: [ProductCategoryType.SEASON, ProductCategoryType.LETTERING],
+    tagOccasions: [ProductCategoryType.SEASON, ProductCategoryType.LETTERING],
     style: "크리스마스",
     seasonal: "CHRISTMAS",
     image: {
@@ -48,16 +44,8 @@ export const DESIGNS: Design[] = [
   {
     id: "baegil-gold-lettering",
     name: "백일 레터링",
-    occasions: [
-      ProductCategoryType.FAMILY,
-      ProductCategoryType.LETTERING,
-      ProductCategoryType.ANNIVERSARY,
-    ],
-    tagOccasions: [
-      ProductCategoryType.FAMILY,
-      ProductCategoryType.LETTERING,
-      ProductCategoryType.ANNIVERSARY,
-    ],
+    occasions: [ProductCategoryType.BABY, ProductCategoryType.LETTERING],
+    tagOccasions: [ProductCategoryType.BABY, ProductCategoryType.LETTERING],
     style: "레터링",
     seasonal: null,
     image: {
@@ -88,10 +76,10 @@ export const DESIGNS: Design[] = [
     name: "파스텔 빈티지",
     occasions: [
       ProductCategoryType.BIRTHDAY,
+      ProductCategoryType.VINTAGE,
       ProductCategoryType.FLOWER,
-      ProductCategoryType.FRIEND,
     ],
-    tagOccasions: [ProductCategoryType.FLOWER],
+    tagOccasions: [ProductCategoryType.VINTAGE, ProductCategoryType.FLOWER],
     style: "빈티지",
     seasonal: null,
     image: {
@@ -122,8 +110,17 @@ export const DESIGNS: Design[] = [
   {
     id: "heart-pink-number",
     name: "하트 빈티지",
-    occasions: [ProductCategoryType.BIRTHDAY, ProductCategoryType.LOVER],
-    tagOccasions: [ProductCategoryType.BIRTHDAY],
+    occasions: [
+      ProductCategoryType.BIRTHDAY,
+      ProductCategoryType.COUPLE,
+      ProductCategoryType.HEART,
+      ProductCategoryType.VINTAGE,
+    ],
+    tagOccasions: [
+      ProductCategoryType.BIRTHDAY,
+      ProductCategoryType.HEART,
+      ProductCategoryType.VINTAGE,
+    ],
     style: "하트",
     seasonal: null,
     image: {
@@ -152,11 +149,7 @@ export const DESIGNS: Design[] = [
   {
     id: "bento-heart-dots-lettering",
     name: "하트 점 도시락",
-    occasions: [
-      ProductCategoryType.BIRTHDAY,
-      ProductCategoryType.FRIEND,
-      ProductCategoryType.LETTERING,
-    ],
+    occasions: [ProductCategoryType.BIRTHDAY, ProductCategoryType.LETTERING],
     tagOccasions: [ProductCategoryType.BIRTHDAY, ProductCategoryType.LETTERING],
     style: "도시락",
     seasonal: null,
@@ -188,10 +181,10 @@ export const DESIGNS: Design[] = [
     name: "딸기 빈티지",
     occasions: [
       ProductCategoryType.BIRTHDAY,
-      ProductCategoryType.FAMILY,
-      ProductCategoryType.SIMPLE,
+      ProductCategoryType.FRUIT,
+      ProductCategoryType.VINTAGE,
     ],
-    tagOccasions: [],
+    tagOccasions: [ProductCategoryType.FRUIT],
     style: "딸기",
     seasonal: null,
     image: {
@@ -225,12 +218,8 @@ export const DESIGNS: Design[] = [
   {
     id: "mint-cherry-piping",
     name: "민트 체리",
-    occasions: [
-      ProductCategoryType.BIRTHDAY,
-      ProductCategoryType.FRIEND,
-      ProductCategoryType.SIMPLE,
-    ],
-    tagOccasions: [],
+    occasions: [ProductCategoryType.BIRTHDAY, ProductCategoryType.FRUIT],
+    tagOccasions: [ProductCategoryType.FRUIT],
     style: "체리",
     seasonal: null,
     image: {
@@ -262,7 +251,7 @@ export const DESIGNS: Design[] = [
     occasions: [
       ProductCategoryType.BIRTHDAY,
       ProductCategoryType.LETTERING,
-      ProductCategoryType.FRIEND,
+      ProductCategoryType.VINTAGE,
     ],
     tagOccasions: [ProductCategoryType.BIRTHDAY, ProductCategoryType.LETTERING],
     style: "레터링",
@@ -294,9 +283,9 @@ export const DESIGNS: Design[] = [
     id: "rose-piping-top",
     name: "장미 플라워",
     occasions: [
-      ProductCategoryType.FLOWER,
-      ProductCategoryType.FAMILY,
       ProductCategoryType.BIRTHDAY,
+      ProductCategoryType.THANKS,
+      ProductCategoryType.FLOWER,
     ],
     tagOccasions: [ProductCategoryType.FLOWER],
     style: "플라워",
@@ -329,10 +318,15 @@ export const DESIGNS: Design[] = [
     name: "체리 그림",
     occasions: [
       ProductCategoryType.BIRTHDAY,
-      ProductCategoryType.FRIEND,
       ProductCategoryType.LETTERING,
+      ProductCategoryType.DRAWING,
+      ProductCategoryType.FRUIT,
     ],
-    tagOccasions: [ProductCategoryType.BIRTHDAY, ProductCategoryType.LETTERING],
+    tagOccasions: [
+      ProductCategoryType.BIRTHDAY,
+      ProductCategoryType.LETTERING,
+      ProductCategoryType.DRAWING,
+    ],
     style: "레터링",
     seasonal: null,
     image: {
@@ -361,12 +355,8 @@ export const DESIGNS: Design[] = [
   {
     id: "carnation-pearl",
     name: "카네이션 진주",
-    occasions: [
-      ProductCategoryType.FLOWER,
-      ProductCategoryType.FAMILY,
-      ProductCategoryType.ANNIVERSARY,
-    ],
-    tagOccasions: [ProductCategoryType.FLOWER],
+    occasions: [ProductCategoryType.THANKS, ProductCategoryType.FLOWER],
+    tagOccasions: [ProductCategoryType.THANKS, ProductCategoryType.FLOWER],
     style: "플라워",
     seasonal: null,
     image: {
@@ -398,9 +388,15 @@ export const DESIGNS: Design[] = [
     occasions: [
       ProductCategoryType.BIRTHDAY,
       ProductCategoryType.LETTERING,
-      ProductCategoryType.FRIEND,
+      ProductCategoryType.HEART,
+      ProductCategoryType.VINTAGE,
+      ProductCategoryType.FRUIT,
     ],
-    tagOccasions: [ProductCategoryType.BIRTHDAY, ProductCategoryType.LETTERING],
+    tagOccasions: [
+      ProductCategoryType.BIRTHDAY,
+      ProductCategoryType.LETTERING,
+      ProductCategoryType.HEART,
+    ],
     style: "하트",
     seasonal: null,
     image: {
@@ -432,10 +428,10 @@ export const DESIGNS: Design[] = [
     name: "검정 리본",
     occasions: [
       ProductCategoryType.BIRTHDAY,
-      ProductCategoryType.FRIEND,
-      ProductCategoryType.SIMPLE,
+      ProductCategoryType.RIBBON,
+      ProductCategoryType.VINTAGE,
     ],
-    tagOccasions: [ProductCategoryType.BIRTHDAY],
+    tagOccasions: [ProductCategoryType.BIRTHDAY, ProductCategoryType.RIBBON],
     style: "리본",
     seasonal: null,
     image: {
@@ -468,9 +464,14 @@ export const DESIGNS: Design[] = [
     occasions: [
       ProductCategoryType.BIRTHDAY,
       ProductCategoryType.LETTERING,
-      ProductCategoryType.FRIEND,
+      ProductCategoryType.RIBBON,
+      ProductCategoryType.VINTAGE,
     ],
-    tagOccasions: [ProductCategoryType.BIRTHDAY, ProductCategoryType.LETTERING],
+    tagOccasions: [
+      ProductCategoryType.BIRTHDAY,
+      ProductCategoryType.LETTERING,
+      ProductCategoryType.RIBBON,
+    ],
     style: "리본",
     seasonal: null,
     image: {
@@ -499,8 +500,12 @@ export const DESIGNS: Design[] = [
   {
     id: "bento-strawberry-pink",
     name: "딸기 도시락",
-    occasions: [ProductCategoryType.FRIEND, ProductCategoryType.LETTERING],
-    tagOccasions: [ProductCategoryType.LETTERING],
+    occasions: [
+      ProductCategoryType.BIRTHDAY,
+      ProductCategoryType.LETTERING,
+      ProductCategoryType.DRAWING,
+    ],
+    tagOccasions: [ProductCategoryType.LETTERING, ProductCategoryType.DRAWING],
     style: "도시락",
     seasonal: null,
     image: {
@@ -530,11 +535,15 @@ export const DESIGNS: Design[] = [
     id: "thank-you-flower",
     name: "땡큐 플라워",
     occasions: [
+      ProductCategoryType.THANKS,
       ProductCategoryType.LETTERING,
       ProductCategoryType.FLOWER,
-      ProductCategoryType.FAMILY,
     ],
-    tagOccasions: [ProductCategoryType.LETTERING, ProductCategoryType.FLOWER],
+    tagOccasions: [
+      ProductCategoryType.THANKS,
+      ProductCategoryType.LETTERING,
+      ProductCategoryType.FLOWER,
+    ],
     style: "플라워",
     seasonal: null,
     image: {
@@ -564,14 +573,15 @@ export const DESIGNS: Design[] = [
     id: "heart-white-engaged",
     name: "흰 꽃 하트",
     occasions: [
-      ProductCategoryType.LOVER,
-      ProductCategoryType.ANNIVERSARY,
+      ProductCategoryType.WEDDING,
+      ProductCategoryType.COUPLE,
       ProductCategoryType.LETTERING,
+      ProductCategoryType.HEART,
     ],
     tagOccasions: [
-      ProductCategoryType.LOVER,
-      ProductCategoryType.ANNIVERSARY,
+      ProductCategoryType.WEDDING,
       ProductCategoryType.LETTERING,
+      ProductCategoryType.HEART,
     ],
     style: "하트",
     seasonal: null,
@@ -602,8 +612,13 @@ export const DESIGNS: Design[] = [
   {
     id: "gold-cherry-vintage",
     name: "금색 체리",
-    occasions: [ProductCategoryType.BIRTHDAY, ProductCategoryType.FRIEND],
-    tagOccasions: [],
+    occasions: [
+      ProductCategoryType.BIRTHDAY,
+      ProductCategoryType.CONGRATS,
+      ProductCategoryType.VINTAGE,
+      ProductCategoryType.FRUIT,
+    ],
+    tagOccasions: [ProductCategoryType.VINTAGE],
     style: "빈티지",
     seasonal: null,
     image: {
@@ -634,13 +649,13 @@ export const DESIGNS: Design[] = [
     name: "도시락 레터링",
     occasions: [
       ProductCategoryType.BIRTHDAY,
-      ProductCategoryType.SIMPLE,
       ProductCategoryType.LETTERING,
+      ProductCategoryType.SIMPLE,
     ],
     tagOccasions: [
       ProductCategoryType.BIRTHDAY,
-      ProductCategoryType.SIMPLE,
       ProductCategoryType.LETTERING,
+      ProductCategoryType.SIMPLE,
     ],
     style: "도시락",
     seasonal: null,
@@ -671,11 +686,16 @@ export const DESIGNS: Design[] = [
     id: "heart-love-red",
     name: "러브 하트",
     occasions: [
-      ProductCategoryType.LOVER,
+      ProductCategoryType.COUPLE,
       ProductCategoryType.LETTERING,
-      ProductCategoryType.ANNIVERSARY,
+      ProductCategoryType.HEART,
+      ProductCategoryType.VINTAGE,
     ],
-    tagOccasions: [ProductCategoryType.LOVER, ProductCategoryType.LETTERING],
+    tagOccasions: [
+      ProductCategoryType.COUPLE,
+      ProductCategoryType.LETTERING,
+      ProductCategoryType.HEART,
+    ],
     style: "하트",
     seasonal: null,
     image: { file: "heart-love-red.jpg", thumb: "heart-love-red-s.jpg", width: 720, height: 1080 },
@@ -701,13 +721,14 @@ export const DESIGNS: Design[] = [
     name: "보라 장미 리본",
     occasions: [
       ProductCategoryType.BIRTHDAY,
-      ProductCategoryType.FLOWER,
       ProductCategoryType.LETTERING,
+      ProductCategoryType.FLOWER,
+      ProductCategoryType.RIBBON,
     ],
     tagOccasions: [
       ProductCategoryType.BIRTHDAY,
-      ProductCategoryType.FLOWER,
       ProductCategoryType.LETTERING,
+      ProductCategoryType.FLOWER,
     ],
     style: "플라워",
     seasonal: null,
@@ -740,12 +761,12 @@ export const DESIGNS: Design[] = [
     id: "strawberry-carnation-petal",
     name: "딸기 카네이션",
     occasions: [
-      ProductCategoryType.FAMILY,
+      ProductCategoryType.THANKS,
       ProductCategoryType.BIRTHDAY,
+      ProductCategoryType.FRUIT,
       ProductCategoryType.FLOWER,
-      ProductCategoryType.SIMPLE,
     ],
-    tagOccasions: [ProductCategoryType.FLOWER],
+    tagOccasions: [ProductCategoryType.FRUIT, ProductCategoryType.FLOWER],
     style: "딸기",
     seasonal: null,
     image: {
@@ -776,9 +797,10 @@ export const DESIGNS: Design[] = [
     id: "flower-piping-bouquet",
     name: "코랄 꽃다발",
     occasions: [
-      ProductCategoryType.FLOWER,
-      ProductCategoryType.FAMILY,
       ProductCategoryType.BIRTHDAY,
+      ProductCategoryType.THANKS,
+      ProductCategoryType.CONGRATS,
+      ProductCategoryType.FLOWER,
     ],
     tagOccasions: [ProductCategoryType.FLOWER],
     style: "플라워",
@@ -812,9 +834,13 @@ export const DESIGNS: Design[] = [
     occasions: [
       ProductCategoryType.BIRTHDAY,
       ProductCategoryType.LETTERING,
-      ProductCategoryType.FRIEND,
+      ProductCategoryType.DRAWING,
     ],
-    tagOccasions: [ProductCategoryType.BIRTHDAY, ProductCategoryType.LETTERING],
+    tagOccasions: [
+      ProductCategoryType.BIRTHDAY,
+      ProductCategoryType.LETTERING,
+      ProductCategoryType.DRAWING,
+    ],
     style: "레터링",
     seasonal: null,
     image: {
@@ -843,8 +869,13 @@ export const DESIGNS: Design[] = [
   {
     id: "minimal-heart-doodle",
     name: "하트 한 점",
-    occasions: [ProductCategoryType.SIMPLE, ProductCategoryType.LOVER, ProductCategoryType.FRIEND],
-    tagOccasions: [ProductCategoryType.SIMPLE],
+    occasions: [
+      ProductCategoryType.COUPLE,
+      ProductCategoryType.BIRTHDAY,
+      ProductCategoryType.SIMPLE,
+      ProductCategoryType.DRAWING,
+    ],
+    tagOccasions: [ProductCategoryType.SIMPLE, ProductCategoryType.DRAWING],
     style: "심플",
     seasonal: null,
     image: {
@@ -876,7 +907,7 @@ export const DESIGNS: Design[] = [
     occasions: [
       ProductCategoryType.BIRTHDAY,
       ProductCategoryType.LETTERING,
-      ProductCategoryType.FRIEND,
+      ProductCategoryType.VINTAGE,
     ],
     tagOccasions: [ProductCategoryType.BIRTHDAY, ProductCategoryType.LETTERING],
     style: "레터링",
@@ -908,8 +939,8 @@ export const DESIGNS: Design[] = [
   {
     id: "christmas-cookie-house",
     name: "쿠키 하우스",
-    occasions: [ProductCategoryType.FAMILY, ProductCategoryType.FRIEND],
-    tagOccasions: [],
+    occasions: [ProductCategoryType.SEASON],
+    tagOccasions: [ProductCategoryType.SEASON],
     style: "크리스마스",
     seasonal: "CHRISTMAS",
     image: {
@@ -939,12 +970,8 @@ export const DESIGNS: Design[] = [
   {
     id: "christmas-xmas-cookie",
     name: "쿠키 레터링",
-    occasions: [
-      ProductCategoryType.FAMILY,
-      ProductCategoryType.FRIEND,
-      ProductCategoryType.LETTERING,
-    ],
-    tagOccasions: [ProductCategoryType.LETTERING],
+    occasions: [ProductCategoryType.SEASON, ProductCategoryType.LETTERING],
+    tagOccasions: [ProductCategoryType.SEASON, ProductCategoryType.LETTERING],
     style: "크리스마스",
     seasonal: "CHRISTMAS",
     image: {
@@ -973,8 +1000,8 @@ export const DESIGNS: Design[] = [
   {
     id: "christmas-strawberry-rosemary",
     name: "딸기 로즈마리",
-    occasions: [ProductCategoryType.FAMILY, ProductCategoryType.FRIEND, ProductCategoryType.SIMPLE],
-    tagOccasions: [],
+    occasions: [ProductCategoryType.SEASON, ProductCategoryType.FRUIT, ProductCategoryType.SIMPLE],
+    tagOccasions: [ProductCategoryType.SEASON, ProductCategoryType.FRUIT],
     style: "크리스마스",
     seasonal: "CHRISTMAS",
     image: {
@@ -1005,10 +1032,14 @@ export const DESIGNS: Design[] = [
     name: "선물 리본",
     occasions: [
       ProductCategoryType.BIRTHDAY,
-      ProductCategoryType.FRIEND,
       ProductCategoryType.LETTERING,
+      ProductCategoryType.RIBBON,
     ],
-    tagOccasions: [ProductCategoryType.BIRTHDAY, ProductCategoryType.LETTERING],
+    tagOccasions: [
+      ProductCategoryType.BIRTHDAY,
+      ProductCategoryType.LETTERING,
+      ProductCategoryType.RIBBON,
+    ],
     style: "리본",
     seasonal: null,
     image: { file: "white-bow-gift.jpg", thumb: "white-bow-gift-s.jpg", width: 810, height: 1080 },
@@ -1034,11 +1065,12 @@ export const DESIGNS: Design[] = [
     id: "blueberry-white-cream",
     name: "블루베리 블랙베리",
     occasions: [
-      ProductCategoryType.SIMPLE,
-      ProductCategoryType.FAMILY,
       ProductCategoryType.BIRTHDAY,
+      ProductCategoryType.THANKS,
+      ProductCategoryType.FRUIT,
+      ProductCategoryType.SIMPLE,
     ],
-    tagOccasions: [ProductCategoryType.SIMPLE],
+    tagOccasions: [ProductCategoryType.FRUIT, ProductCategoryType.SIMPLE],
     style: "과일",
     seasonal: null,
     image: {
@@ -1067,7 +1099,11 @@ export const DESIGNS: Design[] = [
   {
     id: "white-wave-sparkler",
     name: "흰 물결",
-    occasions: [ProductCategoryType.SIMPLE, ProductCategoryType.BIRTHDAY],
+    occasions: [
+      ProductCategoryType.CONGRATS,
+      ProductCategoryType.BIRTHDAY,
+      ProductCategoryType.SIMPLE,
+    ],
     tagOccasions: [ProductCategoryType.SIMPLE],
     style: "심플",
     seasonal: null,
@@ -1098,9 +1134,10 @@ export const DESIGNS: Design[] = [
     id: "flower-crescent",
     name: "반달 꽃",
     occasions: [
+      ProductCategoryType.THANKS,
+      ProductCategoryType.COUPLE,
+      ProductCategoryType.CONGRATS,
       ProductCategoryType.FLOWER,
-      ProductCategoryType.FAMILY,
-      ProductCategoryType.ANNIVERSARY,
     ],
     tagOccasions: [ProductCategoryType.FLOWER],
     style: "플라워",
@@ -1132,9 +1169,9 @@ export const DESIGNS: Design[] = [
     id: "palette-knife-pastel",
     name: "팔레트 나이프",
     occasions: [
-      ProductCategoryType.SIMPLE,
-      ProductCategoryType.FRIEND,
       ProductCategoryType.BIRTHDAY,
+      ProductCategoryType.CONGRATS,
+      ProductCategoryType.FLOWER,
     ],
     tagOccasions: [],
     style: "파스텔",
@@ -1165,11 +1202,7 @@ export const DESIGNS: Design[] = [
   {
     id: "sprinkle-mint-lettering",
     name: "스프링클 레터링",
-    occasions: [
-      ProductCategoryType.BIRTHDAY,
-      ProductCategoryType.LETTERING,
-      ProductCategoryType.FRIEND,
-    ],
+    occasions: [ProductCategoryType.BIRTHDAY, ProductCategoryType.LETTERING],
     tagOccasions: [ProductCategoryType.BIRTHDAY, ProductCategoryType.LETTERING],
     style: "레터링",
     seasonal: null,
@@ -1200,8 +1233,12 @@ export const DESIGNS: Design[] = [
   {
     id: "bento-papa-tictactoe",
     name: "틱택토 도시락",
-    occasions: [ProductCategoryType.FAMILY, ProductCategoryType.LETTERING],
-    tagOccasions: [ProductCategoryType.FAMILY, ProductCategoryType.LETTERING],
+    occasions: [
+      ProductCategoryType.THANKS,
+      ProductCategoryType.LETTERING,
+      ProductCategoryType.DRAWING,
+    ],
+    tagOccasions: [ProductCategoryType.THANKS, ProductCategoryType.LETTERING],
     style: "도시락",
     seasonal: null,
     image: {

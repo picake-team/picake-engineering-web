@@ -8,7 +8,6 @@ import { Icon } from "@/apps/web-user/common/components/icons";
 import { useUserCurrentLocationStore } from "@/apps/web-user/common/store/user-current-location.store";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { navigateBack } from "@/apps/web-user/common/utils/navigate-back.util";
-import { useHeaderStore } from "@/apps/web-user/common/store/header.store";
 import { useStoreRegions } from "@/apps/web-user/features/store/hooks/queries/useStoreRegions";
 import {
   matchAddressToRegion,
@@ -45,7 +44,6 @@ export default function Header({
   const router = useRouter();
   const { address, latitude, longitude, setAddress, setSelectedRegion } =
     useUserCurrentLocationStore();
-  const { isHomeSearchVisible } = useHeaderStore();
   const { data: regionsData } = useStoreRegions();
 
   const [overrideResult, setOverrideResult] = useState<RegionMatchResult | null>(null);
@@ -433,14 +431,6 @@ export default function Header({
             >
               QA
             </Link>
-          )}
-          {!isHomeSearchVisible && (
-            <button
-              onClick={() => router.push(PATHS.SEARCH)}
-              className="h-6 w-6 flex items-center justify-center"
-            >
-              <Icon name="search" width={24} height={24} />
-            </button>
           )}
           <AlarmButton />
         </div>

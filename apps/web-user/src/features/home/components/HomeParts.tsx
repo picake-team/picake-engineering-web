@@ -1,28 +1,30 @@
 "use client";
 
 /**
- * 홈 새 화면 시안(/preview/home)의 칸들. 2026-11-15 운영자가 칸마다 고른 모양이다.
- * 디자이너가 확인하면 지금 홈(HomeScreen)으로 옮기고, 그때 이 파일 이름도 정리한다.
+ * 손님 홈의 칸들(2026-11-15 운영자가 칸마다 고른 모양, 시안 모음 아티팩트에서 고름).
  */
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { cn } from "@/apps/web-user/common/lib/utils";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { FadeInImage } from "@/apps/web-user/common/components/motion/FadeInImage";
 import CakeListSlider from "@/apps/web-user/common/components/sliders/CakeListSlider";
-import { buildCategorySearchHref } from "@/apps/web-user/common/components/categories/CategoryList";
 import { useAlarmUnreadCount } from "@/apps/web-user/features/alarm/hooks/queries/useAlarmUnreadCount";
-import { noticeApi } from "@/apps/web-user/features/notice/apis/notice.api";
-import { noticeQueryKeys } from "@/apps/web-user/features/notice/constants/noticeQueryKeys.constant";
-import type { Notice } from "@/apps/web-user/features/notice/types/notice.type";
-import { MAP_LIST_CATEGORY_OPTIONS } from "@/apps/web-user/features/store/constants/map.constant";
-import { designImageSrc, visibleDesigns } from "@/apps/web-user/features/design/utils/design.util";
+import { designImageSrc, getDesign } from "@/apps/web-user/features/design/utils/design.util";
 import { buildQuoteNewHref } from "@/apps/web-user/features/quote/components/entry/QuoteEntry";
 import { useProductList } from "@/apps/web-user/features/product/hooks/queries/useProductList";
-import { SortBy, type Product } from "@/apps/web-user/features/product/types/product.type";
+import {
+  ProductCategoryType as C,
+  SortBy,
+  type Product,
+} from "@/apps/web-user/features/product/types/product.type";
+import { PRODUCT_CATEGORY_LABEL } from "@/apps/web-user/features/product/constants/product-category.constant";
+import {
+  buildCategorySearchHref,
+  buildSizeSearchHref,
+} from "@/apps/web-user/features/search/utils/search-category.util";
 
 const productHref = (id: string) => `${PATHS.PRODUCT.DETAIL(id)}?entry_point=home`;
 
@@ -54,7 +56,7 @@ export function SectionTitle({
 
 /**
  * 맨 위 줄: 로고 · 알림(동네는 홈에 두지 않고 검색 결과에서 고른다).
- * 검색창은 배너 아래 흰 판에 있고(11-15 운영자: H2), 그 검색창이 화면 위로 지나가면 여기 검색 아이콘이 나온다(지금 홈과 같음)
+ * 검색창은 배너 아래 흰 판에 있고, 그 검색창이 화면 위로 지나가면 여기 검색 아이콘이 나온다
  */
 export function HomeTopBar({ showSearchIcon = false }: { showSearchIcon?: boolean }) {
   const { data: unread = 0 } = useAlarmUnreadCount();
@@ -87,115 +89,105 @@ export function HomeTopBar({ showSearchIcon = false }: { showSearchIcon?: boolea
   );
 }
 
-/** 배너 아래 한 줄: 가장 최근 공지. 공지가 없거나 받지 못하면 줄을 그리지 않는다(오류 창 없음) */
-export function NoticeLine() {
-  const { data } = useQuery<Notice[]>({
-    queryKey: noticeQueryKeys.list(),
-    queryFn: async () => (await noticeApi.getNotices()).data,
-  });
-  const latest = useMemo(
-    () => [...(data ?? [])].sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0],
-    [data],
-  );
-  if (!latest) return null;
-  return (
-    <Link
-      href={PATHS.NOTICE}
-      className="flex h-[44px] items-center gap-[10px] rounded-xl bg-gray-50 px-[14px]"
-    >
-      <span className="shrink-0 text-sm font-bold text-primary">공지</span>
-      <span className="min-w-0 flex-1 truncate text-sm text-gray-700">{latest.title}</span>
-      <span aria-hidden className="shrink-0 text-gray-400">
-        ›
-      </span>
-    </Link>
-  );
-}
+type Tile = { key: string; label: string; icon: string; href: string };
+const ICONS = "/images/contents";
+const categoryTile = (value: C, icon: string): Tile => ({
+  key: value,
+  label: PRODUCT_CATEGORY_LABEL[value],
+  icon: `${ICONS}/${icon}`,
+  href: buildCategorySearchHref(value),
+});
+const sizeTile = (size: string, icon: string): Tile => ({
+  key: `size-${size}`,
+  label: size,
+  icon: `${ICONS}/${icon}`,
+  href: buildSizeSearchHref(size),
+});
 
-const CATEGORY_ICONS: Record<string, string> = {
-  BIRTHDAY: "/images/contents/category-birthday.png",
-  LOVER: "/images/contents/category-lover.png",
-  FRIEND: "/images/contents/category-friend.png",
-  FAMILY: "/images/contents/category-family.svg",
-  ANNIVERSARY: "/images/contents/category-anniversary.svg",
-  SAME_DAY_PICKUP: "/images/contents/category-same-day-pickup.png",
-  CHARACTER: "/images/contents/category-character.svg",
-  SIMPLE: "/images/contents/category-simple.svg",
-  FLOWER: "/images/contents/category-flower.svg",
-  PHOTO: "/images/contents/category-photo.svg",
-};
+/**
+ * 카테고리 칸(11-15 운영자: 두 줄을 넘으면 옆으로 밀어서). 상황은 아래 "어떤 날" 칸이 맡고, 여기는 디자인·모양·크기·서비스.
+ * 윗줄·아랫줄 순서 그대로 놓는다. 처음 화면에 왼쪽 다섯 칸씩(많이 찾는 것), 나머지는 밀면 나온다
+ */
+const TOP_ROW: Tile[] = [
+  categoryTile(C.LETTERING, "category-lettering.svg"),
+  categoryTile(C.DRAWING, "category-drawing.svg"),
+  categoryTile(C.CHARACTER, "category-character.svg"),
+  categoryTile(C.FLOWER, "category-flower.svg"),
+  categoryTile(C.PHOTO, "category-photo.svg"),
+  categoryTile(C.RIBBON, "category-ribbon.svg"),
+  categoryTile(C.FRUIT, "category-fruit.svg"),
+  categoryTile(C.SIMPLE, "category-simple.svg"),
+];
+const BOTTOM_ROW: Tile[] = [
+  categoryTile(C.VINTAGE, "category-vintage.svg"),
+  categoryTile(C.HEART, "category-heart.svg"),
+  sizeTile("도시락", "category-lunchbox.svg"),
+  categoryTile(C.SAME_DAY_PICKUP, "category-same-day-pickup.png"),
+  categoryTile(C.SCULPTED, "category-sculpted.svg"),
+  categoryTile(C.TWO_TIER, "category-two-tier.svg"),
+  sizeTile("미니", "category-mini.svg"),
+];
+// 세로로 채워지는 격자라 윗줄·아랫줄을 번갈아 넣는다
+const TILES_BY_COLUMN = TOP_ROW.flatMap((top, i) => [top, BOTTOM_ROW[i]].filter(Boolean));
 
-/** 카테고리 10개(5×2). 지금 그림 그대로, 회색 둥근 칸 52px·그림 30px(11-15 운영자: H3 조금 작게) */
 export function CategoryTiles() {
-  const items = MAP_LIST_CATEGORY_OPTIONS.filter((o) => CATEGORY_ICONS[o.value]);
-  const rows = [items.slice(0, 5), items.slice(5)];
   return (
-    <nav aria-label="카테고리" className="flex flex-col gap-4">
-      {rows.map((row, r) => (
-        <div key={r} className="flex justify-between">
-          {row.map(({ value, label }) => (
-            <Link
-              key={value}
-              href={buildCategorySearchHref(value)}
-              // 320px 폭에서는 다섯 칸이 서로 붙지 않게 조금 작아진다
-              className="press flex w-[52px] max-w-[19%] flex-col items-center gap-[6px]"
-            >
-              <span className="flex aspect-square w-full items-center justify-center rounded-[18px] bg-gray-50">
-                {/* 그림 PNG의 흰 바탕은 곱하기로 지운다 */}
-                <Image
-                  src={CATEGORY_ICONS[value]}
-                  alt=""
-                  width={30}
-                  height={30}
-                  unoptimized
-                  className="h-[30px] w-[30px] object-contain mix-blend-multiply"
-                />
-              </span>
-              <span className="whitespace-nowrap text-xs text-gray-700">{label}</span>
-            </Link>
-          ))}
-        </div>
+    <nav
+      aria-label="카테고리"
+      // 칸 너비는 화면 폭과 상관없이 다섯 칸 반이 보이게(좁은 320은 56px 아래로 줄이지 않아 네 칸 반) — 잘린 칸이 밀 수 있다는 표시
+      className="scrollbar-hide -mx-5 grid auto-cols-[max(56px,calc((100%_-_40px)/5.5))] grid-flow-col grid-rows-2 gap-x-[12px] gap-y-4 overflow-x-auto px-5"
+    >
+      {TILES_BY_COLUMN.map(({ key, label, icon, href }) => (
+        <Link key={key} href={href} className="press flex w-full flex-col items-center gap-[6px]">
+          <span className="flex h-[52px] w-[52px] items-center justify-center rounded-[18px] bg-gray-50">
+            {/* 그림 PNG의 흰 바탕은 곱하기로 지운다 */}
+            <Image
+              src={icon}
+              alt=""
+              width={30}
+              height={30}
+              unoptimized
+              className="h-[30px] w-[30px] object-contain mix-blend-multiply"
+            />
+          </span>
+          <span className="whitespace-nowrap text-xs text-gray-700">{label}</span>
+        </Link>
       ))}
     </nav>
   );
 }
 
-/** 어떤 날 칸: 케이크 디자인 모음에서 그 상황의 사진(시즌 사진은 뒤로) */
-const OCCASIONS: { value: string; label: string }[] = [
-  { value: "BIRTHDAY", label: "생일" },
-  { value: "LOVER", label: "연인" },
-  { value: "FRIEND", label: "친구" },
-  { value: "FAMILY", label: "가족" },
-  { value: "ANNIVERSARY", label: "기념일" },
-  { value: "FLOWER", label: "꽃" },
-  { value: "LETTERING", label: "레터링" },
-  { value: "SIMPLE", label: "심플" },
+/**
+ * 어떤 날 칸: 상황 카테고리 7개(무슨 날·누구에게), 칸마다 정해 둔 디자인 사진.
+ * 누르면 그 상황의 케이크 디자인. 시즌 칸은 그 시즌 디자인이 보일 때만(크리스마스 11월 1일 ~ 12월 25일)
+ */
+const OCCASIONS: { value: C; label: string; designId: string; seasonal?: boolean }[] = [
+  { value: C.BIRTHDAY, label: "생일", designId: "sprinkle-mint-lettering" },
+  { value: C.COUPLE, label: "연인·기념일", designId: "heart-love-red" },
+  { value: C.THANKS, label: "부모님·감사", designId: "carnation-pearl" },
+  { value: C.BABY, label: "백일·돌", designId: "baegil-gold-lettering" },
+  { value: C.CONGRATS, label: "축하", designId: "white-wave-sparkler" },
+  { value: C.WEDDING, label: "결혼·프로포즈", designId: "heart-white-engaged" },
+  { value: C.SEASON, label: "크리스마스", designId: "christmas-wreath-lettering", seasonal: true },
 ];
 
 /** 두 줄로 옆으로 넘기는 90px 사진, 이름은 사진 안 흰 이름표(11-15 운영자: E5) */
-export function OccasionGrid() {
-  const items = useMemo(() => {
-    const all = visibleDesigns();
-    const used = new Set<string>();
-    return OCCASIONS.map((o) => {
-      const has = (d: (typeof all)[number]) => (d.occasions as string[]).includes(o.value);
-      // 같은 사진이 두 칸에 나오지 않게, 크리스마스처럼 시즌 사진은 맞는 게 없을 때만
-      const d =
-        all.find((x) => has(x) && !used.has(x.id) && !x.seasonal) ??
-        all.find((x) => has(x) && !used.has(x.id)) ??
-        all.find(has);
-      if (d) used.add(d.id);
-      return { ...o, src: d ? designImageSrc(d.image.thumb) : undefined };
+export function OccasionGrid({ showSeason }: { showSeason: boolean }) {
+  const ordered = useMemo(() => {
+    const items = OCCASIONS.filter((o) => showSeason || !o.seasonal).map((o) => {
+      const design = getDesign(o.designId);
+      return { ...o, src: design ? designImageSrc(design.image.thumb) : undefined };
     });
-  }, []);
-  // 세로로 채워지는 격자라, 윗줄이 앞 4개·아랫줄이 뒤 4개가 되게 섞는다
-  const ordered = items.slice(0, 4).flatMap((o, i) => [o, items[i + 4]].filter(Boolean));
+    // 세로로 채워지는 격자라, 윗줄이 앞 절반·아랫줄이 뒤 절반이 되게 섞는다
+    const half = Math.ceil(items.length / 2);
+    return items.slice(0, half).flatMap((o, i) => [o, items[i + half]].filter(Boolean));
+  }, [showSeason]);
   return (
     <div className="scrollbar-hide grid auto-cols-[90px] grid-flow-col grid-rows-2 gap-x-[12px] gap-y-[12px] overflow-x-auto px-5">
       {ordered.map((o) => (
         <Link
           key={o.value}
-          href={`/search?tab=design&category=${o.value}`}
+          href={buildCategorySearchHref(o.value, "design")}
           className="press relative block h-[90px] w-[90px] overflow-hidden rounded-[22px] bg-gray-50"
         >
           {o.src && (
