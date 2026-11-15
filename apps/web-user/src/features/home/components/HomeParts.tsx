@@ -201,7 +201,7 @@ const OCCASIONS: { value: C; label: string; designId: string; seasonal?: boolean
 ];
 
 /**
- * 동그란 사진 72px + 이름은 사진 아래, 두 줄로 옆으로 넘긴다(11-15 저녁 운영자: D3).
+ * 동그란 사진 64px + 이름은 사진 아래, 두 줄로 옆으로 넘긴다(11-15 저녁 운영자: D3, 72px에서 조금 작게).
  * 이름이 사진 밖이라 늘 읽히고, 위 카테고리(네모 칸)와 모양이 달라 섞여 보이지 않는다
  */
 export function OccasionGrid({ showSeason }: { showSeason: boolean }) {
@@ -215,17 +215,17 @@ export function OccasionGrid({ showSeason }: { showSeason: boolean }) {
     return items.slice(0, half).flatMap((o, i) => [o, items[i + half]].filter(Boolean));
   }, [showSeason]);
   return (
-    <div className="scrollbar-hide grid auto-cols-[80px] grid-flow-col grid-rows-2 gap-x-[12px] gap-y-[14px] overflow-x-auto px-5">
+    <div className="scrollbar-hide grid auto-cols-[72px] grid-flow-col grid-rows-2 gap-x-[12px] gap-y-[14px] overflow-x-auto px-5">
       {ordered.map((o) => (
         <Link
           key={o.value}
           href={buildCategorySearchHref(o.value, "design")}
-          className="press flex w-[80px] flex-col items-center gap-[6px]"
+          className="press flex w-[72px] flex-col items-center gap-[6px]"
         >
-          <span className="relative block h-[72px] w-[72px] overflow-hidden rounded-full bg-gray-50">
+          <span className="relative block h-[64px] w-[64px] overflow-hidden rounded-full bg-gray-50">
             {o.src && (
               // 아래 이름이 같은 이름을 읽어 주므로 사진은 읽지 않는다
-              <FadeInImage src={o.src} alt="" fill sizes="72px" className="object-cover" />
+              <FadeInImage src={o.src} alt="" fill sizes="64px" className="object-cover" />
             )}
           </span>
           <span className="whitespace-nowrap text-xs font-semibold text-gray-900">{o.label}</span>
