@@ -23,6 +23,11 @@ describe("readSearchCategory", () => {
     expect(readSearchCategory("FRIEND")).toBe(ProductCategoryType.BIRTHDAY);
   });
 
+  it("없앤 값(빈티지·입체)은 카테고리 없이 연다", () => {
+    expect(readSearchCategory("VINTAGE")).toBeUndefined();
+    expect(readSearchCategory("SCULPTED")).toBeUndefined();
+  });
+
   it("값이 없거나 모르는 값은 없는 것으로 본다", () => {
     expect(readSearchCategory(null)).toBeUndefined();
     expect(readSearchCategory(undefined)).toBeUndefined();

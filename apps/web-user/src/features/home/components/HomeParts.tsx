@@ -116,7 +116,7 @@ const sizeTile = (size: string, icon: string): Tile => ({
 });
 
 /**
- * 카테고리 칸(11-15 운영자: 두 줄을 넘으면 옆으로 밀어서). 상황은 아래 "어떤 날" 칸이 맡고, 여기는 디자인·모양·크기·서비스.
+ * 카테고리 칸(11-15 운영자: 두 줄을 넘으면 옆으로 밀어서). 상황은 아래 "어떤 날" 칸이 맡고, 여기는 디자인·크기·서비스.
  * 윗줄·아랫줄 순서 그대로 놓는다. 처음 화면에 왼쪽 다섯 칸씩(많이 찾는 것), 나머지는 밀면 나온다
  */
 const TOP_ROW: Tile[] = [
@@ -127,16 +127,14 @@ const TOP_ROW: Tile[] = [
   categoryTile(C.PHOTO, "category-photo.svg"),
   categoryTile(C.RIBBON, "category-ribbon.svg"),
   categoryTile(C.FRUIT, "category-fruit.svg"),
-  categoryTile(C.SIMPLE, "category-simple.svg"),
 ];
 const BOTTOM_ROW: Tile[] = [
-  categoryTile(C.VINTAGE, "category-vintage.svg"),
   categoryTile(C.HEART, "category-heart.svg"),
   sizeTile("도시락", "category-lunchbox.svg"),
   categoryTile(C.SAME_DAY_PICKUP, "category-same-day-pickup.png"),
-  categoryTile(C.SCULPTED, "category-sculpted.svg"),
   categoryTile(C.TWO_TIER, "category-two-tier.svg"),
   sizeTile("미니", "category-mini.svg"),
+  categoryTile(C.SIMPLE, "category-simple.svg"),
 ];
 // 세로로 채워지는 격자라 윗줄·아랫줄을 번갈아 넣는다
 const TILES_BY_COLUMN = TOP_ROW.flatMap((top, i) => [top, BOTTOM_ROW[i]].filter(Boolean));

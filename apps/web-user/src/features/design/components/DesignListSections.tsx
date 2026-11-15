@@ -50,15 +50,11 @@ export function DesignSearchSection({
       <p className="py-3 text-sm font-bold text-gray-500">
         총 <span className="text-gray-900">{items.length}</span>개
       </p>
-      <p className="-mt-[4px] mb-[16px] text-2sm text-gray-500">
-        {matched ? (
-          <>
-            <span className="text-primary">✦</span> 고르면 견적 요청서가 저절로 채워져요
-          </>
-        ) : (
-          "맞는 디자인이 없어 전체를 보여 드려요"
-        )}
-      </p>
+      {!matched && (
+        <p className="-mt-[4px] mb-[16px] text-2sm text-gray-500">
+          맞는 디자인이 없어 전체를 보여 드려요
+        </p>
+      )}
       <DesignGrid designs={items} from="search" />
     </div>
   );
