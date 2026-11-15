@@ -1,7 +1,10 @@
 import { expect, type Page } from "@playwright/test";
 
-/** picake-engineering-backend 레포 apps/backend/src/modules/auth/constants/auth.constants.ts의 REVIEW_LOGIN_CODE와 동일 */
-export const REVIEW_LOGIN_CODE = "482915";
+/**
+ * 테스트 전용 심사용 로그인 코드. 서버 테스트 환경(.env.test — backend 레포 scripts/ci/create-env-test.sh)의
+ * CONSUMER_REVIEW_LOGIN_CODE_SHA256이 이 코드의 해시라 테스트에서만 맞는다. 상용·staging 코드는 GitHub 비밀값에만 있다(2026-11-15~)
+ */
+export const REVIEW_LOGIN_CODE = process.env.E2E_REVIEW_LOGIN_CODE ?? "000000";
 
 /**
  * 앱스토어 심사 대응 전용 로그인(ReviewLoginBottomSheet)으로 로그인한다.
