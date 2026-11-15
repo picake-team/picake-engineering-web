@@ -176,7 +176,7 @@ export function ProductFilterSheet({
           </Chip>
         ))}
       </div>
-      <Title hint="하나라도 맞으면">분류</Title>
+      <Title hint="칸 안은 하나라도, 칸끼리는 모두 맞으면">분류</Title>
       {PRODUCT_CATEGORY_GROUPS.map((g) => (
         <div key={g.label} className="-mt-2 flex flex-col gap-2">
           <p className="text-caption text-ink-600">{g.label}</p>

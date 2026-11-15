@@ -124,6 +124,7 @@ export const ProductCreationCategorySection: React.FC<ProductCreationCategorySec
             </div>
           </div>
         ))}
+        <p className="text-xs text-muted-foreground">도시락·미니·1~3호는 사이즈에서 정해요.</p>
       </div>
     </div>
   );

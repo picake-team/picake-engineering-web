@@ -284,15 +284,17 @@ export const StoreDetailProductListPage: React.FC = () => {
 
         {/* 카테고리 필터 (복수 선택) */}
         <div className="space-y-2">
-          <Label>카테고리 (해당 중 하나라도 포함)</Label>
-          <div className="flex flex-wrap gap-2">
-            {PRODUCT_CATEGORY_GROUPS.flatMap((group) =>
-              group.options.map((opt) => {
-                const isSelected = productCategoryTypes.includes(opt.value);
-                return (
-                  <label
-                    key={opt.value}
-                    className={`
+          <Label>카테고리 (칸 안은 하나라도, 칸끼리는 모두 맞는 상품)</Label>
+          {PRODUCT_CATEGORY_GROUPS.map((group) => (
+            <div key={group.label} className="space-y-1.5">
+              <p className="text-xs text-muted-foreground">{group.label}</p>
+              <div className="flex flex-wrap gap-2">
+                {group.options.map((opt) => {
+                  const isSelected = productCategoryTypes.includes(opt.value);
+                  return (
+                    <label
+                      key={opt.value}
+                      className={`
                       inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm cursor-pointer select-none transition-all duration-150 border
                       ${
                         isSelected
@@ -300,27 +302,28 @@ export const StoreDetailProductListPage: React.FC = () => {
                           : "border-border bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
                       }
                     `}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={() => {
-                        if (isSelected) {
-                          setProductCategoryTypes(
-                            productCategoryTypes.filter((t) => t !== opt.value),
-                          );
-                        } else {
-                          setProductCategoryTypes([...productCategoryTypes, opt.value]);
-                        }
-                      }}
-                      className="sr-only"
-                    />
-                    {opt.label}
-                  </label>
-                );
-              }),
-            )}
-          </div>
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => {
+                          if (isSelected) {
+                            setProductCategoryTypes(
+                              productCategoryTypes.filter((t) => t !== opt.value),
+                            );
+                          } else {
+                            setProductCategoryTypes([...productCategoryTypes, opt.value]);
+                          }
+                        }}
+                        className="sr-only"
+                      />
+                      {opt.label}
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 

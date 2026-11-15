@@ -78,6 +78,7 @@ export const PRODUCT_CATEGORY_GROUPS: readonly {
   },
   {
     label: "서비스",
+    help: "주문한 날 바로 가져갈 수 있나요?",
     options: [{ value: ProductCategoryType.SAME_DAY_PICKUP, label: "당일픽업" }],
   },
 ];
