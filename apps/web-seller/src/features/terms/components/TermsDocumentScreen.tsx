@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+import DOMPurify from "dompurify";
+import { useEffect, useMemo, useRef } from "react";
 import { TERMS_PREVIEW_CONTENT_CLASS } from "@/apps/web-seller/features/terms/constants/terms.constant";
 import { useActiveTerms } from "@/apps/web-seller/features/terms/hooks/queries/useTermsQuery";
 import type { TermsType } from "@/apps/web-seller/features/terms/types/terms.dto";
@@ -11,7 +12,8 @@ interface TermsDocumentScreenProps {
 export function TermsDocumentScreen({ termsType }: TermsDocumentScreenProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const { data, isPending } = useActiveTerms(termsType);
-  const htmlContent = data?.content ?? "";
+  // 약관은 관리자가 넣은 HTML이라 그대로 넣지 않고 거른다(11-15 검토, 손님 웹과 같게)
+  const htmlContent = useMemo(() => DOMPurify.sanitize(data?.content ?? ""), [data?.content]);
 
   useEffect(() => {
     if (!htmlContent) return;

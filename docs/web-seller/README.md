@@ -54,7 +54,7 @@ Picake 플랫폼을 위한 React + Vite 기반 판매자 관리 시스템입니�
 - **Google 콜백**: `/auth/login/google` - Google OAuth 콜백
 - **Kakao 콜백**: `/auth/login/kakao` - Kakao OAuth 콜백
 - **이용약관**: `/terms/terms-of-service`
-- **개인정보처리방침**: `/terms/privacy-policy`
+- **개인정보처리방침**: `/terms/privacy-policy` (두 화면 모두 관리자가 넣은 약관 HTML을 `dompurify`로 걸러 보여 준다, 손님 웹과 같게)
 
 ### 마이페이지
 
