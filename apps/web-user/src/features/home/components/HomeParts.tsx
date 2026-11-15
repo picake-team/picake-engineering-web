@@ -116,10 +116,10 @@ const sizeTile = (size: string, icon: string): Tile => ({
 });
 
 /**
- * 카테고리 칸(11-15 운영자: 두 줄을 넘으면 옆으로 밀어서). 상황은 아래 "어떤 날" 칸이 맡고, 여기는 디자인·모양·크기·서비스.
- * 윗줄·아랫줄 순서 그대로 놓는다. 처음 화면에 왼쪽 다섯 칸씩(많이 찾는 것), 나머지는 밀면 나온다
+ * 카테고리 칸(11-15 저녁 운영자: A1). 상황은 아래 "어떤 날" 칸이 맡고, 여기는 디자인·크기 12칸을
+ * 6칸씩 두 줄(밀지 않고 다 보임). 당일픽업은 고르는 모양이 아니라 가져가는 방법이라 셋째 줄에 따로 둔다
  */
-const TOP_ROW: Tile[] = [
+const CATEGORY_TILES: Tile[] = [
   categoryTile(C.LETTERING, "category-lettering.svg"),
   categoryTile(C.DRAWING, "category-drawing.svg"),
   categoryTile(C.CHARACTER, "category-character.svg"),
@@ -127,44 +127,62 @@ const TOP_ROW: Tile[] = [
   categoryTile(C.PHOTO, "category-photo.svg"),
   categoryTile(C.RIBBON, "category-ribbon.svg"),
   categoryTile(C.FRUIT, "category-fruit.svg"),
-  categoryTile(C.SIMPLE, "category-simple.svg"),
-];
-const BOTTOM_ROW: Tile[] = [
-  categoryTile(C.VINTAGE, "category-vintage.svg"),
   categoryTile(C.HEART, "category-heart.svg"),
-  sizeTile("도시락", "category-lunchbox.svg"),
-  categoryTile(C.SAME_DAY_PICKUP, "category-same-day-pickup.png"),
-  categoryTile(C.SCULPTED, "category-sculpted.svg"),
   categoryTile(C.TWO_TIER, "category-two-tier.svg"),
+  categoryTile(C.SIMPLE, "category-simple.svg"),
+  sizeTile("도시락", "category-lunchbox.svg"),
   sizeTile("미니", "category-mini.svg"),
 ];
-// 세로로 채워지는 격자라 윗줄·아랫줄을 번갈아 넣는다
-const TILES_BY_COLUMN = TOP_ROW.flatMap((top, i) => [top, BOTTOM_ROW[i]].filter(Boolean));
+const PICKUP_TILE = categoryTile(C.SAME_DAY_PICKUP, "category-same-day-pickup.png");
+
+/** 회색 둥근 칸 안의 그림(PNG의 흰 바탕은 곱하기로 지운다) */
+function TileIcon({ icon, className }: { icon: string; className?: string }) {
+  return (
+    <span
+      className={cn(
+        "flex aspect-square items-center justify-center rounded-[18px] bg-gray-50",
+        className,
+      )}
+    >
+      <Image
+        src={icon}
+        alt=""
+        width={30}
+        height={30}
+        unoptimized
+        className="h-[30px] w-[30px] object-contain mix-blend-multiply"
+      />
+    </span>
+  );
+}
 
 export function CategoryTiles() {
   return (
-    <nav
-      aria-label="카테고리"
-      // 칸 너비는 화면 폭과 상관없이 다섯 칸 반이 보이게(좁은 320은 56px 아래로 줄이지 않아 네 칸 반) — 잘린 칸이 밀 수 있다는 표시
-      className="scrollbar-hide -mx-5 grid auto-cols-[max(56px,calc((100%_-_40px)/5.5))] grid-flow-col grid-rows-2 gap-x-[12px] gap-y-4 overflow-x-auto px-5"
-    >
-      {TILES_BY_COLUMN.map(({ key, label, icon, href }) => (
-        <Link key={key} href={href} className="press flex w-full flex-col items-center gap-[6px]">
-          <span className="flex h-[52px] w-[52px] items-center justify-center rounded-[18px] bg-gray-50">
-            {/* 그림 PNG의 흰 바탕은 곱하기로 지운다 */}
-            <Image
-              src={icon}
-              alt=""
-              width={30}
-              height={30}
-              unoptimized
-              className="h-[30px] w-[30px] object-contain mix-blend-multiply"
-            />
+    <div>
+      {/* 좁은 320 폭에서는 칸이 조금 작아진다(최대 52px) */}
+      <nav aria-label="카테고리" className="grid grid-cols-6 gap-x-[6px] gap-y-4">
+        {CATEGORY_TILES.map(({ key, label, icon, href }) => (
+          <Link key={key} href={href} className="press flex flex-col items-center gap-[6px]">
+            <TileIcon icon={icon} className="w-full max-w-[52px]" />
+            <span className="whitespace-nowrap text-xs text-gray-700">{label}</span>
+          </Link>
+        ))}
+      </nav>
+      <div className="mt-4 border-t border-gray-100 pt-4">
+        <Link href={PICKUP_TILE.href} className="press flex items-center gap-[12px]">
+          <TileIcon icon={PICKUP_TILE.icon} className="w-[52px] shrink-0" />
+          <span className="min-w-0 flex-1">
+            <span className="block text-sm font-bold text-gray-900">
+              오늘 바로 가져갈 수 있어요
+            </span>
+            <span className="block text-xs text-gray-500">당일픽업 되는 케이크만 모아 봐요</span>
           </span>
-          <span className="whitespace-nowrap text-xs text-gray-700">{label}</span>
+          <span aria-hidden className="text-gray-400">
+            ›
+          </span>
         </Link>
-      ))}
-    </nav>
+      </div>
+    </div>
   );
 }
 
@@ -182,7 +200,10 @@ const OCCASIONS: { value: C; label: string; designId: string; seasonal?: boolean
   { value: C.SEASON, label: "크리스마스", designId: "christmas-wreath-lettering", seasonal: true },
 ];
 
-/** 두 줄로 옆으로 넘기는 90px 사진, 이름은 사진 안 흰 이름표(11-15 운영자: E5) */
+/**
+ * 동그란 사진 72px + 이름은 사진 아래, 두 줄로 옆으로 넘긴다(11-15 저녁 운영자: D3).
+ * 이름이 사진 밖이라 늘 읽히고, 위 카테고리(네모 칸)와 모양이 달라 섞여 보이지 않는다
+ */
 export function OccasionGrid({ showSeason }: { showSeason: boolean }) {
   const ordered = useMemo(() => {
     const items = OCCASIONS.filter((o) => showSeason || !o.seasonal).map((o) => {
@@ -194,20 +215,20 @@ export function OccasionGrid({ showSeason }: { showSeason: boolean }) {
     return items.slice(0, half).flatMap((o, i) => [o, items[i + half]].filter(Boolean));
   }, [showSeason]);
   return (
-    <div className="scrollbar-hide grid auto-cols-[90px] grid-flow-col grid-rows-2 gap-x-[12px] gap-y-[12px] overflow-x-auto px-5">
+    <div className="scrollbar-hide grid auto-cols-[80px] grid-flow-col grid-rows-2 gap-x-[12px] gap-y-[14px] overflow-x-auto px-5">
       {ordered.map((o) => (
         <Link
           key={o.value}
           href={buildCategorySearchHref(o.value, "design")}
-          className="press relative block h-[90px] w-[90px] overflow-hidden rounded-[22px] bg-gray-50"
+          className="press flex w-[80px] flex-col items-center gap-[6px]"
         >
-          {o.src && (
-            // 이름표 글자가 같은 이름을 읽어 주므로 사진은 읽지 않는다
-            <FadeInImage src={o.src} alt="" fill sizes="90px" className="object-cover" />
-          )}
-          <span className="absolute bottom-[6px] left-[6px] rounded-full bg-white/95 px-[8px] py-[3px] text-xs font-bold text-gray-900">
-            {o.label}
+          <span className="relative block h-[72px] w-[72px] overflow-hidden rounded-full bg-gray-50">
+            {o.src && (
+              // 아래 이름이 같은 이름을 읽어 주므로 사진은 읽지 않는다
+              <FadeInImage src={o.src} alt="" fill sizes="72px" className="object-cover" />
+            )}
           </span>
+          <span className="whitespace-nowrap text-xs font-semibold text-gray-900">{o.label}</span>
         </Link>
       ))}
     </div>

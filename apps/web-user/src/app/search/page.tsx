@@ -8,10 +8,6 @@ import { SearchProductListSection } from "@/apps/web-user/features/product/compo
 import { SearchStoreListSection } from "@/apps/web-user/features/store/components/sections/SearchStoreListSection";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import {
-  QuoteStickyBar,
-  buildQuoteNewHref,
-} from "@/apps/web-user/features/quote/components/entry/QuoteEntry";
-import {
   SearchFilterSheet,
   type SearchSortBy,
 } from "@/apps/web-user/features/search/components/SearchFilterSheet";
@@ -261,7 +257,7 @@ export default function SearchPage() {
               ))}
             </div>
           </div>
-          <div className="px-5 pb-[100px]">
+          <div className="px-5 pb-10">
             {activeTab === "design" ? (
               <DesignSearchSection
                 categories={listFilter.productCategoryTypes ?? []}
@@ -289,12 +285,6 @@ export default function SearchPage() {
               />
             )}
           </div>
-          {/* 견적 요청 입구(기획 I-46 SC-13 1): 결과가 있을 때·없을 때 같은 자리 */}
-          <QuoteStickyBar
-            eyebrow={resultCount === 0 ? "찾는 케이크가 없나요?" : "원하는 케이크가 없나요?"}
-            title="사진만 올리면 견적이 와요"
-            href={buildQuoteNewHref("SEARCH", activeTab === "product" ? { q: submittedTerm } : {})}
-          />
         </>
       )}
 

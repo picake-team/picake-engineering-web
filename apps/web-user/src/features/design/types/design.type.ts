@@ -30,7 +30,7 @@ export interface DesignParts {
 export interface Design {
   id: string;
   name: string;
-  /** 카테고리로 거를 때(넓게): 상황·디자인·모양(11-15 묶음). 홈 "어떤 날"·디자인 탭·필터가 쓴다 */
+  /** 카테고리로 거를 때(넓게): 상황·디자인(11-15 묶음). 홈 "어떤 날"·디자인 탭·필터가 쓴다 */
   occasions: ProductCategoryType[];
   /** 해시태그·카드 둘째 줄로 보이는 카테고리: 사진 속 글자·모양 등으로 확실한 것만 */
   tagOccasions: ProductCategoryType[];

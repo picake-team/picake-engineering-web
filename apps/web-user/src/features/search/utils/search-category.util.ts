@@ -4,6 +4,7 @@ import {
   LEGACY_PRODUCT_CATEGORY,
   PRODUCT_CATEGORY_LABEL,
 } from "@/apps/web-user/features/product/constants/product-category.constant";
+// 없앤 값(VINTAGE 등)은 PRODUCT_CATEGORY_LABEL에 없어 아래에서 걸러진다
 import { MAP_LIST_SIZE_OPTIONS } from "@/apps/web-user/features/store/constants/map.constant";
 
 /** 검색 화면 주소의 카테고리 값 이름 (`/search?category=BIRTHDAY`, 홈 카테고리·어떤 날·해시태그에서 들어올 때) */
