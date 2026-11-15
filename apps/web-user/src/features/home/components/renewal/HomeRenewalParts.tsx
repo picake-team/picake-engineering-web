@@ -8,18 +8,13 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay } from "swiper/modules";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { cn } from "@/apps/web-user/common/lib/utils";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { FadeInImage } from "@/apps/web-user/common/components/motion/FadeInImage";
-import { Skeleton } from "@/apps/web-user/common/components/skeleton/Skeleton";
 import CakeListSlider from "@/apps/web-user/common/components/sliders/CakeListSlider";
 import { buildCategorySearchHref } from "@/apps/web-user/common/components/categories/CategoryList";
 import { useAlarmUnreadCount } from "@/apps/web-user/features/alarm/hooks/queries/useAlarmUnreadCount";
-import { useHomeBanners } from "@/apps/web-user/features/home-banner/hooks/queries/useHomeBanners";
-import type { HomeBanner } from "@/apps/web-user/features/home-banner/types/home-banner.type";
 import { noticeApi } from "@/apps/web-user/features/notice/apis/notice.api";
 import { noticeQueryKeys } from "@/apps/web-user/features/notice/constants/noticeQueryKeys.constant";
 import type { Notice } from "@/apps/web-user/features/notice/types/notice.type";
@@ -86,65 +81,6 @@ export function HomeTopBar() {
   );
 }
 
-/** 양옆 배너가 조금 보이는 배너(놀·캐치테이블). 누르면 지금 배너처럼 링크로 */
-export function PeekBanner({ initialBanners }: { initialBanners?: HomeBanner[] }) {
-  const { data: banners = [], isLoading } = useHomeBanners(initialBanners);
-  if (isLoading) {
-    return (
-      <div className="px-5">
-        <Skeleton className="aspect-[1672/984] w-full rounded-2xl" />
-      </div>
-    );
-  }
-  if (banners.length === 0) return null;
-  return (
-    <Swiper
-      modules={[Autoplay]}
-      slidesPerView="auto"
-      centeredSlides
-      spaceBetween={8}
-      loop={banners.length > 2}
-      autoplay={{ delay: 3000, disableOnInteraction: false }}
-      className="w-full"
-    >
-      {banners.map((b, i) => {
-        const body = (
-          <span className="relative block aspect-[1672/984] overflow-hidden rounded-2xl bg-gray-50">
-            <Image
-              src={b.imageUrl}
-              alt={`배너 ${i + 1}`}
-              fill
-              sizes="(max-width: 640px) 90vw, 600px"
-              className="object-cover"
-              priority={i === 0}
-            />
-            <span className="absolute bottom-[12px] right-[12px] rounded-full bg-black/35 px-[9px] py-[3px] text-2xs font-medium tabular-nums text-white">
-              {i + 1} / {banners.length}
-            </span>
-          </span>
-        );
-        return (
-          <SwiperSlide key={b.id} style={{ width: "calc(100% - 40px)" }}>
-            {b.linkUrl ? (
-              b.linkUrl.startsWith("http") ? (
-                <a href={b.linkUrl} target="_blank" rel="noopener noreferrer" className="block">
-                  {body}
-                </a>
-              ) : (
-                <Link href={b.linkUrl} className="block">
-                  {body}
-                </Link>
-              )
-            ) : (
-              body
-            )}
-          </SwiperSlide>
-        );
-      })}
-    </Swiper>
-  );
-}
-
 /** 배너 아래 한 줄: 가장 최근 공지. 공지가 없거나 받지 못하면 줄을 그리지 않는다(오류 창 없음) */
 export function NoticeLine() {
   const { data } = useQuery<Notice[]>({
@@ -161,7 +97,7 @@ export function NoticeLine() {
       href={PATHS.NOTICE}
       className="flex h-[44px] items-center gap-[10px] rounded-xl bg-gray-50 px-[14px]"
     >
-      <span className="shrink-0 text-sm font-bold text-gray-900">공지</span>
+      <span className="shrink-0 text-sm font-bold text-primary">공지</span>
       <span className="min-w-0 flex-1 truncate text-sm text-gray-700">{latest.title}</span>
       <span aria-hidden className="shrink-0 text-gray-400">
         ›
