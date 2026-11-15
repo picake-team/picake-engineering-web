@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useDragScroll } from "@/apps/web-user/common/hooks/useDragScroll";
 import { Product } from "@/apps/web-user/features/product/types/product.type";
 import { CakeListItem } from "@/apps/web-user/features/product/components/cards/CakeListItem";
 import { Skeleton, SkeletonText } from "@/apps/web-user/common/components/skeleton";
@@ -25,36 +25,7 @@ export default function CakeListSlider({
   onRetry,
   getProductHref,
 }: CakeListSliderProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const drag = useRef({ isDown: false, hasDragged: false, startX: 0, scrollLeft: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    drag.current.isDown = true;
-    drag.current.hasDragged = false;
-    drag.current.startX = e.pageX - (scrollRef.current?.offsetLeft ?? 0);
-    drag.current.scrollLeft = scrollRef.current?.scrollLeft ?? 0;
-    setIsDragging(true);
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!drag.current.isDown) return;
-    e.preventDefault();
-    const x = e.pageX - (scrollRef.current?.offsetLeft ?? 0);
-    const walk = x - drag.current.startX;
-    if (Math.abs(walk) > 5) drag.current.hasDragged = true;
-    if (scrollRef.current) scrollRef.current.scrollLeft = drag.current.scrollLeft - walk;
-  };
-
-  const handleMouseUp = () => {
-    drag.current.isDown = false;
-    setIsDragging(false);
-  };
-
-  // 마우스로 끌어서 스크롤한 직후의 클릭은 카드 이동으로 처리하지 않는다 (캡처 단계에서 차단)
-  const handleClickCapture = (e: React.MouseEvent) => {
-    if (drag.current.hasDragged) e.stopPropagation();
-  };
+  const { ref: scrollRef, isDragging, dragProps } = useDragScroll();
 
   return (
     <div className="pb-9">
@@ -80,11 +51,7 @@ export default function CakeListSlider({
         <div
           ref={scrollRef}
           className={`flex gap-[8px] overflow-x-auto scrollbar-hide pl-[20px] select-none ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-          onClickCapture={handleClickCapture}
+          {...dragProps}
         >
           {products.map((product) => (
             <CakeListItem key={product.id} product={product} href={getProductHref(product.id)} />

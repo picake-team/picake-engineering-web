@@ -10,6 +10,7 @@ import { Icon } from "@/apps/web-user/common/components/icons";
 import { cn } from "@/apps/web-user/common/lib/utils";
 import { isProduction } from "@/apps/web-user/common/utils/environment.util";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
+import { useDragScroll } from "@/apps/web-user/common/hooks/useDragScroll";
 import { FadeInImage } from "@/apps/web-user/common/components/motion/FadeInImage";
 import CakeListSlider from "@/apps/web-user/common/components/sliders/CakeListSlider";
 import { useAlarmUnreadCount } from "@/apps/web-user/features/alarm/hooks/queries/useAlarmUnreadCount";
@@ -201,36 +202,53 @@ const OCCASIONS: { value: C; label: string; designId: string; seasonal?: boolean
 ];
 
 /**
- * 동그란 사진 64px + 이름은 사진 아래, 두 줄로 옆으로 넘긴다(11-15 저녁 운영자: D3, 72px에서 조금 작게).
- * 이름이 사진 밖이라 늘 읽히고, 위 카테고리(네모 칸)와 모양이 달라 섞여 보이지 않는다
+ * 동그란 사진 64px + 이름은 사진 아래, 한 줄로 옆으로 넘긴다(11-15 운영자: D3 원, 한 줄 ②).
+ * 이름이 사진 밖이라 늘 읽히고, 위 카테고리(네모 칸)와 모양이 달라 섞여 보이지 않는다.
+ * 390 폭에서 넷째 칸 다음이 반쯤 보여 밀 수 있음을 알린다. 시즌 칸은 철에만 보이고 맨 앞에 둔다
  */
 export function OccasionGrid({ showSeason }: { showSeason: boolean }) {
-  const ordered = useMemo(() => {
-    const items = OCCASIONS.filter((o) => showSeason || !o.seasonal).map((o) => {
+  const { ref, isDragging, dragProps } = useDragScroll();
+  const items = useMemo(() => {
+    const visible = OCCASIONS.filter((o) => showSeason || !o.seasonal).map((o) => {
       const design = getDesign(o.designId);
       return { ...o, src: design ? designImageSrc(design.image.thumb) : undefined };
     });
-    // 세로로 채워지는 격자라, 윗줄이 앞 절반·아랫줄이 뒤 절반이 되게 섞는다
-    const half = Math.ceil(items.length / 2);
-    return items.slice(0, half).flatMap((o, i) => [o, items[i + half]].filter(Boolean));
+    return [...visible.filter((o) => o.seasonal), ...visible.filter((o) => !o.seasonal)];
   }, [showSeason]);
   return (
-    <div className="scrollbar-hide grid auto-cols-[72px] grid-flow-col grid-rows-2 gap-x-[12px] gap-y-[14px] overflow-x-auto px-5">
-      {ordered.map((o) => (
+    <div
+      ref={ref}
+      {...dragProps}
+      className={cn(
+        "scrollbar-hide flex select-none gap-[12px] overflow-x-auto py-[2px] pl-5",
+        isDragging ? "cursor-grabbing" : "cursor-grab",
+      )}
+    >
+      {items.map((o) => (
         <Link
           key={o.value}
           href={buildCategorySearchHref(o.value, "design")}
-          className="press flex w-[72px] flex-col items-center gap-[6px]"
+          draggable={false}
+          className="press flex w-[72px] shrink-0 flex-col items-center gap-[6px]"
         >
           <span className="relative block h-[64px] w-[64px] overflow-hidden rounded-full bg-gray-50">
             {o.src && (
               // 아래 이름이 같은 이름을 읽어 주므로 사진은 읽지 않는다
-              <FadeInImage src={o.src} alt="" fill sizes="64px" className="object-cover" />
+              <FadeInImage
+                src={o.src}
+                alt=""
+                fill
+                sizes="64px"
+                draggable={false}
+                className="object-cover"
+              />
             )}
           </span>
           <span className="whitespace-nowrap text-xs font-semibold text-gray-900">{o.label}</span>
         </Link>
       ))}
+      {/* 끝 여백(앞 20px과 같게: 사이 12 + 8) */}
+      <div aria-hidden className="w-[8px] shrink-0" />
     </div>
   );
 }
