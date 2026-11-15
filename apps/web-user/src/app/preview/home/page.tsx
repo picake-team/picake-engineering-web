@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import HomeRenewalScreen from "@/apps/web-user/features/home/components/renewal/HomeRenewalScreen";
 import { magazineDesigns } from "@/apps/web-user/features/design/utils/design.util";
 import { fetchConsumerApi } from "@/apps/web-user/common/utils/server-api.util";
-import { isProduction } from "@/apps/web-user/common/utils/environment.util";
 import type { HomeBannerListResponse } from "@/apps/web-user/features/home-banner/types/home-banner.type";
 
 export const revalidate = 60;
@@ -15,11 +13,11 @@ export const metadata: Metadata = {
 };
 
 /**
- * 홈 새 화면 시안(2026-11-15). staging·로컬에서만 열리고 상용에서는 없는 주소(404)다.
- * 디자이너가 확인하면 지금 홈(app/page.tsx)으로 옮기고 이 주소는 지운다.
+ * 홈 새 화면 시안(2026-11-15). 어디에도 링크가 없고 검색에도 잡히지 않는다.
+ * 상용에서도 열린다(11-15 운영자: 실제 앱에서 보려고 — 마이 > 버전정보 > "웹 버전" 7번 누르기).
+ * 디자이너가 확인하면 지금 홈(app/page.tsx)으로 옮기고 이 주소와 숨은 입구는 지운다.
  */
 export default async function HomeRenewalPreviewPage() {
-  if (isProduction(process.env.NEXT_PUBLIC_NODE_ENV)) notFound();
   const banners = await fetchConsumerApi<HomeBannerListResponse>("/home-banners", {
     revalidate,
   });
