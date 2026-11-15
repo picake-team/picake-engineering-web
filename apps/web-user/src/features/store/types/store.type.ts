@@ -74,6 +74,8 @@ export interface StoreListParams extends StoreListFilter {
   /** 거리순(sortBy=distance)일 때만: 기준점 위도·경도 */
   latitude?: number;
   longitude?: number;
+  /** 동네 거르기(GET /store/regions 값을 조합, buildRegionsParam) */
+  regions?: string;
 }
 
 export interface StoreProductRepresentativeImage {
