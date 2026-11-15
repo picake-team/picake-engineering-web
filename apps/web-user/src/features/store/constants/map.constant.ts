@@ -125,6 +125,6 @@ export const MAP_UNENTERED_CACHE_MAX = 300;
 export const MAP_LIST_SIZE_OPTIONS: string[] = ["도시락", "미니", "1호", "2호", "3호"];
 
 /**
- * 검색·지도 필터의 카테고리(모든 값, 묶음 순서). 묶음은 PRODUCT_CATEGORY_GROUPS(상황·디자인·모양·서비스)
+ * 검색·지도 필터의 카테고리(모든 값, 묶음 순서). 묶음은 PRODUCT_CATEGORY_GROUPS(상황·디자인·서비스)
  */
 export const MAP_LIST_CATEGORY_OPTIONS = PRODUCT_CATEGORY_OPTIONS;

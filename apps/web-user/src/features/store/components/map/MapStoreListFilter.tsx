@@ -401,7 +401,7 @@ export function MapStoreListFilter({
                   />
                 </section>
 
-                {/* 카테고리: 상황·디자인·모양·서비스(칸 안은 또는, 칸끼리는 그리고) */}
+                {/* 카테고리: 상황·디자인·서비스(칸 안은 또는, 칸끼리는 그리고) */}
                 <section className={`${styles.sectionContent} pb-6`}>
                   <CategoryFilterGroups
                     selected={draftCategories}

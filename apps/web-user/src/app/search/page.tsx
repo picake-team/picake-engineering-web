@@ -16,6 +16,7 @@ import { hasActiveFilter } from "@/apps/web-user/features/store/components/map/M
 import { releaseSoftKeyboard } from "@/apps/web-user/common/utils/soft-keyboard.util";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import { useScrollRestoration } from "@/apps/web-user/common/hooks/useScrollRestoration";
+import { REMOVED_PRODUCT_CATEGORIES } from "@/apps/web-user/features/product/constants/product-category.constant";
 import {
   SEARCH_CATEGORY_PARAM,
   SEARCH_SIZE_PARAM,
@@ -47,10 +48,14 @@ export default function SearchPage() {
   const searchParams = useSearchParams();
   // 홈 카테고리·어떤 날·해시태그에서 들어오면 검색어 없이 그 카테고리를 필터에 넣고 결과를 바로 보인다
   // (상품·스토어·디자인 탭이 같은 값을 쓴다. 11-15 전 값은 새 값으로 읽는다)
-  const categoryParam = readSearchCategory(searchParams.get(SEARCH_CATEGORY_PARAM));
+  const rawCategoryParam = searchParams.get(SEARCH_CATEGORY_PARAM);
+  const categoryParam = readSearchCategory(rawCategoryParam);
+  // 없앤 값(빈티지·입체)으로 온 옛 주소는 빈 검색 화면 대신 카테고리 없이 결과를 바로 보인다(11-15 밤)
+  const enteredWithRemovedCategory =
+    !!rawCategoryParam && REMOVED_PRODUCT_CATEGORIES.has(rawCategoryParam);
   // 홈 도시락·미니 칸에서 들어오면 그 사이즈를 필터에 넣는다
   const sizeParam = readSearchSize(searchParams.get(SEARCH_SIZE_PARAM));
-  const enteredFromHome = !!categoryParam || !!sizeParam;
+  const enteredFromHome = !!categoryParam || !!sizeParam || enteredWithRemovedCategory;
   // 뒤로 오면 보던 자리 그대로(새로 들어오면 맨 위부터). 검색어를 바꿔도 이 화면이 그대로 남아 있어
   // 저장 이름에 검색어를 넣는다(넣지 않으면 처음 검색어 이름으로 저장돼 돌아왔을 때 못 찾는다)
   useScrollRestoration(

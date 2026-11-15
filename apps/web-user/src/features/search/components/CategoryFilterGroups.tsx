@@ -2,7 +2,7 @@ import type { ProductCategoryType } from "@/apps/web-user/features/product/types
 import { PRODUCT_CATEGORY_GROUPS } from "@/apps/web-user/features/product/constants/product-category.constant";
 
 /**
- * 필터의 카테고리: 상황·디자인·모양·서비스 네 칸(11-15). 칸 안은 "또는", 칸끼리는 "그리고"로 거른다
+ * 필터의 카테고리: 상황·디자인·서비스 세 칸(11-15). 칸 안은 "또는", 칸끼리는 "그리고"로 거른다
  * (검색 필터·지도 목록 필터가 같이 쓴다. 칩 모양은 각 화면의 것을 받는다)
  */
 export function CategoryFilterGroups({
