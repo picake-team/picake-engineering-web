@@ -23,6 +23,8 @@ import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import { REGION_STORAGE_KEY } from "@/apps/web-user/common/utils/region-storage.util";
 
 const showQaButton = !isProduction(process.env.NEXT_PUBLIC_NODE_ENV);
+/** 가게 없는 동네에서 거르지 않고 볼 때 동네 버튼 이름 */
+const ALL_REGIONS_LABEL = "전체 지역";
 
 const DEFAULT_ADDRESS = "서울특별시 강남구";
 
@@ -147,9 +149,16 @@ export default function Header({
     }
   }, [productFetching]);
 
+  // 지금 동네에 가게가 없고 고른 동네도 없으면 결과는 모든 동네에서 나오므로 이름도 "전체 지역"으로 보인다
+  // (11-15 새 홈에는 동네가 없어 "준비 중" 창이 저절로 뜨지 않게 됐고, 그러자 검색 맨 위 이름과 결과가 어긋났다)
+  const isInactiveMatch = !overrideResult && matchResult != null && matchResult.storeCount === 0;
   const displayAddress =
     overrideResult?.label ??
-    (inactiveModal.visible ? previousResult?.label : matchResult?.label) ??
+    (inactiveModal.visible
+      ? previousResult?.label
+      : isInactiveMatch
+        ? ALL_REGIONS_LABEL
+        : matchResult?.label) ??
     null;
 
   // 배경 클릭 비활성화
