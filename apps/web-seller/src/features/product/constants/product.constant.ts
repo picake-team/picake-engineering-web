@@ -29,7 +29,7 @@ export const PRODUCT_TYPE_OPTIONS = [
 ] as const;
 
 /**
- * 카테고리 묶음(2026-11-15, 질문 하나에 묶음 하나 — 손님 필터·서버와 같은 순서).
+ * 카테고리 묶음(2026-11-15, 질문 하나에 묶음 하나 — 손님 필터·서버와 같은 순서). 상황 / 디자인(하트·2단 포함) / 서비스.
  * 손님이 필터에서 묶음 안은 "또는", 묶음끼리는 "그리고"로 거른다(생일 + 캐릭터 = 생일 캐릭터 케이크).
  * 레터링도 사장님이 고른다(10-27~11-15에는 상품 유형을 따라 서버가 "커스텀"으로 넣던 값). 크기는 사이즈에서 정한다
  */
@@ -63,17 +63,9 @@ export const PRODUCT_CATEGORY_GROUPS: readonly {
       { value: ProductCategoryType.FLOWER, label: "꽃" },
       { value: ProductCategoryType.RIBBON, label: "리본" },
       { value: ProductCategoryType.FRUIT, label: "과일" },
-      { value: ProductCategoryType.VINTAGE, label: "빈티지" },
-      { value: ProductCategoryType.SIMPLE, label: "심플" },
-    ],
-  },
-  {
-    label: "모양",
-    help: "기본 원형이 아니면 골라 주세요",
-    options: [
       { value: ProductCategoryType.HEART, label: "하트" },
-      { value: ProductCategoryType.SCULPTED, label: "입체" },
       { value: ProductCategoryType.TWO_TIER, label: "2단" },
+      { value: ProductCategoryType.SIMPLE, label: "심플" },
     ],
   },
   {

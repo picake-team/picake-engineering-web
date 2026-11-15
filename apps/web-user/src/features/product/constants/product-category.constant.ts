@@ -4,11 +4,12 @@ export type ProductCategoryOption = { value: C; label: string };
 
 /**
  * 상품 카테고리 묶음(2026-11-15, 서버 PRODUCT_CATEGORY_GROUPS와 같은 순서): 질문 하나에 묶음 하나.
+ * 상황 / 디자인(하트·2단 같은 모양 포함 — 11-15 저녁 "모양" 묶음을 합치고 빈티지·입체를 없앰) / 서비스.
  * 검색·지도 필터에서 묶음 안은 "또는", 묶음끼리는 "그리고"로 거른다(생일 + 캐릭터 = 생일 캐릭터 케이크).
  * 크기(도시락·미니·1~3호)는 사이즈 필터로 따로 고른다.
  */
 export const PRODUCT_CATEGORY_GROUPS: {
-  key: "situation" | "design" | "shape" | "service";
+  key: "situation" | "design" | "service";
   title: string;
   options: ProductCategoryOption[];
 }[] = [
@@ -36,17 +37,9 @@ export const PRODUCT_CATEGORY_GROUPS: {
       { value: C.FLOWER, label: "꽃" },
       { value: C.RIBBON, label: "리본" },
       { value: C.FRUIT, label: "과일" },
-      { value: C.VINTAGE, label: "빈티지" },
-      { value: C.SIMPLE, label: "심플" },
-    ],
-  },
-  {
-    key: "shape",
-    title: "모양",
-    options: [
       { value: C.HEART, label: "하트" },
-      { value: C.SCULPTED, label: "입체" },
       { value: C.TWO_TIER, label: "2단" },
+      { value: C.SIMPLE, label: "심플" },
     ],
   },
   {
@@ -73,6 +66,9 @@ export const LEGACY_PRODUCT_CATEGORY: Readonly<Record<string, C>> = {
   FAMILY: C.THANKS,
   FRIEND: C.BIRTHDAY,
 };
+
+/** 없앤 값(11-15 저녁: 빈티지·입체). 옛 주소로 오면 카테고리 없이 연다(서버도 조용히 뺀다) */
+export const REMOVED_PRODUCT_CATEGORIES: ReadonlySet<string> = new Set(["VINTAGE", "SCULPTED"]);
 
 /** 고른 카테고리를 묶음별로 나눈다(빈 묶음은 뺀다) */
 export function groupProductCategories(values: readonly C[]): C[][] {
@@ -150,10 +146,8 @@ const KEYWORD_CATEGORY: ReadonlyArray<readonly [C, readonly string[]]> = [
   [C.FLOWER, ["꽃", "플라워"]],
   [C.RIBBON, ["리본"]],
   [C.FRUIT, ["과일", "생과일"]],
-  [C.VINTAGE, ["빈티지"]],
   [C.SIMPLE, ["심플"]],
   [C.HEART, ["하트"]],
-  [C.SCULPTED, ["입체", "3d"]],
   [C.TWO_TIER, ["2단", "이단"]],
   [C.SAME_DAY_PICKUP, ["당일픽업", "당일"]],
 ];
