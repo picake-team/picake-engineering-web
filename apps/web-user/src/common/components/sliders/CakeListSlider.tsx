@@ -8,7 +8,8 @@ import { EmptyState } from "@/apps/web-user/common/components/fallbacks/EmptySta
 import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
 
 interface CakeListSliderProps {
-  title: string;
+  /** 없으면 제목 줄을 그리지 않는다(바깥에서 제목·탭을 그릴 때) */
+  title?: React.ReactNode;
   products: Product[];
   isLoading: boolean;
   /** 불러오지 못했으면 "다시 시도"(없을 때 "등록된 상품이 없어요"와 헷갈리지 않게) */
@@ -57,7 +58,7 @@ export default function CakeListSlider({
 
   return (
     <div className="pb-9">
-      <h2 className="px-5 py-2.5 text-xl font-bold text-gray-900 mb-2.5">{title}</h2>
+      {title && <h2 className="px-5 py-2.5 text-xl font-bold text-gray-900 mb-2.5">{title}</h2>}
       {isLoading ? (
         <div className="flex gap-[8px] overflow-hidden pl-[20px]">
           {Array.from({ length: 4 }).map((_, i) => (
