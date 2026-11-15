@@ -97,7 +97,9 @@ export default function Header({
   }, [matchResult, overrideResult]);
 
   // 비활성 지역 감지 시 모달 표시 (저장된 지역이 있으면 스킵)
+  // 저절로 띄우는 건 홈에서만(검색으로 바로 들어와도 검색을 가로막지 않게). 검색에서는 손님이 동네 창에서 고를 때만 뜬다
   useEffect(() => {
+    if (variant !== "main") return;
     if (!matchResult || !regionsData?.regions) return;
     if (overrideResult) return;
     if (matchResult.storeCount === 0) {
@@ -130,7 +132,7 @@ export default function Header({
         });
       }
     }
-  }, [matchResult, regionsData, overrideResult]);
+  }, [matchResult, regionsData, overrideResult, variant]);
 
   // 유효 지역이 확정될 때마다 전역 store에 동기화 (상품 목록 필터링에 사용)
   useEffect(() => {
@@ -260,93 +262,10 @@ export default function Header({
     </button>
   );
 
-  // 뒤로가기 + 타이틀
-  if (variant === "back-title") {
-    return (
-      <header className="sticky top-0 z-50 bg-white px-5 relative flex items-center justify-center h-[52px]">
-        <button
-          onClick={handleBack}
-          className="absolute left-5 flex items-center justify-center rounded-lg border-none bg-transparent text-gray-900 cursor-pointer"
-          aria-label="뒤로가기"
-        >
-          <Icon name="chevronLeft" width={24} height={24} className="text-gray-900" />
-        </button>
-        {title && <h1 className="text-sm font-bold text-gray-900">{title}</h1>}
-      </header>
-    );
-  }
-
-  // 뒤로가기 + 장바구니
-  if (variant === "product") {
-    return (
-      <header className="sticky top-0 z-50 bg-white px-5 flex justify-between items-center h-[52px]">
-        <button
-          onClick={handleBack}
-          className="flex items-center justify-center rounded-lg border-none bg-transparent text-gray-900 cursor-pointer"
-          aria-label="뒤로가기"
-        >
-          <Icon name="chevronLeft" width={24} height={24} className="text-gray-900" />
-        </button>
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => router.push(PATHS.SEARCH)}
-            className="h-6 w-6 flex items-center justify-center"
-            aria-label="검색"
-          >
-            <Icon name="search" width={24} height={24} />
-          </button>
-          <AlarmButton />
-        </div>
-      </header>
-    );
-  }
-
-  // 헤더 없음
-  if (variant === "minimal") {
-    return null;
-  }
-
-  // 위치 + 알람 + 취소
-  if (variant === "search") {
-    return (
-      <header className="sticky top-0 left-0 right-0 z-50 bg-white max-w-[638px] mx-auto px-5 flex justify-between items-center h-[46px]">
-        <LocationButton />
-        <button onClick={handleBack} className="text-sm font-bold text-gray-500 underline">
-          닫기
-        </button>
-      </header>
-    );
-  }
-
-  // 위치 + 알람
-  return (
+  // 동네 고르기 창·"준비 중" 안내·설정 알림. 동네 버튼이 있는 헤더(홈·검색)에서 같이 그린다.
+  // (검색 헤더에 빠져 있어 검색에서 동네를 눌러도 창이 안 뜨고, 홈으로 돌아가야 뜨던 것)
+  const overlays = (
     <>
-      <header className="sticky top-0 left-0 right-0 z-50 bg-white max-w-[638px] mx-auto px-5 flex justify-between items-center h-[52px]">
-        {/* 위치 */}
-        <LocationButton />
-
-        {/* 우측 메뉴 */}
-        <div className="flex items-center gap-4">
-          {showQaButton && (
-            <Link
-              href={PATHS.QA}
-              className="px-3 py-1.5 text-xs font-bold text-yellow-400 bg-yellow-400/10 border border-yellow-400/30 rounded-lg"
-            >
-              QA
-            </Link>
-          )}
-          {!isHomeSearchVisible && (
-            <button
-              onClick={() => router.push(PATHS.SEARCH)}
-              className="h-6 w-6 flex items-center justify-center"
-            >
-              <Icon name="search" width={24} height={24} />
-            </button>
-          )}
-          <AlarmButton />
-        </div>
-      </header>
-
       {/* 비활성 지역 모달 (서울 내) */}
       <Modal
         isOpen={inactiveModal.visible && inactiveModal.type === "seoul"}
@@ -434,6 +353,100 @@ export default function Header({
           onClose={() => setShowOpenAlarmToast(false)}
         />
       )}
+    </>
+  );
+
+  // 뒤로가기 + 타이틀
+  if (variant === "back-title") {
+    return (
+      <header className="sticky top-0 z-50 bg-white px-5 relative flex items-center justify-center h-[52px]">
+        <button
+          onClick={handleBack}
+          className="absolute left-5 flex items-center justify-center rounded-lg border-none bg-transparent text-gray-900 cursor-pointer"
+          aria-label="뒤로가기"
+        >
+          <Icon name="chevronLeft" width={24} height={24} className="text-gray-900" />
+        </button>
+        {title && <h1 className="text-sm font-bold text-gray-900">{title}</h1>}
+      </header>
+    );
+  }
+
+  // 뒤로가기 + 장바구니
+  if (variant === "product") {
+    return (
+      <header className="sticky top-0 z-50 bg-white px-5 flex justify-between items-center h-[52px]">
+        <button
+          onClick={handleBack}
+          className="flex items-center justify-center rounded-lg border-none bg-transparent text-gray-900 cursor-pointer"
+          aria-label="뒤로가기"
+        >
+          <Icon name="chevronLeft" width={24} height={24} className="text-gray-900" />
+        </button>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => router.push(PATHS.SEARCH)}
+            className="h-6 w-6 flex items-center justify-center"
+            aria-label="검색"
+          >
+            <Icon name="search" width={24} height={24} />
+          </button>
+          <AlarmButton />
+        </div>
+      </header>
+    );
+  }
+
+  // 헤더 없음
+  if (variant === "minimal") {
+    return null;
+  }
+
+  // 위치 + 알람 + 취소
+  if (variant === "search") {
+    return (
+      <>
+        <header className="sticky top-0 left-0 right-0 z-50 bg-white max-w-[638px] mx-auto px-5 flex justify-between items-center h-[46px]">
+          <LocationButton />
+          <button onClick={handleBack} className="text-sm font-bold text-gray-500 underline">
+            닫기
+          </button>
+        </header>
+        {overlays}
+      </>
+    );
+  }
+
+  // 위치 + 알람
+  return (
+    <>
+      <header className="sticky top-0 left-0 right-0 z-50 bg-white max-w-[638px] mx-auto px-5 flex justify-between items-center h-[52px]">
+        {/* 위치 */}
+        <LocationButton />
+
+        {/* 우측 메뉴 */}
+        <div className="flex items-center gap-4">
+          {showQaButton && (
+            <Link
+              href={PATHS.QA}
+              className="px-3 py-1.5 text-xs font-bold text-yellow-400 bg-yellow-400/10 border border-yellow-400/30 rounded-lg"
+            >
+              QA
+            </Link>
+          )}
+          {!isHomeSearchVisible && (
+            <button
+              onClick={() => router.push(PATHS.SEARCH)}
+              className="h-6 w-6 flex items-center justify-center"
+            >
+              <Icon name="search" width={24} height={24} />
+            </button>
+          )}
+          <AlarmButton />
+        </div>
+      </header>
+
+      {overlays}
     </>
   );
 }
