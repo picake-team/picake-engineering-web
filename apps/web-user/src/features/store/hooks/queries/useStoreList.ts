@@ -16,6 +16,8 @@ export function useStoreList({
   sortBy,
   latitude,
   longitude,
+  regions,
+  enabled = true,
 }: {
   search?: string;
   limit?: number;
@@ -23,6 +25,10 @@ export function useStoreList({
   /** 거리순일 때만 기준점 */
   latitude?: number;
   longitude?: number;
+  /** 동네 거르기(buildRegionsParam 값) */
+  regions?: string;
+  /** 동네 복원을 기다리는 동안 false */
+  enabled?: boolean;
 } & StoreListFilter = {}) {
   const query = useInfiniteQuery<StoreListResponse>({
     queryKey: storeQueryKeys.list({
@@ -34,6 +40,7 @@ export function useStoreList({
       sortBy,
       latitude,
       longitude,
+      regions,
     }),
     queryFn: ({ pageParam = 1 }) =>
       storeApi.getList({
@@ -48,10 +55,12 @@ export function useStoreList({
         ...(sortBy === "distance" && latitude != null && longitude != null
           ? { latitude, longitude }
           : {}),
+        ...(regions ? { regions } : {}),
       }),
     getNextPageParam: (lastPage) =>
       lastPage.meta.hasNext ? lastPage.meta.currentPage + 1 : undefined,
     initialPageParam: 1,
+    enabled,
     // 검색 화면은 검색어가 있거나 홈 카테고리로 왔을 때만 이 목록을 그린다.
     // 검색어로 막으면 카테고리로 본 "스토어" 탭이 늘 "검색 결과가 없어요"가 된다(서버는 검색어 없이 필터만으로도 찾는다)
   });

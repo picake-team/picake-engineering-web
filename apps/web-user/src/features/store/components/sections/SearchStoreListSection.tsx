@@ -15,6 +15,7 @@ import { LikePop } from "@/apps/web-user/common/components/motion/LikePop";
 import { useOptimisticStoreLike } from "@/apps/web-user/features/like/hooks/useOptimisticStoreLike";
 import { shortenAddress } from "@/apps/web-user/common/utils/address.util";
 import { useUserLocation } from "@/apps/web-user/common/hooks/useUserLocation";
+import { useRegionFilter } from "@/apps/web-user/common/hooks/useRegionFilter";
 import { calculateDistance, formatDistance } from "@/apps/web-user/common/utils/distance.util";
 import { useAuthStore } from "@/apps/web-user/common/store/auth.store";
 import { useLoginSheetStore } from "@/apps/web-user/common/store/login-sheet.store";
@@ -48,6 +49,8 @@ export function SearchStoreListSection({
   // 하트는 누르자마자 바뀌고, 저장이 실패하면 되돌린다
   const storeLike = useOptimisticStoreLike();
   const { location: userLocation } = useUserLocation();
+  // 맨 위 헤더에서 고른 동네의 가게만(홈·상품 탭과 같은 거르기)
+  const { regions, isRegionSettled } = useRegionFilter();
   const { isAuthenticated } = useAuthStore();
   const openLoginSheet = useLoginSheetStore((s) => s.openLoginSheet);
 
@@ -71,6 +74,8 @@ export function SearchStoreListSection({
           longitude: userLocation.longitude,
         }
       : { sortBy: "popular" }),
+    regions,
+    enabled: isRegionSettled,
   });
   const totalCount = data?.pages[0]?.meta.totalCount;
 

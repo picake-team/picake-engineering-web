@@ -193,6 +193,7 @@ export default function SearchPage() {
       {/* 탭 + 검색 결과 */}
       {isSearching && (
         <>
+          {/* 탭 줄 위아래 여백(11-15 운영자: 너무 커서 줄임, 안쪽 16px 겹쳐 있던 것 뺌) */}
           <div className="flex items-center gap-[24px] py-[16px] px-[20px]">
             <button
               type="button"
@@ -213,7 +214,7 @@ export default function SearchPage() {
                 className={isFilterActive ? undefined : "text-gray-500"}
               />
             </button>
-            <div className="relative flex flex-1 items-center gap-[12px] py-[16px] after:content-[''] after:absolute after:-left-[12px] after:top-1/2 after:-translate-y-1/2 after:h-3 after:w-[1px] after:bg-gray-50">
+            <div className="relative flex flex-1 items-center gap-[12px] after:content-[''] after:absolute after:-left-[12px] after:top-1/2 after:-translate-y-1/2 after:h-3 after:w-[1px] after:bg-gray-50">
               {[
                 { key: "product", label: "상품" },
                 { key: "store", label: "스토어" },
