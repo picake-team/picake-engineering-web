@@ -59,6 +59,8 @@ export default function RootWrapperLayout({ children }: RootWrapperLayoutProps) 
     if (pathname === "/mypage/setting/notification")
       return { variant: "back-title", title: "알림 설정", backFallbackPath: PATHS.MYPAGE };
     if (pathname === "/qa") return { variant: "minimal" };
+    // 홈 새 화면 시안(디자이너 확인용)은 머리줄을 화면이 직접 그린다
+    if (pathname?.startsWith("/preview/")) return { variant: "minimal" };
     // 앱 다운로드 진입점(/app) 하위는 QR로 직진입하는 단독 화면이라 공통 헤더 없음
     if (pathname?.startsWith("/app/")) return { variant: "minimal" };
     // 입점 안내(/partner)도 QR로 직진입하는 단독 화면

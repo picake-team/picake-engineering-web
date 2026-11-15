@@ -15,7 +15,17 @@ import {
  * 홈 "케이크 디자인" 매거진 칸(기획 I-112 ①): 세로로 큰 사진 카드를 넘긴다.
  * 카드는 디자인 상세로, 아래 흰 칸은 바로 견적 요청서로 간다.
  */
-export function DesignMagazineSection({ designIds }: { designIds: string[] }) {
+export function DesignMagazineSection({
+  designIds,
+  title = "케이크 디자인",
+  tail,
+}: {
+  designIds: string[];
+  /** 칸 제목(홈 새 화면 시안: "이런 디자인은 어떠세요?") */
+  title?: React.ReactNode;
+  /** 카드 줄 맨 끝에 붙일 카드(같은 크기 틀 안에 그린다. 홈 새 화면 시안의 견적 카드) */
+  tail?: React.ReactNode;
+}) {
   // 시즌(크리스마스 12월 25일까지)은 서버에서 정해 넘긴다(서버 그림과 휴대폰 그림이 어긋나지 않게)
   const designs = useMemo(
     () => designIds.map((id) => getDesign(id)).filter((d) => d !== null),
@@ -56,7 +66,7 @@ export function DesignMagazineSection({ designIds }: { designIds: string[] }) {
   return (
     <section ref={sectionRef} className="pb-[4px] pt-[28px]">
       <div className="flex items-center justify-between px-5">
-        <h2 className="text-xl font-bold text-gray-900">케이크 디자인</h2>
+        <h2 className="text-xl font-bold text-gray-900">{title}</h2>
         <Link href="/search?tab=design" className="text-sm text-gray-500">
           더 보기 ›
         </Link>
@@ -113,6 +123,11 @@ export function DesignMagazineSection({ designIds }: { designIds: string[] }) {
             </Link>
           </div>
         ))}
+        {tail && (
+          <div className="relative aspect-[5/7] w-[72vw] max-w-[300px] shrink-0 snap-center overflow-hidden rounded-2xl shadow-[0_6px_18px_rgba(0,0,0,0.12)] sm:snap-start">
+            {tail}
+          </div>
+        )}
       </div>
       <div className="mt-[10px] flex justify-center gap-[7px]" aria-hidden>
         {designs.map((d, i) => (

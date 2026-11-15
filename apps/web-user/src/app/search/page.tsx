@@ -102,8 +102,9 @@ export default function SearchPage() {
   // 홈 카테고리로 들어와 결과를 보는 중이면 키보드를 올리지 않는다.
   // 홈에서 미리 띄워둔 임시 입력은 실제 입력에 포커스를 넘긴 뒤 정리한다.
   useEffect(() => {
-    // 디자인 탭으로 바로 온 경우(홈 매거진 "더 보기"·저장 탭)는 둘러보기라 키보드를 올리지 않는다(11-14)
-    if (!searchParams.get("q") && !categoryParam && searchParams.get("tab") !== "design") {
+    // 디자인 탭으로 바로 온 경우(홈 매거진 "더 보기"·저장 탭)는 둘러보기라 키보드를 올리지 않는다(11-14).
+    // 상품 탭으로 바로 온 경우(홈 새 화면 상품 칸 "더 보기")도 같다
+    if (!searchParams.get("q") && !categoryParam && !searchParams.get("tab")) {
       inputRef.current?.focus({ preventScroll: true });
     }
     releaseSoftKeyboard();
@@ -112,7 +113,7 @@ export default function SearchPage() {
   // 검색 화면(입력 전) 노출. 홈 카테고리로 와서 결과를 바로 보는 것은 검색 화면 노출로 세지 않는다
   // (세면 "검색 화면을 열고 검색한 비율"이 카테고리 방문만큼 낮게 보인다)
   useEffect(() => {
-    if (categoryParam || searchParams.get("tab") === "design") return;
+    if (categoryParam || searchParams.get("tab")) return;
     trackEvent("view_search");
   }, []);
 
@@ -163,7 +164,10 @@ export default function SearchPage() {
 
   // 홈 매거진 "더 보기"(?tab=design)로 들어오면 검색어 없이 디자인 모음 전체를 보인다
   const browsingDesigns = searchParams.get("tab") === "design";
-  const isSearching = !!submittedTerm.trim() || isBrowsingCategory || browsingDesigns;
+  // 홈 새 화면 상품 칸 "더 보기"(?tab=product)로 오면 검색어 없이 상품 전체를 보인다(맨 위에서 고른 동네로 걸러짐)
+  const browsingProducts = searchParams.get("tab") === "product";
+  const isSearching =
+    !!submittedTerm.trim() || isBrowsingCategory || browsingDesigns || browsingProducts;
   // 필터 시트에서 조건이나 정렬을 바꾼 상태면 아이콘을 on으로 표시
   const isFilterActive = hasActiveFilter(listFilter) || sortBy !== DEFAULT_SORT_BY;
 
