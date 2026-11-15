@@ -143,7 +143,7 @@ export default function ReservationCompletePage() {
           {orderData.orderStatus === OrderStatus.RESERVATION_REQUESTED && (
             <p className="flex items-center gap-[8px] mb-[28px] py-[10px] px-[12px] text-sm text-gray-900 bg-blue-50 rounded-xl animate-rise motion-reduce:animate-none [animation-delay:80ms]">
               <Icon name="warning" width={16} height={16} className="text-blue-400" />
-              예약 확정까지 1-2일 소요될 수 있어요.
+              가게가 예약을 확인하면 알림으로 알려 드려요.
             </p>
           )}
           <div className="mb-[20px] animate-rise motion-reduce:animate-none [animation-delay:160ms]">

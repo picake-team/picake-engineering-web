@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { useProductDetail } from "@/apps/web-user/features/product/hooks/queries/useProductDetail";
-import type { Product } from "@/apps/web-user/features/product/types/product.type";
+import { SalesStatus, type Product } from "@/apps/web-user/features/product/types/product.type";
 import { useProductReviews } from "@/apps/web-user/features/review/hooks/queries/useProductReviews";
 import { useAddProductLike } from "@/apps/web-user/features/like/hooks/mutations/useAddProductLike";
 import { useRemoveProductLike } from "@/apps/web-user/features/like/hooks/mutations/useRemoveProductLike";
@@ -86,7 +86,11 @@ export default function ProductDetailScreen({
   const openLoginSheet = useLoginSheetStore((s) => s.openLoginSheet);
 
   // 로그인 없이도 예약 창을 연다. 다 고르고 "로그인하고 예약신청"을 누를 때 로그인한다(I-59 A)
+  // 판매중지 상품은 목록에 그대로 두되(11-15 운영자) 예약 버튼을 막아 끝에서 막히지 않게 한다
+  const isSalesStopped = data?.salesStatus === SalesStatus.DISABLE;
+
   const handleReservationClick = () => {
+    if (isSalesStopped) return;
     trackEvent("engage_reservation");
     setIsBottomSheetOpen(true);
   };
@@ -99,11 +103,12 @@ export default function ProductDetailScreen({
     if (!isAuthenticated || optionsVersion === undefined || checkedDraftRef.current) return;
     checkedDraftRef.current = true;
     void takeReservationDraft(productId).then((draft) => {
-      if (!draft || draft.optionsVersion !== optionsVersion) return;
+      // 판매중지면 예약 창을 다시 열지 않는다
+      if (!draft || draft.optionsVersion !== optionsVersion || isSalesStopped) return;
       setResumeDraft(draft);
       setIsBottomSheetOpen(true);
     });
-  }, [isAuthenticated, optionsVersion, productId]);
+  }, [isAuthenticated, optionsVersion, productId, isSalesStopped]);
 
   /**
    * 예약 시트 청크는 초기 렌더 경로에서 빼되(아래 조건부 렌더),
@@ -237,9 +242,10 @@ export default function ProductDetailScreen({
               onClick={handleReservationClick}
               onMouseEnter={preloadReservationBottomSheet}
               onTouchStart={preloadReservationBottomSheet}
+              disabled={isSalesStopped}
             >
               {/* 모든 상품이 예약신청 → 판매자 확인 순서로 진행되므로 문구를 통일 */}
-              예약신청
+              {isSalesStopped ? "판매중지된 상품이에요" : "예약신청"}
             </Button>
           </span>
         </div>

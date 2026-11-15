@@ -30,7 +30,9 @@ export function OrderStatusNotice({ order }: OrderStatusNoticeProps) {
 
     /* 환불대기: 환불 처리 중 안내 */
     case OrderStatus.CANCEL_REFUND_PENDING:
-      return <InfoNotice className="mt-1 mb-4" message="환불 완료까지 1~2일 걸릴 수 있어요." />;
+      return (
+        <InfoNotice className="mt-1 mb-4" message="가게가 환불을 보내면 알림으로 알려 드려요." />
+      );
 
     /* 환불완료: 취소 건 안내 */
     case OrderStatus.CANCEL_REFUND_COMPLETED:
