@@ -16,6 +16,7 @@ import { EmptyState } from "@/apps/web-user/common/components/fallbacks/EmptySta
 import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
 import type { ProductEntryPoint } from "@/apps/web-user/common/types/analytics.type";
 import { useUserLocation } from "@/apps/web-user/common/hooks/useUserLocation";
+import { useRegionFilter } from "@/apps/web-user/common/hooks/useRegionFilter";
 
 interface SearchProductListSectionProps {
   search?: string;
@@ -53,6 +54,8 @@ export function SearchProductListSection({
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const { location } = useUserLocation();
   const apiSortBy = toProductSortBy(sortBy, location != null);
+  // 맨 위 헤더에서 고른 동네의 가게 상품만(홈과 같은 거르기)
+  const { regions, isRegionSettled } = useRegionFilter();
 
   const {
     data,
@@ -72,6 +75,8 @@ export function SearchProductListSection({
     sizes,
     latitude: apiSortBy === SortBy.DISTANCE ? location?.latitude : undefined,
     longitude: apiSortBy === SortBy.DISTANCE ? location?.longitude : undefined,
+    regions,
+    enabled: isRegionSettled,
   });
 
   useInfiniteScroll({ hasNextPage, isFetchingNextPage, fetchNextPage, loadMoreRef });

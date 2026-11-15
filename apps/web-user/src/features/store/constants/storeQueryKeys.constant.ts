@@ -9,6 +9,7 @@ export const storeQueryKeys = {
       sortBy?: string;
       latitude?: number;
       longitude?: number;
+      regions?: string;
     } & StoreListFilter,
   ) => ["store", "list", params] as const,
   /** 지도 페이지 — 필터 조건별 전체 스토어 조회 캐시 */
