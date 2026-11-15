@@ -40,7 +40,7 @@ Picake 플랫폼을 위한 Next.js 기반 사용자 웹 애플리케이션입니
 
 ### 홈 / 탐색
 
-- **홈페이지**: `/` - 메인 페이지 (배너, 검색창, 카테고리 12칸·당일픽업 줄, 어떤 날 7칸, 디자인 매거진, 바로 예약할 수 있는 케이크)
+- **홈페이지**: `/` - 메인 페이지 (배너, 검색창, 카테고리 12칸·당일픽업 줄, 어떤 날 6~7칸(크리스마스는 철에만), 디자인 매거진, 바로 예약할 수 있는 케이크)
 - **검색**: `/search` - 통합 검색
 - **지도**: `/map` - 지역 기반 스토어 지도 검색
 - **케이크 디자인**: `/design/:designId?from=home|search|saved|similar` - 디자인 상세(기획 I-112), 목록은 `/search?tab=design`
@@ -70,7 +70,7 @@ Picake 플랫폼을 위한 Next.js 기반 사용자 웹 애플리케이션입니
 
 ### 견적 요청
 
-- **요청서**: `/quote/new` - `?entry=HOME|SEARCH|MAP|STORE|MYPAGE|DESIGN`, 가게 화면에서는 `storeId`·`kakaoPlaceId`·`only=1`, 디자인에서는 `designId=a,b`
+- **요청서**: `/quote/new` - `?entry=HOME|MAP|STORE|MYPAGE|DESIGN`(SEARCH는 11-15 밤에 검색 결과 칸을 빼서 옛 링크에만), 가게 화면에서는 `storeId`·`kakaoPlaceId`·`only=1`, 디자인에서는 `designId=a,b`
 - **보낸 뒤**: `/quote/sent?requestId=`
 - **요청 상세**: `/quote/:requestId` - 카카오 알림톡 [견적 보기] 버튼에 고정된 주소라 바꾸지 않는다
 - **내 견적 요청**: `/mypage/quote` - 진행 중 / 지난 요청
