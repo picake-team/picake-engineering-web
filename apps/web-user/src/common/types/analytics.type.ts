@@ -229,8 +229,9 @@ export interface AnalyticsEventMap {
   /** 홈 화면 노출 */
   view_home: never;
   /**
-   * 카테고리 상세 화면 노출: 카테고리를 들고 검색 화면에 들어올 때(홈 카테고리, 디자인 해시태그 등).
-   * category_name은 화면 이름(생일·연인·친구·가족·기념일·당일픽업·캐릭터·심플·꽃·사진·레터링)
+   * 카테고리 상세 화면 노출: 카테고리를 들고 검색 화면에 들어올 때(홈 카테고리·어떤 날, 디자인 해시태그 등).
+   * category_name은 화면 이름(11-15 묶음: 상황 생일·연인·기념일·부모님·감사·백일·돌·축하·결혼·프로포즈·시즌 /
+   * 디자인 레터링·드로잉·사진·캐릭터·꽃·리본·과일·빈티지·심플 / 모양 하트·입체·2단 / 당일픽업, 홈 크기 칸은 도시락·미니)
    */
   view_category_detail: { category_name: string };
   /** 검색창 클릭 */
@@ -325,7 +326,7 @@ export interface AnalyticsEventMap {
   view_design_magazine: never;
   /** 디자인 상세를 봄 */
   view_design_detail: { design_id: string; entry_point: DesignEntryPoint };
-  /** 검색 결과 디자인 탭을 봄 */
+  /** 검색 결과 디자인 탭을 봄. category는 고른 카테고리 값(여럿이면 쉼표로, 예: "BIRTHDAY,LETTERING") */
   view_design_list: { category: string | null; result_count: number };
   /** 디자인 ♥ */
   engage_design_like: { design_id: string; liked: boolean };

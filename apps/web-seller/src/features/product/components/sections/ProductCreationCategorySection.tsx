@@ -10,7 +10,7 @@ export interface ProductCreationCategorySectionProps {
   disabled?: boolean;
 }
 
-/** 카테고리 설정 (중복 선택 가능) - 판매 대표이미지 바로 위 배치 */
+/** 카테고리 설정(묶음마다 여러 개 가능): 상황·디자인·모양·서비스, 묶음마다 한 줄 질문 */
 export const ProductCreationCategorySection: React.FC<ProductCreationCategorySectionProps> = ({
   value,
   onChange,
@@ -34,21 +34,35 @@ export const ProductCreationCategorySection: React.FC<ProductCreationCategorySec
       <div className="flex flex-col gap-4 font-app">
         {PRODUCT_CATEGORY_GROUPS.map((group) => (
           <div key={group.label} className="flex flex-col gap-2">
-            <span className="text-sub font-bold text-ink-700">{group.label}</span>
+            <span className="flex flex-col">
+              <span className="text-sub font-bold text-ink-700">{group.label}</span>
+              {group.help && <span className="text-caption text-ink-500">{group.help}</span>}
+            </span>
             <div role="group" aria-label={group.label} className="flex flex-wrap gap-2">
-              {group.options.map((opt) => (
-                <Chip
-                  key={opt.value}
-                  selected={selectedSet.has(opt.value)}
-                  disabled={disabled}
-                  onClick={() => handleToggle(opt.value)}
-                >
-                  {opt.label}
-                </Chip>
-              ))}
+              {group.options.map((opt) => {
+                const isSelected = selectedSet.has(opt.value);
+                return (
+                  <Chip
+                    key={opt.value}
+                    selected={isSelected}
+                    disabled={disabled}
+                    onClick={() => handleToggle(opt.value)}
+                  >
+                    {opt.label}
+                    {opt.hint && (
+                      <span
+                        className={`ml-1 text-caption font-normal ${isSelected ? "text-white/80" : "text-ink-500"}`}
+                      >
+                        {opt.hint}
+                      </span>
+                    )}
+                  </Chip>
+                );
+              })}
             </div>
           </div>
         ))}
+        <p className="text-caption text-ink-500">도시락·미니·1~3호는 사이즈에서 정해요.</p>
       </div>
     );
   }
@@ -60,6 +74,7 @@ export const ProductCreationCategorySection: React.FC<ProductCreationCategorySec
           <div key={group.label} className="flex flex-col gap-2">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               {group.label}
+              {group.help && <span className="ml-2 font-normal normal-case">{group.help}</span>}
             </span>
             <div className="flex flex-wrap gap-2">
               {group.options.map((opt) => {
@@ -102,12 +117,14 @@ export const ProductCreationCategorySection: React.FC<ProductCreationCategorySec
                       )}
                     </span>
                     {opt.label}
+                    {opt.hint && <span className="text-xs opacity-70">{opt.hint}</span>}
                   </label>
                 );
               })}
             </div>
           </div>
         ))}
+        <p className="text-xs text-muted-foreground">도시락·미니·1~3호는 사이즈에서 정해요.</p>
       </div>
     </div>
   );

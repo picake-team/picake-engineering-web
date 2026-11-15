@@ -1,6 +1,13 @@
 import { DESIGNS } from "@/apps/web-user/features/design/constants/designs.constant";
 import type { Design, DesignPart } from "@/apps/web-user/features/design/types/design.type";
-import type { ProductCategoryType } from "@/apps/web-user/features/product/types/product.type";
+import { ProductCategoryType } from "@/apps/web-user/features/product/types/product.type";
+import {
+  PRODUCT_CATEGORY_GROUPS,
+  PRODUCT_CATEGORY_LABEL,
+  matchesProductCategories,
+  productCategoryFromKeyword,
+} from "@/apps/web-user/features/product/constants/product-category.constant";
+import { buildCategorySearchHref } from "@/apps/web-user/features/search/utils/search-category.util";
 import type { QuoteDraftPhoto } from "@/apps/web-user/features/quote/store/quote-draft.store";
 
 export const DESIGN_IMAGE_BASE = "/images/designs";
@@ -34,17 +41,31 @@ export function magazineDesigns(now = new Date()): Design[] {
     .sort((a, b) => (a.magazine?.order ?? 0) - (b.magazine?.order ?? 0));
 }
 
-/** 검색 결과 디자인 탭: 홈 카테고리 또는 검색어로 거른다(맞는 게 없으면 전체) */
+/**
+ * 검색 결과 디자인 탭: 카테고리(묶음 안은 또는, 묶음끼리는 그리고) 또는 검색어로 거른다(맞는 게 없으면 전체).
+ * 검색어가 카테고리와 같은 뜻이면(남친 → 연인·기념일) 그 카테고리 디자인도 찾는다(상품 검색과 같게)
+ */
 export function searchDesigns(
-  { category, q }: { category: ProductCategoryType | null; q: string },
+  {
+    categories,
+    q,
+    sizes = [],
+  }: { categories: readonly ProductCategoryType[]; q: string; sizes?: readonly string[] },
   now = new Date(),
 ): { items: Design[]; matched: boolean } {
   const all = visibleDesigns(now);
   let items = all;
-  if (category) items = items.filter((d) => d.occasions.includes(category));
-  const words = q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  if (categories.length)
+    items = items.filter((d) => matchesProductCategories(d.occasions, categories));
+  // 사이즈는 디자인에 "도시락"만 있다. 도시락만 골랐을 때만 거르고, 다른 사이즈가 섞이면 거르지 않는다
+  if (sizes.length && sizes.every((s) => s === LUNCHBOX))
+    items = items.filter((d) => d.style === LUNCHBOX || d.parts.shape.includes(LUNCHBOX));
+  const trimmed = q.trim();
+  const words = trimmed.toLowerCase().split(/\s+/).filter(Boolean);
   if (words.length) {
+    const keywordCategory = productCategoryFromKeyword(trimmed);
     items = items.filter((d) => {
+      if (keywordCategory && d.occasions.includes(keywordCategory)) return true;
       const text = [d.name, d.style, d.description, ...Object.values(d.parts)]
         .join(" ")
         .toLowerCase();
@@ -68,42 +89,42 @@ export function similarDesigns(design: Design, limit = 6, now = new Date()): Des
     .map((x) => x.d);
 }
 
-/** 상황 이름(카드 둘째 줄) */
-export const OCCASION_LABEL: Partial<Record<ProductCategoryType, string>> = {
-  BIRTHDAY: "생일",
-  LOVER: "연인",
-  FRIEND: "친구",
-  FAMILY: "가족",
-  ANNIVERSARY: "기념일",
-  LETTERING: "레터링",
-  SIMPLE: "심플",
-  FLOWER: "꽃",
-};
+const LUNCHBOX = "도시락";
 
-/** 카드 둘째 줄: 사진으로 확실한 상황 + 모양("생일 · 도시락") */
+/** 상황 카테고리(무슨 날·누구에게) */
+const SITUATIONS = new Set<ProductCategoryType>(
+  PRODUCT_CATEGORY_GROUPS.find((group) => group.key === "situation")?.options.map((o) => o.value) ??
+    [],
+);
+
+/** 해시태그 이름. 시즌은 그 디자인의 시즌 이름(크리스마스) */
+function tagLabel(d: Design, value: ProductCategoryType): string {
+  if (value === ProductCategoryType.SEASON && d.seasonal === "CHRISTMAS") return "크리스마스";
+  return PRODUCT_CATEGORY_LABEL[value] ?? value;
+}
+
+/** 카드 둘째 줄: 사진으로 확실한 상황 하나 + 모양("생일 · 도시락", "크리스마스") */
 export function designCaption(d: Design): string {
-  const occ = d.tagOccasions
-    .filter((o) => o !== "LETTERING" && o !== "SIMPLE" && o !== "FLOWER")
-    .map((o) => OCCASION_LABEL[o])
-    .filter(Boolean)
-    .slice(0, 2)
-    .join("·");
-  return [occ || (d.seasonal === "CHRISTMAS" ? "크리스마스" : null), d.style]
+  const situation = d.tagOccasions.find((o) => SITUATIONS.has(o));
+  return [situation ? tagLabel(d, situation) : null, d.style]
     .filter((v, i, all): v is string => !!v && all.indexOf(v) === i)
     .join(" · ");
 }
 
-/** 상세 이름 아래 해시태그: 사진으로 확실한 상황(누르면 그 상황 목록) + 모양(누르면 그 말로 찾기) */
+/**
+ * 상세 이름 아래 해시태그: 사진으로 확실한 카테고리(누르면 그 카테고리 디자인) + 모양 말(누르면 그 말로 찾기).
+ * 모양 말이 카테고리와 같은 뜻이면(플라워 = 꽃, 크리스마스 = 시즌) 한 번만
+ */
 export function designHashtags(d: Design): { label: string; href: string }[] {
-  const tags = d.tagOccasions
-    .filter((o) => OCCASION_LABEL[o])
-    .map((o) => ({ label: `#${OCCASION_LABEL[o]}`, href: `/search?tab=design&category=${o}` }));
-  if (d.seasonal === "CHRISTMAS")
-    tags.push({
-      label: "#크리스마스",
-      href: `/search?tab=design&q=${encodeURIComponent("크리스마스")}`,
-    });
-  if (!tags.some((t) => t.label === `#${d.style}`))
+  const tags = d.tagOccasions.map((o) => ({
+    label: `#${tagLabel(d, o)}`,
+    href: buildCategorySearchHref(o, "design"),
+  }));
+  const styleCategory = productCategoryFromKeyword(d.style);
+  const hasStyle =
+    tags.some((t) => t.label === `#${d.style}`) ||
+    (styleCategory !== undefined && d.tagOccasions.includes(styleCategory));
+  if (!hasStyle)
     tags.push({
       label: `#${d.style}`,
       href: `/search?tab=design&q=${encodeURIComponent(d.style)}`,

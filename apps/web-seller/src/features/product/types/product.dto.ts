@@ -17,18 +17,32 @@ export enum ProductType {
   CUSTOM_CAKE = "CUSTOM_CAKE",
 }
 
+/** 상품 카테고리(2026-11-15 다시 나눔, 서버와 같은 값). 묶음·이름은 constants/product.constant.ts PRODUCT_CATEGORY_GROUPS */
 export enum ProductCategoryType {
+  // 상황
   BIRTHDAY = "BIRTHDAY",
-  LOVER = "LOVER",
-  FRIEND = "FRIEND",
-  FAMILY = "FAMILY",
-  ANNIVERSARY = "ANNIVERSARY",
-  SAME_DAY_PICKUP = "SAME_DAY_PICKUP",
+  COUPLE = "COUPLE",
+  THANKS = "THANKS",
+  BABY = "BABY",
+  CONGRATS = "CONGRATS",
+  WEDDING = "WEDDING",
+  SEASON = "SEASON",
+  // 디자인
   LETTERING = "LETTERING",
-  CHARACTER = "CHARACTER",
-  SIMPLE = "SIMPLE",
-  FLOWER = "FLOWER",
+  DRAWING = "DRAWING",
   PHOTO = "PHOTO",
+  CHARACTER = "CHARACTER",
+  FLOWER = "FLOWER",
+  RIBBON = "RIBBON",
+  FRUIT = "FRUIT",
+  VINTAGE = "VINTAGE",
+  SIMPLE = "SIMPLE",
+  // 모양
+  HEART = "HEART",
+  SCULPTED = "SCULPTED",
+  TWO_TIER = "TWO_TIER",
+  // 서비스
+  SAME_DAY_PICKUP = "SAME_DAY_PICKUP",
 }
 
 export enum CakeSizeDisplayName {

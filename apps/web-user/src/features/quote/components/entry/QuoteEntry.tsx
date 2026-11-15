@@ -9,8 +9,8 @@ import { cn } from "@/apps/web-user/common/lib/utils";
 import type { QuoteRequestEntry } from "@/apps/web-user/features/quote/types/quote.type";
 
 /**
- * 견적 요청 입구(기획 I-46 SC-12·13).
- * 배너 모양 칸(홈 카드, 검색·가게 상세 아래 칸)은 크림 바탕·초콜릿 버튼(운영자 결정 2026-11-09),
+ * 견적 요청 입구(기획 I-46 SC-12·13). 홈은 "이런 디자인" 카드 줄 끝 카드(HomeParts QuoteEndCard, 11-15).
+ * 배너 모양 칸(검색·가게 상세 아래 칸)은 크림 바탕·초콜릿 버튼(운영자 결정 2026-11-09),
  * 버튼만 있는 곳(지도)은 손님 앱의 다른 버튼과 같은 주황이다.
  */
 const CREAM = "#FFF6DF";
@@ -52,69 +52,6 @@ function TiltedPhotos({ size }: { size: number }) {
         />
       ))}
     </div>
-  );
-}
-
-/**
- * 홈 카드 오른쪽 사진 두 장. 정한 그림(2026-11-09)처럼 크게 두고 카드 오른쪽·아래로 조금 넘친다(카드가 잘라 냄).
- * 앞 사진은 오른쪽 위, 뒤 사진은 그 왼쪽 아래.
- */
-function HomeCardPhotos() {
-  const [back, front] = QUOTE_CARD_PHOTOS;
-  const photo =
-    "absolute rounded-[12px] border-[3px] border-white object-cover shadow-[0_4px_12px_rgba(0,0,0,0.14)]";
-  return (
-    <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-[160px]">
-      <img
-        src={back}
-        alt=""
-        // 첫 화면 큰 그림(배너)·화면 코드보다 먼저 받지 않게(React가 미리 받기 목록에 넣지 않음)
-        loading="lazy"
-        decoding="async"
-        className={photo}
-        style={{ width: 92, height: 92, left: 0, bottom: -22, transform: "rotate(-8deg)" }}
-      />
-      <img
-        src={front}
-        alt=""
-        loading="lazy"
-        decoding="async"
-        className={photo}
-        style={{ width: 112, height: 112, right: -14, top: 8, transform: "rotate(6deg)" }}
-      />
-    </div>
-  );
-}
-
-/** 홈 카테고리 아래 사진 카드(SC-12). 항상 같은 자리에 보인다 */
-export function QuoteHomeCard() {
-  return (
-    <Link
-      href={buildQuoteNewHref("HOME")}
-      className="relative flex items-center overflow-hidden rounded-2xl px-[20px] py-[20px]"
-      style={{ background: CREAM, minHeight: 155 }}
-    >
-      <HomeCardPhotos />
-      <div className="relative min-w-0">
-        <p className="mb-[4px] text-xs font-bold" style={{ color: EYEBROW }}>
-          원하는 디자인 그대로
-        </p>
-        <p className="mb-[14px] text-base font-bold leading-[22px] text-gray-900">
-          사진만 올리면
-          <br />
-          근처 가게 견적이 와요
-        </p>
-        <span
-          className="inline-flex h-[34px] items-center gap-[2px] rounded-full pl-[16px] pr-[12px] text-sm font-bold text-white"
-          style={{ background: CHOCOLATE }}
-        >
-          견적 받기
-          <span aria-hidden className="text-base leading-none">
-            ›
-          </span>
-        </span>
-      </div>
-    </Link>
   );
 }
 

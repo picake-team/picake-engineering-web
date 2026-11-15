@@ -5,12 +5,10 @@ import { useState, useEffect } from "react";
 import { BottomSheet } from "@/apps/web-user/common/components/bottom-sheets/BottomSheet";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { DualThumbRangeSlider } from "@/apps/web-user/common/components/sliders";
-import {
-  MAP_LIST_SIZE_OPTIONS,
-  MAP_LIST_CATEGORY_OPTIONS,
-} from "@/apps/web-user/features/store/constants/map.constant";
+import { MAP_LIST_SIZE_OPTIONS } from "@/apps/web-user/features/store/constants/map.constant";
 import type { StoreListFilter } from "@/apps/web-user/features/store/types/store.type";
 import type { ProductCategoryType } from "@/apps/web-user/features/product/types/product.type";
+import { CategoryFilterGroups } from "@/apps/web-user/features/search/components/CategoryFilterGroups";
 import type { MapListSortBy } from "@/apps/web-user/features/store/utils/map.util";
 
 // ---------------------------------------------------------------------------
@@ -225,32 +223,16 @@ export function SearchFilterSheet({
           />
         </section>
 
-        {/* 유형 */}
+        {/* 카테고리: 상황·디자인·모양·서비스(칸 안은 또는, 칸끼리는 그리고) */}
         <section className="pb-6">
-          <h3 className={styles.sectionTitle}>유형</h3>
-          <div className="flex flex-wrap gap-2 py-1.5">
-            {MAP_LIST_CATEGORY_OPTIONS.map((opt) => {
-              const selected = draftCategories.includes(opt.value);
-              return (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => {
-                    if (selected) {
-                      setDraftCategories((prev) => prev.filter((c) => c !== opt.value));
-                    } else {
-                      setDraftCategories((prev) => [...prev, opt.value]);
-                    }
-                  }}
-                  className={`${styles.categoryChip} ${
-                    selected ? styles.categoryChipSelected : styles.categoryChipDefault
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              );
-            })}
-          </div>
+          <CategoryFilterGroups
+            selected={draftCategories}
+            onChange={setDraftCategories}
+            titleClassName={styles.sectionTitle}
+            chipClassName={(selected) =>
+              `${styles.categoryChip} ${selected ? styles.categoryChipSelected : styles.categoryChipDefault}`
+            }
+          />
         </section>
       </div>
     </BottomSheet>

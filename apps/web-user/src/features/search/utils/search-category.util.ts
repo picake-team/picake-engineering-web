@@ -1,41 +1,48 @@
+import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { ProductCategoryType } from "@/apps/web-user/features/product/types/product.type";
-import { MAP_LIST_CATEGORY_OPTIONS } from "@/apps/web-user/features/store/constants/map.constant";
-import { OCCASION_LABEL } from "@/apps/web-user/features/design/utils/design.util";
+import {
+  LEGACY_PRODUCT_CATEGORY,
+  PRODUCT_CATEGORY_LABEL,
+} from "@/apps/web-user/features/product/constants/product-category.constant";
+import { MAP_LIST_SIZE_OPTIONS } from "@/apps/web-user/features/store/constants/map.constant";
 
-/** 검색 화면 주소의 카테고리 값 이름 (`/search?category=BIRTHDAY`, 홈 카테고리에서 들어올 때) */
+/** 검색 화면 주소의 카테고리 값 이름 (`/search?category=BIRTHDAY`, 홈 카테고리·어떤 날·해시태그에서 들어올 때) */
 export const SEARCH_CATEGORY_PARAM = "category";
-
-const SELECTABLE = new Set<string>(MAP_LIST_CATEGORY_OPTIONS.map((option) => option.value));
+/** 검색 화면 주소의 사이즈 값 이름 (`/search?size=도시락`, 홈 도시락·미니 칸에서 들어올 때) */
+export const SEARCH_SIZE_PARAM = "size";
 
 /**
- * 주소의 카테고리 값을 읽는다(상품·스토어 탭 거르기). 필터 "유형"에 있는 값만 받는다 —
- * 모르는 값이나 필터에서 뺀 값(커스텀)이면 없는 것으로 본다.
+ * 주소의 카테고리 값을 읽는다(상품·스토어·디자인 탭 같은 값). 11-15 전 값(LOVER 등)은 새 값으로 바꿔 읽고,
+ * 모르는 값이면 없는 것으로 본다.
  */
 export function readSearchCategory(
   value: string | null | undefined,
 ): ProductCategoryType | undefined {
-  if (!value || !SELECTABLE.has(value)) return undefined;
-  return value as ProductCategoryType;
-}
-
-/**
- * 주소의 카테고리 값을 디자인 탭 거르기로 읽는다. 디자인 모음의 상황(OCCASION_LABEL)에 있는 값을 받는다.
- * 상품 쪽에서 "커스텀" 표시인 LETTERING이 디자인 모음에서는 "레터링"이라, 상품 필터와 따로 읽는다
- * (함께 읽으면 디자인 상세 #레터링이 레터링 19개가 아니라 디자인 36개 전체를 보였다, 11-15).
- */
-export function readDesignCategory(
-  value: string | null | undefined,
-): ProductCategoryType | undefined {
+  if (!value) return undefined;
+  const mapped = Object.prototype.hasOwnProperty.call(LEGACY_PRODUCT_CATEGORY, value)
+    ? LEGACY_PRODUCT_CATEGORY[value]
+    : value;
   // in 대신 자기 키만 본다("constructor" 같은 값이 통과하지 않게)
-  if (!value || !Object.prototype.hasOwnProperty.call(OCCASION_LABEL, value)) return undefined;
-  return value as ProductCategoryType;
+  if (!Object.prototype.hasOwnProperty.call(PRODUCT_CATEGORY_LABEL, mapped)) return undefined;
+  return mapped as ProductCategoryType;
 }
 
-/** 카테고리 값의 화면 이름(분석 이벤트 category_name). 필터 "유형" 이름이 먼저, 없으면 디자인 상황 이름 */
+/** 주소의 사이즈 값을 읽는다. 필터 사이즈(도시락·미니·1~3호)에 있는 값만 */
+export function readSearchSize(value: string | null | undefined): string | undefined {
+  return value && MAP_LIST_SIZE_OPTIONS.includes(value) ? value : undefined;
+}
+
+/** 카테고리 값의 화면 이름(분석 이벤트 category_name) */
 export function searchCategoryLabel(value: ProductCategoryType): string {
-  return (
-    MAP_LIST_CATEGORY_OPTIONS.find((option) => option.value === value)?.label ??
-    OCCASION_LABEL[value] ??
-    value
-  );
+  return PRODUCT_CATEGORY_LABEL[value] ?? value;
+}
+
+/** 이 카테고리로 좁힌 검색 결과 주소. 검색 화면이 category 값을 필터에 넣는다 */
+export function buildCategorySearchHref(category: ProductCategoryType, tab?: "design"): string {
+  return `${PATHS.SEARCH}?${tab ? `tab=${tab}&` : ""}${SEARCH_CATEGORY_PARAM}=${category}`;
+}
+
+/** 이 사이즈로 좁힌 검색 결과 주소(도시락·미니) */
+export function buildSizeSearchHref(size: string): string {
+  return `${PATHS.SEARCH}?${SEARCH_SIZE_PARAM}=${encodeURIComponent(size)}`;
 }

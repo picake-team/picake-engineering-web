@@ -5,10 +5,7 @@ import { PageTitle } from "@/apps/web-seller/common/components/layouts/MobileFra
 import { useFrameConfirm } from "@/apps/web-seller/common/components/layouts/useFrameConfirm";
 import { useParams } from "react-router-dom";
 import { ProductCreationForm } from "@/apps/web-seller/features/product/components/forms/ProductCreationForm";
-import {
-  ProductCategoryType,
-  UpdateProductRequestDto,
-} from "@/apps/web-seller/features/product/types/product.dto";
+import { UpdateProductRequestDto } from "@/apps/web-seller/features/product/types/product.dto";
 import type { ProductForm } from "@/apps/web-seller/features/product/types/product.ui";
 import { useProductDetail } from "@/apps/web-seller/features/product/hooks/queries/useProductQuery";
 import {
@@ -46,10 +43,7 @@ export const StoreDetailProductDetailPage: React.FC = () => {
             cakeSizeOptions: (product.cakeSizeOptions as any) || [],
             customOptions: product.customOptions ?? [],
             productType: product.productType,
-            // '커스텀' 카테고리는 상품 유형을 따라 서버가 관리하므로 폼에서는 뺀다
-            productCategoryTypes: (product.productCategoryTypes ?? []).filter(
-              (category) => category !== ProductCategoryType.LETTERING,
-            ),
+            productCategoryTypes: product.productCategoryTypes ?? [],
             searchTags: product.searchTags ?? [],
             detailDescription: product.detailDescription ?? "",
             productNoticeFoodType: product.productNoticeFoodType,

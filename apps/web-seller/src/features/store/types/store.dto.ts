@@ -189,7 +189,7 @@ export interface GetSellerStoresRequestDto {
   minPrice?: number;
   /** 상품 필터: 최대 가격 */
   maxPrice?: number;
-  /** 상품 필터: 유형(캐릭터, 커스텀 등). 상품 목록 조회와 동일한 ProductCategoryType enum */
+  /** 상품 필터: 카테고리(묶음 안은 또는, 묶음끼리는 그리고). 상품 목록 조회와 동일한 ProductCategoryType enum */
   productCategoryTypes?: ProductCategoryType[];
   /** 거리순 정렬(sortBy=distance)일 때 필수. 기준점 WGS84 위도 */
   latitude?: number;
