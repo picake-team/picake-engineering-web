@@ -52,21 +52,27 @@ export function SectionTitle({
   );
 }
 
-/** 맨 위 줄: 로고 · 검색창 · 알림(동네는 홈에 두지 않고 검색 결과에서 고른다) */
-export function HomeTopBar() {
+/**
+ * 맨 위 줄: 로고 · 알림(동네는 홈에 두지 않고 검색 결과에서 고른다).
+ * 검색창은 배너 아래 흰 판에 있고(11-15 운영자: H2), 그 검색창이 화면 위로 지나가면 여기 검색 아이콘이 나온다(지금 홈과 같음)
+ */
+export function HomeTopBar({ showSearchIcon = false }: { showSearchIcon?: boolean }) {
   const { data: unread = 0 } = useAlarmUnreadCount();
   return (
-    <div className="sticky top-0 z-50 flex h-[56px] items-center gap-3 bg-white px-5">
+    <div className="sticky top-0 z-50 flex h-[56px] items-center gap-4 bg-white px-5">
       <span role="img" aria-label="픽케이크" className="shrink-0">
         <Icon name="logoPicake" width={30} height={30} />
       </span>
-      <Link
-        href={PATHS.SEARCH}
-        className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-full bg-gray-50 px-4"
-      >
-        <Icon name="search" width={18} height={18} className="shrink-0 text-gray-800" />
-        <span className="truncate text-sm text-gray-500">어떤 케이크를 찾으시나요?</span>
-      </Link>
+      <span className="flex-1" />
+      {showSearchIcon && (
+        <Link
+          href={PATHS.SEARCH}
+          aria-label="검색"
+          className="flex h-6 w-6 shrink-0 items-center justify-center text-gray-900"
+        >
+          <Icon name="search" width={24} height={24} />
+        </Link>
+      )}
       <Link
         href={PATHS.ALARM}
         className="relative flex shrink-0 items-center justify-center text-gray-900"
@@ -119,7 +125,7 @@ const CATEGORY_ICONS: Record<string, string> = {
   PHOTO: "/images/contents/category-photo.svg",
 };
 
-/** 카테고리 10개(5×2). 지금 그림 그대로, 회색 둥근 칸 */
+/** 카테고리 10개(5×2). 지금 그림 그대로, 회색 둥근 칸 52px·그림 30px(11-15 운영자: H3 조금 작게) */
 export function CategoryTiles() {
   const items = MAP_LIST_CATEGORY_OPTIONS.filter((o) => CATEGORY_ICONS[o.value]);
   const rows = [items.slice(0, 5), items.slice(5)];
@@ -131,18 +137,18 @@ export function CategoryTiles() {
             <Link
               key={value}
               href={buildCategorySearchHref(value)}
-              // 320px 폭에서는 다섯 칸(58px)이 서로 붙어 조금 작아지게
-              className="press flex w-[58px] max-w-[19%] flex-col items-center gap-[6px]"
+              // 320px 폭에서는 다섯 칸이 서로 붙지 않게 조금 작아진다
+              className="press flex w-[52px] max-w-[19%] flex-col items-center gap-[6px]"
             >
               <span className="flex aspect-square w-full items-center justify-center rounded-[18px] bg-gray-50">
                 {/* 그림 PNG의 흰 바탕은 곱하기로 지운다 */}
                 <Image
                   src={CATEGORY_ICONS[value]}
                   alt=""
-                  width={34}
-                  height={34}
+                  width={30}
+                  height={30}
                   unoptimized
-                  className="h-[34px] w-[34px] object-contain mix-blend-multiply"
+                  className="h-[30px] w-[30px] object-contain mix-blend-multiply"
                 />
               </span>
               <span className="whitespace-nowrap text-xs text-gray-700">{label}</span>
