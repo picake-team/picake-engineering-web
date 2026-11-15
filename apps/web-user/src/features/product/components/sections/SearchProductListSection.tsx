@@ -99,7 +99,7 @@ export function SearchProductListSection({
   return (
     <>
       <p className="text-sm text-gray-500 py-3 font-bold">
-        총 <span className="text-gray-900">{products.length}</span>개
+        총 <span className="text-gray-900">{totalCount ?? products.length}</span>개
       </p>
       <div className="grid grid-cols-2 gap-x-[7px] gap-y-6">
         {products.map((product) => (

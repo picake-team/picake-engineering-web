@@ -34,18 +34,18 @@ export const BANK_LIST: BankItem[] = [
   // 지방은행 (BNK·JB 금융지주는 로고 공유)
   { value: "KYONGNAM", label: "경남은행", imageUrl: "/images/banks/bnk.png" },
   { value: "BUSAN", label: "부산은행", imageUrl: "/images/banks/bnk.png" },
-  { value: "IM", label: "iM뱅크", imageUrl: "/images/banks/im.png" },
+  { value: "IM_BANK_DAEGU", label: "iM뱅크", imageUrl: "/images/banks/im.png" },
   { value: "GWANGJU", label: "광주은행", imageUrl: "/images/banks/jb.png" },
   { value: "JEONBUK", label: "전북은행", imageUrl: "/images/banks/jb.png" },
   { value: "JEJU", label: "제주은행", imageUrl: "/images/banks/shinhan.png" },
 
   // 외국계
-  { value: "SC", label: "SC제일은행", imageUrl: "/images/banks/sc.png" },
+  { value: "SC_JEIL", label: "SC제일은행", imageUrl: "/images/banks/sc.png" },
   { value: "CITI", label: "시티은행", imageUrl: "/images/banks/citi.png" },
-  { value: "SBI", label: "SBI저축은행", imageUrl: "/images/banks/sbi.png" },
+  { value: "SAVINGS_BANK", label: "SBI저축은행", imageUrl: "/images/banks/sbi.png" },
 
   // 기타
-  { value: "MG", label: "MG새마을금고", imageUrl: "/images/banks/mg.png" },
-  { value: "POST", label: "우체국", imageUrl: "/images/banks/post.png" },
-  { value: "SHINHYUP", label: "신협", imageUrl: "/images/banks/shinhyup.png" },
+  { value: "SAEMAEUL", label: "MG새마을금고", imageUrl: "/images/banks/mg.png" },
+  { value: "POST_OFFICE", label: "우체국", imageUrl: "/images/banks/post.png" },
+  { value: "SINHYEOP", label: "신협", imageUrl: "/images/banks/shinhyup.png" },
 ];

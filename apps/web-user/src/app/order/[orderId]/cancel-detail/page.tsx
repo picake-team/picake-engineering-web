@@ -1,5 +1,6 @@
 "use client";
 
+import { getBankLabel } from "@/apps/web-user/common/utils/bank.util";
 import { useParams } from "next/navigation";
 import Header from "@/apps/web-user/common/components/headers/Header";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
@@ -65,7 +66,13 @@ function CancelDetailView({ order }: { order: OrderResponse }) {
     order.orderStatus === OrderStatus.CANCEL_REFUND_COMPLETED ||
     !!order.refundBankName;
 
-  const cancelReason = order.refundRequestReason || order.userCancelReason || "-";
+  // 사장님이 취소·환불대기로 바꾼 주문은 사장님 사유를 보인다(전에는 "-")
+  const cancelReason =
+    order.refundRequestReason ||
+    order.userCancelReason ||
+    order.sellerCancelRefundPendingReason ||
+    order.sellerCancelReason ||
+    "-";
 
   return (
     <>
@@ -114,7 +121,7 @@ function CancelDetailView({ order }: { order: OrderResponse }) {
               <dt className="w-[70px] text-gray-500 shrink-0">환불 계좌</dt>
               <dd className={`${NO_REPLAY} text-gray-900`}>
                 {maskAccountNumber(order.refundBankAccountNumber)}
-                {order.refundBankName ? ` (${order.refundBankName})` : ""}
+                {order.refundBankName ? ` (${getBankLabel(order.refundBankName)})` : ""}
               </dd>
             </div>
             <div className="flex gap-10">
