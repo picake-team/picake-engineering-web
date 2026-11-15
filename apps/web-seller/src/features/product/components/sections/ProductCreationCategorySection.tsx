@@ -10,7 +10,7 @@ export interface ProductCreationCategorySectionProps {
   disabled?: boolean;
 }
 
-/** 카테고리 설정(묶음마다 여러 개 가능): 상황·디자인·모양·서비스, 묶음마다 한 줄 질문 */
+/** 카테고리 설정(묶음마다 여러 개 가능): 상황·디자인·서비스, 묶음마다 한 줄 질문 */
 export const ProductCreationCategorySection: React.FC<ProductCreationCategorySectionProps> = ({
   value,
   onChange,

@@ -10,7 +10,7 @@ import type { QuoteRequestEntry } from "@/apps/web-user/features/quote/types/quo
 
 /**
  * 견적 요청 입구(기획 I-46 SC-12·13). 홈은 "이런 디자인" 카드 줄 끝 카드(HomeParts QuoteEndCard, 11-15).
- * 배너 모양 칸(검색·가게 상세 아래 칸)은 크림 바탕·초콜릿 버튼(운영자 결정 2026-11-09),
+ * 배너 모양 칸(가게 상세 아래 칸)은 크림 바탕·초콜릿 버튼(운영자 결정 2026-11-09),
  * 버튼만 있는 곳(지도)은 손님 앱의 다른 버튼과 같은 주황이다.
  */
 const CREAM = "#FFF6DF";
@@ -55,7 +55,7 @@ function TiltedPhotos({ size }: { size: number }) {
   );
 }
 
-/** 검색 결과·가게 상세 아래에 붙여 두는 칸(SC-13 1·3). 높이 약 76px, 양옆·아래 12px */
+/** 가게 상세 아래에 붙여 두는 칸(SC-13 2, 검색 결과 아래 칸은 11-15 밤에 뺌). 높이 약 76px, 양옆·아래 12px */
 export function QuoteStickyBar({
   eyebrow,
   title,

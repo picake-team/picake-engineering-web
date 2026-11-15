@@ -159,16 +159,16 @@ function TileIcon({ icon, className }: { icon: string; className?: string }) {
 
 export function CategoryTiles() {
   return (
-    <div>
+    <nav aria-label="카테고리">
       {/* 좁은 320 폭에서는 칸이 조금 작아진다(최대 52px) */}
-      <nav aria-label="카테고리" className="grid grid-cols-6 gap-x-[6px] gap-y-4">
+      <div className="grid grid-cols-6 gap-x-[6px] gap-y-4">
         {CATEGORY_TILES.map(({ key, label, icon, href }) => (
           <Link key={key} href={href} className="press flex flex-col items-center gap-[6px]">
             <TileIcon icon={icon} className="w-full max-w-[52px]" />
             <span className="whitespace-nowrap text-xs text-gray-700">{label}</span>
           </Link>
         ))}
-      </nav>
+      </div>
       <div className="mt-4 border-t border-gray-100 pt-4">
         <Link href={PICKUP_TILE.href} className="press flex items-center gap-[12px]">
           <TileIcon icon={PICKUP_TILE.icon} className="w-[52px] shrink-0" />
@@ -183,12 +183,12 @@ export function CategoryTiles() {
           </span>
         </Link>
       </div>
-    </div>
+    </nav>
   );
 }
 
 /**
- * 어떤 날 칸: 상황 카테고리 7개(무슨 날·누구에게), 칸마다 정해 둔 디자인 사진.
+ * 어떤 날 칸: 상황 카테고리 7개(무슨 날·누구에게, 시즌 칸은 철에만), 칸마다 정해 둔 디자인 사진.
  * 누르면 그 상황의 케이크 디자인. 시즌 칸은 그 시즌 디자인이 보일 때만(크리스마스 11월 1일 ~ 12월 25일)
  */
 const OCCASIONS: { value: C; label: string; designId: string; seasonal?: boolean }[] = [

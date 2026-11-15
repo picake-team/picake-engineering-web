@@ -12,6 +12,8 @@ export function useDragScroll<T extends HTMLElement = HTMLDivElement>() {
   const [isDragging, setIsDragging] = useState(false);
 
   const onMouseDown = (e: React.MouseEvent) => {
+    // 왼쪽 버튼만(오른쪽 클릭 메뉴가 mouseup을 가져가면 누르지 않았는데 줄이 따라온다)
+    if (e.button !== 0) return;
     drag.current.isDown = true;
     drag.current.hasDragged = false;
     drag.current.startX = e.pageX - (ref.current?.offsetLeft ?? 0);
@@ -21,6 +23,11 @@ export function useDragScroll<T extends HTMLElement = HTMLDivElement>() {
 
   const onMouseMove = (e: React.MouseEvent) => {
     if (!drag.current.isDown) return;
+    // 줄 밖에서 버튼을 놓고 돌아온 경우
+    if (!(e.buttons & 1)) {
+      onMouseUp();
+      return;
+    }
     e.preventDefault();
     const x = e.pageX - (ref.current?.offsetLeft ?? 0);
     const walk = x - drag.current.startX;
@@ -34,7 +41,8 @@ export function useDragScroll<T extends HTMLElement = HTMLDivElement>() {
   };
 
   const onClickCapture = (e: React.MouseEvent) => {
-    if (!drag.current.hasDragged) return;
+    // 키보드 Enter로 누른 클릭(detail 0)은 막지 않는다(줄 밖에서 놓아 hasDragged가 남아 있어도)
+    if (!drag.current.hasDragged || e.detail === 0) return;
     // 링크의 기본 이동까지 막아야 끌고 놓은 칸으로 넘어가지 않는다
     e.preventDefault();
     e.stopPropagation();
@@ -51,6 +59,8 @@ export function useDragScroll<T extends HTMLElement = HTMLDivElement>() {
       onMouseUp,
       onMouseLeave: onMouseUp,
       onClickCapture,
+      // 사진·링크를 브라우저가 따로 끌어 가지 않게(유령 그림 대신 줄이 넘어가게)
+      onDragStart: (e: React.DragEvent) => e.preventDefault(),
     },
   };
 }
