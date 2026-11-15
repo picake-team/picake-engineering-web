@@ -177,6 +177,8 @@ export interface OrderResponse {
   paymentPendingAt?: string;
   /** 입금 마감 시각(ISO). 입금대기에서만 의미 있음 */
   paymentPendingDeadlineAt?: string | null;
+  /** 처음 취소 상태가 된 시각(서버 2026-11-16부터, 그 전 취소는 null) */
+  canceledAt?: string | null;
   orderStatus: OrderStatus;
   /** 주문 시 선택 입력한 예약자명 */
   reservationContactName?: string | null;

@@ -15,6 +15,7 @@ import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { EmptyState } from "@/apps/web-user/common/components/fallbacks/EmptyState";
 import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
 import type { ProductEntryPoint } from "@/apps/web-user/common/types/analytics.type";
+import { useLocationWhenNeeded } from "@/apps/web-user/common/hooks/useLocationWhenNeeded";
 import { useUserLocation } from "@/apps/web-user/common/hooks/useUserLocation";
 import { useRegionFilter } from "@/apps/web-user/common/hooks/useRegionFilter";
 
@@ -33,8 +34,8 @@ interface SearchProductListSectionProps {
 }
 
 /**
- * 필터 정렬 → 서버 정렬. "거리순"은 내 위치를 알 때만 진짜 거리순이고(지도·앱에서 받은 위치),
- * 모르면 인기순으로 보낸다(위치를 묻는 창은 띄우지 않는다)
+ * 필터 정렬 → 서버 정렬. "거리순"은 내 위치를 알 때만 진짜 거리순이고, 모르면 이 화면에서 한 번 묻는다
+ * (useLocationWhenNeeded, 2026-11-16 — 첫 화면에서는 묻지 않음). 거부하거나 받기 전에는 인기순으로 보낸다
  */
 function toProductSortBy(sortBy: MapListSortBy, hasLocation: boolean): SortBy {
   if (sortBy === "review") return SortBy.RATING_AVG;
@@ -53,6 +54,7 @@ export function SearchProductListSection({
 }: SearchProductListSectionProps) {
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const { location } = useUserLocation();
+  useLocationWhenNeeded(sortBy === "distance");
   const apiSortBy = toProductSortBy(sortBy, location != null);
   // 맨 위 헤더에서 고른 동네의 가게 상품만(홈과 같은 거르기)
   const { regions, isRegionSettled } = useRegionFilter();

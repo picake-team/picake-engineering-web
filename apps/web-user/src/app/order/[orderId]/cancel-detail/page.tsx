@@ -91,8 +91,11 @@ function CancelDetailView({ order }: { order: OrderResponse }) {
         <h2 className="text-lg font-bold text-gray-900 mb-1 py-2.5">취소 정보</h2>
         <dl className="text-sm space-y-2">
           <div className="flex gap-10">
-            <dt className="w-[70px] text-gray-500 shrink-0">신청 일시</dt>
-            <dd className="text-gray-900">{formatCancelDateTime(order.updatedAt)}</dd>
+            <dt className="w-[70px] text-gray-500 shrink-0">취소 일시</dt>
+            {/* 취소한 시각. 2026-11-16 전 취소는 서버에 없어 예전처럼 마지막 수정 시각 */}
+            <dd className="text-gray-900">
+              {formatCancelDateTime(order.canceledAt ?? order.updatedAt)}
+            </dd>
           </div>
           <div className="flex gap-10">
             <dt className="w-[70px] text-gray-500 shrink-0">취소 사유</dt>
