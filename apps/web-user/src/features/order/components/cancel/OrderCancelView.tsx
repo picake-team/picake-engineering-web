@@ -1,5 +1,10 @@
 "use client";
 
+import {
+  CANCEL_REASON_LABELS,
+  cancelReasonForEvent,
+  type CancelReasonOption,
+} from "@/apps/web-user/features/order/utils/cancel-reason.util";
 import { formatOrderItemSummary } from "@/apps/web-user/features/product/utils/custom-option.util";
 import { useState } from "react";
 import Image from "next/image";
@@ -23,13 +28,8 @@ const POST_PAYMENT_CANCELLABLE_STATUSES: OrderStatus[] = [
   OrderStatus.CONFIRMED,
 ];
 
-type ReasonOption = "CHANGE_OF_MIND" | "ORDER_MISTAKE" | "OTHER";
-
-const REASON_LABELS: Record<ReasonOption, string> = {
-  CHANGE_OF_MIND: "단순 변심",
-  ORDER_MISTAKE: "주문 실수 (디자인 변경, 옵션 누락 등)",
-  OTHER: "기타",
-};
+type ReasonOption = CancelReasonOption;
+const REASON_LABELS = CANCEL_REASON_LABELS;
 
 const REASON_OPTIONS: RadioOption<ReasonOption>[] = (
   Object.keys(REASON_LABELS) as ReasonOption[]
@@ -112,7 +112,7 @@ export function OrderCancelView({ order }: OrderCancelViewProps) {
     // 결제 전: cancel-before-payment API 즉시 호출
     trackEvent("request_cancel_reservation", {
       reservation_id: order.id,
-      cancel_reason: reason,
+      cancel_reason: cancelReasonForEvent(reason),
       status: order.orderStatus,
       refund_status: "before_payment",
     });

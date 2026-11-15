@@ -1,5 +1,6 @@
 "use client";
 
+import { cancelReasonForEvent } from "@/apps/web-user/features/order/utils/cancel-reason.util";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { InfoNotice } from "@/apps/web-user/common/components/notice/InfoNotice";
@@ -211,7 +212,7 @@ export function RefundRequestView({ order }: RefundRequestViewProps) {
               onClick={() => {
                 trackEvent("request_cancel_reservation", {
                   reservation_id: order.id,
-                  cancel_reason: reason,
+                  cancel_reason: cancelReasonForEvent(reason),
                   status: order.orderStatus,
                   refund_status: "available",
                 });

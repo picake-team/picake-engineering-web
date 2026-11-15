@@ -1,5 +1,5 @@
 /**
- * 케이크 디자인 모음(기획 I-112) 처음 콘텐츠 36장. 사진은 public/images/designs/.
+ * 케이크 디자인 모음(기획 I-112) 콘텐츠 66장(11-14 처음 36장, 11-15 30장 더함). 사진은 public/images/designs/.
  * 상업 사용·수정이 되는 무료 사진(Unsplash·Pexels·Pixabay)이고, "사진에서 읽은 것"과 채울 값은
  * AI로 미리 읽어 운영자가 확인한다(2026-11-14). 순서가 추천순이다.
  */
@@ -1236,6 +1236,1040 @@ export const DESIGNS: Design[] = [
     },
     description:
       '사진처럼 흰 크림 도시락 케이크 둘레를 흰 크림으로 짜고, 윗면에 검은 선으로 틱택토 칸을 그려 "PA" "PA" "PÁ"를 넣고 빨간 하트를 그려 주세요.',
+    magazine: null,
+  },
+  {
+    id: "hwangap-two-tier-flower",
+    name: "축환갑 2단",
+    occasions: [
+      ProductCategoryType.THANKS,
+      ProductCategoryType.BIRTHDAY,
+      ProductCategoryType.LETTERING,
+      ProductCategoryType.FLOWER,
+      ProductCategoryType.TWO_TIER,
+    ],
+    tagOccasions: [
+      ProductCategoryType.THANKS,
+      ProductCategoryType.LETTERING,
+      ProductCategoryType.FLOWER,
+      ProductCategoryType.TWO_TIER,
+    ],
+    style: "플라워",
+    seasonal: null,
+    image: {
+      file: "hwangap-two-tier-flower.jpg",
+      thumb: "hwangap-two-tier-flower-s.jpg",
+      width: 810,
+      height: 1080,
+    },
+    credit: {
+      kind: "FREE_PHOTO",
+      author: "yun jeongho",
+      site: "Unsplash",
+      pageUrl: "https://unsplash.com/photos/pHm9Rce1Hdw",
+      checkedAt: "2026-11-14",
+    },
+    parts: {
+      shape: "2단 원형 케이크",
+      color: "흰색",
+      decoration:
+        '윗단 윗면 왼쪽에 연보라·주황·살구·빨강 크림 장미 8송이쯤과 작은 흰 꽃, 오른쪽에 흰 점 무늬 분홍 숫자 초 "60", 윗단 옆면 오른쪽과 아랫단 앞 양쪽 아래에 같은 장미 묶음, 윗단 아래 흰 구슬 짜기, 아랫단 아래 분홍 구슬 짜기',
+      lettering:
+        '"♥축환갑♥ 인생은 60부터~" · 윗단 옆면 코랄색 손글씨 두 줄 / "어머님 사랑하고 감사합니다" · 아랫단 옆면 같은 글씨 두 줄',
+    },
+    description:
+      '사진처럼 흰 크림 2단 원형 케이크 윗면 왼쪽과 옆면 곳곳에 연보라·주황·살구·빨강 크림 장미를 묶어 올리고, 윗단 아래는 흰 구슬, 아랫단 아래는 분홍 구슬로 짠 뒤, 윗단 옆면에 "♥축환갑♥ 인생은 60부터~", 아랫단에 "어머님 사랑하고 감사합니다"를 코랄색으로 써 주세요.',
+    magazine: null,
+  },
+  {
+    id: "two-tier-alstroemeria",
+    name: "흰 꽃띠 2단",
+    occasions: [
+      ProductCategoryType.WEDDING,
+      ProductCategoryType.TWO_TIER,
+      ProductCategoryType.FLOWER,
+    ],
+    tagOccasions: [ProductCategoryType.TWO_TIER, ProductCategoryType.FLOWER],
+    style: "2단",
+    seasonal: null,
+    image: {
+      file: "two-tier-alstroemeria.jpg",
+      thumb: "two-tier-alstroemeria-s.jpg",
+      width: 720,
+      height: 1080,
+    },
+    credit: {
+      kind: "FREE_PHOTO",
+      author: "Alexander Mass",
+      site: "Pexels",
+      pageUrl:
+        "https://www.pexels.com/photo/elegant-white-wedding-cake-with-floral-decor-31243101/",
+      checkedAt: "2026-11-15",
+    },
+    parts: {
+      shape: "2단 원형 케이크",
+      color: "흰색",
+      decoration:
+        "옆면 가는 가로 물결 결(두 단 모두), 위 단 아래 앞쪽 흰 알스트로메리아 여러 송이와 초록 잎(생화로 보여요)",
+      lettering: null,
+    },
+    description:
+      "사진처럼 흰 크림 2단 원형 케이크 두 단 옆면을 모두 가는 가로 물결 결로 바르고, 위 단과 아래 단이 만나는 앞쪽에 흰 알스트로메리아 꽃 여러 송이를 띠처럼 둘러 올린 뒤, 초록 잎을 양옆으로 길게 뻗게 꽂아 주세요.",
+    magazine: null,
+  },
+  {
+    id: "two-tier-pink-bow",
+    name: "큰 리본 2단",
+    occasions: [
+      ProductCategoryType.BABY,
+      ProductCategoryType.RIBBON,
+      ProductCategoryType.TWO_TIER,
+      ProductCategoryType.FLOWER,
+      ProductCategoryType.LETTERING,
+    ],
+    tagOccasions: [
+      ProductCategoryType.BABY,
+      ProductCategoryType.RIBBON,
+      ProductCategoryType.TWO_TIER,
+      ProductCategoryType.FLOWER,
+    ],
+    style: "리본",
+    seasonal: null,
+    image: {
+      file: "two-tier-pink-bow.jpg",
+      thumb: "two-tier-pink-bow-s.jpg",
+      width: 720,
+      height: 1080,
+    },
+    credit: {
+      kind: "FREE_PHOTO",
+      author: "Samuel Lopez Cruz",
+      site: "Unsplash",
+      pageUrl: "https://unsplash.com/photos/YOO0zvp-XaQ",
+      checkedAt: "2026-11-14",
+    },
+    parts: {
+      shape: "2단 원형 케이크",
+      color: "연분홍",
+      decoration:
+        "앞면에 두 단에 걸친 큰 분홍 리본(긴 꼬리가 아래까지), 윗면 오른쪽에 분홍 생화 장미 2송이와 안개꽃, 아래 판 위에 작은 리본을 붙인 분홍 글자 블록 6개, 옆면은 가는 가로 결",
+      lettering: '"EMILIA"(아기 이름) · 아래 분홍 블록 6개에 한 글자씩 볼록 대문자',
+    },
+    description:
+      "사진처럼 연분홍 크림 2단 원형 케이크 앞면에 두 단에 걸쳐 큰 분홍 리본을 달아 꼬리를 아래까지 늘어뜨리고, 윗면 오른쪽에 분홍 생화 장미 두 송이와 안개꽃을 꽂은 뒤, 아래 판 둘레에 작은 리본을 붙인 분홍 글자 블록을 놓아 주세요.",
+    magazine: null,
+  },
+  {
+    id: "teddy-bear-overalls",
+    name: "멜빵 곰 인형",
+    occasions: [
+      ProductCategoryType.BIRTHDAY,
+      ProductCategoryType.BABY,
+      ProductCategoryType.CHARACTER,
+    ],
+    tagOccasions: [ProductCategoryType.CHARACTER],
+    style: "캐릭터",
+    seasonal: null,
+    image: {
+      file: "teddy-bear-overalls.jpg",
+      thumb: "teddy-bear-overalls-s.jpg",
+      width: 810,
+      height: 1080,
+    },
+    credit: {
+      kind: "FREE_PHOTO",
+      author: "Rahib Yaqubov",
+      site: "Pexels",
+      pageUrl: "https://www.pexels.com/photo/chocolate-teddy-bear-decor-on-cake-17939214/",
+      checkedAt: "2026-11-15",
+    },
+    parts: {
+      shape: "흰 케이크(곰 장식만 크게 찍혀 전체 모양은 안 보여요)",
+      color: "흰색",
+      decoration:
+        "윗면 갈색 입체 곰 인형 1개(하늘색 멜빵바지·갈색 주머니, 오돌토돌한 털 질감), 옆에 반짝이는 흰색·하늘색 공과 금색 별, 둘레 금색 진주 알·금박, 뒤 흰 면에 꽃 무늬 눌러 찍기",
+      lettering: null,
+    },
+    description:
+      "사진처럼 흰 케이크 위에 하늘색 멜빵바지를 입은 갈색 입체 곰 인형을 앉히고, 곰 옆에 반짝이는 흰색·하늘색 공과 금색 별 장식을 둔 뒤, 둘레에 금색 진주 알과 금박을 흩뿌리고 뒤 흰 면에는 꽃 무늬를 눌러 찍어 주세요.",
+    magazine: null,
+  },
+  {
+    id: "forever-heart-sprinkle",
+    name: "포에버 레터링",
+    occasions: [ProductCategoryType.COUPLE, ProductCategoryType.LETTERING],
+    tagOccasions: [ProductCategoryType.COUPLE, ProductCategoryType.LETTERING],
+    style: "레터링",
+    seasonal: null,
+    image: {
+      file: "forever-heart-sprinkle.jpg",
+      thumb: "forever-heart-sprinkle-s.jpg",
+      width: 810,
+      height: 1080,
+    },
+    credit: {
+      kind: "FREE_PHOTO",
+      author: "Muneer ahmed ok",
+      site: "Unsplash",
+      pageUrl: "https://unsplash.com/photos/AKI3g3Xsm5A",
+      checkedAt: "2026-11-14",
+    },
+    parts: {
+      shape: "원형 도시락 케이크",
+      color: "흰색",
+      decoration:
+        "윗면 둘레 분홍·노랑 크림 번갈아 짜기, 윗면 빈 곳에 여러 색 작은 하트 스프링클 11개쯤과 크고 작은 흰 진주 구슬",
+      lettering: '"FOR EVER" · 분홍 크림 대문자 두 줄',
+    },
+    description:
+      '사진처럼 흰 크림 도시락 케이크 윗면 둘레를 분홍·노랑 크림으로 번갈아 짜고, 가운데에 분홍 크림 대문자로 "FOR EVER"를 두 줄로 쓴 뒤, 빈 곳에 여러 색 작은 하트 스프링클과 크고 작은 흰 진주 구슬을 흩어 올려 주세요.',
+    magazine: null,
+  },
+  {
+    id: "party-hat-doodle",
+    name: "고깔모자 그림",
+    occasions: [
+      ProductCategoryType.BIRTHDAY,
+      ProductCategoryType.DRAWING,
+      ProductCategoryType.LETTERING,
+    ],
+    tagOccasions: [
+      ProductCategoryType.BIRTHDAY,
+      ProductCategoryType.DRAWING,
+      ProductCategoryType.LETTERING,
+    ],
+    style: "드로잉",
+    seasonal: null,
+    image: {
+      file: "party-hat-doodle.jpg",
+      thumb: "party-hat-doodle-s.jpg",
+      width: 810,
+      height: 1080,
+    },
+    credit: {
+      kind: "FREE_PHOTO",
+      author: "Hamed darzi",
+      site: "Unsplash",
+      pageUrl: "https://unsplash.com/photos/wNPOwRDkpYo",
+      checkedAt: "2026-11-14",
+    },
+    parts: {
+      shape: "작은 높은 원형 케이크",
+      color: "흰색",
+      decoration:
+        "윗면 왼쪽에 검은 선으로 그린 고깔모자 쓰고 팔 벌려 웃는 사람(몸 안쪽은 매끈한 흰 판처럼 보여요), 윗면 가장자리 크림을 거칠게 세움",
+      lettering: '"update to 22" · 검은 통통한 입체 글자 세 줄',
+    },
+    description:
+      '사진처럼 흰 크림 작고 높은 원형 케이크 윗면 가장자리를 거칠게 올리고, 왼쪽에 고깔모자를 쓰고 팔을 벌려 웃는 사람을 검은 선으로 그린 뒤, 오른쪽에 검은 통통한 입체 글자로 "update to 22"를 세 줄로 올려 주세요.',
+    magazine: null,
+  },
+  {
+    id: "mom-garland-topper",
+    name: "엄마 가랜드",
+    occasions: [
+      ProductCategoryType.THANKS,
+      ProductCategoryType.BIRTHDAY,
+      ProductCategoryType.LETTERING,
+    ],
+    tagOccasions: [ProductCategoryType.THANKS, ProductCategoryType.LETTERING],
+    style: "레터링",
+    seasonal: null,
+    image: {
+      file: "mom-garland-topper.jpg",
+      thumb: "mom-garland-topper-s.jpg",
+      width: 720,
+      height: 1080,
+    },
+    credit: {
+      kind: "FREE_PHOTO",
+      author: "KATRIN BOLOVTSOVA",
+      site: "Pexels",
+      pageUrl: "https://www.pexels.com/photo/a-birthday-cake-for-mom-7358361/",
+      checkedAt: "2026-11-15",
+    },
+    parts: {
+      shape: "원형 케이크(옆면 시트가 보여요)",
+      color: "흰색",
+      decoration:
+        "윗면 가득 흰 크림 뿔 모양 짜기, 초콜릿 줄 뿌리기와 잘게 부순 갈색 토핑, 위 나무 막대 2개에 건 깃발 가랜드(양쪽 하트 깃발)",
+      lettering: '"MOM" · 가랜드 토퍼(분홍 깃발에 검은 글씨)',
+    },
+    description:
+      '사진처럼 옆면 시트가 보이게 흰 크림을 얇게 바른 원형 케이크 윗면을 흰 크림 뿔 모양으로 빽빽하게 짜고 초콜릿 줄과 잘게 부순 갈색 토핑을 뿌린 뒤, 나무 막대 두 개 사이에 분홍 깃발로 "MOM"이라고 쓴 가랜드 토퍼를 걸어 꽂아 주세요.',
+    magazine: null,
+  },
+  {
+    id: "two-tier-babys-breath",
+    name: "안개꽃 2단",
+    occasions: [
+      ProductCategoryType.WEDDING,
+      ProductCategoryType.TWO_TIER,
+      ProductCategoryType.FLOWER,
+    ],
+    tagOccasions: [ProductCategoryType.TWO_TIER, ProductCategoryType.FLOWER],
+    style: "2단",
+    seasonal: null,
+    image: {
+      file: "two-tier-babys-breath.jpg",
+      thumb: "two-tier-babys-breath-s.jpg",
+      width: 810,
+      height: 1080,
+    },
+    credit: {
+      kind: "FREE_PHOTO",
+      author: "Alexander Zvir",
+      site: "Pexels",
+      pageUrl: "https://www.pexels.com/photo/a-wedding-cake-on-a-marble-table-9499092/",
+      checkedAt: "2026-11-15",
+    },
+    parts: {
+      shape: "2단 원형 케이크",
+      color: "흰색",
+      decoration:
+        "옆면 거친 가로 물결 결, 윗면 흰 꽃·안개꽃·초록 잎, 위 단 왼쪽 아래 흰 장미 2송이·안개꽃·큰 잎, 아래 단 윗면 진주 알 무리 2곳, 아래 왼쪽 진주 알",
+      lettering: null,
+    },
+    description:
+      "사진처럼 흰 크림 2단 원형 케이크 옆면을 가로로 거칠게 물결지게 바르고, 윗면에 흰 꽃·안개꽃·초록 잎을 모아 올리고, 위 단 왼쪽 아래에 흰 장미 두 송이와 안개꽃을 꽂은 뒤, 아래 단 윗면 두 곳에 진주 알을 조금씩 모아 올려 주세요.",
+    magazine: null,
+  },
+  {
+    id: "three-tier-white-cherry",
+    name: "체리 3단",
+    occasions: [
+      ProductCategoryType.WEDDING,
+      ProductCategoryType.BIRTHDAY,
+      ProductCategoryType.TWO_TIER,
+      ProductCategoryType.FRUIT,
+    ],
+    tagOccasions: [ProductCategoryType.TWO_TIER, ProductCategoryType.FRUIT],
+    style: "체리",
+    seasonal: null,
+    image: {
+      file: "three-tier-white-cherry.jpg",
+      thumb: "three-tier-white-cherry-s.jpg",
+      width: 720,
+      height: 1080,
+    },
+    credit: {
+      kind: "FREE_PHOTO",
+      author: "Fotógrafo Samuel Cruz",
+      site: "Unsplash",
+      pageUrl: "https://unsplash.com/photos/7DupffJckx8",
+      checkedAt: "2026-11-14",
+    },
+    parts: {
+      shape: "3단 원형 케이크",
+      color: "흰색",
+      decoration:
+        "각 단 옆면에 물결 모양으로 늘어뜨린 조개 짜기와 그 아래 물방울 짜기, 각 단 아래 둘레 조개 짜기, 꼭지 달린 빨간 체리 17개쯤(윗면 7개, 단 가장자리와 맨 아래 둘레에 띄엄띄엄)",
+      lettering: null,
+    },
+    description:
+      "사진처럼 흰 크림 3단 원형 케이크 각 단 옆면에 조개 모양 짜기를 물결처럼 늘어뜨리고 그 아래 물방울 짜기를 넣은 뒤, 각 단 아래 둘레를 조개 모양으로 짜고, 윗면과 단 가장자리에 꼭지 달린 빨간 체리를 띄엄띄엄 올려 주세요.",
+    magazine: null,
+  },
+  {
+    id: "hot-pink-gold-bento",
+    name: "진분홍 도시락",
+    occasions: [ProductCategoryType.BIRTHDAY, ProductCategoryType.LETTERING],
+    tagOccasions: [ProductCategoryType.BIRTHDAY, ProductCategoryType.LETTERING],
+    style: "도시락",
+    seasonal: null,
+    image: {
+      file: "hot-pink-gold-bento.jpg",
+      thumb: "hot-pink-gold-bento-s.jpg",
+      width: 810,
+      height: 1080,
+    },
+    credit: {
+      kind: "FREE_PHOTO",
+      author: "Lia Den",
+      site: "Unsplash",
+      pageUrl: "https://unsplash.com/photos/pQXjKZjp2T0",
+      checkedAt: "2026-11-14",
+    },
+    parts: {
+      shape: "원형 도시락 케이크",
+      color: "진분홍",
+      decoration:
+        "윗면 가장자리 진분홍 크림 짜기 한 바퀴, 그 위에 금박 조각과 작은 금색 구슬, 글씨 옆 금색 작은 하트 1개",
+      lettering: '"hello 30" · 금색 필기체 두 줄',
+    },
+    description:
+      '사진처럼 진분홍 크림 도시락 케이크 윗면 가장자리를 같은 색 크림으로 한 바퀴 짜서 금박 조각과 작은 금색 구슬을 얹고, 가운데에 금색 필기체로 "hello 30"을 두 줄로 쓴 뒤 옆에 금색 작은 하트를 올려 주세요.',
+    magazine: null,
+  },
+  {
+    id: "two-tier-rose-fig",
+    name: "무화과 장미",
+    occasions: [
+      ProductCategoryType.WEDDING,
+      ProductCategoryType.TWO_TIER,
+      ProductCategoryType.FLOWER,
+      ProductCategoryType.FRUIT,
+    ],
+    tagOccasions: [ProductCategoryType.TWO_TIER, ProductCategoryType.FLOWER],
+    style: "플라워",
+    seasonal: null,
+    image: {
+      file: "two-tier-rose-fig.jpg",
+      thumb: "two-tier-rose-fig-s.jpg",
+      width: 810,
+      height: 1080,
+    },
+    credit: {
+      kind: "FREE_PHOTO",
+      author: "Avonne Stalling",
+      site: "Pexels",
+      pageUrl:
+        "https://www.pexels.com/photo/a-white-wedding-cake-decorated-with-flowers-and-leaves-6018398/",
+      checkedAt: "2026-11-15",
+    },
+    parts: {
+      shape: "2단 원형 케이크",
+      color: "흰색",
+      decoration:
+        "윗면 살구색·분홍 장미와 작은 빨간 봉오리, 무화과 1개·블랙베리·마른 꽃, 위 단 왼쪽 앞을 따라 흘러내리는 더스티 핑크 장미, 아래 단 윗면 장미·블랙베리·마른 꽃, 아래 앞쪽 장미·반 자른 무화과·블랙베리",
+      lettering: null,
+    },
+    description:
+      "사진처럼 흰 크림 2단 원형 케이크를 매끈하게 바르고, 위 단 윗면부터 왼쪽 앞을 따라 아래 단까지 살구색·더스티 핑크 장미를 흘러내리듯 붙인 뒤, 윗면과 꽃 사이사이, 아래 앞쪽에 무화과·블랙베리·마른 꽃을 곁들여 주세요.",
+    magazine: null,
+  },
+  {
+    id: "three-tier-sprinkle-pink",
+    name: "3단 스프링클",
+    occasions: [ProductCategoryType.BIRTHDAY, ProductCategoryType.TWO_TIER],
+    tagOccasions: [ProductCategoryType.TWO_TIER],
+    style: "파스텔",
+    seasonal: null,
+    image: {
+      file: "three-tier-sprinkle-pink.jpg",
+      thumb: "three-tier-sprinkle-pink-s.jpg",
+      width: 720,
+      height: 1080,
+    },
+    credit: {
+      kind: "FREE_PHOTO",
+      author: "Shaylyn",
+      site: "Unsplash",
+      pageUrl: "https://unsplash.com/photos/2O4va26lBEI",
+      checkedAt: "2026-11-14",
+    },
+    parts: {
+      shape: "3단 원형 케이크",
+      color: "흰색, 연분홍",
+      decoration:
+        "맨 아래·맨 위 흰 단 옆면 알록달록 스프링클, 단마다 위·아래 둘레 연분홍 크림 짜기, 윗면 알록달록 긴 초 10개",
+      lettering: null,
+    },
+    description:
+      "사진처럼 아래부터 넓은 흰색, 가운데 연분홍, 작은 흰색 크림 단을 쌓은 3단 원형 케이크로 만들어 흰 단 두 개의 옆면에 알록달록 스프링클을 붙이고, 단마다 위아래 둘레에 연분홍 크림을 별깍지로 동글동글 둘러 짜 주세요.",
+    magazine: null,
+  },
+  {
+    id: "mini-heart-pair",
+    name: "커플 하트",
+    occasions: [ProductCategoryType.COUPLE, ProductCategoryType.DRAWING],
+    tagOccasions: [ProductCategoryType.DRAWING],
+    style: "하트",
+    seasonal: null,
+    image: {
+      file: "mini-heart-pair.jpg",
+      thumb: "mini-heart-pair-s.jpg",
+      width: 720,
+      height: 1080,
+    },
+    credit: {
+      kind: "FREE_PHOTO",
+      author: "hello aesthe",
+      site: "Pexels",
+      pageUrl: "https://www.pexels.com/photo/sweet-cakes-and-envelopes-with-wishes-19986438/",
+      checkedAt: "2026-11-15",
+    },
+    parts: {
+      shape: "작은 원형 케이크 2개",
+      color: "흰색·코랄 분홍",
+      decoration:
+        "윗면 크림으로 채워 그린 큰 하트 1개씩(흰 케이크엔 코랄 분홍, 분홍 케이크엔 흰색), 아래 둘레 반대 색 크림 짜기",
+      lettering: null,
+    },
+    description:
+      "사진처럼 작은 원형 케이크 두 개를 하나는 흰 크림, 하나는 코랄 분홍 크림으로 조금 거칠게 바르고, 윗면 가운데에 서로 반대 색 크림으로 큰 하트를 채워 그린 뒤, 아래 둘레도 각각 반대 색 크림으로 작게 짜 둘러 주세요.",
+    magazine: null,
+  },
+  {
+    id: "mini-heart-coral-bow",
+    name: "미니 하트 리본",
+    occasions: [
+      ProductCategoryType.COUPLE,
+      ProductCategoryType.BIRTHDAY,
+      ProductCategoryType.HEART,
+      ProductCategoryType.RIBBON,
+    ],
+    tagOccasions: [ProductCategoryType.HEART, ProductCategoryType.RIBBON],
+    style: "하트",
+    seasonal: null,
+    image: {
+      file: "mini-heart-coral-bow.jpg",
+      thumb: "mini-heart-coral-bow-s.jpg",
+      width: 810,
+      height: 1080,
+    },
+    credit: {
+      kind: "FREE_PHOTO",
+      author: "Helder Teixeira",
+      site: "Pexels",
+      pageUrl:
+        "https://www.pexels.com/photo/heart-shaped-desserts-with-red-bow-decorations-34008841/",
+      checkedAt: "2026-11-14",
+    },
+    parts: {
+      shape: "작은 하트 케이크 여러 개",
+      color: "흰색",
+      decoration: "케이크마다 윗면 위쪽에 코랄색 리본 1개, 아래 금색 원형 받침",
+      lettering: null,
+    },
+    description:
+      "사진처럼 작은 하트 모양 케이크 여러 개를 윗면과 옆면 모두 흰색으로 모서리 없이 매끈하게 덮고, 케이크마다 윗면 위쪽 가운데(하트 홈 쪽)에 코랄색 리본을 하나씩 올린 뒤, 금색 원형 받침에 하나씩 따로 올려 주세요.",
+    magazine: null,
+  },
+  {
+    id: "pink-bow-pearl-drape",
+    name: "진주 리본",
+    occasions: [ProductCategoryType.BIRTHDAY, ProductCategoryType.RIBBON],
+    tagOccasions: [ProductCategoryType.RIBBON],
+    style: "리본",
+    seasonal: null,
+    image: {
+      file: "pink-bow-pearl-drape.jpg",
+      thumb: "pink-bow-pearl-drape-s.jpg",
+      width: 720,
+      height: 1080,
+    },
+    credit: {
+      kind: "FREE_PHOTO",
+      author: "Jaime Joel Vargas Huacre",
+      site: "Pexels",
+      pageUrl: "https://www.pexels.com/photo/pink-bow-cake-on-display-stand-38733137/",
+      checkedAt: "2026-11-14",
+    },
+    parts: {
+      shape: "원형 케이크",
+      color: "흰색",
+      decoration:
+        "윗면 큰 분홍 리본 1개와 앞 옆면으로 늘어진 리본 끈 2갈래, 리본·끈에 흰 진주 알 점점이, 아래 둘레 흰 진주 한 줄",
+      lettering: null,
+    },
+    description:
+      "사진처럼 흰색으로 매끈하게 덮은 원형 케이크 윗면에 큰 분홍 리본을 세워 올리고 리본 끈 두 갈래를 앞 옆면으로 아래까지 길게 늘어뜨린 뒤, 리본과 끈에 작은 흰 진주 알을 점점이 붙이고 아래 둘레에 큰 흰 진주를 한 줄 둘러 주세요.",
+    magazine: null,
+  },
+  {
+    id: "fruit-gingham-ribbon",
+    name: "체크 리본 과일",
+    occasions: [
+      ProductCategoryType.BIRTHDAY,
+      ProductCategoryType.FRUIT,
+      ProductCategoryType.RIBBON,
+    ],
+    tagOccasions: [ProductCategoryType.FRUIT, ProductCategoryType.RIBBON],
+    style: "과일",
+    seasonal: null,
+    image: {
+      file: "fruit-gingham-ribbon.jpg",
+      thumb: "fruit-gingham-ribbon-s.jpg",
+      width: 810,
+      height: 1080,
+    },
+    credit: {
+      kind: "FREE_PHOTO",
+      author: "Eugene Kuznetsov",
+      site: "Unsplash",
+      pageUrl: "https://unsplash.com/photos/E7eFTtfQR88",
+      checkedAt: "2026-11-14",
+    },
+    parts: {
+      shape: "원형 케이크",
+      color: "갈색(윗면 가루), 옆면은 흰 종이로 감쌈",
+      decoration:
+        "윗면 갈색 가루 위에 잎 달린 딸기 11개쯤, 4등분 무화과 6조각, 석류 알을 수북이, 옆면은 흰 종이 띠로 감싸고 갈색 체크 리본을 앞에서 나비 모양으로 묶음",
+      lettering: null,
+    },
+    description:
+      "사진처럼 원형 케이크 윗면을 갈색 가루로 고르게 덮고 잎 달린 딸기, 4등분한 무화과, 석류 알을 가운데가 봉긋하게 수북이 올린 뒤, 옆면은 흰 종이로 높게 감싸고 갈색 체크 리본을 한 바퀴 둘러 앞에서 나비 모양으로 묶어 주세요.",
+    magazine: null,
+  },
+  {
+    id: "birthday-topper-flower",
+    name: "버스데이 플라워",
+    occasions: [
+      ProductCategoryType.BIRTHDAY,
+      ProductCategoryType.LETTERING,
+      ProductCategoryType.FLOWER,
+    ],
+    tagOccasions: [
+      ProductCategoryType.BIRTHDAY,
+      ProductCategoryType.LETTERING,
+      ProductCategoryType.FLOWER,
+    ],
+    style: "플라워",
+    seasonal: null,
+    image: {
+      file: "birthday-topper-flower.jpg",
+      thumb: "birthday-topper-flower-s.jpg",
+      width: 810,
+      height: 1080,
+    },
+    credit: {
+      kind: "FREE_PHOTO",
+      author: "Fortune Isaac",
+      site: "Pexels",
+      pageUrl: "https://www.pexels.com/photo/close-up-of-a-birthday-cake-with-flowers-14454566/",
+      checkedAt: "2026-11-15",
+    },
+    parts: {
+      shape: "높은 원형 케이크",
+      color: "연분홍",
+      decoration:
+        "윗면 왼쪽 꽃 무리(진분홍 꽃, 분홍 뾰족 꽃잎 꽃, 살구·청록·자주 동그란 꽃, 분홍 안개꽃), 아래 둘레 분홍 안개꽃과 살구·자주 꽃, 옆면·윗면 금색·흰색 진주 알과 흰색·분홍 작은 하트, 윗면 빗살 결",
+      lettering: '"Happy birthday" · 분홍 원형 토퍼에 검은 필기체',
+    },
+    description:
+      '사진처럼 연분홍 크림 높은 원형 케이크 옆면과 윗면에 금색·흰색 진주 알과 작은 하트를 흩뿌리고, 윗면 왼쪽과 아래 둘레에 분홍 안개꽃과 동그란 꽃들을 올린 뒤, 검은 필기체로 "Happy birthday"라고 쓴 분홍 원형 토퍼를 꽂아 주세요.',
+    magazine: null,
+  },
+  {
+    id: "fresh-flower-gold-topper",
+    name: "생화 생일 토퍼",
+    occasions: [
+      ProductCategoryType.BIRTHDAY,
+      ProductCategoryType.LETTERING,
+      ProductCategoryType.FLOWER,
+    ],
+    tagOccasions: [
+      ProductCategoryType.BIRTHDAY,
+      ProductCategoryType.LETTERING,
+      ProductCategoryType.FLOWER,
+    ],
+    style: "플라워",
+    seasonal: null,
+    image: {
+      file: "fresh-flower-gold-topper.jpg",
+      thumb: "fresh-flower-gold-topper-s.jpg",
+      width: 810,
+      height: 1080,
+    },
+    credit: {
+      kind: "FREE_PHOTO",
+      author: "Nataliya Melnychuk",
+      site: "Unsplash",
+      pageUrl: "https://unsplash.com/photos/KU4aJwiI_Ek",
+      checkedAt: "2026-11-14",
+    },
+    parts: {
+      shape: "원형 케이크(윗면 일부만 보여요)",
+      color: "흰색(갈색 작은 점이 섞임)",
+      decoration:
+        "윗면 위쪽에 분홍 겹꽃 생화 여러 송이와 안개꽃, 초록 잎 2장, 왼쪽 끝에 연두 꽃봉오리. 윗면은 스패출러 자국이 보이게 거칠게 바름",
+      lettering: '"HAPPY BIRTHDAY" · 금색 글자 토퍼(흰 테두리 판, 윗면에 눕혀 올림) 두 줄',
+    },
+    description:
+      '사진처럼 흰 크림 케이크 윗면을 스패출러 자국이 보이게 거칠게 바르고, 위쪽에 분홍 겹꽃 생화와 안개꽃, 초록 잎 두 장을 모아 올린 뒤, 가운데에 흰 테두리가 있는 금색 "HAPPY BIRTHDAY" 글자 토퍼를 두 줄로 눕혀 올려 주세요.',
+    magazine: null,
+  },
+  {
+    id: "white-orchid-eucalyptus",
+    name: "흰 호접란",
+    occasions: [
+      ProductCategoryType.BIRTHDAY,
+      ProductCategoryType.WEDDING,
+      ProductCategoryType.FLOWER,
+    ],
+    tagOccasions: [ProductCategoryType.FLOWER],
+    style: "플라워",
+    seasonal: null,
+    image: {
+      file: "white-orchid-eucalyptus.jpg",
+      thumb: "white-orchid-eucalyptus-s.jpg",
+      width: 720,
+      height: 1080,
+    },
+    credit: {
+      kind: "FREE_PHOTO",
+      author: "Jonathan Borba",
+      site: "Pexels",
+      pageUrl:
+        "https://www.pexels.com/photo/elegant-floral-decorated-wedding-cake-display-29051736/",
+      checkedAt: "2026-11-15",
+    },
+    parts: {
+      shape: "원형 케이크",
+      color: "아이보리",
+      decoration:
+        "윗면 왼쪽 흰 호접란 여러 송이(줄기째)와 유칼립투스 잎, 마른 작은 꽃가지, 옆면 고사리 잎 모양 무늬",
+      lettering: null,
+    },
+    description:
+      "사진처럼 아이보리 크림 원형 케이크 옆면에 고사리 잎 모양 무늬를 빙 둘러 찍고 윗면은 매끈하게 바른 뒤, 윗면 왼쪽에 흰 호접란 여러 송이를 줄기째 모아 올리고 유칼립투스 잎과 마른 작은 꽃가지를 사이사이 곁들여 주세요.",
+    magazine: null,
+  },
+  {
+    id: "naked-white-peony",
+    name: "흰 작약",
+    occasions: [
+      ProductCategoryType.BIRTHDAY,
+      ProductCategoryType.WEDDING,
+      ProductCategoryType.FLOWER,
+    ],
+    tagOccasions: [ProductCategoryType.FLOWER],
+    style: "플라워",
+    seasonal: null,
+    image: {
+      file: "naked-white-peony.jpg",
+      thumb: "naked-white-peony-s.jpg",
+      width: 810,
+      height: 1080,
+    },
+    credit: {
+      kind: "FREE_PHOTO",
+      author: "Georgia de Lotz",
+      site: "Unsplash",
+      pageUrl: "https://unsplash.com/photos/fmNDAsFs-vY",
+      checkedAt: "2026-11-14",
+    },
+    parts: {
+      shape: "원형 케이크(시트가 비치는 세미 네이키드)",
+      color: "흰색",
+      decoration: "윗면 한쪽에 크게 핀 흰 작약 2송이와 봉오리 1개, 초록 잎 몇 장",
+      lettering: null,
+    },
+    description:
+      "사진처럼 원형 케이크 옆면과 윗면에 흰 크림을 시트가 군데군데 비치게 얇게 바르고, 윗면 한쪽에 크게 핀 흰 작약 두 송이와 봉오리 하나를 초록 잎 몇 장과 함께 소담하게 모아 올려 다른 장식 없이 깔끔하게 만들어 주세요.",
+    magazine: null,
+  },
+  {
+    id: "three-tier-white-stripes",
+    name: "흰 줄무늬 3단",
+    occasions: [
+      ProductCategoryType.WEDDING,
+      ProductCategoryType.TWO_TIER,
+      ProductCategoryType.SIMPLE,
+    ],
+    tagOccasions: [ProductCategoryType.TWO_TIER, ProductCategoryType.SIMPLE],
+    style: "심플",
+    seasonal: null,
+    image: {
+      file: "three-tier-white-stripes.jpg",
+      thumb: "three-tier-white-stripes-s.jpg",
+      width: 720,
+      height: 1080,
+    },
+    credit: {
+      kind: "FREE_PHOTO",
+      author: "Caleb Oquendo",
+      site: "Pexels",
+      pageUrl:
+        "https://www.pexels.com/photo/elegant-three-tier-white-wedding-cake-on-gold-stand-34596959/",
+      checkedAt: "2026-11-15",
+    },
+    parts: {
+      shape: "3단 원형 케이크",
+      color: "흰색",
+      decoration: "옆면 가로 줄무늬 결(세 단 모두)",
+      lettering: null,
+    },
+    description:
+      "사진처럼 흰 크림 3단 원형 케이크를 금색 케이크 판 위에 위로 갈수록 작아지게 쌓고, 세 단 옆면을 모두 가로 줄무늬 결로 고르게 긁어 바른 뒤, 윗면은 매끈하게 두고 꽃이나 글자 같은 다른 장식 없이 깔끔하게 만들어 주세요.",
+    magazine: null,
+  },
+  {
+    id: "fresh-flower-wreath",
+    name: "생화 화관",
+    occasions: [ProductCategoryType.BIRTHDAY, ProductCategoryType.FLOWER],
+    tagOccasions: [ProductCategoryType.FLOWER],
+    style: "플라워",
+    seasonal: null,
+    image: {
+      file: "fresh-flower-wreath.jpg",
+      thumb: "fresh-flower-wreath-s.jpg",
+      width: 810,
+      height: 1080,
+    },
+    credit: {
+      kind: "FREE_PHOTO",
+      author: "Dana Nestorova",
+      site: "Unsplash",
+      pageUrl: "https://unsplash.com/photos/cRSKBVIu-oI",
+      checkedAt: "2026-11-14",
+    },
+    parts: {
+      shape: "원형 케이크",
+      color: "흰색",
+      decoration:
+        "윗면 둘레를 따라 흰 데이지 2, 분홍 줄무늬 국화 3, 진보라 꽃 2, 노랑 꽃 2, 연보라 꽃 2, 주황 꽃 1송이와 꽃봉오리 줄기 1개, 반짝이는 진분홍 꽃잎 1장을 화관처럼 둥글게(가운데는 비움)",
+      lettering: null,
+    },
+    description:
+      "사진처럼 흰 크림 원형 케이크 윗면 둘레를 따라 흰 데이지, 분홍 줄무늬 국화, 진보라·노랑·연보라·주황 생화와 꽃봉오리 줄기, 반짝이는 진분홍 꽃잎 한 장을 화관처럼 둥글게 올리고, 가운데는 비워 깔끔하게 만들어 주세요.",
+    magazine: null,
+  },
+  {
+    id: "whole-strawberry-rustic",
+    name: "통딸기 가득",
+    occasions: [ProductCategoryType.BIRTHDAY, ProductCategoryType.FRUIT],
+    tagOccasions: [ProductCategoryType.FRUIT],
+    style: "딸기",
+    seasonal: null,
+    image: {
+      file: "whole-strawberry-rustic.jpg",
+      thumb: "whole-strawberry-rustic-s.jpg",
+      width: 810,
+      height: 1080,
+    },
+    credit: {
+      kind: "FREE_PHOTO",
+      author: "Gu Ko",
+      site: "Pexels",
+      pageUrl: "https://www.pexels.com/photo/36414765/",
+      checkedAt: "2026-11-14",
+    },
+    parts: {
+      shape: "원형 케이크",
+      color: "흰색",
+      decoration: "윗면 가득 통딸기 10개(뾰족한 쪽이 위로 세움), 겉면 크림을 거칠게 바른 결",
+      lettering: null,
+    },
+    description:
+      "사진처럼 흰 크림 원형 케이크 옆면과 윗면을 스패출러 결이 그대로 남게 투박하고 두툼하게 바르고, 윗면 가득 통딸기 10개쯤을 뾰족한 쪽이 위로 가게 빈틈없이 촘촘히 세워 올려서 다른 장식 없이 딸기만 돋보이게 만들어 주세요.",
+    magazine: null,
+  },
+  {
+    id: "ivory-ruffle-cherry",
+    name: "프릴 체리",
+    occasions: [ProductCategoryType.BIRTHDAY, ProductCategoryType.FRUIT],
+    tagOccasions: [ProductCategoryType.FRUIT],
+    style: "체리",
+    seasonal: null,
+    image: {
+      file: "ivory-ruffle-cherry.jpg",
+      thumb: "ivory-ruffle-cherry-s.jpg",
+      width: 810,
+      height: 1080,
+    },
+    credit: {
+      kind: "FREE_PHOTO",
+      author: "Paulina Kaminska",
+      site: "Unsplash",
+      pageUrl: "https://unsplash.com/photos/M9xYLiRnH_k",
+      checkedAt: "2026-11-14",
+    },
+    parts: {
+      shape: "높은 원형 케이크",
+      color: "아이보리",
+      decoration:
+        "윗면 둘레 프릴 짜기와 긴 꼭지 달린 빨간 체리 6개쯤, 옆면 위쪽에 꼰 줄 모양으로 늘어뜨린 짜기와 사이사이 세로 프릴, 아래 둘레 큰 조개 짜기",
+      lettering: null,
+    },
+    description:
+      "사진처럼 아이보리 크림 높은 원형 케이크 윗면 둘레를 프릴로 짜고 긴 꼭지 달린 빨간 체리를 올린 뒤, 옆면 위쪽에 꼰 줄 모양 짜기를 물결처럼 늘어뜨리고 사이사이 세로 프릴을 달고, 아래 둘레는 큰 조개 모양으로 짜 주세요.",
+    magazine: null,
+  },
+  {
+    id: "glitter-cherry-tall",
+    name: "반짝이 체리",
+    occasions: [ProductCategoryType.BIRTHDAY, ProductCategoryType.FRUIT],
+    tagOccasions: [ProductCategoryType.FRUIT],
+    style: "체리",
+    seasonal: null,
+    image: {
+      file: "glitter-cherry-tall.jpg",
+      thumb: "glitter-cherry-tall-s.jpg",
+      width: 720,
+      height: 1080,
+    },
+    credit: {
+      kind: "FREE_PHOTO",
+      author: "Deva Williamson",
+      site: "Unsplash",
+      pageUrl: "https://unsplash.com/photos/HHebuDYjP4I",
+      checkedAt: "2026-11-14",
+    },
+    parts: {
+      shape: "높은 원형 케이크",
+      color: "분홍",
+      decoration:
+        "윗면 가장자리 자줏빛 분홍 크림 짜기마다 꼭지 달린 빨간 체리 1개씩(보이는 것 6개쯤), 옆면 반짝이 가루 입힌 꼭지 체리 6개와 파스텔 스프링클·긴 분홍 막대 스프링클, 겉면 전체 반짝이 가루",
+      lettering: null,
+    },
+    description:
+      "사진처럼 분홍 크림 높은 원형 케이크 겉면에 반짝이 가루를 입히고 옆면 여기저기에 꼭지 달린 반짝이 체리와 파스텔·분홍 막대 스프링클을 붙인 뒤, 윗면 가장자리에 자줏빛 분홍 크림을 둥글게 짜서 꼭지 달린 체리를 하나씩 올려 주세요.",
+    magazine: null,
+  },
+  {
+    id: "naked-cherry-pile",
+    name: "체리 네이키드",
+    occasions: [ProductCategoryType.BIRTHDAY, ProductCategoryType.FRUIT],
+    tagOccasions: [ProductCategoryType.FRUIT],
+    style: "체리",
+    seasonal: null,
+    image: {
+      file: "naked-cherry-pile.jpg",
+      thumb: "naked-cherry-pile-s.jpg",
+      width: 720,
+      height: 1080,
+    },
+    credit: {
+      kind: "FREE_PHOTO",
+      author: "Natalya Choohrova",
+      site: "Pexels",
+      pageUrl: "https://www.pexels.com/photo/a-cake-with-cherries-on-top-9834064/",
+      checkedAt: "2026-11-14",
+    },
+    parts: {
+      shape: "원형 케이크(시트 2장이 다 보이는 네이키드)",
+      color: "갈색 시트, 아이보리 크림",
+      decoration:
+        "윗면 수북한 아이보리 크림 위 꼭지 달린 검붉은 체리 13개쯤, 시트 사이 아이보리 크림",
+      lettering: null,
+    },
+    description:
+      "사진처럼 갈색 시트 두 장 사이에 아이보리 크림을 두툼하게 넣고 옆면은 크림을 바르지 않아 시트가 그대로 보이게 둔 뒤, 윗면에 아이보리 크림을 수북이 얹고 꼭지 달린 검붉은 체리 13개쯤을 꼭지가 위로 가게 소복이 올려 주세요.",
+    magazine: null,
+  },
+  {
+    id: "white-kiss-pink-candles",
+    name: "흰 크림 방울",
+    occasions: [ProductCategoryType.BIRTHDAY, ProductCategoryType.SIMPLE],
+    tagOccasions: [ProductCategoryType.SIMPLE],
+    style: "심플",
+    seasonal: null,
+    image: {
+      file: "white-kiss-pink-candles.jpg",
+      thumb: "white-kiss-pink-candles-s.jpg",
+      width: 720,
+      height: 1080,
+    },
+    credit: {
+      kind: "FREE_PHOTO",
+      author: "Polina Tankilevitch",
+      site: "Pexels",
+      pageUrl: "https://www.pexels.com/photo/4110012/",
+      checkedAt: "2026-11-14",
+    },
+    parts: {
+      shape: "원형 케이크",
+      color: "흰색",
+      decoration: "윗면 가득 흰 크림 별 모양 짜기 20개쯤, 긴 연분홍 초 8개",
+      lettering: null,
+    },
+    description:
+      "사진처럼 흰 크림 원형 케이크 옆면을 스패출러로 우툴두툴한 결이 남게 바르고, 윗면에는 빈 곳 없이 흰 크림을 별깍지로 끝이 뾰족하게 돌려 짠 방울 20개쯤을 줄 맞춰 촘촘히 올려서 다른 색 없이 온통 하얗게 만들어 주세요.",
+    magazine: null,
+  },
+  {
+    id: "cranberry-thyme-ring",
+    name: "크랜베리 리스",
+    occasions: [ProductCategoryType.BIRTHDAY, ProductCategoryType.FRUIT],
+    tagOccasions: [ProductCategoryType.FRUIT],
+    style: "과일",
+    seasonal: null,
+    image: {
+      file: "cranberry-thyme-ring.jpg",
+      thumb: "cranberry-thyme-ring-s.jpg",
+      width: 720,
+      height: 1080,
+    },
+    credit: {
+      kind: "FREE_PHOTO",
+      author: "Diliara Garifullina",
+      site: "Unsplash",
+      pageUrl: "https://unsplash.com/photos/gK297xpY6os",
+      checkedAt: "2026-11-14",
+    },
+    parts: {
+      shape: "원형 케이크",
+      color: "흰색, 옆면 빨강·분홍 무늬",
+      decoration:
+        "윗면 가장자리 슈가파우더 뿌린 빨간 열매(크랜베리로 보여요) 한 줄과 안쪽 허브 줄기(타임으로 보여요) 고리, 윗면·아래 접시에 흰 가루(코코넛으로 보여요), 빨강·흰 줄무늬 초 1개",
+      lettering: null,
+    },
+    description:
+      "사진처럼 흰 크림 원형 케이크 옆면에 빨강·분홍 크림을 붓질하듯 문질러 물감 같은 무늬를 내고, 윗면 가장자리에 슈가파우더 뿌린 크랜베리를 한 줄로 빙 두른 뒤, 그 안쪽에 타임 줄기를 동그랗게 놓고 윗면에 흰 가루를 뿌려 주세요.",
+    magazine: null,
+  },
+  {
+    id: "christmas-santa-strawberry",
+    name: "산타 딸기",
+    occasions: [
+      ProductCategoryType.SEASON,
+      ProductCategoryType.FRUIT,
+      ProductCategoryType.CHARACTER,
+      ProductCategoryType.LETTERING,
+    ],
+    tagOccasions: [
+      ProductCategoryType.SEASON,
+      ProductCategoryType.FRUIT,
+      ProductCategoryType.CHARACTER,
+    ],
+    style: "크리스마스",
+    seasonal: "CHRISTMAS",
+    image: {
+      file: "christmas-santa-strawberry.jpg",
+      thumb: "christmas-santa-strawberry-s.jpg",
+      width: 810,
+      height: 1080,
+    },
+    credit: {
+      kind: "FREE_PHOTO",
+      author: "Kouji Tsuru",
+      site: "Unsplash",
+      pageUrl: "https://unsplash.com/photos/JYGcHRbksOg",
+      checkedAt: "2026-11-14",
+    },
+    parts: {
+      shape: "원형 케이크",
+      color: "흰색",
+      decoration:
+        "윗면 슈가파우더 뿌린 통딸기 5개, 가운데 산타 인형 1개, 별무늬 초콜릿 판 3장, 뒤쪽 리스 그림 카드 토퍼 1개, 가장자리 흰 크림 방울과 초록 견과 조각(피스타치오로 보여요)",
+      lettering:
+        '"Merry Christmas" · 흰 초콜릿 판에 갈색 필기체 / 토퍼 "Happy Christmas" "Here comes santa claus" · 빨간 손글씨',
+    },
+    description:
+      '사진처럼 흰 크림 원형 케이크 가장자리에 크림 방울과 피스타치오 조각을 두르고, 슈가파우더 뿌린 통딸기 5개와 산타 인형, 별무늬 초콜릿 판 3장, 리스 그림 토퍼를 올린 뒤 앞쪽에 "Merry Christmas" 초콜릿 판을 놓아 주세요.',
+    magazine: null,
+  },
+  {
+    id: "christmas-forest-bears",
+    name: "겨울 숲 곰",
+    occasions: [ProductCategoryType.SEASON, ProductCategoryType.CHARACTER],
+    tagOccasions: [ProductCategoryType.SEASON, ProductCategoryType.CHARACTER],
+    style: "크리스마스",
+    seasonal: "CHRISTMAS",
+    image: {
+      file: "christmas-forest-bears.jpg",
+      thumb: "christmas-forest-bears-s.jpg",
+      width: 719,
+      height: 1080,
+    },
+    credit: {
+      kind: "FREE_PHOTO",
+      author: "blandinejoannic",
+      site: "Pixabay",
+      pageUrl: "https://pixabay.com/photos/cake-decorations-cake-decoration-5809638/",
+      checkedAt: "2026-11-14",
+    },
+    parts: {
+      shape: "높은 원형 케이크",
+      color: "아이보리",
+      decoration:
+        "윗면 로즈마리 나무 4개와 갈색 곰 모형 2마리(큰 곰·새끼 곰), 주황·흰 머랭 쿠키·작은 솔방울·금색 알갱이, 옆면 아래 주황·흰 머랭 쿠키 6개, 아래 왼쪽 솔방울과 로즈마리 가지, 전체에 흰 가루",
+      lettering: null,
+    },
+    description:
+      "사진처럼 아이보리 크림 높은 원형 케이크 윗면에 로즈마리를 나무처럼 네 그루 세우고 갈색 곰 모형 두 마리와 주황·흰 머랭 쿠키, 작은 솔방울을 올린 뒤, 옆면 아래에도 머랭을 붙이고 흰 가루를 눈처럼 뿌려 주세요.",
     magazine: null,
   },
 ];

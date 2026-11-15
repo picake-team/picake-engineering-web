@@ -77,7 +77,7 @@ export function SearchStoreListSection({
     regions,
     enabled: isRegionSettled,
   });
-  const totalCount = data?.pages[0]?.meta.totalCount;
+  const totalCount = data?.pages[0]?.meta.totalItems;
 
   // 개수가 같아도 새 결과를 받을 때마다 알린다(필터를 적용해 개수가 그대로면 "필터 적용" 이벤트가 빠지던 것)
   useEffect(() => {
@@ -115,7 +115,7 @@ export function SearchStoreListSection({
   return (
     <>
       <p className="text-sm text-gray-500 py-3 font-bold">
-        총 <span className="text-gray-900">{stores.length}</span>개
+        총 <span className="text-gray-900">{totalCount ?? stores.length}</span>개
       </p>
       <ul className="flex flex-col gap-10">
         {stores.map((store) => (

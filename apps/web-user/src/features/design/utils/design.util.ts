@@ -66,9 +66,8 @@ export function searchDesigns(
     const keywordCategory = productCategoryFromKeyword(trimmed);
     items = items.filter((d) => {
       if (keywordCategory && d.occasions.includes(keywordCategory)) return true;
-      const text = [d.name, d.style, d.description, ...Object.values(d.parts)]
-        .join(" ")
-        .toLowerCase();
+      // 설명 문장은 모두 "사진처럼 …"으로 시작해 "사진"(사진 케이크)으로 찾으면 전부 맞던 것을 뺀다(11-15 검토)
+      const text = [d.name, d.style, ...Object.values(d.parts)].join(" ").toLowerCase();
       return words.every((w) => text.includes(w));
     });
   }

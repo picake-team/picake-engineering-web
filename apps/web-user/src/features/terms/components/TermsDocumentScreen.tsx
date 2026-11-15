@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
+import DOMPurify from "isomorphic-dompurify";
 import { TERMS_PREVIEW_CONTENT_CLASS } from "@/apps/web-user/features/terms/constants/terms.constant";
 import { useActiveTerms } from "@/apps/web-user/features/terms/hooks/queries/useTermsQuery";
 import type { TermsType } from "@/apps/web-user/features/terms/types/terms.dto";
@@ -13,7 +14,8 @@ interface TermsDocumentScreenProps {
 export function TermsDocumentScreen({ termsType }: TermsDocumentScreenProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const { data, isPending } = useActiveTerms(termsType);
-  const htmlContent = data?.content ?? "";
+  // 관리자·자동화가 올린 HTML이라도 스크립트·이벤트 속성은 걸러서 넣는다(상품 설명과 같게, 11-15 검토)
+  const htmlContent = useMemo(() => DOMPurify.sanitize(data?.content ?? ""), [data?.content]);
 
   useEffect(() => {
     if (!htmlContent) return;

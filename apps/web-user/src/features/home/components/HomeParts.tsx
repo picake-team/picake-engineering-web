@@ -278,7 +278,7 @@ export function QuoteEndCard() {
         <span className="mt-[6px] block text-sm text-gray-500">
           사진만 올리면 근처 가게 견적이 와요
         </span>
-        <span className="mt-auto block text-[15px] font-bold text-primary">견적 받기 ›</span>
+        <span className="mt-auto block text-base font-bold text-primary">견적 받기 ›</span>
       </span>
     </Link>
   );
