@@ -8,8 +8,6 @@
  * 예외:
  * - fail_reservation_timeout(입금 시간 초과 자동취소)은 백엔드 스케줄러가 발생시키는
  *   서버 사이드 이벤트라 프런트엔드에서 신뢰성 있게 계측할 수 없어 이 맵에서 제외했습니다.
- * - view_category_detail(카테고리 상세 화면)은 카테고리 UI 자체가 아직 클릭 불가능한 mock이고
- *   실제 카테고리 상세 라우트가 없어 이 맵에서 제외했습니다.
  */
 
 /** 상품 상세로 진입한 화면 */
@@ -230,6 +228,11 @@ export interface AnalyticsEventMap {
   // ── 홈/검색 ──
   /** 홈 화면 노출 */
   view_home: never;
+  /**
+   * 카테고리 상세 화면 노출: 카테고리를 들고 검색 화면에 들어올 때(홈 카테고리, 디자인 해시태그 등).
+   * category_name은 화면 이름(생일·연인·친구·가족·기념일·당일픽업·캐릭터·심플·꽃·사진·레터링)
+   */
+  view_category_detail: { category_name: string };
   /** 검색창 클릭 */
   engage_search_bar: never;
   /** 검색 화면(입력 전) 노출 */

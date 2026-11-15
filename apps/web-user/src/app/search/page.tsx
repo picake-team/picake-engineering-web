@@ -23,6 +23,7 @@ import {
   SEARCH_CATEGORY_PARAM,
   readDesignCategory,
   readSearchCategory,
+  searchCategoryLabel,
 } from "@/apps/web-user/features/search/utils/search-category.util";
 
 const RECENT_SEARCHES_KEY = "recentSearches";
@@ -121,6 +122,14 @@ export default function SearchPage() {
     if (categoryParam || searchParams.get("tab")) return;
     trackEvent("view_search");
   }, []);
+
+  // 카테고리 상세 화면 노출(기획 이벤트 표 "홈/검색" view_category_detail): 홈 카테고리·디자인 해시태그처럼
+  // 카테고리를 들고 들어올 때. 이 화면에 있는 채로 주소의 카테고리만 바뀌어도(뒤로 가기) 다시 센다
+  const enteredCategory = categoryParam ?? designCategoryParam;
+  useEffect(() => {
+    if (!enteredCategory) return;
+    trackEvent("view_category_detail", { category_name: searchCategoryLabel(enteredCategory) });
+  }, [enteredCategory]);
 
   // 필터 적용 후 또는 검색 결과가 바뀔 때 result_count가 갱신되면 해당 이벤트를 전송
   // (submittedTerm/activeTab/sortBy/listFilter는 ref로만 읽어 탭 전환 시 이전 카운트로 조기 발화되지 않게 함)
