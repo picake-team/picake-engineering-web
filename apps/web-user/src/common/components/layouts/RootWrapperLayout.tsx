@@ -2,7 +2,7 @@
 
 import { ReactNode } from "react";
 import dynamic from "next/dynamic";
-import { usePathname } from "next/navigation";
+import { useAppPathname } from "@/apps/web-user/common/hooks/useAppPathname";
 import Header from "@/apps/web-user/common/components/headers/Header";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { Alert } from "@/apps/web-user/common/components/alerts/Alert";
@@ -38,7 +38,7 @@ function PaymentPendingLaunchSheetGate() {
 }
 
 export default function RootWrapperLayout({ children }: RootWrapperLayoutProps) {
-  const pathname = usePathname();
+  const pathname = useAppPathname();
 
   // pathname에 따라 헤더 설정 결정
   const getHeaderConfig = (): {

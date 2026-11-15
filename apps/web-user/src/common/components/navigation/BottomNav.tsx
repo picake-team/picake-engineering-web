@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { useAppPathname } from "@/apps/web-user/common/hooks/useAppPathname";
 import Link from "next/link";
 import { scrollAppToTop } from "@/apps/web-user/common/hooks/useScrollRestoration";
 import { Icon, type IconName } from "@/apps/web-user/common/components/icons";
@@ -26,7 +26,7 @@ const NAV_ITEMS: {
 ];
 
 export function BottomNav() {
-  const pathname = usePathname();
+  const pathname = useAppPathname();
   // 안 읽은 채팅이 있으면 MY 탭에 점(기획 I-11)
   const { data: chatUnread } = useChatUnread();
   const myDot = (chatUnread?.unreadThreads ?? 0) > 0;
