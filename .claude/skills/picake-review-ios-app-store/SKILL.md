@@ -113,11 +113,11 @@ Picake web-user는 겉면만 앱 껍데기로 감싼 **웹뷰 앱**입니다 —
 2. "앱 버전" 라벨을 **2초 이내 간격으로 10회 연속 탭** → 심사용 로그인 바텀시트(`ReviewLoginBottomSheet`) 노출
 3. 6자리 코드 입력 → `POST /v1/consumer/auth/review-login` 호출 → 심사용 계정(`phone: "REVIEW_ACCOUNT"`, 최초 호출 시 자동 생성)으로 로그인
 
-**코드 값은 반드시 실제 사용 시점에 `apps/backend/src/modules/auth/constants/auth.constants.ts`의 `REVIEW_LOGIN_CODE`를 grep해서 확인하세요** — 기억이나 이 문서에 적힌 값을 그대로 믿지 않습니다. 소스 주석에 "심사가 끝나면 다른 값으로 교체하거나 라우트 자체를 제거하는 걸 권장"이라고 돼 있어 리젝-재제출을 반복하는 동안에도 값이 바뀌었을 수 있습니다. 코드를 바꾸면 §3 심사노트 초안의 값도 같이 갱신하세요.
+**코드 관리(2026-11-15~)**: 판매자(§2-1)와 같이 **코드를 레포에 두지 않습니다.** 코드는 운영자 비밀번호 관리자에만 두고, 서버는 GitHub Actions 비밀값 `CONSUMER_REVIEW_LOGIN_CODE_SHA256`(코드의 SHA-256 16진수)과 비교합니다. 비밀값이 없으면 손님 심사용 로그인은 꺼집니다. 예전에는 코드가 `auth.constants.ts`에 그대로 있어(공개 레포) 11-15에 새 코드로 바꿨고, 예전 코드는 막힙니다. 코드를 바꿀 때: `printf '<새 6자리>' | shasum -a 256` 값을 `gh secret set CONSUMER_REVIEW_LOGIN_CODE_SHA256 --repo picake-team/picake-engineering-backend`로 넣고 backend를 다시 배포합니다. 심사노트에는 `{REVIEW_CODE}`로 쓰고 App Store Connect·Play Console에 붙일 때만 채웁니다. 테스트(CI·로컬 `.env.test`)는 테스트 전용 코드 000000의 해시를 씁니다.
 
 ## 2-1. 판매자 앱 심사용 로그인 (픽케이크 사장님, 기획 I-48)
 
-손님 앱 §2와 같은 방식이지만 **코드를 레포에 두지 않습니다.**
+손님 앱 §2와 같은 방식입니다(둘 다 코드를 레포에 두지 않습니다).
 
 1. 판매자 앱 로그인 화면(`/auth/login` 휴대폰 화면, `Login.mobile.tsx`)에서 **로고를 2초 안에 10번** 누름 → "심사용 로그인" 창(`ReviewLoginSheet`, SC-62)
 2. 6자리 코드 입력 → `POST /v1/seller/auth/review-login` → 심사용 사장님 계정(`Seller.phone = "REVIEW_SELLER_ACCOUNT"`)으로 로그인, 홈이 열림
@@ -221,7 +221,7 @@ the verification code to you in real time.
 We also provide a built-in reviewer login that lets you verify the entire app
 experience without going through any social login flow: go to My Page > App
 Version, tap the "App Version" label 10 times within 2 seconds to reveal a
-review-login sheet, then enter the code "482915" to sign in.
+review-login sheet, then enter the code "{손님 심사용 코드}" to sign in.
 
 Guideline 1.5 - Safety
 
