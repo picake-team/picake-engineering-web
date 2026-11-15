@@ -13,21 +13,26 @@ import { getDesign, searchDesigns } from "@/apps/web-user/features/design/utils/
 /** 검색 결과 "디자인" 탭(기획 I-112 ②) */
 export function DesignSearchSection({
   categories,
+  sizes = [],
   search,
 }: {
   /** 필터·주소의 카테고리(묶음 안은 또는, 묶음끼리는 그리고) */
   categories: readonly ProductCategoryType[];
+  /** 필터·주소의 사이즈(도시락만 디자인을 거른다) */
+  sizes?: readonly string[];
   search: string;
 }) {
   const categoryKey = categories.join(",");
+  const sizeKey = sizes.join(",");
   // 배열은 새로 만들어져도 값이 같으면 다시 거르지 않게 글자로 비교한다
   const { items, matched } = useMemo(
     () =>
       searchDesigns({
         categories: categoryKey ? (categoryKey.split(",") as ProductCategoryType[]) : [],
+        sizes: sizeKey ? sizeKey.split(",") : [],
         q: search,
       }),
-    [categoryKey, search],
+    [categoryKey, sizeKey, search],
   );
   const lastKey = useRef<string | null>(null);
   useEffect(() => {

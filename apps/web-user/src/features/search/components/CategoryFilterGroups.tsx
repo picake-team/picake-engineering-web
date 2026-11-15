@@ -20,8 +20,14 @@ export function CategoryFilterGroups({
     <div className="flex flex-col gap-6">
       {PRODUCT_CATEGORY_GROUPS.map((group) => (
         <div key={group.key}>
-          <h3 className={titleClassName}>{group.title}</h3>
-          <div className="flex flex-wrap gap-2 py-1.5">
+          <h3 id={`category-filter-${group.key}`} className={titleClassName}>
+            {group.title}
+          </h3>
+          <div
+            role="group"
+            aria-labelledby={`category-filter-${group.key}`}
+            className="flex flex-wrap gap-2 py-1.5"
+          >
             {group.options.map((opt) => {
               const isSelected = selected.includes(opt.value);
               return (

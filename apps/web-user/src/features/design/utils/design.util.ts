@@ -46,13 +46,20 @@ export function magazineDesigns(now = new Date()): Design[] {
  * 검색어가 카테고리와 같은 뜻이면(남친 → 연인·기념일) 그 카테고리 디자인도 찾는다(상품 검색과 같게)
  */
 export function searchDesigns(
-  { categories, q }: { categories: readonly ProductCategoryType[]; q: string },
+  {
+    categories,
+    q,
+    sizes = [],
+  }: { categories: readonly ProductCategoryType[]; q: string; sizes?: readonly string[] },
   now = new Date(),
 ): { items: Design[]; matched: boolean } {
   const all = visibleDesigns(now);
   let items = all;
   if (categories.length)
     items = items.filter((d) => matchesProductCategories(d.occasions, categories));
+  // 사이즈는 디자인에 "도시락"만 있다. 도시락만 골랐을 때만 거르고, 다른 사이즈가 섞이면 거르지 않는다
+  if (sizes.length && sizes.every((s) => s === LUNCHBOX))
+    items = items.filter((d) => d.style === LUNCHBOX || d.parts.shape.includes(LUNCHBOX));
   const trimmed = q.trim();
   const words = trimmed.toLowerCase().split(/\s+/).filter(Boolean);
   if (words.length) {
@@ -81,6 +88,8 @@ export function similarDesigns(design: Design, limit = 6, now = new Date()): Des
     .slice(0, limit)
     .map((x) => x.d);
 }
+
+const LUNCHBOX = "도시락";
 
 /** 상황 카테고리(무슨 날·누구에게) */
 const SITUATIONS = new Set<ProductCategoryType>(

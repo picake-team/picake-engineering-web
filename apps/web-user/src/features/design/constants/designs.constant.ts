@@ -44,7 +44,12 @@ export const DESIGNS: Design[] = [
   {
     id: "baegil-gold-lettering",
     name: "백일 레터링",
-    occasions: [ProductCategoryType.BABY, ProductCategoryType.LETTERING],
+    occasions: [
+      ProductCategoryType.BABY,
+      ProductCategoryType.LETTERING,
+      ProductCategoryType.FLOWER,
+      ProductCategoryType.RIBBON,
+    ],
     tagOccasions: [ProductCategoryType.BABY, ProductCategoryType.LETTERING],
     style: "레터링",
     seasonal: null,
@@ -184,7 +189,7 @@ export const DESIGNS: Design[] = [
       ProductCategoryType.FRUIT,
       ProductCategoryType.VINTAGE,
     ],
-    tagOccasions: [ProductCategoryType.FRUIT],
+    tagOccasions: [ProductCategoryType.FRUIT, ProductCategoryType.VINTAGE],
     style: "딸기",
     seasonal: null,
     image: {
@@ -320,7 +325,6 @@ export const DESIGNS: Design[] = [
       ProductCategoryType.BIRTHDAY,
       ProductCategoryType.LETTERING,
       ProductCategoryType.DRAWING,
-      ProductCategoryType.FRUIT,
     ],
     tagOccasions: [
       ProductCategoryType.BIRTHDAY,
@@ -391,6 +395,7 @@ export const DESIGNS: Design[] = [
       ProductCategoryType.HEART,
       ProductCategoryType.VINTAGE,
       ProductCategoryType.FRUIT,
+      ProductCategoryType.RIBBON,
     ],
     tagOccasions: [
       ProductCategoryType.BIRTHDAY,
@@ -500,11 +505,7 @@ export const DESIGNS: Design[] = [
   {
     id: "bento-strawberry-pink",
     name: "딸기 도시락",
-    occasions: [
-      ProductCategoryType.BIRTHDAY,
-      ProductCategoryType.LETTERING,
-      ProductCategoryType.DRAWING,
-    ],
+    occasions: [ProductCategoryType.LETTERING, ProductCategoryType.DRAWING],
     tagOccasions: [ProductCategoryType.LETTERING, ProductCategoryType.DRAWING],
     style: "도시락",
     seasonal: null,
@@ -729,6 +730,7 @@ export const DESIGNS: Design[] = [
       ProductCategoryType.BIRTHDAY,
       ProductCategoryType.LETTERING,
       ProductCategoryType.FLOWER,
+      ProductCategoryType.RIBBON,
     ],
     style: "플라워",
     seasonal: null,

@@ -1,6 +1,7 @@
 "use client";
 
 import { DesignSearchSection } from "@/apps/web-user/features/design/components/DesignListSections";
+import { searchDesigns } from "@/apps/web-user/features/design/utils/design.util";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { SearchProductListSection } from "@/apps/web-user/features/product/components/sections/SearchProductListSection";
@@ -264,6 +265,7 @@ export default function SearchPage() {
             {activeTab === "design" ? (
               <DesignSearchSection
                 categories={listFilter.productCategoryTypes ?? []}
+                sizes={listFilter.sizes ?? []}
                 search={submittedTerm}
               />
             ) : activeTab === "product" ? (
@@ -301,8 +303,25 @@ export default function SearchPage() {
         onClose={() => setIsFilterOpen(false)}
         filter={listFilter}
         onFilterChange={(f) => {
-          pendingFilterApplyRef.current = true;
           setListFilter(f);
+          // 디자인 탭은 결과 수를 화면이 바로 셀 수 있어 그 자리에서 보낸다(기다리면 다음 상품·스토어 결과에 잘못 붙는다)
+          if (activeTab === "design") {
+            const { items, matched } = searchDesigns({
+              categories: f.productCategoryTypes ?? [],
+              sizes: f.sizes ?? [],
+              q: submittedTerm,
+            });
+            trackEvent("success_filter_apply", {
+              sort_type: sortBy,
+              size_filter: f.sizes?.join(",") || undefined,
+              price_min: f.minPrice,
+              price_max: f.maxPrice,
+              type_filter: f.productCategoryTypes?.join(",") || undefined,
+              result_count: matched ? items.length : 0,
+            });
+            return;
+          }
+          pendingFilterApplyRef.current = true;
         }}
         sortBy={sortBy}
         onSortByChange={setSortBy}

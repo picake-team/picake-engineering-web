@@ -3,11 +3,12 @@
 /**
  * 손님 홈의 칸들(2026-11-15 운영자가 칸마다 고른 모양, 시안 모음 아티팩트에서 고름).
  */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { cn } from "@/apps/web-user/common/lib/utils";
+import { isProduction } from "@/apps/web-user/common/utils/environment.util";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { FadeInImage } from "@/apps/web-user/common/components/motion/FadeInImage";
 import CakeListSlider from "@/apps/web-user/common/components/sliders/CakeListSlider";
@@ -27,6 +28,8 @@ import {
 } from "@/apps/web-user/features/search/utils/search-category.util";
 
 const productHref = (id: string) => `${PATHS.PRODUCT.DETAIL(id)}?entry_point=home`;
+/** 테스트 서버(staging·로컬)에서만 QA 화면 입구를 둔다(앱 안에는 주소창이 없어서) */
+const showQaButton = !isProduction(process.env.NEXT_PUBLIC_NODE_ENV);
 
 /** 칸 사이를 나누는 회색 띠(배민·파리바게뜨처럼 화면 끝까지) */
 export function GrayBand({ className }: { className?: string }) {
@@ -61,11 +64,19 @@ export function SectionTitle({
 export function HomeTopBar({ showSearchIcon = false }: { showSearchIcon?: boolean }) {
   const { data: unread = 0 } = useAlarmUnreadCount();
   return (
-    <div className="sticky top-0 z-50 flex h-[56px] items-center gap-4 bg-white px-5">
+    <header className="sticky top-0 z-50 flex h-[56px] items-center gap-4 bg-white px-5">
       <span role="img" aria-label="픽케이크" className="shrink-0">
         <Icon name="logoPicake" width={30} height={30} />
       </span>
       <span className="flex-1" />
+      {showQaButton && (
+        <Link
+          href={PATHS.QA}
+          className="rounded-lg border border-yellow-400/30 bg-yellow-400/10 px-3 py-1.5 text-xs font-bold text-yellow-400"
+        >
+          QA
+        </Link>
+      )}
       {showSearchIcon && (
         <Link
           href={PATHS.SEARCH}
@@ -85,7 +96,7 @@ export function HomeTopBar({ showSearchIcon = false }: { showSearchIcon?: boolea
           <span className="absolute right-[1px] top-[1px] h-1 w-1 rounded-full bg-primary" />
         )}
       </Link>
-    </div>
+    </header>
   );
 }
 
@@ -191,7 +202,8 @@ export function OccasionGrid({ showSeason }: { showSeason: boolean }) {
           className="press relative block h-[90px] w-[90px] overflow-hidden rounded-[22px] bg-gray-50"
         >
           {o.src && (
-            <FadeInImage src={o.src} alt={o.label} fill sizes="90px" className="object-cover" />
+            // 이름표 글자가 같은 이름을 읽어 주므로 사진은 읽지 않는다
+            <FadeInImage src={o.src} alt="" fill sizes="90px" className="object-cover" />
           )}
           <span className="absolute bottom-[6px] left-[6px] rounded-full bg-white/95 px-[8px] py-[3px] text-xs font-bold text-gray-900">
             {o.label}
@@ -234,8 +246,26 @@ export function QuoteEndCard() {
 }
 
 /** 바로 예약할 수 있는 케이크: 새로 들어온 / 많이 저장한 탭(11-15 운영자: P2). 동네로 거르지 않는다 */
+const PRODUCT_TAB_KEY = "picake:homeProductTab";
+
 export function ProductTabsSection() {
   const [tab, setTab] = useState<"latest" | "saved">("latest");
+  // 상품을 보고 뒤로 오면 고르던 탭 그대로(첫 그림은 서버와 같게 "새로 들어온", 붙은 뒤 바꾼다)
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem(PRODUCT_TAB_KEY) === "saved") setTab("saved");
+    } catch {
+      /* 저장소를 못 쓰면 처음 탭 */
+    }
+  }, []);
+  const chooseTab = (next: "latest" | "saved") => {
+    setTab(next);
+    try {
+      sessionStorage.setItem(PRODUCT_TAB_KEY, next);
+    } catch {
+      /* 저장소를 못 써도 이번 화면에서는 바뀐다 */
+    }
+  };
   const latest = useProductList({ sortBy: SortBy.LATEST, limit: 10 });
   const saved = useProductList({ sortBy: SortBy.POPULAR, limit: 10 });
   const current = tab === "latest" ? latest : saved;
@@ -262,8 +292,10 @@ export function ProductTabsSection() {
             key={key}
             type="button"
             role="tab"
+            id={`home-product-tab-${key}`}
+            aria-controls="home-product-panel"
             aria-selected={tab === key}
-            onClick={() => setTab(key)}
+            onClick={() => chooseTab(key)}
             className={cn(
               "h-[34px] rounded-full px-[14px] text-sm",
               tab === key ? "bg-primary-50 font-bold text-primary" : "bg-gray-50 text-gray-700",
@@ -273,12 +305,14 @@ export function ProductTabsSection() {
           </button>
         ))}
       </div>
-      <CakeListSlider
-        products={products}
-        isLoading={current.isLoading}
-        onRetry={current.isError && !current.data ? () => void current.refetch() : undefined}
-        getProductHref={productHref}
-      />
+      <div role="tabpanel" id="home-product-panel" aria-labelledby={`home-product-tab-${tab}`}>
+        <CakeListSlider
+          products={products}
+          isLoading={current.isLoading}
+          onRetry={current.isError && !current.data ? () => void current.refetch() : undefined}
+          getProductHref={productHref}
+        />
+      </div>
     </section>
   );
 }
