@@ -66,7 +66,7 @@ Picake web-user는 겉면만 앱 껍데기로 감싼 **웹뷰 앱**입니다 —
 **남은 확인 필요 사항(코드로 해결 불가, 운영 데이터 문제)**: 이 수정은 "비어있는 지역을 활성으로 잘못 보여주는" 버그만 고친 것이지, 상품이 아예 없는 지역에서 콘텐츠가 저절로 생기는 게 아닙니다. 심사 제출 전 반드시:
 
 1. 프로덕션 DB에 `visibilityStatus: ENABLE` 상품을 가진 스토어가 실제로 존재하는지, 몇 개 지역에 분포하는지 확인 (관리자 페이지 또는 `db:studio` 등으로).
-2. 활성 지역이 극소수(예: 강남구 하나)라면, 심사관이 그 지역으로 자동/수동 유도되는지 실기기로 직접 검증 — 특히 GPS 위치가 한국이 아닌 경우(Apple 심사는 대체로 해외에서 진행) `Header.tsx`의 "outside" 분기(`handleOutsideConfirm`)가 기본 지역(강남구)으로 정상 리셋되는지 확인.
+2. 활성 지역이 극소수(예: 강남구 하나)라면, 심사관이 그 지역으로 자동/수동 유도되는지 실기기로 직접 검증 — 특히 GPS 위치가 한국이 아닌 경우(Apple 심사는 대체로 해외에서 진행) `Header.tsx`의 "outside" 분기(`handleOutsideConfirm`)가 기본 지역(강남구)으로 정상 리셋되는지 확인. (2026-11-15 새 홈부터 홈은 지역으로 거르지 않고 "준비 중" 창도 저절로 뜨지 않는다 — 검색의 지역 창에서 고를 때만 뜬다. 심사 전에는 홈 "바로 예약할 수 있는 케이크"에 상품이 보이는지를 먼저 본다)
 3. 가능하면 활성 지역을 1곳보다 늘려서(실제 셀러 온보딩 또는 데모용 스토어/상품 등록) 심사관이 지역을 이리저리 눌러봐도 빈 화면을 안 만나게 하는 게 가장 안전합니다.
 
 **3차 반려(2026-08-17, 별개 사유 — 인증 코드 요구)**: 이번엔 "제공한 데모 계정 아이디/비밀번호만으로는 부족하고, 콘텐츠 접근·기능 검증을 위한 **인증 코드**가 추가로 필요하다"는 지적으로, 위 활성 지역 버그와는 다른 사유임. Apple은 통화로 코드를 받거나, 데모 계정이 코드 검증을 건너뛰게 하거나, 고정 코드를 Review Notes에 적어달라고 제안함. 대응은 §2의 심사용 로그인(코드는 이미 고정값)을 안내하는 것으로 충분해 보이나, **이 반려가 왜 발생했는지(심사관이 §2의 탭-10회 진입법을 못 찾았는지, 아니면 구글 로그인 자체에서 2단계 인증을 요구했는지)는 확인되지 않음** — 재발 방지를 위해 심사노트(§3)에 §2의 로그인 방법을 반드시 명시하고, 구글 데모 계정(`picakeee@gmail.com`)도 함께 제공해 Apple에 재확인 요청함. Apple 응답이 오면 실제 원인을 여기 갱신할 것.
@@ -162,9 +162,9 @@ Play Console에는 App Store 심사노트 대신 **앱 콘텐츠 → 앱 액세�
 In-App Purchase 대상이 아닙니다.
 
 [위치 정보 안내]
-주변 스토어 검색을 위해 앱 진입 시 위치 권한을 요청합니다. 권한을 거부하거나
-서비스 지역 밖(해외 등)에서 접속하시는 경우 기본 지역(서울 강남구) 기준으로
-자동 전환되며, 등록된 케이크 상품을 바로 확인하실 수 있습니다.
+주변 스토어 검색을 위해 앱 진입 시 위치 권한을 요청합니다. 홈의 케이크 목록은
+지역과 상관없이 보이고, 검색 결과만 고른 지역으로 거릅니다. 권한을 거부하거나
+서비스 지역 밖(해외 등)에서 접속하셔도 홈에서 등록된 케이크 상품을 바로 확인하실 수 있습니다.
 
 문의사항이 있으시면 picakeee@gmail.com으로 연락 주시면 신속히 답변드리겠습니다.
 ```
@@ -185,9 +185,10 @@ via bank transfer to the store's settlement account, not In-App Purchase —
 there is no digital content being sold, so IAP does not apply.
 
 [About location]
-The app requests location permission on launch to search nearby stores. If
-denied, or if you're outside our service area, the app automatically falls
-back to a default region (Gangnam-gu, Seoul) with cake products available.
+The app requests location permission on launch to search nearby stores. The
+home feed shows cake products regardless of region; only search results are
+filtered by the selected region. Even if permission is denied or you're outside
+our service area, you can browse cake products on the home screen right away.
 
 If you have any questions, please contact us at picakeee@gmail.com.
 ```

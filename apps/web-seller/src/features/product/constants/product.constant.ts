@@ -29,34 +29,59 @@ export const PRODUCT_TYPE_OPTIONS = [
 ] as const;
 
 /**
- * 카테고리 타입 그룹별 옵션 (UI: [대상별], [서비스], [디자인])
- * '커스텀'(LETTERING)은 상품 유형을 따라 서버가 자동으로 넣고 빼므로 선택지에서 제외
+ * 카테고리 묶음(2026-11-15, 질문 하나에 묶음 하나 — 손님 필터·서버와 같은 순서).
+ * 손님이 필터에서 묶음 안은 "또는", 묶음끼리는 "그리고"로 거른다(생일 + 캐릭터 = 생일 캐릭터 케이크).
+ * 레터링도 사장님이 고른다(10-27~11-15에는 상품 유형을 따라 서버가 "커스텀"으로 넣던 값). 크기는 사이즈에서 정한다
  */
-export const PRODUCT_CATEGORY_GROUPS = [
+export const PRODUCT_CATEGORY_GROUPS: readonly {
+  label: string;
+  /** 묶음 이름 아래 한 줄 질문 */
+  help?: string;
+  options: readonly { value: ProductCategoryType; label: string; hint?: string }[];
+}[] = [
   {
-    label: "대상별",
+    label: "상황",
+    help: "어떤 날, 누구에게 주기 좋나요?",
     options: [
       { value: ProductCategoryType.BIRTHDAY, label: "생일" },
-      { value: ProductCategoryType.LOVER, label: "연인" },
-      { value: ProductCategoryType.FRIEND, label: "친구" },
-      { value: ProductCategoryType.FAMILY, label: "가족" },
-      { value: ProductCategoryType.ANNIVERSARY, label: "기념일" },
+      { value: ProductCategoryType.COUPLE, label: "연인·기념일" },
+      { value: ProductCategoryType.THANKS, label: "부모님·감사" },
+      { value: ProductCategoryType.BABY, label: "백일·돌" },
+      { value: ProductCategoryType.CONGRATS, label: "축하", hint: "합격·승진·전역" },
+      { value: ProductCategoryType.WEDDING, label: "결혼·프로포즈" },
+      { value: ProductCategoryType.SEASON, label: "시즌", hint: "크리스마스 등" },
+    ],
+  },
+  {
+    label: "디자인",
+    help: "케이크를 어떻게 꾸몄나요?",
+    options: [
+      { value: ProductCategoryType.LETTERING, label: "레터링" },
+      { value: ProductCategoryType.DRAWING, label: "드로잉" },
+      { value: ProductCategoryType.PHOTO, label: "사진" },
+      { value: ProductCategoryType.CHARACTER, label: "캐릭터" },
+      { value: ProductCategoryType.FLOWER, label: "꽃" },
+      { value: ProductCategoryType.RIBBON, label: "리본" },
+      { value: ProductCategoryType.FRUIT, label: "과일" },
+      { value: ProductCategoryType.VINTAGE, label: "빈티지" },
+      { value: ProductCategoryType.SIMPLE, label: "심플" },
+    ],
+  },
+  {
+    label: "모양",
+    help: "기본 원형이 아니면 골라 주세요",
+    options: [
+      { value: ProductCategoryType.HEART, label: "하트" },
+      { value: ProductCategoryType.SCULPTED, label: "입체" },
+      { value: ProductCategoryType.TWO_TIER, label: "2단" },
     ],
   },
   {
     label: "서비스",
+    help: "주문한 날 바로 가져갈 수 있나요?",
     options: [{ value: ProductCategoryType.SAME_DAY_PICKUP, label: "당일픽업" }],
   },
-  {
-    label: "디자인",
-    options: [
-      { value: ProductCategoryType.CHARACTER, label: "캐릭터" },
-      { value: ProductCategoryType.SIMPLE, label: "심플" },
-      { value: ProductCategoryType.FLOWER, label: "꽃" },
-      { value: ProductCategoryType.PHOTO, label: "사진" },
-    ],
-  },
-] as const;
+];
 
 // 케이크 사이즈 표시명 드롭다운 옵션
 export const CAKE_SIZE_DISPLAY_NAME_OPTIONS = [

@@ -1,6 +1,7 @@
 "use client";
 
 import { CheckboxMark } from "@/apps/web-user/common/components/inputs/Checkbox";
+import { CategoryFilterGroups } from "@/apps/web-user/features/search/components/CategoryFilterGroups";
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import type { StoreListFilter } from "@/apps/web-user/features/store/types/store.type";
@@ -70,7 +71,7 @@ function getPriceTagLabel(minPrice: number, maxPrice: number): string {
   return `${minStr} ~ ${maxStr}`;
 }
 
-/** 적용된 필터 태그 라벨: 유형 (1개 → 라벨, 2+ → "라벨 외 n개") */
+/** 적용된 필터 태그 라벨: 카테고리 (1개 → 라벨, 2+ → "라벨 외 n개") */
 function getCategoriesTagLabel(types: ProductCategoryType[]): string {
   if (types.length === 0) return "";
   const labels = types.map(
@@ -294,7 +295,7 @@ export function MapStoreListFilter({
                 }}
                 className={`cursor-pointer ${filterTagStyle} hover:opacity-90`}
                 style={{ gap: 4, padding: "0 14px" }}
-                aria-label="유형 필터 제거"
+                aria-label="카테고리 필터 제거"
               >
                 <span className="flex items-center truncate">
                   {getCategoriesTagLabel(listFilter.productCategoryTypes)}
@@ -400,31 +401,16 @@ export function MapStoreListFilter({
                   />
                 </section>
 
+                {/* 카테고리: 상황·디자인·모양·서비스(칸 안은 또는, 칸끼리는 그리고) */}
                 <section className={`${styles.sectionContent} pb-6`}>
-                  <h3 className={styles.sectionTitle}>유형</h3>
-                  <div className="flex flex-wrap gap-2 py-1.5">
-                    {MAP_LIST_CATEGORY_OPTIONS.map((opt) => {
-                      const selected = draftCategories.includes(opt.value);
-                      return (
-                        <button
-                          key={opt.value}
-                          type="button"
-                          onClick={() => {
-                            if (selected) {
-                              setDraftCategories((prev) => prev.filter((c) => c !== opt.value));
-                            } else {
-                              setDraftCategories((prev) => [...prev, opt.value]);
-                            }
-                          }}
-                          className={`${styles.categoryChip} ${
-                            selected ? styles.categoryChipSelected : styles.categoryChipDefault
-                          }`}
-                        >
-                          {opt.label}
-                        </button>
-                      );
-                    })}
-                  </div>
+                  <CategoryFilterGroups
+                    selected={draftCategories}
+                    onChange={setDraftCategories}
+                    titleClassName={styles.sectionTitle}
+                    chipClassName={(selected) =>
+                      `${styles.categoryChip} ${selected ? styles.categoryChipSelected : styles.categoryChipDefault}`
+                    }
+                  />
                 </section>
               </div>
 

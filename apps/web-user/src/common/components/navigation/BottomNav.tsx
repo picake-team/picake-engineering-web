@@ -25,10 +25,8 @@ const NAV_ITEMS: {
   },
 ];
 
-export function BottomNav({ activePath }: { activePath?: string } = {}) {
-  // 홈 새 화면 시안(/preview/home)처럼 다른 주소에서 홈 탭을 켜 보일 때
-  const currentPath = usePathname();
-  const pathname = activePath ?? currentPath;
+export function BottomNav() {
+  const pathname = usePathname();
   // 안 읽은 채팅이 있으면 MY 탭에 점(기획 I-11)
   const { data: chatUnread } = useChatUnread();
   const myDot = (chatUnread?.unreadThreads ?? 0) > 0;

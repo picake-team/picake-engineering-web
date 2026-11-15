@@ -11,7 +11,7 @@ const REGION_WAIT_TIMEOUT_MS = 3000;
 
 /**
  * 헤더에서 고른 동네로 상품·가게 목록을 거르는 값(`regions`)과, 첫 조회를 해도 되는지(`isRegionSettled`).
- * 홈 신규·인기 목록과 검색 결과(상품·가게 탭)가 같이 쓴다.
+ * 검색 결과(상품·가게 탭)가 쓴다(11-15 새 홈은 동네로 거르지 않는다).
  */
 export function useRegionFilter() {
   const { selectedRegion } = useUserCurrentLocationStore();
