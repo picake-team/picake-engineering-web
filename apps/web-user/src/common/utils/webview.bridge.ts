@@ -5,13 +5,15 @@
  * 모든 웹뷰 통신 관련 코드는 이 파일에 위치합니다.
  */
 
-import { useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { useEffect, useRef } from "react";
 import { useAuthStore } from "@/apps/web-user/common/store/auth.store";
 import { useUserCurrentLocationStore } from "@/apps/web-user/common/store/user-current-location.store";
 import { reverseGeocode } from "@/apps/web-user/common/utils/kakao-geocode.util";
-import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
-import { REGION_STORAGE_KEY } from "@/apps/web-user/common/utils/region-storage.util";
+import {
+  forgetLocationGranted,
+  getBrowserGeolocationPermission,
+  hasLocationGranted,
+} from "@/apps/web-user/common/utils/location-permission.util";
 import { useRemoveConsumerFcmToken } from "@/apps/web-user/features/fcm/hooks/mutations/useRemoveConsumerFcmToken";
 import { useUpsertConsumerFcmToken } from "@/apps/web-user/features/fcm/hooks/mutations/useUpsertConsumerFcmToken";
 import type { FcmToken } from "@/apps/web-user/features/fcm/types/fcm.type";
@@ -118,32 +120,12 @@ export function isWebViewEnvironment(): boolean {
 // ============================================================================
 
 /**
- * 자동 위치 요청을 하지 않는 경로.
- *
- * QR로 직진입하는 단독 안내 화면들로, 위치를 전혀 쓰지 않습니다. 여기서 권한을 물으면
- * 방문자는 페이지 내용을 보기도 전에 맥락 없는 팝업부터 만나게 되어 대부분 거부하고,
- * 브라우저가 그 거부를 기억해 정작 위치가 필요한 지도·검색 화면에서 다시 물을 수 없게 됩니다.
- */
-const LOCATION_PROMPT_EXCLUDED_PATHS = [
-  PATHS.PARTNER, // 입점 안내 (/partner)
-  PATHS.APP_DOWNLOAD, // 앱 다운로드 진입점 (/app)
-] as const;
-
-function isLocationPromptExcluded(pathname: string | null): boolean {
-  if (!pathname) return false;
-  return LOCATION_PROMPT_EXCLUDED_PATHS.some(
-    (base) => pathname === base || pathname.startsWith(`${base}/`),
-  );
-}
-
-/**
  * 웹뷰 브릿지 초기화 훅
  * Flutter 앱에서 window.receiveLocation, window.receiveLocationError, window.FcmToken을
  * 호출할 수 있도록 등록합니다.
  * 이 훅은 앱 초기화 시 한 번 호출되어야 합니다.
  */
 export function useWebViewBridge() {
-  const pathname = usePathname();
   const { login, handleLogoutByEnvironment, isAuthenticated, accessToken } = useAuthStore();
   const { setLocation, setAddress, clearLocationRequestFlag, handleLocationRequestFailure } =
     useUserCurrentLocationStore();
@@ -234,48 +216,43 @@ export function useWebViewBridge() {
   ]);
 
   /**
-   * 자동 위치 요청 (자동 요청은 userInitiated=false → 거부해도 모달을 띄우지 않음)
-   *
-   * 위 브릿지 등록과 달리 pathname에 의존합니다. AuthProvider는 라우트가 바뀌어도
-   * 언마운트되지 않으므로, 마운트 1회 이펙트에 두면 제외 경로로 진입한 세션은
-   * 이후 홈·지도로 이동해도 위치를 영영 요청하지 않게 됩니다.
+   * 처음 들어올 때는 위치 권한을 묻지 않는다(2026-11-16 운영자: 새 홈은 위치를 쓰지 않음). 위치는 지도·검색 결과
+   * 거리순·"현재 위치"처럼 필요할 때 묻는다(useLocationWhenNeeded, useUserLocation).
+   * 전에 위치를 받은 적이 있으면(권한 허용) 묻는 창 없이 들어올 때 한 번 다시 받는다. 브라우저는 권한이 지금도
+   * 허용일 때만(확인할 수 없으면 받지 않고 필요할 때 묻는다).
    */
+  const silentLocationRequestedRef = useRef(false);
   useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    // QR 전용 안내 화면에서는 위치를 쓰지 않으므로 묻지 않는다
-    if (isLocationPromptExcluded(pathname)) {
-      return;
-    }
+    if (typeof window === "undefined" || silentLocationRequestedRef.current) return;
+    if (!hasLocationGranted()) return;
+    silentLocationRequestedRef.current = true;
 
     if (isWebViewEnvironment()) {
       requestLocationFromWebView();
       return;
     }
+    if (!navigator.geolocation) return;
 
-    // 저장된 지역이 없을 때만 GPS 권한 요청 (최초 진입)
-    const hasStoredRegion = !!localStorage.getItem(REGION_STORAGE_KEY);
-    if (hasStoredRegion || !navigator.geolocation) {
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        setLocation(latitude, longitude);
-        reverseGeocode(latitude, longitude).then((result) => {
-          if (result) setAddress(result);
-        });
-      },
-      (error) => {
-        console.error("브라우저 위치 정보 요청 실패:", error.message);
-        // 위치 권한 거부 시 기본값: 강남구 (자동 요청이므로 모달 없음)
-        setAddress("서울특별시 강남구");
-      },
-    );
-  }, [pathname, setLocation, setAddress]);
+    void getBrowserGeolocationPermission().then((state) => {
+      if (state === "denied") {
+        forgetLocationGranted();
+        return;
+      }
+      if (state !== "granted") return;
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setLocation(latitude, longitude);
+          reverseGeocode(latitude, longitude).then((result) => {
+            if (result) setAddress(result);
+          });
+        },
+        (error) => {
+          console.error("브라우저 위치 정보 요청 실패:", error.message);
+        },
+      );
+    });
+  }, [setLocation, setAddress]);
 }
 
 // ============================================================================
