@@ -46,7 +46,7 @@ export interface StoreListResponse {
   meta: {
     currentPage: number;
     hasNext: boolean;
-    totalCount: number;
+    totalItems: number;
   };
 }
 

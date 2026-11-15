@@ -206,12 +206,16 @@ export default function SearchPage() {
             type="search"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSearch(searchTerm)}
             placeholder="어떤 케이크를 찾으시나요?"
             className="flex-1 text-sm text-gray-900 outline-none placeholder:text-gray-500 [&::-webkit-search-cancel-button]:hidden"
           />
           {searchTerm && (
-            <button type="button" onClick={() => setSearchTerm("")} className="w-5 h-5">
+            <button
+              type="button"
+              onClick={() => setSearchTerm("")}
+              aria-label="검색어 지우기"
+              className="w-5 h-5"
+            >
               <Icon name="closeCircle" width={20} height={20} className="text-gray-300" />
             </button>
           )}

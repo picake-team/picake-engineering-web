@@ -2,6 +2,7 @@
 
 import { BottomSheet } from "@/apps/web-user/common/components/bottom-sheets/BottomSheet";
 import { Button } from "@/apps/web-user/common/components/buttons/Button";
+import { NO_REPLAY } from "@/apps/web-user/common/constants/replay.constant";
 
 interface RefundConfirmBottomSheetProps {
   isOpen: boolean;
@@ -49,11 +50,11 @@ export function RefundConfirmBottomSheet({
         </div>
         <div className="flex gap-10">
           <dt className="w-[80px] text-sm text-gray-500">환불 계좌번호</dt>
-          <dd className="text-sm text-gray-900 break-all">{bankAccountNumber}</dd>
+          <dd className={`${NO_REPLAY} text-sm text-gray-900 break-all`}>{bankAccountNumber}</dd>
         </div>
         <div className="flex gap-10">
           <dt className="w-[80px] text-sm text-gray-500">예금주명</dt>
-          <dd className="text-sm text-gray-900">{accountHolderName}</dd>
+          <dd className={`${NO_REPLAY} text-sm text-gray-900`}>{accountHolderName}</dd>
         </div>
       </dl>
     </BottomSheet>

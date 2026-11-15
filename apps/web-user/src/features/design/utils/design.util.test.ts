@@ -44,6 +44,11 @@ describe("searchDesigns (11-15 카테고리 묶음)", () => {
     expect(r.items.every((d) => d.occasions.includes(C.COUPLE))).toBe(true);
   });
 
+  it("'사진'으로 찾으면 설명 문장(사진처럼 …) 때문에 모두 맞지 않는다", () => {
+    expect(searchDesigns({ categories: [], q: "사진" }, IN_SEASON).matched).toBe(false);
+    expect(searchDesigns({ categories: [], q: "사진 케이크" }, IN_SEASON).matched).toBe(false);
+  });
+
   it("맞는 게 없으면 전체를 보이고 matched=false", () => {
     const r = searchDesigns({ categories: [C.TWO_TIER], q: "" }, IN_SEASON);
     expect(r.matched).toBe(false);
