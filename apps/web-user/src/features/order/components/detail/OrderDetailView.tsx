@@ -36,7 +36,7 @@ function getStatusNotice(order: OrderResponse): {
     case OrderStatus.PAYMENT_COMPLETED:
       return { message: "판매자가 입금을 확인하면 예약이 확정돼요.", isRed: false };
     case OrderStatus.CANCEL_REFUND_PENDING:
-      return { message: "환불까지 영업일 기준 1~2일 걸릴 수 있어요.", isRed: false };
+      return { message: "가게가 환불을 보내면 알림으로 알려 드려요.", isRed: false };
     case OrderStatus.CANCEL_REFUND_COMPLETED:
       return { message: "환불까지 끝난 취소 건이에요.", isRed: false };
     // 취소완료: 판매자 취소(사유 표시) / 구매자 취소(표시 안 함) / 미입금 자동취소 구분

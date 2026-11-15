@@ -16,7 +16,7 @@ import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 export const metadata: Metadata = {
   title: "사장님 입점 안내",
   description:
-    "Picake는 케이크 전문 매장을 위한 주문·예약 플랫폼이에요. 판매자 페이지에서 매장을 운영하거나, 사전 수요조사에 참여해 주세요.",
+    "Picake는 케이크 전문 매장을 위한 주문·예약 플랫폼이에요. 사장님 소개 페이지에서 쓰는 법과 입점 방법을 보세요.",
   // 오프라인 QR 전용 경유 페이지라 검색 노출은 불필요합니다.
   robots: { index: false, follow: false },
 };
@@ -46,16 +46,8 @@ export default function PartnerPage() {
       </div>
 
       <div className="flex flex-col gap-3">
-        <a
-          href={PARTNER_SURVEY_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-full h-[52px] flex items-center justify-center bg-primary text-white text-base font-bold rounded-lg transition-all duration-base"
-        >
-          입점 사전 수요조사 참여하기
-        </a>
-
         {/*
+          첫 버튼은 소개 페이지(11-15 운영자: 견적 링크를 받은 미입점 가게가 오는 곳이라 수요조사보다 소개·가입 안내가 먼저).
           next/link가 아니라 일반 <a>를 씁니다. 소개 페이지는 정보 사이트(info.picakes.com)로 옮겨졌고
           /partner/about은 그쪽으로 307 리다이렉트만 합니다. Link는 prefetch·클라이언트 이동으로 RSC를
           fetch하다가 다른 도메인으로 리다이렉트되어 CORS 에러를 남기므로, 처음부터 브라우저 이동을 시킵니다.
@@ -63,9 +55,17 @@ export default function PartnerPage() {
         */}
         <a
           href={PATHS.PARTNER_ABOUT}
+          className="w-full h-[52px] flex items-center justify-center bg-primary text-white text-base font-bold rounded-lg transition-all duration-base"
+        >
+          사장님 소개 페이지 보기
+        </a>
+        <a
+          href={PARTNER_SURVEY_URL}
+          target="_blank"
+          rel="noopener noreferrer"
           className="w-full h-[52px] flex items-center justify-center bg-white text-gray-900 text-base font-bold border border-gray-100 rounded-lg transition-all duration-base"
         >
-          소개페이지 바로가기
+          입점 사전 수요조사 참여하기
         </a>
       </div>
     </main>

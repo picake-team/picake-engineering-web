@@ -102,7 +102,7 @@ export const PATHS = {
    * 입점 소개 페이지와 사전 수요조사 설문으로 연결합니다.
    */
   PARTNER: "/partner",
-  /** 입점 소개 페이지 (`/partner` 의 "소개페이지 바로가기") */
+  /** 입점 소개 페이지 (`/partner` 의 첫 버튼 "사장님 소개 페이지 보기") */
   PARTNER_ABOUT: "/partner/about",
 
   AUTH: {

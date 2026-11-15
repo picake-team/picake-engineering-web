@@ -152,12 +152,6 @@ export function ReservationContactAgreements({
               예약 상태: 예약신청 → 입금대기 → 입금완료 → 예약확정
             </p>
           </div>
-          {!isQuote && (
-            <div>
-              <h3 className="text-2sm font-bold text-gray-900 mb-1">기타 안내</h3>
-              <p className="text-2sm text-gray-900">주문 제작 소요시간: 2 ~ 3일</p>
-            </div>
-          )}
         </div>
       </div>
     </>

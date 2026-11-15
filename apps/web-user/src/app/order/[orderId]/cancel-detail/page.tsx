@@ -1,5 +1,6 @@
 "use client";
 
+import { QuoteOrderCard } from "@/apps/web-user/features/order/components/detail/QuoteOrderCard";
 import { getBankLabel } from "@/apps/web-user/common/utils/bank.util";
 import { useParams } from "next/navigation";
 import Header from "@/apps/web-user/common/components/headers/Header";
@@ -79,6 +80,7 @@ function CancelDetailView({ order }: { order: OrderResponse }) {
       <section className="px-5 pt-5 pb-10">
         <h2 className="text-lg font-bold text-gray-900 mb-1 py-2.5">취소 상품</h2>
         <div className="flex flex-col gap-3">
+          {order.quote && <QuoteOrderCard order={order} hideCancelDetailButton />}
           {order.orderItems.map((item) => (
             <ReservationItemCard key={item.id} order={order} item={item} hideCancelDetailButton />
           ))}
@@ -108,11 +110,10 @@ function CancelDetailView({ order }: { order: OrderResponse }) {
               <dd className="text-gray-900">{order.totalPrice.toLocaleString()}원</dd>
             </div>
             <div className="flex items-center gap-10">
-              <dt className="w-[70px] text-gray-500 shrink-0">총 환불금액</dt>
+              <dt className="w-[70px] text-gray-500 shrink-0">환불 금액</dt>
               <dd className="flex items-center gap-2">
-                <span className="font-bold text-gray-900">
-                  {order.totalPrice.toLocaleString()}원
-                </span>
+                {/* 가게마다 환불 규정이 달라 전액으로 약속하지 않는다(11-15 운영자) */}
+                <span className="font-bold text-gray-900">가게 환불 규정대로</span>
                 <OrderStatusBadge status={order.orderStatus} />
               </dd>
             </div>
