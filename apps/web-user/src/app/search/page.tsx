@@ -21,7 +21,9 @@ import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import { useScrollRestoration } from "@/apps/web-user/common/hooks/useScrollRestoration";
 import {
   SEARCH_CATEGORY_PARAM,
+  readDesignCategory,
   readSearchCategory,
+  searchCategoryLabel,
 } from "@/apps/web-user/features/search/utils/search-category.util";
 
 const RECENT_SEARCHES_KEY = "recentSearches";
@@ -47,9 +49,13 @@ export default function SearchPage() {
   const searchParams = useSearchParams();
   // 홈 카테고리에서 들어오면 검색어 없이 그 카테고리를 필터 "유형"에 넣고 결과를 바로 보인다
   const categoryParam = readSearchCategory(searchParams.get(SEARCH_CATEGORY_PARAM));
+  // 디자인 탭 거르기는 따로 읽는다(디자인 모음의 "레터링"은 상품 필터에 없는 값이라)
+  const designCategoryParam = readDesignCategory(searchParams.get(SEARCH_CATEGORY_PARAM));
   // 뒤로 오면 보던 자리 그대로(새로 들어오면 맨 위부터). 검색어를 바꿔도 이 화면이 그대로 남아 있어
   // 저장 이름에 검색어를 넣는다(넣지 않으면 처음 검색어 이름으로 저장돼 돌아왔을 때 못 찾는다)
-  useScrollRestoration(`/search?q=${searchParams.get("q") ?? ""}&category=${categoryParam ?? ""}`);
+  useScrollRestoration(
+    `/search?q=${searchParams.get("q") ?? ""}&category=${categoryParam ?? designCategoryParam ?? ""}`,
+  );
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [searchTerm, setSearchTerm] = useState(searchParams.get("q") || "");
@@ -116,6 +122,14 @@ export default function SearchPage() {
     if (categoryParam || searchParams.get("tab")) return;
     trackEvent("view_search");
   }, []);
+
+  // 카테고리 상세 화면 노출(기획 이벤트 표 "홈/검색" view_category_detail): 홈 카테고리·디자인 해시태그처럼
+  // 카테고리를 들고 들어올 때. 이 화면에 있는 채로 주소의 카테고리만 바뀌어도(뒤로 가기) 다시 센다
+  const enteredCategory = categoryParam ?? designCategoryParam;
+  useEffect(() => {
+    if (!enteredCategory) return;
+    trackEvent("view_category_detail", { category_name: searchCategoryLabel(enteredCategory) });
+  }, [enteredCategory]);
 
   // 필터 적용 후 또는 검색 결과가 바뀔 때 result_count가 갱신되면 해당 이벤트를 전송
   // (submittedTerm/activeTab/sortBy/listFilter는 ref로만 읽어 탭 전환 시 이전 카운트로 조기 발화되지 않게 함)
@@ -241,7 +255,12 @@ export default function SearchPage() {
           <div className="px-5 pb-[100px]">
             {activeTab === "design" ? (
               <DesignSearchSection
-                category={listFilter.productCategoryTypes?.[0] ?? categoryParam ?? null}
+                category={
+                  listFilter.productCategoryTypes?.[0] ??
+                  categoryParam ??
+                  designCategoryParam ??
+                  null
+                }
                 search={submittedTerm}
               />
             ) : activeTab === "product" ? (
