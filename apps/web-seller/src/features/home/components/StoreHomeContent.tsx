@@ -1,3 +1,4 @@
+import { PcLoadError } from "@/apps/web-seller/common/components/fallbacks/PcLoadError";
 import React from "react";
 import { Link } from "react-router-dom";
 import { Bell, CalendarDays, ClipboardList, Newspaper } from "lucide-react";
@@ -46,7 +47,9 @@ export interface StoreHomeContentProps {
 }
 
 export const StoreHomeContent: React.FC<StoreHomeContentProps> = ({ storeId }) => {
-  const { data: home, isLoading } = useStoreHomeDashboardQuery(storeId);
+  const { data: home, isLoading, isError, refetch } = useStoreHomeDashboardQuery(storeId);
+  // 불러오지 못했으면 "없습니다" 대신 다시 시도(11-17)
+  const homeFailed = isError && !home;
 
   const recentOrders = home?.recentOrders ?? [];
   const todayPickups = home?.todayPickups ?? [];
@@ -75,6 +78,8 @@ export const StoreHomeContent: React.FC<StoreHomeContentProps> = ({ storeId }) =
           <CardContent className={HOME_CARD_CONTENT_TABLE}>
             {isLoading ? (
               <ContentLoading variant="section" message="불러오는 중…" className="px-6 py-8" />
+            ) : homeFailed ? (
+              <PcLoadError onRetry={() => void refetch()} className="px-6 py-8" />
             ) : recentOrders.length === 0 ? (
               <p className={cn("px-6 py-8", HOME_BODY_MUTED)}>표시할 주문이 없습니다.</p>
             ) : (
@@ -145,6 +150,8 @@ export const StoreHomeContent: React.FC<StoreHomeContentProps> = ({ storeId }) =
           <CardContent className={HOME_CARD_CONTENT}>
             {isLoading ? (
               <ContentLoading variant="section" message="불러오는 중…" className="py-8" />
+            ) : homeFailed ? (
+              <PcLoadError onRetry={() => void refetch()} className="px-6 py-8" />
             ) : todayPickups.length === 0 ? (
               <p className={HOME_BODY_MUTED}>오늘 픽업 예정인 주문이 없습니다.</p>
             ) : (
@@ -180,6 +187,8 @@ export const StoreHomeContent: React.FC<StoreHomeContentProps> = ({ storeId }) =
           <CardContent className={HOME_CARD_CONTENT}>
             {isLoading ? (
               <ContentLoading variant="section" message="불러오는 중…" className="py-8" />
+            ) : homeFailed ? (
+              <PcLoadError onRetry={() => void refetch()} className="px-6 py-8" />
             ) : recentNotifications.length === 0 ? (
               <p className={HOME_BODY_MUTED}>알림이 없습니다.</p>
             ) : (
@@ -221,6 +230,8 @@ export const StoreHomeContent: React.FC<StoreHomeContentProps> = ({ storeId }) =
           <CardContent className={HOME_CARD_CONTENT}>
             {isLoading ? (
               <ContentLoading variant="section" message="불러오는 중…" className="py-8" />
+            ) : homeFailed ? (
+              <PcLoadError onRetry={() => void refetch()} className="px-6 py-8" />
             ) : recentFeeds.length === 0 ? (
               <p className={HOME_BODY_MUTED}>등록된 피드가 없습니다.</p>
             ) : (

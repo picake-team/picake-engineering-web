@@ -1,3 +1,4 @@
+import { PcLoadError } from "@/apps/web-seller/common/components/fallbacks/PcLoadError";
 import React, { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStoreList } from "@/apps/web-seller/features/store/hooks/queries/useStoreQuery";
@@ -9,7 +10,7 @@ import { readLastStoreId } from "@/apps/web-seller/common/utils/last-store.util"
 
 export const RootPage: React.FC = () => {
   const navigate = useNavigate();
-  const { data: storeListData, isLoading } = useStoreList();
+  const { data: storeListData, isLoading, isError, refetch } = useStoreList();
   const stores = useMemo(() => {
     if (!storeListData) return [];
     return flattenAndDeduplicateInfiniteData<StoreResponseDto>(storeListData);
@@ -33,6 +34,11 @@ export const RootPage: React.FC = () => {
         className="border-0 shadow-none"
       />
     );
+  }
+
+  // 불러오지 못했으면 "스토어가 없습니다"(→ 같은 가게를 또 만들 위험) 대신 다시 시도(휴대폰 Root와 같게, 11-17)
+  if (isError && !storeListData) {
+    return <PcLoadError onRetry={() => void refetch()} />;
   }
 
   if (stores.length === 0) {

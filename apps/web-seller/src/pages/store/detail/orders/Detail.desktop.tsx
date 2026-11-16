@@ -1,3 +1,4 @@
+import { PcLoadError } from "@/apps/web-seller/common/components/fallbacks/PcLoadError";
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
@@ -48,7 +49,7 @@ export const StoreDetailOrderDetailPage: React.FC = () => {
   const { storeId, orderId } = useParams<{ storeId: string; orderId: string }>();
   const navigate = useNavigate();
   // 채팅이 열려 있을 때만 연락처 옆 "채팅하기"(기획 I-11, 픽업 전 예약)
-  const { data: order, isLoading } = useOrderDetail(orderId || "");
+  const { data: order, isLoading, isError, refetch } = useOrderDetail(orderId || "");
   const updateOrderStatusMutation = useUpdateOrderStatus();
   const openConfirmModal = useConfirmStore((state) => state.showConfirm);
   const [lightbox, setLightbox] = useState<{ images: string[]; index: number } | null>(null);
@@ -73,6 +74,11 @@ export const StoreDetailOrderDetailPage: React.FC = () => {
         className="border-0 shadow-none"
       />
     );
+  }
+
+  if (!order && isError) {
+    // 불러오지 못했으면 "주문을 찾을 수 없습니다" 대신 다시 시도(11-17)
+    return <PcLoadError onRetry={() => void refetch()} />;
   }
 
   if (!order) {

@@ -1,3 +1,4 @@
+import { PcLoadError } from "@/apps/web-seller/common/components/fallbacks/PcLoadError";
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import {
@@ -91,7 +92,7 @@ export const StoreDetailOrderListPage: React.FC = () => {
     );
   }
 
-  const { data, isLoading } = useOrderList({
+  const { data, isLoading, isError, refetch } = useOrderList({
     page,
     limit: LIMIT,
     sortBy,
@@ -234,6 +235,9 @@ export const StoreDetailOrderListPage: React.FC = () => {
       {/* 주문 목록 */}
       {isLoading ? (
         <ContentLoading variant="section" message="주문을 불러오는 중…" className="py-12" />
+      ) : isError && !data ? (
+        // 불러오지 못했으면 "주문이 없습니다" 대신 다시 시도(11-17)
+        <PcLoadError onRetry={() => void refetch()} />
       ) : (
         <>
           <OrderList orders={orders} sortBy={sortBy} onSortChange={setSortBy} />
