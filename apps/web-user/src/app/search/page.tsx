@@ -282,11 +282,11 @@ export default function SearchPage() {
           onPick={handlePick}
           onRemoveRecent={(term) => {
             recentSearches.remove(term);
-            trackEvent("delete_recent_search", { scope: "one" });
+            trackEvent("engage_recent_search_delete", { scope: "one" });
           }}
           onClearRecent={() => {
             recentSearches.clear();
-            trackEvent("delete_recent_search", { scope: "all" });
+            trackEvent("engage_recent_search_delete", { scope: "all" });
           }}
         />
       )}
