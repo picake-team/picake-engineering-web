@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import refreshIcon from "@/apps/web-seller/assets/images/refresh.png";
 import { Input } from "@/apps/web-seller/common/components/inputs/Input";
@@ -29,15 +28,12 @@ interface PhoneVerificationFormProps {
   purpose: PhoneVerificationPurpose;
   /** false이면 인증 완료 버튼 비활성 (예: 필수 약관 미동의) */
   canComplete?: boolean;
-  /** "휴대폰 번호" 제목 줄 오른쪽에 둘 것(예: 카카오 가입의 "카카오 번호로") */
-  labelAction?: ReactNode;
 }
 
 export default function PhoneVerificationForm({
   onVerificationComplete,
   purpose,
   canComplete = true,
-  labelAction,
 }: PhoneVerificationFormProps) {
   const sendPhoneVerificationMutation = useSendPhoneVerification();
   const verifyPhoneCodeMutation = useVerifyPhoneCode();
@@ -130,12 +126,9 @@ export default function PhoneVerificationForm({
   return (
     <form className="w-full space-y-5" onSubmit={(e) => e.preventDefault()}>
       <div className="flex flex-col gap-2.5">
-        <div className="flex items-center justify-between">
-          <label htmlFor="auth-phone" className="text-sm font-medium text-zinc-700">
-            휴대폰 번호
-          </label>
-          {labelAction}
-        </div>
+        <label htmlFor="auth-phone" className="text-sm font-medium text-zinc-700">
+          휴대폰 번호
+        </label>
         <div className="flex flex-row items-start gap-2">
           <div className="min-w-0 flex-1">
             <Input

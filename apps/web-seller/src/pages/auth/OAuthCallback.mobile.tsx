@@ -295,14 +295,7 @@ function SignUp({
           )}
         </Field>
       ) : (
-        <>
-          <PhoneVerifyInputs v={v} />
-          {hints.phone ? (
-            <Button variant="quiet" onClick={() => setUseKakaoPhone(true)} className="self-start">
-              카카오 번호로
-            </Button>
-          ) : null}
-        </>
+        <PhoneVerifyInputs v={v} />
       )}
       {termsFromKakao ? null : <SellerTermsBox value={terms} onChange={setTerms} />}
     </AppScreen>

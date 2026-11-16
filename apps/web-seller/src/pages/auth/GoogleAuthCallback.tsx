@@ -191,12 +191,6 @@ export function GoogleAuthCallbackPage() {
     return (
       <AuthBrandedCard
         title="회원가입"
-        description={
-          <>
-            판매자 센터 이용을 위해 <strong className="font-medium text-zinc-700">실명</strong>과{" "}
-            <strong className="font-medium text-zinc-700">휴대폰 인증</strong>이 필요합니다.
-          </>
-        }
         footer={
           <div className="flex justify-center">
             <Link

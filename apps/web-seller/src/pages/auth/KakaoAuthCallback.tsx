@@ -258,12 +258,6 @@ export function KakaoAuthCallbackPage() {
     return (
       <AuthBrandedCard
         title="회원가입"
-        description={
-          <>
-            판매자 센터 이용을 위해 <strong className="font-medium text-zinc-700">실명</strong>과{" "}
-            <strong className="font-medium text-zinc-700">휴대폰 인증</strong>이 필요합니다.
-          </>
-        }
         footer={
           <div className="flex justify-center">
             <Link
@@ -324,17 +318,6 @@ export function KakaoAuthCallbackPage() {
           ) : (
             <div className="space-y-2">
               <PhoneVerificationForm
-                labelAction={
-                  hints.phone ? (
-                    <button
-                      type="button"
-                      onClick={() => setUseKakaoPhone(true)}
-                      className="text-sm font-medium text-zinc-500 underline underline-offset-2 hover:text-zinc-800"
-                    >
-                      카카오 번호로
-                    </button>
-                  ) : undefined
-                }
                 onVerificationComplete={handlePhoneVerificationComplete}
                 purpose={PHONE_VERIFICATION_PURPOSE.KAKAO_REGISTRATION}
                 canComplete={termsFromKakao || isRequiredSellerTermsAllChecked(termsState)}

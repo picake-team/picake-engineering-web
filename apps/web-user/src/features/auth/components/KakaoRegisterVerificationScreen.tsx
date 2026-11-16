@@ -399,20 +399,9 @@ export function KakaoRegisterVerificationScreen() {
             </div>
           ) : (
             <div className="mt-4 flex flex-col gap-[10px]">
-              <div className="flex items-center justify-between">
-                <label htmlFor="kakao-register-phone" className="text-sm font-bold text-gray-900">
-                  핸드폰 번호
-                </label>
-                {hints.phone ? (
-                  <button
-                    type="button"
-                    onClick={() => setUseKakaoPhone(true)}
-                    className="press text-sm font-bold text-gray-500 underline underline-offset-2"
-                  >
-                    카카오 번호로
-                  </button>
-                ) : null}
-              </div>
+              <label htmlFor="kakao-register-phone" className="text-sm font-bold text-gray-900">
+                핸드폰 번호
+              </label>
               <div className="flex flex-row items-start gap-2">
                 <div className="min-w-0 flex-1">
                   <Input
