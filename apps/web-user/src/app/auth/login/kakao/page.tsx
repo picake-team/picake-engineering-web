@@ -16,6 +16,7 @@ import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import { decodeJwtPayload } from "@/apps/web-user/features/auth/utils/jwt.util";
 import { resolveSocialAuthFailReason } from "@/apps/web-user/features/auth/utils/social-auth-error.util";
 import { saveRegisterTicket } from "@/apps/web-user/features/auth/utils/register-ticket.util";
+import { saveLastLoginProvider } from "@/apps/web-user/features/auth/utils/last-login-provider.util";
 
 function KakaoAuthCallbackContent() {
   const router = useRouter();
@@ -42,6 +43,8 @@ function KakaoAuthCallbackContent() {
         if (userId) {
           trackEvent("success_login", { provider: "kakao", user_id: userId });
         }
+        // 로그인 화면 "최근 로그인" 말풍선
+        saveLastLoginProvider("kakao");
         login(data.accessToken);
         // 로그인을 시작했던 화면으로 복귀 (없으면 홈)
         router.replace(consumePostLoginRedirect());

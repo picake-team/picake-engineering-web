@@ -8,6 +8,7 @@ import type {
   UpdateSellerMypageProfileRequestDto,
   WithdrawAccountRequestDto,
 } from "@/apps/web-seller/features/mypage/types/mypage.dto";
+import { clearLastLoginProvider } from "@/apps/web-seller/features/auth/utils/last-login-provider.util";
 
 export function useUpdateMypageProfile() {
   const queryClient = useQueryClient();
@@ -63,6 +64,8 @@ export function useMypageWithdraw() {
   return useMutation({
     mutationFn: (dto: WithdrawAccountRequestDto) => mypageApi.withdrawAccount(dto),
     onSuccess: (response) => {
+      // 탈퇴한 계정의 "최근 로그인" 표시는 남기지 않는다
+      clearLastLoginProvider();
       addAlert({
         message: getApiMessage.success(response),
         title: "성공",

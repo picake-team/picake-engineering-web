@@ -54,6 +54,7 @@ import {
   googleAuthorizeUrl,
   kakaoAuthorizeUrl,
 } from "@/apps/web-seller/features/auth/components/mobile/socialLogin";
+import { saveLastLoginProvider } from "@/apps/web-seller/features/auth/utils/last-login-provider.util";
 
 type Provider = "google" | "kakao";
 
@@ -220,6 +221,7 @@ function SignUp({
                   });
             })();
       clearPendingOAuthRegister();
+      saveLastLoginProvider(provider);
       login({ navigate, accessToken: tokens.accessToken });
     } catch (error) {
       const existing = existingAccountFrom(error);
@@ -363,6 +365,7 @@ function OAuthCallbackMobile({ provider }: { provider: Provider }) {
     try {
       const data = await PROVIDER[provider].login(c);
       clearPendingOAuthRegister();
+      saveLastLoginProvider(provider);
       login({ navigate, accessToken: data.accessToken });
     } catch (error) {
       const p = errorPayload(error);
