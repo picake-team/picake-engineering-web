@@ -48,7 +48,7 @@ function formatCountdownMmSs(totalSeconds: number): string {
 
 /**
  * 구글 OAuth 이후 휴대폰 인증·회원가입 전용 화면
- * (콜백에서 googleId·googleEmail 쿼리로 전달)
+ * (콜백에서 가입표 registerToken을 쿼리로 전달)
  */
 export function GoogleRegisterVerificationScreen() {
   const router = useRouter();
@@ -67,10 +67,7 @@ export function GoogleRegisterVerificationScreen() {
   const isKeyboardOpen = useKeyboardOpen();
   const googleRegisterMutation = useGoogleRegister({ onDuplicateAccount: handleDuplicateAccount });
 
-  const [googleLoginData, setGoogleLoginData] = useState<{
-    googleId: string;
-    googleEmail: string;
-  } | null>(null);
+  const [googleLoginData, setGoogleLoginData] = useState<{ registerToken: string } | null>(null);
   const [booting, setBooting] = useState(true);
 
   const [displayName, setDisplayName] = useState("");
@@ -90,14 +87,14 @@ export function GoogleRegisterVerificationScreen() {
   );
 
   useEffect(() => {
-    const googleId = searchParams.get("googleId")?.trim();
-    const googleEmail = searchParams.get("googleEmail")?.trim();
-    if (!googleId || !googleEmail) {
+    // 가입표(로그인 때 서버가 확인한 소셜 ID가 들어 있음, 30분) — 가입은 이 값으로만 한다
+    const registerToken = searchParams.get("registerToken")?.trim();
+    if (!registerToken) {
       router.replace(PATHS.HOME);
       setBooting(false);
       return;
     }
-    setGoogleLoginData({ googleId, googleEmail });
+    setGoogleLoginData({ registerToken });
     setBooting(false);
     trackEvent("view_phone_verification", { provider: "google" });
   }, [router, searchParams]);

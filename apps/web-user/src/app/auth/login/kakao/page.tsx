@@ -47,15 +47,15 @@ function KakaoAuthCallbackContent() {
       } catch (error: unknown) {
         const err = error as {
           response?: {
-            data?: { data?: { kakaoId?: string; kakaoEmail?: string; message?: string } };
+            data?: { data?: { registerToken?: string; message?: string } };
           };
         };
-        const { kakaoId, kakaoEmail, message } = err?.response?.data?.data || {};
+        const { registerToken, message } = err?.response?.data?.data || {};
 
-        if (isServerAuthMessage(message, "PHONE_VERIFICATION_REQUIRED") && kakaoId && kakaoEmail) {
+        if (isServerAuthMessage(message, "PHONE_VERIFICATION_REQUIRED") && registerToken) {
           const params = new URLSearchParams();
-          params.set("kakaoId", kakaoId);
-          params.set("kakaoEmail", kakaoEmail);
+          // 가입표: 서버가 확인한 소셜 ID가 들어 있어 가입은 이 값으로만 한다(30분)
+          params.set("registerToken", registerToken);
           // 회원가입으로 이어지므로 복귀 경로는 유지 (가입 완료 후 사용)
           router.replace(`${PATHS.AUTH.KAKAO_REGISTER}?${params.toString()}`);
         } else {

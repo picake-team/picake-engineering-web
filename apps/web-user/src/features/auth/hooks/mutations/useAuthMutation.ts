@@ -6,7 +6,10 @@ import { useAlertStore } from "@/apps/web-user/common/store/alert.store";
 import getApiMessage from "@/apps/web-user/common/utils/getApiMessage";
 import type { PhoneVerificationPurpose } from "@/apps/web-user/features/auth/types/auth.dto";
 import type { DuplicateAccountPayload } from "@/apps/web-user/features/auth/types/auth.dto";
-import { parseDuplicateAccountPayload } from "@/apps/web-user/features/auth/utils/register-duplicate-account.util";
+import {
+  isRegisterTicketInvalid,
+  parseDuplicateAccountPayload,
+} from "@/apps/web-user/features/auth/utils/register-duplicate-account.util";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { consumePostLoginRedirect } from "@/apps/web-user/features/auth/utils/post-login-redirect.util";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
@@ -89,6 +92,10 @@ export function useGoogleRegister(options?: {
         options?.onDuplicateAccount?.(duplicate);
         return;
       }
+      if (isRegisterTicketInvalid(error)) {
+        // 가입표가 30분 지났거나 잘못됨 — 이 화면에서는 가입할 수 없어 홈으로 보내고 다시 로그인하게 한다(복귀 경로는 유지)
+        router.replace(PATHS.HOME);
+      }
       showAlert({
         type: "error",
         title: "오류",
@@ -122,6 +129,10 @@ export function useKakaoRegister(options?: {
         options?.onDuplicateAccount?.(duplicate);
         return;
       }
+      if (isRegisterTicketInvalid(error)) {
+        // 가입표가 30분 지났거나 잘못됨 — 이 화면에서는 가입할 수 없어 홈으로 보내고 다시 로그인하게 한다(복귀 경로는 유지)
+        router.replace(PATHS.HOME);
+      }
       showAlert({
         type: "error",
         title: "오류",
@@ -154,6 +165,10 @@ export function useAppleRegister(options?: {
       if (duplicate) {
         options?.onDuplicateAccount?.(duplicate);
         return;
+      }
+      if (isRegisterTicketInvalid(error)) {
+        // 가입표가 30분 지났거나 잘못됨 — 이 화면에서는 가입할 수 없어 홈으로 보내고 다시 로그인하게 한다(복귀 경로는 유지)
+        router.replace(PATHS.HOME);
       }
       showAlert({
         type: "error",

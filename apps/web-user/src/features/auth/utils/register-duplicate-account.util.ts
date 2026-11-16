@@ -37,3 +37,12 @@ export function parseDuplicateAccountPayload(error: unknown): DuplicateAccountPa
 
   return { message, provider, name, phone, email };
 }
+
+/** 회원가입 API가 가입표(registerToken)를 받지 않음(30분 지남·잘못됨) — 다시 로그인해야 한다 */
+export function isRegisterTicketInvalid(error: unknown): boolean {
+  const axiosError = error as AxiosError<{ data?: { message?: unknown } }>;
+  return (
+    axiosError.response?.status === 400 &&
+    isServerAuthMessage(axiosError.response?.data?.data?.message, "REGISTER_TICKET_INVALID")
+  );
+}

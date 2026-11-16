@@ -25,6 +25,7 @@ const SENSITIVE_URL_PARAMS = [
   "appleEmail",
   "googleId",
   "appleId",
+  "registerToken",
   "iss",
   "scope",
   "authuser",
