@@ -60,10 +60,10 @@ export function KakaoAuthCallbackPage() {
 
   const initialPending = readInitialKakaoLoginData();
   const [showPhoneVerification, setShowPhoneVerification] = useState(!!initialPending);
-  const [kakaoLoginData, setKakaoLoginData] = useState<{
-    kakaoId: string;
-    kakaoEmail: string;
-  } | null>(initialPending);
+  const [kakaoLoginData, setKakaoLoginData] = useState<{ registerToken: string } | null>(
+    // provider 칸은 가입 요청에 넣지 않는다(서버가 모르는 칸이면 400)
+    initialPending ? { registerToken: initialPending.registerToken } : null,
+  );
   const [displayName, setDisplayName] = useState("");
   const [nameError, setNameError] = useState("");
   const [termsState, setTermsState] = useState<SellerTermsAgreementState>(
@@ -94,32 +94,29 @@ export function KakaoAuthCallbackPage() {
         response?: {
           data?: {
             message?: string;
-            data?: { kakaoId?: string; kakaoEmail?: string; message?: string };
+            data?: { registerToken?: string; message?: string };
           };
         };
       };
       const payload = (err?.response?.data?.data ?? err?.response?.data ?? {}) as {
         message?: string;
-        kakaoId?: string;
-        kakaoEmail?: string;
+        registerToken?: string;
       };
       const message = payload.message ?? "";
-      const kakaoId = payload.kakaoId;
-      const kakaoEmail = payload.kakaoEmail;
+      // 가입표: 서버가 확인한 소셜 ID가 들어 있어 가입은 이 값으로만 한다(30분)
+      const registerToken = payload.registerToken;
 
       if (
         typeof message === "string" &&
         message.includes(AUTH_ERROR_MESSAGES.PHONE_VERIFICATION_REQUIRED) &&
-        kakaoId &&
-        kakaoEmail
+        registerToken
       ) {
         const pending: PendingKakaoRegister = {
           provider: "kakao",
-          kakaoId,
-          kakaoEmail,
+          registerToken,
         };
         setPendingOAuthRegister(pending);
-        setKakaoLoginData({ kakaoId, kakaoEmail });
+        setKakaoLoginData({ registerToken });
         setShowPhoneVerification(true);
       } else {
         clearPendingOAuthRegister();
