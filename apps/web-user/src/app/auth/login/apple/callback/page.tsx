@@ -12,6 +12,7 @@ import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import { decodeJwtPayload } from "@/apps/web-user/features/auth/utils/jwt.util";
 import { resolveSocialAuthFailReason } from "@/apps/web-user/features/auth/utils/social-auth-error.util";
 import { saveRegisterTicket } from "@/apps/web-user/features/auth/utils/register-ticket.util";
+import { saveLastLoginProvider } from "@/apps/web-user/features/auth/utils/last-login-provider.util";
 
 /**
  * 애플 OAuth 콜백 — `/auth/login/apple`(route.ts)이 폼바디를 파싱해 `code`를 쿼리로 붙여 여기로
@@ -44,6 +45,8 @@ function AppleAuthCallbackContent() {
         if (userId) {
           trackEvent("success_login", { provider: "apple", user_id: userId });
         }
+        // 로그인 화면 "최근 로그인" 말풍선
+        saveLastLoginProvider("apple");
         login(data.accessToken);
         router.replace(PATHS.HOME);
       } catch (error: unknown) {

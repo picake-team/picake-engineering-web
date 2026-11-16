@@ -5,16 +5,16 @@ import { cn } from "@/apps/web-user/common/lib/utils";
 export const oauthLoginButtonIconClassName = "size-[20px] shrink-0 object-contain";
 
 export const oauthKakaoLoginButtonClassName = cn(
-  "flex h-[52px] w-full items-center justify-center gap-[6px] rounded-2lg border-0 bg-[#FFEB00] text-base font-bold leading-none text-gray-900",
+  "relative flex h-[52px] w-full items-center justify-center gap-[6px] rounded-2lg border-0 bg-[#FFEB00] text-base font-bold leading-none text-gray-900",
 );
 
 export const oauthGoogleLoginButtonClassName = cn(
-  "flex h-[52px] w-full items-center justify-center gap-[6px] rounded-2lg border border-solid border-gray-100 bg-white text-base font-bold leading-none text-gray-900",
+  "relative flex h-[52px] w-full items-center justify-center gap-[6px] rounded-2lg border border-solid border-gray-100 bg-white text-base font-bold leading-none text-gray-900",
 );
 
 /** Apple Human Interface Guidelines 권장 "Sign in with Apple" 버튼(검정 배경) */
 export const oauthAppleLoginButtonClassName = cn(
-  "flex h-[52px] w-full items-center justify-center gap-[6px] rounded-2lg border-0 bg-black text-base font-bold leading-none text-white",
+  "relative flex h-[52px] w-full items-center justify-center gap-[6px] rounded-2lg border-0 bg-black text-base font-bold leading-none text-white",
 );
 
 export const OAuthKakaoLoginButton = React.forwardRef<

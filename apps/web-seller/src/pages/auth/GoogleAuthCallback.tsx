@@ -31,6 +31,7 @@ import {
   buildSellerTermsDocumentIds,
   mapSellerActiveTermsToDocIds,
 } from "@/apps/web-seller/features/terms/utils/terms-consent.util";
+import { saveLastLoginProvider } from "@/apps/web-seller/features/auth/utils/last-login-provider.util";
 
 function readInitialGoogleLoginData(): PendingGoogleRegister | null {
   const pending = getPendingOAuthRegister();
@@ -90,6 +91,7 @@ export function GoogleAuthCallbackPage() {
       const data = await authApi.googleLogin(code);
       clearPendingOAuthRegister();
       stripOAuthCodeFromUrl(navigate, location, searchParams);
+      saveLastLoginProvider("google");
       login({ navigate, accessToken: data.accessToken });
     } catch (error: unknown) {
       stripOAuthCodeFromUrl(navigate, location, searchParams);

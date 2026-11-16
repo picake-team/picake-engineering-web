@@ -37,6 +37,7 @@ import {
   buildSellerTermsDocumentIds,
   mapSellerActiveTermsToDocIds,
 } from "@/apps/web-seller/features/terms/utils/terms-consent.util";
+import { saveLastLoginProvider } from "@/apps/web-seller/features/auth/utils/last-login-provider.util";
 
 function readInitialKakaoLoginData(): PendingKakaoRegister | null {
   const pending = getPendingOAuthRegister();
@@ -105,6 +106,7 @@ export function KakaoAuthCallbackPage() {
       const data = await authApi.kakaoLogin(code);
       clearPendingOAuthRegister();
       stripOAuthCodeFromUrl(navigate, location, searchParams);
+      saveLastLoginProvider("kakao");
       login({ navigate, accessToken: data.accessToken });
     } catch (error: unknown) {
       stripOAuthCodeFromUrl(navigate, location, searchParams);

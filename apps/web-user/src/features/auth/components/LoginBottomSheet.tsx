@@ -18,6 +18,8 @@ import {
 import { useLoginSheetStore } from "@/apps/web-user/common/store/login-sheet.store";
 import { setPostLoginRedirect } from "@/apps/web-user/features/auth/utils/post-login-redirect.util";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
+import { RecentLoginBubble } from "@/apps/web-user/features/auth/components/RecentLoginBubble";
+import { useLastLoginProvider } from "@/apps/web-user/features/auth/hooks/useLastLoginProvider";
 
 /**
  * 비로그인 사용자에게 노출되는 로그인 / 회원가입 바텀시트.
@@ -30,6 +32,7 @@ export function LoginBottomSheet() {
   const isOpen = useLoginSheetStore((s) => s.isOpen);
   const entryPoint = useLoginSheetStore((s) => s.entryPoint);
   const closeLoginSheet = useLoginSheetStore((s) => s.closeLoginSheet);
+  const lastProvider = useLastLoginProvider(isOpen);
   const [googleAuthHref, setGoogleAuthHref] = useState<string | null>(null);
   const [kakaoAuthHref, setKakaoAuthHref] = useState<string | null>(null);
   const [appleAuthHref, setAppleAuthHref] = useState<string | null>(null);
@@ -77,6 +80,7 @@ export function LoginBottomSheet() {
                 className={oauthLoginButtonIconClassName}
               />
               카카오로 시작하기
+              {lastProvider === "kakao" && <RecentLoginBubble />}
             </a>
           )}
           {googleAuthHref && (
@@ -96,6 +100,7 @@ export function LoginBottomSheet() {
                 className={oauthLoginButtonIconClassName}
               />
               구글로 시작하기
+              {lastProvider === "google" && <RecentLoginBubble />}
             </a>
           )}
           {appleAuthHref && (
@@ -109,6 +114,7 @@ export function LoginBottomSheet() {
             >
               <AppleLogoIcon />
               Apple로 시작하기
+              {lastProvider === "apple" && <RecentLoginBubble />}
             </a>
           )}
         </div>

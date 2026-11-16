@@ -12,6 +12,7 @@ import type {
   FindAccountRequestDto,
   PhoneVerificationPurpose,
 } from "@/apps/web-seller/features/auth/types/auth.dto";
+import { saveLastLoginProvider } from "@/apps/web-seller/features/auth/utils/last-login-provider.util";
 
 export function useLogout() {
   const { logout } = useAuthStore();
@@ -98,6 +99,7 @@ export function useGoogleRegister() {
   return useMutation({
     mutationFn: authApi.googleRegister,
     onSuccess: (data) => {
+      saveLastLoginProvider("google");
       login({ navigate, accessToken: data.accessToken });
     },
     onError: (error) => {
@@ -123,6 +125,7 @@ export function useKakaoRegister() {
   return useMutation({
     mutationFn: authApi.kakaoRegister,
     onSuccess: (data) => {
+      saveLastLoginProvider("kakao");
       login({ navigate, accessToken: data.accessToken });
     },
     onError: (error) => {
