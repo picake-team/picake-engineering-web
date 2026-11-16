@@ -55,12 +55,16 @@ export interface GoogleRegisterRequestDto {
 export interface KakaoRegisterRequestDto {
   /** 가입표 — 로그인 응답(400 PHONE_VERIFICATION_REQUIRED)의 registerToken. 소셜 ID는 보내지 않는다 */
   registerToken: string;
+  /** 가입표 안 카카오 번호를 손님이 확인했으면 true — phone·문자 인증 없이 그 번호로 가입 */
+  useTicketPhone?: boolean;
   name: string;
-  phone: string;
-  agreedToTerms: boolean;
-  agreedToPrivacy: boolean;
-  agreedToThirdParty: boolean;
-  agreedToLocationTerms: boolean;
+  /** 문자 인증한 번호(useTicketPhone이 아닐 때) */
+  phone?: string;
+  /** 카카오 간편가입에서 약관에 모두 동의했으면 보내지 않는다(서버가 가입표로 확인) */
+  agreedToTerms?: boolean;
+  agreedToPrivacy?: boolean;
+  agreedToThirdParty?: boolean;
+  agreedToLocationTerms?: boolean;
   /** 동의한 약관 문서 ID 목록 (버전 이력 기록용) */
   termsDocumentIds?: string[];
 }

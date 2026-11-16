@@ -1,0 +1,86 @@
+import { decodeJwtPayload } from "@/apps/web-user/features/auth/utils/jwt.util";
+
+export type RegisterTicketProvider = "kakao" | "google" | "apple";
+
+/**
+ * 가입표(registerToken)를 로그인 콜백 → 가입 화면으로 넘긴다.
+ * 가입표에는 카카오가 준 전화번호·이름이 들어 있을 수 있어 주소(쿼리)에 싣지 않고 이 탭의 sessionStorage에 둔다.
+ * 저장이 안 되는 브라우저(사생활 보호 모드 등)는 예전처럼 주소로 넘긴다.
+ */
+const KEY = (provider: RegisterTicketProvider) => `picake:register-ticket:${provider}`;
+
+/** 저장했으면 true — false면 주소로 넘긴다 */
+export function saveRegisterTicket(provider: RegisterTicketProvider, token: string): boolean {
+  try {
+    window.sessionStorage.setItem(KEY(provider), token);
+    return window.sessionStorage.getItem(KEY(provider)) === token;
+  } catch {
+    return false;
+  }
+}
+
+/** 저장한 가입표, 없으면 주소의 registerToken(저장이 안 됐거나 배포 사이에 넘어온 경우) */
+export function readRegisterTicket(
+  provider: RegisterTicketProvider,
+  fromQuery: string | null | undefined,
+): string | null {
+  try {
+    const saved = window.sessionStorage.getItem(KEY(provider));
+    if (saved) return saved;
+  } catch {
+    // 저장소를 못 쓰면 주소에서
+  }
+  const q = fromQuery?.trim();
+  return q ? q : null;
+}
+
+export function clearRegisterTicket(provider: RegisterTicketProvider): void {
+  try {
+    window.sessionStorage.removeItem(KEY(provider));
+  } catch {
+    // 지울 수 없으면 30분 뒤 서버가 받지 않는다
+  }
+}
+
+/**
+ * 가입표 안 카카오가 준 값(화면 표시용). 서명 확인은 서버가 하고, 화면은 읽기만 한다 —
+ * 여기 값을 고쳐 보내도 서버는 가입표 원본만 쓴다.
+ */
+export interface RegisterTicketHints {
+  /** 카카오가 준 국내 휴대폰 번호(숫자만) */
+  phone?: string;
+  name?: string;
+  /** 카카오 간편가입에서 동의한 약관 태그 */
+  terms?: string[];
+}
+
+export function readRegisterTicketHints(token: string): RegisterTicketHints {
+  const p = decodeJwtPayload<{ phone?: unknown; name?: unknown; terms?: unknown }>(token);
+  if (!p) return {};
+  return {
+    ...(typeof p.phone === "string" && /^01\d{8,9}$/.test(p.phone) ? { phone: p.phone } : {}),
+    ...(typeof p.name === "string" && p.name.trim() ? { name: p.name.trim() } : {}),
+    ...(Array.isArray(p.terms) ? { terms: p.terms.filter((t) => typeof t === "string") } : {}),
+  };
+}
+
+/** 손님 필수 약관(카카오 간편가입 태그, backend KAKAO_SERVICE_TERMS.consumer와 같게) */
+export const KAKAO_CONSUMER_REQUIRED_TERMS = [
+  "picake_c_tos",
+  "picake_c_privacy",
+  "picake_c_third_party",
+] as const;
+export const KAKAO_CONSUMER_LOCATION_TERM = "picake_c_location";
+
+/** 카카오에서 손님 필수 약관에 모두 동의했으면 가입 화면에서 약관을 다시 받지 않는다 */
+export function hasAllKakaoConsumerTerms(terms: string[] | undefined): boolean {
+  const agreed = new Set(terms ?? []);
+  return KAKAO_CONSUMER_REQUIRED_TERMS.every((t) => agreed.has(t));
+}
+
+/** "01012345678" → "010-****-5678" */
+export function maskPhoneForDisplay(phone: string): string {
+  const d = phone.replace(/\D/g, "");
+  if (d.length < 10) return phone;
+  return `${d.slice(0, 3)}-****-${d.slice(-4)}`;
+}

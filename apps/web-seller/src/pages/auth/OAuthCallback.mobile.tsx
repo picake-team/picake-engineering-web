@@ -31,6 +31,11 @@ import { usePhoneVerification } from "@/apps/web-seller/features/auth/hooks/useP
 import { PhoneVerifyInputs } from "@/apps/web-seller/features/auth/components/mobile/PhoneVerifyFields";
 import { SellerTermsBox } from "@/apps/web-seller/features/auth/components/mobile/SellerTermsBox";
 import {
+  hasAllKakaoSellerTerms,
+  maskPhoneForDisplay,
+  readRegisterTicketHints,
+} from "@/apps/web-seller/features/auth/utils/register-ticket-hints.util";
+import {
   INITIAL_SELLER_TERMS_STATE,
   isRequiredSellerTermsAllChecked,
   type SellerTermsAgreementState,
@@ -135,20 +140,29 @@ function SignUp({
   const login = useAuthStore((s) => s.login);
   const addAlert = useAlertStore((s) => s.addAlert);
   const v = usePhoneVerification(PROVIDER[provider].purpose);
-  const [name, setName] = useState("");
+  // 카카오가 준 번호·이름·약관 동의(가입표 안, 화면 표시용 — 기획 I-59 B)
+  const hints = useMemo(
+    () => (provider === "kakao" ? readRegisterTicketHints(identity.registerToken) : {}),
+    [provider, identity.registerToken],
+  );
+  const [name, setName] = useState(hints.name ?? "");
+  // 카카오 번호로 가입(문자 인증 없음). "다른 번호"를 누르면 지금처럼 문자 인증
+  const [useKakaoPhone, setUseKakaoPhone] = useState(Boolean(hints.phone));
+  const termsFromKakao = provider === "kakao" && hasAllKakaoSellerTerms(hints.terms);
   const [terms, setTerms] = useState<SellerTermsAgreementState>(INITIAL_SELLER_TERMS_STATE);
   const [submitting, setSubmitting] = useState(false);
   const { data: activeTerms } = useSellerActiveTerms();
   const docIds = useMemo(() => mapSellerActiveTermsToDocIds(activeTerms ?? {}), [activeTerms]);
 
   const nameError = name && name.trim().length > 50 ? AUTH_ERROR_MESSAGES.NAME_MAX_LENGTH : null;
-  const termsOk = isRequiredSellerTermsAllChecked(terms);
-  const ready = Boolean(name.trim()) && !nameError && v.readyToVerify && termsOk;
+  const termsOk = termsFromKakao || isRequiredSellerTermsAllChecked(terms);
+  const phoneOk = useKakaoPhone || v.readyToVerify;
+  const ready = Boolean(name.trim()) && !nameError && phoneOk && termsOk;
   const reason = !name.trim()
     ? "실명을 적어 주세요"
-    : !v.sent
+    : !useKakaoPhone && !v.sent
       ? "휴대폰 인증번호를 받아 주세요"
-      : !v.readyToVerify
+      : !phoneOk
         ? "인증번호를 넣어 주세요"
         : !termsOk
           ? "필수 약관에 동의해 주세요"
@@ -156,28 +170,53 @@ function SignUp({
 
   const submit = async () => {
     if (!ready || submitting) return;
-    const termsDocumentIds = buildSellerTermsDocumentIds(terms, docIds);
-    if (!termsDocumentIds) {
-      addAlert({
-        severity: "warning",
-        message: "약관을 불러오지 못했어요. 잠시 뒤 다시 시도해 주세요.",
-      });
-      return;
-    }
-    setSubmitting(true);
-    try {
-      const phone = await v.verifyCode();
-      const body = {
-        name: name.trim(),
-        phone,
+    let termsPart: {
+      agreedToTerms?: boolean;
+      agreedToPrivacy?: boolean;
+      termsDocumentIds?: string[];
+    } = {};
+    if (!termsFromKakao) {
+      const termsDocumentIds = buildSellerTermsDocumentIds(terms, docIds);
+      if (!termsDocumentIds) {
+        addAlert({
+          severity: "warning",
+          message: "약관을 불러오지 못했어요. 잠시 뒤 다시 시도해 주세요.",
+        });
+        return;
+      }
+      termsPart = {
         agreedToTerms: terms.termsOfService,
         agreedToPrivacy: terms.privacyPolicy,
         termsDocumentIds,
       };
+    }
+    setSubmitting(true);
+    try {
       const tokens =
-        provider === "google"
-          ? await authApi.googleRegister({ ...body, registerToken: identity.registerToken })
-          : await authApi.kakaoRegister({ ...body, registerToken: identity.registerToken });
+        provider === "kakao" && useKakaoPhone
+          ? await authApi.kakaoRegister({
+              registerToken: identity.registerToken,
+              useTicketPhone: true,
+              name: name.trim(),
+              ...termsPart,
+            })
+          : await (async () => {
+              const phone = await v.verifyCode();
+              const body = {
+                name: name.trim(),
+                phone,
+                agreedToTerms: terms.termsOfService,
+                agreedToPrivacy: terms.privacyPolicy,
+                ...termsPart,
+              };
+              return provider === "google"
+                ? await authApi.googleRegister({
+                    ...body,
+                    termsDocumentIds: termsPart.termsDocumentIds,
+                    registerToken: identity.registerToken,
+                  })
+                : await authApi.kakaoRegister({ ...body, registerToken: identity.registerToken });
+            })();
       clearPendingOAuthRegister();
       login({ navigate, accessToken: tokens.accessToken });
     } catch (error) {
@@ -227,8 +266,37 @@ function SignUp({
           />
         )}
       </Field>
-      <PhoneVerifyInputs v={v} helper="계정 확인과 계정 찾기에 써요" />
-      <SellerTermsBox value={terms} onChange={setTerms} />
+      {useKakaoPhone && hints.phone ? (
+        <Field
+          label="휴대폰 번호"
+          helper="카카오에 등록된 번호예요. 계정 확인과 계정 찾기에 써요"
+          trailing={
+            <Button
+              variant="secondary"
+              onClick={() => setUseKakaoPhone(false)}
+              className="min-w-[96px]"
+            >
+              다른 번호
+            </Button>
+          }
+        >
+          {(p) => (
+            <TextInput
+              id={p.id}
+              aria-describedby={p.describedBy}
+              readOnly
+              value={maskPhoneForDisplay(hints.phone ?? "")}
+            />
+          )}
+        </Field>
+      ) : (
+        <PhoneVerifyInputs v={v} helper="계정 확인과 계정 찾기에 써요" />
+      )}
+      {termsFromKakao ? (
+        <p className="text-sub text-ink-600">약관은 카카오에서 동의했어요.</p>
+      ) : (
+        <SellerTermsBox value={terms} onChange={setTerms} />
+      )}
     </AppScreen>
   );
 }
