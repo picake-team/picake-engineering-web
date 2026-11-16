@@ -75,6 +75,8 @@ export function ReservationContactAgreements({
               autoComplete="name"
               value={reserverName}
               onChange={(e) => setReserverName(e.target.value)}
+              // 서버 한도(50자)와 같게 — 넘기면 영어 오류가 뜨던 것(11-16 검토)
+              maxLength={50}
               placeholder="예약자명을 입력해주세요."
               clearable
               onClear={() => setReserverName("")}
