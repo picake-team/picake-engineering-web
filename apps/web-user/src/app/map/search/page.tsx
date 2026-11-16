@@ -15,28 +15,17 @@ import {
   type MapPickupFilter,
 } from "@/apps/web-user/features/store/utils/map.util";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
-
-const RECENT_SEARCHES_KEY = "recentSearches";
-const MAX_RECENT = 10;
-
-function getRecentSearches(): string[] {
-  if (typeof window === "undefined") return [];
-  try {
-    return JSON.parse(localStorage.getItem(RECENT_SEARCHES_KEY) || "[]");
-  } catch {
-    return [];
-  }
-}
-
-function saveRecentSearch(term: string) {
-  const prev = getRecentSearches().filter((t) => t !== term);
-  localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify([term, ...prev].slice(0, MAX_RECENT)));
-}
+import { useRecentSearches } from "@/apps/web-user/features/search/hooks/useRecentSearches";
+import {
+  SearchSuggestions,
+  type SearchPickSource,
+} from "@/apps/web-user/features/search/components/SearchSuggestions";
 
 export default function MapSearchPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
+  const recentSearches = useRecentSearches();
   const [searchTerm, setSearchTerm] = useState(searchParams.get("q") || "");
   const [pickupFilter, setPickupFilter] = useState<MapPickupFilter | null>(null);
   const [pickupCalendarOpen, setPickupCalendarOpen] = useState(false);
@@ -92,9 +81,14 @@ export default function MapSearchPage() {
   const handleSearch = (term: string) => {
     if (!term.trim()) return;
     trackEvent("request_map_search", { keyword: term.trim() });
-    saveRecentSearch(term.trim());
+    recentSearches.add(term.trim());
     setSearchTerm(term.trim());
     router.push(buildMapPageUrl(term.trim(), pickupFilter));
+  };
+
+  const handlePick = (term: string, source: SearchPickSource) => {
+    trackEvent("engage_search_suggestion", { keyword: term, source, page: "map" });
+    handleSearch(term);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -167,6 +161,7 @@ export default function MapSearchPage() {
             ref={inputRef}
             type="search"
             autoFocus
+            autoComplete="off"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch(searchTerm)}
@@ -222,6 +217,20 @@ export default function MapSearchPage() {
           </div>
         </form>
       </div>
+
+      <SearchSuggestions
+        query={searchTerm}
+        recent={recentSearches.items}
+        onPick={handlePick}
+        onRemoveRecent={(term) => {
+          recentSearches.remove(term);
+          trackEvent("delete_recent_search", { scope: "one" });
+        }}
+        onClearRecent={() => {
+          recentSearches.clear();
+          trackEvent("delete_recent_search", { scope: "all" });
+        }}
+      />
 
       <MapPickupDateBottomSheet
         isOpen={pickupCalendarOpen}
