@@ -6,6 +6,8 @@ import {
   AUDIENCE,
   GoogleLoginRequestDto,
   KakaoLoginRequestDto,
+  NaverLoginRequestDto,
+  NaverRegisterRequestDto,
   TokenResponseDto,
   MeResponseDto,
   FindAccountRequestDto,
@@ -59,6 +61,17 @@ export const authApi = {
   kakaoLogin: async (code: string): Promise<TokenResponseDto> => {
     const requestDto: KakaoLoginRequestDto = { code };
     const response = await sellerClient.post("/auth/kakao/login", requestDto);
+    return response.data.data;
+  },
+
+  naverLogin: async (code: string, state: string): Promise<TokenResponseDto> => {
+    const requestDto: NaverLoginRequestDto = { code, state };
+    const response = await sellerClient.post("/auth/naver/login", requestDto);
+    return response.data.data;
+  },
+
+  naverRegister: async (data: NaverRegisterRequestDto): Promise<TokenResponseDto> => {
+    const response = await sellerClient.post("/auth/naver/register", data);
     return response.data.data;
   },
 

@@ -142,6 +142,31 @@ export function useKakaoRegister() {
   });
 }
 
+export function useNaverRegister() {
+  const { login } = useAuthStore();
+  const navigate = useNavigate();
+  const { addAlert } = useAlertStore();
+
+  return useMutation({
+    mutationFn: authApi.naverRegister,
+    onSuccess: (data) => {
+      saveLastLoginProvider("naver");
+      login({ navigate, accessToken: data.accessToken });
+    },
+    onError: (error) => {
+      if (isRegisterTicketInvalid(error)) {
+        // 가입표가 30분 지났거나 잘못됨 — 이 화면에서는 가입할 수 없어 로그인부터 다시
+        clearPendingOAuthRegister();
+        navigate(ROUTES.AUTH.LOGIN, { replace: true });
+      }
+      addAlert({
+        message: getApiMessage.error(error),
+        severity: "error",
+      });
+    },
+  });
+}
+
 /** 휴대폰 `FIND_ACCOUNT` 인증 완료 후 — POST /auth/find-account */
 export function useFindAccount() {
   const { addAlert } = useAlertStore();

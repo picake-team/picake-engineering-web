@@ -1,10 +1,10 @@
 /**
- * 휴대폰 소셜 로그인 콜백 (구글·카카오). 지금 PC 콜백과 같은 서버 흐름이다:
+ * 휴대폰 소셜 로그인 콜백 (구글·카카오·네이버). 지금 PC 콜백과 같은 서버 흐름이다:
  * code로 로그인 → 휴대폰 미연동이면 회원가입(SC-63: 실명 → 휴대폰 인증 → 약관 동의 → "가입하기")
  * → 그 번호로 다른 소셜 계정이 이미 있으면 "이미 가입한 계정이 있어요"(SC-97)와 그 수단의 로그인 버튼.
  * 손님 앱과 같게 "가입하기"를 눌러야 가입이 끝난다(PC는 "인증 완료"를 누르면 바로 가입).
  */
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { formatPhoneDisplay } from "@/apps/web-seller/common/utils/phone-display.util";
 import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { AppScreen, BackHeader, BottomActionBar } from "@/apps/web-seller/common/ui/Screen";
@@ -53,10 +53,16 @@ import {
 import {
   googleAuthorizeUrl,
   kakaoAuthorizeUrl,
+  naverAuthorizeUrl,
 } from "@/apps/web-seller/features/auth/components/mobile/socialLogin";
+import { NaverLogoIcon } from "@/apps/web-seller/common/components/icons/NaverLogoIcon";
+import {
+  clearNaverOAuthState,
+  isNaverOAuthStateValid,
+} from "@/apps/web-seller/features/auth/utils/naver-oauth-state.util";
 import { saveLastLoginProvider } from "@/apps/web-seller/features/auth/utils/last-login-provider.util";
 
-type Provider = "google" | "kakao";
+type Provider = "google" | "kakao" | "naver";
 
 /** 가입표(registerToken): 로그인 때 서버가 확인한 소셜 ID가 들어 있다(30분) */
 interface SocialIdentity {
@@ -66,7 +72,7 @@ interface SocialIdentity {
 interface ExistingAccount {
   name?: string;
   phone?: string;
-  via: "google" | "kakao" | "apple";
+  via: "google" | "kakao" | "apple" | "naver";
 }
 
 const PROVIDER = {
@@ -80,7 +86,18 @@ const PROVIDER = {
     purpose: PHONE_VERIFICATION_PURPOSE.KAKAO_REGISTRATION as PhoneVerificationPurpose,
     login: authApi.kakaoLogin,
   },
+  naver: {
+    label: "네이버",
+    purpose: PHONE_VERIFICATION_PURPOSE.NAVER_REGISTRATION as PhoneVerificationPurpose,
+    // 네이버는 state를 먼저 확인해야 해서 OAuthCallbackMobile에서 따로 부른다
+    login: null,
+  },
 } as const;
+
+/** 소셜 서비스가 준 번호로 문자 인증 없이 가입할 수 있는 소셜(카카오·네이버, 기획 I-59) */
+function offersTicketPhone(provider: Provider): provider is "kakao" | "naver" {
+  return provider === "kakao" || provider === "naver";
+}
 
 /** 서버 오류에서 본문(data)과 메시지를 꺼낸다 */
 function errorPayload(error: unknown): Record<string, unknown> {
@@ -100,7 +117,9 @@ function existingAccountFrom(error: unknown): ExistingAccount | null {
       ? "google"
       : message.includes("애플")
         ? "apple"
-        : null;
+        : message.includes("네이버")
+          ? "naver"
+          : null;
   if (!via || !message.includes("이미 등록된")) return null;
   return { via, name: p.name as string | undefined, phone: p.phone as string | undefined };
 }
@@ -111,6 +130,17 @@ function SocialLoginButton({ via }: { via: ExistingAccount["via"] }) {
       <span className="flex h-12 items-center justify-center rounded-control bg-black text-body font-bold text-white">
         Apple 계정으로 가입돼 있어요
       </span>
+    );
+  }
+  if (via === "naver") {
+    return (
+      <a
+        href={naverAuthorizeUrl()}
+        className="flex h-12 w-full items-center justify-center gap-2 rounded-control bg-naver text-body font-bold text-white"
+      >
+        <NaverLogoIcon />
+        네이버로 로그인
+      </a>
     );
   }
   const google = via === "google";
@@ -147,8 +177,10 @@ function SignUp({
     [identity.registerToken],
   );
   const [name, setName] = useState(hints.name ?? "");
-  // 카카오 번호로 가입(문자 인증 없음). "다른 번호"를 누르면 지금처럼 문자 인증
-  const [useKakaoPhone, setUseKakaoPhone] = useState(Boolean(hints.phone));
+  // 소셜 번호로 가입(문자 인증 없음, 카카오·네이버). "다른 번호"를 누르면 지금처럼 문자 인증
+  const [useTicketPhone, setUseTicketPhone] = useState(
+    offersTicketPhone(provider) && Boolean(hints.phone),
+  );
   const termsFromKakao = provider === "kakao" && hasAllKakaoSellerTerms(hints.terms);
   const [terms, setTerms] = useState<SellerTermsAgreementState>(INITIAL_SELLER_TERMS_STATE);
   const [submitting, setSubmitting] = useState(false);
@@ -157,11 +189,11 @@ function SignUp({
 
   const nameError = name && name.trim().length > 50 ? AUTH_ERROR_MESSAGES.NAME_MAX_LENGTH : null;
   const termsOk = termsFromKakao || isRequiredSellerTermsAllChecked(terms);
-  const phoneOk = useKakaoPhone || v.readyToVerify;
+  const phoneOk = useTicketPhone || v.readyToVerify;
   const ready = Boolean(name.trim()) && !nameError && phoneOk && termsOk;
   const reason = !name.trim()
     ? "실명을 적어 주세요"
-    : !useKakaoPhone && !v.sent
+    : !useTicketPhone && !v.sent
       ? "휴대폰 인증번호를 받아 주세요"
       : !phoneOk
         ? "인증번호를 넣어 주세요"
@@ -193,32 +225,54 @@ function SignUp({
     }
     setSubmitting(true);
     try {
+      // 네이버는 약관이 늘 화면 체크(termsPart가 비지 않음)
+      const naverTerms = {
+        agreedToTerms: terms.termsOfService,
+        agreedToPrivacy: terms.privacyPolicy,
+        termsDocumentIds: termsPart.termsDocumentIds,
+      };
       const tokens =
-        provider === "kakao" && useKakaoPhone
-          ? await authApi.kakaoRegister({
-              registerToken: identity.registerToken,
-              useTicketPhone: true,
-              name: name.trim(),
-              ...termsPart,
-            })
+        offersTicketPhone(provider) && useTicketPhone
+          ? provider === "naver"
+            ? await authApi.naverRegister({
+                registerToken: identity.registerToken,
+                useTicketPhone: true,
+                name: name.trim(),
+                ...naverTerms,
+              })
+            : await authApi.kakaoRegister({
+                registerToken: identity.registerToken,
+                useTicketPhone: true,
+                name: name.trim(),
+                ...termsPart,
+              })
           : await (async () => {
               const phone = await v.verifyCode();
-              return provider === "google"
-                ? await authApi.googleRegister({
-                    registerToken: identity.registerToken,
-                    name: name.trim(),
-                    phone,
-                    agreedToTerms: terms.termsOfService,
-                    agreedToPrivacy: terms.privacyPolicy,
-                    termsDocumentIds: termsPart.termsDocumentIds,
-                  })
-                : // 카카오에서 약관에 동의했으면 termsPart는 빈 칸 — 화면 체크(안 한 값)를 보내지 않는다
-                  await authApi.kakaoRegister({
-                    registerToken: identity.registerToken,
-                    name: name.trim(),
-                    phone,
-                    ...termsPart,
-                  });
+              if (provider === "google") {
+                return await authApi.googleRegister({
+                  registerToken: identity.registerToken,
+                  name: name.trim(),
+                  phone,
+                  agreedToTerms: terms.termsOfService,
+                  agreedToPrivacy: terms.privacyPolicy,
+                  termsDocumentIds: termsPart.termsDocumentIds,
+                });
+              }
+              if (provider === "naver") {
+                return await authApi.naverRegister({
+                  registerToken: identity.registerToken,
+                  name: name.trim(),
+                  phone,
+                  ...naverTerms,
+                });
+              }
+              // 카카오에서 약관에 동의했으면 termsPart는 빈 칸 — 화면 체크(안 한 값)를 보내지 않는다
+              return await authApi.kakaoRegister({
+                registerToken: identity.registerToken,
+                name: name.trim(),
+                phone,
+                ...termsPart,
+              });
             })();
       clearPendingOAuthRegister();
       saveLastLoginProvider(provider);
@@ -274,13 +328,13 @@ function SignUp({
           />
         )}
       </Field>
-      {useKakaoPhone && hints.phone ? (
+      {useTicketPhone && hints.phone ? (
         <Field
           label="휴대폰 번호"
           trailing={
             <Button
               variant="secondary"
-              onClick={() => setUseKakaoPhone(false)}
+              onClick={() => setUseTicketPhone(false)}
               className="min-w-[96px]"
             >
               다른 번호
@@ -311,7 +365,7 @@ function ExistingAccountScreen({
   account: ExistingAccount;
   onBack: () => void;
 }) {
-  const via = { google: "구글", kakao: "카카오", apple: "애플" }[account.via];
+  const via = { google: "구글", kakao: "카카오", apple: "애플", naver: "네이버" }[account.via];
   return (
     <AppScreen
       header={<BackHeader title="회원가입" onBack={onBack} />}
@@ -360,10 +414,29 @@ function OAuthCallbackMobile({ provider }: { provider: Provider }) {
     pending?.provider === provider ? { registerToken: pending.registerToken } : null;
   const [identity, setIdentity] = useState<SocialIdentity | null>(initial);
   const [existing, setExisting] = useState<ExistingAccount | null>(null);
+  // 확인을 마친 네이버 state(로그인 요청에 같이 보냄)
+  const naverStateRef = useRef("");
 
   useOAuthCodeOnce(code, async (c) => {
+    if (provider === "naver") {
+      // 네이버: 주소의 state가 이 탭이 만든 값과 같을 때만(남이 만든 로그인 결과를 받지 않게)
+      const state = params.get("state");
+      const stateValid = isNaverOAuthStateValid(state);
+      clearNaverOAuthState();
+      if (!stateValid || !state) {
+        clearPendingOAuthRegister();
+        navigate(ROUTES.AUTH.LOGIN, { replace: true });
+        addAlert({
+          severity: "error",
+          message: "로그인을 확인하지 못했어요. 다시 로그인해 주세요.",
+        });
+        return;
+      }
+      naverStateRef.current = state;
+    }
     try {
-      const data = await PROVIDER[provider].login(c);
+      const login_ = PROVIDER[provider].login;
+      const data = login_ ? await login_(c) : await authApi.naverLogin(c, naverStateRef.current);
       clearPendingOAuthRegister();
       saveLastLoginProvider(provider);
       login({ navigate, accessToken: data.accessToken });
@@ -404,3 +477,4 @@ export const GoogleAuthCallbackMobilePage: React.FC = () => (
   <OAuthCallbackMobile provider="google" />
 );
 export const KakaoAuthCallbackMobilePage: React.FC = () => <OAuthCallbackMobile provider="kakao" />;
+export const NaverAuthCallbackMobilePage: React.FC = () => <OAuthCallbackMobile provider="naver" />;

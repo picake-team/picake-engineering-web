@@ -9,6 +9,7 @@ import { Input } from "@/apps/web-user/common/components/inputs/Input";
 import { Button } from "@/apps/web-user/common/components/buttons/Button";
 import {
   useKakaoRegister,
+  useNaverRegister,
   useSendPhoneVerification,
   useVerifyPhoneCode,
 } from "@/apps/web-user/features/auth/hooks/mutations/useAuthMutation";
@@ -17,6 +18,7 @@ import { AUTH_ERROR_MESSAGES } from "@/apps/web-user/features/auth/constants/aut
 import type {
   DuplicateAccountPayload,
   KakaoRegisterRequestDto,
+  NaverRegisterRequestDto,
 } from "@/apps/web-user/features/auth/types/auth.dto";
 import { PHONE_VERIFICATION_PURPOSE } from "@/apps/web-user/features/auth/types/auth.dto";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
@@ -68,30 +70,71 @@ function formatCountdownMmSs(totalSeconds: number): string {
   return `${String(m).padStart(2, "0")}:${String(r).padStart(2, "0")}`;
 }
 
+/** 소셜 서비스가 준 번호로 문자 인증 없이 가입하는 소셜(기획 I-59) — 카카오·네이버가 같은 화면을 쓴다 */
+type TicketPhoneProvider = "kakao" | "naver";
+
+const PROVIDER_CONFIG = {
+  kakao: {
+    purpose: PHONE_VERIFICATION_PURPOSE.KAKAO_REGISTRATION,
+    idPrefix: "kakao-register",
+  },
+  naver: {
+    purpose: PHONE_VERIFICATION_PURPOSE.NAVER_REGISTRATION,
+    idPrefix: "naver-register",
+  },
+} as const;
+
+/**
+ * 카카오·네이버 가입 화면 — 소셜 서비스가 준 번호를 "번호 칸 + [다른 번호]"로 보여 주고 문자 인증 없이 가입한다.
+ * "다른 번호"면 문자 인증. 이름은 소셜 이름으로 채워 두고 고칠 수 있다. 화면에 따로 설명 글은 넣지 않는다(운영자 11-16).
+ * 약관: 카카오는 간편가입에서 필수 약관에 다 동의했으면 약관 칸을 뺀다. 네이버는 약관을 동의 화면에 넣을 수 없어 늘 받는다.
+ */
 export function KakaoRegisterVerificationScreen() {
+  return <TicketPhoneRegisterScreen provider="kakao" />;
+}
+
+export function NaverRegisterVerificationScreen() {
+  return <TicketPhoneRegisterScreen provider="naver" />;
+}
+
+function TicketPhoneRegisterScreen({ provider }: { provider: TicketPhoneProvider }) {
+  const { purpose, idPrefix } = PROVIDER_CONFIG[provider];
   const router = useRouter();
   const searchParams = useSearchParams();
   const sendPhoneVerificationMutation = useSendPhoneVerification();
   const verifyPhoneCodeMutation = useVerifyPhoneCode();
 
   const [duplicateAccount, setDuplicateAccount] = useState<DuplicateAccountPayload | null>(null);
-  const handleDuplicateAccount = useCallback((payload: DuplicateAccountPayload) => {
-    setDuplicateAccount(payload);
-    // duplicate_type: 현재 백엔드는 휴대폰 번호 기준 중복만 감지 (existing_user_id는 응답에 없어 미전송)
-    trackEvent("view_duplicate_account", { provider: "kakao", duplicate_type: "phone_number" });
-  }, []);
+  const handleDuplicateAccount = useCallback(
+    (payload: DuplicateAccountPayload) => {
+      setDuplicateAccount(payload);
+      // duplicate_type: 현재 백엔드는 휴대폰 번호 기준 중복만 감지 (existing_user_id는 응답에 없어 미전송)
+      trackEvent("view_duplicate_account", { provider, duplicate_type: "phone_number" });
+    },
+    [provider],
+  );
   const { showAlert } = useAlertStore();
   // 키보드가 올라오면 하단 고정 '가입하기' 바가 키보드 위로 따라 올라와 인증번호 입력을 가리므로 숨긴다
   const isKeyboardOpen = useKeyboardOpen();
+  // 훅은 늘 둘 다 부르고(훅 규칙) 이 화면의 소셜 것만 쓴다
   const kakaoRegisterMutation = useKakaoRegister({ onDuplicateAccount: handleDuplicateAccount });
+  const naverRegisterMutation = useNaverRegister({ onDuplicateAccount: handleDuplicateAccount });
+  const registerPendingAny =
+    provider === "kakao" ? kakaoRegisterMutation.isPending : naverRegisterMutation.isPending;
+  /** 가입 요청 — 카카오는 약관 칸을 생략할 수 있고(간편가입), 네이버는 늘 약관 칸이 있다(buildTermsPart) */
+  const registerWith = (payload: KakaoRegisterRequestDto) =>
+    provider === "kakao"
+      ? kakaoRegisterMutation.mutateAsync(payload)
+      : naverRegisterMutation.mutateAsync(payload as NaverRegisterRequestDto);
 
-  const [kakaoLoginData, setKakaoLoginData] = useState<{ registerToken: string } | null>(null);
+  const [loginData, setLoginData] = useState<{ registerToken: string } | null>(null);
   const [booting, setBooting] = useState(true);
-  // 카카오가 준 번호·이름·약관 동의(가입표 안, 화면 표시용 — 기획 I-59 B)
+  // 소셜 서비스가 준 번호·이름·약관 동의(가입표 안, 화면 표시용 — 기획 I-59 B)
   const [hints, setHints] = useState<RegisterTicketHints>({});
-  // 카카오 번호로 가입(문자 인증 없음). "다른 번호"를 누르면 지금처럼 문자 인증
-  const [useKakaoPhone, setUseKakaoPhone] = useState(false);
-  const termsFromKakao = hasAllKakaoConsumerTerms(hints.terms);
+  // 소셜 번호로 가입(문자 인증 없음). "다른 번호"를 누르면 지금처럼 문자 인증
+  const [useTicketPhone, setUseTicketPhone] = useState(false);
+  // 카카오 간편가입에서 필수 약관에 다 동의했으면 약관을 다시 받지 않는다(네이버는 늘 받음)
+  const termsFromKakao = provider === "kakao" && hasAllKakaoConsumerTerms(hints.terms);
 
   const [displayName, setDisplayName] = useState("");
   const [nameError, setNameError] = useState("");
@@ -111,7 +154,7 @@ export function KakaoRegisterVerificationScreen() {
 
   useEffect(() => {
     // 가입표(로그인 때 서버가 확인한 소셜 ID가 들어 있음, 30분) — 가입은 이 값으로만 한다
-    const registerToken = readRegisterTicket("kakao", searchParams.get("registerToken"));
+    const registerToken = readRegisterTicket(provider, searchParams.get("registerToken"));
     if (!registerToken) {
       router.replace(PATHS.HOME);
       setBooting(false);
@@ -122,10 +165,10 @@ export function KakaoRegisterVerificationScreen() {
       isRegisterTicketExpired(
         registerToken,
         Date.now(),
-        readRegisterTicketSavedAt("kakao", registerToken),
+        readRegisterTicketSavedAt(provider, registerToken),
       )
     ) {
-      clearRegisterTicket("kakao");
+      clearRegisterTicket(provider);
       router.replace(PATHS.HOME);
       showAlert({
         type: "error",
@@ -135,17 +178,19 @@ export function KakaoRegisterVerificationScreen() {
       setBooting(false);
       return;
     }
-    const fromKakao = readRegisterTicketHints(registerToken);
-    setHints(fromKakao);
-    setUseKakaoPhone(!!fromKakao.phone);
-    if (fromKakao.name) setDisplayName(fromKakao.name);
-    setKakaoLoginData({ registerToken });
+    const fromTicket = readRegisterTicketHints(registerToken);
+    setHints(fromTicket);
+    setUseTicketPhone(!!fromTicket.phone);
+    if (fromTicket.name) setDisplayName(fromTicket.name);
+    setLoginData({ registerToken });
     setBooting(false);
-    trackEvent("view_phone_verification", {
-      provider: "kakao",
-      kakao_phone_offered: !!fromKakao.phone,
-    });
-  }, [router, searchParams, showAlert]);
+    trackEvent(
+      "view_phone_verification",
+      provider === "kakao"
+        ? { provider, kakao_phone_offered: !!fromTicket.phone }
+        : { provider, naver_phone_offered: !!fromTicket.phone },
+    );
+  }, [provider, router, searchParams, showAlert]);
 
   const validateDisplayName = useCallback((value: string) => {
     const t = value.trim();
@@ -196,11 +241,11 @@ export function KakaoRegisterVerificationScreen() {
   };
 
   const handleSendVerificationCode = async () => {
-    trackEvent("request_phone_verification", { provider: "kakao" });
+    trackEvent("request_phone_verification", { provider });
     const normalized = normalizePhone(phone);
     const { expiresAt } = await sendPhoneVerificationMutation.mutateAsync({
       phone: normalized,
-      purpose: PHONE_VERIFICATION_PURPOSE.KAKAO_REGISTRATION,
+      purpose,
     });
     setCodeExpiresAt(expiresAt);
     setIsCodeSent(true);
@@ -212,8 +257,8 @@ export function KakaoRegisterVerificationScreen() {
   // 발송(재전송 포함) 직후 인증번호 입력으로 포커스를 옮겨, 문자가 오면 키보드의 인증번호 제안을 바로 누를 수 있게 한다
   useEffect(() => {
     if (!isCodeSent || !codeExpiresAt) return;
-    focusElementById("kakao-register-code");
-  }, [isCodeSent, codeExpiresAt]);
+    focusElementById(`${idPrefix}-code`);
+  }, [idPrefix, isCodeSent, codeExpiresAt]);
 
   useEffect(() => {
     if (!isCodeSent || !codeExpiresAt) return;
@@ -231,10 +276,10 @@ export function KakaoRegisterVerificationScreen() {
   }, [codeExpiresAt, countdownTick]);
 
   const handleSubmit = async () => {
-    if (!kakaoLoginData) return;
+    if (!loginData) return;
     if (!validateDisplayName(displayName)) return;
-    if (useKakaoPhone && hints.phone) {
-      await submitWithKakaoPhone();
+    if (useTicketPhone && hints.phone) {
+      await submitWithTicketPhone();
       return;
     }
     if (!isCodeSent || remainingSeconds <= 0) return;
@@ -247,7 +292,7 @@ export function KakaoRegisterVerificationScreen() {
       await verifyPhoneCodeMutation.mutateAsync({
         phone: normalized,
         verificationCode,
-        purpose: PHONE_VERIFICATION_PURPOSE.KAKAO_REGISTRATION,
+        purpose,
       });
     } catch (error) {
       trackEvent("fail_phone_verification", {
@@ -255,25 +300,24 @@ export function KakaoRegisterVerificationScreen() {
       });
       return;
     }
-    trackEvent("success_phone_verification", { provider: "kakao" });
+    trackEvent("success_phone_verification", { provider });
 
     trackEvent("request_signup", {
-      provider: "kakao",
+      provider,
       phone_source: "sms",
       terms_source: termsFromKakao ? "kakao" : "screen",
     });
-    await kakaoRegisterMutation
-      .mutateAsync({
-        ...kakaoLoginData,
-        phone: normalized,
-        name: displayName.trim(),
-        ...termsPart,
-      })
-      .catch(ignoreHandledError);
+    await registerWith({
+      ...loginData,
+      phone: normalized,
+      name: displayName.trim(),
+      ...termsPart,
+    }).catch(ignoreHandledError);
   };
 
   /**
    * 가입 요청에 넣을 약관 칸. 카카오에서 필수 약관에 다 동의했으면 빈 칸(서버가 가입표로 확인 — 번호를 카카오로 받든 문자로 받든 같다).
+   * 네이버는 늘 화면 체크.
    * 아니면 화면 체크 — 필수가 빠졌거나 약관을 못 불러왔으면 null(보내지 않음).
    */
   const buildTermsPart = (): Partial<KakaoRegisterRequestDto> | null => {
@@ -297,33 +341,31 @@ export function KakaoRegisterVerificationScreen() {
     };
   };
 
-  /** 카카오 번호로 가입 — 문자 인증 없이. 약관은 카카오에서 다 동의했으면 다시 받지 않는다 */
-  const submitWithKakaoPhone = async () => {
-    if (!kakaoLoginData) return;
+  /** 소셜 번호로 가입 — 문자 인증 없이. 약관은 카카오에서 다 동의했으면 다시 받지 않는다 */
+  const submitWithTicketPhone = async () => {
+    if (!loginData) return;
     const termsPart = buildTermsPart();
     if (!termsPart) return;
     trackEvent("request_signup", {
-      provider: "kakao",
-      phone_source: "kakao",
+      provider,
+      phone_source: provider,
       terms_source: termsFromKakao ? "kakao" : "screen",
     });
-    await kakaoRegisterMutation
-      .mutateAsync({
-        ...kakaoLoginData,
-        useTicketPhone: true,
-        name: displayName.trim(),
-        ...termsPart,
-      })
-      .catch(ignoreHandledError);
+    await registerWith({
+      ...loginData,
+      useTicketPhone: true,
+      name: displayName.trim(),
+      ...termsPart,
+    }).catch(ignoreHandledError);
   };
 
   const sendPending = sendPhoneVerificationMutation.isPending;
   const verifyPending = verifyPhoneCodeMutation.isPending;
-  const registerPending = kakaoRegisterMutation.isPending;
+  const registerPending = registerPendingAny;
   const actionPending = verifyPending || registerPending;
 
   const termsReady = termsFromKakao || isRequiredTermsAllChecked(termsState);
-  const canSubmit = useKakaoPhone
+  const canSubmit = useTicketPhone
     ? !!displayName.trim() && !nameError && !actionPending && termsReady
     : displayName.trim() &&
       !nameError &&
@@ -345,7 +387,7 @@ export function KakaoRegisterVerificationScreen() {
     );
   }
 
-  if (!kakaoLoginData) {
+  if (!loginData) {
     return null;
   }
 
@@ -364,7 +406,7 @@ export function KakaoRegisterVerificationScreen() {
 
       <div className="flex-1 px-5 pt-6">
         <h2 className="text-xl font-bold leading-snug tracking-tight text-gray-900">
-          {useKakaoPhone ? "가입 정보를 확인해 주세요." : "핸드폰 번호 인증을 진행해주세요."}
+          {useTicketPhone ? "가입 정보를 확인해 주세요." : "핸드폰 번호 인증을 진행해주세요."}
         </h2>
         <p className="mt-1 text-sm leading-relaxed text-gray-500">
           예약자 확인 및 연락을 위해 필요해요.
@@ -372,12 +414,12 @@ export function KakaoRegisterVerificationScreen() {
 
         <div className="mt-8 flex flex-col">
           <div className="flex flex-col gap-[10px] py-3">
-            <label htmlFor="kakao-register-name" className="text-sm font-bold text-gray-900">
+            <label htmlFor={`${idPrefix}-name`} className="text-sm font-bold text-gray-900">
               이름
             </label>
             <Input
               variant="register"
-              id="kakao-register-name"
+              id={`${idPrefix}-name`}
               type="text"
               name="displayName"
               value={displayName}
@@ -387,21 +429,21 @@ export function KakaoRegisterVerificationScreen() {
               maxLength={50}
               autoComplete="name"
               enterKeyHint="next"
-              onKeyDown={onEnterKey(() => focusElementById("kakao-register-phone"))}
+              onKeyDown={onEnterKey(() => focusElementById(`${idPrefix}-phone`))}
               aria-invalid={!!nameError}
             />
           </div>
 
-          {useKakaoPhone && hints.phone ? (
+          {useTicketPhone && hints.phone ? (
             <div className="mt-4 flex flex-col gap-[10px]">
-              <label htmlFor="kakao-register-phone" className="text-sm font-bold text-gray-900">
+              <label htmlFor={`${idPrefix}-phone`} className="text-sm font-bold text-gray-900">
                 핸드폰 번호
               </label>
               <div className="flex flex-row items-start gap-2">
                 <div className="min-w-0 flex-1">
                   <Input
                     variant="register"
-                    id="kakao-register-phone"
+                    id={`${idPrefix}-phone`}
                     type="tel"
                     name="phone"
                     value={formatPhoneForDisplay(hints.phone)}
@@ -411,7 +453,7 @@ export function KakaoRegisterVerificationScreen() {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setUseKakaoPhone(false)}
+                  onClick={() => setUseTicketPhone(false)}
                   className="box-border inline-flex !h-[42px] !max-h-[42px] !min-h-[42px] shrink-0 !w-auto !items-center !justify-center !rounded-lg !border !border-gray-100 !bg-white !px-5 !py-0 !text-sm !font-bold !leading-tight !text-gray-900 sm:!w-auto"
                 >
                   다른 번호
@@ -420,14 +462,14 @@ export function KakaoRegisterVerificationScreen() {
             </div>
           ) : (
             <div className="mt-4 flex flex-col gap-[10px]">
-              <label htmlFor="kakao-register-phone" className="text-sm font-bold text-gray-900">
+              <label htmlFor={`${idPrefix}-phone`} className="text-sm font-bold text-gray-900">
                 핸드폰 번호
               </label>
               <div className="flex flex-row items-start gap-2">
                 <div className="min-w-0 flex-1">
                   <Input
                     variant="register"
-                    id="kakao-register-phone"
+                    id={`${idPrefix}-phone`}
                     type="tel"
                     name="phone"
                     autoComplete="tel"
@@ -473,7 +515,7 @@ export function KakaoRegisterVerificationScreen() {
                 <div className="flex flex-col gap-1">
                   <Input
                     variant="register"
-                    id="kakao-register-code"
+                    id={`${idPrefix}-code`}
                     type="text"
                     name="verificationCode"
                     inputMode="numeric"
@@ -495,7 +537,7 @@ export function KakaoRegisterVerificationScreen() {
           )}
         </div>
 
-        {/* 약관 동의 — 카카오에서 필수 약관에 모두 동의했으면 다시 받지 않는다(안내 글 없이 칸을 뺌) */}
+        {/* 약관 동의 — 카카오에서 필수 약관에 모두 동의했으면 다시 받지 않는다(안내 글 없이 칸을 뺌). 네이버는 늘 받는다 */}
         {termsFromKakao ? null : (
           <TermsAgreementSection value={termsState} onChange={setTermsState} />
         )}

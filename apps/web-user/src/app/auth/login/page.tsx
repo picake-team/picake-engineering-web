@@ -4,19 +4,25 @@ import { useEffect } from "react";
 import Image from "next/image";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import {
+  NaverLogoIcon,
   oauthGoogleLoginButtonClassName,
   oauthKakaoLoginButtonClassName,
   oauthLoginButtonIconClassName,
+  oauthNaverLoginButtonClassName,
 } from "@/apps/web-user/common/components/buttons/oauth-provider-login-buttons";
 import {
   getGoogleOAuthLoginUrl,
   getKakaoOAuthLoginUrl,
+  getNaverOAuthLoginUrl,
 } from "@/apps/web-user/features/auth/utils/oauth-login-url.util";
 import { useAlertStore } from "@/apps/web-user/common/store/alert.store";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import { RecentLoginBubble } from "@/apps/web-user/features/auth/components/RecentLoginBubble";
 import { useLastLoginProvider } from "@/apps/web-user/features/auth/hooks/useLastLoginProvider";
 import type { OAuthProvider } from "@/apps/web-user/common/types/analytics.type";
+
+/** 네이버 키가 있는 환경만 네이버 버튼(검수 승인 전 상용은 키를 넣지 않는다). 빌드 때 정해져 서버·화면이 같다 */
+const NAVER_LOGIN_ENABLED = Boolean(process.env.NEXT_PUBLIC_NAVER_CLIENT_ID);
 
 /**
  * 로그인 화면.
@@ -74,6 +80,18 @@ export default function LoginPage() {
           카카오로 시작하기
           {lastProvider === "kakao" && <RecentLoginBubble />}
         </button>
+
+        {NAVER_LOGIN_ENABLED && (
+          <button
+            type="button"
+            className={oauthNaverLoginButtonClassName}
+            onClick={() => handleLogin("naver", getNaverOAuthLoginUrl)}
+          >
+            <NaverLogoIcon />
+            네이버로 시작하기
+            {lastProvider === "naver" && <RecentLoginBubble />}
+          </button>
+        )}
 
         <button
           type="button"

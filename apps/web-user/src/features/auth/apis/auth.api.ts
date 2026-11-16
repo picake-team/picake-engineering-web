@@ -8,6 +8,8 @@ import {
   KakaoLoginRequestDto,
   KakaoRegisterRequestDto,
   MessageResponseDto,
+  NaverLoginRequestDto,
+  NaverRegisterRequestDto,
   PhoneVerificationPurpose,
   ReviewLoginRequestDto,
   TokenResponseDto,
@@ -34,6 +36,17 @@ export const authApi = {
 
   kakaoRegister: async (data: KakaoRegisterRequestDto): Promise<TokenResponseDto> => {
     const response = await consumerClient.post("/auth/kakao/register", data);
+    return response.data.data;
+  },
+
+  naverLogin: async (code: string, state: string): Promise<TokenResponseDto> => {
+    const requestDto: NaverLoginRequestDto = { code, state };
+    const response = await consumerClient.post("/auth/naver/login", requestDto);
+    return response.data.data;
+  },
+
+  naverRegister: async (data: NaverRegisterRequestDto): Promise<TokenResponseDto> => {
+    const response = await consumerClient.post("/auth/naver/register", data);
     return response.data.data;
   },
 

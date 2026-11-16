@@ -1,4 +1,5 @@
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
+import { getOrCreateNaverOAuthState } from "@/apps/web-seller/features/auth/utils/naver-oauth-state.util";
 
 /** 소셜 로그인 시작 주소(지금 PC 로그인과 같은 OAuth code flow) */
 export function googleAuthorizeUrl(): string {
@@ -7,6 +8,20 @@ export function googleAuthorizeUrl(): string {
 
 export function kakaoAuthorizeUrl(): string {
   return `https://kauth.kakao.com/oauth/authorize?client_id=${import.meta.env.VITE_PUBLIC_KAKAO_RESTAPI_KEY}&redirect_uri=${window.location.origin}${ROUTES.AUTH.KAKAO_REDIRECT_URI}&response_type=code&service_terms=picake_s_tos,picake_s_privacy`;
+}
+
+/** 네이버 키가 있는 환경만 네이버 버튼(검수 승인 전 상용은 키를 넣지 않는다) */
+export const SELLER_NAVER_LOGIN_ENABLED = Boolean(import.meta.env.VITE_PUBLIC_NAVER_CLIENT_ID);
+
+/**
+ * 네이버 로그인 시작 주소(손님과 같은 네이버 앱, 이 탭의 state). 받는 정보(이름·휴대전화번호)는 네이버 앱 설정에서 정한다.
+ */
+export function naverAuthorizeUrl(): string {
+  const clientId = encodeURIComponent(import.meta.env.VITE_PUBLIC_NAVER_CLIENT_ID ?? "");
+  const redirectUri = encodeURIComponent(
+    `${window.location.origin}${ROUTES.AUTH.NAVER_REDIRECT_URI}`,
+  );
+  return `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&state=${getOrCreateNaverOAuthState()}`;
 }
 
 /**

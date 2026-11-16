@@ -15,7 +15,12 @@ import {
   type FindAccountResponseDto,
 } from "@/apps/web-seller/features/auth/types/auth.dto";
 
-const LOGIN_TYPE_LABEL: Record<string, string> = { kakao: "카카오", google: "구글", apple: "애플" };
+const LOGIN_TYPE_LABEL: Record<string, string> = {
+  kakao: "카카오",
+  google: "구글",
+  apple: "애플",
+  naver: "네이버",
+};
 
 export const FindAccountMobilePage: React.FC = () => {
   const navigate = useNavigate();
@@ -59,7 +64,10 @@ export const FindAccountMobilePage: React.FC = () => {
       {result ? (
         <div className="flex flex-col gap-2 rounded-card border border-ink-100 p-4">
           <span className="text-caption text-ink-600">이 번호로 가입한 계정</span>
-          {result.loginEmail ? (
+          {result.loginType === "naver" ? (
+            // 네이버는 이메일을 받지 않아 로그인 수단만 보인다
+            <InfoRow label="로그인 수단" value="네이버" />
+          ) : result.loginEmail ? (
             <InfoRow
               label={LOGIN_TYPE_LABEL[result.loginType ?? ""] ?? "소셜"}
               value={<span className="break-all">{result.loginEmail}</span>}
