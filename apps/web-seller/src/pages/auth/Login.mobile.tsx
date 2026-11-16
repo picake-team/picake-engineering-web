@@ -16,6 +16,8 @@ import kakaoIcon from "@/apps/web-seller/assets/images/kakaotalk.png";
 import {
   SELLER_APPLE_LOGIN_ENABLED,
   SELLER_NAVER_LOGIN_ENABLED,
+  SOCIAL_LOGIN_ICON_CLASS,
+  SOCIAL_LOGIN_NAVER_ICON_CLASS,
   googleAuthorizeUrl,
   kakaoAuthorizeUrl,
   naverAuthorizeUrl,
@@ -28,7 +30,7 @@ import { RecentLoginBubble } from "@/apps/web-seller/features/auth/components/Re
 import { readLastLoginProvider } from "@/apps/web-seller/features/auth/utils/last-login-provider.util";
 
 const BTN =
-  "relative flex h-12 w-full items-center justify-center gap-2 rounded-control text-body font-bold";
+  "relative flex h-12 w-full items-center justify-center rounded-control text-body font-bold";
 
 /** 심사용 로그인 입구: 로고를 이 시간 안에 이만큼 누르면 연다(손님 앱의 버전 10번과 같은 수) */
 const REVIEW_TAP_COUNT = 10;
@@ -86,13 +88,13 @@ export const LoginMobilePage: React.FC = () => {
       <div className="flex-1" />
       <div className="flex flex-col gap-3" role="group" aria-label="로그인">
         <a href={kakaoAuthorizeUrl()} className={cx(BTN, "bg-kakao text-ink-900")}>
-          <img src={kakaoIcon} alt="" width={20} height={20} className="size-5" />
+          <img src={kakaoIcon} alt="" width={20} height={20} className={SOCIAL_LOGIN_ICON_CLASS} />
           카카오로 시작하기
           {lastProvider === "kakao" && <RecentLoginBubble />}
         </a>
         {SELLER_NAVER_LOGIN_ENABLED ? (
           <a href={naverAuthorizeUrl()} className={cx(BTN, "bg-naver text-white")}>
-            <NaverLogoIcon />
+            <NaverLogoIcon className={SOCIAL_LOGIN_NAVER_ICON_CLASS} />
             네이버로 시작하기
             {lastProvider === "naver" && <RecentLoginBubble />}
           </a>
@@ -101,7 +103,7 @@ export const LoginMobilePage: React.FC = () => {
           href={googleAuthorizeUrl()}
           className={cx(BTN, "border border-ink-100 bg-white text-ink-900")}
         >
-          <img src={googleIcon} alt="" width={20} height={20} className="size-5" />
+          <img src={googleIcon} alt="" width={20} height={20} className={SOCIAL_LOGIN_ICON_CLASS} />
           구글로 시작하기
           {lastProvider === "google" && <RecentLoginBubble />}
         </a>

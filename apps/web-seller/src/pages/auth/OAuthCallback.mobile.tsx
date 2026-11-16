@@ -54,6 +54,8 @@ import {
   googleAuthorizeUrl,
   kakaoAuthorizeUrl,
   naverAuthorizeUrl,
+  SOCIAL_LOGIN_ICON_CLASS,
+  SOCIAL_LOGIN_NAVER_ICON_CLASS,
 } from "@/apps/web-seller/features/auth/components/mobile/socialLogin";
 import { NaverLogoIcon } from "@/apps/web-seller/common/components/icons/NaverLogoIcon";
 import {
@@ -136,9 +138,9 @@ function SocialLoginButton({ via }: { via: ExistingAccount["via"] }) {
     return (
       <a
         href={naverAuthorizeUrl()}
-        className="flex h-12 w-full items-center justify-center gap-2 rounded-control bg-naver text-body font-bold text-white"
+        className="relative flex h-12 w-full items-center justify-center rounded-control bg-naver text-body font-bold text-white"
       >
-        <NaverLogoIcon />
+        <NaverLogoIcon className={SOCIAL_LOGIN_NAVER_ICON_CLASS} />
         네이버로 로그인
       </a>
     );
@@ -148,11 +150,17 @@ function SocialLoginButton({ via }: { via: ExistingAccount["via"] }) {
     <a
       href={google ? googleAuthorizeUrl() : kakaoAuthorizeUrl()}
       className={cx(
-        "flex h-12 w-full items-center justify-center gap-2 rounded-control text-body font-bold text-ink-900",
+        "relative flex h-12 w-full items-center justify-center rounded-control text-body font-bold text-ink-900",
         google ? "border border-ink-100 bg-white" : "bg-kakao",
       )}
     >
-      <img src={google ? googleIcon : kakaoIcon} alt="" width={20} height={20} className="size-5" />
+      <img
+        src={google ? googleIcon : kakaoIcon}
+        alt=""
+        width={20}
+        height={20}
+        className={SOCIAL_LOGIN_ICON_CLASS}
+      />
       {google ? "구글로 로그인" : "카카오로 로그인"}
     </a>
   );

@@ -1,25 +1,30 @@
 import * as React from "react";
 import { cn } from "@/apps/web-user/common/lib/utils";
 
-/** OAuth 로그인 버튼 공통 — 아이콘 `Image`에 함께 사용 (20×20) */
-export const oauthLoginButtonIconClassName = "size-[20px] shrink-0 object-contain";
+/**
+ * OAuth 로그인 버튼 아이콘 자리(2026-11-16 운영자 결정): 아이콘은 버튼 왼쪽 20px의 20×20 칸에 고정하고 글자는 버튼 가운데.
+ * 버튼을 쌓아도 아이콘은 한 줄, 글자는 가운데로 맞는다(사장님 앱 `SOCIAL_LOGIN_ICON_CLASS`와 같은 규칙). 버튼 클래스에 `relative`가 있다.
+ * 아이콘 `Image`·`AppleLogoIcon`에 쓰고, 네이버 N(16px)은 `NaverLogoIcon`이 같은 칸 가운데에 둔다.
+ */
+export const oauthLoginButtonIconClassName =
+  "absolute left-5 top-1/2 size-[20px] shrink-0 -translate-y-1/2 object-contain";
 
 export const oauthKakaoLoginButtonClassName = cn(
-  "relative flex h-[52px] w-full items-center justify-center gap-[6px] rounded-2lg border-0 bg-[#FFEB00] text-base font-bold leading-none text-gray-900",
+  "relative flex h-[52px] w-full items-center justify-center rounded-2lg border-0 bg-[#FFEB00] text-base font-bold leading-none text-gray-900",
 );
 
 /** 네이버 로그인 버튼 — 네이버 녹색 배경·흰 N 로고·흰 글자(네이버 로그인 버튼 가이드) */
 export const oauthNaverLoginButtonClassName = cn(
-  "relative flex h-[52px] w-full items-center justify-center gap-[6px] rounded-2lg border-0 bg-[#03C75A] text-base font-bold leading-none text-white",
+  "relative flex h-[52px] w-full items-center justify-center rounded-2lg border-0 bg-[#03C75A] text-base font-bold leading-none text-white",
 );
 
 export const oauthGoogleLoginButtonClassName = cn(
-  "relative flex h-[52px] w-full items-center justify-center gap-[6px] rounded-2lg border border-solid border-gray-100 bg-white text-base font-bold leading-none text-gray-900",
+  "relative flex h-[52px] w-full items-center justify-center rounded-2lg border border-solid border-gray-100 bg-white text-base font-bold leading-none text-gray-900",
 );
 
 /** Apple Human Interface Guidelines 권장 "Sign in with Apple" 버튼(검정 배경) */
 export const oauthAppleLoginButtonClassName = cn(
-  "relative flex h-[52px] w-full items-center justify-center gap-[6px] rounded-2lg border-0 bg-black text-base font-bold leading-none text-white",
+  "relative flex h-[52px] w-full items-center justify-center rounded-2lg border-0 bg-black text-base font-bold leading-none text-white",
 );
 
 export const OAuthKakaoLoginButton = React.forwardRef<
@@ -80,7 +85,10 @@ export function NaverLogoIcon({ className }: { className?: string }) {
     <svg
       viewBox="0 0 24 24"
       aria-hidden
-      className={cn("size-[16px] shrink-0", className)}
+      className={cn(
+        "absolute left-[22px] top-1/2 size-[16px] shrink-0 -translate-y-1/2",
+        className,
+      )}
       fill="currentColor"
     >
       <path d="M16.273 12.845 7.376 0H0v24h7.726V11.156L16.624 24H24V0h-7.727v12.845Z" />
