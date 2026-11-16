@@ -42,6 +42,9 @@ export const StatisticsDateRangeField: React.FC<StatisticsDateRangeFieldProps> =
   const today = todayISODateLocal();
 
   const applyRange = (s: string, e: string) => {
+    // 키보드로 칸 하나를 지우면 값이 ""가 된다 — 그대로 넘기면 끝 날짜가 "NaN-NaN-NaN"이 되고 조회가 꺼진 채
+    // 앞 기간 숫자가 남았다. 날짜 모양이 아니면 무시하고 앞 범위를 둔다(11-16 검토)
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(s) || !/^\d{4}-\d{2}-\d{2}$/.test(e)) return;
     const { start, end } = clampRange(s, e);
     onChange({ startDate: start, endDate: end });
   };

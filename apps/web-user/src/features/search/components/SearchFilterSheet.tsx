@@ -108,10 +108,38 @@ export function SearchFilterSheet({
   }, [isOpen, filter, sortBy]);
 
   const handleApply = () => {
+    // 가격 막대를 그대로 두었으면 원래 값을 그대로 둔다 — 눈금(1만원 단위, 1~10만원)에 없는 값("3만5천원 이하",
+    // "15만원 이하")이 창에서 정렬만 바꿔도 반올림되거나 사라지던 것(11-16 검토)
+    const initialMinScale =
+      filter?.minPrice != null ? priceToScale(filter.minPrice) : PRICE_SCALE_MIN;
+    const initialMaxScale =
+      filter?.maxPrice != null ? priceToScale(filter.maxPrice) : PRICE_SCALE_MAX;
     const minPrice =
-      draftPriceMinScale > PRICE_SCALE_MIN ? scaleToPrice(draftPriceMinScale) : undefined;
+      draftPriceMinScale === initialMinScale
+        ? filter?.minPrice
+        : draftPriceMinScale > PRICE_SCALE_MIN
+          ? scaleToPrice(draftPriceMinScale)
+          : undefined;
     const maxPrice =
-      draftPriceMaxScale < PRICE_SCALE_MAX ? scaleToPrice(draftPriceMaxScale) : undefined;
+      draftPriceMaxScale === initialMaxScale
+        ? filter?.maxPrice
+        : draftPriceMaxScale < PRICE_SCALE_MAX
+          ? scaleToPrice(draftPriceMaxScale)
+          : undefined;
+    // 아무것도 바꾸지 않았으면 닫기만 한다 — 새 결과가 오지 않아 "필터 적용" 기다림 표시가 남고,
+    // 다음 검색이 success_filter_apply로 잘못 나가던 것(11-16 검토)
+    const sameItems = (a: readonly string[] = [], b: readonly string[] = []) =>
+      a.length === b.length && a.every((x) => b.includes(x));
+    const unchanged =
+      draftSortBy === sortBy &&
+      sameItems(draftSizes, filter?.sizes) &&
+      sameItems(draftCategories, filter?.productCategoryTypes) &&
+      minPrice === filter?.minPrice &&
+      maxPrice === filter?.maxPrice;
+    if (unchanged) {
+      onClose();
+      return;
+    }
     onFilterChange({
       sizes: draftSizes.length > 0 ? draftSizes : undefined,
       minPrice,

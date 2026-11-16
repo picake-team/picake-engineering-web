@@ -14,7 +14,10 @@ import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { consumePostLoginRedirect } from "@/apps/web-user/features/auth/utils/post-login-redirect.util";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import { decodeJwtPayload } from "@/apps/web-user/features/auth/utils/jwt.util";
-import { clearRegisterTicket } from "@/apps/web-user/features/auth/utils/register-ticket.util";
+import {
+  clearAllRegisterTickets,
+  clearRegisterTicket,
+} from "@/apps/web-user/features/auth/utils/register-ticket.util";
 import { saveLastLoginProvider } from "@/apps/web-user/features/auth/utils/last-login-provider.util";
 
 export function useSendPhoneVerification() {
@@ -89,7 +92,8 @@ export function useGoogleRegister(options?: {
           terms_source: "screen",
         });
       }
-      clearRegisterTicket("google");
+      // 가입이 끝나면 이 탭의 가입표를 모두 지운다(다른 소셜로 가입하다 만 가입표가 30분 남지 않게 — 로그인 성공과 같게, 11-16 검토)
+      clearAllRegisterTickets();
       saveLastLoginProvider("google");
       login(data.accessToken);
       // 로그인을 시작했던 화면으로 복귀 (없으면 홈)
@@ -135,7 +139,8 @@ export function useKakaoRegister(options?: {
           terms_source: variables.agreedToTerms === undefined ? "kakao" : "screen",
         });
       }
-      clearRegisterTicket("kakao");
+      // 가입이 끝나면 이 탭의 가입표를 모두 지운다(다른 소셜로 가입하다 만 가입표가 30분 남지 않게 — 로그인 성공과 같게, 11-16 검토)
+      clearAllRegisterTickets();
       saveLastLoginProvider("kakao");
       login(data.accessToken);
       // 로그인을 시작했던 화면으로 복귀 (없으면 홈)
@@ -181,7 +186,8 @@ export function useNaverRegister(options?: {
           terms_source: "screen",
         });
       }
-      clearRegisterTicket("naver");
+      // 가입이 끝나면 이 탭의 가입표를 모두 지운다(다른 소셜로 가입하다 만 가입표가 30분 남지 않게 — 로그인 성공과 같게, 11-16 검토)
+      clearAllRegisterTickets();
       saveLastLoginProvider("naver");
       login(data.accessToken);
       // 로그인을 시작했던 화면으로 복귀 (없으면 홈)
@@ -226,7 +232,8 @@ export function useAppleRegister(options?: {
           terms_source: "screen",
         });
       }
-      clearRegisterTicket("apple");
+      // 가입이 끝나면 이 탭의 가입표를 모두 지운다(다른 소셜로 가입하다 만 가입표가 30분 남지 않게 — 로그인 성공과 같게, 11-16 검토)
+      clearAllRegisterTickets();
       saveLastLoginProvider("apple");
       login(data.accessToken);
       // 로그인을 시작했던 화면으로 복귀 (없으면 홈)

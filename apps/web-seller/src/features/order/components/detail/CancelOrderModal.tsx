@@ -131,6 +131,8 @@ export const CancelOrderModal: React.FC<CancelOrderModalProps> = ({
               value={detail}
               onChange={(e) => setDetail(e.target.value)}
               placeholder="고객에게 안내할 상세 사유를 입력해 주세요"
+              // 휴대폰 화면과 같게 500자(제한이 없어 긴 사유면 손님 알림톡이 한도로 거절되던 것, 11-16 검토)
+              maxLength={500}
               rows={3}
               className="resize-none text-[13px]"
             />

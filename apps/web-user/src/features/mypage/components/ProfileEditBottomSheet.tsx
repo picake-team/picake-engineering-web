@@ -117,6 +117,7 @@ export function ProfileEditBottomSheet({
                 type="text"
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
+                maxLength={50}
                 className="flex-1 text-sm text-gray-900 outline-none placeholder:text-gray-500"
               />
               {nickname && (

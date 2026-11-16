@@ -32,7 +32,7 @@ export function PhoneEditBottomSheet({ isOpen, onClose, onSuccess }: PhoneEditBo
   const [phone, setPhone] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
   const [codeExpiresAt, setCodeExpiresAt] = useState<string | null>(null);
-  const [, setCountdownTick] = useState(0);
+  const [countdownTick, setCountdownTick] = useState(0);
 
   const sendMutation = useSendPhoneVerification();
   const verifyMutation = useVerifyPhoneCode();
@@ -63,7 +63,8 @@ export function PhoneEditBottomSheet({ isOpen, onClose, onSuccess }: PhoneEditBo
     const end = new Date(codeExpiresAt).getTime();
     if (Number.isNaN(end)) return 0;
     return Math.max(0, Math.floor((end - Date.now()) / 1000));
-  }, [codeExpiresAt]);
+    // countdownTick: 1초마다 다시 계산(빠져 있어 "4:59"에서 멈추고 만료돼도 [수정]이 눌리던 것, 11-16 검토 — 가입 화면과 같게)
+  }, [codeExpiresAt, countdownTick]);
 
   const handleSendCode = async () => {
     if (!phoneValid || sendMutation.isPending) return;

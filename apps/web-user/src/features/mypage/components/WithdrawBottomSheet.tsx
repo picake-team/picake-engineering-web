@@ -94,7 +94,8 @@ export function WithdrawBottomSheet({ isOpen, onClose }: WithdrawBottomSheetProp
                 value={otherReasonText}
                 onChange={(e) => setOtherReasonText(e.target.value)}
                 placeholder="내용을 입력해주세요."
-                maxLength={2000}
+                // 서버 한도(1000자)와 같게 — 넘기면 영어 오류가 뜨던 것(11-16 검토)
+                maxLength={1000}
                 className="mt-2.5 w-full px-3 py-2.5 border border-gray-200 rounded-md text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-primary"
               />
             )}
