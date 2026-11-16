@@ -302,19 +302,29 @@ export function KakaoAuthCallbackPage() {
             />
           </div>
           {useKakaoPhone && hints.phone ? (
-            <div className="space-y-2">
-              <span className="text-sm font-medium text-zinc-700">휴대폰 번호</span>
-              <div className="flex h-[50px] items-center justify-between rounded-lg border border-zinc-200 px-4">
-                <span className="text-[15px] font-medium text-zinc-900">
-                  {formatPhoneDisplay(hints.phone)}
-                </span>
-                <button
+            <div className="flex flex-col gap-2.5">
+              <label htmlFor="kakao-auth-phone" className="text-sm font-medium text-zinc-700">
+                휴대폰 번호
+              </label>
+              <div className="flex flex-row items-start gap-2">
+                <div className="min-w-0 flex-1">
+                  <Input
+                    id="kakao-auth-phone"
+                    type="tel"
+                    name="phone"
+                    value={formatPhoneDisplay(hints.phone)}
+                    readOnly
+                    className="rounded-lg font-mono tabular-nums tracking-wide"
+                  />
+                </div>
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={() => setUseKakaoPhone(false)}
-                  className="text-sm font-medium text-zinc-500 underline underline-offset-2 hover:text-zinc-800"
+                  className="h-12 shrink-0 rounded-lg border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-800 shadow-sm hover:bg-zinc-50 hover:text-zinc-900"
                 >
                   다른 번호
-                </button>
+                </Button>
               </div>
             </div>
           ) : (

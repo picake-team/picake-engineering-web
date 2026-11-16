@@ -375,18 +375,28 @@ export function KakaoRegisterVerificationScreen() {
 
           {useKakaoPhone && hints.phone ? (
             <div className="mt-4 flex flex-col gap-[10px]">
-              <span className="text-sm font-bold text-gray-900">핸드폰 번호</span>
-              <div className="flex h-[52px] items-center justify-between rounded-lg border border-gray-100 px-4">
-                <span className="text-base font-bold text-gray-900">
-                  {formatPhoneForDisplay(hints.phone)}
-                </span>
-                <button
+              <label htmlFor="kakao-register-phone" className="text-sm font-bold text-gray-900">
+                핸드폰 번호
+              </label>
+              <div className="flex flex-row items-start gap-2">
+                <div className="min-w-0 flex-1">
+                  <Input
+                    variant="register"
+                    id="kakao-register-phone"
+                    type="tel"
+                    name="phone"
+                    value={formatPhoneForDisplay(hints.phone)}
+                    readOnly
+                  />
+                </div>
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={() => setUseKakaoPhone(false)}
-                  className="press text-sm font-bold text-gray-500 underline underline-offset-2"
+                  className="box-border inline-flex !h-[42px] !max-h-[42px] !min-h-[42px] shrink-0 !w-auto !items-center !justify-center !rounded-lg !border !border-gray-100 !bg-white !px-5 !py-0 !text-sm !font-bold !leading-tight !text-gray-900 sm:!w-auto"
                 >
                   다른 번호
-                </button>
+                </Button>
               </div>
             </div>
           ) : (
