@@ -275,7 +275,6 @@ function SignUp({
       {useKakaoPhone && hints.phone ? (
         <Field
           label="휴대폰 번호"
-          helper="계정 확인과 계정 찾기에 써요"
           trailing={
             <Button
               variant="secondary"
@@ -297,7 +296,7 @@ function SignUp({
         </Field>
       ) : (
         <>
-          <PhoneVerifyInputs v={v} helper="계정 확인과 계정 찾기에 써요" />
+          <PhoneVerifyInputs v={v} />
           {hints.phone ? (
             <Button variant="quiet" onClick={() => setUseKakaoPhone(true)} className="self-start">
               카카오 번호로
