@@ -176,9 +176,9 @@ export function useReservationBottomSheet({
     setAgreeRefund(initialDraft.agreements.refund);
     setAgreeOptionChange(initialDraft.agreements.optionChange);
     if (initialDraft.reserverName.trim() || initialDraft.reserverPhone.trim()) {
+      // 적어 둔 칸은 그대로 두고, 빈 칸만 아래에서 가입 정보로 채운다(이름만 적고 로그인하면 번호가 비던 것)
       setReserverName(initialDraft.reserverName);
       setReserverPhone(initialDraft.reserverPhone);
-      hasPrefilledReserverRef.current = true;
     }
     setView(initialDraft.orderItems.length > 0 ? "confirm" : "options");
   }, [isOpen, initialDraft]);
@@ -195,13 +195,15 @@ export function useReservationBottomSheet({
     agreements: { payment: agreePayment, refund: agreeRefund, optionChange: agreeOptionChange },
   });
 
-  // 시트 열릴 때 사용자 정보로 예약자명/번호 1회 prefill
+  // 시트 열릴 때 사용자 정보로 예약자명/번호 1회 prefill — 비어 있는 칸만
   useEffect(() => {
-    if (isOpen && profile && !hasPrefilledReserverRef.current) {
-      setReserverName(profile.name ?? "");
-      setReserverPhone(profile.phone ?? "");
-      hasPrefilledReserverRef.current = true;
-    }
+    if (!isOpen || !profile || hasPrefilledReserverRef.current) return;
+    hasPrefilledReserverRef.current = true;
+    setReserverName((prev) => (prev.trim() ? prev : (profile.name ?? "")));
+    // 휴대폰 번호 모양일 때만 — 스토어 심사용 계정은 번호 칸이 휴대폰 번호가 아니라("REVIEW_ACCOUNT")
+    // 그대로 채우면 예약신청이 늘 "올바른 휴대폰 번호가 아니에요"로 실패했다(11-16 검토)
+    const phone = profile.phone ?? "";
+    setReserverPhone((prev) => (prev.trim() ? prev : /^01\d{8,9}$/.test(phone) ? phone : ""));
   }, [isOpen, profile]);
 
   // 현재 편집 중인 옵션 상태 초기화
