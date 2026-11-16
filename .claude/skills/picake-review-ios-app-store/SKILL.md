@@ -251,7 +251,7 @@ Thank you.
 
 ## 5. 제출 전 체크리스트
 
-- [ ] §2 심사용 로그인 코드가 `auth.constants.ts`의 현재 값과 일치하는지 확인 (grep)
+- [ ] (손님 앱) §2 비밀값 `CONSUMER_REVIEW_LOGIN_CODE_SHA256`이 들어간 뒤 배포됐고, 운영자 비밀번호 관리자의 코드로 production 손님 앱에서 심사용 로그인이 되는지 확인. 심사노트의 `{REVIEW_CODE}`를 채웠는지 확인(코드는 11-15부터 레포에 없음)
 - [ ] (판매자 앱) §2-1 비밀값 `SELLER_REVIEW_LOGIN_CODE_SHA256`이 들어간 뒤 배포됐고, 운영자 비밀번호 관리자의 코드로 production 판매자 앱에서 심사용 로그인이 되는지 확인. 심사노트의 `{SELLER_REVIEW_CODE}`를 채웠는지 확인
 - [ ] Apple 로그인이 스테이징/프로덕션에서 실제로 끝까지 되는지 실기기로 검증 (Vercel env, Apple Return URL 등록)
 - [ ] Apple 로그인 최초 인가 시 "이름" 필드가 실제로 미리 채워지는지 검증 (Apple ID 설정에서 Picake 연결 해제 후 재인가해야 재현 가능 — §1의 4.8 항목 참고)
