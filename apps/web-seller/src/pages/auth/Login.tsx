@@ -55,7 +55,7 @@ export function LoginPage() {
           className="relative flex h-[50px] w-full items-center justify-center rounded-lg bg-[#FEE500] text-[15px] font-medium text-[#191919] shadow-sm transition-colors hover:bg-[#f5dc00] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#191919]/25 focus-visible:ring-offset-2"
         >
           <img src={kakaoIcon} alt="" width={20} height={20} className={SOCIAL_LOGIN_ICON_CLASS} />
-          Kakao로 계속하기
+          카카오로 계속하기
           {lastProvider === "kakao" && <RecentLoginBubble />}
         </a>
         {SELLER_NAVER_LOGIN_ENABLED ? (
@@ -74,7 +74,7 @@ export function LoginPage() {
           className="relative flex h-[50px] w-full items-center justify-center rounded-lg border border-zinc-200 bg-white text-[15px] font-medium text-zinc-800 shadow-sm transition-colors hover:border-zinc-300 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2"
         >
           <img src={googleIcon} alt="" width={20} height={20} className={SOCIAL_LOGIN_ICON_CLASS} />
-          Google로 계속하기
+          구글로 계속하기
           {lastProvider === "google" && <RecentLoginBubble />}
         </a>
       </div>

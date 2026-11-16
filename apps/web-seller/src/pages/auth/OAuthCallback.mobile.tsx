@@ -55,6 +55,7 @@ import {
   kakaoAuthorizeUrl,
   naverAuthorizeUrl,
   refreshNaverHrefOnClick,
+  SELLER_NAVER_LOGIN_ENABLED,
   SOCIAL_LOGIN_ICON_CLASS,
   SOCIAL_LOGIN_NAVER_ICON_CLASS,
 } from "@/apps/web-seller/features/auth/components/mobile/socialLogin";
@@ -132,6 +133,14 @@ function SocialLoginButton({ via }: { via: ExistingAccount["via"] }) {
     return (
       <span className="flex h-12 items-center justify-center rounded-control bg-black text-body font-bold text-white">
         Apple 계정으로 가입돼 있어요
+      </span>
+    );
+  }
+  if (via === "naver" && !SELLER_NAVER_LOGIN_ENABLED) {
+    // 네이버 키가 없는 환경(검수 승인 전 상용 등) — 빈 client_id로 네이버에 가지 않게 안내만(11-16 검토)
+    return (
+      <span className="flex h-12 items-center justify-center rounded-control bg-naver text-body font-bold text-white">
+        네이버 계정으로 가입돼 있어요
       </span>
     );
   }
@@ -449,6 +458,9 @@ function OAuthCallbackMobile({ provider }: { provider: Provider }) {
       const data = login_ ? await login_(c) : await authApi.naverLogin(c, naverStateRef.current);
       clearPendingOAuthRegister();
       saveLastLoginProvider(provider);
+      // 로그인 전에 주소의 code·state를 지운다(PC 콜백과 같게). 남겨 두면 로그인 뒤 뒤로 갈 때 이미 쓴 code로 돌아와
+      // "로그인 중…"에서 멈췄다(11-16 검토)
+      navigate({ search: "" }, { replace: true });
       login({ navigate, accessToken: data.accessToken });
     } catch (error) {
       const p = errorPayload(error);
