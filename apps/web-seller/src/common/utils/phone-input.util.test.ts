@@ -43,4 +43,8 @@ describe("phone-input.util — 번호 칸 입력·자동완성", () => {
   it("칸 길이는 국가번호·하이픈이 붙은 자동완성 값이 잘리지 않을 만큼", () => {
     expect("+82 010-1234-5678".length).toBeLessThanOrEqual(PHONE_INPUT_MAX_LENGTH);
   });
+  it("국제 전화 앞자리 0082로 채워진 번호도 받는다", () => {
+    expect(toPhoneDigits("0082 10 1234 5678")).toBe("01012345678");
+    expect(toPhoneDigits("0082-10-1234-5678")).toBe("01012345678");
+  });
 });
