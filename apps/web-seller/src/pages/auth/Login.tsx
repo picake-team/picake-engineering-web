@@ -10,6 +10,8 @@ import { RecentLoginBubble } from "@/apps/web-seller/features/auth/components/Re
 import { readLastLoginProvider } from "@/apps/web-seller/features/auth/utils/last-login-provider.util";
 import {
   SELLER_NAVER_LOGIN_ENABLED,
+  SOCIAL_LOGIN_ICON_CLASS,
+  SOCIAL_LOGIN_NAVER_ICON_CLASS,
   naverAuthorizeUrl,
 } from "@/apps/web-seller/features/auth/components/mobile/socialLogin";
 import { NaverLogoIcon } from "@/apps/web-seller/common/components/icons/NaverLogoIcon";
@@ -49,27 +51,27 @@ export function LoginPage() {
         {/* 순서는 손님 앱·휴대폰 화면과 같게: 카카오 → 네이버 → 구글 */}
         <a
           href={`https://kauth.kakao.com/oauth/authorize?client_id=${import.meta.env.VITE_PUBLIC_KAKAO_RESTAPI_KEY}&redirect_uri=${window.location.origin}${ROUTES.AUTH.KAKAO_REDIRECT_URI}&response_type=code&service_terms=picake_s_tos,picake_s_privacy`}
-          className="relative flex h-[50px] w-full items-center justify-center gap-3 rounded-lg bg-[#FEE500] text-[15px] font-medium text-[#191919] shadow-sm transition-colors hover:bg-[#f5dc00] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#191919]/25 focus-visible:ring-offset-2"
+          className="relative flex h-[50px] w-full items-center justify-center rounded-lg bg-[#FEE500] text-[15px] font-medium text-[#191919] shadow-sm transition-colors hover:bg-[#f5dc00] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#191919]/25 focus-visible:ring-offset-2"
         >
-          <img src={kakaoIcon} alt="" width={20} height={20} className="size-5 shrink-0" />
+          <img src={kakaoIcon} alt="" width={20} height={20} className={SOCIAL_LOGIN_ICON_CLASS} />
           Kakao로 계속하기
           {lastProvider === "kakao" && <RecentLoginBubble />}
         </a>
         {SELLER_NAVER_LOGIN_ENABLED ? (
           <a
             href={naverAuthorizeUrl()}
-            className="relative flex h-[50px] w-full items-center justify-center gap-3 rounded-lg bg-[#03C75A] text-[15px] font-medium text-white shadow-sm transition-colors hover:bg-[#02b350] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#03C75A]/40 focus-visible:ring-offset-2"
+            className="relative flex h-[50px] w-full items-center justify-center rounded-lg bg-[#03C75A] text-[15px] font-medium text-white shadow-sm transition-colors hover:bg-[#02b350] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#03C75A]/40 focus-visible:ring-offset-2"
           >
-            <NaverLogoIcon />
+            <NaverLogoIcon className={SOCIAL_LOGIN_NAVER_ICON_CLASS} />
             네이버로 계속하기
             {lastProvider === "naver" && <RecentLoginBubble />}
           </a>
         ) : null}
         <a
           href={`https://accounts.google.com/o/oauth2/v2/auth?client_id=${import.meta.env.VITE_PUBLIC_GOOGLE_CLIENT_ID}&redirect_uri=${window.location.origin}${ROUTES.AUTH.GOOGLE_REDIRECT_URI}&response_type=code&scope=email+profile&prompt=select_account`}
-          className="relative flex h-[50px] w-full items-center justify-center gap-3 rounded-lg border border-zinc-200 bg-white text-[15px] font-medium text-zinc-800 shadow-sm transition-colors hover:border-zinc-300 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2"
+          className="relative flex h-[50px] w-full items-center justify-center rounded-lg border border-zinc-200 bg-white text-[15px] font-medium text-zinc-800 shadow-sm transition-colors hover:border-zinc-300 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2"
         >
-          <img src={googleIcon} alt="" width={20} height={20} className="size-5 shrink-0" />
+          <img src={googleIcon} alt="" width={20} height={20} className={SOCIAL_LOGIN_ICON_CLASS} />
           Google로 계속하기
           {lastProvider === "google" && <RecentLoginBubble />}
         </a>
