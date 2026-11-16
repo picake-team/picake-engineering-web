@@ -1,7 +1,9 @@
 export const PATTERNS = {
   USER_ID_PATTERN: /^[a-zA-Z0-9_]{4,20}$/,
   PASSWORD_PATTERN: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-  PHONE_PATTERN: /^01[0-9]\d{7,8}$/, // 한국 휴대폰 번호 패턴: 010, 011, 016, 017, 018, 019로 시작하는 10-11자리
+  // 한국 휴대폰 번호: 010은 11자리만(한 자리 빠진 010 번호로 알림톡이 아무에게도 안 가던 것, 11-16 검토),
+  // 옛 번호 011·016~019는 10·11자리(서버 IsValidKoreanPhone과 같게)
+  PHONE_PATTERN: /^(010\d{8}|01[16-9]\d{7,8})$/,
   VERIFICATION_CODE_PATTERN: /^\d{6}$/, // 6자리 숫자 패턴
 } as const;
 
