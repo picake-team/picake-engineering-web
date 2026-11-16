@@ -12,6 +12,10 @@ import {
   normalizePhone,
 } from "@/apps/web-user/common/utils/validator.util";
 import {
+  PHONE_INPUT_MAX_LENGTH,
+  toPhoneDigits,
+} from "@/apps/web-user/common/utils/phone-input.util";
+import {
   useSendPhoneVerification,
   useVerifyPhoneCode,
 } from "@/apps/web-user/features/auth/hooks/mutations/useAuthMutation";
@@ -121,11 +125,16 @@ export function PhoneEditBottomSheet({ isOpen, onClose, onSuccess }: PhoneEditBo
               placeholder="핸드폰 번호를 입력해주세요."
               value={phone}
               onChange={(e) => {
-                setPhone(e.target.value);
+                // 기기 자동완성("010-1234-5678", "+82 10-1234-5678")도 숫자만으로
+                setPhone(toPhoneDigits(e.target.value));
                 setCodeExpiresAt(null);
                 setVerificationCode("");
               }}
+              type="tel"
               inputMode="tel"
+              name="phone"
+              autoComplete="tel"
+              maxLength={PHONE_INPUT_MAX_LENGTH}
             />
             <button
               type="button"

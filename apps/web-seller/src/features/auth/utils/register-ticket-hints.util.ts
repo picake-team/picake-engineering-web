@@ -1,10 +1,11 @@
 /**
- * 가입표(registerToken) 안 카카오가 준 값(화면 표시용, 기획 I-59 B).
+ * 가입표(registerToken) 안 소셜 서비스가 준 값(화면 표시용, 기획 I-59 B).
  * 서명 확인은 서버가 하고 화면은 읽기만 한다 — 여기 값을 고쳐 보내도 서버는 가입표 원본만 쓴다.
  */
 export interface RegisterTicketHints {
   /** 카카오가 준 국내 휴대폰 번호(숫자만) */
   phone?: string;
+  /** 소셜 계정 이름(카카오·구글) — 이름 칸 미리 채우기 */
   name?: string;
   /** 카카오 간편가입에서 동의한 약관 태그 */
   terms?: string[];

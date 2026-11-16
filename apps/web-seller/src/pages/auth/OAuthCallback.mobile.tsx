@@ -141,10 +141,10 @@ function SignUp({
   const login = useAuthStore((s) => s.login);
   const addAlert = useAlertStore((s) => s.addAlert);
   const v = usePhoneVerification(PROVIDER[provider].purpose);
-  // 카카오가 준 번호·이름·약관 동의(가입표 안, 화면 표시용 — 기획 I-59 B)
+  // 소셜 서비스가 준 번호·이름·약관 동의(가입표 안, 화면 표시용 — 기획 I-59 B). 구글은 이름만 온다
   const hints = useMemo(
-    () => (provider === "kakao" ? readRegisterTicketHints(identity.registerToken) : {}),
-    [provider, identity.registerToken],
+    () => readRegisterTicketHints(identity.registerToken),
+    [identity.registerToken],
   );
   const [name, setName] = useState(hints.name ?? "");
   // 카카오 번호로 가입(문자 인증 없음). "다른 번호"를 누르면 지금처럼 문자 인증

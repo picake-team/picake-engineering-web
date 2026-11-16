@@ -32,6 +32,7 @@ import {
   mapSellerActiveTermsToDocIds,
 } from "@/apps/web-seller/features/terms/utils/terms-consent.util";
 import { saveLastLoginProvider } from "@/apps/web-seller/features/auth/utils/last-login-provider.util";
+import { readRegisterTicketHints } from "@/apps/web-seller/features/auth/utils/register-ticket-hints.util";
 
 /** 가입 요청 실패는 mutation onError가 이미 알렸다 — 화면 함수가 처리 안 된 오류로 끝나지 않게(Sentry에 4xx가 쌓이지 않게, 11-16 검토). 대기 중 가입 정보는 성공했을 때만 지운다 */
 function ignoreHandledError(): undefined {
@@ -76,6 +77,15 @@ export function GoogleAuthCallbackPage() {
   );
   const [displayName, setDisplayName] = useState("");
   const [nameError, setNameError] = useState("");
+  // 구글이 준 이름(가입표 안, 화면 표시용) — 이름 칸을 미리 채우고 사장님이 고칠 수 있다
+  const googleName = useMemo(
+    () =>
+      googleLoginData ? readRegisterTicketHints(googleLoginData.registerToken).name : undefined,
+    [googleLoginData],
+  );
+  useEffect(() => {
+    if (googleName) setDisplayName((cur) => cur || googleName);
+  }, [googleName]);
   const [termsState, setTermsState] = useState<SellerTermsAgreementState>(
     INITIAL_SELLER_TERMS_STATE,
   );
