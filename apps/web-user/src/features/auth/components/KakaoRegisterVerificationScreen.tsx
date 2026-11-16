@@ -26,6 +26,10 @@ import {
   normalizePhone,
 } from "@/apps/web-user/common/utils/validator.util";
 import {
+  PHONE_INPUT_MAX_LENGTH,
+  toPhoneDigits,
+} from "@/apps/web-user/common/utils/phone-input.util";
+import {
   TermsAgreementSection,
   INITIAL_TERMS_STATE,
   isRequiredTermsAllChecked,
@@ -165,7 +169,8 @@ export function KakaoRegisterVerificationScreen() {
   };
 
   const handlePhoneChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9]/g, "");
+    // 기기 자동완성("010-1234-5678", "+82 10-1234-5678")도 숫자만으로
+    const value = toPhoneDigits(e.target.value);
     setPhone(value);
     setIsCodeSent(false);
     setCodeExpiresAt(null);
@@ -425,11 +430,12 @@ export function KakaoRegisterVerificationScreen() {
                     id="kakao-register-phone"
                     type="tel"
                     name="phone"
+                    autoComplete="tel"
                     value={phone}
                     onChange={handlePhoneChange}
                     error={phoneError}
                     placeholder="핸드폰 번호를 입력해주세요."
-                    maxLength={11}
+                    maxLength={PHONE_INPUT_MAX_LENGTH}
                     aria-invalid={!!phoneError}
                   />
                 </div>

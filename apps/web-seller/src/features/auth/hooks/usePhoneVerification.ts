@@ -10,6 +10,7 @@ import {
   normalizePhone,
 } from "@/apps/web-seller/common/utils/validator.util";
 import type { PhoneVerificationPurpose } from "@/apps/web-seller/features/auth/types/auth.dto";
+import { toPhoneDigits } from "@/apps/web-seller/common/utils/phone-input.util";
 
 /**
  * 휴대폰 인증 상태(번호·인증번호·남은 시간)와 보내기·확인. 서버 호출과 검사는 PC `PhoneVerificationForm`과 같다.
@@ -45,7 +46,8 @@ export function usePhoneVerification(purpose: PhoneVerificationPurpose) {
   return {
     phone,
     setPhone: (v: string) => {
-      setPhoneRaw(v.replace(/[^0-9]/g, ""));
+      // 기기 자동완성("010-1234-5678", "+82 10-1234-5678")도 숫자만으로
+      setPhoneRaw(toPhoneDigits(v));
       setExpiresAt(null);
       setCodeRaw("");
     },

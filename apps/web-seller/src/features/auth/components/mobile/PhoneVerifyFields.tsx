@@ -11,6 +11,7 @@ import {
   type PhoneVerificationState,
 } from "@/apps/web-seller/features/auth/hooks/usePhoneVerification";
 import type { PhoneVerificationPurpose } from "@/apps/web-seller/features/auth/types/auth.dto";
+import { PHONE_INPUT_MAX_LENGTH } from "@/apps/web-seller/common/utils/phone-input.util";
 
 function mmss(totalSeconds: number) {
   const s = Math.max(0, Math.floor(totalSeconds));
@@ -43,10 +44,12 @@ export function PhoneVerifyInputs({ v, helper }: { v: PhoneVerificationState; he
             id={p.id}
             aria-describedby={p.describedBy}
             invalid={p.invalid}
+            type="tel"
             inputMode="numeric"
-            autoComplete="tel-national"
+            name="phone"
+            autoComplete="tel"
             placeholder="01012345678"
-            maxLength={11}
+            maxLength={PHONE_INPUT_MAX_LENGTH}
             value={v.phone}
             onChange={(e) => v.setPhone(e.target.value)}
           />

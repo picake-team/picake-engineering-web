@@ -23,6 +23,10 @@ import {
   normalizePhone,
 } from "@/apps/web-user/common/utils/validator.util";
 import {
+  PHONE_INPUT_MAX_LENGTH,
+  toPhoneDigits,
+} from "@/apps/web-user/common/utils/phone-input.util";
+import {
   TermsAgreementSection,
   INITIAL_TERMS_STATE,
   isRequiredTermsAllChecked,
@@ -43,6 +47,7 @@ import {
   clearRegisterTicket,
   isRegisterTicketExpired,
   readRegisterTicket,
+  readRegisterTicketHints,
 } from "@/apps/web-user/features/auth/utils/register-ticket.util";
 
 /** 가입 요청 실패는 mutation onError가 이미 알렸다 — 화면 함수가 처리 안 된 오류로 끝나지 않게(Sentry에 4xx가 쌓이지 않게, 11-16 검토) */
@@ -123,6 +128,9 @@ export function GoogleRegisterVerificationScreen() {
       setBooting(false);
       return;
     }
+    // 구글이 준 이름(가입표 안, 화면 표시용)으로 이름 칸을 미리 채운다 — 손님이 고칠 수 있다
+    const fromGoogle = readRegisterTicketHints(registerToken);
+    if (fromGoogle.name) setDisplayName(fromGoogle.name);
     setGoogleLoginData({ registerToken });
     setBooting(false);
     trackEvent("view_phone_verification", { provider: "google" });
@@ -150,7 +158,8 @@ export function GoogleRegisterVerificationScreen() {
   };
 
   const handlePhoneChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9]/g, "");
+    // 기기 자동완성("010-1234-5678", "+82 10-1234-5678")도 숫자만으로
+    const value = toPhoneDigits(e.target.value);
     setPhone(value);
     setIsCodeSent(false);
     setCodeExpiresAt(null);
@@ -345,11 +354,12 @@ export function GoogleRegisterVerificationScreen() {
                   id="google-register-phone"
                   type="tel"
                   name="phone"
+                  autoComplete="tel"
                   value={phone}
                   onChange={handlePhoneChange}
                   error={phoneError}
                   placeholder="핸드폰 번호를 입력해주세요."
-                  maxLength={11}
+                  maxLength={PHONE_INPUT_MAX_LENGTH}
                   aria-invalid={!!phoneError}
                 />
               </div>

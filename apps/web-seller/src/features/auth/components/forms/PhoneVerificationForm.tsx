@@ -15,6 +15,10 @@ import {
   normalizePhone,
 } from "@/apps/web-seller/common/utils/validator.util";
 import type { PhoneVerificationPurpose } from "@/apps/web-seller/features/auth/types/auth.dto";
+import {
+  PHONE_INPUT_MAX_LENGTH,
+  toPhoneDigits,
+} from "@/apps/web-seller/common/utils/phone-input.util";
 
 function formatCountdownMmSs(totalSeconds: number): string {
   const s = Math.max(0, Math.floor(totalSeconds));
@@ -47,7 +51,8 @@ export default function PhoneVerificationForm({
   const [countdownTick, setCountdownTick] = useState(0);
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9]/g, "");
+    // 기기 자동완성("010-1234-5678", "+82 10-1234-5678")도 숫자만으로
+    const value = toPhoneDigits(e.target.value);
     setPhone(value);
     setIsCodeSent(false);
     setCodeExpiresAt(null);
@@ -135,11 +140,12 @@ export default function PhoneVerificationForm({
               id="auth-phone"
               type="tel"
               name="phone"
+              autoComplete="tel"
               value={phone}
               onChange={handlePhoneChange}
               error={phoneError}
               placeholder="01012345678"
-              maxLength={11}
+              maxLength={PHONE_INPUT_MAX_LENGTH}
               className="rounded-lg font-mono tabular-nums tracking-wide"
               aria-invalid={!!phoneError}
             />

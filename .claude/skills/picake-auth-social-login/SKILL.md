@@ -25,6 +25,11 @@ Picake는 구글·카카오 로그인을 **브릿지 없이 웹뷰에서 OAuth A
 - **콘솔 상태·선행 조건**(2026-11-16): picake 앱은 비즈 앱(개인 개발자)·이메일 필수 동의. 전화번호·이름 항목은 "권한 없음"(추가 기능 신청 → 개인정보 동의항목 심사, 영업일 3~5일), 간편가입은 **비즈니스 채널 연결이 있어야 켜진다** — 개인 개발자 비즈 앱은 사업자 정보가 없어 비즈니스 채널을 연결할 수 없으니 사업자 정보 등록부터. 진행은 기획 I-59 진행 기록.
 - **로컬 확인용 테스트 앱 `picake-TEST`**(원본 앱 아래, 오너 같음): 심사 없이 이름·전화번호 필수 동의, 로컬 리다이렉트 URI(`localhost:3001`·`3002` `/auth/login/kakao`), 간편가입 약관 6개 등록(채널 연결 전이라 꺼짐). 쓰는 법: 백엔드를 `KAKAO_CLIENT_ID`·`_SECRET`(+`_SELLER`)을 테스트 앱 값으로 덮어 띄우고, web-user `NEXT_PUBLIC_KAKAO_REST_API_KEY`·seller `VITE_PUBLIC_KAKAO_RESTAPI_KEY`도 테스트 앱 키로. 키·시크릿 값은 카카오 콘솔에서만 보고 레포·문서에 적지 않는다. 확인한 계정 데이터는 테스트 DB에서 지운다.
 
+### 구글 이름 미리 채우기·번호 칸 자동완성 (2026-11-16)
+
+- **구글 이름**: 서버가 구글 userinfo의 `name`(`scope=email profile`)을 `socialNameToDisplay`(앞뒤·겹친 공백 정리, 1~50자만, `utils/social-signup.util`)로 다듬어 가입표 `name`에 담는다. 손님 `GoogleRegisterVerificationScreen`·사장님 PC `GoogleAuthCallback`·사장님 휴대폰 `OAuthCallback.mobile`이 가입표에서 읽어 이름 칸을 채우고 고칠 수 있게 둔다(가입 API는 화면이 보낸 이름으로 가입). 구글은 실명을 확인하지 않아 영어 이름·별명도 올 수 있다. 애플은 지금처럼 `user` 폼 값(처음 인가 때만)으로 채운다.
+- **번호 칸**: 사람 번호를 받는 칸은 `type="tel"` + `autoComplete="tel"` + `maxLength={PHONE_INPUT_MAX_LENGTH}`(20)로 두고, 값은 `toPhoneDigits`(숫자만·11자리, `+82`는 0으로)로 받는다(손님·사장님 각 `common/utils/phone-input.util`). 아이폰·크롬이 기기에 저장된 내 번호를 "010-1234-5678"이나 "+82 10-1234-5678"로 채우기 때문 — `maxLength={11}`이면 하이픈 든 값이 잘린다. 하이픈을 허용하는 칸(예약자 번호)은 `fromAutofillPhone`으로 국가번호 형식만 바꾼다.
+
 ## 1. 프론트엔드 (`apps/web-user/src`) — provider 하나 추가 시 건드릴 파일
 
 | 파일                                                                                                          | 역할                                                                                                                                                                                                                                                                                                        |
