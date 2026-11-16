@@ -1,5 +1,5 @@
 /**
- * 휴대폰 로그인 (SC-61, 디자인 8-B): 로고 + 큰 문장 + 카카오·구글(·Apple)로 시작하기, 아래 "처음이세요?"(사장님 소개 페이지)·계정 찾기.
+ * 휴대폰 로그인 (SC-61, 디자인 8-B): 로고 + 큰 문장 + 카카오·네이버·구글(·Apple)로 시작하기(네이버는 키가 있는 환경만), 아래 "처음이세요?"(사장님 소개 페이지)·계정 찾기.
  * 버튼 문구·순서는 손님 앱과 같게(I-48 "로그인·가입은 손님 앱처럼"). 로고는 손님 웹과 같은 것.
  * 약관·개인정보 처리방침·버전은 이 화면에 두지 않는다(운영자 결정). 처리방침은 가입 화면 약관 동의와
  * 마이페이지에서, 버전은 마이페이지에서 본다. 심사용 로그인 입구는 버전 대신 로고: 2초 안에 10번 누르면
@@ -15,9 +15,12 @@ import logoUrl from "@/apps/web-seller/assets/images/logo_picake.svg";
 import kakaoIcon from "@/apps/web-seller/assets/images/kakaotalk.png";
 import {
   SELLER_APPLE_LOGIN_ENABLED,
+  SELLER_NAVER_LOGIN_ENABLED,
   googleAuthorizeUrl,
   kakaoAuthorizeUrl,
+  naverAuthorizeUrl,
 } from "@/apps/web-seller/features/auth/components/mobile/socialLogin";
+import { NaverLogoIcon } from "@/apps/web-seller/common/components/icons/NaverLogoIcon";
 import { ReviewLoginSheet } from "@/apps/web-seller/features/auth/components/mobile/ReviewLoginSheet";
 import { SELLER_INTRO_URL } from "@/apps/web-seller/common/constants/seller-intro.constant";
 import { externalHref } from "@/apps/web-seller/common/utils/webview.bridge";
@@ -87,6 +90,13 @@ export const LoginMobilePage: React.FC = () => {
           카카오로 시작하기
           {lastProvider === "kakao" && <RecentLoginBubble />}
         </a>
+        {SELLER_NAVER_LOGIN_ENABLED ? (
+          <a href={naverAuthorizeUrl()} className={cx(BTN, "bg-naver text-white")}>
+            <NaverLogoIcon />
+            네이버로 시작하기
+            {lastProvider === "naver" && <RecentLoginBubble />}
+          </a>
+        ) : null}
         <a
           href={googleAuthorizeUrl()}
           className={cx(BTN, "border border-ink-100 bg-white text-ink-900")}

@@ -16,6 +16,7 @@ function getLoginInfo(user: {
   kakaoEmail: string;
   appleId: string;
   appleEmail: string;
+  naverId?: string;
   phone: string;
 }) {
   if (user.kakaoId && user.kakaoEmail) {
@@ -39,6 +40,15 @@ function getLoginInfo(user: {
       <div className="flex items-center gap-[6px]">
         <span className="px-1 py-0.5 bg-gray-50 text-2xs font-bold rounded-sm">Apple</span>
         {user.appleEmail}
+      </div>
+    );
+  }
+  if (user.naverId) {
+    // 네이버는 이메일을 받지 않아 가입한 번호를 보인다
+    return (
+      <div className="flex items-center gap-[6px]">
+        <span className="px-1 py-0.5 bg-gray-50 text-2xs font-bold rounded-sm">네이버</span>
+        {user.phone}
       </div>
     );
   }

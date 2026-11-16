@@ -6,15 +6,18 @@ import { useAlertStore } from "@/apps/web-user/common/store/alert.store";
 import Header from "@/apps/web-user/common/components/headers/Header";
 import {
   AppleLogoIcon,
+  NaverLogoIcon,
   OAuthAppleLoginButton,
   OAuthGoogleLoginButton,
   OAuthKakaoLoginButton,
+  OAuthNaverLoginButton,
   oauthLoginButtonIconClassName,
 } from "@/apps/web-user/common/components/buttons/oauth-provider-login-buttons";
 import {
   getAppleOAuthLoginUrl,
   getGoogleOAuthLoginUrl,
   getKakaoOAuthLoginUrl,
+  getNaverOAuthLoginUrl,
 } from "@/apps/web-user/features/auth/utils/oauth-login-url.util";
 import type { DuplicateAccountPayload } from "@/apps/web-user/features/auth/types/auth.dto";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
@@ -36,9 +39,11 @@ export function OAuthRegisterDuplicateAccountScreen({
     const href =
       provider === "kakao"
         ? getKakaoOAuthLoginUrl()
-        : provider === "apple"
-          ? getAppleOAuthLoginUrl()
-          : getGoogleOAuthLoginUrl();
+        : provider === "naver"
+          ? getNaverOAuthLoginUrl()
+          : provider === "apple"
+            ? getAppleOAuthLoginUrl()
+            : getGoogleOAuthLoginUrl();
     if (!href) {
       showAlert({
         type: "error",
@@ -60,7 +65,7 @@ export function OAuthRegisterDuplicateAccountScreen({
         </h2>
         <p className="mt-1 text-sm leading-relaxed text-gray-500">
           아래 계정으로 로그인해주세요.
-          {provider !== "kakao" && payload.email && (
+          {(provider === "google" || provider === "apple") && payload.email && (
             <>
               <br />
               {provider === "google" ? "구글" : "Apple"} 계정을 고르는 화면에서{" "}
@@ -90,7 +95,7 @@ export function OAuthRegisterDuplicateAccountScreen({
                 로그인수단
               </dt>
               <dd className="min-w-0 flex-1 text-left text-[14px] font-normal text-gray-900">
-                {provider === "google" ? "구글" : provider === "apple" ? "애플" : "카카오"}
+                {{ google: "구글", apple: "애플", kakao: "카카오", naver: "네이버" }[provider]}
               </dd>
             </div>
             {payload.email && (
@@ -118,6 +123,11 @@ export function OAuthRegisterDuplicateAccountScreen({
               />
               카카오로 로그인
             </OAuthKakaoLoginButton>
+          ) : provider === "naver" ? (
+            <OAuthNaverLoginButton type="button" onClick={handleLoginClick}>
+              <NaverLogoIcon />
+              네이버로 로그인
+            </OAuthNaverLoginButton>
           ) : provider === "apple" ? (
             <OAuthAppleLoginButton type="button" onClick={handleLoginClick}>
               <AppleLogoIcon />

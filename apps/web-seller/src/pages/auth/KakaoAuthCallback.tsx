@@ -3,7 +3,10 @@ import { formatPhoneDisplay } from "@/apps/web-seller/common/utils/phone-display
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { authApi } from "@/apps/web-seller/features/auth/apis/auth.api";
-import { useKakaoRegister } from "@/apps/web-seller/features/auth/hooks/mutations/useAuthMutation";
+import {
+  useKakaoRegister,
+  useNaverRegister,
+} from "@/apps/web-seller/features/auth/hooks/mutations/useAuthMutation";
 import { useOAuthCodeOnce } from "@/apps/web-seller/features/auth/hooks/useOAuthCodeOnce";
 import { useAuthStore } from "@/apps/web-seller/features/auth/store/auth.store";
 import PhoneVerificationForm from "@/apps/web-seller/features/auth/components/forms/PhoneVerificationForm";
@@ -25,8 +28,16 @@ import {
   getPendingOAuthRegister,
   setPendingOAuthRegister,
   clearPendingOAuthRegister,
-  type PendingKakaoRegister,
+  type PendingOAuthRegister,
 } from "@/apps/web-seller/features/auth/utils/oauth-callback-pending.util";
+import {
+  clearNaverOAuthState,
+  isNaverOAuthStateValid,
+} from "@/apps/web-seller/features/auth/utils/naver-oauth-state.util";
+import type {
+  KakaoRegisterRequestDto,
+  NaverRegisterRequestDto,
+} from "@/apps/web-seller/features/auth/types/auth.dto";
 import { useSellerActiveTerms } from "@/apps/web-seller/features/terms/hooks/queries/useTermsQuery";
 import { Button } from "@/apps/web-seller/common/components/buttons/Button";
 import {
@@ -44,9 +55,25 @@ function ignoreHandledError(): undefined {
   return undefined;
 }
 
-function readInitialKakaoLoginData(): PendingKakaoRegister | null {
+/** 소셜 서비스가 준 번호로 문자 인증 없이 가입하는 소셜(기획 I-59) — 카카오·네이버가 같은 화면을 쓴다 */
+type TicketPhoneProvider = "kakao" | "naver";
+
+const PROVIDER_CONFIG = {
+  kakao: {
+    label: "카카오",
+    purpose: PHONE_VERIFICATION_PURPOSE.KAKAO_REGISTRATION,
+    idPrefix: "kakao-auth",
+  },
+  naver: {
+    label: "네이버",
+    purpose: PHONE_VERIFICATION_PURPOSE.NAVER_REGISTRATION,
+    idPrefix: "naver-auth",
+  },
+} as const;
+
+function readInitialLoginData(provider: TicketPhoneProvider): PendingOAuthRegister | null {
   const pending = getPendingOAuthRegister();
-  return pending?.provider === "kakao" ? pending : null;
+  return pending?.provider === provider ? pending : null;
 }
 
 function stripOAuthCodeFromUrl(
@@ -61,39 +88,63 @@ function stripOAuthCodeFromUrl(
   navigate({ pathname: location.pathname, search: search ? `?${search}` : "" }, { replace: true });
 }
 
+/**
+ * 카카오·네이버 로그인 콜백(PC) — 가입이 필요하면 소셜 서비스가 준 번호를 "번호 칸 + [다른 번호]"로 보여 주고 문자 인증 없이 가입한다.
+ * 카카오는 간편가입에서 필수 약관에 다 동의했으면 약관 칸을 뺀다. 네이버는 약관을 동의 화면에 넣을 수 없어 늘 받는다.
+ * 네이버는 콜백 주소의 state가 이 탭이 만든 값과 같을 때만 서버에 보낸다.
+ */
 export function KakaoAuthCallbackPage() {
+  return <TicketPhoneAuthCallback provider="kakao" />;
+}
+
+export function NaverAuthCallbackPage() {
+  return <TicketPhoneAuthCallback provider="naver" />;
+}
+
+function TicketPhoneAuthCallback({ provider }: { provider: TicketPhoneProvider }) {
+  const { label, purpose, idPrefix } = PROVIDER_CONFIG[provider];
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const oauthCode = searchParams.get("code");
   const login = useAuthStore((s) => s.login);
+  // 훅은 늘 둘 다 부르고(훅 규칙) 이 화면의 소셜 것만 쓴다
   const kakaoRegisterMutation = useKakaoRegister();
+  const naverRegisterMutation = useNaverRegister();
+  const registerPending =
+    provider === "kakao" ? kakaoRegisterMutation.isPending : naverRegisterMutation.isPending;
+  /** 가입 요청 — 카카오는 약관 칸을 생략할 수 있고(간편가입), 네이버는 늘 약관 칸이 있다 */
+  const registerWith = (payload: KakaoRegisterRequestDto) =>
+    provider === "kakao"
+      ? kakaoRegisterMutation.mutateAsync(payload)
+      : naverRegisterMutation.mutateAsync(payload as NaverRegisterRequestDto);
   const { addAlert } = useAlertStore();
 
-  const initialPending = readInitialKakaoLoginData();
+  const initialPending = readInitialLoginData(provider);
   const [showPhoneVerification, setShowPhoneVerification] = useState(!!initialPending);
-  const [kakaoLoginData, setKakaoLoginData] = useState<{ registerToken: string } | null>(
+  const [loginData, setLoginData] = useState<{ registerToken: string } | null>(
     // provider 칸은 가입 요청에 넣지 않는다(서버가 모르는 칸이면 400)
     initialPending ? { registerToken: initialPending.registerToken } : null,
   );
   const [displayName, setDisplayName] = useState("");
   const [nameError, setNameError] = useState("");
-  // 카카오가 준 번호·이름·약관 동의(가입표 안, 화면 표시용 — 기획 I-59 B)
+  // 소셜 서비스가 준 번호·이름·약관 동의(가입표 안, 화면 표시용 — 기획 I-59 B)
   const hints = useMemo(
-    () => (kakaoLoginData ? readRegisterTicketHints(kakaoLoginData.registerToken) : {}),
-    [kakaoLoginData],
+    () => (loginData ? readRegisterTicketHints(loginData.registerToken) : {}),
+    [loginData],
   );
   // 처음부터 맞는 모양으로(문자 인증 칸이 한 번 보였다가 바뀌지 않게, 11-16 검토)
-  const [useKakaoPhone, setUseKakaoPhone] = useState(() =>
+  const [useTicketPhone, setUseTicketPhone] = useState(() =>
     initialPending ? Boolean(readRegisterTicketHints(initialPending.registerToken).phone) : false,
   );
-  const termsFromKakao = hasAllKakaoSellerTerms(hints.terms);
-  // 가입표를 받으면 카카오 번호·이름으로 미리 채운다(다른 번호를 고르면 지금처럼 문자 인증)
+  // 카카오 간편가입에서 필수 약관에 다 동의했으면 약관을 다시 받지 않는다(네이버는 늘 받음)
+  const termsFromKakao = provider === "kakao" && hasAllKakaoSellerTerms(hints.terms);
+  // 가입표를 받으면 소셜 번호·이름으로 미리 채운다(다른 번호를 고르면 지금처럼 문자 인증)
   useEffect(() => {
-    if (!kakaoLoginData) return;
-    setUseKakaoPhone(Boolean(hints.phone));
+    if (!loginData) return;
+    setUseTicketPhone(Boolean(hints.phone));
     if (hints.name) setDisplayName((cur) => cur || hints.name || "");
-  }, [kakaoLoginData, hints.phone, hints.name]);
+  }, [loginData, hints.phone, hints.name]);
   const [termsState, setTermsState] = useState<SellerTermsAgreementState>(
     INITIAL_SELLER_TERMS_STATE,
   );
@@ -104,20 +155,41 @@ export function KakaoAuthCallbackPage() {
   );
 
   useEffect(() => {
-    if (!oauthCode && !showPhoneVerification && !kakaoLoginData) {
+    if (!oauthCode && !showPhoneVerification && !loginData) {
       navigate(ROUTES.ROOT, { replace: true });
     }
-  }, [oauthCode, showPhoneVerification, kakaoLoginData, navigate]);
+  }, [oauthCode, showPhoneVerification, loginData, navigate]);
+
+  /** 네이버는 state를 먼저 확인한다(이 탭이 만든 값이어야 함). 카카오는 code만 */
+  const loginWithCode = (code: string) => {
+    if (provider === "kakao") return authApi.kakaoLogin(code);
+    const state = searchParams.get("state");
+    const stateValid = isNaverOAuthStateValid(state);
+    clearNaverOAuthState();
+    if (!stateValid || !state) {
+      throw new Error("NAVER_STATE_MISMATCH");
+    }
+    return authApi.naverLogin(code, state);
+  };
 
   useOAuthCodeOnce(oauthCode, async (code) => {
     try {
-      const data = await authApi.kakaoLogin(code);
+      const data = await loginWithCode(code);
       clearPendingOAuthRegister();
       stripOAuthCodeFromUrl(navigate, location, searchParams);
-      saveLastLoginProvider("kakao");
+      saveLastLoginProvider(provider);
       login({ navigate, accessToken: data.accessToken });
     } catch (error: unknown) {
       stripOAuthCodeFromUrl(navigate, location, searchParams);
+      if (error instanceof Error && error.message === "NAVER_STATE_MISMATCH") {
+        clearPendingOAuthRegister();
+        navigate(ROUTES.AUTH.LOGIN, { replace: true });
+        addAlert({
+          message: "로그인을 확인하지 못했어요. 다시 로그인해 주세요.",
+          severity: "error",
+        });
+        return;
+      }
 
       const err = error as {
         response?: {
@@ -140,13 +212,10 @@ export function KakaoAuthCallbackPage() {
         message.includes(AUTH_ERROR_MESSAGES.PHONE_VERIFICATION_REQUIRED) &&
         registerToken
       ) {
-        const pending: PendingKakaoRegister = {
-          provider: "kakao",
-          registerToken,
-        };
+        const pending: PendingOAuthRegister = { provider, registerToken };
         setPendingOAuthRegister(pending);
-        setKakaoLoginData({ registerToken });
-        setUseKakaoPhone(Boolean(readRegisterTicketHints(registerToken).phone));
+        setLoginData({ registerToken });
+        setUseTicketPhone(Boolean(readRegisterTicketHints(registerToken).phone));
         setShowPhoneVerification(true);
       } else {
         clearPendingOAuthRegister();
@@ -180,9 +249,9 @@ export function KakaoAuthCallbackPage() {
     else setNameError("");
   };
 
-  /** 카카오 번호로 가입 — 문자 인증 없이. 약관은 카카오에서 다 동의했으면 다시 받지 않는다 */
-  const handleKakaoPhoneRegister = async () => {
-    if (!kakaoLoginData) return;
+  /** 소셜 번호로 가입 — 문자 인증 없이. 약관은 카카오에서 다 동의했으면 다시 받지 않는다 */
+  const handleTicketPhoneRegister = async () => {
+    if (!loginData) return;
     if (!validateDisplayName(displayName)) return;
     let termsPart: {
       agreedToTerms?: boolean;
@@ -213,28 +282,24 @@ export function KakaoAuthCallbackPage() {
         termsDocumentIds,
       };
     }
-    await kakaoRegisterMutation
-      .mutateAsync({
-        ...kakaoLoginData,
-        useTicketPhone: true,
-        name: displayName.trim(),
-        ...termsPart,
-      })
-      .then(clearPendingOAuthRegister, ignoreHandledError);
+    await registerWith({
+      ...loginData,
+      useTicketPhone: true,
+      name: displayName.trim(),
+      ...termsPart,
+    }).then(clearPendingOAuthRegister, ignoreHandledError);
   };
 
   const handlePhoneVerificationComplete = async (phone: string) => {
-    if (!kakaoLoginData) return;
+    if (!loginData) return;
     if (!validateDisplayName(displayName)) return;
     if (termsFromKakao) {
       // 약관은 카카오에서 동의함(서버가 가입표로 확인) — 문자로 받은 번호로만 가입
-      await kakaoRegisterMutation
-        .mutateAsync({
-          ...kakaoLoginData,
-          phone,
-          name: displayName.trim(),
-        })
-        .then(clearPendingOAuthRegister, ignoreHandledError);
+      await registerWith({
+        ...loginData,
+        phone,
+        name: displayName.trim(),
+      }).then(clearPendingOAuthRegister, ignoreHandledError);
       return;
     }
     if (!isRequiredSellerTermsAllChecked(termsState)) {
@@ -256,16 +321,14 @@ export function KakaoAuthCallbackPage() {
       return;
     }
 
-    await kakaoRegisterMutation
-      .mutateAsync({
-        ...kakaoLoginData,
-        phone,
-        name: displayName.trim(),
-        agreedToTerms: termsState.termsOfService,
-        agreedToPrivacy: termsState.privacyPolicy,
-        termsDocumentIds,
-      })
-      .then(clearPendingOAuthRegister, ignoreHandledError);
+    await registerWith({
+      ...loginData,
+      phone,
+      name: displayName.trim(),
+      agreedToTerms: termsState.termsOfService,
+      agreedToPrivacy: termsState.privacyPolicy,
+      termsDocumentIds,
+    }).then(clearPendingOAuthRegister, ignoreHandledError);
   };
 
   if (showPhoneVerification) {
@@ -286,11 +349,14 @@ export function KakaoAuthCallbackPage() {
       >
         <div className="flex flex-col gap-8">
           <div className="space-y-2">
-            <label htmlFor="kakao-auth-display-name" className="text-sm font-medium text-zinc-700">
+            <label
+              htmlFor={`${idPrefix}-display-name`}
+              className="text-sm font-medium text-zinc-700"
+            >
               이름
             </label>
             <Input
-              id="kakao-auth-display-name"
+              id={`${idPrefix}-display-name`}
               type="text"
               name="displayName"
               value={displayName}
@@ -303,15 +369,15 @@ export function KakaoAuthCallbackPage() {
               aria-invalid={!!nameError}
             />
           </div>
-          {useKakaoPhone && hints.phone ? (
+          {useTicketPhone && hints.phone ? (
             <div className="flex flex-col gap-2.5">
-              <label htmlFor="kakao-auth-phone" className="text-sm font-medium text-zinc-700">
+              <label htmlFor={`${idPrefix}-phone`} className="text-sm font-medium text-zinc-700">
                 휴대폰 번호
               </label>
               <div className="flex flex-row items-start gap-2">
                 <div className="min-w-0 flex-1">
                   <Input
-                    id="kakao-auth-phone"
+                    id={`${idPrefix}-phone`}
                     type="tel"
                     name="phone"
                     value={formatPhoneDisplay(hints.phone)}
@@ -322,7 +388,7 @@ export function KakaoAuthCallbackPage() {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setUseKakaoPhone(false)}
+                  onClick={() => setUseTicketPhone(false)}
                   className="h-12 shrink-0 rounded-lg border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-800 shadow-sm hover:bg-zinc-50 hover:text-zinc-900"
                 >
                   다른 번호
@@ -333,7 +399,7 @@ export function KakaoAuthCallbackPage() {
             <div className="space-y-2">
               <PhoneVerificationForm
                 onVerificationComplete={handlePhoneVerificationComplete}
-                purpose={PHONE_VERIFICATION_PURPOSE.KAKAO_REGISTRATION}
+                purpose={purpose}
                 canComplete={termsFromKakao || isRequiredSellerTermsAllChecked(termsState)}
               />
             </div>
@@ -341,19 +407,19 @@ export function KakaoAuthCallbackPage() {
           {termsFromKakao ? null : (
             <SellerTermsAgreementSection value={termsState} onChange={setTermsState} />
           )}
-          {useKakaoPhone && hints.phone ? (
+          {useTicketPhone && hints.phone ? (
             <Button
               type="button"
               disabled={
                 !displayName.trim() ||
                 !!nameError ||
-                kakaoRegisterMutation.isPending ||
+                registerPending ||
                 !(termsFromKakao || isRequiredSellerTermsAllChecked(termsState))
               }
-              onClick={() => void handleKakaoPhoneRegister()}
+              onClick={() => void handleTicketPhoneRegister()}
               className="h-[50px] w-full rounded-lg text-[15px] font-medium shadow-sm"
             >
-              {kakaoRegisterMutation.isPending ? "가입하는 중" : "가입하기"}
+              {registerPending ? "가입하는 중" : "가입하기"}
             </Button>
           ) : null}
         </div>
@@ -365,7 +431,7 @@ export function KakaoAuthCallbackPage() {
     <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-100 px-4 py-12">
       <ContentLoading
         variant="page"
-        message="카카오 로그인 처리 중…"
+        message={`${label} 로그인 처리 중…`}
         showLogo
         className="min-h-0 py-10"
       />

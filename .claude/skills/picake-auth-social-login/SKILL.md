@@ -1,6 +1,6 @@
 ---
 name: picake-auth-social-login
-description: 소셜 로그인(구글·카카오·애플 OAuth)을 더하거나 고칠 때. "애플 로그인 추가", "카카오·구글 로그인 수정"에 쓴다. 웹뷰 OAuth code flow·시크릿·탈퇴 처리 패턴.
+description: 소셜 로그인(구글·카카오·네이버·애플 OAuth)을 더하거나 고칠 때. "애플 로그인 추가", "카카오·구글·네이버 로그인 수정"에 쓴다. 웹뷰 OAuth code flow·시크릿·탈퇴 처리 패턴.
 ---
 
 # 소셜 로그인(OAuth) 기능 구현
@@ -24,6 +24,21 @@ Picake는 구글·카카오 로그인을 **브릿지 없이 웹뷰에서 OAuth A
 - **화면**: 가입표 안 값을 읽어(표시용 — 서명 확인은 서버) 카카오 번호를 기존 번호 칸 모양으로 **전체 번호**와 [다른 번호] 버튼으로 보여 주고(운영자 결정 11-16: 가리지 않음, 설명 글 없음), 이름을 미리 채우고, 카카오에서 필수 약관에 다 동의했으면 약관 칸만 뺀다(안내 글 없음). "다른 번호"를 누르면 문자 인증으로 가고 카카오 번호로 되돌아가는 버튼은 두지 않는다(다시 로그인). 카카오가 번호를 안 주면 화면은 예전 그대로. 손님 웹은 가입표를 주소 대신 **이 탭의 sessionStorage**로 넘기고(`register-ticket.util`, 받은 시각도 함께 — 30분 확인은 받은 뒤 지난 시간으로 세서 기기 시계가 틀려도 막지 않음), 로그인에 성공하면 남은 가입표를 지운다. 저장이 안 되는 브라우저만 주소로.
 - **콘솔 상태·선행 조건**(2026-11-16): picake 앱은 비즈 앱(개인 개발자)·이메일 필수 동의. 전화번호·이름 항목은 "권한 없음"(추가 기능 신청 → 개인정보 동의항목 심사, 영업일 3~5일), 간편가입은 **비즈니스 채널 연결이 있어야 켜진다** — 개인 개발자 비즈 앱은 사업자 정보가 없어 비즈니스 채널을 연결할 수 없으니 사업자 정보 등록부터. 진행은 기획 I-59 진행 기록.
 - **로컬 확인용 테스트 앱 `picake-TEST`**(원본 앱 아래, 오너 같음): 심사 없이 이름·전화번호 필수 동의, 로컬 리다이렉트 URI(`localhost:3001`·`3002` `/auth/login/kakao`), 간편가입 약관 6개 등록(채널 연결 전이라 꺼짐). 쓰는 법: 백엔드를 `KAKAO_CLIENT_ID`·`_SECRET`(+`_SELLER`)을 테스트 앱 값으로 덮어 띄우고, web-user `NEXT_PUBLIC_KAKAO_REST_API_KEY`·seller `VITE_PUBLIC_KAKAO_RESTAPI_KEY`도 테스트 앱 키로. 키·시크릿 값은 카카오 콘솔에서만 보고 레포·문서에 적지 않는다. 확인한 계정 데이터는 테스트 DB에서 지운다.
+
+### 네이버 로그인 (손님·사장님, 2026-11-16)
+
+- **앱 하나**: 네이버 개발자센터 앱 "픽케이크"를 손님·사장님·staging·상용·로컬이 같이 쓴다(카카오처럼). 같은 사람의 네이버 회원 식별자(`naverId`, 앱마다 다름)가 손님·사장님에서 같다. 받는 정보는 앱 설정에서 **회원이름·휴대전화번호(필수)**만 — 이메일은 받지 않는다(가입표 `email`은 빈 값, `verifyRegisterTicket`은 네이버만 빈 이메일 허용). Callback URL은 손님·사장님 × 상용·staging·로컬(`/auth/login/naver`) 전부 등록.
+- **키**: 서버 `NAVER_CLIENT_ID`·`NAVER_CLIENT_SECRET`(GitHub 비밀값 공용 1세트, 사장님 앱을 나누면 `_SELLER`), 손님 웹 `NEXT_PUBLIC_NAVER_CLIENT_ID`, 사장님 웹 `VITE_PUBLIC_NAVER_CLIENT_ID`(Vercel). **웹은 키가 없으면 네이버 버튼을 숨긴다** — 네이버 검수 승인 전에는 상용 Vercel에 넣지 않는다(검수 전에는 테스터 아이디만 로그인돼서).
+- **state**: 로그인 주소에 이 탭의 임의 값(`naver-oauth-state.util`, sessionStorage, 버튼이 여러 곳이어도 같은 값)을 붙이고, 콜백에서 같을 때만 서버에 `{ code, state }`를 보낸다(다르거나 없으면 서버를 부르지 않고 "로그인을 확인하지 못했어요"). 저장소를 아예 못 쓰는 브라우저도 막는다(확인할 수 없어서). 손님 로그인 창은 열 때마다 주소를 새로 만든다 — 콜백이 state를 지운 뒤 처음 만든 주소를 다시 쓰면 막히기 때문(11-16 검토). PostHog 주소에서 `state`를 지운다. 서버는 토큰 발급에 state를 그대로 넘긴다(네이버 필수).
+- **가입**: 카카오와 같은 화면(손님 `KakaoRegisterVerificationScreen`의 `NaverRegisterVerificationScreen`, 사장님 PC `KakaoAuthCallback`의 `NaverAuthCallbackPage`, 휴대폰 `OAuthCallback.mobile`) — 네이버 번호를 번호 칸 + [다른 번호]로 보여 주고 `useTicketPhone: true`면 문자 인증 없이 가입, "다른 번호"면 `naver_registration` 문자 인증. 네이버는 약관을 동의 화면에 넣을 수 없어 **약관 칸은 늘 보인다**.
+- **탈퇴**: 로그인 때 받은 갱신 토큰을 `TokenEncryptionUtil`(애플과 같은 키)로 암호화해 가입표(`providerRefreshToken`)·계정(`naverRefreshToken`, 로그인마다 새로)에 저장 → 탈퇴 때 `POST https://nid.naver.com/oauth2.0/revoke`(token_type_hint=refresh_token)로 연결 끊기. **상용(`NODE_ENV=production`)에서만** 끊고(staging도 같은 앱), 같은 네이버로 가입한 다른 역할 계정이 있으면 끊지 않는다. 실패해도 탈퇴는 진행.
+- **앱 안 네이버 앱 로그인**: 네이버 로그인 화면의 "네이버 앱으로 로그인"은 `nidlogin://`(안드로이드)·`naversearchthirdlogin://`(iOS)를 연다 — 앱 껍데기 링크 규칙에 넣어야 앱 안에서 눌린다(앱 레포 `docs/bridge-contract.md`). 넣지 않아도 아이디·비밀번호 로그인은 된다.
+- **로컬 확인**: 네이버 키 없이도 화면은 볼 수 있다 — 웹을 `NEXT_PUBLIC_NAVER_CLIENT_ID`(사장님 `VITE_PUBLIC_NAVER_CLIENT_ID`)에 아무 값으로 띄우고, 브라우저에서 `nid.naver.com`을 같은 state로 콜백에 돌려보내는 가짜 응답과 서버 `naver/login`의 가짜 400(가입표)을 걸면 가입(실제 로컬 서버)까지 끝까지 확인된다. 실제 네이버 로그인은 키를 넣은 뒤 등록자(운영자) 네이버 아이디로.
+
+### 구글 이름 미리 채우기·번호 칸 자동완성 (2026-11-16)
+
+- **구글 이름**: 서버가 구글 userinfo의 `name`(`scope=email profile`)을 `socialNameToDisplay`(앞뒤·겹친 공백 정리, 1~50자만, `utils/social-signup.util`)로 다듬어 가입표 `name`에 담는다. 손님 `GoogleRegisterVerificationScreen`·사장님 PC `GoogleAuthCallback`·사장님 휴대폰 `OAuthCallback.mobile`이 가입표에서 읽어 이름 칸을 채우고 고칠 수 있게 둔다(가입 API는 화면이 보낸 이름으로 가입). 구글은 실명을 확인하지 않아 영어 이름·별명도 올 수 있다. 애플은 지금처럼 `user` 폼 값(처음 인가 때만)으로 채운다.
+- **번호 칸**: 사람 번호를 받는 칸은 `type="tel"` + `autoComplete="tel"` + `maxLength={PHONE_INPUT_MAX_LENGTH}`(20)로 두고, 값은 `toPhoneDigits`(숫자만·11자리, `+82`는 0으로)로 받는다(손님·사장님 각 `common/utils/phone-input.util`). 아이폰·크롬이 기기에 저장된 내 번호를 "010-1234-5678"이나 "+82 10-1234-5678"로 채우기 때문 — `maxLength={11}`이면 하이픈 든 값이 잘린다. 하이픈을 허용하는 칸(예약자 번호)은 `fromAutofillPhone`으로 국가번호 형식만 바꾼다.
 
 ## 1. 프론트엔드 (`apps/web-user/src`) — provider 하나 추가 시 건드릴 파일
 

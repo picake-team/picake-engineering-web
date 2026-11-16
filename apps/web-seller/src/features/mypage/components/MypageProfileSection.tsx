@@ -141,7 +141,9 @@ export const MypageProfileSection: React.FC<MypageProfileSectionProps> = ({ prof
                 ? `카카오 (${profile.kakaoEmail})`
                 : profile.googleEmail
                   ? `구글 (${profile.googleEmail})`
-                  : "—"}
+                  : profile.naverId
+                    ? "네이버"
+                    : "—"}
             </span>
           </div>
           <div className="grid gap-1 sm:grid-cols-[140px_1fr] sm:items-center">

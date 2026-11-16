@@ -8,6 +8,11 @@ export const oauthKakaoLoginButtonClassName = cn(
   "relative flex h-[52px] w-full items-center justify-center gap-[6px] rounded-2lg border-0 bg-[#FFEB00] text-base font-bold leading-none text-gray-900",
 );
 
+/** 네이버 로그인 버튼 — 네이버 녹색 배경·흰 N 로고·흰 글자(네이버 로그인 버튼 가이드) */
+export const oauthNaverLoginButtonClassName = cn(
+  "relative flex h-[52px] w-full items-center justify-center gap-[6px] rounded-2lg border-0 bg-[#03C75A] text-base font-bold leading-none text-white",
+);
+
 export const oauthGoogleLoginButtonClassName = cn(
   "relative flex h-[52px] w-full items-center justify-center gap-[6px] rounded-2lg border border-solid border-gray-100 bg-white text-base font-bold leading-none text-gray-900",
 );
@@ -29,6 +34,19 @@ export const OAuthKakaoLoginButton = React.forwardRef<
   />
 ));
 OAuthKakaoLoginButton.displayName = "OAuthKakaoLoginButton";
+
+export const OAuthNaverLoginButton = React.forwardRef<
+  HTMLButtonElement,
+  React.ButtonHTMLAttributes<HTMLButtonElement>
+>(({ className, type = "button", ...props }, ref) => (
+  <button
+    ref={ref}
+    type={type}
+    className={cn(oauthNaverLoginButtonClassName, className)}
+    {...props}
+  />
+));
+OAuthNaverLoginButton.displayName = "OAuthNaverLoginButton";
 
 export const OAuthGoogleLoginButton = React.forwardRef<
   HTMLButtonElement,
@@ -55,6 +73,20 @@ export const OAuthAppleLoginButton = React.forwardRef<
   />
 ));
 OAuthAppleLoginButton.displayName = "OAuthAppleLoginButton";
+
+/** 네이버 N 로고(흰색, 버튼 녹색 배경 위) — 인라인 SVG */
+export function NaverLogoIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden
+      className={cn("size-[16px] shrink-0", className)}
+      fill="currentColor"
+    >
+      <path d="M16.273 12.845 7.376 0H0v24h7.726V11.156L16.624 24H24V0h-7.727v12.845Z" />
+    </svg>
+  );
+}
 
 /** 애플 로고 글리프 — 다른 provider처럼 PNG 에셋을 쓰지 않고 인라인 SVG로 렌더링 */
 export function AppleLogoIcon({ className }: { className?: string }) {

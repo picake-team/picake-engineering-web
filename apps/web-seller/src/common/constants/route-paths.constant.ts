@@ -49,6 +49,8 @@ export const ROUTES = {
     FIND_ACCOUNT: "/auth/login/find-account",
     GOOGLE_REDIRECT_URI: "/auth/login/google",
     KAKAO_REDIRECT_URI: "/auth/login/kakao",
+    /** 네이버 Callback URL — 네이버 개발자센터 앱(손님과 같은 앱)에 환경별로 등록 */
+    NAVER_REDIRECT_URI: "/auth/login/naver",
   },
   TERMS: {
     TERMS_OF_SERVICE: "/terms/terms-of-service",

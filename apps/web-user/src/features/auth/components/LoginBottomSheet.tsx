@@ -5,15 +5,18 @@ import Image from "next/image";
 import { DragHandleBottomSheet } from "@/apps/web-user/common/components/bottom-sheets/DragHandleBottomSheet";
 import {
   AppleLogoIcon,
+  NaverLogoIcon,
   oauthAppleLoginButtonClassName,
   oauthGoogleLoginButtonClassName,
   oauthKakaoLoginButtonClassName,
   oauthLoginButtonIconClassName,
+  oauthNaverLoginButtonClassName,
 } from "@/apps/web-user/common/components/buttons/oauth-provider-login-buttons";
 import {
   getAppleOAuthLoginUrl,
   getGoogleOAuthLoginUrl,
   getKakaoOAuthLoginUrl,
+  getNaverOAuthLoginUrl,
 } from "@/apps/web-user/features/auth/utils/oauth-login-url.util";
 import { useLoginSheetStore } from "@/apps/web-user/common/store/login-sheet.store";
 import { setPostLoginRedirect } from "@/apps/web-user/features/auth/utils/post-login-redirect.util";
@@ -23,7 +26,7 @@ import { useLastLoginProvider } from "@/apps/web-user/features/auth/hooks/useLas
 
 /**
  * 비로그인 사용자에게 노출되는 로그인 / 회원가입 바텀시트.
- * 카카오·구글 OAuth 시작 버튼 노출.
+ * 카카오·네이버·구글·애플 OAuth 시작 버튼 노출(네이버는 키가 있는 환경만).
  *
  * 전역 useLoginSheetStore 로 isOpen/close 를 관리하며, RootWrapperLayout 에 1회만 마운트된다.
  * 각 화면에서는 useLoginSheetStore().openLoginSheet() 으로 호출.
@@ -35,13 +38,18 @@ export function LoginBottomSheet() {
   const lastProvider = useLastLoginProvider(isOpen);
   const [googleAuthHref, setGoogleAuthHref] = useState<string | null>(null);
   const [kakaoAuthHref, setKakaoAuthHref] = useState<string | null>(null);
+  const [naverAuthHref, setNaverAuthHref] = useState<string | null>(null);
   const [appleAuthHref, setAppleAuthHref] = useState<string | null>(null);
 
+  // 창을 열 때마다 로그인 주소를 새로 만든다 — 네이버 state는 콜백에서 한 번 쓰고 지우므로,
+  // 처음 만든 주소를 계속 쓰면 네이버에서 취소하고 돌아온 뒤 다시 누를 때 "로그인을 확인하지 못했어요"가 뜬다(11-16 검토)
   useEffect(() => {
+    if (!isOpen) return;
     setGoogleAuthHref(getGoogleOAuthLoginUrl());
     setKakaoAuthHref(getKakaoOAuthLoginUrl());
+    setNaverAuthHref(getNaverOAuthLoginUrl());
     setAppleAuthHref(getAppleOAuthLoginUrl());
-  }, []);
+  }, [isOpen]);
 
   // 로그인/회원가입 진입 화면 노출
   useEffect(() => {
@@ -81,6 +89,20 @@ export function LoginBottomSheet() {
               />
               카카오로 시작하기
               {lastProvider === "kakao" && <RecentLoginBubble />}
+            </a>
+          )}
+          {naverAuthHref && (
+            <a
+              href={naverAuthHref}
+              className={oauthNaverLoginButtonClassName}
+              onClick={() => {
+                setPostLoginRedirect();
+                trackEvent("engage_social_select", { provider: "naver" });
+              }}
+            >
+              <NaverLogoIcon />
+              네이버로 시작하기
+              {lastProvider === "naver" && <RecentLoginBubble />}
             </a>
           )}
           {googleAuthHref && (

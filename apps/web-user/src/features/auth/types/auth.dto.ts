@@ -11,6 +11,7 @@ export const PHONE_VERIFICATION_PURPOSE = {
   GOOGLE_REGISTRATION: "google_registration",
   KAKAO_REGISTRATION: "kakao_registration",
   APPLE_REGISTRATION: "apple_registration",
+  NAVER_REGISTRATION: "naver_registration",
   PHONE_CHANGE: "phone_change",
   FIND_ACCOUNT: "find_account",
 } as const;
@@ -32,6 +33,12 @@ export interface KakaoLoginRequestDto {
 
 export interface AppleLoginRequestDto {
   code: string;
+}
+
+/** 네이버 로그인 요청 — 콜백 주소의 code와, 로그인 요청 때 이 화면이 만든 state(확인을 마친 값) */
+export interface NaverLoginRequestDto {
+  code: string;
+  state: string;
 }
 
 /** 앱스토어/플레이스토어 심사(리뷰) 전용 로그인 요청 */
@@ -65,6 +72,23 @@ export interface KakaoRegisterRequestDto {
   agreedToPrivacy?: boolean;
   agreedToThirdParty?: boolean;
   agreedToLocationTerms?: boolean;
+  /** 동의한 약관 문서 ID 목록 (버전 이력 기록용) */
+  termsDocumentIds?: string[];
+}
+
+/** 네이버 가입 — 카카오와 같게 가입표의 네이버 번호로 문자 인증 없이 가입할 수 있다. 약관은 늘 가입 화면에서 */
+export interface NaverRegisterRequestDto {
+  /** 가입표 — 로그인 응답(400 PHONE_VERIFICATION_REQUIRED)의 registerToken. 소셜 ID는 보내지 않는다 */
+  registerToken: string;
+  /** 가입표 안 네이버 번호로 가입하면 true — phone·문자 인증 없이 그 번호로 */
+  useTicketPhone?: boolean;
+  name: string;
+  /** 문자 인증한 번호(useTicketPhone이 아닐 때) */
+  phone?: string;
+  agreedToTerms: boolean;
+  agreedToPrivacy: boolean;
+  agreedToThirdParty: boolean;
+  agreedToLocationTerms: boolean;
   /** 동의한 약관 문서 ID 목록 (버전 이력 기록용) */
   termsDocumentIds?: string[];
 }
@@ -106,4 +130,4 @@ export type DuplicateAccountPayload = {
   email: string | null;
 };
 
-export type OAuthLoginProvider = "google" | "kakao" | "apple";
+export type OAuthLoginProvider = "google" | "kakao" | "apple" | "naver";

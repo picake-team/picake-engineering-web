@@ -1,6 +1,6 @@
 import { decodeJwtPayload } from "@/apps/web-user/features/auth/utils/jwt.util";
 
-export type RegisterTicketProvider = "kakao" | "google" | "apple";
+export type RegisterTicketProvider = "kakao" | "naver" | "google" | "apple";
 
 /**
  * 가입표(registerToken)를 로그인 콜백 → 가입 화면으로 넘긴다.
@@ -11,7 +11,7 @@ const KEY = (provider: RegisterTicketProvider) => `picake:register-ticket:${prov
 /** 이 기기가 가입표를 받은 시각(기기 시계) — 남은 시간을 기기 시계가 틀려도 맞게 세려고 */
 const SAVED_AT_KEY = (provider: RegisterTicketProvider) =>
   `picake:register-ticket:${provider}:saved-at`;
-const PROVIDERS: readonly RegisterTicketProvider[] = ["kakao", "google", "apple"];
+const PROVIDERS: readonly RegisterTicketProvider[] = ["kakao", "naver", "google", "apple"];
 
 /** 저장했으면 true — false면 주소로 넘긴다 */
 export function saveRegisterTicket(provider: RegisterTicketProvider, token: string): boolean {
@@ -68,11 +68,11 @@ export function clearAllRegisterTickets(): void {
 }
 
 /**
- * 가입표 안 카카오가 준 값(화면 표시용). 서명 확인은 서버가 하고, 화면은 읽기만 한다 —
+ * 가입표 안 소셜 서비스가 준 값(화면 표시용). 서명 확인은 서버가 하고, 화면은 읽기만 한다 —
  * 여기 값을 고쳐 보내도 서버는 가입표 원본만 쓴다.
  */
 export interface RegisterTicketHints {
-  /** 카카오가 준 국내 휴대폰 번호(숫자만) */
+  /** 카카오·네이버가 준 국내 휴대폰 번호(숫자만) */
   phone?: string;
   name?: string;
   /** 카카오 간편가입에서 동의한 약관 태그 */

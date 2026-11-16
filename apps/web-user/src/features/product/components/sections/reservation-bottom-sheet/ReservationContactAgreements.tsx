@@ -3,6 +3,7 @@
 import { InfoNotice } from "@/apps/web-user/common/components/notice/InfoNotice";
 import { LabeledInput } from "@/apps/web-user/common/components/inputs/LabeledInput";
 import { Checkbox } from "@/apps/web-user/common/components/inputs/Checkbox";
+import { fromAutofillPhone } from "@/apps/web-user/common/utils/phone-input.util";
 import {
   formatRefundRulePeriodLabel,
   visibleRefundRules,
@@ -71,6 +72,7 @@ export function ReservationContactAgreements({
               id="reserver-name"
               label="예약자명"
               type="text"
+              autoComplete="name"
               value={reserverName}
               onChange={(e) => setReserverName(e.target.value)}
               placeholder="예약자명을 입력해주세요."
@@ -84,8 +86,10 @@ export function ReservationContactAgreements({
               label="핸드폰번호"
               type="tel"
               inputMode="numeric"
+              autoComplete="tel"
               value={reserverPhone}
-              onChange={(e) => setReserverPhone(e.target.value)}
+              // 기기 자동완성이 "+82 10-…"로 채우면 국내 번호로(손으로 쓴 하이픈은 그대로)
+              onChange={(e) => setReserverPhone(fromAutofillPhone(e.target.value))}
               placeholder="휴대폰 번호를 입력해주세요."
               clearable
               onClear={() => setReserverPhone("")}

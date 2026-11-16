@@ -1,5 +1,6 @@
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { NODE_ENV } from "@/apps/web-user/common/constants/environment.constants";
+import { getOrCreateNaverOAuthState } from "@/apps/web-user/features/auth/utils/naver-oauth-state.util";
 
 /**
  * 브라우저에서 카카오 OAuth 로그인 시작 URL (동일 도메인 redirect_uri)
@@ -15,6 +16,20 @@ export function getKakaoOAuthLoginUrl(): string | null {
   const redirectUri = `${window.location.origin}${PATHS.AUTH.KAKAO_REDIRECT_URI}`;
   // 카카오 간편가입: 손님 약관만 보여 준다(사장님과 카카오 앱을 같이 써서). 태그는 backend KAKAO_SERVICE_TERMS.consumer와 같게
   return `https://kauth.kakao.com/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&service_terms=${KAKAO_CONSUMER_SERVICE_TERMS}`;
+}
+
+/**
+ * 브라우저에서 네이버 로그인 시작 URL (동일 도메인 Callback URL, 이 탭의 state).
+ * 손님·사장님이 네이버 앱 하나를 같이 쓴다. 키가 없는 환경(검수 승인 전 상용 등)은 null — 버튼이 안 보인다.
+ * 받는 정보(이름·휴대전화번호)는 네이버 개발자센터 앱 설정에서 정한다(요청에 범위를 싣지 않음).
+ */
+export function getNaverOAuthLoginUrl(): string | null {
+  if (typeof window === "undefined") return null;
+  const clientId = process.env.NEXT_PUBLIC_NAVER_CLIENT_ID;
+  if (!clientId) return null;
+  const redirectUri = `${window.location.origin}${PATHS.AUTH.NAVER_REDIRECT_URI}`;
+  const state = getOrCreateNaverOAuthState();
+  return `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}`;
 }
 
 /**
