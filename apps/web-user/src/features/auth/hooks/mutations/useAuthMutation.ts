@@ -14,6 +14,7 @@ import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { consumePostLoginRedirect } from "@/apps/web-user/features/auth/utils/post-login-redirect.util";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import { decodeJwtPayload } from "@/apps/web-user/features/auth/utils/jwt.util";
+import { clearRegisterTicket } from "@/apps/web-user/features/auth/utils/register-ticket.util";
 
 export function useSendPhoneVerification() {
   const { showAlert } = useAlertStore();
@@ -82,6 +83,7 @@ export function useGoogleRegister(options?: {
       if (userId) {
         trackEvent("success_signup", { provider: "google", user_id: userId });
       }
+      clearRegisterTicket("google");
       login(data.accessToken);
       // 로그인을 시작했던 화면으로 복귀 (없으면 홈)
       router.replace(consumePostLoginRedirect());
@@ -119,6 +121,7 @@ export function useKakaoRegister(options?: {
       if (userId) {
         trackEvent("success_signup", { provider: "kakao", user_id: userId });
       }
+      clearRegisterTicket("kakao");
       login(data.accessToken);
       // 로그인을 시작했던 화면으로 복귀 (없으면 홈)
       router.replace(consumePostLoginRedirect());
@@ -156,6 +159,7 @@ export function useAppleRegister(options?: {
       if (userId) {
         trackEvent("success_signup", { provider: "apple", user_id: userId });
       }
+      clearRegisterTicket("apple");
       login(data.accessToken);
       // 로그인을 시작했던 화면으로 복귀 (없으면 홈)
       router.replace(consumePostLoginRedirect());

@@ -11,12 +11,13 @@ import getApiMessage from "@/apps/web-user/common/utils/getApiMessage";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import { decodeJwtPayload } from "@/apps/web-user/features/auth/utils/jwt.util";
 import { resolveSocialAuthFailReason } from "@/apps/web-user/features/auth/utils/social-auth-error.util";
+import { saveRegisterTicket } from "@/apps/web-user/features/auth/utils/register-ticket.util";
 
 /**
  * 애플 OAuth 콜백 — `/auth/login/apple`(route.ts)이 폼바디를 파싱해 `code`를 쿼리로 붙여 여기로
  * 리다이렉트합니다. 이후 흐름은 `/auth/login/google`과 동일하게 `code`로
  * `/v1/consumer/auth/apple/login`을 호출합니다.
- * 휴대폰 미연동 시 → 가입표 `registerToken`을 쿼리로 붙여 `/auth/register/apple`으로 이동
+ * 휴대폰 미연동 시 → 가입표 `registerToken`을 이 탭에 두고(저장 안 되면 쿼리로) `/auth/register/apple`으로 이동
  */
 function AppleAuthCallbackContent() {
   const router = useRouter();
@@ -55,12 +56,19 @@ function AppleAuthCallbackContent() {
 
         if (isServerAuthMessage(message, "PHONE_VERIFICATION_REQUIRED") && registerToken) {
           const params = new URLSearchParams();
-          // 가입표: 서버가 확인한 소셜 ID가 들어 있어 가입은 이 값으로만 한다(30분)
-          params.set("registerToken", registerToken);
+          // 가입표: 서버가 확인한 소셜 ID(카카오는 번호·이름도)가 들어 있어 가입은 이 값으로만 한다(30분).
+          // 주소에 싣지 않고 이 탭에 둔다 — 저장이 안 되는 브라우저만 주소로
+          if (!saveRegisterTicket("apple", registerToken)) {
+            params.set("registerToken", registerToken);
+          }
           if (appleName) {
             params.set("appleName", appleName);
           }
-          router.replace(`${PATHS.AUTH.APPLE_REGISTER}?${params.toString()}`);
+          router.replace(
+            params.toString()
+              ? `${PATHS.AUTH.APPLE_REGISTER}?${params.toString()}`
+              : PATHS.AUTH.APPLE_REGISTER,
+          );
         } else {
           trackEvent("fail_social_auth", {
             provider: "apple",

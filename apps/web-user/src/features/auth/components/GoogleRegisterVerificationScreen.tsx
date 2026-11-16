@@ -38,6 +38,7 @@ import { focusElementById, onEnterKey } from "@/apps/web-user/common/utils/enter
 import { useKeyboardOpen } from "@/apps/web-user/common/hooks/useKeyboardOpen";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import { resolvePhoneVerificationFailReason } from "@/apps/web-user/features/auth/utils/phone-verification-error.util";
+import { readRegisterTicket } from "@/apps/web-user/features/auth/utils/register-ticket.util";
 
 function formatCountdownMmSs(totalSeconds: number): string {
   const s = Math.max(0, Math.floor(totalSeconds));
@@ -48,7 +49,7 @@ function formatCountdownMmSs(totalSeconds: number): string {
 
 /**
  * 구글 OAuth 이후 휴대폰 인증·회원가입 전용 화면
- * (콜백에서 가입표 registerToken을 쿼리로 전달)
+ * (콜백이 가입표 registerToken을 이 탭에 둔다 — register-ticket.util)
  */
 export function GoogleRegisterVerificationScreen() {
   const router = useRouter();
@@ -88,7 +89,7 @@ export function GoogleRegisterVerificationScreen() {
 
   useEffect(() => {
     // 가입표(로그인 때 서버가 확인한 소셜 ID가 들어 있음, 30분) — 가입은 이 값으로만 한다
-    const registerToken = searchParams.get("registerToken")?.trim();
+    const registerToken = readRegisterTicket("google", searchParams.get("registerToken"));
     if (!registerToken) {
       router.replace(PATHS.HOME);
       setBooting(false);

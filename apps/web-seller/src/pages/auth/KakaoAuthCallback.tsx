@@ -27,6 +27,12 @@ import {
   type PendingKakaoRegister,
 } from "@/apps/web-seller/features/auth/utils/oauth-callback-pending.util";
 import { useSellerActiveTerms } from "@/apps/web-seller/features/terms/hooks/queries/useTermsQuery";
+import { Button } from "@/apps/web-seller/common/components/buttons/Button";
+import {
+  hasAllKakaoSellerTerms,
+  maskPhoneForDisplay,
+  readRegisterTicketHints,
+} from "@/apps/web-seller/features/auth/utils/register-ticket-hints.util";
 import {
   buildSellerTermsDocumentIds,
   mapSellerActiveTermsToDocIds,
@@ -66,6 +72,19 @@ export function KakaoAuthCallbackPage() {
   );
   const [displayName, setDisplayName] = useState("");
   const [nameError, setNameError] = useState("");
+  // 카카오가 준 번호·이름·약관 동의(가입표 안, 화면 표시용 — 기획 I-59 B)
+  const hints = useMemo(
+    () => (kakaoLoginData ? readRegisterTicketHints(kakaoLoginData.registerToken) : {}),
+    [kakaoLoginData],
+  );
+  const [useKakaoPhone, setUseKakaoPhone] = useState(false);
+  const termsFromKakao = hasAllKakaoSellerTerms(hints.terms);
+  // 가입표를 받으면 카카오 번호·이름으로 미리 채운다(다른 번호를 고르면 지금처럼 문자 인증)
+  useEffect(() => {
+    if (!kakaoLoginData) return;
+    setUseKakaoPhone(Boolean(hints.phone));
+    if (hints.name) setDisplayName((cur) => cur || hints.name || "");
+  }, [kakaoLoginData, hints.phone, hints.name]);
   const [termsState, setTermsState] = useState<SellerTermsAgreementState>(
     INITIAL_SELLER_TERMS_STATE,
   );
@@ -150,6 +169,48 @@ export function KakaoAuthCallbackPage() {
     else setNameError("");
   };
 
+  /** 카카오 번호로 가입 — 문자 인증 없이. 약관은 카카오에서 다 동의했으면 다시 받지 않는다 */
+  const handleKakaoPhoneRegister = async () => {
+    if (!kakaoLoginData) return;
+    if (!validateDisplayName(displayName)) return;
+    let termsPart: {
+      agreedToTerms?: boolean;
+      agreedToPrivacy?: boolean;
+      termsDocumentIds?: string[];
+    } = {};
+    if (!termsFromKakao) {
+      if (!isRequiredSellerTermsAllChecked(termsState)) {
+        addAlert({
+          message: "필수 약관에 모두 동의해 주세요.",
+          title: "약관 동의",
+          severity: "warning",
+        });
+        return;
+      }
+      const termsDocumentIds = buildSellerTermsDocumentIds(termsState, activeTermsDocIds);
+      if (!termsDocumentIds) {
+        addAlert({
+          message: "약관 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.",
+          title: "약관 동의",
+          severity: "warning",
+        });
+        return;
+      }
+      termsPart = {
+        agreedToTerms: termsState.termsOfService,
+        agreedToPrivacy: termsState.privacyPolicy,
+        termsDocumentIds,
+      };
+    }
+    await kakaoRegisterMutation.mutateAsync({
+      ...kakaoLoginData,
+      useTicketPhone: true,
+      name: displayName.trim(),
+      ...termsPart,
+    });
+    clearPendingOAuthRegister();
+  };
+
   const handlePhoneVerificationComplete = async (phone: string) => {
     if (!kakaoLoginData) return;
     if (!validateDisplayName(displayName)) return;
@@ -224,12 +285,52 @@ export function KakaoAuthCallbackPage() {
               aria-invalid={!!nameError}
             />
           </div>
-          <PhoneVerificationForm
-            onVerificationComplete={handlePhoneVerificationComplete}
-            purpose={PHONE_VERIFICATION_PURPOSE.KAKAO_REGISTRATION}
-            canComplete={isRequiredSellerTermsAllChecked(termsState)}
-          />
-          <SellerTermsAgreementSection value={termsState} onChange={setTermsState} />
+          {useKakaoPhone && hints.phone ? (
+            <div className="space-y-2">
+              <span className="text-sm font-medium text-zinc-700">휴대폰 번호</span>
+              <div className="flex h-[50px] items-center justify-between rounded-lg border border-zinc-200 px-4">
+                <span className="text-[15px] font-medium text-zinc-900">
+                  {maskPhoneForDisplay(hints.phone)}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setUseKakaoPhone(false)}
+                  className="text-sm font-medium text-zinc-500 underline underline-offset-2 hover:text-zinc-800"
+                >
+                  다른 번호
+                </button>
+              </div>
+              <p className="text-xs text-zinc-500">
+                카카오에 등록된 번호예요. 계정 확인과 계정 찾기에 써요.
+              </p>
+            </div>
+          ) : (
+            <PhoneVerificationForm
+              onVerificationComplete={handlePhoneVerificationComplete}
+              purpose={PHONE_VERIFICATION_PURPOSE.KAKAO_REGISTRATION}
+              canComplete={termsFromKakao || isRequiredSellerTermsAllChecked(termsState)}
+            />
+          )}
+          {termsFromKakao ? (
+            <p className="text-sm text-zinc-500">약관은 카카오에서 동의했어요.</p>
+          ) : (
+            <SellerTermsAgreementSection value={termsState} onChange={setTermsState} />
+          )}
+          {useKakaoPhone && hints.phone ? (
+            <Button
+              type="button"
+              disabled={
+                !displayName.trim() ||
+                !!nameError ||
+                kakaoRegisterMutation.isPending ||
+                !(termsFromKakao || isRequiredSellerTermsAllChecked(termsState))
+              }
+              onClick={() => void handleKakaoPhoneRegister()}
+              className="h-[50px] w-full rounded-lg text-[15px] font-medium shadow-sm"
+            >
+              {kakaoRegisterMutation.isPending ? "가입하는 중" : "가입하기"}
+            </Button>
+          ) : null}
         </div>
       </AuthBrandedCard>
     );

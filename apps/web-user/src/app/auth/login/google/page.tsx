@@ -15,10 +15,11 @@ import {
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import { decodeJwtPayload } from "@/apps/web-user/features/auth/utils/jwt.util";
 import { resolveSocialAuthFailReason } from "@/apps/web-user/features/auth/utils/social-auth-error.util";
+import { saveRegisterTicket } from "@/apps/web-user/features/auth/utils/register-ticket.util";
 
 /**
  * 구글 OAuth 리다이렉트 콜백 — `code`로 `/v1/consumer/auth/google/login` 호출
- * 휴대폰 미연동 시 → 가입표 `registerToken`을 쿼리로 붙여 `/auth/register/google`으로 이동
+ * 휴대폰 미연동 시 → 가입표 `registerToken`을 이 탭에 두고(저장 안 되면 쿼리로) `/auth/register/google`으로 이동
  */
 function GoogleAuthCallbackContent() {
   const router = useRouter();
@@ -58,10 +59,17 @@ function GoogleAuthCallbackContent() {
 
         if (isServerAuthMessage(message, "PHONE_VERIFICATION_REQUIRED") && registerToken) {
           const params = new URLSearchParams();
-          // 가입표: 서버가 확인한 소셜 ID가 들어 있어 가입은 이 값으로만 한다(30분)
-          params.set("registerToken", registerToken);
+          // 가입표: 서버가 확인한 소셜 ID(카카오는 번호·이름도)가 들어 있어 가입은 이 값으로만 한다(30분).
+          // 주소에 싣지 않고 이 탭에 둔다 — 저장이 안 되는 브라우저만 주소로
+          if (!saveRegisterTicket("google", registerToken)) {
+            params.set("registerToken", registerToken);
+          }
           // 회원가입으로 이어지므로 복귀 경로는 유지 (가입 완료 후 사용)
-          router.replace(`${PATHS.AUTH.GOOGLE_REGISTER}?${params.toString()}`);
+          router.replace(
+            params.toString()
+              ? `${PATHS.AUTH.GOOGLE_REGISTER}?${params.toString()}`
+              : PATHS.AUTH.GOOGLE_REGISTER,
+          );
         } else {
           clearPostLoginRedirect();
           trackEvent("fail_social_auth", {
