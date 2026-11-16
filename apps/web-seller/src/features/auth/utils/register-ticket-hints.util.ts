@@ -42,10 +42,3 @@ export function hasAllKakaoSellerTerms(terms: string[] | undefined): boolean {
   const agreed = new Set(terms ?? []);
   return KAKAO_SELLER_REQUIRED_TERMS.every((t) => agreed.has(t));
 }
-
-/** "01012345678" → "010-****-5678" */
-export function maskPhoneForDisplay(phone: string): string {
-  const d = phone.replace(/\D/g, "");
-  if (d.length < 10) return phone;
-  return `${d.slice(0, 3)}-****-${d.slice(-4)}`;
-}

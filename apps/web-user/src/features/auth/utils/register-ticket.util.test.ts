@@ -2,7 +2,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   clearRegisterTicket,
   hasAllKakaoConsumerTerms,
-  maskPhoneForDisplay,
+  isRegisterTicketExpired,
+  formatPhoneForDisplay,
   readRegisterTicket,
   readRegisterTicketHints,
   saveRegisterTicket,
@@ -41,7 +42,8 @@ describe("가입표 읽기(카카오 한 번에 가입 화면용)", () => {
   });
 
   it("번호는 가운데를 가린다", () => {
-    expect(maskPhoneForDisplay("01012345678")).toBe("010-****-5678");
+    expect(formatPhoneForDisplay("01012345678")).toBe("010-1234-5678");
+    expect(formatPhoneForDisplay("0161234567")).toBe("016-123-4567");
   });
 });
 
@@ -78,5 +80,18 @@ describe("가입표 넘기기(주소 대신 이 탭에)", () => {
     });
     expect(saveRegisterTicket("google", "T2")).toBe(false);
     expect(readRegisterTicket("google", "FROM-URL")).toBe("FROM-URL");
+  });
+});
+
+describe("가입표 30분 지남(화면을 열 때)", () => {
+  const now = Date.UTC(2026, 10, 16, 12, 0, 0);
+  it("만료 시각이 지났으면 지난 것으로(30초 여유)", () => {
+    expect(isRegisterTicketExpired(fakeTicket({ exp: now / 1000 - 60 }), now)).toBe(true);
+    expect(isRegisterTicketExpired(fakeTicket({ exp: now / 1000 - 10 }), now)).toBe(false);
+    expect(isRegisterTicketExpired(fakeTicket({ exp: now / 1000 + 600 }), now)).toBe(false);
+  });
+  it("읽을 수 없으면 서버에 맡긴다(지난 것으로 보지 않음)", () => {
+    expect(isRegisterTicketExpired("broken", now)).toBe(false);
+    expect(isRegisterTicketExpired(fakeTicket({}), now)).toBe(false);
   });
 });
