@@ -2,7 +2,7 @@
 
 import { DesignSearchSection } from "@/apps/web-user/features/design/components/DesignListSections";
 import { searchDesigns } from "@/apps/web-user/features/design/utils/design.util";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { SearchProductListSection } from "@/apps/web-user/features/product/components/sections/SearchProductListSection";
 import { SearchStoreListSection } from "@/apps/web-user/features/store/components/sections/SearchStoreListSection";
@@ -24,25 +24,22 @@ import {
   readSearchSize,
   searchCategoryLabel,
 } from "@/apps/web-user/features/search/utils/search-category.util";
+import { useRecentSearches } from "@/apps/web-user/features/search/hooks/useRecentSearches";
+import {
+  SEARCH_SUGGESTIONS_ID,
+  SearchSuggestions,
+  type SearchPickSource,
+} from "@/apps/web-user/features/search/components/SearchSuggestions";
+import {
+  mergeSearchFilters,
+  parseSearchQuery,
+  splitSheetFilter,
+  type ParsedSearchQuery,
+} from "@/apps/web-user/features/search/utils/search-query-parse.util";
+import { suggestSearchKeywords } from "@/apps/web-user/features/search/utils/search-suggest.util";
 
-const RECENT_SEARCHES_KEY = "recentSearches";
-const MAX_RECENT = 10;
 /** 필터 시트의 기본 정렬. 이 값과 다르면 정렬을 바꾼 것으로 본다 */
 const DEFAULT_SORT_BY: SearchSortBy = "distance";
-
-function getRecentSearches(): string[] {
-  if (typeof window === "undefined") return [];
-  try {
-    return JSON.parse(localStorage.getItem(RECENT_SEARCHES_KEY) || "[]");
-  } catch {
-    return [];
-  }
-}
-
-function saveRecentSearch(term: string) {
-  const prev = getRecentSearches().filter((t) => t !== term);
-  localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify([term, ...prev].slice(0, MAX_RECENT)));
-}
 
 export default function SearchPage() {
   const searchParams = useSearchParams();
@@ -74,6 +71,20 @@ export default function SearchPage() {
     ...(sizeParam ? { sizes: [sizeParam] } : {}),
   }));
   const [sortBy, setSortBy] = useState<SearchSortBy>(DEFAULT_SORT_BY);
+  const recentSearches = useRecentSearches();
+  // 검색어에서 알아들은 조건(카테고리·크기·가격). 필터 창에서 고치면 필터로 옮기고 여기서는 비운다
+  const [parsed, setParsed] = useState<ParsedSearchQuery>(() =>
+    parseSearchQuery(searchParams.get("q") || ""),
+  );
+  // 결과를 보는 중에 검색어를 고치기 시작하면 결과 대신 자동완성을 보인다
+  const [editing, setEditing] = useState(false);
+  // 필터 창·결과에 쓰는 값: 손님이 고른 필터(listFilter)에 검색어에서 알아들은 조건을 더한다
+  // (같은 객체로 둬야 필터 창이 열린 채 다시 그려져도 고르던 값이 풀리지 않는다)
+  const effectiveFilter = useMemo(
+    () => mergeSearchFilters(listFilter, parsed.filter),
+    [listFilter, parsed.filter],
+  );
+  const searchKeyword = submittedTerm.trim() ? parsed.keyword : submittedTerm;
   // 새 결과를 받을 때마다 새 객체로 바꿔, 개수가 같아도 아래 이벤트 효과가 다시 돈다
   const [result, setResult] = useState<{ count: number } | undefined>(undefined);
   const resultCount = result?.count;
@@ -89,8 +100,8 @@ export default function SearchPage() {
   submittedTermRef.current = submittedTerm;
   const sortByRef = useRef(sortBy);
   sortByRef.current = sortBy;
-  const listFilterRef = useRef(listFilter);
-  listFilterRef.current = listFilter;
+  const effectiveFilterRef = useRef(effectiveFilter);
+  effectiveFilterRef.current = effectiveFilter;
   // 검색어 없이 카테고리로 결과를 보는 중. 홈 카테고리로 들어왔으면 필터에서 그 카테고리를 꺼도
   // 결과(전체 상품)와 필터 버튼을 그대로 둔다(끄는 순간 빈 검색 화면이 되어 돌아갈 길이 없던 것)
   const isBrowsingCategory =
@@ -99,10 +110,15 @@ export default function SearchPage() {
   const isBrowsingCategoryRef = useRef(isBrowsingCategory);
   isBrowsingCategoryRef.current = isBrowsingCategory;
 
+  // 주소의 검색어가 바뀌면(검색·뒤로 가기·앞으로 가기) 입력 칸과 결과를 함께 그 검색어로.
+  // 전에는 입력 칸만 바뀌어 뒤로 가면 칸은 "하트"인데 결과는 "리본"으로 남았다(11-16)
+  const qParam = searchParams.get("q") ?? "";
   useEffect(() => {
-    const q = searchParams.get("q");
-    setSearchTerm(q || "");
-  }, [searchParams]);
+    setSearchTerm(qParam);
+    setSubmittedTerm(qParam);
+    setParsed(parseSearchQuery(qParam));
+    setEditing(false);
+  }, [qParam]);
 
   // 이 화면에 있는 채로 주소의 카테고리·사이즈만 바뀌면(뒤로 가기 등) 필터도 그 값으로
   useEffect(() => {
@@ -152,7 +168,7 @@ export default function SearchPage() {
     // (처리하지 않으면 플래그가 남아, 나중에 검색어로 찾을 때 엉뚱하게 "필터 적용"으로 보내진다)
     if (pendingFilterApplyRef.current) {
       pendingFilterApplyRef.current = false;
-      const filter = listFilterRef.current;
+      const filter = effectiveFilterRef.current;
       trackEvent("success_filter_apply", {
         sort_type: sortByRef.current,
         size_filter: filter.sizes?.join(",") || undefined,
@@ -174,11 +190,20 @@ export default function SearchPage() {
 
   const handleSearch = (term: string) => {
     if (!term.trim()) return;
+    // 키보드를 먼저 내린다: 한글을 치는 중에 줄을 누르면 내리면서 끝 글자가 입력되는데, 그 값을 아래에서 덮어쓴다
+    inputRef.current?.blur();
     trackEvent("request_search", { keyword: term.trim() });
-    saveRecentSearch(term.trim());
+    recentSearches.add(term.trim());
     setSearchTerm(term.trim());
     setSubmittedTerm(term.trim());
+    setParsed(parseSearchQuery(term.trim()));
+    setEditing(false);
     router.push(`/search?q=${encodeURIComponent(term.trim())}`);
+  };
+
+  const handlePick = (term: string, source: SearchPickSource) => {
+    trackEvent("engage_search_suggestion", { keyword: term, source, page: "search" });
+    handleSearch(term);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -193,7 +218,19 @@ export default function SearchPage() {
   const isSearching =
     !!submittedTerm.trim() || isBrowsingCategory || browsingDesigns || browsingProducts;
   // 필터 시트에서 조건이나 정렬을 바꾼 상태면 아이콘을 on으로 표시
-  const isFilterActive = hasActiveFilter(listFilter) || sortBy !== DEFAULT_SORT_BY;
+  const isFilterActive = hasActiveFilter(effectiveFilter) || sortBy !== DEFAULT_SORT_BY;
+  // 결과가 없을 때는 늘, 결과를 보는 중에는 검색어를 고치는 동안만 최근·추천 검색어나 자동완성을 보인다
+  // (고치는 중이라도 맞는 말이 없으면 결과를 가리지 않는다)
+  const typingSuggestions = useMemo(
+    () => suggestSearchKeywords(searchTerm, recentSearches.items),
+    [searchTerm, recentSearches.items],
+  );
+  const showSuggestions =
+    !isSearching ||
+    (editing &&
+      searchTerm.trim() !== submittedTerm.trim() &&
+      (!searchTerm.trim() || typingSuggestions.length > 0));
+  const suggestionListOpen = showSuggestions && !!searchTerm.trim() && typingSuggestions.length > 0;
 
   return (
     <div className="w-full">
@@ -204,15 +241,30 @@ export default function SearchPage() {
           <input
             ref={inputRef}
             type="search"
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded={suggestionListOpen}
+            aria-controls={suggestionListOpen ? SEARCH_SUGGESTIONS_ID : undefined}
+            enterKeyHint="search"
+            autoComplete="off"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setEditing(true);
+            }}
+            onBlur={() => setEditing(false)}
             placeholder="어떤 케이크를 찾으시나요?"
             className="flex-1 text-sm text-gray-900 outline-none placeholder:text-gray-500 [&::-webkit-search-cancel-button]:hidden"
           />
           {searchTerm && (
             <button
               type="button"
-              onClick={() => setSearchTerm("")}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => {
+                setSearchTerm("");
+                setEditing(true);
+                inputRef.current?.focus();
+              }}
               aria-label="검색어 지우기"
               className="w-5 h-5"
             >
@@ -222,9 +274,26 @@ export default function SearchPage() {
         </form>
       </div>
 
-      {/* 탭 + 검색 결과 */}
+      {showSuggestions && (
+        <SearchSuggestions
+          query={searchTerm}
+          suggestions={typingSuggestions}
+          recent={recentSearches.items}
+          onPick={handlePick}
+          onRemoveRecent={(term) => {
+            recentSearches.remove(term);
+            trackEvent("delete_recent_search", { scope: "one" });
+          }}
+          onClearRecent={() => {
+            recentSearches.clear();
+            trackEvent("delete_recent_search", { scope: "all" });
+          }}
+        />
+      )}
+
+      {/* 탭 + 검색 결과(자동완성을 보는 동안은 숨기기만 해 스크롤·불러온 목록을 그대로 둔다) */}
       {isSearching && (
-        <>
+        <div className={showSuggestions ? "hidden" : undefined}>
           {/* 탭 줄 위아래 여백(11-15 운영자: 너무 커서 줄임, 안쪽 16px 겹쳐 있던 것 뺌) */}
           <div className="flex items-center gap-[24px] py-[16px] px-[20px]">
             <button
@@ -269,46 +338,49 @@ export default function SearchPage() {
           <div className="px-5 pb-10">
             {activeTab === "design" ? (
               <DesignSearchSection
-                categories={listFilter.productCategoryTypes ?? []}
-                sizes={listFilter.sizes ?? []}
-                search={submittedTerm}
+                categories={effectiveFilter.productCategoryTypes ?? []}
+                sizes={effectiveFilter.sizes ?? []}
+                search={searchKeyword}
               />
             ) : activeTab === "product" ? (
               <SearchProductListSection
-                search={submittedTerm}
-                minPrice={listFilter.minPrice}
-                maxPrice={listFilter.maxPrice}
-                productCategoryTypes={listFilter.productCategoryTypes}
-                sizes={listFilter.sizes}
+                search={searchKeyword}
+                minPrice={effectiveFilter.minPrice}
+                maxPrice={effectiveFilter.maxPrice}
+                productCategoryTypes={effectiveFilter.productCategoryTypes}
+                sizes={effectiveFilter.sizes}
                 sortBy={sortBy}
                 entryPoint={isBrowsingCategory ? "category" : "search"}
                 onResultCountChange={handleResultCount}
               />
             ) : (
               <SearchStoreListSection
-                search={submittedTerm}
-                filter={listFilter}
+                search={searchKeyword}
+                filter={effectiveFilter}
                 sortBy={sortBy}
                 entryPoint={isBrowsingCategory ? "category" : "search"}
                 onResultCountChange={handleResultCount}
               />
             )}
           </div>
-        </>
+        </div>
       )}
 
       <SearchFilterSheet
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
-        filter={listFilter}
+        filter={effectiveFilter}
         onFilterChange={(f) => {
-          setListFilter(f);
+          // 창에서 고친 값이 정본: 친 말에서 온 것 중 남은 것은 이 검색 몫으로, 나머지는 고른 필터로
+          const { picked, typed } = splitSheetFilter(f, parsed.filter);
+          setListFilter(picked);
+          setParsed((prev) => ({ ...prev, filter: typed }));
           // 디자인 탭은 결과 수를 화면이 바로 셀 수 있어 그 자리에서 보낸다(기다리면 다음 상품·스토어 결과에 잘못 붙는다)
           if (activeTab === "design") {
             const { items, matched } = searchDesigns({
               categories: f.productCategoryTypes ?? [],
               sizes: f.sizes ?? [],
-              q: submittedTerm,
+              q: searchKeyword,
             });
             trackEvent("success_filter_apply", {
               sort_type: sortBy,
