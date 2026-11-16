@@ -1,5 +1,6 @@
 "use client";
 
+import { getRefundBasis } from "@/apps/web-user/features/order/utils/refund-basis.util";
 import { QuoteOrderCard } from "@/apps/web-user/features/order/components/detail/QuoteOrderCard";
 import { getBankLabel } from "@/apps/web-user/common/utils/bank.util";
 import { useParams } from "next/navigation";
@@ -115,8 +116,13 @@ function CancelDetailView({ order }: { order: OrderResponse }) {
             <div className="flex items-center gap-10">
               <dt className="w-[70px] text-gray-500 shrink-0">환불 금액</dt>
               <dd className="flex items-center gap-2">
-                {/* 가게마다 환불 규정이 달라 전액으로 약속하지 않는다(11-15 운영자) */}
-                <span className="font-bold text-gray-900">가게 환불 규정대로</span>
+                {/* 손님이 요청한 환불은 가게마다 규정이 달라 전액으로 약속하지 않고(11-15 운영자),
+                    가게가 취소했거나 입금 마감 뒤 입금이 확인된 예약은 결제한 금액(11-16) */}
+                <span className="font-bold text-gray-900">
+                  {getRefundBasis(order) === "store-rules"
+                    ? "가게 환불 규정대로"
+                    : `${order.totalPrice.toLocaleString()}원`}
+                </span>
                 <OrderStatusBadge status={order.orderStatus} />
               </dd>
             </div>
