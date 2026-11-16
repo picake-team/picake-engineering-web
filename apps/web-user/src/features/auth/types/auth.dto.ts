@@ -40,8 +40,8 @@ export interface ReviewLoginRequestDto {
 }
 
 export interface GoogleRegisterRequestDto {
-  googleId: string;
-  googleEmail: string;
+  /** 가입표 — 로그인 응답(400 PHONE_VERIFICATION_REQUIRED)의 registerToken. 소셜 ID는 보내지 않는다 */
+  registerToken: string;
   name: string;
   phone: string;
   agreedToTerms: boolean;
@@ -53,8 +53,8 @@ export interface GoogleRegisterRequestDto {
 }
 
 export interface KakaoRegisterRequestDto {
-  kakaoId: string;
-  kakaoEmail: string;
+  /** 가입표 — 로그인 응답(400 PHONE_VERIFICATION_REQUIRED)의 registerToken. 소셜 ID는 보내지 않는다 */
+  registerToken: string;
   name: string;
   phone: string;
   agreedToTerms: boolean;
@@ -66,8 +66,8 @@ export interface KakaoRegisterRequestDto {
 }
 
 export interface AppleRegisterRequestDto {
-  appleId: string;
-  appleEmail: string;
+  /** 가입표 — 로그인 응답(400 PHONE_VERIFICATION_REQUIRED)의 registerToken. 소셜 ID는 보내지 않는다 */
+  registerToken: string;
   name: string;
   phone: string;
   agreedToTerms: boolean;

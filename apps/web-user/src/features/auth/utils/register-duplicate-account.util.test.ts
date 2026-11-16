@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { isServerAuthMessage } from "@/apps/web-user/features/auth/constants/auth.constant";
 import { resolvePhoneVerificationFailReason } from "@/apps/web-user/features/auth/utils/phone-verification-error.util";
 import {
+  isRegisterTicketInvalid,
   parseDuplicateAccountPayload,
   resolveLoginProviderFromDuplicateMessage,
 } from "@/apps/web-user/features/auth/utils/register-duplicate-account.util";
@@ -59,5 +60,30 @@ describe("서버 오류 글 맞춰 보기", () => {
     expect(resolvePhoneVerificationFailReason(err("인증번호가 올바르지 않습니다."))).toBe(
       "invalid_code",
     );
+  });
+});
+
+describe("가입표가 지났을 때(서버 400)", () => {
+  const axios400 = (message: string) => ({
+    response: { status: 400, data: { data: { message } } },
+  });
+
+  it("서버의 가입표 글이면 다시 로그인하게 알아본다", () => {
+    expect(isRegisterTicketInvalid(axios400("가입 시간이 지났어요. 다시 로그인해 주세요."))).toBe(
+      true,
+    );
+  });
+
+  it("다른 400 글·다른 상태 코드는 가입표 문제가 아니다", () => {
+    expect(isRegisterTicketInvalid(axios400("인증번호가 올바르지 않아요."))).toBe(false);
+    expect(
+      isRegisterTicketInvalid({
+        response: {
+          status: 409,
+          data: { data: { message: "가입 시간이 지났어요. 다시 로그인해 주세요." } },
+        },
+      }),
+    ).toBe(false);
+    expect(isRegisterTicketInvalid(new Error("network"))).toBe(false);
   });
 });

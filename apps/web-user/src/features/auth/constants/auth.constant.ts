@@ -27,6 +27,8 @@ const SERVER_AUTH_MESSAGES = {
     "해당 휴대폰 번호로 이미 등록된 애플 계정이 있습니다.",
     "해당 휴대폰 번호로 이미 등록된 애플 계정이 있어요.",
   ],
+  /** 가입표가 없거나 30분이 지남(backend 2026-11-16 계정 보강 ②) */
+  REGISTER_TICKET_INVALID: ["가입 시간이 지났어요. 다시 로그인해 주세요."],
 } as const satisfies Record<string, readonly string[]>;
 
 /** 서버 오류 글이 그 종류인지(옛 글·새 글 모두) */

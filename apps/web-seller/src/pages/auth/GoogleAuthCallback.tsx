@@ -51,7 +51,7 @@ function stripOAuthCodeFromUrl(
 
 /**
  * 구글 OAuth 리다이렉트 콜백 — `code`로 `/v1/seller/auth/google/login` 호출
- * 휴대폰 미연동 시 백엔드가 `googleId`/`googleEmail`과 함께 400 → 이 화면에서 휴대폰 인증 후 register
+ * 휴대폰 미연동 시 백엔드가 가입표 `registerToken`과 함께 400 → 이 화면에서 휴대폰 인증 후 register
  */
 export function GoogleAuthCallbackPage() {
   const navigate = useNavigate();
@@ -64,10 +64,10 @@ export function GoogleAuthCallbackPage() {
 
   const initialPending = readInitialGoogleLoginData();
   const [showPhoneVerification, setShowPhoneVerification] = useState(!!initialPending);
-  const [googleLoginData, setGoogleLoginData] = useState<{
-    googleId: string;
-    googleEmail: string;
-  } | null>(initialPending);
+  const [googleLoginData, setGoogleLoginData] = useState<{ registerToken: string } | null>(
+    // provider 칸은 가입 요청에 넣지 않는다(서버가 모르는 칸이면 400)
+    initialPending ? { registerToken: initialPending.registerToken } : null,
+  );
   const [displayName, setDisplayName] = useState("");
   const [nameError, setNameError] = useState("");
   const [termsState, setTermsState] = useState<SellerTermsAgreementState>(
@@ -98,32 +98,29 @@ export function GoogleAuthCallbackPage() {
         response?: {
           data?: {
             message?: string;
-            data?: { googleId?: string; googleEmail?: string; message?: string };
+            data?: { registerToken?: string; message?: string };
           };
         };
       };
       const payload = (err?.response?.data?.data ?? err?.response?.data ?? {}) as {
         message?: string;
-        googleId?: string;
-        googleEmail?: string;
+        registerToken?: string;
       };
       const message = payload.message ?? "";
-      const googleId = payload.googleId;
-      const googleEmail = payload.googleEmail;
+      // 가입표: 서버가 확인한 소셜 ID가 들어 있어 가입은 이 값으로만 한다(30분)
+      const registerToken = payload.registerToken;
 
       if (
         typeof message === "string" &&
         message.includes(AUTH_ERROR_MESSAGES.PHONE_VERIFICATION_REQUIRED) &&
-        googleId &&
-        googleEmail
+        registerToken
       ) {
         const pending: PendingGoogleRegister = {
           provider: "google",
-          googleId,
-          googleEmail,
+          registerToken,
         };
         setPendingOAuthRegister(pending);
-        setGoogleLoginData({ googleId, googleEmail });
+        setGoogleLoginData({ registerToken });
         setShowPhoneVerification(true);
       } else {
         clearPendingOAuthRegister();

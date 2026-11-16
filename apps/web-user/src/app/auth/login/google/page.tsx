@@ -18,7 +18,7 @@ import { resolveSocialAuthFailReason } from "@/apps/web-user/features/auth/utils
 
 /**
  * 구글 OAuth 리다이렉트 콜백 — `code`로 `/v1/consumer/auth/google/login` 호출
- * 휴대폰 미연동 시 → `googleId`·`googleEmail`을 쿼리로 붙여 `/auth/register/google`으로 이동
+ * 휴대폰 미연동 시 → 가입표 `registerToken`을 쿼리로 붙여 `/auth/register/google`으로 이동
  */
 function GoogleAuthCallbackContent() {
   const router = useRouter();
@@ -51,19 +51,15 @@ function GoogleAuthCallbackContent() {
       } catch (error: unknown) {
         const err = error as {
           response?: {
-            data?: { data?: { googleId?: string; googleEmail?: string; message?: string } };
+            data?: { data?: { registerToken?: string; message?: string } };
           };
         };
-        const { googleId, googleEmail, message } = err?.response?.data?.data || {};
+        const { registerToken, message } = err?.response?.data?.data || {};
 
-        if (
-          isServerAuthMessage(message, "PHONE_VERIFICATION_REQUIRED") &&
-          googleId &&
-          googleEmail
-        ) {
+        if (isServerAuthMessage(message, "PHONE_VERIFICATION_REQUIRED") && registerToken) {
           const params = new URLSearchParams();
-          params.set("googleId", googleId);
-          params.set("googleEmail", googleEmail);
+          // 가입표: 서버가 확인한 소셜 ID가 들어 있어 가입은 이 값으로만 한다(30분)
+          params.set("registerToken", registerToken);
           // 회원가입으로 이어지므로 복귀 경로는 유지 (가입 완료 후 사용)
           router.replace(`${PATHS.AUTH.GOOGLE_REGISTER}?${params.toString()}`);
         } else {

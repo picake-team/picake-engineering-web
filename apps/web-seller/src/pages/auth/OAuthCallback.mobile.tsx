@@ -19,7 +19,10 @@ import kakaoIcon from "@/apps/web-seller/assets/images/kakaotalk.png";
 import { authApi } from "@/apps/web-seller/features/auth/apis/auth.api";
 import { useAuthStore } from "@/apps/web-seller/features/auth/store/auth.store";
 import { useOAuthCodeOnce } from "@/apps/web-seller/features/auth/hooks/useOAuthCodeOnce";
-import { AUTH_ERROR_MESSAGES } from "@/apps/web-seller/features/auth/constants/auth.constant";
+import {
+  AUTH_ERROR_MESSAGES,
+  isRegisterTicketInvalid,
+} from "@/apps/web-seller/features/auth/constants/auth.constant";
 import {
   PHONE_VERIFICATION_PURPOSE,
   type PhoneVerificationPurpose,
@@ -49,9 +52,9 @@ import {
 
 type Provider = "google" | "kakao";
 
+/** 가입표(registerToken): 로그인 때 서버가 확인한 소셜 ID가 들어 있다(30분) */
 interface SocialIdentity {
-  id: string;
-  email: string;
+  registerToken: string;
 }
 
 interface ExistingAccount {
@@ -173,22 +176,21 @@ function SignUp({
       };
       const tokens =
         provider === "google"
-          ? await authApi.googleRegister({
-              ...body,
-              googleId: identity.id,
-              googleEmail: identity.email,
-            })
-          : await authApi.kakaoRegister({
-              ...body,
-              kakaoId: identity.id,
-              kakaoEmail: identity.email,
-            });
+          ? await authApi.googleRegister({ ...body, registerToken: identity.registerToken })
+          : await authApi.kakaoRegister({ ...body, registerToken: identity.registerToken });
       clearPendingOAuthRegister();
       login({ navigate, accessToken: tokens.accessToken });
     } catch (error) {
       const existing = existingAccountFrom(error);
       if (existing) onExisting(existing);
-      else addAlert({ severity: "error", message: getApiMessage.error(error) });
+      else {
+        if (isRegisterTicketInvalid(error)) {
+          // 가입표가 30분 지났거나 잘못됨 — 이 화면에서는 가입할 수 없어 로그인부터 다시
+          clearPendingOAuthRegister();
+          navigate(ROUTES.AUTH.LOGIN, { replace: true });
+        }
+        addAlert({ severity: "error", message: getApiMessage.error(error) });
+      }
     } finally {
       setSubmitting(false);
     }
@@ -284,11 +286,7 @@ function OAuthCallbackMobile({ provider }: { provider: Provider }) {
 
   const pending = getPendingOAuthRegister();
   const initial: SocialIdentity | null =
-    pending?.provider === "google" && provider === "google"
-      ? { id: pending.googleId, email: pending.googleEmail }
-      : pending?.provider === "kakao" && provider === "kakao"
-        ? { id: pending.kakaoId, email: pending.kakaoEmail }
-        : null;
+    pending?.provider === provider ? { registerToken: pending.registerToken } : null;
   const [identity, setIdentity] = useState<SocialIdentity | null>(initial);
   const [existing, setExisting] = useState<ExistingAccount | null>(null);
 
@@ -300,16 +298,11 @@ function OAuthCallbackMobile({ provider }: { provider: Provider }) {
     } catch (error) {
       const p = errorPayload(error);
       const message = String(p.message ?? "");
-      const id = (provider === "google" ? p.googleId : p.kakaoId) as string | undefined;
-      const email = (provider === "google" ? p.googleEmail : p.kakaoEmail) as string | undefined;
-      if (message.includes(AUTH_ERROR_MESSAGES.PHONE_VERIFICATION_REQUIRED) && id) {
-        const next = { id, email: email ?? "" };
-        setPendingOAuthRegister(
-          provider === "google"
-            ? { provider: "google", googleId: next.id, googleEmail: next.email }
-            : { provider: "kakao", kakaoId: next.id, kakaoEmail: next.email },
-        );
-        setIdentity(next);
+      // 가입표: 서버가 확인한 소셜 ID가 들어 있어 가입은 이 값으로만 한다(30분)
+      const registerToken = typeof p.registerToken === "string" ? p.registerToken : undefined;
+      if (message.includes(AUTH_ERROR_MESSAGES.PHONE_VERIFICATION_REQUIRED) && registerToken) {
+        setPendingOAuthRegister({ provider, registerToken });
+        setIdentity({ registerToken });
         // 주소의 code는 한 번만 쓴다
         navigate({ search: "" }, { replace: true });
       } else {

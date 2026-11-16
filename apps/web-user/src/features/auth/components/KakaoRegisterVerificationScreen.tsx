@@ -63,10 +63,7 @@ export function KakaoRegisterVerificationScreen() {
   const isKeyboardOpen = useKeyboardOpen();
   const kakaoRegisterMutation = useKakaoRegister({ onDuplicateAccount: handleDuplicateAccount });
 
-  const [kakaoLoginData, setKakaoLoginData] = useState<{
-    kakaoId: string;
-    kakaoEmail: string;
-  } | null>(null);
+  const [kakaoLoginData, setKakaoLoginData] = useState<{ registerToken: string } | null>(null);
   const [booting, setBooting] = useState(true);
 
   const [displayName, setDisplayName] = useState("");
@@ -86,14 +83,14 @@ export function KakaoRegisterVerificationScreen() {
   );
 
   useEffect(() => {
-    const kakaoId = searchParams.get("kakaoId")?.trim();
-    const kakaoEmail = searchParams.get("kakaoEmail")?.trim();
-    if (!kakaoId || !kakaoEmail) {
+    // 가입표(로그인 때 서버가 확인한 소셜 ID가 들어 있음, 30분) — 가입은 이 값으로만 한다
+    const registerToken = searchParams.get("registerToken")?.trim();
+    if (!registerToken) {
       router.replace(PATHS.HOME);
       setBooting(false);
       return;
     }
-    setKakaoLoginData({ kakaoId, kakaoEmail });
+    setKakaoLoginData({ registerToken });
     setBooting(false);
     trackEvent("view_phone_verification", { provider: "kakao" });
   }, [router, searchParams]);

@@ -48,7 +48,7 @@ function formatCountdownMmSs(totalSeconds: number): string {
 
 /**
  * 애플 OAuth 이후 휴대폰 인증·회원가입 전용 화면
- * (콜백에서 appleId·appleEmail 쿼리로 전달)
+ * (콜백에서 가입표 registerToken을 쿼리로 전달)
  */
 export function AppleRegisterVerificationScreen() {
   const router = useRouter();
@@ -67,10 +67,7 @@ export function AppleRegisterVerificationScreen() {
   const isKeyboardOpen = useKeyboardOpen();
   const appleRegisterMutation = useAppleRegister({ onDuplicateAccount: handleDuplicateAccount });
 
-  const [appleLoginData, setAppleLoginData] = useState<{
-    appleId: string;
-    appleEmail: string;
-  } | null>(null);
+  const [appleLoginData, setAppleLoginData] = useState<{ registerToken: string } | null>(null);
   const [booting, setBooting] = useState(true);
 
   const [displayName, setDisplayName] = useState("");
@@ -90,14 +87,14 @@ export function AppleRegisterVerificationScreen() {
   );
 
   useEffect(() => {
-    const appleId = searchParams.get("appleId")?.trim();
-    const appleEmail = searchParams.get("appleEmail")?.trim();
-    if (!appleId || !appleEmail) {
+    // 가입표(로그인 때 서버가 확인한 소셜 ID가 들어 있음, 30분) — 가입은 이 값으로만 한다
+    const registerToken = searchParams.get("registerToken")?.trim();
+    if (!registerToken) {
       router.replace(PATHS.HOME);
       setBooting(false);
       return;
     }
-    setAppleLoginData({ appleId, appleEmail });
+    setAppleLoginData({ registerToken });
     // Apple이 최초 인가 시 1회 한정으로 제공하는 이름 — 있으면 재입력을 요구하지 않도록 미리 채움
     // (Apple 심사 가이드라인 4 — 이미 제공된 정보를 다시 입력시키지 말 것)
     const appleName = searchParams.get("appleName")?.trim();

@@ -16,7 +16,7 @@ import { resolveSocialAuthFailReason } from "@/apps/web-user/features/auth/utils
  * 애플 OAuth 콜백 — `/auth/login/apple`(route.ts)이 폼바디를 파싱해 `code`를 쿼리로 붙여 여기로
  * 리다이렉트합니다. 이후 흐름은 `/auth/login/google`과 동일하게 `code`로
  * `/v1/consumer/auth/apple/login`을 호출합니다.
- * 휴대폰 미연동 시 → `appleId`·`appleEmail`을 쿼리로 붙여 `/auth/register/apple`으로 이동
+ * 휴대폰 미연동 시 → 가입표 `registerToken`을 쿼리로 붙여 `/auth/register/apple`으로 이동
  */
 function AppleAuthCallbackContent() {
   const router = useRouter();
@@ -48,15 +48,15 @@ function AppleAuthCallbackContent() {
       } catch (error: unknown) {
         const err = error as {
           response?: {
-            data?: { data?: { appleId?: string; appleEmail?: string; message?: string } };
+            data?: { data?: { registerToken?: string; message?: string } };
           };
         };
-        const { appleId, appleEmail, message } = err?.response?.data?.data || {};
+        const { registerToken, message } = err?.response?.data?.data || {};
 
-        if (isServerAuthMessage(message, "PHONE_VERIFICATION_REQUIRED") && appleId && appleEmail) {
+        if (isServerAuthMessage(message, "PHONE_VERIFICATION_REQUIRED") && registerToken) {
           const params = new URLSearchParams();
-          params.set("appleId", appleId);
-          params.set("appleEmail", appleEmail);
+          // 가입표: 서버가 확인한 소셜 ID가 들어 있어 가입은 이 값으로만 한다(30분)
+          params.set("registerToken", registerToken);
           if (appleName) {
             params.set("appleName", appleName);
           }
