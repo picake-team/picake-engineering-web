@@ -39,10 +39,16 @@ import { useKeyboardOpen } from "@/apps/web-user/common/hooks/useKeyboardOpen";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import { resolvePhoneVerificationFailReason } from "@/apps/web-user/features/auth/utils/phone-verification-error.util";
 import {
+  readRegisterTicketSavedAt,
   clearRegisterTicket,
   isRegisterTicketExpired,
   readRegisterTicket,
 } from "@/apps/web-user/features/auth/utils/register-ticket.util";
+
+/** 가입 요청 실패는 mutation onError가 이미 알렸다 — 화면 함수가 처리 안 된 오류로 끝나지 않게(Sentry에 4xx가 쌓이지 않게, 11-16 검토) */
+function ignoreHandledError(): undefined {
+  return undefined;
+}
 
 function formatCountdownMmSs(totalSeconds: number): string {
   const s = Math.max(0, Math.floor(totalSeconds));
@@ -100,7 +106,13 @@ export function GoogleRegisterVerificationScreen() {
       return;
     }
     // 30분이 이미 지났으면 문자를 보내기 전에 다시 로그인하게 한다
-    if (isRegisterTicketExpired(registerToken)) {
+    if (
+      isRegisterTicketExpired(
+        registerToken,
+        Date.now(),
+        readRegisterTicketSavedAt("google", registerToken),
+      )
+    ) {
       clearRegisterTicket("google");
       router.replace(PATHS.HOME);
       showAlert({
@@ -235,16 +247,18 @@ export function GoogleRegisterVerificationScreen() {
       phone_source: "sms",
       terms_source: "screen",
     });
-    await googleRegisterMutation.mutateAsync({
-      ...googleLoginData,
-      phone: normalized,
-      name: displayName.trim(),
-      agreedToTerms: termsState.termsOfService,
-      agreedToPrivacy: termsState.privacyPolicy,
-      agreedToThirdParty: termsState.thirdPartyConsent,
-      agreedToLocationTerms: termsState.locationTerms,
-      termsDocumentIds,
-    });
+    await googleRegisterMutation
+      .mutateAsync({
+        ...googleLoginData,
+        phone: normalized,
+        name: displayName.trim(),
+        agreedToTerms: termsState.termsOfService,
+        agreedToPrivacy: termsState.privacyPolicy,
+        agreedToThirdParty: termsState.thirdPartyConsent,
+        agreedToLocationTerms: termsState.locationTerms,
+        termsDocumentIds,
+      })
+      .catch(ignoreHandledError);
   };
 
   const sendPending = sendPhoneVerificationMutation.isPending;

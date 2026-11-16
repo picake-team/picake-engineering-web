@@ -33,6 +33,11 @@ import {
 } from "@/apps/web-seller/features/terms/utils/terms-consent.util";
 import { saveLastLoginProvider } from "@/apps/web-seller/features/auth/utils/last-login-provider.util";
 
+/** 가입 요청 실패는 mutation onError가 이미 알렸다 — 화면 함수가 처리 안 된 오류로 끝나지 않게(Sentry에 4xx가 쌓이지 않게, 11-16 검토). 대기 중 가입 정보는 성공했을 때만 지운다 */
+function ignoreHandledError(): undefined {
+  return undefined;
+}
+
 function readInitialGoogleLoginData(): PendingGoogleRegister | null {
   const pending = getPendingOAuthRegister();
   return pending?.provider === "google" ? pending : null;
@@ -178,15 +183,16 @@ export function GoogleAuthCallbackPage() {
       return;
     }
 
-    await googleRegisterMutation.mutateAsync({
-      ...googleLoginData,
-      phone,
-      name: displayName.trim(),
-      agreedToTerms: termsState.termsOfService,
-      agreedToPrivacy: termsState.privacyPolicy,
-      termsDocumentIds,
-    });
-    clearPendingOAuthRegister();
+    await googleRegisterMutation
+      .mutateAsync({
+        ...googleLoginData,
+        phone,
+        name: displayName.trim(),
+        agreedToTerms: termsState.termsOfService,
+        agreedToPrivacy: termsState.privacyPolicy,
+        termsDocumentIds,
+      })
+      .then(clearPendingOAuthRegister, ignoreHandledError);
   };
 
   if (showPhoneVerification) {

@@ -1,11 +1,13 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  clearAllRegisterTickets,
   clearRegisterTicket,
   hasAllKakaoConsumerTerms,
   isRegisterTicketExpired,
   formatPhoneForDisplay,
   readRegisterTicket,
   readRegisterTicketHints,
+  readRegisterTicketSavedAt,
   saveRegisterTicket,
 } from "@/apps/web-user/features/auth/utils/register-ticket.util";
 
@@ -41,7 +43,7 @@ describe("가입표 읽기(카카오 한 번에 가입 화면용)", () => {
     expect(hasAllKakaoConsumerTerms(undefined)).toBe(false);
   });
 
-  it("번호는 가운데를 가린다", () => {
+  it("번호는 가리지 않고 전체를 하이픈으로 나눠 보인다", () => {
     expect(formatPhoneForDisplay("01012345678")).toBe("010-1234-5678");
     expect(formatPhoneForDisplay("0161234567")).toBe("016-123-4567");
   });
@@ -93,5 +95,38 @@ describe("가입표 30분 지남(화면을 열 때)", () => {
   it("읽을 수 없으면 서버에 맡긴다(지난 것으로 보지 않음)", () => {
     expect(isRegisterTicketExpired("broken", now)).toBe(false);
     expect(isRegisterTicketExpired(fakeTicket({}), now)).toBe(false);
+  });
+  it("이 기기가 받은 시각을 알면 받은 뒤 지난 시간으로 센다 — 기기 시계가 40분 빨라도 막지 않음", () => {
+    const serverNow = now / 1000;
+    const ticket = fakeTicket({ iat: serverNow, exp: serverNow + 1800 });
+    const fastClock = now + 40 * 60 * 1000;
+    // 받은 직후(기기 시계로 받은 시각 = 지금): 서버 기준으로는 막 만든 가입표
+    expect(isRegisterTicketExpired(ticket, fastClock, fastClock)).toBe(false);
+    // 받은 지 31분: 지난 것으로
+    expect(isRegisterTicketExpired(ticket, fastClock + 31 * 60 * 1000, fastClock)).toBe(true);
+    // 받은 시각을 모르면 예전처럼 만료 시각과 비교(시계가 빠르면 지난 것으로 봄)
+    expect(isRegisterTicketExpired(ticket, fastClock)).toBe(true);
+  });
+});
+
+describe("가입표 받은 시각·로그인하면 지우기", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("저장한 가입표와 같을 때만 받은 시각을 주고, 로그인하면 모든 가입표를 지운다", () => {
+    const store = new Map<string, string>();
+    vi.stubGlobal("window", {
+      sessionStorage: {
+        setItem: (k: string, v: string) => store.set(k, v),
+        getItem: (k: string) => store.get(k) ?? null,
+        removeItem: (k: string) => store.delete(k),
+      },
+    });
+    saveRegisterTicket("kakao", "K1");
+    saveRegisterTicket("google", "G1");
+    expect(readRegisterTicketSavedAt("kakao", "K1")).toEqual(expect.any(Number));
+    // 주소로 넘어온 다른 가입표면 받은 시각을 모른다
+    expect(readRegisterTicketSavedAt("kakao", "OTHER")).toBeNull();
+    clearAllRegisterTickets();
+    expect(store.size).toBe(0);
   });
 });
