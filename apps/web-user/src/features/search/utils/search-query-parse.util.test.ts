@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ProductCategoryType as C } from "@/apps/web-user/features/product/types/product.type";
+import { productCategoryFromKeyword } from "@/apps/web-user/features/product/constants/product-category.constant";
 import {
   mergeSearchFilters,
   parseSearchQuery,
@@ -90,6 +91,76 @@ describe("parseSearchQuery", () => {
       keyword: "초코",
       filter: { productCategoryTypes: [C.HEART] },
     });
+  });
+
+  it("띄어 쓴 같은 뜻 말은 붙여서 읽는다(11-16 검토 — 한 말씩 나눠 거의 0건이던 것)", () => {
+    // 친 말 전체가 같은 뜻 말이면 오늘 전처럼 그대로 서버에
+    expect(parseSearchQuery("당일 픽업 케이크")).toEqual({
+      keyword: "당일 픽업 케이크",
+      filter: {},
+    });
+    expect(parseSearchQuery("남자 친구")).toEqual({ keyword: "남자 친구", filter: {} });
+    // 다른 조건과 섞이면 두 말을 붙여 카테고리로("친구"만 생일로 읽지 않음)
+    const boyfriend = productCategoryFromKeyword("남자친구");
+    expect(boyfriend).toBeDefined();
+    expect(parseSearchQuery("남자 친구 3만원 이하")).toEqual({
+      keyword: "",
+      filter: { productCategoryTypes: [boyfriend], maxPrice: 30000 },
+    });
+    expect(parseSearchQuery("당일 픽업 하트").filter.productCategoryTypes).toEqual([
+      C.SAME_DAY_PICKUP,
+      C.HEART,
+    ]);
+  });
+
+  it("카테고리 말 하나 + 군더더기 말이면 그 말만 서버에, 카테고리 말이 둘이면 필터로", () => {
+    expect(parseSearchQuery("생일 케이크 추천")).toEqual({ keyword: "생일 케이크", filter: {} });
+    expect(parseSearchQuery("근처 생일케이크")).toEqual({ keyword: "생일케이크", filter: {} });
+    expect(parseSearchQuery("레터링 케이크 주문")).toEqual({
+      keyword: "레터링 케이크",
+      filter: {},
+    });
+    expect(parseSearchQuery("여친 100일")).toMatchObject({ keyword: "" });
+    expect(parseSearchQuery("여친 100일").filter.productCategoryTypes?.length).toBeGreaterThan(0);
+    expect(parseSearchQuery("오늘 당일")).toEqual({
+      keyword: "",
+      filter: { productCategoryTypes: [C.SAME_DAY_PICKUP] },
+    });
+    expect(parseSearchQuery("당일 오늘")).toEqual(parseSearchQuery("오늘 당일"));
+  });
+
+  it("가격 뒤 꼬리말·기호, 원 없는 금액, 에서~사이 범위", () => {
+    const birthday = { productCategoryTypes: [C.BIRTHDAY] };
+    expect(parseSearchQuery("생일 3만원 정도")).toEqual({
+      keyword: "",
+      filter: { ...birthday, maxPrice: 30000 },
+    });
+    expect(parseSearchQuery("3만원짜리 레터링")).toEqual({
+      keyword: "",
+      filter: { productCategoryTypes: [C.LETTERING], maxPrice: 30000 },
+    });
+    expect(parseSearchQuery("레터링 3만원 이하로").keyword).toBe("");
+    expect(parseSearchQuery("레터링 ~3만원").keyword).toBe("");
+    expect(parseSearchQuery("레터링 3만원 내")).toMatchObject({
+      keyword: "",
+      filter: { maxPrice: 30000 },
+    });
+    expect(parseSearchQuery("생일 3만")).toEqual({
+      keyword: "",
+      filter: { ...birthday, maxPrice: 30000 },
+    });
+    expect(parseSearchQuery("2만원에서 3만원 사이").filter).toEqual({
+      minPrice: 20000,
+      maxPrice: 30000,
+    });
+    expect(parseSearchQuery("2만원부터 3만원까지").filter).toEqual({
+      minPrice: 20000,
+      maxPrice: 30000,
+    });
+    // "내일"의 "내"는 가격 말이 아니다
+    expect(parseSearchQuery("레터링 3만원 내일").keyword).toBe("내일");
+    // 가격이 없으면 꼬리말처럼 보여도 그대로
+    expect(parseSearchQuery("초코 정도").keyword).toBe("초코 정도");
   });
 
   it('서버가 모르는 "오늘" 하나만 쳐도 당일픽업으로', () => {

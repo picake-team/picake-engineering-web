@@ -38,6 +38,22 @@ const FILLER_WORDS = new Set([
   "용",
 ]);
 
+/** 가격 말 뒤에 붙어 남는 꼬리말("3만원 정도", "3만원짜리", "2만원에서 3만원 사이") — 가격을 읽었을 때만 뺀다 */
+const PRICE_TAIL_WORDS = new Set([
+  "정도",
+  "쯤",
+  "짜리",
+  "내외",
+  "선",
+  "사이",
+  "에서",
+  "로",
+  "으로",
+  "대",
+]);
+/** 글자·숫자 없이 기호만 남은 말("~", "↓") */
+const SYMBOL_ONLY = /^[^\p{L}\p{N}]+$/u;
+
 /** 같은 뜻 표(서버와 같음)에 없어 여기서만 당일픽업으로 읽는 말 */
 const EXTRA_CATEGORY_WORDS: Record<string, ProductCategoryType> = {
   오늘: ProductCategoryType.SAME_DAY_PICKUP,
@@ -49,10 +65,14 @@ const NUM = String.raw`(\d+(?:\.\d+)?)`;
 const UNIT = String.raw`\s*만\s*원?`;
 const RANGE_RE = new RegExp(String.raw`${NUM}(?:${UNIT})?\s*[~\-]\s*${NUM}${UNIT}(?:\s*대)?`);
 const BAND_RE = new RegExp(String.raw`${NUM}${UNIT}\s*대`);
-const MIN_RE = new RegExp(String.raw`${NUM}${UNIT}\s*(?:이상|부터|넘는|넘게|초과)`);
-const MAX_RE = new RegExp(String.raw`${NUM}${UNIT}\s*(?:이하|까지|미만|아래|안쪽|이내|밑)`);
+const MIN_RE = new RegExp(String.raw`${NUM}${UNIT}\s*(?:이상|부터|넘는|넘게|초과)(?:\s*으?로)?`);
+const MAX_RE = new RegExp(
+  String.raw`${NUM}${UNIT}\s*(?:이하|까지|미만|아래|안쪽|이내|밑|내(?![가-힣]))(?:\s*으?로)?`,
+);
 /** 꾸미는 말 없이 "3만원"이면 예산으로 본다(원은 꼭 있어야 한다) */
 const BARE_RE = new RegExp(String.raw`${NUM}\s*만\s*원`);
+/** 원 없이 "생일 3만"처럼 끝난 금액(뒤에 글자·숫자가 붙지 않을 때만) */
+const BARE_NO_WON_RE = new RegExp(String.raw`${NUM}\s*만(?![가-힣\d.])`);
 
 const won = (n: string) => Math.round(Number(n) * MAN);
 
@@ -64,6 +84,10 @@ const won = (n: string) => Math.round(Number(n) * MAN);
 function normalizeAmounts(text: string): string {
   return text
     .replace(/(\d+)\s*만\s*(\d)\s*천/g, (_, man: string, cheon: string) => `${man}.${cheon}만`)
+    .replace(
+      /(\d+(?:\.\d+)?)\s*만\s*원?\s*(?:에서|부터)\s*(\d+(?:\.\d+)?)\s*만\s*원?(?:\s*(?:사이|까지))?/g,
+      (_, from: string, to: string) => `${from}~${to}만원`,
+    )
     .replace(
       /(\d+)\s*만\s*(\d{1,4})\s*원/g,
       (_, man: string, rest: string) => `${Number(man) + Number(rest) / MAN}만원`,
@@ -104,7 +128,7 @@ function takePrice(text: string, filter: StoreListFilter): string {
       if (min) filter.minPrice = won(min[1]);
       if (max) filter.maxPrice = won(max[1]);
       if (!min && !max) {
-        const bare = take(BARE_RE);
+        const bare = take(BARE_RE) ?? take(BARE_NO_WON_RE);
         if (bare) filter.maxPrice = won(bare[1]);
       }
     }
@@ -132,17 +156,40 @@ export function hasParsedFilter(f: StoreListFilter): boolean {
 
 export function parseSearchQuery(query: string): ParsedSearchQuery {
   const original = query.trim();
+  // 친 말 전체가 같은 뜻 표의 말이면("당일 픽업", "남자 친구 케이크") 오늘 전처럼 서버가 붙여 읽게 그대로 보낸다
+  // (11-16 검토 — 한 말씩 나누면 "당일"은 필터, "픽업"은 이름 검색이 되어 거의 0건이었다)
+  if (productCategoryFromKeyword(original)) return { keyword: uniqueWords(original), filter: {} };
+
   const filter: StoreListFilter = {};
   const rest = takePrice(original.replace(/\s+/g, " "), filter);
+  const hasPrice = filter.minPrice != null || filter.maxPrice != null;
 
   const categories: ProductCategoryType[] = [];
   const sizes: string[] = [];
   const leftover: string[] = [];
-  let serverKnowsCategoryWord = false;
+  /** 카테고리로 읽은 말(친 그대로)과 서버도 아는 말인지 */
+  const categoryWords = new Map<string, boolean>();
+  const addCategory = (category: ProductCategoryType, typed: string, serverKnows: boolean) => {
+    if (!categories.includes(category)) categories.push(category);
+    categoryWords.set(typed.replace(/^#/, ""), serverKnows);
+  };
 
-  for (const token of rest.split(" ").filter(Boolean)) {
+  const tokens = rest.split(" ").filter(Boolean);
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i];
+    const next = tokens[i + 1];
+    // 띄어 쓴 같은 뜻 말은 붙여서 먼저 본다("남자 친구" — 한 말씩 보면 "친구"만 생일로 읽혔다)
+    if (next) {
+      const pair = productCategoryFromKeyword(stripCake(token + next));
+      if (pair) {
+        addCategory(pair, `${token} ${next}`, true);
+        i += 1;
+        continue;
+      }
+    }
     const word = stripCake(token);
     if (FILLER_WORDS.has(token) || FILLER_WORDS.has(word)) continue;
+    if (hasPrice && (PRICE_TAIL_WORDS.has(token) || SYMBOL_ONLY.test(token))) continue;
     const size = MAP_LIST_SIZE_OPTIONS.find((s) => s === word);
     if (size) {
       if (!sizes.includes(size)) sizes.push(size);
@@ -151,23 +198,19 @@ export function parseSearchQuery(query: string): ParsedSearchQuery {
     const known = productCategoryFromKeyword(word);
     const category = known ?? EXTRA_CATEGORY_WORDS[word];
     if (category) {
-      serverKnowsCategoryWord = !!known;
-      if (!categories.includes(category)) categories.push(category);
+      addCategory(category, token, !!known);
       continue;
     }
     leftover.push(token);
   }
 
-  // 서버가 아는 카테고리 말 하나만 친 검색("생일", "남친")은 지금처럼 서버가 이름·태그·같은 뜻으로 찾게 둔다
-  // (필터로 바꾸면 카테고리를 안 붙인 상품 이름 검색이 빠진다). "오늘"은 서버가 몰라 필터로 바꾼다
-  const onlyOneCategory =
-    categories.length === 1 &&
-    serverKnowsCategoryWord &&
-    sizes.length === 0 &&
-    filter.minPrice == null &&
-    filter.maxPrice == null &&
-    leftover.length === 0;
-  if (onlyOneCategory) return { keyword: uniqueWords(original), filter: {} };
+  // 서버가 아는 카테고리 말 하나만 친 검색("생일", "남친", "생일 케이크 추천")은 지금처럼 서버가 이름·태그·같은 뜻으로
+  // 찾게 그 말만 보낸다(필터로 바꾸면 카테고리를 안 붙인 상품 이름 검색이 빠진다. 군더더기 말은 빼야 0건이 안 된다).
+  // 카테고리 말이 둘 이상이면("여친 100일") 같은 카테고리여도 필터로. "오늘"은 서버가 몰라 필터로 바꾼다
+  const [onlyWord, serverKnows] = categoryWords.size === 1 ? [...categoryWords][0] : ["", false];
+  const onlyOneCategoryWord =
+    !!onlyWord && serverKnows && sizes.length === 0 && !hasPrice && leftover.length === 0;
+  if (onlyOneCategoryWord) return { keyword: onlyWord, filter: {} };
 
   if (categories.length) filter.productCategoryTypes = categories;
   if (sizes.length) filter.sizes = sizes;
