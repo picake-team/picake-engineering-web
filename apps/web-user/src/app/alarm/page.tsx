@@ -37,8 +37,10 @@ export default function AlarmPage() {
         ) : (
           <ul className="px-5">
             {alarms.map((alarm) => {
+              // 주문 알림은 주문 상세로 — 완료 화면으로 보내 취소·환불 알림을 눌러도 "예약신청 완료 🎉"가 뜨고,
+              // 입금 안내를 눌러도 계좌·입금 버튼이 없었다(11-16 검토, 사장님 알림 F-30과 같게)
               const href = alarm.orderId
-                ? `/reservation/complete?orderId=${alarm.orderId}&from=alarm`
+                ? PATHS.ORDER.DETAIL(alarm.orderId)
                 : alarm.quoteRequestId
                   ? PATHS.QUOTE.DETAIL(alarm.quoteRequestId)
                   : "/alarm";

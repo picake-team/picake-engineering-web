@@ -1,3 +1,5 @@
+import { statisticsQueryKeys } from "@/apps/web-seller/features/statistics/constants/statisticsQueryKeys.constant";
+import { sellerHomeQueryKeys } from "@/apps/web-seller/features/home/constants/sellerHomeQueryKeys.constant";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { orderApi } from "@/apps/web-seller/features/order/apis/order.api";
 import { orderQueryKeys } from "@/apps/web-seller/features/order/constants/orderQueryKeys.constant";
@@ -60,8 +62,10 @@ export function useUpdateOrderStatus() {
         surface: sellerSurface(window.matchMedia(`(max-width: ${PHONE_MAX_WIDTH_PX}px)`).matches),
         from_list: variables.meta?.fromList ?? false,
       });
-      // 주문 쿼리 무효화
+      // 주문 쿼리 무효화 + PC 홈·통계(픽업 완료 뒤 30초 안에 돌아오면 옛 숫자가 보이던 것, 11-16 검토)
       queryClient.invalidateQueries({ queryKey: orderQueryKeys.all });
+      queryClient.invalidateQueries({ queryKey: sellerHomeQueryKeys.all });
+      queryClient.invalidateQueries({ queryKey: statisticsQueryKeys.all });
     },
     onError: (error) => {
       const message = getApiMessage.error(error);
