@@ -67,7 +67,7 @@ function AppRoutes() {
   return (
     <>
       {/* 서버 오류·실시간 알림 안내: 휴대폰 화면은 위쪽 알림 배너(AlertBannerHost), PC는 지금 모양.
-          한 일 + 되돌리기는 아래 스낵바(SnackbarHost) — PC도(아래 탭이 없어 화면 아래 가까이) */}
+          한 일 + 되돌리기는 아래 스낵바(SnackbarHost) — PC도(채팅 쓰는 칸 위) */}
       {showMobile ? (
         <>
           <AlertBannerHost />
@@ -76,7 +76,7 @@ function AppRoutes() {
       ) : (
         <>
           <Alert />
-          <SnackbarHost bottomOffset={24} />
+          <SnackbarHost bottomOffset={88} />
         </>
       )}
       <ConfirmAlert />
