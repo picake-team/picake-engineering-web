@@ -16,6 +16,10 @@ import { useLocationWhenNeeded } from "@/apps/web-user/common/hooks/useLocationW
 import { useUserLocation } from "@/apps/web-user/common/hooks/useUserLocation";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { storeApi } from "@/apps/web-user/features/store/apis/store.api";
+import {
+  mergeSearchFilters,
+  parseSearchQuery,
+} from "@/apps/web-user/features/search/utils/search-query-parse.util";
 import type { StoreInfo, StoreListFilter } from "@/apps/web-user/features/store/types/store.type";
 import { MapStoreCard } from "@/apps/web-user/features/store/components/map/MapStoreCard";
 import {
@@ -913,15 +917,19 @@ export default function MapPageClient() {
     let cancelled = false;
     (async () => {
       try {
+        // 검색 화면과 같게 친 말에서 카테고리·크기·가격을 알아듣는다 — 같은 자동완성·최근 검색어("생일 레터링",
+        // "생일 3만원 이하")를 지도에서 누르면 문장 그대로 이름 검색이 되어 거의 0건이던 것(11-16 검토)
+        const parsedQuery = parseSearchQuery(searchQuery);
+        const merged = mergeSearchFilters(listFilter, parsedQuery.filter);
         const filterParams: StoreListFilter = {};
-        if (listFilter.sizes?.length) filterParams.sizes = listFilter.sizes;
-        if (listFilter.minPrice != null) filterParams.minPrice = listFilter.minPrice;
-        if (listFilter.maxPrice != null) filterParams.maxPrice = listFilter.maxPrice;
-        if (listFilter.productCategoryTypes?.length)
-          filterParams.productCategoryTypes = listFilter.productCategoryTypes;
+        if (merged.sizes?.length) filterParams.sizes = merged.sizes;
+        if (merged.minPrice != null) filterParams.minPrice = merged.minPrice;
+        if (merged.maxPrice != null) filterParams.maxPrice = merged.maxPrice;
+        if (merged.productCategoryTypes?.length)
+          filterParams.productCategoryTypes = merged.productCategoryTypes;
         const pickupQ = mapPickupFilterToStoreListQuery(pickupFilter);
         const res = await storeApi.getList({
-          search: searchQuery,
+          search: parsedQuery.keyword || undefined,
           page: 1,
           limit: 1000,
           ...filterParams,

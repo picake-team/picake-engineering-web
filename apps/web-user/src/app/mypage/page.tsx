@@ -1,5 +1,6 @@
 "use client";
 
+import { NO_REPLAY } from "@/apps/web-user/common/constants/replay.constant";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Icon } from "@/apps/web-user/common/components/icons";
@@ -174,7 +175,10 @@ export default function MypagePage() {
             <div className="flex-1">
               <div className="flex flex-col gap-[2px]">
                 <p className="text-base font-bold text-gray-900">{user?.nickname}</p>
-                <div className="text-2sm text-gray-500">{user ? getLoginInfo(user) : "-"}</div>
+                {/* 이메일·휴대폰 번호는 화면 녹화(PostHog)에 남기지 않는다(11-16 검토) */}
+                <div className={`text-2sm text-gray-500 ${NO_REPLAY}`}>
+                  {user ? getLoginInfo(user) : "-"}
+                </div>
               </div>
             </div>
             <button

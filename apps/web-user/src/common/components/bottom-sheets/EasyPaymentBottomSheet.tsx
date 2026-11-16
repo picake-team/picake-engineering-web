@@ -1,5 +1,6 @@
 "use client";
 
+import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { useEffect, useRef, useState } from "react";
 import { BottomSheet } from "@/apps/web-user/common/components/bottom-sheets/BottomSheet";
 import { Modal } from "@/apps/web-user/common/components/modals/Modal";
@@ -167,7 +168,8 @@ export function EasyPaymentBottomSheet({
         cancelVariant="primary"
         onConfirm={() => setIsModalOpen(false)}
         onCancel={() => {
-          window.open("https://pickcake.app/download", "_blank");
+          // 공식 앱 받기 입구(없는 도메인 pickcake.app으로 가던 것, 11-16 검토)
+          window.open(PATHS.APP_DOWNLOAD, "_blank");
           setIsModalOpen(false);
         }}
       />

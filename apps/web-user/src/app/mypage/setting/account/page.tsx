@@ -1,5 +1,6 @@
 "use client";
 
+import { NO_REPLAY } from "@/apps/web-user/common/constants/replay.constant";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Modal } from "@/apps/web-user/common/components/modals/Modal";
@@ -73,7 +74,7 @@ export default function SettingAccountPage() {
         </InfoRow>
 
         <InfoRow label="핸드폰 번호">
-          <span>{user?.phone ?? "-"}</span>
+          <span className={NO_REPLAY}>{user?.phone ?? "-"}</span>
           <button
             type="button"
             onClick={() => setIsPhoneEditOpen(true)}
@@ -84,7 +85,7 @@ export default function SettingAccountPage() {
         </InfoRow>
 
         <InfoRow label="이름">
-          <span>{user?.name ?? "-"}</span>
+          <span className={NO_REPLAY}>{user?.name ?? "-"}</span>
           <button
             type="button"
             onClick={() => setIsNameEditOpen(true)}

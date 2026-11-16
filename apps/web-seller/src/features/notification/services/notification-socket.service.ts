@@ -39,11 +39,14 @@ export function connectNotificationSocket(params: {
   socket = io(`${API_BASE_URL}/notifications`, {
     path: "/socket.io/",
     transports: ["websocket", "polling"],
-    auth: { token },
-    query: { token, storeId: params.storeId, surface: NOTIFICATION_SOCKET_SURFACE },
+    // 토큰은 auth로만 — 주소(query)에 실으면 서버 접속 기록에 출입증이 남는다(서버는 auth를 먼저 읽음, 11-16 검토).
+    // 다시 붙을 때마다 지금 토큰을 읽는다
+    auth: (cb) => cb({ token: getAccessToken() ?? token }),
+    query: { storeId: params.storeId, surface: NOTIFICATION_SOCKET_SURFACE },
     autoConnect: true,
     reconnection: true,
-    reconnectionAttempts: 5,
+    // 배포로 서버가 잠깐 꺼져도 계속 다시 붙는다(5번에서 포기하면 새로고침 전까지 주문 안내·알림음이 끊겼다)
+    reconnectionAttempts: Infinity,
     timeout: 30000,
   });
 

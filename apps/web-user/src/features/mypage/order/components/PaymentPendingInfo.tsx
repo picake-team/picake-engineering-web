@@ -1,5 +1,6 @@
 "use client";
 
+import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { useCallback, useState } from "react";
 import { OrderResponse } from "@/apps/web-user/features/order/types/order.type";
 import { Icon } from "@/apps/web-user/common/components/icons";
@@ -161,7 +162,8 @@ export function PaymentPendingInfo({ order }: { order: OrderResponse }) {
         cancelVariant="primary"
         onConfirm={() => setIsAppOnlyModalOpen(false)}
         onCancel={() => {
-          window.open("https://pickcake.app/download", "_blank");
+          // 공식 앱 받기 입구(없는 도메인 pickcake.app으로 가던 것, 11-16 검토)
+          window.open(PATHS.APP_DOWNLOAD, "_blank");
           setIsAppOnlyModalOpen(false);
         }}
       />

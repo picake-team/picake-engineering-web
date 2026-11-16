@@ -1,3 +1,5 @@
+import { statisticsQueryKeys } from "@/apps/web-seller/features/statistics/constants/statisticsQueryKeys.constant";
+import { sellerHomeQueryKeys } from "@/apps/web-seller/features/home/constants/sellerHomeQueryKeys.constant";
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
@@ -115,6 +117,9 @@ export const SellerNotificationProvider: React.FC<{
         void queryClient.invalidateQueries({ queryKey: notificationQueryKeys.unread(storeId) });
         // 주문 알림이면 주문 목록·상세·홈 숫자도 새로(앱을 켜 둔 채 새 예약이 오면 바로 보이게)
         void queryClient.invalidateQueries({ queryKey: orderQueryKeys.all });
+        // PC 홈(최근 주문·오늘 픽업·최근 알림)과 통계도 — 주문 키만 새로 해 PC 홈이 그대로이던 것(11-16 검토)
+        void queryClient.invalidateQueries({ queryKey: sellerHomeQueryKeys.all });
+        void queryClient.invalidateQueries({ queryKey: statisticsQueryKeys.all });
       }, SOCKET_REFRESH_DELAY_MS);
     };
     // 채팅 숫자·목록 다시 불러오기도 잠깐 모아 한 번만
