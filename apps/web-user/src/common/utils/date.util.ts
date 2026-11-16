@@ -72,3 +72,9 @@ export const formatDateDot = (date: Date | string): string => {
   const day = d.getDate();
   return `${y}.${String(m).padStart(2, "0")}.${String(day).padStart(2, "0")}`;
 };
+
+/** 한국 시각 월·일(서버·기기 시간대와 상관없이) */
+export function kstMonthDay(now: Date): [number, number] {
+  const k = new Date(now.getTime() + 9 * 3600_000);
+  return [k.getUTCMonth() + 1, k.getUTCDate()];
+}
