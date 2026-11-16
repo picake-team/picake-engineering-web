@@ -30,7 +30,7 @@ Picake web-user는 겉면만 앱 껍데기로 감싼 **웹뷰 앱**입니다 —
 
 웹뷰 비중이 높은 앱에서 가장 흔한 반려 사유입니다. 이 앱이 단순 웹사이트 래핑이 아니라는 근거로 심사노트·질의응답에 쓸 수 있는 사실:
 
-- 네이티브 브릿지로 OS 기능을 실제로 사용: FCM 푸시 토큰 등록/해제(`requestFcmTokenUpsert`/`requestFcmTokenRemove`), 위치 정보 요청(`requestLocationFromWebView`, 앱 진입 시 자동 요청), OS 설정 화면 열기(`requestOpenAppSettings`) — 전부 `webview.bridge.ts`.
+- 네이티브 브릿지로 OS 기능을 실제로 사용: FCM 푸시 토큰 등록/해제(`requestFcmTokenUpsert`/`requestFcmTokenRemove`), 위치 정보 요청(`requestLocationFromWebView`, 지도·거리순 검색 결과를 열 때 한 번 — 2026-11-16부터 앱 진입 때는 묻지 않음, `useLocationWhenNeeded`), OS 설정 화면 열기(`requestOpenAppSettings`) — 전부 `webview.bridge.ts`.
 - 커스텀 URL 스킴(`picake://`)으로 카카오 알림톡 등 외부에서 앱을 직접 열 수 있음 ([[picake-link-app-deep-links]] skill).
 - 콘텐츠가 100% 웹 렌더링이 아니라 위치 기반 필터링, FCM 실시간 알림 등 디바이스 상태에 반응하는 기능이 있음.
 - **반려 근거로 계속 쓰였다면**: 웹뷰 비중을 줄이라는 요구일 수 있으므로, 반려 메일의 정확한 문구를 사용자에게 받아 어떤 하위 사유(4.2.1 기능 없음 / 4.2.2 사업성 등)인지 먼저 특정하세요 — 뭉뚱그려 "웹뷰라서"로 판단하지 않습니다.
@@ -162,7 +162,7 @@ Play Console에는 App Store 심사노트 대신 **앱 콘텐츠 → 앱 액세�
 In-App Purchase 대상이 아닙니다.
 
 [위치 정보 안내]
-주변 스토어 검색을 위해 앱 진입 시 위치 권한을 요청합니다. 홈의 케이크 목록은
+주변 스토어를 찾는 지도와 거리순 검색 결과를 처음 열 때 위치 권한을 요청합니다(앱을 켤 때는 묻지 않습니다). 홈의 케이크 목록은
 지역과 상관없이 보이고, 검색 결과만 고른 지역으로 거릅니다. 권한을 거부하거나
 서비스 지역 밖(해외 등)에서 접속하셔도 홈에서 등록된 케이크 상품을 바로 확인하실 수 있습니다.
 
@@ -185,7 +185,7 @@ via bank transfer to the store's settlement account, not In-App Purchase —
 there is no digital content being sold, so IAP does not apply.
 
 [About location]
-The app requests location permission on launch to search nearby stores. The
+The app asks for location permission only when you first open the map or distance-sorted search results to find nearby stores (not on launch). The
 home feed shows cake products regardless of region; only search results are
 filtered by the selected region. Even if permission is denied or you're outside
 our service area, you can browse cake products on the home screen right away.

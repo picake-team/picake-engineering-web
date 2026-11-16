@@ -16,6 +16,7 @@ import {
   saveRegisterTicket,
 } from "@/apps/web-user/features/auth/utils/register-ticket.util";
 import { saveLastLoginProvider } from "@/apps/web-user/features/auth/utils/last-login-provider.util";
+import { consumePostLoginRedirect } from "@/apps/web-user/features/auth/utils/post-login-redirect.util";
 
 /**
  * 애플 OAuth 콜백 — `/auth/login/apple`(route.ts)이 폼바디를 파싱해 `code`를 쿼리로 붙여 여기로
@@ -52,7 +53,9 @@ function AppleAuthCallbackContent() {
         saveLastLoginProvider("apple");
         clearAllRegisterTickets();
         login(data.accessToken);
-        router.replace(PATHS.HOME);
+        // 카카오·구글·네이버 콜백처럼 로그인 전에 보던 곳으로(예약 창에서 "로그인하고 예약신청", 알림톡 예약 상세 등).
+        // 전에는 애플만 늘 홈으로 가고 돌아갈 곳이 남아 있었다(11-16 검토)
+        router.replace(consumePostLoginRedirect());
       } catch (error: unknown) {
         const err = error as {
           response?: {

@@ -13,6 +13,7 @@ import {
   SOCIAL_LOGIN_ICON_CLASS,
   SOCIAL_LOGIN_NAVER_ICON_CLASS,
   naverAuthorizeUrl,
+  refreshNaverHrefOnClick,
 } from "@/apps/web-seller/features/auth/components/mobile/socialLogin";
 import { NaverLogoIcon } from "@/apps/web-seller/common/components/icons/NaverLogoIcon";
 
@@ -60,6 +61,7 @@ export function LoginPage() {
         {SELLER_NAVER_LOGIN_ENABLED ? (
           <a
             href={naverAuthorizeUrl()}
+            onClick={refreshNaverHrefOnClick}
             className="relative flex h-[50px] w-full items-center justify-center rounded-lg bg-[#03C75A] text-[15px] font-medium text-white shadow-sm transition-colors hover:bg-[#02b350] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#03C75A]/40 focus-visible:ring-offset-2"
           >
             <NaverLogoIcon className={SOCIAL_LOGIN_NAVER_ICON_CLASS} />

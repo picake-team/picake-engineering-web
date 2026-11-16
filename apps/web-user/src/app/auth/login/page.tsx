@@ -4,13 +4,16 @@ import { useEffect } from "react";
 import Image from "next/image";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import {
+  AppleLogoIcon,
   NaverLogoIcon,
+  oauthAppleLoginButtonClassName,
   oauthGoogleLoginButtonClassName,
   oauthKakaoLoginButtonClassName,
   oauthLoginButtonIconClassName,
   oauthNaverLoginButtonClassName,
 } from "@/apps/web-user/common/components/buttons/oauth-provider-login-buttons";
 import {
+  getAppleOAuthLoginUrl,
   getGoogleOAuthLoginUrl,
   getKakaoOAuthLoginUrl,
   getNaverOAuthLoginUrl,
@@ -23,6 +26,11 @@ import type { OAuthProvider } from "@/apps/web-user/common/types/analytics.type"
 
 /** 네이버 키가 있는 환경만 네이버 버튼(검수 승인 전 상용은 키를 넣지 않는다). 빌드 때 정해져 서버·화면이 같다 */
 const NAVER_LOGIN_ENABLED = Boolean(process.env.NEXT_PUBLIC_NAVER_CLIENT_ID);
+/**
+ * 애플 버튼 — 로그인 창(LoginBottomSheet)과 같은 네 버튼. 이 화면은 로그인이 풀렸을 때(401)와
+ * 로그인 없이 예약 상세(알림톡 링크 등)를 열 때 오는 곳이라, 애플로 가입한 손님이 여기서 막히지 않게 둔다(11-16 검토).
+ */
+const APPLE_LOGIN_ENABLED = Boolean(process.env.NEXT_PUBLIC_APPLE_CLIENT_ID);
 
 /**
  * 로그인 화면.
@@ -108,6 +116,18 @@ export default function LoginPage() {
           구글로 시작하기
           {lastProvider === "google" && <RecentLoginBubble />}
         </button>
+
+        {APPLE_LOGIN_ENABLED && (
+          <button
+            type="button"
+            className={oauthAppleLoginButtonClassName}
+            onClick={() => handleLogin("apple", getAppleOAuthLoginUrl)}
+          >
+            <AppleLogoIcon />
+            Apple로 시작하기
+            {lastProvider === "apple" && <RecentLoginBubble />}
+          </button>
+        )}
       </div>
     </div>
   );

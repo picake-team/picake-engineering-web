@@ -21,6 +21,7 @@ import {
   googleAuthorizeUrl,
   kakaoAuthorizeUrl,
   naverAuthorizeUrl,
+  refreshNaverHrefOnClick,
 } from "@/apps/web-seller/features/auth/components/mobile/socialLogin";
 import { NaverLogoIcon } from "@/apps/web-seller/common/components/icons/NaverLogoIcon";
 import { ReviewLoginSheet } from "@/apps/web-seller/features/auth/components/mobile/ReviewLoginSheet";
@@ -93,7 +94,11 @@ export const LoginMobilePage: React.FC = () => {
           {lastProvider === "kakao" && <RecentLoginBubble />}
         </a>
         {SELLER_NAVER_LOGIN_ENABLED ? (
-          <a href={naverAuthorizeUrl()} className={cx(BTN, "bg-naver text-white")}>
+          <a
+            href={naverAuthorizeUrl()}
+            onClick={refreshNaverHrefOnClick}
+            className={cx(BTN, "bg-naver text-white")}
+          >
             <NaverLogoIcon className={SOCIAL_LOGIN_NAVER_ICON_CLASS} />
             네이버로 시작하기
             {lastProvider === "naver" && <RecentLoginBubble />}
