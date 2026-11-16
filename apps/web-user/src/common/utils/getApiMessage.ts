@@ -5,7 +5,10 @@ const FALLBACK_MESSAGE = "일시적인 오류가 발생했어요. 잠시 후 다
 
 const getApiMessage = {
   error(error: any) {
-    const message = error?.response?.data?.data?.message || error?.response?.data?.message;
+    const raw = error?.response?.data?.data?.message || error?.response?.data?.message;
+    // 입력 검사(class-validator) 오류는 메시지가 배열이다 — 첫 줄만 쓰고 아래 영어 거르기를 받게 한다
+    // (배열은 거르지 않아 "reason must be shorter than…" 같은 영어 원문이 창에 보이던 것, 11-16 검토)
+    const message = Array.isArray(raw) ? raw.find((m: unknown) => typeof m === "string") : raw;
 
     // 토큰 관련 서버 원문([ACCESS_TOKEN_INVALID] ...)이 그대로 노출되지 않도록 안내 문구로 대체
     if (typeof message === "string" && message.includes("ACCESS_TOKEN_INVALID")) {

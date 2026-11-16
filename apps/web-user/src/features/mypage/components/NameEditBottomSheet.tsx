@@ -64,6 +64,8 @@ export function NameEditBottomSheet({
           placeholder="이름을 입력해주세요."
           value={name}
           onChange={(e) => setName(e.target.value)}
+          // 서버 한도(50자)와 같게(11-16 검토)
+          maxLength={50}
         />
       </div>
     </BottomSheet>
