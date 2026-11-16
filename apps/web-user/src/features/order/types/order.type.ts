@@ -181,6 +181,8 @@ export interface OrderResponse {
   canceledAt?: string | null;
   /** 입금 마감으로 자동 취소된 시각(그 밖의 취소는 null) */
   paymentPendingExpiredAt?: string | null;
+  /** 가게가 픽업 날이 지나도록 예약신청을 확인하지 않아 자동 취소된 시각(서버 2026-11-16부터, 그 밖의 취소는 null) */
+  reservationExpiredAt?: string | null;
   orderStatus: OrderStatus;
   /** 주문 시 선택 입력한 예약자명 */
   reservationContactName?: string | null;

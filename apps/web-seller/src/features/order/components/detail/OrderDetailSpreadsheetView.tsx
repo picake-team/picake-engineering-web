@@ -37,6 +37,12 @@ function buildNotesRows(order: OrderResponseDto): NotesRow[] {
       value: `입금 기한 만료로 자동 취소됨 (${new Date(order.paymentPendingExpiredAt).toLocaleString("ko-KR")}) — 고객이 입금했는지 통장 내역 확인이 필요할 수 있습니다`,
     });
   }
+  if (order.reservationExpiredAt) {
+    rows.push({
+      key: "취소 경위",
+      value: `픽업 날까지 예약을 확인하지 않아 자동 취소됨 (${new Date(order.reservationExpiredAt).toLocaleString("ko-KR")})`,
+    });
+  }
   if (order.userCancelReason) {
     rows.push({ key: "고객 입금 전 취소 사유", value: order.userCancelReason, noReplay: true });
   }

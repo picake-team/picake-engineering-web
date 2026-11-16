@@ -315,6 +315,13 @@ function CancelSection({ order }: { order: OrderResponseDto }) {
       sub: `${formatKstMonthDayTime(order.paymentPendingExpiredAt)} · 손님이 입금했는지 통장 내역을 확인해 주세요`,
     });
   }
+  if (order.reservationExpiredAt) {
+    rows.push({
+      label: "경위",
+      value: "픽업 날까지 확인하지 않아 자동으로 취소됐어요",
+      sub: formatKstMonthDayTime(order.reservationExpiredAt),
+    });
+  }
   reason("손님이 입금 전에 취소했어요", order.userCancelReason, true);
   reason("사장님이 예약을 취소했어요", order.sellerCancelReason);
   reason("손님이 환불을 요청했어요", order.refundRequestReason, true);
