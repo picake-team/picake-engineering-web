@@ -103,7 +103,8 @@ const SEASONAL_KEYWORDS: { words: string[]; from: [number, number]; to: [number,
 ];
 /** 늘 보이는 말: 상용에서 많이 찾은 말(PostHog 검색어 9-17~11-16) */
 export const EVERGREEN_KEYWORDS = ["생일", "레터링", "연인", "도시락", "100일", "결혼기념일"];
-const MAX_RECOMMENDED = 8;
+// 철 말(최대 3개)이 붙어도 늘 보이는 말 6개가 잘리지 않게 9개(11월엔 8개로 잘라 '결혼기념일'이 안 보였다, 11-17 운영자)
+const MAX_RECOMMENDED = 9;
 
 export function recommendedSearchKeywords(now = new Date()): string[] {
   const [m, d] = kstMonthDay(now);
