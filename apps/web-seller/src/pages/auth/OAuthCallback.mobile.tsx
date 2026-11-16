@@ -300,7 +300,7 @@ function SignUp({
           <PhoneVerifyInputs v={v} helper="계정 확인과 계정 찾기에 써요" />
           {hints.phone ? (
             <Button variant="quiet" onClick={() => setUseKakaoPhone(true)} className="self-start">
-              카카오 번호로 하기
+              카카오 번호로
             </Button>
           ) : null}
         </>
