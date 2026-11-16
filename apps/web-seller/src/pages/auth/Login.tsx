@@ -44,7 +44,7 @@ export function LoginPage() {
           Google로 계속하기
         </a>
         <a
-          href={`https://kauth.kakao.com/oauth/authorize?client_id=${import.meta.env.VITE_PUBLIC_KAKAO_RESTAPI_KEY}&redirect_uri=${window.location.origin}${ROUTES.AUTH.KAKAO_REDIRECT_URI}&response_type=code`}
+          href={`https://kauth.kakao.com/oauth/authorize?client_id=${import.meta.env.VITE_PUBLIC_KAKAO_RESTAPI_KEY}&redirect_uri=${window.location.origin}${ROUTES.AUTH.KAKAO_REDIRECT_URI}&response_type=code&service_terms=picake_s_tos,picake_s_privacy`}
           className="flex h-[50px] w-full items-center justify-center gap-3 rounded-lg bg-[#FEE500] text-[15px] font-medium text-[#191919] shadow-sm transition-colors hover:bg-[#f5dc00] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#191919]/25 focus-visible:ring-offset-2"
         >
           <img src={kakaoIcon} alt="" width={20} height={20} className="size-5 shrink-0" />
