@@ -101,11 +101,14 @@ export function pickupFitsStoreBusinessCalendarDto(
 export function findCalendarOrderConflicts(
   proposedCalendar: StoreBusinessCalendarDto,
   orders: readonly OrderResponseDto[],
+  now: Date = new Date(),
 ): CalendarOrderConflict[] {
   const conflicts: CalendarOrderConflict[] = [];
 
   for (const order of orders) {
     if (!CALENDAR_BLOCKING_ORDER_STATUSES.has(order.orderStatus)) continue;
+    // 앞으로의 픽업만(서버와 같게) — 지난 픽업대기가 앞으로의 영업시간 바꾸기를 막던 것(11-16 검토)
+    if (!order.pickupDate || new Date(order.pickupDate).getTime() < now.getTime()) continue;
     if (pickupFitsStoreBusinessCalendarDto(order.pickupDate, proposedCalendar)) continue;
 
     conflicts.push({
