@@ -346,9 +346,7 @@ export function KakaoRegisterVerificationScreen() {
           {useKakaoPhone ? "가입 정보를 확인해 주세요." : "핸드폰 번호 인증을 진행해주세요."}
         </h2>
         <p className="mt-1 text-sm leading-relaxed text-gray-500">
-          {useKakaoPhone
-            ? "카카오에서 받은 정보예요. 맞으면 가입하기를 눌러 주세요."
-            : "예약자 확인 및 연락을 위해 필요해요."}
+          예약자 확인 및 연락을 위해 필요해요.
         </p>
 
         <div className="mt-8 flex flex-col">

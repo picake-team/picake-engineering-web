@@ -260,14 +260,8 @@ export function KakaoAuthCallbackPage() {
         title="회원가입"
         description={
           <>
-            {useKakaoPhone && hints.phone ? (
-              "카카오에서 받은 정보예요. 맞으면 가입하기를 눌러 주세요."
-            ) : (
-              <>
-                판매자 센터 이용을 위해 <strong className="font-medium text-zinc-700">실명</strong>
-                과 <strong className="font-medium text-zinc-700">휴대폰 인증</strong>이 필요합니다.
-              </>
-            )}
+            판매자 센터 이용을 위해 <strong className="font-medium text-zinc-700">실명</strong>과{" "}
+            <strong className="font-medium text-zinc-700">휴대폰 인증</strong>이 필요합니다.
           </>
         }
         footer={
