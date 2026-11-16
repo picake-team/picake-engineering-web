@@ -275,7 +275,6 @@ function SignUp({
       {useKakaoPhone && hints.phone ? (
         <Field
           label="휴대폰 번호"
-          helper="카카오에 등록된 번호예요. 계정 확인과 계정 찾기에 써요"
           trailing={
             <Button
               variant="secondary"
@@ -296,20 +295,9 @@ function SignUp({
           )}
         </Field>
       ) : (
-        <>
-          <PhoneVerifyInputs v={v} helper="계정 확인과 계정 찾기에 써요" />
-          {hints.phone ? (
-            <Button variant="quiet" onClick={() => setUseKakaoPhone(true)} className="self-start">
-              카카오 번호로 하기
-            </Button>
-          ) : null}
-        </>
+        <PhoneVerifyInputs v={v} />
       )}
-      {termsFromKakao ? (
-        <p className="text-sub text-ink-600">약관은 카카오에서 동의했어요.</p>
-      ) : (
-        <SellerTermsBox value={terms} onChange={setTerms} />
-      )}
+      {termsFromKakao ? null : <SellerTermsBox value={terms} onChange={setTerms} />}
     </AppScreen>
   );
 }

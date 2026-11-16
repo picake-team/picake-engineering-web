@@ -80,7 +80,6 @@ export const KAKAO_CONSUMER_REQUIRED_TERMS = [
   "picake_c_privacy",
   "picake_c_third_party",
 ] as const;
-export const KAKAO_CONSUMER_LOCATION_TERM = "picake_c_location";
 
 /** 카카오에서 손님 필수 약관에 모두 동의했으면 가입 화면에서 약관을 다시 받지 않는다 */
 export function hasAllKakaoConsumerTerms(terms: string[] | undefined): boolean {

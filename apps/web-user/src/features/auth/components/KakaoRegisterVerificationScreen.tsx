@@ -42,7 +42,6 @@ import { useKeyboardOpen } from "@/apps/web-user/common/hooks/useKeyboardOpen";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import { resolvePhoneVerificationFailReason } from "@/apps/web-user/features/auth/utils/phone-verification-error.util";
 import {
-  KAKAO_CONSUMER_LOCATION_TERM,
   hasAllKakaoConsumerTerms,
   clearRegisterTicket,
   isRegisterTicketExpired,
@@ -347,9 +346,7 @@ export function KakaoRegisterVerificationScreen() {
           {useKakaoPhone ? "가입 정보를 확인해 주세요." : "핸드폰 번호 인증을 진행해주세요."}
         </h2>
         <p className="mt-1 text-sm leading-relaxed text-gray-500">
-          {useKakaoPhone
-            ? "카카오에서 받은 정보예요. 맞으면 가입하기를 눌러 주세요."
-            : "예약자 확인 및 연락을 위해 필요해요."}
+          예약자 확인 및 연락을 위해 필요해요.
         </p>
 
         <div className="mt-8 flex flex-col">
@@ -376,39 +373,35 @@ export function KakaoRegisterVerificationScreen() {
 
           {useKakaoPhone && hints.phone ? (
             <div className="mt-4 flex flex-col gap-[10px]">
-              <span className="text-sm font-bold text-gray-900">핸드폰 번호</span>
-              <div className="flex h-[52px] items-center justify-between rounded-lg border border-gray-100 px-4">
-                <span className="text-base font-bold text-gray-900">
-                  {formatPhoneForDisplay(hints.phone)}
-                </span>
-                <button
+              <label htmlFor="kakao-register-phone" className="text-sm font-bold text-gray-900">
+                핸드폰 번호
+              </label>
+              <div className="flex flex-row items-start gap-2">
+                <div className="min-w-0 flex-1">
+                  <Input
+                    variant="register"
+                    id="kakao-register-phone"
+                    type="tel"
+                    name="phone"
+                    value={formatPhoneForDisplay(hints.phone)}
+                    readOnly
+                  />
+                </div>
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={() => setUseKakaoPhone(false)}
-                  className="press text-sm font-bold text-gray-500 underline underline-offset-2"
+                  className="box-border inline-flex !h-[42px] !max-h-[42px] !min-h-[42px] shrink-0 !w-auto !items-center !justify-center !rounded-lg !border !border-gray-100 !bg-white !px-5 !py-0 !text-sm !font-bold !leading-tight !text-gray-900 sm:!w-auto"
                 >
                   다른 번호
-                </button>
+                </Button>
               </div>
-              <p className="text-xs leading-relaxed text-gray-500">
-                카카오에 등록된 번호예요. 예약 연락은 이 번호로 드려요.
-              </p>
             </div>
           ) : (
             <div className="mt-4 flex flex-col gap-[10px]">
-              <div className="flex items-center justify-between">
-                <label htmlFor="kakao-register-phone" className="text-sm font-bold text-gray-900">
-                  핸드폰 번호
-                </label>
-                {hints.phone ? (
-                  <button
-                    type="button"
-                    onClick={() => setUseKakaoPhone(true)}
-                    className="press text-sm font-bold text-gray-500 underline underline-offset-2"
-                  >
-                    카카오 번호로
-                  </button>
-                ) : null}
-              </div>
+              <label htmlFor="kakao-register-phone" className="text-sm font-bold text-gray-900">
+                핸드폰 번호
+              </label>
               <div className="flex flex-row items-start gap-2">
                 <div className="min-w-0 flex-1">
                   <Input
@@ -480,13 +473,8 @@ export function KakaoRegisterVerificationScreen() {
           )}
         </div>
 
-        {/* 약관 동의 — 카카오에서 필수 약관에 모두 동의했으면 다시 받지 않는다 */}
-        {termsFromKakao ? (
-          <p className="mt-8 text-sm leading-relaxed text-gray-500">
-            약관은 카카오에서 동의했어요
-            {hints.terms?.includes(KAKAO_CONSUMER_LOCATION_TERM) ? "(위치기반서비스 포함)" : ""}.
-          </p>
-        ) : (
+        {/* 약관 동의 — 카카오에서 필수 약관에 모두 동의했으면 다시 받지 않는다(안내 글 없이 칸을 뺌) */}
+        {termsFromKakao ? null : (
           <TermsAgreementSection value={termsState} onChange={setTermsState} />
         )}
       </div>
