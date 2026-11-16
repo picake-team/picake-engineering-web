@@ -34,6 +34,10 @@ export type LoginEntryPoint =
 
 /** 소셜 로그인 제공자 */
 export type OAuthProvider = "kakao" | "google" | "apple";
+/** 가입한 번호를 어디서 받았나 — kakao: 카카오가 준 번호로 문자 인증 없이(기획 I-59), sms: 문자 인증 */
+export type SignupPhoneSource = "kakao" | "sms";
+/** 약관 동의를 어디서 받았나 — kakao: 카카오 로그인 화면(간편가입), screen: 가입 화면 체크 */
+export type SignupTermsSource = "kakao" | "screen";
 
 /** 기존 계정과 중복으로 판단된 기준 */
 export type DuplicateAccountType = "social" | "phone_number";
@@ -147,7 +151,11 @@ export interface AnalyticsEventMap {
    */
   view_duplicate_account: { provider: OAuthProvider; duplicate_type: DuplicateAccountType };
   /** 핸드폰 번호 인증 화면 노출 (소셜 회원가입 시에만 거치는 단계) */
-  view_phone_verification: { provider: OAuthProvider };
+  view_phone_verification: {
+    provider: OAuthProvider;
+    /** 카카오가 번호를 줘서 "이 번호로 가입"을 보여 줬나(카카오만) */
+    kakao_phone_offered?: boolean;
+  };
   /** 인증번호 요청 발송 (인증번호 받기 버튼 클릭) */
   request_phone_verification: { provider: OAuthProvider };
   /** 핸드폰 번호 인증 성공 */
@@ -155,9 +163,18 @@ export interface AnalyticsEventMap {
   /** 핸드폰 번호 인증 실패 */
   fail_phone_verification: { fail_reason: PhoneVerificationFailReason };
   /** 약관 동의 완료 → 서버로 회원가입 요청 발생 */
-  request_signup: { provider: OAuthProvider };
+  request_signup: {
+    provider: OAuthProvider;
+    phone_source: SignupPhoneSource;
+    terms_source: SignupTermsSource;
+  };
   /** 신규 회원가입 완료 */
-  success_signup: { provider: OAuthProvider; user_id: string };
+  success_signup: {
+    provider: OAuthProvider;
+    user_id: string;
+    phone_source: SignupPhoneSource;
+    terms_source: SignupTermsSource;
+  };
   /** 소셜 로그인 인증 실패 */
   fail_social_auth: { provider: OAuthProvider; fail_reason: SocialAuthFailReason };
   /** 중복가입 안내 화면 > 로그인 버튼 클릭 */

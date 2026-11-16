@@ -64,6 +64,16 @@ export function readRegisterTicketHints(token: string): RegisterTicketHints {
   };
 }
 
+/**
+ * 가입표 30분이 지났는지(화면 표시용 — 판단은 서버). 가입 화면을 열 때 이미 지났으면 문자를 보내기 전에 다시 로그인하게 한다.
+ * 기기 시계가 조금 틀려도 막지 않게 30초 여유.
+ */
+export function isRegisterTicketExpired(token: string, nowMs = Date.now()): boolean {
+  const p = decodeJwtPayload<{ exp?: unknown }>(token);
+  if (!p || typeof p.exp !== "number") return false;
+  return p.exp * 1000 + 30_000 < nowMs;
+}
+
 /** 손님 필수 약관(카카오 간편가입 태그, backend KAKAO_SERVICE_TERMS.consumer와 같게) */
 export const KAKAO_CONSUMER_REQUIRED_TERMS = [
   "picake_c_tos",
@@ -78,9 +88,13 @@ export function hasAllKakaoConsumerTerms(terms: string[] | undefined): boolean {
   return KAKAO_CONSUMER_REQUIRED_TERMS.every((t) => agreed.has(t));
 }
 
-/** "01012345678" → "010-****-5678" */
-export function maskPhoneForDisplay(phone: string): string {
+/**
+ * "01012345678" → "010-1234-5678". 가입하는 본인에게 보여 주는 화면이라 가리지 않는다 —
+ * 카카오에 예전 번호가 남아 있으면 본인이 알아보고 "다른 번호"를 고를 수 있게(운영자 결정 11-16).
+ */
+export function formatPhoneForDisplay(phone: string): string {
   const d = phone.replace(/\D/g, "");
-  if (d.length < 10) return phone;
-  return `${d.slice(0, 3)}-****-${d.slice(-4)}`;
+  if (d.length === 11) return `${d.slice(0, 3)}-${d.slice(3, 7)}-${d.slice(7)}`;
+  if (d.length === 10) return `${d.slice(0, 3)}-${d.slice(3, 6)}-${d.slice(6)}`;
+  return phone;
 }

@@ -81,7 +81,12 @@ export function useGoogleRegister(options?: {
     onSuccess: (data) => {
       const userId = decodeJwtPayload<{ sub: string }>(data.accessToken)?.sub;
       if (userId) {
-        trackEvent("success_signup", { provider: "google", user_id: userId });
+        trackEvent("success_signup", {
+          provider: "google",
+          user_id: userId,
+          phone_source: "sms",
+          terms_source: "screen",
+        });
       }
       clearRegisterTicket("google");
       login(data.accessToken);
@@ -95,7 +100,8 @@ export function useGoogleRegister(options?: {
         return;
       }
       if (isRegisterTicketInvalid(error)) {
-        // 가입표가 30분 지났거나 잘못됨 — 이 화면에서는 가입할 수 없어 홈으로 보내고 다시 로그인하게 한다(복귀 경로는 유지)
+        // 가입표가 30분 지났거나 잘못됨 — 이 화면에서는 가입할 수 없어 지우고 홈으로(다시 로그인, 복귀 경로는 유지)
+        clearRegisterTicket("google");
         router.replace(PATHS.HOME);
       }
       showAlert({
@@ -116,10 +122,16 @@ export function useKakaoRegister(options?: {
 
   return useMutation({
     mutationFn: authApi.kakaoRegister,
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
       const userId = decodeJwtPayload<{ sub: string }>(data.accessToken)?.sub;
       if (userId) {
-        trackEvent("success_signup", { provider: "kakao", user_id: userId });
+        trackEvent("success_signup", {
+          provider: "kakao",
+          user_id: userId,
+          // 카카오 번호로 가입했나, 약관을 카카오에서 받았나(가입 화면 약관이면 agreedToTerms를 보냄)
+          phone_source: variables.useTicketPhone ? "kakao" : "sms",
+          terms_source: variables.agreedToTerms === undefined ? "kakao" : "screen",
+        });
       }
       clearRegisterTicket("kakao");
       login(data.accessToken);
@@ -133,7 +145,8 @@ export function useKakaoRegister(options?: {
         return;
       }
       if (isRegisterTicketInvalid(error)) {
-        // 가입표가 30분 지났거나 잘못됨 — 이 화면에서는 가입할 수 없어 홈으로 보내고 다시 로그인하게 한다(복귀 경로는 유지)
+        // 가입표가 30분 지났거나 잘못됨 — 이 화면에서는 가입할 수 없어 지우고 홈으로(다시 로그인, 복귀 경로는 유지)
+        clearRegisterTicket("kakao");
         router.replace(PATHS.HOME);
       }
       showAlert({
@@ -157,7 +170,12 @@ export function useAppleRegister(options?: {
     onSuccess: (data) => {
       const userId = decodeJwtPayload<{ sub: string }>(data.accessToken)?.sub;
       if (userId) {
-        trackEvent("success_signup", { provider: "apple", user_id: userId });
+        trackEvent("success_signup", {
+          provider: "apple",
+          user_id: userId,
+          phone_source: "sms",
+          terms_source: "screen",
+        });
       }
       clearRegisterTicket("apple");
       login(data.accessToken);
@@ -171,7 +189,8 @@ export function useAppleRegister(options?: {
         return;
       }
       if (isRegisterTicketInvalid(error)) {
-        // 가입표가 30분 지났거나 잘못됨 — 이 화면에서는 가입할 수 없어 홈으로 보내고 다시 로그인하게 한다(복귀 경로는 유지)
+        // 가입표가 30분 지났거나 잘못됨 — 이 화면에서는 가입할 수 없어 지우고 홈으로(다시 로그인, 복귀 경로는 유지)
+        clearRegisterTicket("apple");
         router.replace(PATHS.HOME);
       }
       showAlert({

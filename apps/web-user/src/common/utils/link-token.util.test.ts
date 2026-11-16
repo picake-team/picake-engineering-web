@@ -18,3 +18,11 @@ describe("견적 링크 열쇠 지우기", () => {
     expect(isQuoteLinkPath("/quote/abc")).toBe(false);
   });
 });
+
+describe("소셜 가입표도 지운다(저장소를 못 쓰는 브라우저만 주소에 실림)", () => {
+  it("registerToken 값을 가린다", () => {
+    expect(
+      scrubLinkToken("https://picakes.com/auth/register/kakao?registerToken=eyJ.abc.def&x=1"),
+    ).toBe("https://picakes.com/auth/register/kakao?registerToken=[token]&x=1");
+  });
+});

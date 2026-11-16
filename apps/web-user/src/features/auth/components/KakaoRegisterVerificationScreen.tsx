@@ -44,7 +44,9 @@ import { resolvePhoneVerificationFailReason } from "@/apps/web-user/features/aut
 import {
   KAKAO_CONSUMER_LOCATION_TERM,
   hasAllKakaoConsumerTerms,
-  maskPhoneForDisplay,
+  clearRegisterTicket,
+  isRegisterTicketExpired,
+  formatPhoneForDisplay,
   readRegisterTicket,
   readRegisterTicketHints,
   type RegisterTicketHints,
@@ -106,14 +108,29 @@ export function KakaoRegisterVerificationScreen() {
       setBooting(false);
       return;
     }
+    // 30분이 이미 지났으면 문자를 보내기 전에 다시 로그인하게 한다
+    if (isRegisterTicketExpired(registerToken)) {
+      clearRegisterTicket("kakao");
+      router.replace(PATHS.HOME);
+      showAlert({
+        type: "error",
+        title: "오류",
+        message: "가입 시간이 지났어요. 다시 로그인해 주세요.",
+      });
+      setBooting(false);
+      return;
+    }
     const fromKakao = readRegisterTicketHints(registerToken);
     setHints(fromKakao);
     setUseKakaoPhone(!!fromKakao.phone);
     if (fromKakao.name) setDisplayName(fromKakao.name);
     setKakaoLoginData({ registerToken });
     setBooting(false);
-    trackEvent("view_phone_verification", { provider: "kakao" });
-  }, [router, searchParams]);
+    trackEvent("view_phone_verification", {
+      provider: "kakao",
+      kakao_phone_offered: !!fromKakao.phone,
+    });
+  }, [router, searchParams, showAlert]);
 
   const validateDisplayName = useCallback((value: string) => {
     const t = value.trim();
@@ -206,7 +223,8 @@ export function KakaoRegisterVerificationScreen() {
     }
     if (!isCodeSent || remainingSeconds <= 0) return;
     if (!phone || !verificationCode || phoneError || verificationCodeError) return;
-    if (!isRequiredTermsAllChecked(termsState)) return;
+    const termsPart = buildTermsPart();
+    if (!termsPart) return;
 
     const normalized = normalizePhone(phone);
     try {
@@ -223,6 +241,26 @@ export function KakaoRegisterVerificationScreen() {
     }
     trackEvent("success_phone_verification", { provider: "kakao" });
 
+    trackEvent("request_signup", {
+      provider: "kakao",
+      phone_source: "sms",
+      terms_source: termsFromKakao ? "kakao" : "screen",
+    });
+    await kakaoRegisterMutation.mutateAsync({
+      ...kakaoLoginData,
+      phone: normalized,
+      name: displayName.trim(),
+      ...termsPart,
+    });
+  };
+
+  /**
+   * 가입 요청에 넣을 약관 칸. 카카오에서 필수 약관에 다 동의했으면 빈 칸(서버가 가입표로 확인 — 번호를 카카오로 받든 문자로 받든 같다).
+   * 아니면 화면 체크 — 필수가 빠졌거나 약관을 못 불러왔으면 null(보내지 않음).
+   */
+  const buildTermsPart = (): Partial<KakaoRegisterRequestDto> | null => {
+    if (termsFromKakao) return {};
+    if (!isRequiredTermsAllChecked(termsState)) return null;
     const termsDocumentIds = buildConsumerTermsDocumentIds(termsState, activeTermsDocIds);
     if (!termsDocumentIds) {
       showAlert({
@@ -230,46 +268,27 @@ export function KakaoRegisterVerificationScreen() {
         title: "약관 동의",
         message: "약관 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.",
       });
-      return;
+      return null;
     }
-
-    trackEvent("request_signup", { provider: "kakao" });
-    await kakaoRegisterMutation.mutateAsync({
-      ...kakaoLoginData,
-      phone: normalized,
-      name: displayName.trim(),
+    return {
       agreedToTerms: termsState.termsOfService,
       agreedToPrivacy: termsState.privacyPolicy,
       agreedToThirdParty: termsState.thirdPartyConsent,
       agreedToLocationTerms: termsState.locationTerms,
       termsDocumentIds,
-    });
+    };
   };
 
   /** 카카오 번호로 가입 — 문자 인증 없이. 약관은 카카오에서 다 동의했으면 다시 받지 않는다 */
   const submitWithKakaoPhone = async () => {
     if (!kakaoLoginData) return;
-    let termsPart: Partial<KakaoRegisterRequestDto> = {};
-    if (!termsFromKakao) {
-      if (!isRequiredTermsAllChecked(termsState)) return;
-      const termsDocumentIds = buildConsumerTermsDocumentIds(termsState, activeTermsDocIds);
-      if (!termsDocumentIds) {
-        showAlert({
-          type: "warning",
-          title: "약관 동의",
-          message: "약관 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.",
-        });
-        return;
-      }
-      termsPart = {
-        agreedToTerms: termsState.termsOfService,
-        agreedToPrivacy: termsState.privacyPolicy,
-        agreedToThirdParty: termsState.thirdPartyConsent,
-        agreedToLocationTerms: termsState.locationTerms,
-        termsDocumentIds,
-      };
-    }
-    trackEvent("request_signup", { provider: "kakao" });
+    const termsPart = buildTermsPart();
+    if (!termsPart) return;
+    trackEvent("request_signup", {
+      provider: "kakao",
+      phone_source: "kakao",
+      terms_source: termsFromKakao ? "kakao" : "screen",
+    });
     await kakaoRegisterMutation.mutateAsync({
       ...kakaoLoginData,
       useTicketPhone: true,
@@ -296,7 +315,7 @@ export function KakaoRegisterVerificationScreen() {
       remainingSeconds > 0 &&
       !sendPending &&
       !actionPending &&
-      isRequiredTermsAllChecked(termsState);
+      termsReady;
 
   if (booting) {
     return (
@@ -360,7 +379,7 @@ export function KakaoRegisterVerificationScreen() {
               <span className="text-sm font-bold text-gray-900">핸드폰 번호</span>
               <div className="flex h-[52px] items-center justify-between rounded-lg border border-gray-100 px-4">
                 <span className="text-base font-bold text-gray-900">
-                  {maskPhoneForDisplay(hints.phone)}
+                  {formatPhoneForDisplay(hints.phone)}
                 </span>
                 <button
                   type="button"
@@ -376,9 +395,20 @@ export function KakaoRegisterVerificationScreen() {
             </div>
           ) : (
             <div className="mt-4 flex flex-col gap-[10px]">
-              <label htmlFor="kakao-register-phone" className="text-sm font-bold text-gray-900">
-                핸드폰 번호
-              </label>
+              <div className="flex items-center justify-between">
+                <label htmlFor="kakao-register-phone" className="text-sm font-bold text-gray-900">
+                  핸드폰 번호
+                </label>
+                {hints.phone ? (
+                  <button
+                    type="button"
+                    onClick={() => setUseKakaoPhone(true)}
+                    className="press text-sm font-bold text-gray-500 underline underline-offset-2"
+                  >
+                    카카오 번호로
+                  </button>
+                ) : null}
+              </div>
               <div className="flex flex-row items-start gap-2">
                 <div className="min-w-0 flex-1">
                   <Input

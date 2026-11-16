@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
   hasAllKakaoSellerTerms,
-  maskPhoneForDisplay,
   readRegisterTicketHints,
 } from "@/apps/web-seller/features/auth/utils/register-ticket-hints.util";
 
@@ -35,9 +34,5 @@ describe("가입표 읽기(사장님 카카오 한 번에 가입)", () => {
   it("사장님 필수 약관 2개가 다 있어야 하고, 손님 약관은 치지 않는다", () => {
     expect(hasAllKakaoSellerTerms(["picake_s_tos", "picake_s_privacy"])).toBe(true);
     expect(hasAllKakaoSellerTerms(["picake_s_tos", "picake_c_privacy"])).toBe(false);
-  });
-
-  it("번호는 가운데를 가린다", () => {
-    expect(maskPhoneForDisplay("01077778888")).toBe("010-****-8888");
   });
 });

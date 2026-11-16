@@ -5,6 +5,7 @@
  * 손님 앱과 같게 "가입하기"를 눌러야 가입이 끝난다(PC는 "인증 완료"를 누르면 바로 가입).
  */
 import React, { useMemo, useState } from "react";
+import { formatPhoneDisplay } from "@/apps/web-seller/common/utils/phone-display.util";
 import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { AppScreen, BackHeader, BottomActionBar } from "@/apps/web-seller/common/ui/Screen";
 import { Button } from "@/apps/web-seller/common/ui/Button";
@@ -32,7 +33,6 @@ import { PhoneVerifyInputs } from "@/apps/web-seller/features/auth/components/mo
 import { SellerTermsBox } from "@/apps/web-seller/features/auth/components/mobile/SellerTermsBox";
 import {
   hasAllKakaoSellerTerms,
-  maskPhoneForDisplay,
   readRegisterTicketHints,
 } from "@/apps/web-seller/features/auth/utils/register-ticket-hints.util";
 import {
@@ -202,20 +202,22 @@ function SignUp({
             })
           : await (async () => {
               const phone = await v.verifyCode();
-              const body = {
-                name: name.trim(),
-                phone,
-                agreedToTerms: terms.termsOfService,
-                agreedToPrivacy: terms.privacyPolicy,
-                ...termsPart,
-              };
               return provider === "google"
                 ? await authApi.googleRegister({
-                    ...body,
-                    termsDocumentIds: termsPart.termsDocumentIds,
                     registerToken: identity.registerToken,
+                    name: name.trim(),
+                    phone,
+                    agreedToTerms: terms.termsOfService,
+                    agreedToPrivacy: terms.privacyPolicy,
+                    termsDocumentIds: termsPart.termsDocumentIds,
                   })
-                : await authApi.kakaoRegister({ ...body, registerToken: identity.registerToken });
+                : // 카카오에서 약관에 동의했으면 termsPart는 빈 칸 — 화면 체크(안 한 값)를 보내지 않는다
+                  await authApi.kakaoRegister({
+                    registerToken: identity.registerToken,
+                    name: name.trim(),
+                    phone,
+                    ...termsPart,
+                  });
             })();
       clearPendingOAuthRegister();
       login({ navigate, accessToken: tokens.accessToken });
@@ -240,7 +242,11 @@ function SignUp({
       header={
         <BackHeader
           title="회원가입"
-          onBack={() => navigate(ROUTES.AUTH.LOGIN, { replace: true })}
+          onBack={() => {
+            // 뒤로 가면 이 가입표는 버린다 — 다음 로그인에서 옛 가입 화면이 먼저 뜨지 않게
+            clearPendingOAuthRegister();
+            navigate(ROUTES.AUTH.LOGIN, { replace: true });
+          }}
         />
       }
       bodyClassName="gap-4 pt-2"
@@ -285,12 +291,19 @@ function SignUp({
               id={p.id}
               aria-describedby={p.describedBy}
               readOnly
-              value={maskPhoneForDisplay(hints.phone ?? "")}
+              value={formatPhoneDisplay(hints.phone ?? "")}
             />
           )}
         </Field>
       ) : (
-        <PhoneVerifyInputs v={v} helper="계정 확인과 계정 찾기에 써요" />
+        <>
+          <PhoneVerifyInputs v={v} helper="계정 확인과 계정 찾기에 써요" />
+          {hints.phone ? (
+            <Button variant="quiet" onClick={() => setUseKakaoPhone(true)} className="self-start">
+              카카오 번호로 하기
+            </Button>
+          ) : null}
+        </>
       )}
       {termsFromKakao ? (
         <p className="text-sub text-ink-600">약관은 카카오에서 동의했어요.</p>
@@ -383,7 +396,15 @@ function OAuthCallbackMobile({ provider }: { provider: Provider }) {
 
   if (existing)
     return <ExistingAccountScreen account={existing} onBack={() => setExisting(null)} />;
-  if (identity) return <SignUp provider={provider} identity={identity} onExisting={setExisting} />;
+  if (identity)
+    return (
+      <SignUp
+        key={identity.registerToken}
+        provider={provider}
+        identity={identity}
+        onExisting={setExisting}
+      />
+    );
   if (!code) return <Navigate to={ROUTES.AUTH.LOGIN} replace />;
   return <LoadingScreen label={PROVIDER[provider].label} />;
 }
