@@ -1,6 +1,10 @@
 "use client";
 
 import { RefundRulesTable } from "@/apps/web-user/features/order/components/RefundRulesTable";
+import {
+  getRefundBasis,
+  refundNoticeMessage,
+} from "@/apps/web-user/features/order/utils/refund-basis.util";
 import { cancelReasonForEvent } from "@/apps/web-user/features/order/utils/cancel-reason.util";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -136,13 +140,14 @@ export function RefundRequestView({ order }: RefundRequestViewProps) {
     <div className="pt-5 pb-[96px]">
       {/* 안내 박스 */}
       <div className="px-5 py-4">
-        <InfoNotice
-          message={`결제 금액 ${order.totalPrice.toLocaleString()}원 · 환불 금액은 가게 환불 규정대로 정해요`}
-        />
-        <div className="mt-3">
-          <p className="mb-2 text-2sm font-bold text-gray-900">가게 환불·취소 규정</p>
-          <RefundRulesTable policy={order.storeRefundCancellationPolicy} />
-        </div>
+        <InfoNotice message={refundNoticeMessage(order)} />
+        {/* 가게 규정 표는 손님이 취소·환불을 요청한 예약에만(가게가 취소했으면 결제한 금액을 돌려받음) */}
+        {getRefundBasis(order) === "store-rules" && (
+          <div className="mt-3">
+            <p className="mb-2 text-2sm font-bold text-gray-900">가게 환불·취소 규정</p>
+            <RefundRulesTable policy={order.storeRefundCancellationPolicy} />
+          </div>
+        )}
       </div>
 
       <div className="px-5">
