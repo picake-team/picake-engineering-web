@@ -316,9 +316,6 @@ export function KakaoAuthCallbackPage() {
                   다른 번호
                 </button>
               </div>
-              <p className="text-xs text-zinc-500">
-                카카오에 등록된 번호예요. 계정 확인과 계정 찾기에 써요.
-              </p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -340,9 +337,7 @@ export function KakaoAuthCallbackPage() {
               />
             </div>
           )}
-          {termsFromKakao ? (
-            <p className="text-sm text-zinc-500">약관은 카카오에서 동의했어요.</p>
-          ) : (
+          {termsFromKakao ? null : (
             <SellerTermsAgreementSection value={termsState} onChange={setTermsState} />
           )}
           {useKakaoPhone && hints.phone ? (

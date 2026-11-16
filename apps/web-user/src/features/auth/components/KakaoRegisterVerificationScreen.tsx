@@ -42,7 +42,6 @@ import { useKeyboardOpen } from "@/apps/web-user/common/hooks/useKeyboardOpen";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import { resolvePhoneVerificationFailReason } from "@/apps/web-user/features/auth/utils/phone-verification-error.util";
 import {
-  KAKAO_CONSUMER_LOCATION_TERM,
   hasAllKakaoConsumerTerms,
   clearRegisterTicket,
   isRegisterTicketExpired,
@@ -389,9 +388,6 @@ export function KakaoRegisterVerificationScreen() {
                   다른 번호
                 </button>
               </div>
-              <p className="text-xs leading-relaxed text-gray-500">
-                카카오에 등록된 번호예요. 예약 연락은 이 번호로 드려요.
-              </p>
             </div>
           ) : (
             <div className="mt-4 flex flex-col gap-[10px]">
@@ -480,13 +476,8 @@ export function KakaoRegisterVerificationScreen() {
           )}
         </div>
 
-        {/* 약관 동의 — 카카오에서 필수 약관에 모두 동의했으면 다시 받지 않는다 */}
-        {termsFromKakao ? (
-          <p className="mt-8 text-sm leading-relaxed text-gray-500">
-            약관은 카카오에서 동의했어요
-            {hints.terms?.includes(KAKAO_CONSUMER_LOCATION_TERM) ? "(위치기반서비스 포함)" : ""}.
-          </p>
-        ) : (
+        {/* 약관 동의 — 카카오에서 필수 약관에 모두 동의했으면 다시 받지 않는다(안내 글 없이 칸을 뺌) */}
+        {termsFromKakao ? null : (
           <TermsAgreementSection value={termsState} onChange={setTermsState} />
         )}
       </div>
