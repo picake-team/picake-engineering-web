@@ -41,8 +41,8 @@ export function LoginBottomSheet() {
   const [naverAuthHref, setNaverAuthHref] = useState<string | null>(null);
   const [appleAuthHref, setAppleAuthHref] = useState<string | null>(null);
 
-  // 창을 열 때마다 로그인 주소를 새로 만든다 — 네이버 state는 콜백에서 한 번 쓰고 지우므로,
-  // 처음 만든 주소를 계속 쓰면 네이버에서 취소하고 돌아온 뒤 다시 누를 때 "로그인을 확인하지 못했어요"가 뜬다(11-16 검토)
+  // 창을 열 때마다 로그인 주소를 새로 만든다 — 네이버 state는 통과하면 지워지므로(취소로 돌아온 값은 남김) 주소를 다시 만들어야
+  // 다음 로그인이 새 값을 쓴다. 네이버 버튼은 누를 때 한 번 더 만든다(창을 오래 열어 둬도 30분 안, 11-16 검토)
   useEffect(() => {
     if (!isOpen) return;
     setGoogleAuthHref(getGoogleOAuthLoginUrl());
@@ -95,7 +95,10 @@ export function LoginBottomSheet() {
             <a
               href={naverAuthHref}
               className={oauthNaverLoginButtonClassName}
-              onClick={() => {
+              onClick={(e) => {
+                // 누를 때 주소를 다시 만든다 — 창을 연 뒤 오래 있어도 state가 30분 안이게(11-16 검토)
+                const fresh = getNaverOAuthLoginUrl();
+                if (fresh) e.currentTarget.href = fresh;
                 setPostLoginRedirect();
                 trackEvent("engage_social_select", { provider: "naver" });
               }}

@@ -75,6 +75,16 @@ describe("naver-oauth-state.util — 네이버 로그인 state", () => {
     expect(getOrCreateNaverOAuthState()).not.toBe(a);
   });
 
+  it("로그인 화면을 오래 열어 둔 뒤 눌러도 통과 — 30분은 주소를 다시 만든 때부터(11-16 검토)", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-11-16T12:00:00Z"));
+    const a = getOrCreateNaverOAuthState(); // 로그인 화면·창을 열 때
+    vi.setSystemTime(new Date("2026-11-16T12:28:00Z"));
+    expect(getOrCreateNaverOAuthState()).toBe(a); // 28분 뒤 누름(같은 값)
+    vi.setSystemTime(new Date("2026-11-16T12:31:00Z")); // 네이버 로그인·동의에 3분
+    expect(isNaverOAuthStateValid(a)).toBe(true);
+  });
+
   it("예전 모양(값 하나)으로 저장돼 있어도 읽는다 — 배포 직전에 로그인을 시작한 탭", () => {
     const old = "0123456789abcdef0123456789abcdef";
     storage.setItem("picake:naver-oauth-state", old);

@@ -54,6 +54,7 @@ import {
   googleAuthorizeUrl,
   kakaoAuthorizeUrl,
   naverAuthorizeUrl,
+  refreshNaverHrefOnClick,
   SOCIAL_LOGIN_ICON_CLASS,
   SOCIAL_LOGIN_NAVER_ICON_CLASS,
 } from "@/apps/web-seller/features/auth/components/mobile/socialLogin";
@@ -138,6 +139,7 @@ function SocialLoginButton({ via }: { via: ExistingAccount["via"] }) {
     return (
       <a
         href={naverAuthorizeUrl()}
+        onClick={refreshNaverHrefOnClick}
         className="relative flex h-12 w-full items-center justify-center rounded-control bg-naver text-body font-bold text-white"
       >
         <NaverLogoIcon className={SOCIAL_LOGIN_NAVER_ICON_CLASS} />

@@ -4,8 +4,10 @@
  * 네이버 로그인은 같은 탭(앱 웹뷰·인앱 브라우저 포함, 네이버 앱으로 로그인해도 원래 화면이 이어 받음)으로 돌아와서 저장한 값이 남아 있다.
  *
  * 값 하나만 두고 콜백마다 지우면, 네이버 동의 화면에서 "취소"한 뒤 다시 시도할 때 네이버가 앞 시도의 state를 돌려줘
- * "로그인을 확인하지 못했어요"가 떴다(2026-11-16 staging, 운영자 첫 가입). 그래서 이 탭이 만든 값을 30분 동안 몇 개 기억하고
- * 그중 하나와 같으면 통과시킨다. 통과한 값만 지운다(취소·실패로 돌아온 값은 남겨 다시 시도할 때 쓴다).
+ * "로그인을 확인하지 못했어요"가 떴다(2026-11-16 staging, 운영자 첫 가입). 그래서 아직 통과하지 않은 값은 다시 쓰고(보통 하나,
+ * 혹시 여러 개가 생겨도 최근 5개까지 기억), 그중 하나와 같으면 통과시킨다. 통과한 값만 지운다(취소·실패로 돌아온 값은 남겨 다시 시도할 때 쓴다).
+ * 30분은 마지막으로 로그인 주소를 만든 때부터 센다 — 처음 만든 때부터 세면 로그인 화면을 오래 열어 둔 뒤 네이버를 다 거쳐 돌아왔을 때
+ * 첫 시도가 막혔다(11-16 검토).
  * 이 탭 밖에서는 값을 알 수 없으니 남이 만든 로그인 결과를 막는 것은 그대로다.
  */
 const KEY = "picake:naver-oauth-state";
@@ -52,8 +54,8 @@ function writeStates(storage: Storage, list: IssuedState[]): void {
 }
 
 /**
- * 로그인 시작 주소에 붙일 state. 아직 쓰지 않은 값이 있으면 가장 최근 값을 다시 쓰고(로그인 버튼이 여러 곳이어도 같은 값),
- * 없으면 새로 만들어 저장한다. 저장소를 못 쓰면 저장 없이 새 값(콜백에서 막힌다).
+ * 로그인 시작 주소에 붙일 state. 아직 쓰지 않은 값이 있으면 가장 최근 값을 다시 쓰고(로그인 버튼이 여러 곳이어도 같은 값)
+ * 그 값의 30분을 지금부터 다시 센다. 없으면 새로 만들어 저장한다. 저장소를 못 쓰면 저장 없이 새 값(콜백에서 막힌다).
  */
 export function getOrCreateNaverOAuthState(): string {
   try {
@@ -61,7 +63,10 @@ export function getOrCreateNaverOAuthState(): string {
     const now = Date.now();
     const list = readStates(storage, now);
     const latest = list[list.length - 1];
-    if (latest) return latest.s;
+    if (latest) {
+      writeStates(storage, [...list.slice(0, -1), { s: latest.s, t: now }]);
+      return latest.s;
+    }
     const state = randomState();
     writeStates(storage, [...list, { s: state, t: now }]);
     return state;

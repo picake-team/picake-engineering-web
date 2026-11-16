@@ -33,6 +33,14 @@ export function naverAuthorizeUrl(): string {
 }
 
 /**
+ * 네이버 버튼(`<a href={naverAuthorizeUrl()}>`)을 누를 때 주소를 다시 만든다. 화면을 그린 때 만든 state는
+ * 로그인 화면을 30분 넘게 띄워 두면 콜백에서 "로그인을 확인하지 못했어요"로 막히기 때문(11-16 검토).
+ */
+export function refreshNaverHrefOnClick(event: { currentTarget: HTMLAnchorElement }): void {
+  event.currentTarget.href = naverAuthorizeUrl();
+}
+
+/**
  * 판매자 애플 로그인(I-48 "애플 로그인을 넣는다"). 서버(애플 로그인·계정 찾기)와 앱담당자 애플 개발자 계정의
  * 판매자 로그인 설정이 끝나면 켠다. 그전에는 버튼을 숨긴다.
  */
