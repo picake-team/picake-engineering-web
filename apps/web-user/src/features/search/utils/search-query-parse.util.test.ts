@@ -56,6 +56,42 @@ describe("parseSearchQuery", () => {
     expect(parseSearchQuery("100일 케이크 2.5만원").filter).toMatchObject({ maxPrice: 25000 });
   });
 
+  it("만·천 섞인 금액, 숫자 없는 만원, 원 단위 숫자도 가격으로(11-16 검토)", () => {
+    expect(parseSearchQuery("3만5천원 이하")).toEqual({ keyword: "", filter: { maxPrice: 35000 } });
+    expect(parseSearchQuery("레터링 3만 5천원 이하").filter).toMatchObject({ maxPrice: 35000 });
+    expect(parseSearchQuery("만원 이하")).toEqual({ keyword: "", filter: { maxPrice: 10000 } });
+    expect(parseSearchQuery("35000원")).toEqual({ keyword: "", filter: { maxPrice: 35000 } });
+    expect(parseSearchQuery("30,000원 이하 하트").filter).toMatchObject({
+      maxPrice: 30000,
+      productCategoryTypes: [C.HEART],
+    });
+    expect(parseSearchQuery("3만5000원").filter).toEqual({ maxPrice: 35000 });
+    expect(parseSearchQuery("35000원~40000원").filter).toEqual({
+      minPrice: 35000,
+      maxPrice: 40000,
+    });
+    expect(parseSearchQuery("레터링 만원대").filter).toMatchObject({
+      minPrice: 10000,
+      maxPrice: 20000,
+    });
+    // 숫자와 만 사이 띄어쓰기는 원래대로 3만원
+    expect(parseSearchQuery("3 만원 이하").filter).toEqual({ maxPrice: 30000 });
+    // 가격이 아닌 숫자·말은 그대로
+    expect(parseSearchQuery("1호선 근처 케이크").keyword).toBe("1호선 근처 케이크");
+    expect(parseSearchQuery("만두 케이크").keyword).toBe("만두 케이크");
+    expect(parseSearchQuery("이만원").keyword).toBe("이만원");
+    expect(parseSearchQuery("10000000원").keyword).toBe("10000000원");
+  });
+
+  it("같은 말을 두 번 쳐도 한 번으로 서버가 찾는다", () => {
+    expect(parseSearchQuery("생일 생일")).toEqual({ keyword: "생일", filter: {} });
+    expect(parseSearchQuery("초코  초코")).toEqual({ keyword: "초코", filter: {} });
+    expect(parseSearchQuery("초코 초코 하트")).toEqual({
+      keyword: "초코",
+      filter: { productCategoryTypes: [C.HEART] },
+    });
+  });
+
   it('서버가 모르는 "오늘" 하나만 쳐도 당일픽업으로', () => {
     expect(parseSearchQuery("오늘")).toEqual({
       keyword: "",

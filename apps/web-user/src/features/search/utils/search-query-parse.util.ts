@@ -56,9 +56,34 @@ const BARE_RE = new RegExp(String.raw`${NUM}\s*만\s*원`);
 
 const won = (n: string) => Math.round(Number(n) * MAN);
 
+/**
+ * 가격 말을 "N만원" 모양으로 맞춘다(11-16 검토 — 아래 모양은 못 알아듣고 친 말 그대로 검색해 결과가 0건이었다):
+ * "3만5천원"·"3만5000원" → "3.5만원", 숫자 없는 "만원 이하" → "1만원 이하", "35,000원"·"35000원" → "3.5만원".
+ * 숫자 뒤 "3 만원"은 그대로 두고(이미 3만원으로 읽음), "이만원"처럼 말에 붙은 만은 건드리지 않는다.
+ */
+function normalizeAmounts(text: string): string {
+  return text
+    .replace(/(\d+)\s*만\s*(\d)\s*천/g, (_, man: string, cheon: string) => `${man}.${cheon}만`)
+    .replace(
+      /(\d+)\s*만\s*(\d{1,4})\s*원/g,
+      (_, man: string, rest: string) => `${Number(man) + Number(rest) / MAN}만원`,
+    )
+    .replace(
+      /(^|[^\d.\s]\s+)만(\s*원)/g,
+      (_, before: string, unit: string) => `${before}1만${unit}`,
+    )
+    .replace(
+      /(^|[^\d,.])(\d{1,3}(?:,\d{3})+|\d{4,7})\s*원/g,
+      (_, before: string, n: string) => `${before}${Number(n.replace(/,/g, "")) / MAN}만원`,
+    );
+}
+
+/** 같은 말을 두 번 친 것("생일 생일")은 한 번으로 — 서버는 친 말 전체로 이름을 찾아 그대로 넘기면 0건이었다(11-16 검토) */
+const uniqueWords = (text: string) => [...new Set(text.split(/\s+/).filter(Boolean))].join(" ");
+
 /** 가격 말을 읽어 filter에 넣고, 읽은 말을 뺀 나머지를 돌려준다 */
 function takePrice(text: string, filter: StoreListFilter): string {
-  let rest = text;
+  let rest = normalizeAmounts(text);
   const take = (re: RegExp): RegExpMatchArray | null => {
     const m = rest.match(re);
     if (m) rest = rest.replace(m[0], " ");
@@ -142,13 +167,13 @@ export function parseSearchQuery(query: string): ParsedSearchQuery {
     filter.minPrice == null &&
     filter.maxPrice == null &&
     leftover.length === 0;
-  if (onlyOneCategory) return { keyword: original, filter: {} };
+  if (onlyOneCategory) return { keyword: uniqueWords(original), filter: {} };
 
   if (categories.length) filter.productCategoryTypes = categories;
   if (sizes.length) filter.sizes = sizes;
   // 알아들은 조건이 없으면 지금처럼 친 말 그대로 찾는다
-  if (!hasParsedFilter(filter)) return { keyword: original, filter: {} };
-  return { keyword: leftover.join(" "), filter };
+  if (!hasParsedFilter(filter)) return { keyword: uniqueWords(original), filter: {} };
+  return { keyword: uniqueWords(leftover.join(" ")), filter };
 }
 
 const union = <T>(a: readonly T[] | undefined, b: readonly T[] | undefined): T[] | undefined => {
