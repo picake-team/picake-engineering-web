@@ -322,18 +322,18 @@ export function KakaoAuthCallbackPage() {
             </div>
           ) : (
             <div className="space-y-2">
-              {hints.phone ? (
-                <div className="flex justify-end">
-                  <button
-                    type="button"
-                    onClick={() => setUseKakaoPhone(true)}
-                    className="text-sm font-medium text-zinc-500 underline underline-offset-2 hover:text-zinc-800"
-                  >
-                    카카오 번호로
-                  </button>
-                </div>
-              ) : null}
               <PhoneVerificationForm
+                labelAction={
+                  hints.phone ? (
+                    <button
+                      type="button"
+                      onClick={() => setUseKakaoPhone(true)}
+                      className="text-sm font-medium text-zinc-500 underline underline-offset-2 hover:text-zinc-800"
+                    >
+                      카카오 번호로
+                    </button>
+                  ) : undefined
+                }
                 onVerificationComplete={handlePhoneVerificationComplete}
                 purpose={PHONE_VERIFICATION_PURPOSE.KAKAO_REGISTRATION}
                 canComplete={termsFromKakao || isRequiredSellerTermsAllChecked(termsState)}
