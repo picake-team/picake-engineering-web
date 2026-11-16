@@ -59,7 +59,7 @@ import {
 } from "@/apps/web-seller/features/auth/components/mobile/socialLogin";
 import { NaverLogoIcon } from "@/apps/web-seller/common/components/icons/NaverLogoIcon";
 import {
-  clearNaverOAuthState,
+  consumeNaverOAuthState,
   isNaverOAuthStateValid,
 } from "@/apps/web-seller/features/auth/utils/naver-oauth-state.util";
 import { saveLastLoginProvider } from "@/apps/web-seller/features/auth/utils/last-login-provider.util";
@@ -429,9 +429,7 @@ function OAuthCallbackMobile({ provider }: { provider: Provider }) {
     if (provider === "naver") {
       // 네이버: 주소의 state가 이 탭이 만든 값과 같을 때만(남이 만든 로그인 결과를 받지 않게)
       const state = params.get("state");
-      const stateValid = isNaverOAuthStateValid(state);
-      clearNaverOAuthState();
-      if (!stateValid || !state) {
+      if (!state || !isNaverOAuthStateValid(state)) {
         clearPendingOAuthRegister();
         navigate(ROUTES.AUTH.LOGIN, { replace: true });
         addAlert({
@@ -440,6 +438,8 @@ function OAuthCallbackMobile({ provider }: { provider: Provider }) {
         });
         return;
       }
+      // 통과한 state만 지운다(취소·실패로 돌아온 값은 다시 시도할 때 쓴다)
+      consumeNaverOAuthState(state);
       naverStateRef.current = state;
     }
     try {

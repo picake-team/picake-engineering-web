@@ -21,7 +21,7 @@ import {
 } from "@/apps/web-user/features/auth/utils/register-ticket.util";
 import { saveLastLoginProvider } from "@/apps/web-user/features/auth/utils/last-login-provider.util";
 import {
-  clearNaverOAuthState,
+  consumeNaverOAuthState,
   isNaverOAuthStateValid,
 } from "@/apps/web-user/features/auth/utils/naver-oauth-state.util";
 
@@ -34,7 +34,7 @@ function NaverAuthCallbackContent() {
   const searchParams = useSearchParams();
   const login = useAuthStore((s) => s.login);
   const { showAlert } = useAlertStore();
-  // code·state는 한 번만 쓴다 — 개발 모드(StrictMode)에서 효과가 두 번 돌아도 두 번째는 건너뜀(state를 이미 지워서 실패로 보이지 않게)
+  // code·state는 한 번만 쓴다 — 개발 모드(StrictMode)에서 효과가 두 번 돌아도 두 번째는 건너뜀(state를 이미 써서 실패로 보이지 않게)
   const handledRef = useRef(false);
 
   useEffect(() => {
@@ -43,8 +43,8 @@ function NaverAuthCallbackContent() {
     const code = searchParams.get("code");
     const state = searchParams.get("state");
     const stateValid = isNaverOAuthStateValid(state);
-    // 한 번 쓴 state는 지운다(다음 로그인은 새 값)
-    clearNaverOAuthState();
+    // 확인을 통과한 state만 지운다 — 취소하고 돌아온 값은 남겨 다시 시도할 때 쓴다(네이버가 앞 시도의 state를 돌려줄 때가 있음)
+    if (code && state && stateValid) consumeNaverOAuthState(state);
 
     if (!code) {
       clearPostLoginRedirect();

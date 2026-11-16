@@ -31,7 +31,7 @@ import {
   type PendingOAuthRegister,
 } from "@/apps/web-seller/features/auth/utils/oauth-callback-pending.util";
 import {
-  clearNaverOAuthState,
+  consumeNaverOAuthState,
   isNaverOAuthStateValid,
 } from "@/apps/web-seller/features/auth/utils/naver-oauth-state.util";
 import type {
@@ -164,11 +164,11 @@ function TicketPhoneAuthCallback({ provider }: { provider: TicketPhoneProvider }
   const loginWithCode = (code: string) => {
     if (provider === "kakao") return authApi.kakaoLogin(code);
     const state = searchParams.get("state");
-    const stateValid = isNaverOAuthStateValid(state);
-    clearNaverOAuthState();
-    if (!stateValid || !state) {
+    if (!state || !isNaverOAuthStateValid(state)) {
       throw new Error("NAVER_STATE_MISMATCH");
     }
+    // 통과한 state만 지운다(취소·실패로 돌아온 값은 다시 시도할 때 쓴다)
+    consumeNaverOAuthState(state);
     return authApi.naverLogin(code, state);
   };
 
