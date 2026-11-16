@@ -25,4 +25,15 @@ describe("소셜 가입표도 지운다(저장소를 못 쓰는 브라우저만 
       scrubLinkToken("https://picakes.com/auth/register/kakao?registerToken=eyJ.abc.def&x=1"),
     ).toBe("https://picakes.com/auth/register/kakao?registerToken=[token]&x=1");
   });
+  it("소셜 로그인 콜백의 code·state를 가린다", () => {
+    expect(scrubLinkToken("https://picakes.com/auth/login/naver?code=abc123&state=0f9e8d")).toBe(
+      "https://picakes.com/auth/login/naver?code=[token]&state=[token]",
+    );
+    expect(scrubLinkToken("/auth/login/kakao?state=x&code=y#frag")).toBe(
+      "/auth/login/kakao?state=[token]&code=[token]#frag",
+    );
+    expect(scrubLinkToken("https://picakes.com/search?q=하트")).toBe(
+      "https://picakes.com/search?q=하트",
+    );
+  });
 });
