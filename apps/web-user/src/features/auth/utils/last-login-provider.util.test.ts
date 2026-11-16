@@ -30,9 +30,16 @@ describe("최근 로그인 방법(로그인 화면 말풍선)", () => {
 
   it("모르는 값은 무시한다(말풍선 없음)", () => {
     const storage = fakeStorage();
-    storage.setItem("picake:last-login-provider", "naver");
+    storage.setItem("picake:last-login-provider", "line");
     vi.stubGlobal("window", { localStorage: storage });
     expect(readLastLoginProvider()).toBeNull();
+  });
+
+  it("네이버도 최근 로그인으로 알아본다", () => {
+    const storage = fakeStorage();
+    storage.setItem("picake:last-login-provider", "naver");
+    vi.stubGlobal("window", { localStorage: storage });
+    expect(readLastLoginProvider()).toBe("naver");
   });
 
   it("저장소를 못 써도(사생활 보호 모드 등) 오류 없이 말풍선만 안 뜬다", () => {

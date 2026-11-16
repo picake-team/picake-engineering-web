@@ -64,7 +64,14 @@ export function FindAccountPage() {
             </div>
             <p className="text-sm font-semibold text-zinc-900">조회 결과</p>
           </div>
-          {result.loginEmail ? (
+          {result.loginType === "naver" ? (
+            // 네이버는 이메일을 받지 않아 로그인 수단만 보인다
+            <p className="text-[15px] leading-relaxed text-zinc-800">
+              <span className="text-zinc-500">연결된 계정</span>
+              <br />
+              <span className="text-base font-semibold text-zinc-900">네이버</span>
+            </p>
+          ) : result.loginEmail ? (
             <p className="break-all text-[15px] leading-relaxed text-zinc-800">
               <span className="text-zinc-500">
                 연결된 {result.loginType === "kakao" ? "카카오" : "구글"} 계정

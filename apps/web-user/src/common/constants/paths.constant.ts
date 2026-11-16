@@ -112,6 +112,9 @@ export const PATHS = {
     GOOGLE_REGISTER: "/auth/register/google",
     KAKAO_REDIRECT_URI: "/auth/login/kakao",
     KAKAO_REGISTER: "/auth/register/kakao",
+    /** 네이버 Callback URL — 네이버 개발자센터 앱에 환경별로 등록한 값과 같아야 함 */
+    NAVER_REDIRECT_URI: "/auth/login/naver",
+    NAVER_REGISTER: "/auth/register/naver",
     /** Apple Return URL — Services ID 등록값과 정확히 일치해야 함(POST route.ts, 쿼리 아님) */
     APPLE_REDIRECT_URI: "/auth/login/apple",
     /** route.ts가 code를 쿼리로 붙여 리다이렉트하는 내부 콜백 페이지 (Google/Kakao의 REDIRECT_URI 페이지에 대응) */

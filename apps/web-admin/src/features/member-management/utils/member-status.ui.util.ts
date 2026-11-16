@@ -70,7 +70,14 @@ export const SELLER_VERIFICATION_STATUS_FILTER_OPTIONS = (
 export function getSocialProvidersLabel(item: {
   googleEmail: string | null;
   kakaoEmail: string | null;
+  appleEmail?: string | null;
+  naverId?: string | null;
 }): string {
-  const providers = [item.googleEmail && "구글", item.kakaoEmail && "카카오"].filter(Boolean);
+  const providers = [
+    item.kakaoEmail && "카카오",
+    item.naverId && "네이버",
+    item.googleEmail && "구글",
+    item.appleEmail && "애플",
+  ].filter(Boolean);
   return providers.length > 0 ? providers.join(" · ") : "-";
 }

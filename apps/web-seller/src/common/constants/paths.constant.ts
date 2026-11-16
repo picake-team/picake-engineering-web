@@ -29,6 +29,11 @@ const KakaoAuthCallbackPage = lazyPage(
   () => import("@/apps/web-seller/pages/auth/KakaoAuthCallback"),
   "KakaoAuthCallbackPage",
 );
+// 네이버 PC 콜백은 카카오와 같은 화면(번호 칸 + 다른 번호)
+const NaverAuthCallbackPage = lazyPage(
+  () => import("@/apps/web-seller/pages/auth/KakaoAuthCallback"),
+  "NaverAuthCallbackPage",
+);
 const TermsOfServicePage = lazyPage(
   () => import("@/apps/web-seller/pages/terms/TermsOfService"),
   "TermsOfServicePage",
@@ -220,6 +225,7 @@ const FindAccountMobilePage = lazyPage(
 const oauthMobile = () => import("@/apps/web-seller/pages/auth/OAuthCallback.mobile");
 const GoogleAuthCallbackMobilePage = lazyPage(oauthMobile, "GoogleAuthCallbackMobilePage");
 const KakaoAuthCallbackMobilePage = lazyPage(oauthMobile, "KakaoAuthCallbackMobilePage");
+const NaverAuthCallbackMobilePage = lazyPage(oauthMobile, "NaverAuthCallbackMobilePage");
 const RootMobilePage = lazyPage(
   () => import("@/apps/web-seller/pages/Root.mobile"),
   "RootMobilePage",
@@ -242,6 +248,11 @@ export const AUTH_ROUTE_CONFIG: AppRouteConfig[] = [
     path: ROUTES.AUTH.KAKAO_REDIRECT_URI,
     element: KakaoAuthCallbackPage,
     mobile: KakaoAuthCallbackMobilePage,
+  },
+  {
+    path: ROUTES.AUTH.NAVER_REDIRECT_URI,
+    element: NaverAuthCallbackPage,
+    mobile: NaverAuthCallbackMobilePage,
   },
   { path: ROUTES.TERMS.TERMS_OF_SERVICE, element: TermsOfServicePage },
   { path: ROUTES.TERMS.PRIVACY_POLICY, element: PrivacyPolicyPage },

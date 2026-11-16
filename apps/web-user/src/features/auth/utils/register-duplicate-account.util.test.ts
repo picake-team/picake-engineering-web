@@ -40,6 +40,11 @@ describe("서버 오류 글 맞춰 보기", () => {
         "해당 휴대폰 번호로 이미 등록된 애플 계정이 있어요.",
       ),
     ).toBe("apple");
+    expect(
+      resolveLoginProviderFromDuplicateMessage(
+        "해당 휴대폰 번호로 이미 등록된 네이버 계정이 있어요.",
+      ),
+    ).toBe("naver");
     expect(resolveLoginProviderFromDuplicateMessage("다른 오류")).toBeNull();
   });
 

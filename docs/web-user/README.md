@@ -6,7 +6,7 @@ Picake 플랫폼을 위한 Next.js 기반 사용자 웹 애플리케이션입니
 
 ### ✅ 구현 완료
 
-- **인증 시스템**: 앱(웹뷰) 연동 + Google/Kakao/Apple OAuth 콜백 + 앱스토어 심사용 로그인. 로그인 창·로그인 화면은 이 기기에서 마지막으로 로그인(가입 포함)한 방법 버튼에 주황 말풍선 "최근 로그인"(`RecentLoginBubble`, 기기 저장소 `picake:last-login-provider`, 탈퇴하면 지움, 심사용 로그인은 남기지 않음, 2026-11-16)
+- **인증 시스템**: 앱(웹뷰) 연동 + Google/Kakao/Naver/Apple OAuth 콜백 + 앱스토어 심사용 로그인. 네이버(2026-11-16)는 카카오처럼 네이버가 준 이름·번호로 문자 인증 없이 가입하고(약관은 늘 화면에서), 로그인 주소에 이 탭의 state를 붙여 콜백에서 확인한다. `NEXT_PUBLIC_NAVER_CLIENT_ID`가 없으면 네이버 버튼을 숨긴다. 구글 가입은 구글 이름을 미리 채우고, 사람 번호 칸은 기기 "내 번호" 자동완성(`autoComplete="tel"`, `phone-input.util`)을 받는다. 로그인 창·로그인 화면은 이 기기에서 마지막으로 로그인(가입 포함)한 방법 버튼에 주황 말풍선 "최근 로그인"(`RecentLoginBubble`, 기기 저장소 `picake:last-login-provider`, 탈퇴하면 지움, 심사용 로그인은 남기지 않음, 2026-11-16)
 - **iOS 딥링크**: 커스텀 스킴(`picake://`)으로 앱 열기 (유니버설 링크는 비활성화)
 - **홈 / 탐색**(2026-11-15 새 홈): 맨 위 줄(로고·알림, 공통 머리줄 없음) → 배너 → 검색창·카테고리 12칸(6칸씩 두 줄) + 셋째 줄 당일픽업 → "어떤 날" 상황 칸(동그란 사진 64px 한 줄, 옆으로 밀기·PC는 끌기, 철에는 크리스마스가 맨 앞) → "이런 디자인" 매거진(끝에 견적 카드) → "바로 예약할 수 있는 케이크"(새로 들어온/많이 저장한). 동네는 홈에 두지 않고 검색 결과(상품·스토어 탭)에서 거른다. 부품은 `features/home/components/HomeScreen.tsx`·`HomeParts.tsx`
 - **카테고리**(2026-11-15 묶음): 상황(생일·연인·기념일·부모님·감사·백일·돌·축하·결혼·프로포즈·시즌) / 디자인(레터링·드로잉·사진·캐릭터·꽃·리본·과일·하트·2단·심플) / 서비스(당일픽업). 빈티지·입체와 "모양" 묶음은 11-15 저녁에 없앰(옛 주소의 두 값은 카테고리 없이 연다). 정본은 `features/product/constants/product-category.constant.ts`(서버 `product-category.util.ts`와 같은 순서). 필터는 칸 안은 "또는", 칸끼리는 "그리고"(서버가 상품·스토어를, 화면이 디자인 모음을 같은 규칙으로 거름). 검색 주소 `?category=`(상품·스토어·디자인 탭 공통, 옛 값 LOVER 등은 새 값으로)·`?size=도시락|미니`, 검색어가 카테고리와 같은 뜻이면(남친 → 연인·기념일) 그 카테고리도 찾는다
@@ -50,9 +50,11 @@ Picake 플랫폼을 위한 Next.js 기반 사용자 웹 애플리케이션입니
 
 - **Google 로그인 콜백**: `/auth/login/google`
 - **Kakao 로그인 콜백**: `/auth/login/kakao`
+- **Naver 로그인 콜백**: `/auth/login/naver` (state 확인)
 - **Apple 로그인 콜백**: `/auth/login/apple`, `/auth/login/apple/callback`
 - **Google 회원가입 콜백**: `/auth/register/google`
 - **Kakao 회원가입 콜백**: `/auth/register/kakao`
+- **Naver 회원가입**: `/auth/register/naver` (카카오 가입 화면과 같은 화면)
 - **Apple 회원가입**: `/auth/register/apple`
 
 > 로그인·회원가입은 앱에서도 web-user(웹뷰 안)가 처리합니다. 앱은 토큰을 따로 보관하지 않고 푸시 토큰·위치만 주고받습니다([사용자 - 웹뷰 인증 가이드](../common/feature/사용자%20-%20웹뷰%20인증.md)). Apple 로그인의 dev 환경은 별도 지원 없이 staging 도메인으로 대체됩니다.

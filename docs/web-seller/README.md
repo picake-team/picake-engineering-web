@@ -6,7 +6,7 @@ Picake 플랫폼을 위한 React + Vite 기반 판매자 관리 시스템입니�
 
 ### ✅ 구현 완료
 
-- **인증 시스템**: Google OAuth, Kakao OAuth, 계정 찾기
+- **인증 시스템**: Google OAuth, Kakao OAuth, Naver OAuth(2026-11-16, 손님과 같은 네이버 앱, `VITE_PUBLIC_NAVER_CLIENT_ID`가 없으면 버튼을 숨김), 계정 찾기
 - **관리자 레이아웃**: 반응형 사이드바, 헤더, 네비게이션
 - **사업자진위확인**: 국세청 API를 통한 사업자등록번호 진위확인
 - **스토어 등록**: 사업자 진위확인 → 스토어 정보 입력 및 생성(통신판매사업자 단계는 꺼 둠, [가이드](../common/feature/스토어%20등록%20-%20가이드.md))
@@ -38,7 +38,7 @@ Picake 플랫폼을 위한 React + Vite 기반 판매자 관리 시스템입니�
   - 만든 화면: 홈(`/stores/:storeId`, 주간 달력·처리할 주문·고른 날 픽업·이번 주 매출·첫 상품 안내), 주문 목록(`/orders`, 처리할 것·진행 중·지난 주문 탭과 할 일 칸, 찾기·상태 안내·목록에서 바로 처리, `?tab=&group=&q=`), 주문 상세(`/orders/:orderId`, 단계·입금 마감·처리 창·전화·문자·복사, 맨 위 할 일 안내 문장 없음), 알림 목록(`/notifications`), 스토어 탭(`/stores/:storeId/menu`, 링크 보내기(복사·공유, 보내는 주소에 `?from=link`, 최근 30일 링크로 온 손님·예약 신청 수 — 기획 I-45)·내 스토어·스토어 바꾸기, 위쪽 톱니 = 설정), 설정(`/stores/:storeId/settings`, 알림 설정·마이페이지·문의하기 — 카카오톡 채널 "픽케이크" 1:1 채팅으로 바로). 아직 없는 화면은 휴대폰 폭에서도 PC 화면
   - 캘린더(`/calendar`, 달력 하나·점·휴무·바꿈, 고른 날 픽업. 그날만 영업 바꾸기는 PC 캘린더에서), 영업시간(`/hours`, 쉬는 요일·30분 간격 시각·네이버 영업시간으로 채우기), 주문 통계(`/statistics/orders`, 기간 빠른 선택·잘 팔린 상품·요일/시간대 접기), 알림 설정(`/notifications/settings`, 주문 알림 끌 때 확인·아침 요약·테스트 알림), 마이페이지(`/mypage`, 프로필 수정 창·계정 정보·로그아웃 창), 휴대폰 번호 변경(`/mypage/phone`), 회원 탈퇴(`/mypage/withdraw`, 진행 중 주문 미리 안내). 영업시간·휴대폰 번호 변경·탈퇴 주소는 PC 폭에서 캘린더·마이페이지로, 스토어 탭·설정은 스토어 홈으로
   - 상품 목록(`/products`, 검색·정렬과 거르기 창·전체/판매중/판매중지/숨김·판매 상태 바로 바꾸기와 되돌리기). 상품 등록·수정, 피드(목록·등록·수정), 스토어 정보, 스토어 만들기는 PC 화면과 같은 코드를 휴대폰 틀(`MobileFrame`, 뒤로 + 제목)에 담아 쓰고, 틀 안에서는 PC 부품(`BaseButton`·`BaseInput`·`Textarea`·`Label`·`FormSection`·`Checkbox`·`Dialog`·`SelectTrigger`·`Card`·`ImageMultiUpload`)이 `useInMobileFrame()`으로 판매자 앱 디자인대로 그려진다(입력 48·모서리 12·묶음 사이 선·카드 없음, 디자인 6-E·6-F·6-G·A90·A91·8-E·8-F·A66b). 디자인이 다른 곳만 따로 그린다: 상품 종류 카드·판매 상태 스위치·옵션값 두 줄·환불 규정 줄·피드 목록 줄·스토어 만들기 진행 막대. 틀 안에서는 색을 앱 기준으로 바꾸고(`<html class="app-form">`, `globals.css`: 주 버튼·체크 주황, 고칠 곳 #B5401C, 글쓰기 편집기 테두리) 아래 저장 줄은 가득 찬 버튼으로(`mobile-frame.context.ts`)
-  - 로그인(`/auth/login`, 로고·카카오·구글로 시작하기·"처음이세요?"(사장님 소개 페이지 info.picakes.com/seller/about, 앱에서는 휴대폰 브라우저로)·계정 찾기. 약관·처리방침·버전은 두지 않음), 소셜 로그인 콜백의 회원가입(실명 → 휴대폰 인증 → 약관 동의 → "가입하기", 손님 앱과 같게)과 이미 가입한 계정 안내(그 수단으로 로그인), 계정 찾기(`/auth/login/find-account`). 스토어가 없으면 첫 화면에서 바로 스토어 만들기(휴대폰 틀). Apple 로그인 버튼은 서버·애플 계정 설정 뒤에 켠다(`SELLER_APPLE_LOGIN_ENABLED`)
+  - 로그인(`/auth/login`, 로고·카카오·네이버·구글로 시작하기·"처음이세요?"(사장님 소개 페이지 info.picakes.com/seller/about, 앱에서는 휴대폰 브라우저로)·계정 찾기. 약관·처리방침·버전은 두지 않음), 소셜 로그인 콜백의 회원가입(실명 → 휴대폰 인증 → 약관 동의 → "가입하기", 손님 앱과 같게)과 이미 가입한 계정 안내(그 수단으로 로그인), 계정 찾기(`/auth/login/find-account`). 스토어가 없으면 첫 화면에서 바로 스토어 만들기(휴대폰 틀). Apple 로그인 버튼은 서버·애플 계정 설정 뒤에 켠다(`SELLER_APPLE_LOGIN_ENABLED`)
   - 앱 연결(`common/utils/webview.bridge.ts`, `SellerAppBridgeProvider`): 로그인하면 이 휴대폰을 알림 받을 곳으로 등록, 로그아웃하면 해제, 알림 허용 상태·허용 창·휴대폰 설정, 처음 사용 안내(`/welcome`, 앱에서만), 홈 "휴대폰 알림이 꺼져 있어요", 알림 설정 "이 휴대폰 알림", 공유 창·사진 저장·바깥 링크(`apps://`)·앱 버전. 앱이 채널을 넣지 않으면 휴대폰 브라우저처럼 동작. 약속은 [판매자 앱 - 앱담당자 요청서](../common/feature/판매자%20앱%20-%20앱담당자%20요청서.md)
   - 로그인이 풀린 채 연 주소(알림으로 연 주문 등)는 기억했다가 로그인 뒤 그곳으로(`return-to.util.ts`). 주문 상태를 바꾸면 PostHog `success_order_status_change`(앱·휴대폰 브라우저·PC 구분)
   - 실시간 알림(소켓)이 오면 주문 목록·홈 숫자도 새로 불러오고, 이 화면에서 방금 바꾼 주문의 알림 띠는 겹쳐 띄우지 않음(`recent-order-change.util.ts`)
@@ -48,11 +48,12 @@ Picake 플랫폼을 위한 React + Vite 기반 판매자 관리 시스템입니�
 
 ### 인증 관련
 
-- **로그인**: `/auth/login` - Google/Kakao 소셜 로그인. 휴대폰·PC 모두 이 기기에서 마지막으로 로그인(가입 포함)한 방법 버튼에 주황 말풍선 "최근 로그인"(`RecentLoginBubble`, 기기 저장소 `picake:last-login-provider`, 탈퇴하면 지움, 심사용 로그인은 남기지 않음, 2026-11-16)
+- **로그인**: `/auth/login` - Kakao/Naver/Google 소셜 로그인(PC도 카카오→네이버→구글 순서, 2026-11-16). 휴대폰·PC 모두 이 기기에서 마지막으로 로그인(가입 포함)한 방법 버튼에 주황 말풍선 "최근 로그인"(`RecentLoginBubble`, 기기 저장소 `picake:last-login-provider`, 탈퇴하면 지움, 심사용 로그인은 남기지 않음, 2026-11-16)
 - **심사용 로그인 창**(휴대폰 로그인 화면의 로고를 2초 안에 10번, SC-62, `ReviewLoginSheet`): 6자리 코드 → `POST /v1/seller/auth/review-login`. 코드는 레포에 두지 않는다(서버 비밀값 `SELLER_REVIEW_LOGIN_CODE_SHA256`에 해시만). 들어가면 손님 목록에 보이지 않는 심사용 가게와 상태별 예시 주문
 - **계정 찾기**: `/auth/login/find-account` - 계정 정보 찾기
 - **Google 콜백**: `/auth/login/google` - Google OAuth 콜백
 - **Kakao 콜백**: `/auth/login/kakao` - Kakao OAuth 콜백
+- **Naver 콜백**: `/auth/login/naver` - 네이버 로그인 콜백(state 확인, 가입은 카카오와 같은 화면 — 네이버 번호로 문자 인증 없이, 약관은 늘 받음)
 - **이용약관**: `/terms/terms-of-service`
 - **개인정보처리방침**: `/terms/privacy-policy` (두 화면 모두 관리자가 넣은 약관 HTML을 `dompurify`로 걸러 보여 준다, 손님 웹과 같게)
 

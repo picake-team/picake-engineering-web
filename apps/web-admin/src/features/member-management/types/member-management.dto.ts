@@ -51,6 +51,10 @@ export interface MemberConsumerItemResponseDto {
   googleEmail: string | null;
   /** 카카오 연동 이메일 (null이면 미연동) */
   kakaoEmail: string | null;
+  /** 애플 연동 이메일 (null이면 미연동). 서버가 주기 전 응답에는 없을 수 있다 */
+  appleEmail?: string | null;
+  /** 네이버 회원 식별자 (null이면 미연동 — 네이버는 이메일을 받지 않음). 서버가 주기 전 응답에는 없을 수 있다 */
+  naverId?: string | null;
   /** 누적 주문 수 (모든 상태) */
   orderCount: number;
   lastLoginAt: string | null;
@@ -81,6 +85,8 @@ export interface MemberSellerItemResponseDto {
   withdrawnAt: string | null;
   googleEmail: string | null;
   kakaoEmail: string | null;
+  /** 네이버 회원 식별자 (null이면 미연동). 서버가 주기 전 응답에는 없을 수 있다 */
+  naverId?: string | null;
   sellerVerificationStatus: SellerVerificationStatus;
   stores: MemberSellerStoreDto[];
   segments: MemberSellerSegmentDto[];

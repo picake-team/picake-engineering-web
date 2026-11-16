@@ -33,9 +33,9 @@ export type LoginEntryPoint =
   | "chat";
 
 /** 소셜 로그인 제공자 */
-export type OAuthProvider = "kakao" | "google" | "apple";
-/** 가입한 번호를 어디서 받았나 — kakao: 카카오가 준 번호로 문자 인증 없이(기획 I-59), sms: 문자 인증 */
-export type SignupPhoneSource = "kakao" | "sms";
+export type OAuthProvider = "kakao" | "naver" | "google" | "apple";
+/** 가입한 번호를 어디서 받았나 — kakao·naver: 그 서비스가 준 번호로 문자 인증 없이(기획 I-59), sms: 문자 인증 */
+export type SignupPhoneSource = "kakao" | "naver" | "sms";
 /** 약관 동의를 어디서 받았나 — kakao: 카카오 로그인 화면(간편가입), screen: 가입 화면 체크 */
 export type SignupTermsSource = "kakao" | "screen";
 
@@ -155,6 +155,8 @@ export interface AnalyticsEventMap {
     provider: OAuthProvider;
     /** 카카오가 번호를 줘서 "이 번호로 가입"을 보여 줬나(카카오만) */
     kakao_phone_offered?: boolean;
+    /** 네이버가 번호를 줘서 "이 번호로 가입"을 보여 줬나(네이버만) */
+    naver_phone_offered?: boolean;
   };
   /** 인증번호 요청 발송 (인증번호 받기 버튼 클릭) */
   request_phone_verification: { provider: OAuthProvider };

@@ -161,6 +161,52 @@ export function useKakaoRegister(options?: {
   });
 }
 
+export function useNaverRegister(options?: {
+  onDuplicateAccount?: (payload: DuplicateAccountPayload) => void;
+}) {
+  const router = useRouter();
+  const login = useAuthStore((s) => s.login);
+  const { showAlert } = useAlertStore();
+
+  return useMutation({
+    mutationFn: authApi.naverRegister,
+    onSuccess: (data, variables) => {
+      const userId = decodeJwtPayload<{ sub: string }>(data.accessToken)?.sub;
+      if (userId) {
+        trackEvent("success_signup", {
+          provider: "naver",
+          user_id: userId,
+          // 네이버 번호로 가입했나(약관은 늘 가입 화면)
+          phone_source: variables.useTicketPhone ? "naver" : "sms",
+          terms_source: "screen",
+        });
+      }
+      clearRegisterTicket("naver");
+      saveLastLoginProvider("naver");
+      login(data.accessToken);
+      // 로그인을 시작했던 화면으로 복귀 (없으면 홈)
+      router.replace(consumePostLoginRedirect());
+    },
+    onError: (error) => {
+      const duplicate = parseDuplicateAccountPayload(error);
+      if (duplicate) {
+        options?.onDuplicateAccount?.(duplicate);
+        return;
+      }
+      if (isRegisterTicketInvalid(error)) {
+        // 가입표가 30분 지났거나 잘못됨 — 지우고 홈으로(다시 로그인, 복귀 경로는 유지)
+        clearRegisterTicket("naver");
+        router.replace(PATHS.HOME);
+      }
+      showAlert({
+        type: "error",
+        title: "오류",
+        message: getApiMessage.error(error),
+      });
+    },
+  });
+}
+
 export function useAppleRegister(options?: {
   onDuplicateAccount?: (payload: DuplicateAccountPayload) => void;
 }) {

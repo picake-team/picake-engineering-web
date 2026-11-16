@@ -4,7 +4,11 @@
  */
 export type PendingGoogleRegister = { provider: "google"; registerToken: string };
 export type PendingKakaoRegister = { provider: "kakao"; registerToken: string };
-export type PendingOAuthRegister = PendingGoogleRegister | PendingKakaoRegister;
+export type PendingNaverRegister = { provider: "naver"; registerToken: string };
+export type PendingOAuthRegister =
+  | PendingGoogleRegister
+  | PendingKakaoRegister
+  | PendingNaverRegister;
 
 let pendingRegister: PendingOAuthRegister | null = null;
 
