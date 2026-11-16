@@ -42,6 +42,7 @@ import { useKeyboardOpen } from "@/apps/web-user/common/hooks/useKeyboardOpen";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import { resolvePhoneVerificationFailReason } from "@/apps/web-user/features/auth/utils/phone-verification-error.util";
 import {
+  readRegisterTicketSavedAt,
   hasAllKakaoConsumerTerms,
   clearRegisterTicket,
   isRegisterTicketExpired,
@@ -50,6 +51,11 @@ import {
   readRegisterTicketHints,
   type RegisterTicketHints,
 } from "@/apps/web-user/features/auth/utils/register-ticket.util";
+
+/** 가입 요청 실패는 mutation onError가 이미 알렸다 — 화면 함수가 처리 안 된 오류로 끝나지 않게(Sentry에 4xx가 쌓이지 않게, 11-16 검토) */
+function ignoreHandledError(): undefined {
+  return undefined;
+}
 
 function formatCountdownMmSs(totalSeconds: number): string {
   const s = Math.max(0, Math.floor(totalSeconds));
@@ -108,7 +114,13 @@ export function KakaoRegisterVerificationScreen() {
       return;
     }
     // 30분이 이미 지났으면 문자를 보내기 전에 다시 로그인하게 한다
-    if (isRegisterTicketExpired(registerToken)) {
+    if (
+      isRegisterTicketExpired(
+        registerToken,
+        Date.now(),
+        readRegisterTicketSavedAt("kakao", registerToken),
+      )
+    ) {
       clearRegisterTicket("kakao");
       router.replace(PATHS.HOME);
       showAlert({
@@ -245,12 +257,14 @@ export function KakaoRegisterVerificationScreen() {
       phone_source: "sms",
       terms_source: termsFromKakao ? "kakao" : "screen",
     });
-    await kakaoRegisterMutation.mutateAsync({
-      ...kakaoLoginData,
-      phone: normalized,
-      name: displayName.trim(),
-      ...termsPart,
-    });
+    await kakaoRegisterMutation
+      .mutateAsync({
+        ...kakaoLoginData,
+        phone: normalized,
+        name: displayName.trim(),
+        ...termsPart,
+      })
+      .catch(ignoreHandledError);
   };
 
   /**
@@ -288,12 +302,14 @@ export function KakaoRegisterVerificationScreen() {
       phone_source: "kakao",
       terms_source: termsFromKakao ? "kakao" : "screen",
     });
-    await kakaoRegisterMutation.mutateAsync({
-      ...kakaoLoginData,
-      useTicketPhone: true,
-      name: displayName.trim(),
-      ...termsPart,
-    });
+    await kakaoRegisterMutation
+      .mutateAsync({
+        ...kakaoLoginData,
+        useTicketPhone: true,
+        name: displayName.trim(),
+        ...termsPart,
+      })
+      .catch(ignoreHandledError);
   };
 
   const sendPending = sendPhoneVerificationMutation.isPending;
