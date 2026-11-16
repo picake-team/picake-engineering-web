@@ -18,6 +18,8 @@ const SUPER_PROPERTIES = {
  */
 const SENSITIVE_URL_PARAMS = [
   "code",
+  // 네이버 로그인 콜백의 state(한 번 쓰고 지우지만 남기지 않는다)
+  "state",
   "token",
   "access_token",
   "id_token",

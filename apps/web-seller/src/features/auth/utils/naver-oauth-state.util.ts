@@ -26,17 +26,16 @@ export function getOrCreateNaverOAuthState(): string {
 }
 
 /**
- * 콜백으로 돌아온 state가 이 탭이 만든 값과 같은지.
- * 저장소를 아예 못 쓰는 브라우저(사생활 보호 모드 등)는 확인할 수 없어 통과시킨다 — 그 밖에 없거나 다르면 false.
+ * 콜백으로 돌아온 state가 이 탭이 만든 값과 같은지. 없거나 다르면 false.
+ * 저장소를 아예 못 쓰는 브라우저(모든 쿠키·사이트 데이터 차단 등)는 확인할 수 없어 막는다(남이 만든 로그인 결과를 받지 않게, 11-16 검토).
  */
 export function isNaverOAuthStateValid(returned: string | null | undefined): boolean {
-  let saved: string | null;
   try {
-    saved = window.sessionStorage.getItem(KEY);
+    const saved = window.sessionStorage.getItem(KEY);
+    return Boolean(returned) && saved === returned;
   } catch {
-    return Boolean(returned);
+    return false;
   }
-  return Boolean(returned) && saved === returned;
 }
 
 /** 콜백을 처리하면 지운다 — 다음 로그인은 새 값으로 */

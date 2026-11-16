@@ -48,14 +48,14 @@ describe("naver-oauth-state.util — 네이버 로그인 state", () => {
     expect(getOrCreateNaverOAuthState()).not.toBe(a);
   });
 
-  it("저장소를 아예 못 쓰면 확인할 수 없어 값이 있으면 통과", () => {
+  it("저장소를 아예 못 쓰면 확인할 수 없어 막는다", () => {
     vi.stubGlobal("window", {
       get sessionStorage(): Storage {
         throw new Error("blocked");
       },
     });
     expect(getOrCreateNaverOAuthState()).toMatch(/^[0-9a-f]{32}$/);
-    expect(isNaverOAuthStateValid("any")).toBe(true);
+    expect(isNaverOAuthStateValid("any")).toBe(false);
     expect(isNaverOAuthStateValid("")).toBe(false);
   });
 });

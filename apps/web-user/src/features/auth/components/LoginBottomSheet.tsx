@@ -41,12 +41,15 @@ export function LoginBottomSheet() {
   const [naverAuthHref, setNaverAuthHref] = useState<string | null>(null);
   const [appleAuthHref, setAppleAuthHref] = useState<string | null>(null);
 
+  // 창을 열 때마다 로그인 주소를 새로 만든다 — 네이버 state는 콜백에서 한 번 쓰고 지우므로,
+  // 처음 만든 주소를 계속 쓰면 네이버에서 취소하고 돌아온 뒤 다시 누를 때 "로그인을 확인하지 못했어요"가 뜬다(11-16 검토)
   useEffect(() => {
+    if (!isOpen) return;
     setGoogleAuthHref(getGoogleOAuthLoginUrl());
     setKakaoAuthHref(getKakaoOAuthLoginUrl());
     setNaverAuthHref(getNaverOAuthLoginUrl());
     setAppleAuthHref(getAppleOAuthLoginUrl());
-  }, []);
+  }, [isOpen]);
 
   // 로그인/회원가입 진입 화면 노출
   useEffect(() => {
