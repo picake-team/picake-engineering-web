@@ -6,6 +6,7 @@ import {
   ALL_RECOMMENDED_KEYWORDS,
   SUGGEST_WORDS,
   recommendedSearchKeywords,
+  EVERGREEN_KEYWORDS,
   suggestSearchKeywords,
 } from "@/apps/web-user/features/search/utils/search-suggest.util";
 
@@ -48,6 +49,12 @@ describe("suggestSearchKeywords", () => {
 });
 
 describe("recommendedSearchKeywords", () => {
+  it("철 말이 많은 11월에도 늘 보이는 말은 모두 보인다(결혼기념일 잘림, 11-17)", () => {
+    const nov = recommendedSearchKeywords(new Date("2026-11-16T03:00:00Z"));
+    for (const w of EVERGREEN_KEYWORDS) expect(nov).toContain(w);
+    expect(nov.length).toBeLessThanOrEqual(9);
+  });
+
   it("11월 중순에는 크리스마스·연말·합격이 앞에, 늘 찾는 말이 뒤에", () => {
     expect(recommendedSearchKeywords(new Date("2026-11-16T03:00:00Z")).slice(0, 4)).toEqual([
       "크리스마스",
