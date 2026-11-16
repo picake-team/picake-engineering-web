@@ -9,6 +9,7 @@ import {
 } from "@/apps/web-user/features/product/constants/product-category.constant";
 import { buildCategorySearchHref } from "@/apps/web-user/features/search/utils/search-category.util";
 import type { QuoteDraftPhoto } from "@/apps/web-user/features/quote/store/quote-draft.store";
+import { kstMonthDay } from "@/apps/web-user/common/utils/date.util";
 
 export const DESIGN_IMAGE_BASE = "/images/designs";
 export const designImageSrc = (file: string) => `${DESIGN_IMAGE_BASE}/${file}`;
@@ -16,12 +17,6 @@ export const designImageSrc = (file: string) => `${DESIGN_IMAGE_BASE}/${file}`;
 const BY_ID = new Map(DESIGNS.map((d) => [d.id, d]));
 export const getDesign = (id: string | null | undefined): Design | null =>
   (id && BY_ID.get(id)) || null;
-
-/** 한국 시각 월·일 */
-function kstMonthDay(now: Date): [number, number] {
-  const k = new Date(now.getTime() + 9 * 3600_000);
-  return [k.getUTCMonth() + 1, k.getUTCDate()];
-}
 
 /** 크리스마스 디자인은 11월 1일 ~ 12월 25일에만 보인다 */
 export function isInSeason(d: Design, now = new Date()): boolean {

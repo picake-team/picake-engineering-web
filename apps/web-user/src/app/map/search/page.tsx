@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
@@ -15,29 +15,24 @@ import {
   type MapPickupFilter,
 } from "@/apps/web-user/features/store/utils/map.util";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
-
-const RECENT_SEARCHES_KEY = "recentSearches";
-const MAX_RECENT = 10;
-
-function getRecentSearches(): string[] {
-  if (typeof window === "undefined") return [];
-  try {
-    return JSON.parse(localStorage.getItem(RECENT_SEARCHES_KEY) || "[]");
-  } catch {
-    return [];
-  }
-}
-
-function saveRecentSearch(term: string) {
-  const prev = getRecentSearches().filter((t) => t !== term);
-  localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify([term, ...prev].slice(0, MAX_RECENT)));
-}
+import { useRecentSearches } from "@/apps/web-user/features/search/hooks/useRecentSearches";
+import {
+  SEARCH_SUGGESTIONS_ID,
+  SearchSuggestions,
+  type SearchPickSource,
+} from "@/apps/web-user/features/search/components/SearchSuggestions";
+import { suggestSearchKeywords } from "@/apps/web-user/features/search/utils/search-suggest.util";
 
 export default function MapSearchPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
+  const recentSearches = useRecentSearches();
   const [searchTerm, setSearchTerm] = useState(searchParams.get("q") || "");
+  const suggestions = useMemo(
+    () => suggestSearchKeywords(searchTerm, recentSearches.items),
+    [searchTerm, recentSearches.items],
+  );
   const [pickupFilter, setPickupFilter] = useState<MapPickupFilter | null>(null);
   const [pickupCalendarOpen, setPickupCalendarOpen] = useState(false);
 
@@ -92,9 +87,14 @@ export default function MapSearchPage() {
   const handleSearch = (term: string) => {
     if (!term.trim()) return;
     trackEvent("request_map_search", { keyword: term.trim() });
-    saveRecentSearch(term.trim());
+    recentSearches.add(term.trim());
     setSearchTerm(term.trim());
     router.push(buildMapPageUrl(term.trim(), pickupFilter));
+  };
+
+  const handlePick = (term: string, source: SearchPickSource) => {
+    trackEvent("engage_search_suggestion", { keyword: term, source, page: "map" });
+    handleSearch(term);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -166,10 +166,14 @@ export default function MapSearchPage() {
           <input
             ref={inputRef}
             type="search"
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded={suggestions.length > 0}
+            aria-controls={suggestions.length > 0 ? SEARCH_SUGGESTIONS_ID : undefined}
             autoFocus
+            autoComplete="off"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSearch(searchTerm)}
             placeholder="어떤 케이크를 찾으시나요?"
             className="flex-1 min-w-0 text-sm text-gray-900 outline-none placeholder:text-gray-500 [&::-webkit-search-cancel-button]:hidden"
           />
@@ -222,6 +226,21 @@ export default function MapSearchPage() {
           </div>
         </form>
       </div>
+
+      <SearchSuggestions
+        query={searchTerm}
+        suggestions={suggestions}
+        recent={recentSearches.items}
+        onPick={handlePick}
+        onRemoveRecent={(term) => {
+          recentSearches.remove(term);
+          trackEvent("engage_recent_search_delete", { scope: "one" });
+        }}
+        onClearRecent={() => {
+          recentSearches.clear();
+          trackEvent("engage_recent_search_delete", { scope: "all" });
+        }}
+      />
 
       <MapPickupDateBottomSheet
         isOpen={pickupCalendarOpen}

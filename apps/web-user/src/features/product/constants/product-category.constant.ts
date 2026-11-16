@@ -91,7 +91,7 @@ export function matchesProductCategories(
  * 검색어와 같은 뜻의 카테고리(서버 product-category.util의 표와 같게 둔다).
  * 손님이 친 말(연인·100일·친구 케이크)과 "누구에게"(엄마·남친·선생님)를 카테고리로 잇는다.
  */
-const KEYWORD_CATEGORY: ReadonlyArray<readonly [C, readonly string[]]> = [
+export const KEYWORD_CATEGORY: ReadonlyArray<readonly [C, readonly string[]]> = [
   [C.BIRTHDAY, ["생일", "생신", "생파", "생일파티", "벌스데이", "친구"]],
   [
     C.COUPLE,

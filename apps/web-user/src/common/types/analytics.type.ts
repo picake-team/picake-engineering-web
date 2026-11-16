@@ -259,6 +259,17 @@ export interface AnalyticsEventMap {
   view_search: never;
   /** 검색어 입력 후 검색 실행 (검색 버튼 클릭 또는 엔터) */
   request_search: { keyword: string };
+  /**
+   * 검색 입력 아래에서 말을 골라 검색(2026-11-16): 최근 검색어 칩·추천 검색어 칩·자동완성 줄.
+   * 이어서 request_search(검색 화면)·request_map_search(지도 검색)도 나간다
+   */
+  engage_search_suggestion: {
+    keyword: string;
+    source: "recent" | "recommended" | "suggestion";
+    page: "search" | "map";
+  };
+  /** 최근 검색어 지우기(칩의 × 하나 또는 "전체 삭제") */
+  engage_recent_search_delete: { scope: "one" | "all" };
   /** 검색 결과 화면 노출 (결과 0건 이상) */
   view_search_result: { keyword: string; result_count: number };
   /** 필터 아이콘 클릭 → 정렬&필터 바텀시트 전환 (홈/검색) */
