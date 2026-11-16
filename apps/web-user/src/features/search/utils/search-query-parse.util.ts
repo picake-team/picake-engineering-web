@@ -229,11 +229,18 @@ export function mergeSearchFilters(
   picked: StoreListFilter,
   typed: StoreListFilter,
 ): StoreListFilter {
+  let minPrice = typed.minPrice ?? picked.minPrice;
+  let maxPrice = typed.maxPrice ?? picked.maxPrice;
+  // 고른 가격과 친 가격이 엇갈리면(창에서 2만원까지 + "3만원 이상") 친 말 쪽만 — 그대로 두면 늘 0건(11-16 검토)
+  if (minPrice != null && maxPrice != null && minPrice > maxPrice) {
+    minPrice = typed.minPrice;
+    maxPrice = typed.maxPrice;
+  }
   return {
     productCategoryTypes: union(picked.productCategoryTypes, typed.productCategoryTypes),
     sizes: union(picked.sizes, typed.sizes),
-    minPrice: typed.minPrice ?? picked.minPrice,
-    maxPrice: typed.maxPrice ?? picked.maxPrice,
+    minPrice,
+    maxPrice,
   };
 }
 
@@ -244,11 +251,17 @@ export function mergeSearchFilters(
 export function splitSheetFilter(
   sheet: StoreListFilter,
   typed: StoreListFilter,
+  /** 창을 열기 전에 고른 것 — 친 말과 겹쳐도 고른 쪽에 남긴다(홈 "도시락" 칸 + "생일 도시락"이 다음 검색에서 빠지던 것) */
+  previouslyPicked: StoreListFilter = {},
 ): { picked: StoreListFilter; typed: StoreListFilter } {
-  const typedCats = typed.productCategoryTypes?.filter((c) =>
-    sheet.productCategoryTypes?.includes(c),
+  const typedCats = typed.productCategoryTypes?.filter(
+    (c) =>
+      sheet.productCategoryTypes?.includes(c) &&
+      !previouslyPicked.productCategoryTypes?.includes(c),
   );
-  const typedSizes = typed.sizes?.filter((s) => sheet.sizes?.includes(s));
+  const typedSizes = typed.sizes?.filter(
+    (s) => sheet.sizes?.includes(s) && !previouslyPicked.sizes?.includes(s),
+  );
   const typedMin =
     typed.minPrice != null && sheet.minPrice === typed.minPrice ? typed.minPrice : undefined;
   const typedMax =

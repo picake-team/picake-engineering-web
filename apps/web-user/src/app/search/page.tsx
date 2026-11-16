@@ -372,7 +372,7 @@ export default function SearchPage() {
         filter={effectiveFilter}
         onFilterChange={(f) => {
           // 창에서 고친 값이 정본: 친 말에서 온 것 중 남은 것은 이 검색 몫으로, 나머지는 고른 필터로
-          const { picked, typed } = splitSheetFilter(f, parsed.filter);
+          const { picked, typed } = splitSheetFilter(f, parsed.filter, listFilter);
           setListFilter(picked);
           setParsed((prev) => ({ ...prev, filter: typed }));
           // 디자인 탭은 결과 수를 화면이 바로 셀 수 있어 그 자리에서 보낸다(기다리면 다음 상품·스토어 결과에 잘못 붙는다)

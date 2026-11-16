@@ -189,6 +189,29 @@ describe("parseSearchQuery", () => {
 });
 
 describe("필터 창과 친 말의 조건", () => {
+  it("고른 가격과 친 가격이 엇갈리면 친 말 쪽만 쓴다(0건 막기, 11-16 검토)", () => {
+    expect(mergeSearchFilters({ maxPrice: 20000 }, { minPrice: 30000 })).toMatchObject({
+      minPrice: 30000,
+      maxPrice: undefined,
+    });
+    // 엇갈리지 않으면 둘 다
+    expect(mergeSearchFilters({ maxPrice: 50000 }, { minPrice: 30000 })).toMatchObject({
+      minPrice: 30000,
+      maxPrice: 50000,
+    });
+  });
+
+  it("창을 열기 전에 고른 크기는 친 말과 겹쳐도 고른 쪽에 남는다", () => {
+    const { picked, typed } = splitSheetFilter(
+      { sizes: ["도시락"], productCategoryTypes: [C.BIRTHDAY] },
+      { sizes: ["도시락"], productCategoryTypes: [C.BIRTHDAY] },
+      { sizes: ["도시락"] },
+    );
+    expect(picked.sizes).toEqual(["도시락"]);
+    expect(typed.sizes).toBeUndefined();
+    expect(typed.productCategoryTypes).toEqual([C.BIRTHDAY]);
+  });
+
   it("더할 때 카테고리·크기는 합치고 가격은 친 말이 이긴다", () => {
     expect(
       mergeSearchFilters(
