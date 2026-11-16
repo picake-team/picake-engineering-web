@@ -15,7 +15,8 @@ export function fromAutofillPhone(raw: string): string {
   const trimmed = raw.trim();
   if (trimmed.startsWith("+82")) {
     const rest = trimmed.slice(3).replace(/\D/g, "").replace(/^0/, "");
-    return rest ? `0${rest}` : "";
+    // 손으로 "+82"부터 치는 중이면(뒷자리가 아직 짧으면) 그대로 둔다 — 칸이 지워지지 않게
+    return rest.length >= 9 ? `0${rest}` : raw;
   }
   const digits = trimmed.replace(/\D/g, "");
   if (/^821[016789]\d{7,8}$/.test(digits)) return `0${digits.slice(2)}`;
