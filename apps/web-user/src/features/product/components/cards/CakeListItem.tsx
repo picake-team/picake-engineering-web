@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { FadeInImage } from "@/apps/web-user/common/components/motion/FadeInImage";
 import { useRouter } from "next/navigation";
-import { Product } from "@/apps/web-user/features/product/types/product.type";
+import { Product, SalesStatus } from "@/apps/web-user/features/product/types/product.type";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { LikePop } from "@/apps/web-user/common/components/motion/LikePop";
 import { useAddProductLike } from "@/apps/web-user/features/like/hooks/mutations/useAddProductLike";
@@ -64,12 +64,17 @@ export function CakeListItem({ product, href }: CakeListItemProps) {
             alt={product.name}
             fill
             sizes="164px"
-            className="object-cover"
+            className={`object-cover ${product.salesStatus === SalesStatus.DISABLE ? "opacity-60" : ""}`}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm font-semibold">
             No Image
           </div>
+        )}
+        {product.salesStatus === SalesStatus.DISABLE && (
+          <span className="absolute left-2 top-2 rounded-full bg-gray-900/70 px-[8px] py-[3px] text-xs font-bold text-white">
+            판매중지
+          </span>
         )}
         <button
           type="button"

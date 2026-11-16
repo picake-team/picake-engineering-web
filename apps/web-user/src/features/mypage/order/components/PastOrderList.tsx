@@ -82,6 +82,34 @@ function PastOrderItem({ order, isLast }: { order: OrderResponse; isLast: boolea
 
         {/* 주문 아이템 목록 */}
         <div className="space-y-2 py-2.5">
+          {/* 견적 예약은 주문 상품 줄이 없어 빈 카드로 보이던 것: 예약 한 줄로(11-15 검토) */}
+          {order.orderItems.length === 0 && (
+            <div className={`flex items-center gap-2.5 ${isCancelled ? "opacity-40" : ""}`}>
+              <div className="w-[44px] h-[44px] rounded overflow-hidden bg-gray-100 shrink-0">
+                {order.productImages?.[0] ? (
+                  <Image
+                    src={order.productImages[0]}
+                    alt={order.productName}
+                    width={44}
+                    height={44}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-100" />
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center">
+                  <OrderStatusBadge status={order.orderStatus} />
+                  <span className="text-sm text-gray-900 truncate ml-1">{order.productName}</span>
+                  <span className="flex items-center gap-0.5 ml-0.5 text-sm text-gray-900 shrink-0">
+                    <Icon name="multiply" width={8} height={8} /> {order.totalQuantity}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-900">{order.totalPrice.toLocaleString()}원</p>
+              </div>
+            </div>
+          )}
           {visibleItems.map((item) => {
             const thumbnailUrl =
               order.productImages?.[0] || getFirstOptionImageUrl(item.selectedOptions);

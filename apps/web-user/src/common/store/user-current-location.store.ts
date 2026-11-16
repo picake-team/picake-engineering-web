@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { RegionMatchResult } from "@/apps/web-user/common/utils/region-match.util";
+import { rememberLocationGranted } from "@/apps/web-user/common/utils/location-permission.util";
 
 interface UserCurrentLocationState {
   // 상태
@@ -40,6 +41,8 @@ export const useUserCurrentLocationStore = create<UserCurrentLocationState>()((s
   // 위치 설정
   setLocation: (latitude: number, longitude: number) => {
     set({ latitude, longitude });
+    // 위치는 GPS로만 들어온다(앱·브라우저·"현재 위치"). 받았으면 권한을 허용한 것이라 다음에는 묻지 않고 받는다
+    rememberLocationGranted();
   },
 
   // 주소 설정

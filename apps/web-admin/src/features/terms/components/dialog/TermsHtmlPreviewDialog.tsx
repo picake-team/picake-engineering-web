@@ -1,4 +1,5 @@
-import type { ReactNode } from "react";
+import DOMPurify from "dompurify";
+import { useMemo, type ReactNode } from "react";
 import { X } from "lucide-react";
 import { LIST_CARD_TITLE } from "@/apps/web-admin/common/constants/list-typography.constant";
 import { TERMS_PREVIEW_CONTENT_CLASS } from "@/apps/web-admin/features/terms/constants/terms.constant";
@@ -19,6 +20,8 @@ export function TermsHtmlPreviewDialog({
   content,
   description,
 }: TermsHtmlPreviewDialogProps) {
+  // 손님·사장님 화면과 같게 거른 HTML로 미리 본다(넣은 HTML에 스크립트가 있어도 관리자 화면에서 돌지 않게)
+  const safeContent = useMemo(() => DOMPurify.sanitize(content), [content]);
   if (!open) return null;
 
   return (
@@ -52,7 +55,7 @@ export function TermsHtmlPreviewDialog({
           <style>{getTermsPreviewContentStyles()}</style>
           <div
             className={TERMS_PREVIEW_CONTENT_CLASS}
-            dangerouslySetInnerHTML={{ __html: content }}
+            dangerouslySetInnerHTML={{ __html: safeContent }}
           />
         </div>
       </div>

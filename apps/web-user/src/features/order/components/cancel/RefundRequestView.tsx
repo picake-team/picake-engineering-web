@@ -1,5 +1,6 @@
 "use client";
 
+import { RefundRulesTable } from "@/apps/web-user/features/order/components/RefundRulesTable";
 import { cancelReasonForEvent } from "@/apps/web-user/features/order/utils/cancel-reason.util";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -135,7 +136,13 @@ export function RefundRequestView({ order }: RefundRequestViewProps) {
     <div className="pt-5 pb-[96px]">
       {/* 안내 박스 */}
       <div className="px-5 py-4">
-        <InfoNotice message={`환불예정 금액 : ${order.totalPrice.toLocaleString()}원`} />
+        <InfoNotice
+          message={`결제 금액 ${order.totalPrice.toLocaleString()}원 · 환불 금액은 가게 환불 규정대로 정해요`}
+        />
+        <div className="mt-3">
+          <p className="mb-2 text-2sm font-bold text-gray-900">가게 환불·취소 규정</p>
+          <RefundRulesTable policy={order.storeRefundCancellationPolicy} />
+        </div>
       </div>
 
       <div className="px-5">
@@ -194,7 +201,7 @@ export function RefundRequestView({ order }: RefundRequestViewProps) {
 
         {/* 안내 텍스트 */}
         <ul className="text-xs text-gray-400 space-y-1 list-disc pl-4">
-          <li>환불까지 영업일 기준 1~2일 걸릴 수 있어요.</li>
+          <li>가게가 환불을 보내면 알림으로 알려 드려요.</li>
           <li>환불 정보가 정확하지 않으면 환불이 늦어질 수 있어요.</li>
         </ul>
       </div>

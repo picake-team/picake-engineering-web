@@ -14,6 +14,7 @@ import { Icon } from "@/apps/web-user/common/components/icons";
 import { LikePop } from "@/apps/web-user/common/components/motion/LikePop";
 import { useOptimisticStoreLike } from "@/apps/web-user/features/like/hooks/useOptimisticStoreLike";
 import { shortenAddress } from "@/apps/web-user/common/utils/address.util";
+import { useLocationWhenNeeded } from "@/apps/web-user/common/hooks/useLocationWhenNeeded";
 import { useUserLocation } from "@/apps/web-user/common/hooks/useUserLocation";
 import { useRegionFilter } from "@/apps/web-user/common/hooks/useRegionFilter";
 import { calculateDistance, formatDistance } from "@/apps/web-user/common/utils/distance.util";
@@ -49,6 +50,8 @@ export function SearchStoreListSection({
   // 하트는 누르자마자 바뀌고, 저장이 실패하면 되돌린다
   const storeLike = useOptimisticStoreLike();
   const { location: userLocation } = useUserLocation();
+  // 거리순이면 위치가 필요한 때라 이 화면에서 한 번 묻는다(2026-11-16 — 첫 화면에서는 묻지 않음)
+  useLocationWhenNeeded(sortBy === "distance");
   // 맨 위 헤더에서 고른 동네의 가게만(홈·상품 탭과 같은 거르기)
   const { regions, isRegionSettled } = useRegionFilter();
   const { isAuthenticated } = useAuthStore();
@@ -66,7 +69,7 @@ export function SearchStoreListSection({
   } = useStoreList({
     search,
     ...filter,
-    // "거리순"은 내 위치를 알 때만 서버 거리순(위치를 묻는 창은 띄우지 않는다), 모르면 인기순
+    // "거리순"은 내 위치를 알 때만 서버 거리순, 모르면(거부했거나 받기 전) 인기순
     ...(sortBy === "distance" && userLocation
       ? {
           sortBy: "distance",

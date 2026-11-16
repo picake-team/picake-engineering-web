@@ -28,6 +28,7 @@
     "@types/react-router-dom": "^5.3.3",
     "axios": "1.20.0",
     "clsx": "^2.1.1",
+    "dompurify": "3.4.17",
     "he": "^1.2.0",
     "lucide-react": "^0.555.0",
     "posthog-js": "^1.396.6",

@@ -12,6 +12,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Script from "next/script";
 import { useRouter, useSearchParams } from "next/navigation";
 import { BottomNav } from "@/apps/web-user/common/components/navigation/BottomNav";
+import { useLocationWhenNeeded } from "@/apps/web-user/common/hooks/useLocationWhenNeeded";
 import { useUserLocation } from "@/apps/web-user/common/hooks/useUserLocation";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { storeApi } from "@/apps/web-user/features/store/apis/store.api";
@@ -83,6 +84,8 @@ export default function MapPageClient() {
   const searchQuery = searchParams.get("q")?.trim() || null;
   const kakaoJavascriptKey = process.env.NEXT_PUBLIC_KAKAO_JAVASCRIPT_KEY;
   const { location: userLocation, refresh: refreshUserLocation } = useUserLocation();
+  // 지도는 위치가 필요한 화면이라 열 때 한 번 묻는다(2026-11-16 — 첫 화면에서는 묻지 않음). 거부하면 기본 위치
+  useLocationWhenNeeded(true);
 
   const [kakaoLoaded, setKakaoLoaded] = useState(false);
   const [mapReady, setMapReady] = useState(false);
