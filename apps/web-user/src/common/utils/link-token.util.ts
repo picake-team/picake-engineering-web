@@ -6,6 +6,8 @@
 const LINK_TOKEN_PATTERNS: [RegExp, string][] = [
   [/\/q\/[A-Za-z0-9_-]+/g, "/q/[token]"],
   [/\/quote-links\/[A-Za-z0-9_-]+/g, "/quote-links/[token]"],
+  // 소셜 가입표(저장소를 못 쓰는 브라우저만 주소에 실림 — 카카오 번호·이름이 들어 있다)
+  [/registerToken=[^&#\s]+/g, "registerToken=[token]"],
 ];
 
 export function scrubLinkToken(value: string): string {

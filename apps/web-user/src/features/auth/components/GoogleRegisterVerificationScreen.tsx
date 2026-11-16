@@ -38,7 +38,11 @@ import { focusElementById, onEnterKey } from "@/apps/web-user/common/utils/enter
 import { useKeyboardOpen } from "@/apps/web-user/common/hooks/useKeyboardOpen";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import { resolvePhoneVerificationFailReason } from "@/apps/web-user/features/auth/utils/phone-verification-error.util";
-import { readRegisterTicket } from "@/apps/web-user/features/auth/utils/register-ticket.util";
+import {
+  clearRegisterTicket,
+  isRegisterTicketExpired,
+  readRegisterTicket,
+} from "@/apps/web-user/features/auth/utils/register-ticket.util";
 
 function formatCountdownMmSs(totalSeconds: number): string {
   const s = Math.max(0, Math.floor(totalSeconds));
@@ -95,10 +99,22 @@ export function GoogleRegisterVerificationScreen() {
       setBooting(false);
       return;
     }
+    // 30분이 이미 지났으면 문자를 보내기 전에 다시 로그인하게 한다
+    if (isRegisterTicketExpired(registerToken)) {
+      clearRegisterTicket("google");
+      router.replace(PATHS.HOME);
+      showAlert({
+        type: "error",
+        title: "오류",
+        message: "가입 시간이 지났어요. 다시 로그인해 주세요.",
+      });
+      setBooting(false);
+      return;
+    }
     setGoogleLoginData({ registerToken });
     setBooting(false);
     trackEvent("view_phone_verification", { provider: "google" });
-  }, [router, searchParams]);
+  }, [router, searchParams, showAlert]);
 
   const validateDisplayName = useCallback((value: string) => {
     const t = value.trim();

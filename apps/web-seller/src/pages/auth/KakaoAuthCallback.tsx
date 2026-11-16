@@ -214,6 +214,16 @@ export function KakaoAuthCallbackPage() {
   const handlePhoneVerificationComplete = async (phone: string) => {
     if (!kakaoLoginData) return;
     if (!validateDisplayName(displayName)) return;
+    if (termsFromKakao) {
+      // 약관은 카카오에서 동의함(서버가 가입표로 확인) — 문자로 받은 번호로만 가입
+      await kakaoRegisterMutation.mutateAsync({
+        ...kakaoLoginData,
+        phone,
+        name: displayName.trim(),
+      });
+      clearPendingOAuthRegister();
+      return;
+    }
     if (!isRequiredSellerTermsAllChecked(termsState)) {
       addAlert({
         message: "필수 약관에 모두 동의해 주세요.",
@@ -250,8 +260,14 @@ export function KakaoAuthCallbackPage() {
         title="회원가입"
         description={
           <>
-            판매자 센터 이용을 위해 <strong className="font-medium text-zinc-700">실명</strong>과{" "}
-            <strong className="font-medium text-zinc-700">휴대폰 인증</strong>이 필요합니다.
+            {useKakaoPhone && hints.phone ? (
+              "카카오에서 받은 정보예요. 맞으면 가입하기를 눌러 주세요."
+            ) : (
+              <>
+                판매자 센터 이용을 위해 <strong className="font-medium text-zinc-700">실명</strong>
+                과 <strong className="font-medium text-zinc-700">휴대폰 인증</strong>이 필요합니다.
+              </>
+            )}
           </>
         }
         footer={
@@ -305,11 +321,24 @@ export function KakaoAuthCallbackPage() {
               </p>
             </div>
           ) : (
-            <PhoneVerificationForm
-              onVerificationComplete={handlePhoneVerificationComplete}
-              purpose={PHONE_VERIFICATION_PURPOSE.KAKAO_REGISTRATION}
-              canComplete={termsFromKakao || isRequiredSellerTermsAllChecked(termsState)}
-            />
+            <div className="space-y-2">
+              {hints.phone ? (
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setUseKakaoPhone(true)}
+                    className="text-sm font-medium text-zinc-500 underline underline-offset-2 hover:text-zinc-800"
+                  >
+                    카카오 번호로
+                  </button>
+                </div>
+              ) : null}
+              <PhoneVerificationForm
+                onVerificationComplete={handlePhoneVerificationComplete}
+                purpose={PHONE_VERIFICATION_PURPOSE.KAKAO_REGISTRATION}
+                canComplete={termsFromKakao || isRequiredSellerTermsAllChecked(termsState)}
+              />
+            </div>
           )}
           {termsFromKakao ? (
             <p className="text-sm text-zinc-500">약관은 카카오에서 동의했어요.</p>

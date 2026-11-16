@@ -95,7 +95,8 @@ export function useGoogleRegister(options?: {
         return;
       }
       if (isRegisterTicketInvalid(error)) {
-        // 가입표가 30분 지났거나 잘못됨 — 이 화면에서는 가입할 수 없어 홈으로 보내고 다시 로그인하게 한다(복귀 경로는 유지)
+        // 가입표가 30분 지났거나 잘못됨 — 이 화면에서는 가입할 수 없어 지우고 홈으로(다시 로그인, 복귀 경로는 유지)
+        clearRegisterTicket("google");
         router.replace(PATHS.HOME);
       }
       showAlert({
@@ -133,7 +134,8 @@ export function useKakaoRegister(options?: {
         return;
       }
       if (isRegisterTicketInvalid(error)) {
-        // 가입표가 30분 지났거나 잘못됨 — 이 화면에서는 가입할 수 없어 홈으로 보내고 다시 로그인하게 한다(복귀 경로는 유지)
+        // 가입표가 30분 지났거나 잘못됨 — 이 화면에서는 가입할 수 없어 지우고 홈으로(다시 로그인, 복귀 경로는 유지)
+        clearRegisterTicket("kakao");
         router.replace(PATHS.HOME);
       }
       showAlert({
@@ -171,7 +173,8 @@ export function useAppleRegister(options?: {
         return;
       }
       if (isRegisterTicketInvalid(error)) {
-        // 가입표가 30분 지났거나 잘못됨 — 이 화면에서는 가입할 수 없어 홈으로 보내고 다시 로그인하게 한다(복귀 경로는 유지)
+        // 가입표가 30분 지났거나 잘못됨 — 이 화면에서는 가입할 수 없어 지우고 홈으로(다시 로그인, 복귀 경로는 유지)
+        clearRegisterTicket("apple");
         router.replace(PATHS.HOME);
       }
       showAlert({

@@ -64,6 +64,16 @@ export function readRegisterTicketHints(token: string): RegisterTicketHints {
   };
 }
 
+/**
+ * 가입표 30분이 지났는지(화면 표시용 — 판단은 서버). 가입 화면을 열 때 이미 지났으면 문자를 보내기 전에 다시 로그인하게 한다.
+ * 기기 시계가 조금 틀려도 막지 않게 30초 여유.
+ */
+export function isRegisterTicketExpired(token: string, nowMs = Date.now()): boolean {
+  const p = decodeJwtPayload<{ exp?: unknown }>(token);
+  if (!p || typeof p.exp !== "number") return false;
+  return p.exp * 1000 + 30_000 < nowMs;
+}
+
 /** 손님 필수 약관(카카오 간편가입 태그, backend KAKAO_SERVICE_TERMS.consumer와 같게) */
 export const KAKAO_CONSUMER_REQUIRED_TERMS = [
   "picake_c_tos",
