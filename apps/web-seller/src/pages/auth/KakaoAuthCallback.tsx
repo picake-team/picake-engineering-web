@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ChangeEvent } from "react";
+import { formatPhoneDisplay } from "@/apps/web-seller/common/utils/phone-display.util";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { authApi } from "@/apps/web-seller/features/auth/apis/auth.api";
@@ -30,7 +31,6 @@ import { useSellerActiveTerms } from "@/apps/web-seller/features/terms/hooks/que
 import { Button } from "@/apps/web-seller/common/components/buttons/Button";
 import {
   hasAllKakaoSellerTerms,
-  maskPhoneForDisplay,
   readRegisterTicketHints,
 } from "@/apps/web-seller/features/auth/utils/register-ticket-hints.util";
 import {
@@ -306,7 +306,7 @@ export function KakaoAuthCallbackPage() {
               <span className="text-sm font-medium text-zinc-700">휴대폰 번호</span>
               <div className="flex h-[50px] items-center justify-between rounded-lg border border-zinc-200 px-4">
                 <span className="text-[15px] font-medium text-zinc-900">
-                  {maskPhoneForDisplay(hints.phone)}
+                  {formatPhoneDisplay(hints.phone)}
                 </span>
                 <button
                   type="button"

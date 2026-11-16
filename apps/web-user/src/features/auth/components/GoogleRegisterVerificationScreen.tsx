@@ -230,7 +230,11 @@ export function GoogleRegisterVerificationScreen() {
       return;
     }
 
-    trackEvent("request_signup", { provider: "google" });
+    trackEvent("request_signup", {
+      provider: "google",
+      phone_source: "sms",
+      terms_source: "screen",
+    });
     await googleRegisterMutation.mutateAsync({
       ...googleLoginData,
       phone: normalized,

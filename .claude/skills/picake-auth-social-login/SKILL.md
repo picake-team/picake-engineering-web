@@ -40,7 +40,7 @@ Picake는 구글·카카오 로그인을 **브릿지 없이 웹뷰에서 OAuth A
 | `features/auth/hooks/mutations/useAuthMutation.ts`                                                            | `use{Provider}Register` — 성공 시 로그인+홈이동+`trackEvent("success_signup")`, 실패 시 `parseDuplicateAccountPayload`로 중복계정 분기                                                                                                                                                                      |
 | `features/auth/utils/social-auth-error.util.ts`, `register-duplicate-account.util.ts`                         | 에러 사유 판별(`resolveSocialAuthFailReason`), 중복계정 에러 파싱 — provider 무관 공통 유틸이라 그대로 재사용                                                                                                                                                                                               |
 
-analytics 이벤트는 `request_social_auth` / `success_login` / `fail_social_auth` / `engage_social_select` / `success_signup`에 `provider` 필드로 구분해서 기록합니다. 새 provider도 동일 이벤트명에 `provider: "apple"`처럼 값만 추가합니다.
+analytics 이벤트는 `request_social_auth` / `success_login` / `fail_social_auth` / `engage_social_select` / `success_signup`에 `provider` 필드로 구분해서 기록합니다. 새 provider도 동일 이벤트명에 `provider: "apple"`처럼 값만 추가합니다. 가입 이벤트(`request_signup`·`success_signup`)에는 `phone_source`(`kakao`: 카카오 번호로 문자 없이 / `sms`)와 `terms_source`(`kakao`: 카카오 간편가입 / `screen`)를 같이 보내고, 카카오 `view_phone_verification`에는 `kakao_phone_offered`를 붙입니다(기획 I-59).
 
 ## 2. 백엔드 (`apps/backend/src/modules/auth`)
 

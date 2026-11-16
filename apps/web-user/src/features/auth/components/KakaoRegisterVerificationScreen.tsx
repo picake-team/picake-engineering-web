@@ -46,7 +46,7 @@ import {
   hasAllKakaoConsumerTerms,
   clearRegisterTicket,
   isRegisterTicketExpired,
-  maskPhoneForDisplay,
+  formatPhoneForDisplay,
   readRegisterTicket,
   readRegisterTicketHints,
   type RegisterTicketHints,
@@ -126,7 +126,10 @@ export function KakaoRegisterVerificationScreen() {
     if (fromKakao.name) setDisplayName(fromKakao.name);
     setKakaoLoginData({ registerToken });
     setBooting(false);
-    trackEvent("view_phone_verification", { provider: "kakao" });
+    trackEvent("view_phone_verification", {
+      provider: "kakao",
+      kakao_phone_offered: !!fromKakao.phone,
+    });
   }, [router, searchParams, showAlert]);
 
   const validateDisplayName = useCallback((value: string) => {
@@ -238,7 +241,11 @@ export function KakaoRegisterVerificationScreen() {
     }
     trackEvent("success_phone_verification", { provider: "kakao" });
 
-    trackEvent("request_signup", { provider: "kakao" });
+    trackEvent("request_signup", {
+      provider: "kakao",
+      phone_source: "sms",
+      terms_source: termsFromKakao ? "kakao" : "screen",
+    });
     await kakaoRegisterMutation.mutateAsync({
       ...kakaoLoginData,
       phone: normalized,
@@ -277,7 +284,11 @@ export function KakaoRegisterVerificationScreen() {
     if (!kakaoLoginData) return;
     const termsPart = buildTermsPart();
     if (!termsPart) return;
-    trackEvent("request_signup", { provider: "kakao" });
+    trackEvent("request_signup", {
+      provider: "kakao",
+      phone_source: "kakao",
+      terms_source: termsFromKakao ? "kakao" : "screen",
+    });
     await kakaoRegisterMutation.mutateAsync({
       ...kakaoLoginData,
       useTicketPhone: true,
@@ -368,7 +379,7 @@ export function KakaoRegisterVerificationScreen() {
               <span className="text-sm font-bold text-gray-900">핸드폰 번호</span>
               <div className="flex h-[52px] items-center justify-between rounded-lg border border-gray-100 px-4">
                 <span className="text-base font-bold text-gray-900">
-                  {maskPhoneForDisplay(hints.phone)}
+                  {formatPhoneForDisplay(hints.phone)}
                 </span>
                 <button
                   type="button"

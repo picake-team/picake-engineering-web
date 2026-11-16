@@ -88,9 +88,13 @@ export function hasAllKakaoConsumerTerms(terms: string[] | undefined): boolean {
   return KAKAO_CONSUMER_REQUIRED_TERMS.every((t) => agreed.has(t));
 }
 
-/** "01012345678" → "010-****-5678" */
-export function maskPhoneForDisplay(phone: string): string {
+/**
+ * "01012345678" → "010-1234-5678". 가입하는 본인에게 보여 주는 화면이라 가리지 않는다 —
+ * 카카오에 예전 번호가 남아 있으면 본인이 알아보고 "다른 번호"를 고를 수 있게(운영자 결정 11-16).
+ */
+export function formatPhoneForDisplay(phone: string): string {
   const d = phone.replace(/\D/g, "");
-  if (d.length < 10) return phone;
-  return `${d.slice(0, 3)}-****-${d.slice(-4)}`;
+  if (d.length === 11) return `${d.slice(0, 3)}-${d.slice(3, 7)}-${d.slice(7)}`;
+  if (d.length === 10) return `${d.slice(0, 3)}-${d.slice(3, 6)}-${d.slice(6)}`;
+  return phone;
 }

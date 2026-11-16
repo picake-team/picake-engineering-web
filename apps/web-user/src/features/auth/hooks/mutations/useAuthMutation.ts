@@ -81,7 +81,12 @@ export function useGoogleRegister(options?: {
     onSuccess: (data) => {
       const userId = decodeJwtPayload<{ sub: string }>(data.accessToken)?.sub;
       if (userId) {
-        trackEvent("success_signup", { provider: "google", user_id: userId });
+        trackEvent("success_signup", {
+          provider: "google",
+          user_id: userId,
+          phone_source: "sms",
+          terms_source: "screen",
+        });
       }
       clearRegisterTicket("google");
       login(data.accessToken);
@@ -117,10 +122,16 @@ export function useKakaoRegister(options?: {
 
   return useMutation({
     mutationFn: authApi.kakaoRegister,
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
       const userId = decodeJwtPayload<{ sub: string }>(data.accessToken)?.sub;
       if (userId) {
-        trackEvent("success_signup", { provider: "kakao", user_id: userId });
+        trackEvent("success_signup", {
+          provider: "kakao",
+          user_id: userId,
+          // 카카오 번호로 가입했나, 약관을 카카오에서 받았나(가입 화면 약관이면 agreedToTerms를 보냄)
+          phone_source: variables.useTicketPhone ? "kakao" : "sms",
+          terms_source: variables.agreedToTerms === undefined ? "kakao" : "screen",
+        });
       }
       clearRegisterTicket("kakao");
       login(data.accessToken);
@@ -159,7 +170,12 @@ export function useAppleRegister(options?: {
     onSuccess: (data) => {
       const userId = decodeJwtPayload<{ sub: string }>(data.accessToken)?.sub;
       if (userId) {
-        trackEvent("success_signup", { provider: "apple", user_id: userId });
+        trackEvent("success_signup", {
+          provider: "apple",
+          user_id: userId,
+          phone_source: "sms",
+          terms_source: "screen",
+        });
       }
       clearRegisterTicket("apple");
       login(data.accessToken);

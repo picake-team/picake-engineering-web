@@ -3,7 +3,7 @@ import {
   clearRegisterTicket,
   hasAllKakaoConsumerTerms,
   isRegisterTicketExpired,
-  maskPhoneForDisplay,
+  formatPhoneForDisplay,
   readRegisterTicket,
   readRegisterTicketHints,
   saveRegisterTicket,
@@ -42,7 +42,8 @@ describe("가입표 읽기(카카오 한 번에 가입 화면용)", () => {
   });
 
   it("번호는 가운데를 가린다", () => {
-    expect(maskPhoneForDisplay("01012345678")).toBe("010-****-5678");
+    expect(formatPhoneForDisplay("01012345678")).toBe("010-1234-5678");
+    expect(formatPhoneForDisplay("0161234567")).toBe("016-123-4567");
   });
 });
 

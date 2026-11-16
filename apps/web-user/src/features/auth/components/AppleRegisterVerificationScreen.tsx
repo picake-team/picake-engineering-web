@@ -236,7 +236,11 @@ export function AppleRegisterVerificationScreen() {
       return;
     }
 
-    trackEvent("request_signup", { provider: "apple" });
+    trackEvent("request_signup", {
+      provider: "apple",
+      phone_source: "sms",
+      terms_source: "screen",
+    });
     await appleRegisterMutation.mutateAsync({
       ...appleLoginData,
       phone: normalized,

@@ -5,6 +5,7 @@
  * 손님 앱과 같게 "가입하기"를 눌러야 가입이 끝난다(PC는 "인증 완료"를 누르면 바로 가입).
  */
 import React, { useMemo, useState } from "react";
+import { formatPhoneDisplay } from "@/apps/web-seller/common/utils/phone-display.util";
 import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { AppScreen, BackHeader, BottomActionBar } from "@/apps/web-seller/common/ui/Screen";
 import { Button } from "@/apps/web-seller/common/ui/Button";
@@ -32,7 +33,6 @@ import { PhoneVerifyInputs } from "@/apps/web-seller/features/auth/components/mo
 import { SellerTermsBox } from "@/apps/web-seller/features/auth/components/mobile/SellerTermsBox";
 import {
   hasAllKakaoSellerTerms,
-  maskPhoneForDisplay,
   readRegisterTicketHints,
 } from "@/apps/web-seller/features/auth/utils/register-ticket-hints.util";
 import {
@@ -291,7 +291,7 @@ function SignUp({
               id={p.id}
               aria-describedby={p.describedBy}
               readOnly
-              value={maskPhoneForDisplay(hints.phone ?? "")}
+              value={formatPhoneDisplay(hints.phone ?? "")}
             />
           )}
         </Field>
