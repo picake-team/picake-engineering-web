@@ -122,6 +122,8 @@ export interface OrderResponseDto {
   depositorName?: string | null;
   /** 입금 기한 만료로 자동 취소된 시각. 값이 있으면 고객·판매자가 의도한 취소가 아님 */
   paymentPendingExpiredAt?: Date | string | null;
+  /** 픽업 날이 지나도록 예약신청을 확인하지 않아 자동 취소된 시각(입금 전이라 돈은 오가지 않음) */
+  reservationExpiredAt?: Date | string | null;
   /** 주문 시 선택 입력한 예약자명 */
   reservationContactName?: string | null;
   /** 주문 시 선택 입력한 예약 연락처(휴대폰) */

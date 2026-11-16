@@ -38,6 +38,17 @@ import { focusElementById, onEnterKey } from "@/apps/web-user/common/utils/enter
 import { useKeyboardOpen } from "@/apps/web-user/common/hooks/useKeyboardOpen";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import { resolvePhoneVerificationFailReason } from "@/apps/web-user/features/auth/utils/phone-verification-error.util";
+import {
+  readRegisterTicketSavedAt,
+  clearRegisterTicket,
+  isRegisterTicketExpired,
+  readRegisterTicket,
+} from "@/apps/web-user/features/auth/utils/register-ticket.util";
+
+/** 가입 요청 실패는 mutation onError가 이미 알렸다 — 화면 함수가 처리 안 된 오류로 끝나지 않게(Sentry에 4xx가 쌓이지 않게, 11-16 검토) */
+function ignoreHandledError(): undefined {
+  return undefined;
+}
 
 function formatCountdownMmSs(totalSeconds: number): string {
   const s = Math.max(0, Math.floor(totalSeconds));
@@ -48,7 +59,7 @@ function formatCountdownMmSs(totalSeconds: number): string {
 
 /**
  * 애플 OAuth 이후 휴대폰 인증·회원가입 전용 화면
- * (콜백에서 appleId·appleEmail 쿼리로 전달)
+ * (콜백이 가입표 registerToken을 이 탭에 둔다 — register-ticket.util)
  */
 export function AppleRegisterVerificationScreen() {
   const router = useRouter();
@@ -67,10 +78,7 @@ export function AppleRegisterVerificationScreen() {
   const isKeyboardOpen = useKeyboardOpen();
   const appleRegisterMutation = useAppleRegister({ onDuplicateAccount: handleDuplicateAccount });
 
-  const [appleLoginData, setAppleLoginData] = useState<{
-    appleId: string;
-    appleEmail: string;
-  } | null>(null);
+  const [appleLoginData, setAppleLoginData] = useState<{ registerToken: string } | null>(null);
   const [booting, setBooting] = useState(true);
 
   const [displayName, setDisplayName] = useState("");
@@ -90,14 +98,32 @@ export function AppleRegisterVerificationScreen() {
   );
 
   useEffect(() => {
-    const appleId = searchParams.get("appleId")?.trim();
-    const appleEmail = searchParams.get("appleEmail")?.trim();
-    if (!appleId || !appleEmail) {
+    // 가입표(로그인 때 서버가 확인한 소셜 ID가 들어 있음, 30분) — 가입은 이 값으로만 한다
+    const registerToken = readRegisterTicket("apple", searchParams.get("registerToken"));
+    if (!registerToken) {
       router.replace(PATHS.HOME);
       setBooting(false);
       return;
     }
-    setAppleLoginData({ appleId, appleEmail });
+    // 30분이 이미 지났으면 문자를 보내기 전에 다시 로그인하게 한다
+    if (
+      isRegisterTicketExpired(
+        registerToken,
+        Date.now(),
+        readRegisterTicketSavedAt("apple", registerToken),
+      )
+    ) {
+      clearRegisterTicket("apple");
+      router.replace(PATHS.HOME);
+      showAlert({
+        type: "error",
+        title: "오류",
+        message: "가입 시간이 지났어요. 다시 로그인해 주세요.",
+      });
+      setBooting(false);
+      return;
+    }
+    setAppleLoginData({ registerToken });
     // Apple이 최초 인가 시 1회 한정으로 제공하는 이름 — 있으면 재입력을 요구하지 않도록 미리 채움
     // (Apple 심사 가이드라인 4 — 이미 제공된 정보를 다시 입력시키지 말 것)
     const appleName = searchParams.get("appleName")?.trim();
@@ -106,7 +132,7 @@ export function AppleRegisterVerificationScreen() {
     }
     setBooting(false);
     trackEvent("view_phone_verification", { provider: "apple" });
-  }, [router, searchParams]);
+  }, [router, searchParams, showAlert]);
 
   const validateDisplayName = useCallback((value: string) => {
     const t = value.trim();
@@ -222,17 +248,23 @@ export function AppleRegisterVerificationScreen() {
       return;
     }
 
-    trackEvent("request_signup", { provider: "apple" });
-    await appleRegisterMutation.mutateAsync({
-      ...appleLoginData,
-      phone: normalized,
-      name: displayName.trim(),
-      agreedToTerms: termsState.termsOfService,
-      agreedToPrivacy: termsState.privacyPolicy,
-      agreedToThirdParty: termsState.thirdPartyConsent,
-      agreedToLocationTerms: termsState.locationTerms,
-      termsDocumentIds,
+    trackEvent("request_signup", {
+      provider: "apple",
+      phone_source: "sms",
+      terms_source: "screen",
     });
+    await appleRegisterMutation
+      .mutateAsync({
+        ...appleLoginData,
+        phone: normalized,
+        name: displayName.trim(),
+        agreedToTerms: termsState.termsOfService,
+        agreedToPrivacy: termsState.privacyPolicy,
+        agreedToThirdParty: termsState.thirdPartyConsent,
+        agreedToLocationTerms: termsState.locationTerms,
+        termsDocumentIds,
+      })
+      .catch(ignoreHandledError);
   };
 
   const sendPending = sendPhoneVerificationMutation.isPending;

@@ -4,12 +4,17 @@ import { NODE_ENV } from "@/apps/web-user/common/constants/environment.constants
 /**
  * 브라우저에서 카카오 OAuth 로그인 시작 URL (동일 도메인 redirect_uri)
  */
+/** 카카오 간편가입 약관 태그(손님) — 카카오 콘솔 [카카오 로그인] > [간편가입]에 등록한 태그 */
+export const KAKAO_CONSUMER_SERVICE_TERMS =
+  "picake_c_tos,picake_c_privacy,picake_c_third_party,picake_c_location";
+
 export function getKakaoOAuthLoginUrl(): string | null {
   if (typeof window === "undefined") return null;
   const clientId = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY;
   if (!clientId) return null;
   const redirectUri = `${window.location.origin}${PATHS.AUTH.KAKAO_REDIRECT_URI}`;
-  return `https://kauth.kakao.com/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code`;
+  // 카카오 간편가입: 손님 약관만 보여 준다(사장님과 카카오 앱을 같이 써서). 태그는 backend KAKAO_SERVICE_TERMS.consumer와 같게
+  return `https://kauth.kakao.com/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&service_terms=${KAKAO_CONSUMER_SERVICE_TERMS}`;
 }
 
 /**

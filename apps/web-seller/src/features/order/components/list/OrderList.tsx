@@ -123,6 +123,14 @@ export function OrderList({ orders, sortBy, onSortChange }: OrderListProps) {
                         기한 만료
                       </span>
                     )}
+                    {order.reservationExpiredAt && (
+                      <span
+                        className="whitespace-nowrap rounded border border-zinc-200 bg-zinc-50 px-1.5 py-0.5 text-[11px] font-medium text-zinc-600"
+                        title="픽업 날까지 예약을 확인하지 않아 자동으로 취소된 주문입니다. 입금 전이라 돈은 오가지 않았습니다."
+                      >
+                        미확인
+                      </span>
+                    )}
                   </div>
                 </td>
                 <td className={cn(tdBase, "whitespace-nowrap")}>{formatDate(order.pickupDate)}</td>

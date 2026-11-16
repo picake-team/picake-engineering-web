@@ -38,6 +38,17 @@ import { focusElementById, onEnterKey } from "@/apps/web-user/common/utils/enter
 import { useKeyboardOpen } from "@/apps/web-user/common/hooks/useKeyboardOpen";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import { resolvePhoneVerificationFailReason } from "@/apps/web-user/features/auth/utils/phone-verification-error.util";
+import {
+  readRegisterTicketSavedAt,
+  clearRegisterTicket,
+  isRegisterTicketExpired,
+  readRegisterTicket,
+} from "@/apps/web-user/features/auth/utils/register-ticket.util";
+
+/** 가입 요청 실패는 mutation onError가 이미 알렸다 — 화면 함수가 처리 안 된 오류로 끝나지 않게(Sentry에 4xx가 쌓이지 않게, 11-16 검토) */
+function ignoreHandledError(): undefined {
+  return undefined;
+}
 
 function formatCountdownMmSs(totalSeconds: number): string {
   const s = Math.max(0, Math.floor(totalSeconds));
@@ -48,7 +59,7 @@ function formatCountdownMmSs(totalSeconds: number): string {
 
 /**
  * 구글 OAuth 이후 휴대폰 인증·회원가입 전용 화면
- * (콜백에서 googleId·googleEmail 쿼리로 전달)
+ * (콜백이 가입표 registerToken을 이 탭에 둔다 — register-ticket.util)
  */
 export function GoogleRegisterVerificationScreen() {
   const router = useRouter();
@@ -67,10 +78,7 @@ export function GoogleRegisterVerificationScreen() {
   const isKeyboardOpen = useKeyboardOpen();
   const googleRegisterMutation = useGoogleRegister({ onDuplicateAccount: handleDuplicateAccount });
 
-  const [googleLoginData, setGoogleLoginData] = useState<{
-    googleId: string;
-    googleEmail: string;
-  } | null>(null);
+  const [googleLoginData, setGoogleLoginData] = useState<{ registerToken: string } | null>(null);
   const [booting, setBooting] = useState(true);
 
   const [displayName, setDisplayName] = useState("");
@@ -90,17 +98,35 @@ export function GoogleRegisterVerificationScreen() {
   );
 
   useEffect(() => {
-    const googleId = searchParams.get("googleId")?.trim();
-    const googleEmail = searchParams.get("googleEmail")?.trim();
-    if (!googleId || !googleEmail) {
+    // 가입표(로그인 때 서버가 확인한 소셜 ID가 들어 있음, 30분) — 가입은 이 값으로만 한다
+    const registerToken = readRegisterTicket("google", searchParams.get("registerToken"));
+    if (!registerToken) {
       router.replace(PATHS.HOME);
       setBooting(false);
       return;
     }
-    setGoogleLoginData({ googleId, googleEmail });
+    // 30분이 이미 지났으면 문자를 보내기 전에 다시 로그인하게 한다
+    if (
+      isRegisterTicketExpired(
+        registerToken,
+        Date.now(),
+        readRegisterTicketSavedAt("google", registerToken),
+      )
+    ) {
+      clearRegisterTicket("google");
+      router.replace(PATHS.HOME);
+      showAlert({
+        type: "error",
+        title: "오류",
+        message: "가입 시간이 지났어요. 다시 로그인해 주세요.",
+      });
+      setBooting(false);
+      return;
+    }
+    setGoogleLoginData({ registerToken });
     setBooting(false);
     trackEvent("view_phone_verification", { provider: "google" });
-  }, [router, searchParams]);
+  }, [router, searchParams, showAlert]);
 
   const validateDisplayName = useCallback((value: string) => {
     const t = value.trim();
@@ -216,17 +242,23 @@ export function GoogleRegisterVerificationScreen() {
       return;
     }
 
-    trackEvent("request_signup", { provider: "google" });
-    await googleRegisterMutation.mutateAsync({
-      ...googleLoginData,
-      phone: normalized,
-      name: displayName.trim(),
-      agreedToTerms: termsState.termsOfService,
-      agreedToPrivacy: termsState.privacyPolicy,
-      agreedToThirdParty: termsState.thirdPartyConsent,
-      agreedToLocationTerms: termsState.locationTerms,
-      termsDocumentIds,
+    trackEvent("request_signup", {
+      provider: "google",
+      phone_source: "sms",
+      terms_source: "screen",
     });
+    await googleRegisterMutation
+      .mutateAsync({
+        ...googleLoginData,
+        phone: normalized,
+        name: displayName.trim(),
+        agreedToTerms: termsState.termsOfService,
+        agreedToPrivacy: termsState.privacyPolicy,
+        agreedToThirdParty: termsState.thirdPartyConsent,
+        agreedToLocationTerms: termsState.locationTerms,
+        termsDocumentIds,
+      })
+      .catch(ignoreHandledError);
   };
 
   const sendPending = sendPhoneVerificationMutation.isPending;

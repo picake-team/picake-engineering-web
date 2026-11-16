@@ -13,7 +13,7 @@ export type OrderStatusGuideItem = {
 /** 상태별 안내 문장 (상세 힌트·흐름 목록 공통) */
 export const ORDER_STATUS_SELLER_FLOW_LINE_BY_STATUS: Record<OrderStatus, string> = {
   [OrderStatus.RESERVATION_REQUESTED]:
-    "예약신청: 손님이 예약을 막 신청했어요. '예약 확인'을 눌러야 손님이 입금할 수 있어요. 받기 어려우면 사유를 적고 예약을 취소할 수 있어요.",
+    "예약신청: 손님이 예약을 막 신청했어요. '예약 확인'을 눌러야 손님이 입금할 수 있어요. 받기 어려우면 사유를 적고 예약을 취소할 수 있어요. 픽업 날까지 확인하지 않으면 다음 날 아침 자동으로 취소돼요.",
   [OrderStatus.PAYMENT_PENDING]:
     "입금대기: 손님이 입금하기를 기다리는 중이에요. 입금 마감까지 손님이 '입금 완료'를 누르지 않으면 자동으로 취소돼요. 통장에서 입금을 확인했으면 바로 '예약 확정'을 눌러도 돼요.",
   [OrderStatus.PAYMENT_COMPLETED]:

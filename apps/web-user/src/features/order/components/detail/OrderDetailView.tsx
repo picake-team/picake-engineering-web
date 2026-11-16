@@ -50,6 +50,10 @@ function getStatusNotice(order: OrderResponse): {
       }
       // 구매자 취소는 안내 없음
       if (order.userCancelReason) return null;
+      // 가게가 픽업 날이 지나도록 확인하지 않아 자동 취소(입금 전이라 손님 잘못이 아님, 2026-11-16)
+      if (order.reservationExpiredAt) {
+        return { message: "가게가 확인하지 않아 예약이 취소됐어요.", isRed: false };
+      }
       // 사유 없음 = 미입금으로 인한 자동취소
       return { message: "입금하지 않아 예약이 취소됐어요.", isRed: false };
     case OrderStatus.NO_SHOW:

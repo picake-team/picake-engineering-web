@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import { ROUTES } from "@/apps/web-seller/common/constants/paths.constant";
@@ -5,8 +6,12 @@ import { SELLER_INTRO_URL } from "@/apps/web-seller/common/constants/seller-intr
 import { AuthBrandedCard } from "@/apps/web-seller/common/components/layouts/AuthBrandedCard";
 import googleIcon from "@/apps/web-seller/assets/images/google.png";
 import kakaoIcon from "@/apps/web-seller/assets/images/kakaotalk.png";
+import { RecentLoginBubble } from "@/apps/web-seller/features/auth/components/RecentLoginBubble";
+import { readLastLoginProvider } from "@/apps/web-seller/features/auth/utils/last-login-provider.util";
 
 export function LoginPage() {
+  // 이 기기에서 마지막으로 로그인한 방법 — 그 버튼에 "최근 로그인" 말풍선
+  const [lastProvider] = useState(readLastLoginProvider);
   return (
     <AuthBrandedCard
       title="Picake 판매자 센터"
@@ -38,17 +43,19 @@ export function LoginPage() {
       <div className="flex flex-col gap-3" role="group" aria-label="소셜 로그인">
         <a
           href={`https://accounts.google.com/o/oauth2/v2/auth?client_id=${import.meta.env.VITE_PUBLIC_GOOGLE_CLIENT_ID}&redirect_uri=${window.location.origin}${ROUTES.AUTH.GOOGLE_REDIRECT_URI}&response_type=code&scope=email+profile&prompt=select_account`}
-          className="flex h-[50px] w-full items-center justify-center gap-3 rounded-lg border border-zinc-200 bg-white text-[15px] font-medium text-zinc-800 shadow-sm transition-colors hover:border-zinc-300 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2"
+          className="relative flex h-[50px] w-full items-center justify-center gap-3 rounded-lg border border-zinc-200 bg-white text-[15px] font-medium text-zinc-800 shadow-sm transition-colors hover:border-zinc-300 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2"
         >
           <img src={googleIcon} alt="" width={20} height={20} className="size-5 shrink-0" />
           Google로 계속하기
+          {lastProvider === "google" && <RecentLoginBubble />}
         </a>
         <a
-          href={`https://kauth.kakao.com/oauth/authorize?client_id=${import.meta.env.VITE_PUBLIC_KAKAO_RESTAPI_KEY}&redirect_uri=${window.location.origin}${ROUTES.AUTH.KAKAO_REDIRECT_URI}&response_type=code`}
-          className="flex h-[50px] w-full items-center justify-center gap-3 rounded-lg bg-[#FEE500] text-[15px] font-medium text-[#191919] shadow-sm transition-colors hover:bg-[#f5dc00] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#191919]/25 focus-visible:ring-offset-2"
+          href={`https://kauth.kakao.com/oauth/authorize?client_id=${import.meta.env.VITE_PUBLIC_KAKAO_RESTAPI_KEY}&redirect_uri=${window.location.origin}${ROUTES.AUTH.KAKAO_REDIRECT_URI}&response_type=code&service_terms=picake_s_tos,picake_s_privacy`}
+          className="relative flex h-[50px] w-full items-center justify-center gap-3 rounded-lg bg-[#FEE500] text-[15px] font-medium text-[#191919] shadow-sm transition-colors hover:bg-[#f5dc00] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#191919]/25 focus-visible:ring-offset-2"
         >
           <img src={kakaoIcon} alt="" width={20} height={20} className="size-5 shrink-0" />
           Kakao로 계속하기
+          {lastProvider === "kakao" && <RecentLoginBubble />}
         </a>
       </div>
     </AuthBrandedCard>

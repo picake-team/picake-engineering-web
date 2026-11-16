@@ -5,10 +5,14 @@ import { authApi } from "@/apps/web-seller/features/auth/apis/auth.api";
 import { useAlertStore } from "@/apps/web-seller/common/store/alert.store";
 import { logoutWithDevice } from "@/apps/web-seller/common/components/providers/SellerAppBridgeProvider";
 import getApiMessage from "@/apps/web-seller/common/utils/getApiMessage";
+import { isRegisterTicketInvalid } from "@/apps/web-seller/features/auth/constants/auth.constant";
+import { clearPendingOAuthRegister } from "@/apps/web-seller/features/auth/utils/oauth-callback-pending.util";
+import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
 import type {
   FindAccountRequestDto,
   PhoneVerificationPurpose,
 } from "@/apps/web-seller/features/auth/types/auth.dto";
+import { saveLastLoginProvider } from "@/apps/web-seller/features/auth/utils/last-login-provider.util";
 
 export function useLogout() {
   const { logout } = useAuthStore();
@@ -95,9 +99,15 @@ export function useGoogleRegister() {
   return useMutation({
     mutationFn: authApi.googleRegister,
     onSuccess: (data) => {
+      saveLastLoginProvider("google");
       login({ navigate, accessToken: data.accessToken });
     },
     onError: (error) => {
+      if (isRegisterTicketInvalid(error)) {
+        // 가입표가 30분 지났거나 잘못됨 — 이 화면에서는 가입할 수 없어 로그인부터 다시
+        clearPendingOAuthRegister();
+        navigate(ROUTES.AUTH.LOGIN, { replace: true });
+      }
       addAlert({
         message: getApiMessage.error(error),
         severity: "error",
@@ -115,9 +125,15 @@ export function useKakaoRegister() {
   return useMutation({
     mutationFn: authApi.kakaoRegister,
     onSuccess: (data) => {
+      saveLastLoginProvider("kakao");
       login({ navigate, accessToken: data.accessToken });
     },
     onError: (error) => {
+      if (isRegisterTicketInvalid(error)) {
+        // 가입표가 30분 지났거나 잘못됨 — 이 화면에서는 가입할 수 없어 로그인부터 다시
+        clearPendingOAuthRegister();
+        navigate(ROUTES.AUTH.LOGIN, { replace: true });
+      }
       addAlert({
         message: getApiMessage.error(error),
         severity: "error",

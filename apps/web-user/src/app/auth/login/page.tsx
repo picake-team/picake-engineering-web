@@ -14,6 +14,8 @@ import {
 } from "@/apps/web-user/features/auth/utils/oauth-login-url.util";
 import { useAlertStore } from "@/apps/web-user/common/store/alert.store";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
+import { RecentLoginBubble } from "@/apps/web-user/features/auth/components/RecentLoginBubble";
+import { useLastLoginProvider } from "@/apps/web-user/features/auth/hooks/useLastLoginProvider";
 import type { OAuthProvider } from "@/apps/web-user/common/types/analytics.type";
 
 /**
@@ -25,6 +27,7 @@ import type { OAuthProvider } from "@/apps/web-user/common/types/analytics.type"
  */
 export default function LoginPage() {
   const { showAlert } = useAlertStore();
+  const lastProvider = useLastLoginProvider();
 
   useEffect(() => {
     trackEvent("view_login_entry", { entry_point: "session_expired" });
@@ -69,6 +72,7 @@ export default function LoginPage() {
             className={oauthLoginButtonIconClassName}
           />
           카카오로 시작하기
+          {lastProvider === "kakao" && <RecentLoginBubble />}
         </button>
 
         <button
@@ -84,6 +88,7 @@ export default function LoginPage() {
             className={oauthLoginButtonIconClassName}
           />
           구글로 시작하기
+          {lastProvider === "google" && <RecentLoginBubble />}
         </button>
       </div>
     </div>

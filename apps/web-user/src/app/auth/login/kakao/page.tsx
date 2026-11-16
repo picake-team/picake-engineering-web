@@ -15,6 +15,11 @@ import {
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import { decodeJwtPayload } from "@/apps/web-user/features/auth/utils/jwt.util";
 import { resolveSocialAuthFailReason } from "@/apps/web-user/features/auth/utils/social-auth-error.util";
+import {
+  clearAllRegisterTickets,
+  saveRegisterTicket,
+} from "@/apps/web-user/features/auth/utils/register-ticket.util";
+import { saveLastLoginProvider } from "@/apps/web-user/features/auth/utils/last-login-provider.util";
 
 function KakaoAuthCallbackContent() {
   const router = useRouter();
@@ -41,23 +46,33 @@ function KakaoAuthCallbackContent() {
         if (userId) {
           trackEvent("success_login", { provider: "kakao", user_id: userId });
         }
+        // 로그인 화면 "최근 로그인" 말풍선
+        saveLastLoginProvider("kakao");
+        clearAllRegisterTickets();
         login(data.accessToken);
         // 로그인을 시작했던 화면으로 복귀 (없으면 홈)
         router.replace(consumePostLoginRedirect());
       } catch (error: unknown) {
         const err = error as {
           response?: {
-            data?: { data?: { kakaoId?: string; kakaoEmail?: string; message?: string } };
+            data?: { data?: { registerToken?: string; message?: string } };
           };
         };
-        const { kakaoId, kakaoEmail, message } = err?.response?.data?.data || {};
+        const { registerToken, message } = err?.response?.data?.data || {};
 
-        if (isServerAuthMessage(message, "PHONE_VERIFICATION_REQUIRED") && kakaoId && kakaoEmail) {
+        if (isServerAuthMessage(message, "PHONE_VERIFICATION_REQUIRED") && registerToken) {
           const params = new URLSearchParams();
-          params.set("kakaoId", kakaoId);
-          params.set("kakaoEmail", kakaoEmail);
+          // 가입표: 서버가 확인한 소셜 ID(카카오는 번호·이름도)가 들어 있어 가입은 이 값으로만 한다(30분).
+          // 주소에 싣지 않고 이 탭에 둔다 — 저장이 안 되는 브라우저만 주소로
+          if (!saveRegisterTicket("kakao", registerToken)) {
+            params.set("registerToken", registerToken);
+          }
           // 회원가입으로 이어지므로 복귀 경로는 유지 (가입 완료 후 사용)
-          router.replace(`${PATHS.AUTH.KAKAO_REGISTER}?${params.toString()}`);
+          router.replace(
+            params.toString()
+              ? `${PATHS.AUTH.KAKAO_REGISTER}?${params.toString()}`
+              : PATHS.AUTH.KAKAO_REGISTER,
+          );
         } else {
           clearPostLoginRedirect();
           trackEvent("fail_social_auth", {

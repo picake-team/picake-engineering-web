@@ -6,11 +6,16 @@ import { useAlertStore } from "@/apps/web-user/common/store/alert.store";
 import getApiMessage from "@/apps/web-user/common/utils/getApiMessage";
 import type { PhoneVerificationPurpose } from "@/apps/web-user/features/auth/types/auth.dto";
 import type { DuplicateAccountPayload } from "@/apps/web-user/features/auth/types/auth.dto";
-import { parseDuplicateAccountPayload } from "@/apps/web-user/features/auth/utils/register-duplicate-account.util";
+import {
+  isRegisterTicketInvalid,
+  parseDuplicateAccountPayload,
+} from "@/apps/web-user/features/auth/utils/register-duplicate-account.util";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { consumePostLoginRedirect } from "@/apps/web-user/features/auth/utils/post-login-redirect.util";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import { decodeJwtPayload } from "@/apps/web-user/features/auth/utils/jwt.util";
+import { clearRegisterTicket } from "@/apps/web-user/features/auth/utils/register-ticket.util";
+import { saveLastLoginProvider } from "@/apps/web-user/features/auth/utils/last-login-provider.util";
 
 export function useSendPhoneVerification() {
   const { showAlert } = useAlertStore();
@@ -77,8 +82,15 @@ export function useGoogleRegister(options?: {
     onSuccess: (data) => {
       const userId = decodeJwtPayload<{ sub: string }>(data.accessToken)?.sub;
       if (userId) {
-        trackEvent("success_signup", { provider: "google", user_id: userId });
+        trackEvent("success_signup", {
+          provider: "google",
+          user_id: userId,
+          phone_source: "sms",
+          terms_source: "screen",
+        });
       }
+      clearRegisterTicket("google");
+      saveLastLoginProvider("google");
       login(data.accessToken);
       // 로그인을 시작했던 화면으로 복귀 (없으면 홈)
       router.replace(consumePostLoginRedirect());
@@ -88,6 +100,11 @@ export function useGoogleRegister(options?: {
       if (duplicate) {
         options?.onDuplicateAccount?.(duplicate);
         return;
+      }
+      if (isRegisterTicketInvalid(error)) {
+        // 가입표가 30분 지났거나 잘못됨 — 이 화면에서는 가입할 수 없어 지우고 홈으로(다시 로그인, 복귀 경로는 유지)
+        clearRegisterTicket("google");
+        router.replace(PATHS.HOME);
       }
       showAlert({
         type: "error",
@@ -107,11 +124,19 @@ export function useKakaoRegister(options?: {
 
   return useMutation({
     mutationFn: authApi.kakaoRegister,
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
       const userId = decodeJwtPayload<{ sub: string }>(data.accessToken)?.sub;
       if (userId) {
-        trackEvent("success_signup", { provider: "kakao", user_id: userId });
+        trackEvent("success_signup", {
+          provider: "kakao",
+          user_id: userId,
+          // 카카오 번호로 가입했나, 약관을 카카오에서 받았나(가입 화면 약관이면 agreedToTerms를 보냄)
+          phone_source: variables.useTicketPhone ? "kakao" : "sms",
+          terms_source: variables.agreedToTerms === undefined ? "kakao" : "screen",
+        });
       }
+      clearRegisterTicket("kakao");
+      saveLastLoginProvider("kakao");
       login(data.accessToken);
       // 로그인을 시작했던 화면으로 복귀 (없으면 홈)
       router.replace(consumePostLoginRedirect());
@@ -121,6 +146,11 @@ export function useKakaoRegister(options?: {
       if (duplicate) {
         options?.onDuplicateAccount?.(duplicate);
         return;
+      }
+      if (isRegisterTicketInvalid(error)) {
+        // 가입표가 30분 지났거나 잘못됨 — 이 화면에서는 가입할 수 없어 지우고 홈으로(다시 로그인, 복귀 경로는 유지)
+        clearRegisterTicket("kakao");
+        router.replace(PATHS.HOME);
       }
       showAlert({
         type: "error",
@@ -143,8 +173,15 @@ export function useAppleRegister(options?: {
     onSuccess: (data) => {
       const userId = decodeJwtPayload<{ sub: string }>(data.accessToken)?.sub;
       if (userId) {
-        trackEvent("success_signup", { provider: "apple", user_id: userId });
+        trackEvent("success_signup", {
+          provider: "apple",
+          user_id: userId,
+          phone_source: "sms",
+          terms_source: "screen",
+        });
       }
+      clearRegisterTicket("apple");
+      saveLastLoginProvider("apple");
       login(data.accessToken);
       // 로그인을 시작했던 화면으로 복귀 (없으면 홈)
       router.replace(consumePostLoginRedirect());
@@ -154,6 +191,11 @@ export function useAppleRegister(options?: {
       if (duplicate) {
         options?.onDuplicateAccount?.(duplicate);
         return;
+      }
+      if (isRegisterTicketInvalid(error)) {
+        // 가입표가 30분 지났거나 잘못됨 — 이 화면에서는 가입할 수 없어 지우고 홈으로(다시 로그인, 복귀 경로는 유지)
+        clearRegisterTicket("apple");
+        router.replace(PATHS.HOME);
       }
       showAlert({
         type: "error",

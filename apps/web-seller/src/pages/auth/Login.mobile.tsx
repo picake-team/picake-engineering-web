@@ -21,9 +21,11 @@ import {
 import { ReviewLoginSheet } from "@/apps/web-seller/features/auth/components/mobile/ReviewLoginSheet";
 import { SELLER_INTRO_URL } from "@/apps/web-seller/common/constants/seller-intro.constant";
 import { externalHref } from "@/apps/web-seller/common/utils/webview.bridge";
+import { RecentLoginBubble } from "@/apps/web-seller/features/auth/components/RecentLoginBubble";
+import { readLastLoginProvider } from "@/apps/web-seller/features/auth/utils/last-login-provider.util";
 
 const BTN =
-  "flex h-12 w-full items-center justify-center gap-2 rounded-control text-body font-bold";
+  "relative flex h-12 w-full items-center justify-center gap-2 rounded-control text-body font-bold";
 
 /** 심사용 로그인 입구: 로고를 이 시간 안에 이만큼 누르면 연다(손님 앱의 버전 10번과 같은 수) */
 const REVIEW_TAP_COUNT = 10;
@@ -31,6 +33,8 @@ const REVIEW_TAP_WINDOW_MS = 2000;
 
 export const LoginMobilePage: React.FC = () => {
   const [reviewOpen, setReviewOpen] = useState(false);
+  // 이 기기에서 마지막으로 로그인한 방법 — 그 버튼에 "최근 로그인" 말풍선
+  const [lastProvider] = useState(readLastLoginProvider);
   const tapTimesRef = useRef<number[]>([]);
 
   const onLogoTap = () => {
@@ -81,6 +85,7 @@ export const LoginMobilePage: React.FC = () => {
         <a href={kakaoAuthorizeUrl()} className={cx(BTN, "bg-kakao text-ink-900")}>
           <img src={kakaoIcon} alt="" width={20} height={20} className="size-5" />
           카카오로 시작하기
+          {lastProvider === "kakao" && <RecentLoginBubble />}
         </a>
         <a
           href={googleAuthorizeUrl()}
@@ -88,10 +93,12 @@ export const LoginMobilePage: React.FC = () => {
         >
           <img src={googleIcon} alt="" width={20} height={20} className="size-5" />
           구글로 시작하기
+          {lastProvider === "google" && <RecentLoginBubble />}
         </a>
         {SELLER_APPLE_LOGIN_ENABLED ? (
           <button type="button" className={cx(BTN, "bg-black text-white")}>
             Apple로 시작하기
+            {lastProvider === "apple" && <RecentLoginBubble />}
           </button>
         ) : null}
       </div>

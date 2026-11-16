@@ -74,6 +74,8 @@ function CancelDetailView({ order }: { order: OrderResponse }) {
     order.userCancelReason ||
     order.sellerCancelRefundPendingReason ||
     order.sellerCancelReason ||
+    (order.reservationExpiredAt ? "가게가 픽업 날까지 확인하지 않아 자동 취소" : null) ||
+    (order.paymentPendingExpiredAt ? "입금 마감이 지나 자동 취소" : null) ||
     "-";
 
   return (

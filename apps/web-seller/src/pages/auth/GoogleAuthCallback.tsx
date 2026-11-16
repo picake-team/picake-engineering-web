@@ -31,6 +31,12 @@ import {
   buildSellerTermsDocumentIds,
   mapSellerActiveTermsToDocIds,
 } from "@/apps/web-seller/features/terms/utils/terms-consent.util";
+import { saveLastLoginProvider } from "@/apps/web-seller/features/auth/utils/last-login-provider.util";
+
+/** 가입 요청 실패는 mutation onError가 이미 알렸다 — 화면 함수가 처리 안 된 오류로 끝나지 않게(Sentry에 4xx가 쌓이지 않게, 11-16 검토). 대기 중 가입 정보는 성공했을 때만 지운다 */
+function ignoreHandledError(): undefined {
+  return undefined;
+}
 
 function readInitialGoogleLoginData(): PendingGoogleRegister | null {
   const pending = getPendingOAuthRegister();
@@ -51,7 +57,7 @@ function stripOAuthCodeFromUrl(
 
 /**
  * 구글 OAuth 리다이렉트 콜백 — `code`로 `/v1/seller/auth/google/login` 호출
- * 휴대폰 미연동 시 백엔드가 `googleId`/`googleEmail`과 함께 400 → 이 화면에서 휴대폰 인증 후 register
+ * 휴대폰 미연동 시 백엔드가 가입표 `registerToken`과 함께 400 → 이 화면에서 휴대폰 인증 후 register
  */
 export function GoogleAuthCallbackPage() {
   const navigate = useNavigate();
@@ -64,10 +70,10 @@ export function GoogleAuthCallbackPage() {
 
   const initialPending = readInitialGoogleLoginData();
   const [showPhoneVerification, setShowPhoneVerification] = useState(!!initialPending);
-  const [googleLoginData, setGoogleLoginData] = useState<{
-    googleId: string;
-    googleEmail: string;
-  } | null>(initialPending);
+  const [googleLoginData, setGoogleLoginData] = useState<{ registerToken: string } | null>(
+    // provider 칸은 가입 요청에 넣지 않는다(서버가 모르는 칸이면 400)
+    initialPending ? { registerToken: initialPending.registerToken } : null,
+  );
   const [displayName, setDisplayName] = useState("");
   const [nameError, setNameError] = useState("");
   const [termsState, setTermsState] = useState<SellerTermsAgreementState>(
@@ -90,6 +96,7 @@ export function GoogleAuthCallbackPage() {
       const data = await authApi.googleLogin(code);
       clearPendingOAuthRegister();
       stripOAuthCodeFromUrl(navigate, location, searchParams);
+      saveLastLoginProvider("google");
       login({ navigate, accessToken: data.accessToken });
     } catch (error: unknown) {
       stripOAuthCodeFromUrl(navigate, location, searchParams);
@@ -98,32 +105,29 @@ export function GoogleAuthCallbackPage() {
         response?: {
           data?: {
             message?: string;
-            data?: { googleId?: string; googleEmail?: string; message?: string };
+            data?: { registerToken?: string; message?: string };
           };
         };
       };
       const payload = (err?.response?.data?.data ?? err?.response?.data ?? {}) as {
         message?: string;
-        googleId?: string;
-        googleEmail?: string;
+        registerToken?: string;
       };
       const message = payload.message ?? "";
-      const googleId = payload.googleId;
-      const googleEmail = payload.googleEmail;
+      // 가입표: 서버가 확인한 소셜 ID가 들어 있어 가입은 이 값으로만 한다(30분)
+      const registerToken = payload.registerToken;
 
       if (
         typeof message === "string" &&
         message.includes(AUTH_ERROR_MESSAGES.PHONE_VERIFICATION_REQUIRED) &&
-        googleId &&
-        googleEmail
+        registerToken
       ) {
         const pending: PendingGoogleRegister = {
           provider: "google",
-          googleId,
-          googleEmail,
+          registerToken,
         };
         setPendingOAuthRegister(pending);
-        setGoogleLoginData({ googleId, googleEmail });
+        setGoogleLoginData({ registerToken });
         setShowPhoneVerification(true);
       } else {
         clearPendingOAuthRegister();
@@ -179,27 +183,22 @@ export function GoogleAuthCallbackPage() {
       return;
     }
 
-    await googleRegisterMutation.mutateAsync({
-      ...googleLoginData,
-      phone,
-      name: displayName.trim(),
-      agreedToTerms: termsState.termsOfService,
-      agreedToPrivacy: termsState.privacyPolicy,
-      termsDocumentIds,
-    });
-    clearPendingOAuthRegister();
+    await googleRegisterMutation
+      .mutateAsync({
+        ...googleLoginData,
+        phone,
+        name: displayName.trim(),
+        agreedToTerms: termsState.termsOfService,
+        agreedToPrivacy: termsState.privacyPolicy,
+        termsDocumentIds,
+      })
+      .then(clearPendingOAuthRegister, ignoreHandledError);
   };
 
   if (showPhoneVerification) {
     return (
       <AuthBrandedCard
         title="회원가입"
-        description={
-          <>
-            판매자 센터 이용을 위해 <strong className="font-medium text-zinc-700">실명</strong>과{" "}
-            <strong className="font-medium text-zinc-700">휴대폰 인증</strong>이 필요합니다.
-          </>
-        }
         footer={
           <div className="flex justify-center">
             <Link
