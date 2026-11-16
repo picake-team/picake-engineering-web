@@ -85,8 +85,12 @@ export function Snackbar({
   );
 }
 
-/** 스낵바 저장소(`useSnackbarStore`)에 띄운 것을 그린다. 휴대폰 화면에서 한 번만 둔다(App) */
-export function SnackbarHost() {
+/**
+ * 스낵바 저장소(`useSnackbarStore`)에 띄운 것을 그린다. App에 한 번만 둔다.
+ * PC는 아래 탭이 없어 화면 아래에 가깝게(bottomOffset) — PC에는 이 자리가 없어 채팅 차단·판매 상태 바꾸기의
+ * "되돌리기"가 보이지 않던 것(F-67, 11-17)
+ */
+export function SnackbarHost({ bottomOffset }: { bottomOffset?: number } = {}) {
   const current = useSnackbarStore((s) => s.current);
   const hideSnackbar = useSnackbarStore((s) => s.hideSnackbar);
   if (!current) return null;
@@ -97,6 +101,7 @@ export function SnackbarHost() {
       actionLabel={current.actionLabel}
       onAction={current.onAction}
       duration={current.duration}
+      bottomOffset={bottomOffset}
       onClose={() => hideSnackbar(current.id)}
     />
   );
