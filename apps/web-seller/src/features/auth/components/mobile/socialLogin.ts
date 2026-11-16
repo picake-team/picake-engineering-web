@@ -10,6 +10,14 @@ export function kakaoAuthorizeUrl(): string {
   return `https://kauth.kakao.com/oauth/authorize?client_id=${import.meta.env.VITE_PUBLIC_KAKAO_RESTAPI_KEY}&redirect_uri=${window.location.origin}${ROUTES.AUTH.KAKAO_REDIRECT_URI}&response_type=code&service_terms=picake_s_tos,picake_s_privacy`;
 }
 
+/**
+ * 소셜 로그인 버튼 안 아이콘 자리(손님 앱과 같은 규칙, 2026-11-16 운영자 결정): 아이콘은 버튼 왼쪽 20px의 20×20 칸에 고정하고
+ * 글자는 버튼 가운데. 그래서 버튼을 쌓아도 아이콘은 한 줄, 글자는 가운데로 맞는다. 버튼에는 `relative`를 둔다.
+ */
+export const SOCIAL_LOGIN_ICON_CLASS = "absolute left-5 top-1/2 size-5 -translate-y-1/2";
+/** 네이버 N은 16px — 20×20 칸 가운데(왼쪽 22px) */
+export const SOCIAL_LOGIN_NAVER_ICON_CLASS = "absolute left-[22px] top-1/2 size-4 -translate-y-1/2";
+
 /** 네이버 키가 있는 환경만 네이버 버튼(검수 승인 전 상용은 키를 넣지 않는다) */
 export const SELLER_NAVER_LOGIN_ENABLED = Boolean(import.meta.env.VITE_PUBLIC_NAVER_CLIENT_ID);
 
