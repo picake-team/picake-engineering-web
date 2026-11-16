@@ -20,6 +20,8 @@ export function fromAutofillPhone(raw: string): string {
   }
   const digits = trimmed.replace(/\D/g, "");
   if (/^821[016789]\d{7,8}$/.test(digits)) return `0${digits.slice(2)}`;
+  // 국제 전화 앞자리 00으로 저장된 번호("0082 10-1234-5678", 11-16 검토)
+  if (/^00821[016789]\d{7,8}$/.test(digits)) return `0${digits.slice(4)}`;
   return raw;
 }
 

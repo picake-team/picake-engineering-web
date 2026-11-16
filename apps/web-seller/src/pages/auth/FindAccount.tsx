@@ -48,14 +48,16 @@ export function FindAccountPage() {
         <div
           className={cn(
             "rounded-lg border border-zinc-200 bg-zinc-50/90 p-5 shadow-sm",
-            result.loginEmail && "border-emerald-200/90 bg-emerald-50/50",
+            // 네이버는 이메일을 받지 않아 loginEmail이 없지만 찾은 결과다(11-16 검토)
+            (result.loginEmail || result.loginType === "naver") &&
+              "border-emerald-200/90 bg-emerald-50/50",
           )}
         >
           <div className="mb-3 flex items-center gap-2.5">
             <div
               className={cn(
                 "flex size-9 shrink-0 items-center justify-center rounded-lg",
-                result.loginEmail
+                result.loginEmail || result.loginType === "naver"
                   ? "bg-emerald-100 text-emerald-700"
                   : "bg-zinc-200/90 text-zinc-600",
               )}
