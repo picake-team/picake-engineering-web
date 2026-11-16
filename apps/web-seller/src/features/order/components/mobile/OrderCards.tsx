@@ -121,6 +121,7 @@ export function PastOrderRow({ order }: { order: OrderResponseDto }) {
       <span className="flex shrink-0 flex-col items-end gap-1 text-caption text-ink-600">
         <span className="font-bold">{getOrderStatusLabel(order.orderStatus)}</span>
         {order.paymentPendingExpiredAt ? <span>기한 만료</span> : null}
+        {order.reservationExpiredAt ? <span>미확인</span> : null}
       </span>
     </Link>
   );
