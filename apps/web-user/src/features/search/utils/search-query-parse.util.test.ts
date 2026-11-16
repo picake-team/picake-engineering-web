@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { ProductCategoryType as C } from "@/apps/web-user/features/product/types/product.type";
-import { parseSearchQuery } from "@/apps/web-user/features/search/utils/search-query-parse.util";
 import {
-  recommendedSearchKeywords,
-  suggestSearchKeywords,
-} from "@/apps/web-user/features/search/utils/search-suggest.util";
+  mergeSearchFilters,
+  parseSearchQuery,
+  splitSheetFilter,
+} from "@/apps/web-user/features/search/utils/search-query-parse.util";
 
 describe("parseSearchQuery", () => {
   it("카테고리·크기·가격을 알아듣고 남은 말만 검색어로", () => {
@@ -35,6 +35,34 @@ describe("parseSearchQuery", () => {
     expect(parseSearchQuery("레터링 4만원").filter).toMatchObject({ maxPrice: 40000 });
   });
 
+  it("가격 말이 남아 검색어를 막지 않는다(범위 양쪽 만원, 위·아래 둘 다, 원 없이)", () => {
+    expect(parseSearchQuery("레터링 2만~3만원")).toEqual({
+      keyword: "",
+      filter: { productCategoryTypes: [C.LETTERING], minPrice: 20000, maxPrice: 30000 },
+    });
+    expect(parseSearchQuery("생일 3만원 이상 5만원 이하").filter).toMatchObject({
+      minPrice: 30000,
+      maxPrice: 50000,
+    });
+    expect(parseSearchQuery("생일 3만 이하")).toEqual({
+      keyword: "",
+      filter: { productCategoryTypes: [C.BIRTHDAY], maxPrice: 30000 },
+    });
+    expect(parseSearchQuery("2~3만원대 레터링").keyword).toBe("");
+    expect(parseSearchQuery("레터링 5만원 이상 3만원 이하").filter).toMatchObject({
+      minPrice: 30000,
+      maxPrice: 50000,
+    });
+    expect(parseSearchQuery("100일 케이크 2.5만원").filter).toMatchObject({ maxPrice: 25000 });
+  });
+
+  it('서버가 모르는 "오늘" 하나만 쳐도 당일픽업으로', () => {
+    expect(parseSearchQuery("오늘")).toEqual({
+      keyword: "",
+      filter: { productCategoryTypes: [C.SAME_DAY_PICKUP] },
+    });
+  });
+
   it("오늘·당일은 당일픽업", () => {
     expect(parseSearchQuery("오늘 생일케이크").filter.productCategoryTypes).toEqual([
       C.SAME_DAY_PICKUP,
@@ -53,40 +81,41 @@ describe("parseSearchQuery", () => {
   });
 });
 
-describe("suggestSearchKeywords", () => {
-  it("내가 찾았던 말이 먼저, 그다음 아는 말(앞에서 맞는 것 먼저)", () => {
-    const rows = suggestSearchKeywords("렡", ["레터링 케이크"]);
-    expect(rows[0]).toMatchObject({ text: "레터링 케이크", kind: "recent" });
-    expect(rows.some((r) => r.text === "레터링" && r.kind === "keyword")).toBe(true);
+describe("필터 창과 친 말의 조건", () => {
+  it("더할 때 카테고리·크기는 합치고 가격은 친 말이 이긴다", () => {
+    expect(
+      mergeSearchFilters(
+        { productCategoryTypes: [C.BIRTHDAY], maxPrice: 50000 },
+        { productCategoryTypes: [C.LETTERING], sizes: ["2호"], maxPrice: 30000 },
+      ),
+    ).toEqual({
+      productCategoryTypes: [C.BIRTHDAY, C.LETTERING],
+      sizes: ["2호"],
+      minPrice: undefined,
+      maxPrice: 30000,
+    });
   });
 
-  it("두 단어 이상이면 앞말은 두고 마지막 단어를 잇는다", () => {
-    const rows = suggestSearchKeywords("생일 렡", []);
-    expect(rows[0]).toMatchObject({ text: "생일 레터링", highlight: [0, 5] });
-    expect(suggestSearchKeywords("생일 1", []).map((r) => r.text)).toContain("생일 1호");
-    expect(suggestSearchKeywords("생일 ", [])).toEqual([]);
-  });
-
-  it("8줄까지, 빈 검색어는 없음", () => {
-    expect(suggestSearchKeywords("ㅅ", []).length).toBeLessThanOrEqual(8);
-    expect(suggestSearchKeywords(" ", ["레터링"])).toEqual([]);
-  });
-});
-
-describe("recommendedSearchKeywords", () => {
-  it("11월 중순에는 크리스마스·연말·합격이 앞에, 늘 찾는 말이 뒤에", () => {
-    expect(recommendedSearchKeywords(new Date("2026-11-16T03:00:00Z")).slice(0, 4)).toEqual([
-      "크리스마스",
-      "연말",
-      "합격",
-      "생일",
-    ]);
-  });
-
-  it("5월 초에는 어버이날·스승의날", () => {
-    expect(recommendedSearchKeywords(new Date("2026-05-03T03:00:00Z")).slice(0, 2)).toEqual([
-      "어버이날",
-      "스승의날",
-    ]);
+  it("창에서 고치면 친 말 몫은 남은 것만, 나머지는 고른 필터로", () => {
+    const typed = {
+      productCategoryTypes: [C.BIRTHDAY, C.LETTERING],
+      sizes: ["1호"],
+      maxPrice: 30000,
+    };
+    const sheet = { productCategoryTypes: [C.BIRTHDAY, C.FLOWER], sizes: ["1호"], maxPrice: 40000 };
+    expect(splitSheetFilter(sheet, typed)).toEqual({
+      picked: {
+        productCategoryTypes: [C.FLOWER],
+        sizes: undefined,
+        minPrice: undefined,
+        maxPrice: 40000,
+      },
+      typed: {
+        productCategoryTypes: [C.BIRTHDAY],
+        sizes: ["1호"],
+        minPrice: undefined,
+        maxPrice: undefined,
+      },
+    });
   });
 });
