@@ -17,6 +17,7 @@ import { cx } from "@/apps/web-seller/common/ui/cx";
 import {
   addDaysToKey,
   formatKeyMonthDayWeek,
+  isDateKey,
   kstDateKey,
   kstTime,
   monthEndKey,
@@ -60,7 +61,7 @@ export const StoreDetailCalendarMobilePage: React.FC = () => {
   // 고른 날은 주소(?date=)에도 둔다: 주문 적기·상세에서 뒤로 오면 보던 날이 그대로 열리게(기획 I-42)
   const [params, setParams] = useSearchParams();
   const dateParam = params.get("date");
-  const initialKey = dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam) ? dateParam : todayKey;
+  const initialKey = isDateKey(dateParam) ? dateParam : todayKey;
   const [selectedKey, setSelectedKey] = useState(initialKey);
   const [monthKey, setMonthKey] = useState(() => monthStartKey(initialKey));
   /** 사장님이 날짜를 고르면 주소도 바꾼다(뒤로 가기 기록은 늘리지 않음) */

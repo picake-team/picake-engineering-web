@@ -26,12 +26,20 @@ export function useManualOrder(storeId: string, id: string) {
   return query;
 }
 
-/** 적기·고치기·지우기 뒤 달력·목록·매출을 다시 읽는다 */
+/**
+ * 적기·고치기·지우기 뒤 달력·목록·매출을 다시 읽는다.
+ * 지운 주문(`exceptId`)의 상세는 다시 읽지 않는다(아직 열린 상세가 404를 받아 깜빡이고 캘린더로 튕기지 않게)
+ */
 export function useInvalidateManualOrders() {
   const queryClient = useQueryClient();
-  return () =>
+  return (opts?: { exceptId?: string }) =>
     Promise.all([
-      queryClient.invalidateQueries({ queryKey: manualOrderQueryKeys.all }),
+      queryClient.invalidateQueries({
+        queryKey: manualOrderQueryKeys.all,
+        predicate: opts?.exceptId
+          ? (q) => !(q.queryKey[2] === "detail" && q.queryKey[4] === opts.exceptId)
+          : undefined,
+      }),
       queryClient.invalidateQueries({ queryKey: statisticsQueryKeys.all }),
     ]);
 }

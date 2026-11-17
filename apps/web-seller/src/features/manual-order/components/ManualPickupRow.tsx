@@ -29,9 +29,12 @@ export function ManualPickupRow({ manual, last }: { manual: ManualOrderDto; last
         {manual.pickupTime ?? "미정"}
       </span>
       <span className="flex min-w-0 flex-1 flex-col gap-1">
-        <span className="line-clamp-2 text-body font-semibold text-ink-900">{manual.cakeName}</span>
+        <span className="line-clamp-2 text-body font-semibold text-ink-900 [overflow-wrap:anywhere]">
+          {manual.cakeName}
+        </span>
         {sub || manual.paid === false ? (
-          <span className="text-sub text-ink-600">
+          // 띄어쓰기 없는 인스타 아이디(50자)도 받은 곳 칸을 밀지 않게 한 줄로 줄인다
+          <span className="truncate text-sub text-ink-600">
             {sub ? <span className={NO_REPLAY}>{sub}</span> : null}
             {sub && manual.paid === false ? " · " : null}
             {manual.paid === false ? (

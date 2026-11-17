@@ -3,7 +3,7 @@
  * 픽업 일시·케이크 → 레터링(손님이 쓴 글 모양: 테두리 칸 + 18 굵게) → 입금(금액 + 입금 전·받음, 누르면 바로 바뀜)
  * → 손님·받은 곳·메모 → 사진(누르면 크게). 아래 [고치기] + 회색 글자 [지우기](한 번 더 묻는다).
  */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { AppScreen, BackHeader, BottomActionBar } from "@/apps/web-seller/common/ui/Screen";
@@ -61,18 +61,26 @@ export const StoreDetailManualOrderDetailMobilePage: React.FC = () => {
     }
   }, [q.isError, q.error, navigate, storeId]);
 
-  // 입금 전·받음은 누르자마자 바꾸고, 저장이 실패하면 되돌린다(디자인 기준 "바로 되는 일은 바로")
+  // 입금 전·받음은 누르자마자 바꾸고, 저장이 실패하면 되돌린다(디자인 기준 "바로 되는 일은 바로").
+  // 빨리 두 번 누르면 마지막에 누른 것만 화면에 남긴다(앞 응답·다시 읽기가 덮어쓰지 않게)
+  const paidSeq = useRef(0);
   const setPaid = async (paid: boolean) => {
     if (!m || m.paid === paid) return;
+    const seq = ++paidSeq.current;
     const key = manualOrderQueryKeys.detail(storeId, m.id);
-    const before = m;
-    queryClient.setQueryData<ManualOrderDto>(key, { ...m, paid });
+    await queryClient.cancelQueries({ queryKey: key });
+    const before = queryClient.getQueryData<ManualOrderDto>(key) ?? m;
+    queryClient.setQueryData<ManualOrderDto>(key, { ...before, paid });
     try {
       const saved = await manualOrderApi.setPaid(storeId, m.id, paid);
+      if (seq !== paidSeq.current) return;
       queryClient.setQueryData<ManualOrderDto>(key, saved);
       void invalidate();
     } catch (e) {
-      queryClient.setQueryData<ManualOrderDto>(key, before);
+      if (seq === paidSeq.current) {
+        queryClient.setQueryData<ManualOrderDto>(key, before);
+        void invalidate();
+      }
       addAlert({ severity: "error", message: getApiMessage.error(e) });
     }
   };
@@ -82,8 +90,7 @@ export const StoreDetailManualOrderDetailMobilePage: React.FC = () => {
     setDeleting(true);
     try {
       await manualOrderApi.remove(storeId, m.id);
-      queryClient.removeQueries({ queryKey: manualOrderQueryKeys.detail(storeId, m.id) });
-      await invalidate();
+      await invalidate({ exceptId: m.id });
       setConfirmOpen(false);
       addAlert({ severity: "success", message: "주문을 지웠어요" });
       if (canGoBackInApp()) navigate(-1);
@@ -130,14 +137,18 @@ export const StoreDetailManualOrderDetailMobilePage: React.FC = () => {
             <span className="text-title font-bold text-ink-900">
               {formatKeyMonthDayWeek(m.pickupDate)} {m.pickupTime ?? "시간 미정"} 픽업
             </span>
-            <span className="text-group font-semibold text-ink-900">{m.cakeName}</span>
+            <span className="text-group font-semibold text-ink-900 [overflow-wrap:anywhere]">
+              {m.cakeName}
+            </span>
             {tag ? <span className="text-sub text-ink-600">{tag.full}</span> : null}
           </div>
 
           {m.lettering ? (
             <div className="flex flex-col gap-1 rounded-card border border-ink-200 px-4 py-3.5">
               <span className="text-sub font-bold text-ink-900">레터링</span>
-              <span className={`${NO_REPLAY} text-heading font-bold leading-snug text-ink-900`}>
+              <span
+                className={`${NO_REPLAY} text-heading font-bold leading-snug text-ink-900 [overflow-wrap:anywhere]`}
+              >
                 {m.lettering}
               </span>
             </div>

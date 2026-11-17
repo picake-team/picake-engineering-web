@@ -15,7 +15,9 @@ import { Icon } from "@/apps/web-seller/common/ui/icons";
 import { LoadErrorState } from "@/apps/web-seller/common/ui/Surface";
 import { useAlertStore } from "@/apps/web-seller/common/store/alert.store";
 import getApiMessage from "@/apps/web-seller/common/utils/getApiMessage";
-import { externalHref } from "@/apps/web-seller/common/utils/webview.bridge";
+import { externalHref, isSellerAppWebView } from "@/apps/web-seller/common/utils/webview.bridge";
+import { copyText } from "@/apps/web-seller/common/utils/clipboard.util";
+import { NO_REPLAY } from "@/apps/web-seller/common/constants/replay.constant";
 import { formatKeyMonthDayWeek } from "@/apps/web-seller/common/utils/kst-date.util";
 import { manualOrderApi } from "@/apps/web-seller/features/manual-order/apis/manual-order.api";
 import { manualOrderQueryKeys } from "@/apps/web-seller/features/manual-order/constants/manual-order.constant";
@@ -32,8 +34,21 @@ export interface CalendarExportSample {
   customerName: string | null;
 }
 
+/** 앱 안이면 앱이 휴대폰 캘린더·브라우저로 연다. 휴대폰 브라우저에서 구글 주소는 새 탭으로(판매자 화면을 떠나지 않게) */
 function openOutside(url: string) {
+  if (!isSellerAppWebView() && url.startsWith("https://")) {
+    window.open(url, "_blank", "noopener");
+    return;
+  }
   window.location.href = externalHref(url);
+}
+
+/** 안드로이드는 webcal 주소를 여는 앱이 없어 아이폰 줄을 숨긴다 */
+function isAndroid(): boolean {
+  if (typeof window === "undefined") return false;
+  return (
+    window.PicakeSellerApp?.platform === "android" || /Android/i.test(window.navigator.userAgent)
+  );
 }
 
 export function CalendarExportSheet({
@@ -78,11 +93,11 @@ export function CalendarExportSheet({
     }
   };
 
+  // 앱 안 화면에서 clipboard API가 막히면 예전 방식으로(copyText)
   const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(httpsUrl);
+    if (await copyText(httpsUrl)) {
       addAlert({ severity: "success", message: "주소를 복사했어요" });
-    } catch {
+    } else {
       addAlert({ severity: "error", message: "주소를 복사하지 못했어요. 다시 시도해 주세요" });
     }
   };
@@ -122,16 +137,18 @@ export function CalendarExportSheet({
           <span className="block h-48 animate-pulse rounded-card bg-ink-50" aria-busy="true" />
         ) : (
           <div className="-mt-2 flex flex-col pb-2">
-            <ListRowButton
-              leading={
-                <RowIconBox>
-                  <Icon name="calendar" size={20} strokeWidth={1.8} />
-                </RowIconBox>
-              }
-              title="아이폰 캘린더에 추가"
-              chevron
-              onClick={() => openOutside(webcalUrl)}
-            />
+            {isAndroid() ? null : (
+              <ListRowButton
+                leading={
+                  <RowIconBox>
+                    <Icon name="calendar" size={20} strokeWidth={1.8} />
+                  </RowIconBox>
+                }
+                title="아이폰 캘린더에 추가"
+                chevron
+                onClick={() => openOutside(webcalUrl)}
+              />
+            )}
             <ListRowButton
               leading={
                 <RowIconBox>
@@ -173,7 +190,9 @@ export function CalendarExportSheet({
             />
             <div className="mt-2 flex flex-col gap-0.5 rounded-control bg-ink-50 px-4 py-3">
               <span className="text-caption text-ink-600">{previewWhen}</span>
-              <span className="text-body font-semibold text-ink-900">{previewTitle}</span>
+              <span className={`${NO_REPLAY} text-body font-semibold text-ink-900`}>
+                {previewTitle}
+              </span>
             </div>
             <Button variant="quiet" block className="mt-2" onClick={() => setResetOpen(true)}>
               주소 새로 만들기

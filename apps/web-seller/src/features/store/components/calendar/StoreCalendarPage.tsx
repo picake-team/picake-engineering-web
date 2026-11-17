@@ -746,10 +746,6 @@ export const StoreCalendarPage: React.FC = () => {
                             {manualForSelectedDay.length}건
                           </span>
                         </div>
-                        <p className="text-sm text-muted-foreground">
-                          카톡·인스타 등에서 받아 휴대폰 판매자 앱에 적은 주문입니다. 적기·고치기는
-                          휴대폰에서 합니다.
-                        </p>
                         <ul className="max-h-64 space-y-2 overflow-y-auto pr-1">
                           {manualForSelectedDay.map((m) => (
                             <li

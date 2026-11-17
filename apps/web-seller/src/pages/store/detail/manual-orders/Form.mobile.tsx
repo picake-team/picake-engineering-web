@@ -30,6 +30,7 @@ import getApiMessage from "@/apps/web-seller/common/utils/getApiMessage";
 import { cakeDayOf } from "@/apps/web-seller/common/utils/cake-days.util";
 import {
   formatKeyMonthDayWeek,
+  isDateKey,
   kstDateKey,
   monthEndKey,
   monthStartKey,
@@ -174,6 +175,7 @@ function ManualOrderForm({
   const navigate = useNavigate();
   const invalidate = useInvalidateManualOrders();
   const cakeRef = useRef<HTMLInputElement>(null);
+  const captureRef = useRef<HTMLInputElement>(null);
 
   const [form, setForm] = useState<FormState>(initial);
   const [pasted, setPasted] = useState<Pasted | null>(null);
@@ -188,17 +190,23 @@ function ManualOrderForm({
   const [saving, setSaving] = useState(false);
 
   const patch = (p: Partial<FormState>) => setForm((f) => ({ ...f, ...p }));
+  // 대화 읽기(3~20초)가 끝났을 때의 칸 값. 읽는 동안 사장님이 적은 것을 지우지 않게 누른 때가 아니라 지금 값에 채운다
+  const formRef = useRef(form);
+  formRef.current = form;
 
-  // "대화에서 n칸을 채웠어요 · 되돌리기"는 이 화면에서만 뜻이 있다. 화면을 떠나면(등록·뒤로) 닫는다
+  // "대화에서 n칸을 채웠어요 · 되돌리기"는 이 화면에서만 뜻이 있다. 화면을 떠나면(등록·뒤로) 닫고,
+  // 떠난 뒤 끝난 읽기는 띠·알림을 띄우지 않는다
   const undoRef = useRef<(() => void) | null>(null);
-  useEffect(
-    () => () => {
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
       const { current, hideSnackbar } = useSnackbarStore.getState();
       if (current && undoRef.current && current.onAction === undoRef.current)
         hideSnackbar(current.id);
-    },
-    [],
-  );
+    };
+  }, []);
 
   // 날짜 창: 보는 달의 받은 수(Picake + 직접)·휴무·대목
   const [sheetMonth, setSheetMonth] = useState(() => monthStartKey(initial.pickupDate));
@@ -230,12 +238,18 @@ function ManualOrderForm({
         ...(input.kind === "text" ? { text: input.text } : { image: input.image }),
         today: todayKey,
       });
+      if (!mountedRef.current) return;
       if (!result.found) {
         addAlert({ severity: "warning", message: "주문 내용을 찾지 못했어요. 직접 적어 주세요" });
+        // 복사해 둔 글을 바로 읽었으면 무엇을 읽었는지 보이게 붙여 넣는 창에 띄운다(고쳐서 다시 읽기)
+        if (input.kind === "text") {
+          setPasteDraft(input.text);
+          setPasteSheetOpen(true);
+        }
         return;
       }
-      const before = form;
-      const { next, filled } = applyRead(form, result);
+      const before = formRef.current;
+      const { next, filled } = applyRead(before, result);
       setForm(next);
       setPasted(input);
       setPastedOpen(false);
@@ -250,7 +264,7 @@ function ManualOrderForm({
         onAction: undo,
       });
     } catch (e) {
-      addAlert({ severity: "error", message: getApiMessage.error(e) });
+      if (mountedRef.current) addAlert({ severity: "error", message: getApiMessage.error(e) });
     } finally {
       setReading(null);
     }
@@ -292,19 +306,18 @@ function ManualOrderForm({
     setPhotoError(null);
     setUploading(true);
     try {
-      const urls: string[] = [];
+      // 하나씩 올라가는 대로 붙인다(둘째가 실패해도 첫째는 남게)
       for (const f of Array.from(files).slice(
         0,
         MANUAL_ORDER_LIMITS.PHOTO_MAX - form.photoUrls.length,
       )) {
         const shrunk = await shrinkPhoto(f);
         const res = await uploadApi.uploadFile(dataUrlToFile(shrunk, `manual-${Date.now()}.jpg`));
-        urls.push(res.fileUrl);
+        setForm((cur) => ({
+          ...cur,
+          photoUrls: [...cur.photoUrls, res.fileUrl].slice(0, MANUAL_ORDER_LIMITS.PHOTO_MAX),
+        }));
       }
-      setForm((f) => ({
-        ...f,
-        photoUrls: [...f.photoUrls, ...urls].slice(0, MANUAL_ORDER_LIMITS.PHOTO_MAX),
-      }));
     } catch {
       setPhotoError("사진을 올리지 못했어요. 다시 시도해 주세요.");
     } finally {
@@ -346,6 +359,8 @@ function ManualOrderForm({
   };
 
   const cakeTag = cakeDayOf(form.pickupDate);
+  const pickupYear = form.pickupDate.slice(0, 4);
+  const otherYear = pickupYear !== todayKey.slice(0, 4);
 
   return (
     <AppScreen
@@ -422,36 +437,43 @@ function ManualOrderForm({
             <Icon name="copy" size={18} strokeWidth={1.8} />
             {reading === "text" ? "읽는 중…" : "대화 붙여 넣기"}
           </Button>
-          <label
-            className={cx(
-              "press inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-control border bg-white font-app text-sub font-bold",
-              reading !== null
-                ? "pointer-events-none border-ink-100 text-ink-400"
-                : "border-ink-200 text-ink-700",
-            )}
+          <Button
+            variant="secondary"
+            size="md"
+            disabled={reading !== null}
+            onClick={() => captureRef.current?.click()}
           >
             <Icon name="camera" size={18} strokeWidth={1.8} />
             {reading === "image" ? "읽는 중…" : "캡처로 채우기"}
-            <input
-              type="file"
-              accept="image/*"
-              hidden
-              disabled={reading !== null}
-              onChange={(e) => {
-                void onCapture(e.target.files);
-                e.target.value = "";
-              }}
-            />
-          </label>
+          </Button>
+          <input
+            ref={captureRef}
+            type="file"
+            accept="image/*"
+            className="sr-only"
+            tabIndex={-1}
+            aria-hidden="true"
+            onChange={(e) => {
+              void onCapture(e.target.files);
+              e.target.value = "";
+            }}
+          />
         </div>
       )}
 
       <div className="grid grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] gap-2">
-        <Field label="픽업 날짜" helper={cakeTag ? cakeTag.full : undefined}>
+        <Field
+          label="픽업 날짜"
+          helper={
+            [otherYear ? `${pickupYear}년` : null, cakeTag?.full].filter(Boolean).join(" · ") ||
+            undefined
+          }
+        >
           {(p) => (
             <PickerButton
               id={p.id}
-              value={formatKeyMonthDayWeek(form.pickupDate)}
+              // 올해가 아니면 해는 아래 줄에(칸이 좁아 "2027년 1월 8일(금)"이 잘림)
+              value={formatKeyMonthDayWeek(form.pickupDate).replace(/^\d{4}년 /, "")}
               onClick={() => setDateOpen(true)}
             />
           )}
@@ -598,7 +620,10 @@ function ManualOrderForm({
           {form.photoUrls.length < MANUAL_ORDER_LIMITS.PHOTO_MAX ? (
             <label
               aria-label="사진 붙이기"
-              className="flex size-[72px] cursor-pointer items-center justify-center rounded-control border border-ink-200 text-ink-400"
+              className={cx(
+                "flex size-[72px] cursor-pointer items-center justify-center rounded-control border border-ink-200 text-ink-400",
+                uploading && "pointer-events-none",
+              )}
             >
               {uploading ? "…" : <Icon name="camera" size={20} />}
               <input
@@ -606,6 +631,7 @@ function ManualOrderForm({
                 accept="image/*"
                 multiple
                 hidden
+                disabled={uploading}
                 onChange={(e) => {
                   void onPickPhotos(e.target.files);
                   e.target.value = "";
@@ -679,7 +705,7 @@ export const StoreDetailManualOrderCreateMobilePage: React.FC = () => {
   const todayKey = useKstTodayKey();
   const date = params.get("date");
   const [initial] = useState<FormState>(() => ({
-    pickupDate: date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : todayKey,
+    pickupDate: isDateKey(date) ? date : todayKey,
     pickupTime: "",
     cakeName: "",
     lettering: "",

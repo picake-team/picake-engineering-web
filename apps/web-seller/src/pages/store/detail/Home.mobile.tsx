@@ -5,7 +5,7 @@
  * 같은 달력(회색 점)·목록(시각 순)·매출에 섞는다.
  */
 import React, { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { AppScreen, HomeHeader } from "@/apps/web-seller/common/ui/Screen";
 import { Button } from "@/apps/web-seller/common/ui/Button";
@@ -23,6 +23,7 @@ import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant"
 import {
   addDaysToKey,
   formatKeyMonthDayWeek,
+  isDateKey,
   kstDateKey,
   mondayOfKey,
   sundayOfKey,
@@ -112,7 +113,15 @@ export const StoreDetailHomeMobilePage: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const todayKey = useKstTodayKey();
-  const [selectedKey, setSelectedKey] = useState(todayKey);
+  // 고른 날은 주소(?date=)에도 둔다: 주문 적기·주문 상세에서 뒤로 오면 보던 날이 그대로(캘린더와 같음, 기획 I-42)
+  const [params, setParams] = useSearchParams();
+  const dateParam = params.get("date");
+  const [selectedKey, setSelectedKey] = useState(isDateKey(dateParam) ? dateParam : todayKey);
+  /** 날짜를 고르면 주소도 바꾼다(뒤로 가기 기록은 늘리지 않음) */
+  const pickDay = (key: string) => {
+    setSelectedKey(key);
+    setParams(key === todayKey ? {} : { date: key }, { replace: true });
+  };
   // 켜 둔 채 날짜가 바뀌면(자정, 다음 날 앱을 다시 엶) 오늘을 보고 있던 주간 달력도 새 오늘로
   useFollowToday(todayKey, (prev, next) => setSelectedKey((s) => (s === prev ? next : s)));
   const [switchOpen, setSwitchOpen] = useState(false);
@@ -241,11 +250,10 @@ export const StoreDetailHomeMobilePage: React.FC = () => {
           selectedKey={selectedKey}
           todayKey={todayKey}
           countsByDay={counts}
-          onSelect={setSelectedKey}
+          onSelect={pickDay}
           onChangeWeek={(delta) => {
             // 다른 주로 가면 같은 요일을 고른다
-            const next = addDaysToKey(selectedKey, delta * 7);
-            setSelectedKey(next);
+            pickDay(addDaysToKey(selectedKey, delta * 7));
           }}
         />
 
