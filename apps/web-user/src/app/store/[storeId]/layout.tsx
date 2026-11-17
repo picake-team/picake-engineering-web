@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: StoreDetailLayoutProps): Prom
   const location = store.roadAddress || store.address;
   const description = toMetaDescription(
     store.description,
-    `${location}${priceHint} · Picake에서 케이크 예약`,
+    `${location}${priceHint} · 픽케이크에서 케이크 예약`,
   );
 
   const imageUrl = store.logoImageUrl ?? store.productRepresentativeImages[0]?.imageUrl ?? null;

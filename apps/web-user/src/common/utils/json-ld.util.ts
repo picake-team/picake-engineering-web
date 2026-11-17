@@ -1,6 +1,11 @@
 import { toAbsoluteUrl, toMetaDescription } from "@/apps/web-user/common/utils/metadata.util";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import {
+  SITE_BASE_URL,
+  SITE_NAME,
+  SITE_NAME_EN,
+} from "@/apps/web-user/common/constants/site.constants";
+import {
   SalesStatus,
   VisibilityStatus,
   type Product,
@@ -88,5 +93,20 @@ export function buildStoreJsonLd(store: StoreInfo): JsonLd {
       ? { "@type": "GeoCoordinates", latitude: store.latitude, longitude: store.longitude }
       : undefined,
     aggregateRating: toRating(store.averageRating, store.totalReviewCount),
+  };
+}
+
+/**
+ * 홈 구조화 데이터(schema.org WebSite). 구글이 검색 결과 위에 보여 주는 사이트 이름을 정할 때 읽는다.
+ * 사람들이 검색하는 한글 이름을 name에, 영문 이름을 alternateName에 둔다.
+ */
+export function buildWebSiteJsonLd(): JsonLd {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: SITE_NAME,
+    alternateName: [SITE_NAME_EN],
+    url: SITE_BASE_URL,
+    inLanguage: "ko-KR",
   };
 }

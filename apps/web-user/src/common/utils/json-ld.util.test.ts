@@ -7,7 +7,12 @@ import {
 } from "@/apps/web-user/features/product/types/product.type";
 import type { StoreInfo } from "@/apps/web-user/features/store/types/store.type";
 
-import { buildProductJsonLd, buildStoreJsonLd, serializeJsonLd } from "./json-ld.util";
+import {
+  buildProductJsonLd,
+  buildStoreJsonLd,
+  buildWebSiteJsonLd,
+  serializeJsonLd,
+} from "./json-ld.util";
 
 const product = {
   id: "p1",
@@ -145,5 +150,15 @@ describe("serializeJsonLd", () => {
 
   it("undefined 값은 결과에서 제외한다", () => {
     expect(serializeJsonLd({ a: 1, b: undefined })).toBe('{"a":1}');
+  });
+});
+
+describe("buildWebSiteJsonLd", () => {
+  it("검색 결과에 보일 사이트 이름을 한글 이름으로, 영문 이름은 다른 이름으로 둔다", () => {
+    expect(buildWebSiteJsonLd()).toMatchObject({
+      "@type": "WebSite",
+      name: "픽케이크",
+      alternateName: ["Picake"],
+    });
   });
 });

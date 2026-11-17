@@ -3,7 +3,7 @@ import { SITE_NAME, SITE_OG_IMAGE } from "@/apps/web-user/common/constants/site.
 
 /** 사장님 견적 링크(SC-19)는 그 가게만의 열쇠라 검색에 걸리지 않게 한다 */
 export const metadata: Metadata = {
-  // 뒤의 " | Picake"는 루트 layout 제목 틀이 붙인다
+  // 뒤의 " | 픽케이크"는 루트 layout 제목 틀이 붙인다
   title: "손님 견적 요청",
   robots: { index: false, follow: false },
   referrer: "no-referrer",

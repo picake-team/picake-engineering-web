@@ -6,7 +6,7 @@ import {
 } from "@/apps/web-user/common/constants/site.constants";
 
 const DEFAULT_DESCRIPTION =
-  "Picake에서 내 주변 케이크 전문 매장을 찾고 예약하세요. 생일케이크, 레터링케이크, 커스텀케이크 등 다양한 케이크를 간편하게 주문할 수 있어요.";
+  "픽케이크(Picake)에서 내 주변 케이크 전문 매장을 찾고 예약하세요. 생일케이크, 레터링케이크, 커스텀케이크 등 다양한 케이크를 간편하게 주문할 수 있어요.";
 
 export function toAbsoluteUrl(path: string): string {
   if (path.startsWith("http://") || path.startsWith("https://")) return path;
@@ -50,7 +50,7 @@ export function buildShareMetadata({
   imageUrl,
 }: BuildShareMetadataInput): Metadata {
   const url = toAbsoluteUrl(path);
-  // 사진이 없으면 Picake PNG(메신저들이 SVG 로고를 보여 주지 않음)
+  // 사진이 없으면 서비스 로고 PNG(메신저들이 SVG 로고를 보여 주지 않음)
   const ogImage = imageUrl ? toAbsoluteUrl(imageUrl) : SITE_OG_IMAGE.url;
 
   return {
