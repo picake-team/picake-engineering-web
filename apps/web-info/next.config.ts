@@ -1,5 +1,14 @@
 import type { NextConfig } from "next";
 
+/**
+ * 상용이 아니면(검증·개발) 모든 응답에 "검색에 싣지 마" 표시를 단다(web-user와 같은 규칙).
+ * robots.txt로 막기만 하면 구글이 이 표시를 읽지 못해 검증 사이트가 검색에 남으므로 robots.txt는 열어 둔다(src/app/robots.ts).
+ */
+const NOINDEX_HEADERS =
+  process.env.NEXT_PUBLIC_NODE_ENV === "production"
+    ? []
+    : [{ key: "X-Robots-Tag", value: "noindex, nofollow" }];
+
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   async rewrites() {
@@ -17,6 +26,7 @@ const nextConfig: NextConfig = {
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          ...NOINDEX_HEADERS,
         ],
       },
     ];
