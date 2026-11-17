@@ -78,11 +78,11 @@ const SHARE_DESCRIPTION =
   "디자인마다 가격이 다른 케이크는 견적으로, 정해진 케이크는 주문서로. 이용료·수수료 0원.";
 const PAGE_URL = `${SITE_BASE_URL}/seller/about`;
 /**
- * DM 미리보기 그림(1200×630 JPG): 첫 화면과 같은 사진·문장·로고. 원본 HTML은 picake-hq marketing/banners/2026-11-i49.
+ * DM 미리보기 그림(1200×630 JPG): 첫 화면과 같은 사진(딸기 생크림, 2026-11-17)·문장·로고·흰 바탕. 원본 HTML은 picake-hq marketing/banners/2026-11-i49.
  * 그림을 바꾸면 `?v=`를 올린다(카카오톡·인스타그램이 그림 주소로 옛 그림을 기억한다).
  */
 const SHARE_IMAGE = {
-  url: `${SITE_BASE_URL}/images/og/seller-about.jpg?v=2`,
+  url: `${SITE_BASE_URL}/images/og/seller-about.jpg?v=3`,
   width: 1200,
   height: 630,
   alt: "픽케이크 사장님 입점: 사진으로 묻는 손님께 금액만 보내세요",
@@ -107,6 +107,10 @@ const FAQS: { q: string; a: string; id?: string }[] = [
   {
     q: "픽케이크는 어떤 서비스예요?",
     a: "주문제작 케이크를 주문서와 견적으로 예약받는 서비스예요. 손님은 픽케이크에서 가게를 찾아 예약하고, 사장님은 판매자 페이지에서 받아요.",
+  },
+  {
+    q: "입점 신청하면 다음은 어떻게 되나요?",
+    a: "가입하고 가게를 열면(2단계) 저희가 바로 알고 먼저 연락드려요. 첫 상품 등록과 받아 둔 카톡 주문 옮기기부터 해 드려요.",
   },
   {
     id: ANCHOR.faqNaver,
@@ -389,7 +393,7 @@ export default function SellerAboutPage() {
             <span className="text-[15px] font-semibold text-gray-600">사장님</span>
           </p>
         </div>
-        <div className="relative -mt-4 px-5 pb-12 text-center">
+        <div className="relative -mt-4 px-5 pb-10 text-center">
           {/* 머리말도 h1 안에 둔다. 검색엔진이 읽는 제목에 "주문제작 케이크"가 들어가고, 보이는 모양은 같다.
               머리말은 버튼과 같은 메인 주황(운영자 2026-11-17 결정, 흰 바탕 대비 2.9:1을 알리고 정함) */}
           <h1>
@@ -418,7 +422,7 @@ export default function SellerAboutPage() {
       </section>
 
       {/* 2. 지금 주문 받는 곳을 고르면 맞는 기능 카드로 내려간다 */}
-      <section className="px-5 pt-16 pb-12">
+      <section className="px-5 pt-12 pb-12">
         <h2 className={`${SECTION_TITLE} text-center`}>
           지금 주문은
           <br />
@@ -672,12 +676,14 @@ export default function SellerAboutPage() {
           <span className="block text-[clamp(22px,6.4vw,26px)] leading-[1.3] font-extrabold tracking-[-0.03em]">
             이용료·수수료
           </span>
-          {/* 큰 주황 글자는 진한 주황(#B5401C)이라야 밝은 바탕에서 읽힌다 */}
-          <span className="mt-3 block text-[64px] leading-none font-extrabold tracking-[-0.04em] text-[#B5401C]">
+          {/* 첫 화면 머리말·입점 버튼과 같은 메인 주황(운영자 2026-11-17 메인 색으로 맞춤) */}
+          <span className="mt-3 block text-[64px] leading-none font-extrabold tracking-[-0.04em] text-primary">
             0원
           </span>
         </h2>
-        <p className="mt-6 text-base leading-[1.6] font-bold text-gray-900">가입은 2단계예요</p>
+        <p className="mt-6 text-base leading-[1.6] font-bold text-gray-900">
+          가게 열기는 2단계예요
+        </p>
         <p className="mt-1 text-[15px] leading-[1.6] text-gray-700">
           사업자등록번호 확인 → 매장 정보
         </p>

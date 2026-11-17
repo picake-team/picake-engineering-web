@@ -37,8 +37,9 @@ export function FeatureSheet({ title, children }: FeatureSheetProps) {
         onClick={closeOnBackdrop}
         className="mx-auto mt-auto mb-0 max-h-[88dvh] w-full max-w-[640px] overflow-y-auto rounded-t-[24px] bg-white p-0 text-gray-900 backdrop:bg-black/55 open:animate-sheet-in motion-reduce:open:animate-none"
       >
-        <div className="px-5 pt-5 pb-[calc(28px+env(safe-area-inset-bottom))]">
-          <div className="flex items-start justify-between gap-3">
+        <div className="pb-[calc(28px+env(safe-area-inset-bottom))]">
+          {/* 제목·닫기는 창 안을 내려도 위에 남는다(2026-11-17 검토: 내리면 닫기 버튼이 사라졌다) */}
+          <div className="sticky top-0 z-10 flex items-start justify-between gap-3 rounded-t-[24px] bg-white px-5 pt-5 pb-2">
             <h3 className="text-[22px] leading-[1.35] font-bold tracking-[-0.03em]">{title}</h3>
             <button
               type="button"
@@ -49,7 +50,7 @@ export function FeatureSheet({ title, children }: FeatureSheetProps) {
               ×
             </button>
           </div>
-          <div className="mt-3">{children}</div>
+          <div className="mt-1 px-5">{children}</div>
         </div>
       </dialog>
     </>
