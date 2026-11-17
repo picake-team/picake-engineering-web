@@ -22,6 +22,8 @@ export interface ManualOrderDto {
   source: ManualOrderSource;
   memo: string | null;
   photoUrls: string[];
+  /** 운영자가 가게 대신 적은 주문(기획 I-41). 옛 서버 응답에는 없다 */
+  enteredByOperator?: boolean;
   createdAt: string;
   updatedAt: string;
 }

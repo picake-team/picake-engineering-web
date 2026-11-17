@@ -68,7 +68,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       <div className="flex min-h-screen">
         {/* 헤더 */}
         <header
-          className={`fixed top-0 right-0 z-10 bg-white border-b border-zinc-200 text-zinc-900 transition-all duration-300 ${
+          className={`fixed top-[var(--act-as-band,0px)] right-0 z-10 bg-white border-b border-zinc-200 text-zinc-900 transition-all duration-300 ${
             isDrawerOpen && !isMobile ? `left-[${drawerWidth}px]` : "left-0"
           }`}
           style={{

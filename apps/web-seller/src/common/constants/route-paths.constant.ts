@@ -58,6 +58,9 @@ export const ROUTES = {
     /** 네이버 Callback URL — 네이버 개발자센터 앱(손님과 같은 앱)에 환경별로 등록 */
     NAVER_REDIRECT_URI: "/auth/login/naver",
   },
+  /** 운영자 대신 입력(기획 I-41) 들어오기(`?code=`)·끝난 화면. 서버 ACT_AS_SELLER_ENTRY_PATH와 같아야 한다 */
+  ACT_AS: "/act-as",
+  ACT_AS_ENDED: "/act-as/ended",
   TERMS: {
     TERMS_OF_SERVICE: "/terms/terms-of-service",
     PRIVACY_POLICY: "/terms/privacy-policy",

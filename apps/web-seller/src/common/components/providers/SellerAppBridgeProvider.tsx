@@ -9,6 +9,7 @@ import React, { useEffect, useRef } from "react";
 import { sellerClient } from "@/apps/web-seller/common/config/axios.config";
 import { useAuthStore } from "@/apps/web-seller/features/auth/store/auth.store";
 import { getAccessToken } from "@/apps/web-seller/common/utils/token.util";
+import { isActAsMode } from "@/apps/web-seller/common/utils/act-as.util";
 import { usePushPermissionStore } from "@/apps/web-seller/common/store/push-permission.store";
 import {
   askPushPermissionStatus,
@@ -54,7 +55,8 @@ export function SellerAppBridgeProvider({ children }: { children: React.ReactNod
       upsert: ({ token, deviceId }) => {
         const t = token?.trim();
         const d = deviceId?.trim();
-        if (!t || !d || !getAccessToken()) return;
+        // 운영자 대신 입력 중(기획 I-41)에는 이 기기를 사장님 알림 받을 곳으로 등록하지 않는다
+        if (!t || !d || !getAccessToken() || isActAsMode()) return;
         void sellerClient.post("/fcm-tokens", { token: t, deviceId: d }).catch((e) => {
           console.error("알림 토큰 저장 실패:", e);
         });
@@ -82,7 +84,7 @@ export function SellerAppBridgeProvider({ children }: { children: React.ReactNod
 
   // 로그인하면 이 휴대폰을 알림 받을 곳으로 등록(토큰마다 한 번)
   useEffect(() => {
-    if (!isAuthenticated || !isSellerAppWebView()) return;
+    if (!isAuthenticated || !isSellerAppWebView() || isActAsMode()) return;
     const token = getAccessToken();
     if (!token || upsertedFor.current === token) return;
     upsertedFor.current = token;
@@ -96,7 +98,7 @@ export function SellerAppBridgeProvider({ children }: { children: React.ReactNod
   useEffect(() => {
     const prev = prevPushStatus.current;
     prevPushStatus.current = pushStatus;
-    if (!isAuthenticated || !isSellerAppWebView()) return;
+    if (!isAuthenticated || !isSellerAppWebView() || isActAsMode()) return;
     if (pushStatus === "granted" && (prev === "denied" || prev === "notDetermined")) {
       requestFcmTokenUpsert();
     }

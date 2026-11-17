@@ -83,7 +83,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed top-0 left-0 h-full bg-[#1a1a1a] border-r border-zinc-800 z-50 transition-transform duration-300",
+          "fixed top-[var(--act-as-band,0px)] bottom-0 left-0 bg-[#1a1a1a] border-r border-zinc-800 z-50 transition-transform duration-300",
           isMobile && !open && "-translate-x-full",
           !isMobile && !open && "-translate-x-full",
         )}

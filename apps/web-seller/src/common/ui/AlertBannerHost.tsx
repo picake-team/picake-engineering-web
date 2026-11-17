@@ -44,7 +44,7 @@ export function AlertBannerHost() {
       className={cx(
         APP_COLUMN_CLASS,
         // 실제 앱 알림처럼 화면 맨 위(상태 표시줄 바로 아래). 제목 줄을 잠깐 덮지만 옆·위로 밀면 닫힌다
-        "pointer-events-none fixed inset-x-0 top-[calc(12px+env(safe-area-inset-top))] z-[60] flex flex-col-reverse gap-2 px-4 font-app",
+        "pointer-events-none fixed inset-x-0 top-[calc(12px+env(safe-area-inset-top)+var(--act-as-band,0px))] z-[60] flex flex-col-reverse gap-2 px-4 font-app",
       )}
     >
       {visible.map((a) => (

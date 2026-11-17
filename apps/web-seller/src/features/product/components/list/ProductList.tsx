@@ -66,6 +66,10 @@ export function ProductList({ products }: ProductListProps) {
                   <StatusBadge variant={product.visibilityStatus === "ENABLE" ? "info" : "default"}>
                     {product.visibilityStatus === "ENABLE" ? "노출" : "숨김"}
                   </StatusBadge>
+                  {/* 운영자가 가게 대신 만든 상품(기획 I-41) */}
+                  {product.enteredByOperator ? (
+                    <StatusBadge variant="default">운영자 입력</StatusBadge>
+                  ) : null}
                 </div>
                 <div className="text-base font-bold tabular-nums sm:text-lg">
                   {isProductOnSale(product.originalPrice, product.salePrice) ? (

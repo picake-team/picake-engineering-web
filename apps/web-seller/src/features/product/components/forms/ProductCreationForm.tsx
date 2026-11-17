@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { isActAsMode } from "@/apps/web-seller/common/utils/act-as.util";
 import { ChevronDown, ChevronRight, Sparkles } from "lucide-react";
 import { BaseButton as Button } from "@/apps/web-seller/common/components/buttons/BaseButton";
 import {
@@ -142,7 +143,12 @@ export const ProductCreationForm: React.FC<Props> = ({
 }) => {
   const isEdit = !!initialValue;
   const inFrame = useInMobileFrame();
-  const [form, setForm] = useState<ProductForm>(initialValue || defaultForm);
+  // 운영자가 가게 대신 등록하면(기획 I-41) 서버가 숨김으로 저장한다 — 화면도 꺼 두고 바꾸지 못하게 맞춘다
+  const actAsCreate = !isEdit && isActAsMode();
+  const [form, setForm] = useState<ProductForm>(
+    initialValue ||
+      (actAsCreate ? { ...defaultForm, visibilityStatus: EnableStatus.DISABLE } : defaultForm),
+  );
   const [errors, setErrors] = useState<Errors>({});
   const [submitted, setSubmitted] = useState(false);
   // 다른 상품에서 복사한 고시: 판매자가 이 상품에 맞게 확인해야 저장된다 (P-59)
@@ -572,6 +578,7 @@ export const ProductCreationForm: React.FC<Props> = ({
                     on: form.salesStatus === EnableStatus.ENABLE,
                     set: (on: boolean) =>
                       patch({ salesStatus: on ? EnableStatus.ENABLE : EnableStatus.DISABLE }),
+                    locked: false,
                   },
                   {
                     key: "visible",
@@ -580,6 +587,7 @@ export const ProductCreationForm: React.FC<Props> = ({
                     on: form.visibilityStatus === EnableStatus.ENABLE,
                     set: (on: boolean) =>
                       patch({ visibilityStatus: on ? EnableStatus.ENABLE : EnableStatus.DISABLE }),
+                    locked: actAsCreate,
                   },
                 ].map((row) => (
                   <div
@@ -593,7 +601,7 @@ export const ProductCreationForm: React.FC<Props> = ({
                     <Switch
                       label={row.title}
                       checked={row.on}
-                      disabled={disabled}
+                      disabled={disabled || row.locked}
                       onChange={row.set}
                     />
                   </div>
@@ -621,7 +629,7 @@ export const ProductCreationForm: React.FC<Props> = ({
                   onChange={(on) =>
                     patch({ visibilityStatus: on ? EnableStatus.ENABLE : EnableStatus.DISABLE })
                   }
-                  disabled={disabled}
+                  disabled={disabled || actAsCreate}
                   label={
                     <span className="text-sm">
                       손님에게 보이기

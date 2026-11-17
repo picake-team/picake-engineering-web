@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { isActAsMode } from "@/apps/web-seller/common/utils/act-as.util";
 import { cn } from "@/apps/web-seller/common/utils/classname.util";
 import type { StoreForm } from "@/apps/web-seller/features/store/types/store.ui";
 import {
@@ -138,6 +139,8 @@ export const StoreCreationForm: React.FC<Props> = ({
 }) => {
   const inFrame = useInMobileFrame();
   const [form, setForm] = useState<StoreForm>(initialValue || defaultForm);
+  // 운영자 대신 입력 중(기획 I-41)에는 정산 계좌를 바꿀 수 없다(서버도 막음) — 칸을 잠근다
+  const bankLocked = !!initialValue && isActAsMode();
   const [errors, setErrors] = useState<Errors>({});
   const [submitted, setSubmitted] = useState(false);
   // 주소 검색·네이버 가져오기처럼 나중에 돌아오는 값도 최신 폼에 합친다
@@ -342,6 +345,7 @@ export const StoreCreationForm: React.FC<Props> = ({
               options={STORE_BANK_OPTIONS}
               error={errors.bankName}
               required
+              disabled={bankLocked}
             />
           </div>
           <Field label="계좌번호" required error={errors.bankAccountNumber}>
@@ -350,6 +354,7 @@ export const StoreCreationForm: React.FC<Props> = ({
               inputMode="numeric"
               value={form.bankAccountNumber}
               onChange={handleChange("bankAccountNumber")}
+              disabled={bankLocked}
               className={errors.bankAccountNumber ? "border-destructive" : ""}
             />
           </Field>
@@ -358,6 +363,7 @@ export const StoreCreationForm: React.FC<Props> = ({
               placeholder="예: 홍길동"
               value={form.accountHolderName}
               onChange={handleChange("accountHolderName")}
+              disabled={bankLocked}
               className={errors.accountHolderName ? "border-destructive" : ""}
             />
           </Field>

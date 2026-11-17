@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { useInMobileFrame } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
 import { EmptyState, LoadErrorState } from "@/apps/web-seller/common/ui/Surface";
+import { StatusPill } from "@/apps/web-seller/common/ui/Badge";
 import { PageTitle } from "@/apps/web-seller/common/components/layouts/MobileFrame";
 import { useFrameConfirm } from "@/apps/web-seller/common/components/layouts/useFrameConfirm";
 import { useParams } from "react-router-dom";
@@ -147,6 +148,8 @@ export const StoreDetailProductDetailPage: React.FC = () => {
   return (
     <div className="space-y-6">
       <PageTitle className="text-2xl font-bold">상품 수정</PageTitle>
+      {/* 운영자가 가게 대신 만든 상품(기획 I-41) */}
+      {product.enteredByOperator ? <StatusPill tone="wait">운영자 입력</StatusPill> : null}
       <ProductCreationForm
         onSubmit={handleUpdate}
         initialValue={productForm}

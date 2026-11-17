@@ -150,6 +150,8 @@ export interface ProductResponseDto {
   salePrice: number;
   salesStatus: EnableStatus;
   visibilityStatus: EnableStatus;
+  /** 운영자가 가게 대신 만든 상품(기획 I-41, 숨김으로 저장됨). 옛 서버 응답에는 없다 */
+  enteredByOperator?: boolean;
   cakeSizeOptions?: CakeSizeOptionDto[] | null;
   /** 추가 옵션 (판매자 상세 응답은 숨김 포함 전체, 목록 응답은 빈 배열) */
   customOptions: CustomOptionDto[];
