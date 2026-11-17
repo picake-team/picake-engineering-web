@@ -106,6 +106,8 @@ const LINE_PATHS = {
   copy: "M9 9h10v10H9zM5 15V5h10", // 18 / 1.9
   trash: "M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12M10 11v5M14 11v5", // 지웠어요 안내 20 / 2
   share: "M12 4v11M8 8l4-4 4 4M5 13v6h14v-6", // 18 / 1.9
+  // 다른 캘린더로 내보내기 줄(기획 I-42) 20 / 1.8
+  calendar: "M5 6h14v14H5zM5 10h14M9 4v4M15 4v4",
   camera: "M4 8h4l2-2h4l2 2h4v11H4zM12 11a3 3 0 1 1 0 6 3 3 0 0 1 0-6z", // 22 / 1.8
   warning: "M12 3l9 16H3zM12 10v4M12 17v.01", // 18 / 2
   filter: "M4 6h16M7 12h10M10 18h4", // 18

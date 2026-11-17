@@ -146,6 +146,22 @@ const StoreDetailCalendarMobilePage = lazyPage(
   () => import("@/apps/web-seller/pages/store/detail/Calendar.mobile"),
   "StoreDetailCalendarMobilePage",
 );
+const StoreDetailManualOrderCreateMobilePage = lazyPage(
+  () => import("@/apps/web-seller/pages/store/detail/manual-orders/Form.mobile"),
+  "StoreDetailManualOrderCreateMobilePage",
+);
+const StoreDetailManualOrderEditMobilePage = lazyPage(
+  () => import("@/apps/web-seller/pages/store/detail/manual-orders/Form.mobile"),
+  "StoreDetailManualOrderEditMobilePage",
+);
+const StoreDetailManualOrderDetailMobilePage = lazyPage(
+  () => import("@/apps/web-seller/pages/store/detail/manual-orders/Detail.mobile"),
+  "StoreDetailManualOrderDetailMobilePage",
+);
+const StoreDetailManualOrderDesktopRedirect = lazyPage(
+  () => import("@/apps/web-seller/pages/store/detail/manual-orders/Redirect.desktop"),
+  "StoreDetailManualOrderDesktopRedirect",
+);
 const StoreDetailHoursMobilePage = lazyPage(
   () => import("@/apps/web-seller/pages/store/detail/Hours.mobile"),
   "StoreDetailHoursMobilePage",
@@ -355,6 +371,22 @@ export const ADMIN_ROUTE_CONFIG: AppRouteConfig[] = [
     path: ROUTES.STORE_DETAIL_CALENDAR(":storeId"),
     element: StoreDetailCalendarPage,
     mobile: StoreDetailCalendarMobilePage,
+  },
+  // 직접 적은 주문(기획 I-42): 휴대폰 화면만, PC 폭에서는 캘린더로
+  {
+    path: ROUTES.STORE_DETAIL_MANUAL_ORDER_CREATE(":storeId"),
+    element: StoreDetailManualOrderDesktopRedirect,
+    mobile: StoreDetailManualOrderCreateMobilePage,
+  },
+  {
+    path: ROUTES.STORE_DETAIL_MANUAL_ORDER_EDIT(":storeId", ":manualOrderId"),
+    element: StoreDetailManualOrderDesktopRedirect,
+    mobile: StoreDetailManualOrderEditMobilePage,
+  },
+  {
+    path: ROUTES.STORE_DETAIL_MANUAL_ORDER_DETAIL(":storeId", ":manualOrderId"),
+    element: StoreDetailManualOrderDesktopRedirect,
+    mobile: StoreDetailManualOrderDetailMobilePage,
   },
   {
     path: ROUTES.STORE_DETAIL_HOURS(":storeId"),

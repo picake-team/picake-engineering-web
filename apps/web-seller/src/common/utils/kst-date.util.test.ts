@@ -6,6 +6,7 @@ import {
   formatKstMonthDayWeekTime,
   formatRemainingClock,
   formatRemainingHm,
+  isDateKey,
   kstDateKey,
   mondayOfKey,
   sundayOfKey,
@@ -63,5 +64,16 @@ describe("한국 시간 날짜", () => {
     expect(formatRemainingHm(20000)).toBe("1분 미만");
     expect(formatRemainingClock((2 * 3600 + 41 * 60 + 10) * 1000)).toBe("02:41:10");
     expect(formatRemainingClock(-5)).toBe("00:00:00");
+  });
+});
+
+describe("isDateKey (주소 ?date=)", () => {
+  it("실제 있는 날만", () => {
+    expect(isDateKey("2026-12-24")).toBe(true);
+    expect(isDateKey("2028-02-29")).toBe(true);
+    expect(isDateKey("2026-02-30")).toBe(false);
+    expect(isDateKey("2026-13-01")).toBe(false);
+    expect(isDateKey("2026-1-1")).toBe(false);
+    expect(isDateKey(null)).toBe(false);
   });
 });

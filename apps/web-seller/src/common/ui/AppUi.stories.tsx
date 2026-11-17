@@ -13,6 +13,8 @@ import { Checkbox, Radio, Switch } from "./Toggle";
 import { Field, PickerButton, SearchInput, TextArea, TextInput } from "./Field";
 import { SheetSelect } from "./OptionSheet";
 import { DateRangeSheet } from "./DateRangeSheet";
+import { DateSheet } from "./DateSheet";
+import { DayMarks } from "@/apps/web-seller/features/manual-order/components/DayMarks";
 import { addDaysToKey, kstDateKey } from "../utils/kst-date.util";
 import {
   GrayBand,
@@ -179,6 +181,8 @@ export const 입력_칸: Story = {
     const [range, setRange] = useState(() => ({ start: addDaysToKey(today, -6), end: today }));
     const [bank, setBank] = useState<string | undefined>(undefined);
     const [rangeOpen, setRangeOpen] = useState(false);
+    const [day, setDay] = useState(today);
+    const [dayOpen, setDayOpen] = useState(false);
     return (
       <>
         <Section title="입력 칸 · 기본 / 고칠 곳 / 꺼진 칸">
@@ -239,6 +243,25 @@ export const 입력_칸: Story = {
               setRangeOpen(false);
             }}
           />
+          {/* 날짜 하나(주문 적기 픽업 날짜, 기획 I-42): 누르면 바로 골라지고 닫힘. 날짜 아래 받은 수·휴무·대목 */}
+          <PickerButton aria-label="픽업 날짜" value={day} onClick={() => setDayOpen(true)} />
+          <DateSheet
+            open={dayOpen}
+            onClose={() => setDayOpen(false)}
+            title="픽업 날짜"
+            value={day}
+            onPick={setDay}
+            dayInfo={(key) => ({
+              count: Number(key.slice(8)) % 5,
+              closed: new Date(`${key}T00:00:00`).getDay() === 2,
+              tag: key.endsWith("-24") ? "이브" : null,
+            })}
+          />
+          <div className="flex items-end gap-6" aria-label="달력 날짜 아래 픽업 표시">
+            <DayMarks count={{ picake: 1, manual: 0 }} />
+            <DayMarks count={{ picake: 1, manual: 2 }} />
+            <DayMarks count={{ picake: 2, manual: 3 }} />
+          </div>
           <Field
             label="스토어 설명"
             counter={`${desc.length}/2,000`}
