@@ -98,6 +98,11 @@ function utcToKey(d: Date): string {
   return `${d.getUTCFullYear()}-${pad2(d.getUTCMonth() + 1)}-${pad2(d.getUTCDate())}`;
 }
 
+/** 주소 등에서 받은 "YYYY-MM-DD"가 실제 있는 날인지(2026-02-30은 아님) */
+export function isDateKey(value: string | null | undefined): value is string {
+  return !!value && /^\d{4}-\d{2}-\d{2}$/.test(value) && utcToKey(keyToUtc(value)) === value;
+}
+
 export function addDaysToKey(key: string, days: number): string {
   const d = keyToUtc(key);
   d.setUTCDate(d.getUTCDate() + days);

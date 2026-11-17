@@ -4,6 +4,8 @@
  * 고른 기간은 늘 고르는 칸(PickerButton)에 보이고, 누르면 앱 달력 창(DateRangeSheet)에서 직접 고른다(휴대폰 기본 날짜 창은 앱 디자인과 달라 쓰지 않음).
  * 집계된 주문이 없으면 남은 칸 가운데에 빈 화면(주문 탭과 같은 모양).
  * 세는 기준은 지금 PC와 같다(주문 접수일 기준, 픽업 완료한 주문만).
+ * 직접 적은 주문(기획 I-42)은 매출·주문 수에 더하고(픽업 날이 지난, 금액 적은 주문), 있으면 "Picake · 직접 적음"으로 나눠 보이고
+ * "받은 곳" 막대(1등만 주황)를 둔다. 픽업 날·시각 그래프에도 더한다. 잘 팔린 상품은 Picake 주문만.
  */
 import React, { useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
@@ -31,6 +33,23 @@ import type {
   OrderStatisticsWeekdayDto,
 } from "@/apps/web-seller/features/statistics/types/statistics.dto";
 import { formatWon } from "@/apps/web-seller/features/order/utils/order-mobile.util";
+import { MANUAL_ORDER_SOURCE_LABEL } from "@/apps/web-seller/features/manual-order/constants/manual-order.constant";
+import { euRo } from "@/apps/web-seller/common/utils/josa.util";
+
+/** 같은 요일·시간 칸끼리 더한다(Picake + 직접 적은 주문) */
+function sumWeekday(a: OrderStatisticsWeekdayDto[], b: OrderStatisticsWeekdayDto[] | undefined) {
+  if (!b) return a;
+  return a.map((r) => ({
+    ...r,
+    total: r.total + (b.find((x) => x.weekday === r.weekday)?.total ?? 0),
+  }));
+}
+function sumHourly(a: OrderStatisticsHourlyDto[], b: OrderStatisticsHourlyDto[] | undefined) {
+  if (!b) return a;
+  const out = new Map<number, number>();
+  for (const r of [...a, ...b]) out.set(r.hour, (out.get(r.hour) ?? 0) + r.count);
+  return Array.from(out, ([hour, count]) => ({ hour, count }));
+}
 
 type Preset = "today" | "recent7" | "week" | "month" | "recent90" | "custom";
 
@@ -162,7 +181,26 @@ export const StoreDetailStatisticsMobilePage: React.FC = () => {
 
   const q = useStatisticsOverviewQuery({ storeId, startDate: range.start, endDate: range.end });
   const data = q.data;
-  const empty = data && data.totalOrders === 0;
+  const manual = data?.manual;
+  const hasManual = Boolean(manual && manual.totalOrders > 0);
+  const totalSales = data ? data.totalSales + (manual?.totalSales ?? 0) : 0;
+  const totalOrders = data ? data.totalOrders + (manual?.totalOrders ?? 0) : 0;
+  const empty = data && totalOrders === 0;
+  // 받은 곳: Picake + 직접 적은 주문의 받은 곳, 매출 많은 순(1등만 주황)
+  const sourceRows = hasManual
+    ? [
+        { key: "PICAKE", label: "Picake", sales: data!.totalSales, orders: data!.totalOrders },
+        ...manual!.bySource.map((r) => ({
+          key: r.source,
+          label: MANUAL_ORDER_SOURCE_LABEL[r.source],
+          sales: r.sales,
+          orders: r.orders,
+        })),
+      ]
+        .filter((r) => r.orders > 0)
+        // "가장 많이 받았어요"·"카톡 2건"과 맞게 건수 순(같으면 매출 순)
+        .sort((a, b) => b.orders - a.orders || b.sales - a.sales)
+    : [];
 
   const pick = (p: Preset) => {
     // 직접 고르기는 창에서 "이 기간 보기"를 눌러야 바뀐다(닫으면 그대로)
@@ -221,10 +259,10 @@ export const StoreDetailStatisticsMobilePage: React.FC = () => {
         <>
           <div className="grid grid-cols-2 gap-3">
             {[
-              { label: "매출", value: data ? formatWon(data.totalSales) : "–" },
+              { label: "매출", value: data ? formatWon(totalSales) : "–" },
               {
                 label: "주문 수",
-                value: data ? `${data.totalOrders.toLocaleString("ko-KR")}건` : "–",
+                value: data ? `${totalOrders.toLocaleString("ko-KR")}건` : "–",
               },
             ].map((s) => (
               <div
@@ -236,6 +274,14 @@ export const StoreDetailStatisticsMobilePage: React.FC = () => {
               </div>
             ))}
           </div>
+          {data && hasManual ? (
+            <div className="-mt-1 flex flex-col gap-0.5">
+              <p className="text-sub tabular-nums text-ink-600">
+                Picake {formatWon(data.totalSales)} · 직접 적음 {formatWon(manual!.totalSales)}
+              </p>
+              <p className="text-caption text-ink-600">직접 적은 주문은 픽업 날 기준으로 세어요</p>
+            </div>
+          ) : null}
           {empty ? (
             <EmptyState
               big
@@ -244,24 +290,55 @@ export const StoreDetailStatisticsMobilePage: React.FC = () => {
             />
           ) : data ? (
             <>
-              <GroupTitle>잘 팔린 상품</GroupTitle>
-              <SegmentedTabs
-                label="상품 순위 기준"
-                value={rankBy}
-                onChange={setRankBy}
-                options={[
-                  { value: "revenue", label: "매출 순" },
-                  { value: "orders", label: "주문 수 순" },
-                ]}
-              />
-              <Bars
-                rows={(products ?? []).map((p) => ({
-                  key: p.productId,
-                  label: p.productName,
-                  value: rankBy === "revenue" ? p.revenue : p.orderCount,
-                }))}
-                format={(v) => (rankBy === "revenue" ? formatWon(v) : `${v}건`)}
-              />
+              {sourceRows.length > 0 ? (
+                <>
+                  <GroupTitle>받은 곳</GroupTitle>
+                  <p className="-mt-3 text-caption text-ink-600">
+                    {/* "Picake"는 한글이 아니라 조사를 정해 둔다("피케이크로") */}
+                    {sourceRows[0].label}
+                    {sourceRows[0].label === "Picake" ? "로" : euRo(sourceRows[0].label)} 가장 많이
+                    받았어요
+                  </p>
+                  <Bars
+                    rows={sourceRows.map((r) => ({
+                      key: r.key,
+                      label: `${r.label} ${r.orders}건`,
+                      value: r.sales,
+                    }))}
+                    format={(v) => formatWon(v)}
+                  />
+                </>
+              ) : null}
+              {(products ?? []).length > 0 ? (
+                <>
+                  <GroupTitle
+                    action={
+                      hasManual ? (
+                        <span className="text-sub text-ink-600">Picake 주문</span>
+                      ) : undefined
+                    }
+                  >
+                    잘 팔린 상품
+                  </GroupTitle>
+                  <SegmentedTabs
+                    label="상품 순위 기준"
+                    value={rankBy}
+                    onChange={setRankBy}
+                    options={[
+                      { value: "revenue", label: "매출 순" },
+                      { value: "orders", label: "주문 수 순" },
+                    ]}
+                  />
+                  <Bars
+                    rows={(products ?? []).map((p) => ({
+                      key: p.productId,
+                      label: p.productName,
+                      value: rankBy === "revenue" ? p.revenue : p.orderCount,
+                    }))}
+                    format={(v) => (rankBy === "revenue" ? formatWon(v) : `${v}건`)}
+                  />
+                </>
+              ) : null}
               <button
                 type="button"
                 aria-expanded={chartsOpen}
@@ -296,11 +373,15 @@ export const StoreDetailStatisticsMobilePage: React.FC = () => {
                   />
                   <ColumnChart
                     title="요일별 픽업 (픽업 날)"
-                    {...weekdayValues(data.weekdayPickupOrders)}
+                    {...weekdayValues(
+                      sumWeekday(data.weekdayPickupOrders, manual?.weekdayPickupOrders),
+                    )}
                   />
                   <ColumnChart
                     title="시간대별 픽업 (픽업 시각)"
-                    values={hourlyValues(data.hourlyPickupOrders)}
+                    values={hourlyValues(
+                      sumHourly(data.hourlyPickupOrders, manual?.hourlyPickupOrders),
+                    )}
                     labels={[]}
                   />
                 </div>

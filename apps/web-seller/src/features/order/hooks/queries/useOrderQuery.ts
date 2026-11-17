@@ -119,6 +119,7 @@ export function useCalendarMonthOrders(
   storeId: string,
   pickupStartKey: string,
   pickupEndKey: string,
+  opts?: { enabled?: boolean },
 ) {
   const query = useQuery<OrderListResponseDto>({
     queryKey: orderQueryKeys.calendarMonthByStore(storeId, pickupStartKey, pickupEndKey),
@@ -131,7 +132,7 @@ export function useCalendarMonthOrders(
         pickupStartDate: pickupStartKey,
         pickupEndDate: pickupEndKey,
       }),
-    enabled: !!storeId && !!pickupStartKey && !!pickupEndKey,
+    enabled: (opts?.enabled ?? true) && !!storeId && !!pickupStartKey && !!pickupEndKey,
   });
 
   useQueryErrorAlert(query);
