@@ -3,11 +3,13 @@
 /**
  * 손님 홈(2026-11-15 새 화면, 운영자가 칸마다 고름). 맨 위 줄(로고·알림)은 이 화면이 그린다(공통 머리줄 없음).
  * 로고·알림 → 배너(아래 흰 판이 30px 겹침) → 흰 판에 검색창·카테고리(6칸씩 두 줄 + 당일픽업 줄) → 회색 띠 → 어떤 날(동그란 사진 한 줄)
- * → 회색 띠 → 이런 디자인(카드 줄 끝에 견적 카드) → 회색 띠 → 바로 예약할 수 있는 케이크(탭).
+ * → 회색 띠 → 이런 디자인(카드 줄 끝에 견적 카드) → 회색 띠 → 바로 예약할 수 있는 케이크(탭)
+ * → 회색 띠 → 운영사 정보(웹·앱 모두, 2026-11-17 네이버 로그인 검수 반려로 넣음).
  * 동네는 홈에 두지 않고 검색 결과에서 거른다. 배너는 서버가 미리 받아 넘기면(initialBanners) 첫 HTML에 그림이 들어간다(LCP).
  */
 import { useEffect, useRef, useState } from "react";
 import { BottomNav } from "@/apps/web-user/common/components/navigation/BottomNav";
+import { BusinessInfoFooter } from "@/apps/web-user/common/components/layouts/BusinessInfoFooter";
 import { SearchBar } from "@/apps/web-user/common/components/search/SearchBar";
 import BannerSlider from "@/apps/web-user/features/home-banner/components/BannerSlider";
 import { DesignMagazineSection } from "@/apps/web-user/features/design/components/DesignMagazineSection";
@@ -85,6 +87,8 @@ export default function HomeScreen({
       />
       <GrayBand className="mb-[24px] mt-[28px]" />
       <ProductTabsSection />
+      <GrayBand className="mt-[32px]" />
+      <BusinessInfoFooter className="pt-[24px]" />
       <BottomNav />
     </div>
   );

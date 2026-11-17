@@ -6,10 +6,12 @@ interface AuthCardLayoutProps {
   className?: string;
   /** 카드 위 브랜딩(로고 등). 로그인 등에서만 사용 */
   aboveCard?: ReactNode;
+  /** 카드 아래 작은 글(PC 로그인의 운영사 정보) */
+  belowCard?: ReactNode;
 }
 
 /** 로그인·계정 찾기 등 비로그인 인증 화면 공통 래퍼 */
-export function AuthCardLayout({ children, className, aboveCard }: AuthCardLayoutProps) {
+export function AuthCardLayout({ children, className, aboveCard, belowCard }: AuthCardLayoutProps) {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-100 px-4 py-10 sm:px-5 sm:py-12">
       <div
@@ -29,6 +31,7 @@ export function AuthCardLayout({ children, className, aboveCard }: AuthCardLayou
         >
           {children}
         </div>
+        {belowCard ? <div className="mt-6 w-full">{belowCard}</div> : null}
       </div>
     </div>
   );
