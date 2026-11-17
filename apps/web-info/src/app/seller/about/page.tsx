@@ -19,7 +19,7 @@ import { SellerScreenTabs } from "@/apps/web-info/features/seller/components/Sel
 import { StickyJoinCta } from "@/apps/web-info/features/seller/components/StickyJoinCta";
 import photoBento from "@/apps/web-info/features/seller/assets/photo-bento.jpg";
 import photoFlower from "@/apps/web-info/features/seller/assets/photo-flower.jpg";
-import photoLettering from "@/apps/web-info/features/seller/assets/photo-lettering.jpg";
+import photoHero from "@/apps/web-info/features/seller/assets/photo-hero.jpg";
 import photoStrawberry from "@/apps/web-info/features/seller/assets/photo-strawberry.jpg";
 import screenChatFilled from "@/apps/web-info/features/seller/assets/screen-chat-filled.png";
 import screenChatPaste from "@/apps/web-info/features/seller/assets/screen-chat-paste.png";
@@ -61,8 +61,9 @@ import kakaoIcon from "@/apps/web-info/features/seller/assets/kakaotalk.png";
  *   입금은 손님이 가게 정산 계좌로 직접(F-09), 매장 픽업만, 스토어 만들기 2단계(F-22)
  *
  * 화면 그림: 로컬 테스트 DB의 예시 가게 "달콤스토어"(실제 가게·손님·주문 아님). 견적·링크는 2026-11-14, 홈·달력·주문·매출·대화 붙여 넣기는 2026-11-17.
- * 사진: Unsplash 라이선스(상업 사용·수정 무료, 출처 표시 의무 없음)
- *   lettering K5m3jklvfvQ(@sincerelymedia) · bento rIiGJGOPLIw(@regsultik) · strawberry cZFU60dKB6U(@amir_v_ali) · flower lqM8r5cg5k4(Kash Tandon)
+ * 사진: Unsplash·Pexels 라이선스(상업 사용·수정 무료, 출처 표시 의무 없음)
+ *   첫 화면 hero: Pexels 32397279(Dana Garcia, 딸기 올린 흰 빈티지 생크림 케이크 — 운영자 2026-11-17 "흰 케이크·흰 배경, 깔끔하게"로 고름)
+ *   bento rIiGJGOPLIw(@regsultik) · strawberry cZFU60dKB6U(@amir_v_ali) · flower lqM8r5cg5k4(Kash Tandon) — Unsplash
  */
 /**
  * 검색·AI 답변용 문구(2026-11-14). 사장님이 검색할 말(주문제작 케이크·예약·견적)과 한글·영문 이름(픽케이크·Picake)을 앞에 둔다.
@@ -195,6 +196,8 @@ const STRUCTURED_DATA = {
 };
 
 const HERO_CTA_ID = "seller-hero-cta";
+/** 첫 화면 사진(딸기 생크림)에서 뒤쪽 선반이 덜 보이고 케이크가 가운데 오도록 맞춘 위치 */
+const HERO_PHOTO_POSITION = "50% 80%";
 const CLOSING_ID = "seller-closing";
 const FOOTER_ID = "seller-footer";
 
@@ -214,8 +217,8 @@ function JoinButton({ id, className = "" }: { id?: string; className?: string })
     <a
       id={id}
       href={SELLER_SIGNUP_URL}
-      // 주황 위 글자는 진하게(흰 글자는 대비 2.9:1로 기준 4.5:1 미달, 진한 글자 5.6:1)
-      className={`flex h-[54px] w-full items-center justify-center rounded-[14px] bg-primary text-[17px] font-bold text-gray-900 transition-transform duration-150 active:scale-[0.98] ${className}`}
+      // 주황 바탕 + 흰 글자(운영자 2026-11-17 결정, 시안 4개 중 3번). 흰 글자는 대비 2.9:1로 기준 4.5:1에 못 미친다는 점을 알리고 정함
+      className={`flex h-[54px] w-full items-center justify-center rounded-[14px] bg-primary text-[17px] font-bold text-white transition-transform duration-150 active:scale-[0.98] ${className}`}
     >
       입점 신청하기
     </a>
@@ -358,42 +361,48 @@ export default function SellerAboutPage() {
   return (
     <main className="relative min-h-screen w-full bg-white text-gray-900">
       <JsonLd data={STRUCTURED_DATA} />
-      {/* 1. 첫 화면: 케이크 사진 한 장과 한 줄. JS를 기다리지 않고 바로 보인다 */}
-      <section className={`relative h-[700px] overflow-hidden ${COCOA} text-white`}>
-        <Image
-          src={photoLettering}
-          alt=""
-          fill
-          priority
-          // 첫 화면의 가장 큰 그림(LCP)이라 먼저 받는다(priority만으로는 fetchpriority가 붙지 않았다, Lighthouse 2026-11-14)
-          fetchPriority="high"
-          sizes="(min-width: 640px) 640px, 100vw"
-          className="object-cover"
-          style={{ objectPosition: "46% 50%" }}
-        />
-        <div
-          aria-hidden
-          className="absolute inset-0 bg-[linear-gradient(to_top,rgba(27,21,18,0.92)_0%,rgba(27,21,18,0.6)_38%,rgba(27,21,18,0)_62%),linear-gradient(to_bottom,rgba(27,21,18,0.45),rgba(27,21,18,0)_18%)]"
-        />
-        {/* 로고: 앱·스토어에서 보게 될 마크와 한글 이름. 링크는 걸지 않는다(소개 페이지에서 손님 화면으로 나가지 않게) */}
-        <p className="absolute top-3.5 left-5 flex items-center gap-2 text-[18px] font-extrabold tracking-[-0.03em]">
-          <LogoPicake aria-hidden className="h-8 w-8" />
-          픽케이크
-          <span className="text-[15px] font-semibold text-white/80">사장님</span>
-        </p>
-        <div className="absolute inset-x-5 bottom-9 text-center">
-          {/* 머리말도 h1 안에 둔다. 검색엔진이 읽는 제목에 "주문제작 케이크"가 들어가고, 보이는 모양은 같다 */}
+      {/* 1. 첫 화면: 흰 바탕의 케이크 사진 한 장, 그 아래 흰 바탕에 한 줄(운영자 11-17 "흰색 케이크·흰 배경, 깔끔하게").
+          사진 위에 글을 얹지 않아 어떤 밝은 사진이어도 글이 읽힌다. JS를 기다리지 않고 바로 보인다 */}
+      <section className="relative bg-white">
+        {/* 휴대폰은 4:5, 화면이 낮거나 넓으면(PC) 화면 높이의 62%까지만 — 제목과 버튼이 첫 화면에 보이게 */}
+        <div className="relative h-[min(125vw,62svh)] w-full overflow-hidden bg-gray-50">
+          <Image
+            src={photoHero}
+            alt=""
+            fill
+            priority
+            // 첫 화면의 가장 큰 그림(LCP)이라 먼저 받는다(priority만으로는 fetchpriority가 붙지 않았다, Lighthouse 2026-11-14)
+            fetchPriority="high"
+            sizes="(min-width: 640px) 640px, 100vw"
+            className="object-cover"
+            style={{ objectPosition: HERO_PHOTO_POSITION }}
+          />
+          {/* 사진 아래쪽을 흰 바탕으로 이어 사진과 글 사이에 선이 생기지 않게 */}
+          <div
+            aria-hidden
+            className="absolute inset-x-0 bottom-0 h-20 bg-[linear-gradient(to_top,#fff,rgba(255,255,255,0))]"
+          />
+          {/* 로고: 앱·스토어에서 보게 될 마크와 한글 이름. 링크는 걸지 않는다(소개 페이지에서 손님 화면으로 나가지 않게) */}
+          <p className="absolute top-3.5 left-5 flex items-center gap-2 text-[18px] font-extrabold tracking-[-0.03em] text-gray-900">
+            <LogoPicake aria-hidden className="h-8 w-8" />
+            픽케이크
+            <span className="text-[15px] font-semibold text-gray-600">사장님</span>
+          </p>
+        </div>
+        <div className="relative -mt-4 px-5 pb-12 text-center">
+          {/* 머리말도 h1 안에 둔다. 검색엔진이 읽는 제목에 "주문제작 케이크"가 들어가고, 보이는 모양은 같다.
+              머리말은 버튼과 같은 메인 주황(운영자 2026-11-17 결정, 흰 바탕 대비 2.9:1을 알리고 정함) */}
           <h1>
-            <span className="block text-[14px] font-bold text-primary-200">
+            <span className="block text-[14px] font-bold text-primary">
               주문제작 케이크 가게 사장님께
             </span>
-            <span className="mt-2.5 block text-[clamp(28px,8.6vw,34px)] leading-[1.28] font-extrabold tracking-[-0.035em]">
+            <span className="mt-2.5 block text-[clamp(28px,8.6vw,34px)] leading-[1.28] font-extrabold tracking-[-0.035em] text-gray-900">
               사진으로 묻는 손님께
               <br />
               금액만 보내세요
             </span>
           </h1>
-          <p className="mt-3 text-base leading-[1.6] text-white/85">
+          <p className="mt-3 text-base leading-[1.6] text-gray-600">
             정해진 케이크는 주문서로, 예약은 달력으로
           </p>
           <JoinButton id={HERO_CTA_ID} className="mx-auto mt-6 max-w-[320px]" />
@@ -401,7 +410,7 @@ export default function SellerAboutPage() {
             href={KAKAO_CHANNEL_CHAT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-3 inline-block py-1 text-sm text-white/75 underline underline-offset-4"
+            className="mt-3 inline-block py-1 text-sm text-gray-600 underline underline-offset-4"
           >
             궁금한 건 카카오톡으로 물어보세요
           </a>
