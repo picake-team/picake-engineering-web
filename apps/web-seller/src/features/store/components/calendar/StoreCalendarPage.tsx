@@ -30,6 +30,9 @@ import { useStoreDetail } from "@/apps/web-seller/features/store/hooks/queries/u
 import { StoreNaverCalendarCard } from "@/apps/web-seller/features/store/components/naver/StoreNaverCalendarCard";
 import { useUpdateStoreBusinessCalendar } from "@/apps/web-seller/features/store/hooks/mutations/useStoreMutation";
 import { useCalendarMonthOrders } from "@/apps/web-seller/features/order/hooks/queries/useOrderQuery";
+import { useManualOrdersInRange } from "@/apps/web-seller/features/manual-order/hooks/useManualOrderQuery";
+import { groupManualByDay } from "@/apps/web-seller/features/manual-order/utils/day-pickups.util";
+import { MANUAL_ORDER_SOURCE_LABEL } from "@/apps/web-seller/features/manual-order/constants/manual-order.constant";
 import type { OrderResponseDto } from "@/apps/web-seller/features/order/types/order.dto";
 import {
   getOrderStatusBadgeVariant,
@@ -282,6 +285,15 @@ export const StoreCalendarPage: React.FC = () => {
 
   const firstWeekday = new Date(year, month, 1).getDay();
   const dim = daysInMonth(monthCursor);
+
+  // 직접 적은 주문(기획 I-42): PC는 보이기만(적기·고치기는 휴대폰에서)
+  const { data: monthManualList } = useManualOrdersInRange(
+    storeId ?? "",
+    monthStartKey,
+    monthEndKey,
+  );
+  const manualByDateKey = React.useMemo(() => groupManualByDay(monthManualList), [monthManualList]);
+  const manualForSelectedDay = selectedKey ? (manualByDateKey[selectedKey] ?? []) : [];
 
   const ordersForSelectedDay = React.useMemo(() => {
     if (!selectedKey) return [];
@@ -557,6 +569,7 @@ export const StoreCalendarPage: React.FC = () => {
                     const dayOrders = ordersByDateKey.get(cell.key) ?? [];
                     const previewOrders = dayOrders.slice(0, 2);
                     const hiddenOrderCount = dayOrders.length - previewOrders.length;
+                    const dayManualCount = manualByDateKey[cell.key]?.length ?? 0;
                     return (
                       <button
                         key={cell.key}
@@ -612,6 +625,11 @@ export const StoreCalendarPage: React.FC = () => {
                                 </span>
                               ) : null}
                             </div>
+                          ) : null}
+                          {dayManualCount > 0 ? (
+                            <span className="text-[10px] font-semibold leading-tight text-muted-foreground sm:text-xs">
+                              직접 적음 {dayManualCount}건
+                            </span>
                           ) : null}
                         </div>
                       </button>
@@ -719,6 +737,54 @@ export const StoreCalendarPage: React.FC = () => {
                         </ul>
                       ) : null}
                     </div>
+
+                    {manualForSelectedDay.length > 0 ? (
+                      <div className="space-y-3 border-b border-border pb-6">
+                        <div className="flex flex-wrap items-baseline justify-between gap-2">
+                          <Label className="text-base font-medium">직접 적은 주문</Label>
+                          <span className="text-sm text-muted-foreground">
+                            {manualForSelectedDay.length}건
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          카톡·인스타 등에서 받아 휴대폰 판매자 앱에 적은 주문입니다. 적기·고치기는
+                          휴대폰에서 합니다.
+                        </p>
+                        <ul className="max-h-64 space-y-2 overflow-y-auto pr-1">
+                          {manualForSelectedDay.map((m) => (
+                            <li
+                              key={m.id}
+                              className="rounded-lg border border-border/80 bg-card px-4 py-3.5"
+                            >
+                              <p className="line-clamp-2 text-[0.9375rem] font-semibold leading-snug text-foreground">
+                                {m.cakeName}
+                              </p>
+                              <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                                <span className="inline-flex items-center rounded-md border border-border/60 bg-muted/50 px-2 py-0.5 font-medium tabular-nums text-foreground">
+                                  픽업 {m.pickupTime ?? "시간 미정"}
+                                </span>
+                                <span className="inline-flex items-center rounded-md border border-border/60 px-2 py-0.5 font-medium text-muted-foreground">
+                                  {MANUAL_ORDER_SOURCE_LABEL[m.source]}
+                                </span>
+                                {m.customerName ? (
+                                  <span className={`${NO_REPLAY} font-medium text-foreground`}>
+                                    {m.customerName}
+                                  </span>
+                                ) : null}
+                                {m.paid === false ? (
+                                  <span className="font-semibold text-primary">입금 전</span>
+                                ) : null}
+                              </div>
+                              {m.lettering ? (
+                                <p className={`${NO_REPLAY} mt-2 text-sm text-foreground`}>
+                                  레터링: {m.lettering}
+                                </p>
+                              ) : null}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
 
                     <div className="space-y-3">
                       <Label className="text-base font-medium">영업 여부</Label>

@@ -21,6 +21,26 @@ export interface OrderStatisticsHourlyDto {
   count: number;
 }
 
+/** 직접 적은 주문(기획 I-42) 받은 곳 한 줄 */
+export interface ManualOrderSourceStatDto {
+  source: "KAKAO" | "INSTAGRAM" | "PHONE" | "NAVER" | "OTHER";
+  sales: number;
+  orders: number;
+}
+
+/**
+ * 직접 적은 주문(기획 I-42) 통계. Picake 주문과 달리 픽업 날이 기간 안이고 오늘까지 지난 주문을 센다.
+ * 매출은 금액을 적은 주문만. 사장님 화면은 Picake 숫자와 더해 보인다
+ */
+export interface ManualOrderStatisticsDto {
+  totalSales: number;
+  totalOrders: number;
+  bySource: ManualOrderSourceStatDto[];
+  weekdayPickupSales: OrderStatisticsWeekdayDto[];
+  weekdayPickupOrders: OrderStatisticsWeekdayDto[];
+  hourlyPickupOrders: OrderStatisticsHourlyDto[];
+}
+
 export interface OrderStatisticsOverviewResponseDto {
   includedOrderStatuses: string[];
   totalSales: number;
@@ -34,6 +54,8 @@ export interface OrderStatisticsOverviewResponseDto {
   weekdayPickupSales: OrderStatisticsWeekdayDto[];
   weekdayPickupOrders: OrderStatisticsWeekdayDto[];
   hourlyPickupOrders: OrderStatisticsHourlyDto[];
+  /** 직접 적은 주문(기획 I-42). 옛 서버면 없다 */
+  manual?: ManualOrderStatisticsDto;
 }
 
 export interface OrderStatisticsOverviewQueryParams {

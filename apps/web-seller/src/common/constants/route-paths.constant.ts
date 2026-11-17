@@ -36,6 +36,12 @@ export const ROUTES = {
     `/stores/${storeId}/notifications/settings`,
   STORE_DETAIL_EDIT: (storeId: string) => `/stores/${storeId}/edit`,
   STORE_DETAIL_CALENDAR: (storeId: string) => `/stores/${storeId}/calendar`,
+  /** 직접 적은 주문(기획 I-42) 적기. ?date=YYYY-MM-DD면 그 날이 미리 골라진다. 휴대폰 화면만(PC 폭에서는 캘린더로) */
+  STORE_DETAIL_MANUAL_ORDER_CREATE: (storeId: string) => `/stores/${storeId}/manual-orders/new`,
+  STORE_DETAIL_MANUAL_ORDER_DETAIL: (storeId: string, id: string) =>
+    `/stores/${storeId}/manual-orders/${id}`,
+  STORE_DETAIL_MANUAL_ORDER_EDIT: (storeId: string, id: string) =>
+    `/stores/${storeId}/manual-orders/${id}/edit`,
   /** 휴대폰 앱 처음 사용 안내(SC-69, 앱에서만). PC 폭·휴대폰 브라우저에서는 스토어 홈으로 */
   STORE_DETAIL_WELCOME: (storeId: string) => `/stores/${storeId}/welcome`,
   /** 휴대폰 화면 영업시간(쉬는 요일·영업시간, SC-81). PC 폭에서는 캘린더("기본 운영 관리")로 */
