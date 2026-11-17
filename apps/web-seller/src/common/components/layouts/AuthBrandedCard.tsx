@@ -7,14 +7,22 @@ interface AuthBrandedCardProps {
   description?: ReactNode;
   children: ReactNode;
   footer?: ReactNode;
+  /** 카드 아래 작은 글(PC 로그인의 운영사 정보) */
+  belowCard?: ReactNode;
 }
 
 /** 로그인·계정 찾기·OAuth 가입 등 인증 플로우 공통 카드(로고 + 헤더 + 본문 + 푸터) */
-export function AuthBrandedCard({ title, description, children, footer }: AuthBrandedCardProps) {
+export function AuthBrandedCard({
+  title,
+  description,
+  children,
+  footer,
+  belowCard,
+}: AuthBrandedCardProps) {
   const hasDescription = description != null && description !== "";
 
   return (
-    <AuthCardLayout className="overflow-hidden p-0 sm:p-0">
+    <AuthCardLayout className="overflow-hidden p-0 sm:p-0" belowCard={belowCard}>
       <div className="flex flex-col">
         <header className="border-b border-zinc-100 bg-zinc-50/80 px-8 pb-8 pt-9 sm:px-10 sm:pb-9 sm:pt-10">
           <div className="mx-auto flex max-w-[280px] flex-col items-center text-center">
