@@ -25,11 +25,13 @@ interface BuildRobotsInput {
 /**
  * robots.txt 규칙
  * - 상용: 모든 크롤러(AI 크롤러 포함) 허용, 비공개 경로만 차단하고 sitemap 안내
- * - 그 외(검증·개발): 전체 차단 — 테스트 데이터가 검색 결과에 노출되지 않게 함
+ * - 그 외(검증·개발): 열어 두고 sitemap은 알리지 않는다. 검색에서 빼는 일은 next.config.ts의
+ *   X-Robots-Tag: noindex 헤더가 한다. robots.txt로 막으면 구글이 그 헤더를 읽지 못해
+ *   예전에 모은 테스트 가게가 검색에 계속 남는다(2026-11-17 staging 테스트 가게 노출)
  */
 export function buildRobots({ isProduction, baseUrl }: BuildRobotsInput): MetadataRoute.Robots {
   if (!isProduction) {
-    return { rules: { userAgent: "*", disallow: "/" } };
+    return { rules: { userAgent: "*", allow: "/" } };
   }
 
   return {

@@ -7,6 +7,16 @@ const PARTNER_ABOUT_URL =
     ? "https://info.picakes.com/seller/about"
     : "https://info-staging.picakes.com/seller/about";
 
+/**
+ * 상용이 아니면(검증·개발) 모든 응답에 "검색에 싣지 마" 표시를 단다.
+ * robots.txt로 막기만 하면 구글이 이 표시를 읽지 못해 예전에 모은 테스트 가게가 검색에 남는다(2026-11-17 staging 테스트 가게 노출).
+ * 그래서 robots.txt는 열어 두고(src/common/utils/seo.util.ts) 이 헤더로 뺀다.
+ */
+const NOINDEX_HEADERS =
+  process.env.NEXT_PUBLIC_NODE_ENV === "production"
+    ? []
+    : [{ key: "X-Robots-Tag", value: "noindex, nofollow" }];
+
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   async headers() {
@@ -18,6 +28,7 @@ const nextConfig: NextConfig = {
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          ...NOINDEX_HEADERS,
         ],
       },
     ];

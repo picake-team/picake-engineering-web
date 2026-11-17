@@ -21,10 +21,10 @@ describe("buildRobots", () => {
     expect(robots.sitemap).toBe("https://picakes.com/sitemap.xml");
   });
 
-  it("상용이 아니면 전체를 차단하고 sitemap을 알리지 않는다", () => {
+  it("상용이 아니면 열어 두되(noindex 헤더를 읽게) sitemap을 알리지 않는다", () => {
     const robots = buildRobots({ isProduction: false, baseUrl: BASE_URL });
 
-    expect(robots.rules).toEqual({ userAgent: "*", disallow: "/" });
+    expect(robots.rules).toEqual({ userAgent: "*", allow: "/" });
     expect(robots.sitemap).toBeUndefined();
   });
 
