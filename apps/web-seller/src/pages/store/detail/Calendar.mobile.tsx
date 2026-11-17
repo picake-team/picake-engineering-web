@@ -19,7 +19,6 @@ import {
   formatKeyMonthDayWeek,
   isDateKey,
   kstDateKey,
-  kstTime,
   monthEndKey,
   monthStartKey,
   shiftMonthKey,
@@ -33,12 +32,8 @@ import { PickupRow } from "@/apps/web-seller/features/order/components/mobile/Or
 import { cakeDayOf } from "@/apps/web-seller/common/utils/cake-days.util";
 import { DayMarks, DayTag } from "@/apps/web-seller/features/manual-order/components/DayMarks";
 import { ManualPickupRow } from "@/apps/web-seller/features/manual-order/components/ManualPickupRow";
-import {
-  CalendarExportSheet,
-  type CalendarExportSample,
-} from "@/apps/web-seller/features/manual-order/components/CalendarExportSheet";
+import { CalendarExportSheet } from "@/apps/web-seller/features/manual-order/components/CalendarExportSheet";
 import { useManualOrdersInRange } from "@/apps/web-seller/features/manual-order/hooks/useManualOrderQuery";
-import { MANUAL_ORDER_SOURCE_LABEL } from "@/apps/web-seller/features/manual-order/constants/manual-order.constant";
 import {
   groupManualByDay,
   mergeDayPickups,
@@ -119,25 +114,6 @@ export const StoreDetailCalendarMobilePage: React.FC = () => {
   const monthLoaded = Boolean(monthQuery.data) && Boolean(monthManual.data);
   const selectedTag = cakeDayOf(selectedKey);
   const [selMonth, selDay] = [Number(selectedKey.slice(5, 7)), Number(selectedKey.slice(8))];
-  // 내보내기 창 미리 보기: 고른 날 첫 주문
-  const first = selectedPickups[0];
-  const exportSample: CalendarExportSample | null = first
-    ? first.kind === "order"
-      ? {
-          dateKey: selectedKey,
-          time: kstTime(first.order.pickupDate),
-          title: first.order.productName ?? "견적 주문",
-          source: "Picake",
-          customerName: first.order.reservationContactName ?? null,
-        }
-      : {
-          dateKey: selectedKey,
-          time: first.manual.pickupTime,
-          title: first.manual.cakeName,
-          source: MANUAL_ORDER_SOURCE_LABEL[first.manual.source],
-          customerName: first.manual.customerName,
-        }
-    : null;
   const selectedRule = effectiveRule(selectedKey, cal);
   const inMonth = selectedKey.slice(0, 7) === monthKey.slice(0, 7);
 
@@ -339,7 +315,6 @@ export const StoreDetailCalendarMobilePage: React.FC = () => {
         storeId={storeId}
         open={exportOpen}
         onClose={() => setExportOpen(false)}
-        sample={exportSample}
       />
     </AppScreen>
   );
