@@ -1,16 +1,21 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useQueryErrorAlert } from "@/apps/web-seller/common/hooks/useQueryErrorAlert";
 import { manualOrderApi } from "@/apps/web-seller/features/manual-order/apis/manual-order.api";
-import { manualOrderQueryKeys } from "@/apps/web-seller/features/manual-order/constants/manual-order.constant";
+import { manualOrderQueryKeys } from "@/apps/web-seller/features/manual-order/constants/manualOrderQueryKeys.constant";
 import type { ManualOrderDto } from "@/apps/web-seller/features/manual-order/types/manual-order.dto";
 import { statisticsQueryKeys } from "@/apps/web-seller/features/statistics/constants/statisticsQueryKeys.constant";
 
 /** 픽업 날이 기간(그날 포함) 안인 직접 적은 주문. 달력 한 달·홈 한 주 */
-export function useManualOrdersInRange(storeId: string, startKey: string, endKey: string) {
+export function useManualOrdersInRange(
+  storeId: string,
+  startKey: string,
+  endKey: string,
+  opts?: { enabled?: boolean },
+) {
   const query = useQuery<ManualOrderDto[]>({
     queryKey: manualOrderQueryKeys.range(storeId, startKey, endKey),
     queryFn: () => manualOrderApi.list(storeId, startKey, endKey),
-    enabled: !!storeId && !!startKey && !!endKey,
+    enabled: (opts?.enabled ?? true) && !!storeId && !!startKey && !!endKey,
   });
   useQueryErrorAlert(query);
   return query;

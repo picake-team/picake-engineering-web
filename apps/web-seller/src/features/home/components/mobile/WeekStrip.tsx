@@ -12,8 +12,7 @@ import {
   weekdayLabel,
 } from "@/apps/web-seller/common/utils/kst-date.util";
 import { cakeDayOf } from "@/apps/web-seller/common/utils/cake-days.util";
-import { DayMarks, DayTag } from "@/apps/web-seller/features/manual-order/components/DayMarks";
-import type { DayPickupCount } from "@/apps/web-seller/features/manual-order/utils/day-pickups.util";
+import { DayMarks, DayTag, type DayPickupCount } from "@/apps/web-seller/common/ui/DayMarks";
 
 const SWIPE_PX = 48;
 

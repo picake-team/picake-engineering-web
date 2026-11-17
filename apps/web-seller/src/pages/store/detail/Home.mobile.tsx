@@ -5,7 +5,7 @@
  * 같은 달력(회색 점)·목록(시각 순)·매출에 섞는다.
  */
 import React, { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { AppScreen, HomeHeader } from "@/apps/web-seller/common/ui/Screen";
 import { Button } from "@/apps/web-seller/common/ui/Button";
@@ -16,35 +16,31 @@ import {
   RowCount,
   RowIconBox,
 } from "@/apps/web-seller/common/ui/List";
-import { LoadErrorState } from "@/apps/web-seller/common/ui/Surface";
+
 import { PullToRefresh } from "@/apps/web-seller/common/ui/PullToRefresh";
 import { Icon, TaskIcon } from "@/apps/web-seller/common/ui/icons";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
 import {
   addDaysToKey,
   formatKeyMonthDayWeek,
-  isDateKey,
-  kstDateKey,
   mondayOfKey,
   sundayOfKey,
 } from "@/apps/web-seller/common/utils/kst-date.util";
-import { useCalendarMonthOrders } from "@/apps/web-seller/features/order/hooks/queries/useOrderQuery";
+
 import { useOrderStatusGroup } from "@/apps/web-seller/features/order/hooks/queries/useOrderMobileQuery";
 import {
-  CANCELED_ORDER_STATUSES,
   formatWon,
   groupsForTab,
   type OrderTaskGroup,
 } from "@/apps/web-seller/features/order/utils/order-mobile.util";
-import { PickupRow } from "@/apps/web-seller/features/order/components/mobile/OrderCards";
+
 import { WeekStrip } from "@/apps/web-seller/features/home/components/mobile/WeekStrip";
-import { useManualOrdersInRange } from "@/apps/web-seller/features/manual-order/hooks/useManualOrderQuery";
-import {
-  groupManualByDay,
-  mergeDayPickups,
-  pickupCountsByDay,
-} from "@/apps/web-seller/features/manual-order/utils/day-pickups.util";
-import { ManualPickupRow } from "@/apps/web-seller/features/manual-order/components/ManualPickupRow";
+import { useDayPickups } from "@/apps/web-seller/features/manual-order/hooks/queries/useDayPickups";
+import { DayPickupList } from "@/apps/web-seller/features/manual-order/components/DayPickupList";
+import { useDateParam } from "@/apps/web-seller/common/hooks/useDateParam";
+
+import { mergeDayPickups } from "@/apps/web-seller/features/manual-order/utils/day-pickups.util";
+
 import { useStatisticsOverviewQuery } from "@/apps/web-seller/features/statistics/hooks/queries/useStatisticsOverviewQuery";
 import { useProductList } from "@/apps/web-seller/features/product/hooks/queries/useProductQuery";
 import { useStoreDetail } from "@/apps/web-seller/features/store/hooks/queries/useStoreQuery";
@@ -52,7 +48,6 @@ import { useMyStores } from "@/apps/web-seller/features/store/hooks/queries/useM
 import { StoreSwitchSheet } from "@/apps/web-seller/features/store/components/mobile/StoreSwitchSheet";
 import { useSellerNotifications } from "@/apps/web-seller/features/notification/components/providers/SellerNotificationProvider";
 import { useFollowToday, useKstTodayKey } from "@/apps/web-seller/common/hooks/useKstTodayKey";
-import type { OrderResponseDto } from "@/apps/web-seller/features/order/types/order.dto";
 import { PushOffBanner } from "@/apps/web-seller/features/notification/components/mobile/PushOffBanner";
 import { useNotificationPreferences } from "@/apps/web-seller/features/notification/hooks/queries/useNotificationQuery";
 import { usePushPermissionStore } from "@/apps/web-seller/common/store/push-permission.store";
@@ -114,14 +109,7 @@ export const StoreDetailHomeMobilePage: React.FC = () => {
   const queryClient = useQueryClient();
   const todayKey = useKstTodayKey();
   // 고른 날은 주소(?date=)에도 둔다: 주문 적기·주문 상세에서 뒤로 오면 보던 날이 그대로(캘린더와 같음, 기획 I-42)
-  const [params, setParams] = useSearchParams();
-  const dateParam = params.get("date");
-  const [selectedKey, setSelectedKey] = useState(isDateKey(dateParam) ? dateParam : todayKey);
-  /** 날짜를 고르면 주소도 바꾼다(뒤로 가기 기록은 늘리지 않음) */
-  const pickDay = (key: string) => {
-    setSelectedKey(key);
-    setParams(key === todayKey ? {} : { date: key }, { replace: true });
-  };
+  const { selectedKey, setSelectedKey, pickDay } = useDateParam(todayKey);
   // 켜 둔 채 날짜가 바뀌면(자정, 다음 날 앱을 다시 엶) 오늘을 보고 있던 주간 달력도 새 오늘로
   useFollowToday(todayKey, (prev, next) => setSelectedKey((s) => (s === prev ? next : s)));
   const [switchOpen, setSwitchOpen] = useState(false);
@@ -147,24 +135,9 @@ export const StoreDetailHomeMobilePage: React.FC = () => {
   const chatReply = chat.data?.replyNeededChats ?? chat.data?.replyNeeded ?? 0;
   const taskTotal = taskQueries.reduce((sum, q) => sum + (q.total ?? 0), 0) + quoteOpen + chatReply;
 
-  // 주간 달력 점·고른 날 픽업: 그 주 픽업 주문(취소된 주문은 빼고 셈)
-  const weekQuery = useCalendarMonthOrders(storeId, weekStart, weekEnd);
-  const byDay = useMemo(() => {
-    const map: Record<string, OrderResponseDto[]> = {};
-    for (const o of weekQuery.data?.data ?? []) {
-      if (CANCELED_ORDER_STATUSES.includes(o.orderStatus)) continue;
-      const key = kstDateKey(o.pickupDate);
-      (map[key] ??= []).push(o);
-    }
-    for (const key of Object.keys(map)) {
-      map[key].sort((a, b) => new Date(a.pickupDate).getTime() - new Date(b.pickupDate).getTime());
-    }
-    return map;
-  }, [weekQuery.data]);
-  // 직접 적은 주문(기획 I-42): 같은 주
-  const weekManual = useManualOrdersInRange(storeId, weekStart, weekEnd);
-  const manualByDay = useMemo(() => groupManualByDay(weekManual.data), [weekManual.data]);
-  const counts = useMemo(() => pickupCountsByDay(byDay, manualByDay), [byDay, manualByDay]);
+  // 주간 달력 점·고른 날 픽업: 그 주 Picake 주문(취소 빼고)과 직접 적은 주문(기획 I-42)
+  const week = useDayPickups(storeId, weekStart, weekEnd);
+  const { byDay, manualByDay, counts } = week;
   const dayPickups = useMemo(
     () => mergeDayPickups(byDay[selectedKey] ?? [], manualByDay[selectedKey] ?? []),
     [byDay, manualByDay, selectedKey],
@@ -199,7 +172,7 @@ export const StoreDetailHomeMobilePage: React.FC = () => {
 
   const isToday = selectedKey === todayKey;
   // 불러오는 동안은 건수를 비운다("0건"으로 보이면 픽업이 없는 줄 안다)
-  const dayLoaded = Boolean(weekQuery.data) && Boolean(weekManual.data);
+  const dayLoaded = week.loaded;
   const dayCount = dayLoaded ? `${dayPickups.length}건` : "";
   // 이번 주 매출: Picake(픽업 완료) + 직접 적은 주문(픽업 날이 지난, 금액 적은 주문)
   const manualSales = sales.data?.manual;
@@ -267,26 +240,16 @@ export const StoreDetailHomeMobilePage: React.FC = () => {
           {dayTitle}
         </GroupTitle>
         <div className="-mt-3">
-          {(weekQuery.isError && !weekQuery.data) || (weekManual.isError && !weekManual.data) ? (
-            <LoadErrorState
-              onRetry={() => {
-                void weekQuery.refetch();
-                void weekManual.refetch();
-              }}
-            />
-          ) : !dayLoaded ? (
-            <span className="block h-16 animate-pulse rounded-card bg-ink-50" aria-busy="true" />
-          ) : dayPickups.length === 0 ? (
-            <p className="py-2 text-sub text-ink-600">이 날은 픽업이 없어요</p>
-          ) : (
-            dayPickups.map((p, i) =>
-              p.kind === "order" ? (
-                <PickupRow key={p.id} order={p.order} last={i === dayPickups.length - 1} />
-              ) : (
-                <ManualPickupRow key={p.id} manual={p.manual} last={i === dayPickups.length - 1} />
-              ),
-            )
-          )}
+          <DayPickupList
+            pickups={dayPickups}
+            loaded={week.loaded}
+            ordersFailed={week.ordersFailed}
+            manualFailed={week.manualFailed}
+            onRetryOrders={week.refetchOrders}
+            onRetryManual={week.refetchManual}
+            emptyText="이 날은 픽업이 없어요"
+            emptyClassName="py-2 text-sub text-ink-600"
+          />
         </div>
         {/* 카톡·인스타로 받은 주문 적기(기획 I-42): 고른 날이 미리 골라진다 */}
         <Button

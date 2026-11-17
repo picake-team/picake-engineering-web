@@ -60,8 +60,4 @@ export const manualOrderApi = {
     });
     return response.data.data;
   },
-  resetCalendarFeed: async (storeId: string): Promise<CalendarFeedDto> => {
-    const response = await sellerClient.post(`/stores/${storeId}/calendar-feed/reset`);
-    return response.data.data;
-  },
 };

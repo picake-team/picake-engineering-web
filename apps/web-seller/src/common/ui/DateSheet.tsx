@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { BottomSheet } from "@/apps/web-seller/common/ui/Sheet";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
 import { cx } from "@/apps/web-seller/common/ui/cx";
+import { DayTag } from "@/apps/web-seller/common/ui/DayMarks";
 import {
   addDaysToKey,
   formatKeyMonthDayWeek,
@@ -141,14 +142,7 @@ export function DateSheet({
                   {count > 0 ? count : info.closed ? "휴무" : ""}
                 </span>
                 {/* 대목이 있는 날만(그 주만 한 줄 높아진다) */}
-                {info.tag ? (
-                  <span
-                    aria-hidden="true"
-                    className="h-[15px] whitespace-nowrap text-tab leading-[15px] text-ink-600"
-                  >
-                    {info.tag}
-                  </span>
-                ) : null}
+                {info.tag ? <DayTag label={info.tag} /> : null}
               </button>
             );
           })}

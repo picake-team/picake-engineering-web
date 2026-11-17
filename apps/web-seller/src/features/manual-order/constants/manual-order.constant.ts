@@ -9,13 +9,9 @@ export const MANUAL_ORDER_SOURCES: { value: ManualOrderSource; label: string }[]
   { value: "OTHER", label: "기타" },
 ];
 
-export const MANUAL_ORDER_SOURCE_LABEL: Record<ManualOrderSource, string> = {
-  KAKAO: "카톡",
-  INSTAGRAM: "인스타",
-  PHONE: "전화",
-  NAVER: "네이버",
-  OTHER: "기타",
-};
+export const MANUAL_ORDER_SOURCE_LABEL = Object.fromEntries(
+  MANUAL_ORDER_SOURCES.map((s) => [s.value, s.label]),
+) as Record<ManualOrderSource, string>;
 
 /** 서버와 같은 칸 길이 */
 export const MANUAL_ORDER_LIMITS = {
@@ -25,17 +21,6 @@ export const MANUAL_ORDER_LIMITS = {
   MEMO_MAX: 500,
   PRICE_MAX: 10_000_000,
   PHOTO_MAX: 3,
-} as const;
-
-/**
- * 쿼리 키. Picake 주문(["order", …])과 같은 앞자리라 홈을 당겨 새로 고치면 같이 다시 읽는다
- */
-export const manualOrderQueryKeys = {
-  all: ["order", "manual"] as const,
-  range: (storeId: string, startKey: string, endKey: string) =>
-    ["order", "manual", "range", storeId, startKey, endKey] as const,
-  detail: (storeId: string, id: string) => ["order", "manual", "detail", storeId, id] as const,
-  calendarFeed: (storeId: string) => ["manual-order", "calendar-feed", storeId] as const,
 } as const;
 
 /** 마지막으로 고른 받은 곳(다음 주문 적기에서 미리 골라 둔다, 휴대폰마다) */

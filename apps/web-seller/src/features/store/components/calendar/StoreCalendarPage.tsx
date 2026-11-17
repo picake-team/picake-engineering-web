@@ -30,7 +30,7 @@ import { useStoreDetail } from "@/apps/web-seller/features/store/hooks/queries/u
 import { StoreNaverCalendarCard } from "@/apps/web-seller/features/store/components/naver/StoreNaverCalendarCard";
 import { useUpdateStoreBusinessCalendar } from "@/apps/web-seller/features/store/hooks/mutations/useStoreMutation";
 import { useCalendarMonthOrders } from "@/apps/web-seller/features/order/hooks/queries/useOrderQuery";
-import { useManualOrdersInRange } from "@/apps/web-seller/features/manual-order/hooks/useManualOrderQuery";
+import { useManualOrdersInRange } from "@/apps/web-seller/features/manual-order/hooks/queries/useManualOrderQuery";
 import { groupManualByDay } from "@/apps/web-seller/features/manual-order/utils/day-pickups.util";
 import { MANUAL_ORDER_SOURCE_LABEL } from "@/apps/web-seller/features/manual-order/constants/manual-order.constant";
 import type { OrderResponseDto } from "@/apps/web-seller/features/order/types/order.dto";
