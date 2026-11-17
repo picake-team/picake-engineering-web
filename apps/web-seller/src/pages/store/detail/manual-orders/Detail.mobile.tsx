@@ -26,14 +26,12 @@ import {
 } from "@/apps/web-seller/common/utils/webview.bridge";
 import { formatWon } from "@/apps/web-seller/features/order/utils/order-mobile.util";
 import { manualOrderApi } from "@/apps/web-seller/features/manual-order/apis/manual-order.api";
-import {
-  MANUAL_ORDER_SOURCE_LABEL,
-  manualOrderQueryKeys,
-} from "@/apps/web-seller/features/manual-order/constants/manual-order.constant";
+import { MANUAL_ORDER_SOURCE_LABEL } from "@/apps/web-seller/features/manual-order/constants/manual-order.constant";
+import { manualOrderQueryKeys } from "@/apps/web-seller/features/manual-order/constants/manualOrderQueryKeys.constant";
 import {
   useInvalidateManualOrders,
   useManualOrder,
-} from "@/apps/web-seller/features/manual-order/hooks/useManualOrderQuery";
+} from "@/apps/web-seller/features/manual-order/hooks/queries/useManualOrderQuery";
 import type { ManualOrderDto } from "@/apps/web-seller/features/manual-order/types/manual-order.dto";
 
 type PaidTab = "unpaid" | "paid";
@@ -75,7 +73,7 @@ export const StoreDetailManualOrderDetailMobilePage: React.FC = () => {
       const saved = await manualOrderApi.setPaid(storeId, m.id, paid);
       if (seq !== paidSeq.current) return;
       queryClient.setQueryData<ManualOrderDto>(key, saved);
-      void invalidate();
+      void invalidate({ exceptId: m.id });
     } catch (e) {
       if (seq === paidSeq.current) {
         queryClient.setQueryData<ManualOrderDto>(key, before);

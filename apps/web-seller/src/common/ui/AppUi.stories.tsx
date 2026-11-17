@@ -14,7 +14,7 @@ import { Field, PickerButton, SearchInput, TextArea, TextInput } from "./Field";
 import { SheetSelect } from "./OptionSheet";
 import { DateRangeSheet } from "./DateRangeSheet";
 import { DateSheet } from "./DateSheet";
-import { DayMarks } from "@/apps/web-seller/features/manual-order/components/DayMarks";
+import { DayMarks } from "@/apps/web-seller/common/ui/DayMarks";
 import { addDaysToKey, kstDateKey } from "../utils/kst-date.util";
 import {
   GrayBand,

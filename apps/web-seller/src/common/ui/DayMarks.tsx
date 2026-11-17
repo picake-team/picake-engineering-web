@@ -5,9 +5,13 @@
  * 높이는 늘 같아 점·숫자·빈칸이 섞여도 날짜가 들썩이지 않는다
  */
 import { cx } from "@/apps/web-seller/common/ui/cx";
-import type { DayPickupCount } from "@/apps/web-seller/features/manual-order/utils/day-pickups.util";
+/** 그날 픽업 수: Picake 주문(주황 점)·직접 적은 주문(회색 점) */
+export interface DayPickupCount {
+  picake: number;
+  manual: number;
+}
 
-export const DAY_MARKS_NUMBER_FROM = 4;
+const DAY_MARKS_NUMBER_FROM = 4;
 
 export function DayMarks({ count, className }: { count?: DayPickupCount; className?: string }) {
   const picake = count?.picake ?? 0;

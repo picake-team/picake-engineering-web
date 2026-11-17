@@ -198,7 +198,8 @@ export const StoreDetailStatisticsMobilePage: React.FC = () => {
         })),
       ]
         .filter((r) => r.orders > 0)
-        .sort((a, b) => b.sales - a.sales || b.orders - a.orders)
+        // "가장 많이 받았어요"·"카톡 2건"과 맞게 건수 순(같으면 매출 순)
+        .sort((a, b) => b.orders - a.orders || b.sales - a.sales)
     : [];
 
   const pick = (p: Preset) => {

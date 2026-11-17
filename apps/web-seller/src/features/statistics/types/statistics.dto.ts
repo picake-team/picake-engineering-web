@@ -1,3 +1,5 @@
+import type { ManualOrderSource } from "@/apps/web-seller/features/manual-order/types/manual-order.dto";
+
 /**
  * GET `/v1/seller/statistics/orders/overview` 응답 본문(`data` 필드).
  * 접수일(created_at)이 기간에 들어가고 상태가 `includedOrderStatuses`인 주문만 집계.
@@ -23,7 +25,7 @@ export interface OrderStatisticsHourlyDto {
 
 /** 직접 적은 주문(기획 I-42) 받은 곳 한 줄 */
 export interface ManualOrderSourceStatDto {
-  source: "KAKAO" | "INSTAGRAM" | "PHONE" | "NAVER" | "OTHER";
+  source: ManualOrderSource;
   sales: number;
   orders: number;
 }

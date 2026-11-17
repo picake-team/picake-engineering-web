@@ -21,5 +21,8 @@ describe("cakeDayOf (케이크 대목·기념일)", () => {
     expect(cakeDayOf("2027-05-17")?.short).toBe("성년의날");
     expect(cakeDayOf("2026-05-11")).toBeNull();
     expect(cakeDayOf("2026-05-15")?.short).toBe("스승의날");
+    // 겹치는 해: 짧은 이름은 그날, 긴 이름은 둘 다
+    expect(cakeDayOf("2028-05-15")).toEqual({ short: "스승의날", full: "스승의날 · 성년의날" });
+    expect(cakeDayOf("2029-05-21")?.full).toBe("부부의날 · 성년의날");
   });
 });

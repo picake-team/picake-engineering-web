@@ -47,9 +47,9 @@ function isComingOfAgeDay(key: string): boolean {
   return weekday === 1 && day >= 15 && day <= 21;
 }
 
-/** YYYY-MM-DD → 대목·기념일이면 이름 */
+/** YYYY-MM-DD → 대목·기념일이면 이름. 성년의날이 다른 날과 겹치면(2028 스승의날, 2029 부부의날) 짧은 이름은 그날, 긴 이름은 둘 다 */
 export function cakeDayOf(key: string): CakeDay | null {
-  return (
-    LUNAR_DAYS[key] ?? FIXED_DAYS[key.slice(5)] ?? (isComingOfAgeDay(key) ? COMING_OF_AGE : null)
-  );
+  const day = LUNAR_DAYS[key] ?? FIXED_DAYS[key.slice(5)] ?? null;
+  if (!isComingOfAgeDay(key)) return day;
+  return day ? { short: day.short, full: `${day.full} · ${COMING_OF_AGE.full}` } : COMING_OF_AGE;
 }

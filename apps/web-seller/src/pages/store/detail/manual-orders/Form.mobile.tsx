@@ -28,17 +28,16 @@ import { canGoBackInApp } from "@/apps/web-seller/common/hooks/useLeaveAfterSave
 import { useKstTodayKey } from "@/apps/web-seller/common/hooks/useKstTodayKey";
 import getApiMessage from "@/apps/web-seller/common/utils/getApiMessage";
 import { cakeDayOf } from "@/apps/web-seller/common/utils/cake-days.util";
+import { useDayPickups } from "@/apps/web-seller/features/manual-order/hooks/queries/useDayPickups";
 import {
   formatKeyMonthDayWeek,
   isDateKey,
-  kstDateKey,
   monthEndKey,
   monthStartKey,
 } from "@/apps/web-seller/common/utils/kst-date.util";
 import { uploadApi } from "@/apps/web-seller/features/upload/apis/upload.api";
 import { dataUrlToFile, shrinkPhoto } from "@/apps/web-seller/features/chat/hooks/useChat";
-import { useCalendarMonthOrders } from "@/apps/web-seller/features/order/hooks/queries/useOrderQuery";
-import { CANCELED_ORDER_STATUSES } from "@/apps/web-seller/features/order/utils/order-mobile.util";
+
 import { useStoreDetail } from "@/apps/web-seller/features/store/hooks/queries/useStoreQuery";
 import {
   calendarOrDefault,
@@ -53,8 +52,7 @@ import {
 import {
   useInvalidateManualOrders,
   useManualOrder,
-  useManualOrdersInRange,
-} from "@/apps/web-seller/features/manual-order/hooks/useManualOrderQuery";
+} from "@/apps/web-seller/features/manual-order/hooks/queries/useManualOrderQuery";
 import type {
   ManualOrderDto,
   ManualOrderInput,
@@ -176,6 +174,7 @@ function ManualOrderForm({
   const invalidate = useInvalidateManualOrders();
   const cakeRef = useRef<HTMLInputElement>(null);
   const captureRef = useRef<HTMLInputElement>(null);
+  const photoRef = useRef<HTMLInputElement>(null);
 
   const [form, setForm] = useState<FormState>(initial);
   const [pasted, setPasted] = useState<Pasted | null>(null);
@@ -211,24 +210,19 @@ function ManualOrderForm({
   // 날짜 창: 보는 달의 받은 수(Picake + 직접)·휴무·대목
   const [sheetMonth, setSheetMonth] = useState(() => monthStartKey(initial.pickupDate));
   const sheetMonthEnd = monthEndKey(sheetMonth);
-  const monthOrders = useCalendarMonthOrders(storeId, sheetMonth, sheetMonthEnd);
-  const monthManual = useManualOrdersInRange(storeId, sheetMonth, sheetMonthEnd);
+  // 창을 열 때만 불러온다(대부분 날짜 창을 열지 않고 적음). 캘린더와 같은 조회라 캐시를 같이 쓴다
+  const sheetPickups = useDayPickups(storeId, sheetMonth, sheetMonthEnd, { enabled: dateOpen });
   const { data: store } = useStoreDetail(storeId);
   const cal = calendarOrDefault(store?.businessCalendar);
   const countByDay = useMemo(() => {
     const map: Record<string, number> = {};
-    for (const o of monthOrders.data?.data ?? []) {
-      if (CANCELED_ORDER_STATUSES.includes(o.orderStatus)) continue;
-      const key = kstDateKey(o.pickupDate);
-      map[key] = (map[key] ?? 0) + 1;
-    }
-    for (const m of monthManual.data ?? []) {
-      // 고치는 중인 주문은 세지 않는다(그날 "이미 받은 수")
-      if (m.id === editingId) continue;
-      map[m.pickupDate] = (map[m.pickupDate] ?? 0) + 1;
+    for (const [key, c] of Object.entries(sheetPickups.counts)) map[key] = c.picake + c.manual;
+    // 고치는 중인 주문은 세지 않는다(그날 "이미 받은 수")
+    for (const [key, list] of Object.entries(sheetPickups.manualByDay)) {
+      if (list.some((m) => m.id === editingId)) map[key] -= 1;
     }
     return map;
-  }, [monthOrders.data, monthManual.data, editingId]);
+  }, [sheetPickups.counts, sheetPickups.manualByDay, editingId]);
   const onMonthChange = useCallback((month: string) => setSheetMonth(month), []);
 
   const runRead = async (input: Pasted) => {
@@ -490,7 +484,7 @@ function ManualOrderForm({
         </Field>
       </div>
 
-      <Field label="케이크" counter={undefined}>
+      <Field label="케이크">
         {(p) => (
           <TextInput
             ref={cakeRef}
@@ -618,31 +612,33 @@ function ManualOrderForm({
             </div>
           ))}
           {form.photoUrls.length < MANUAL_ORDER_LIMITS.PHOTO_MAX ? (
-            <label
+            <button
+              type="button"
               aria-label="사진 붙이기"
-              className={cx(
-                "flex size-[72px] cursor-pointer items-center justify-center rounded-control border border-ink-200 text-ink-400",
-                uploading && "pointer-events-none",
-              )}
+              disabled={uploading}
+              onClick={() => photoRef.current?.click()}
+              className="flex size-[72px] items-center justify-center rounded-control border border-ink-200 text-ink-400 active:bg-ink-50"
             >
               {uploading ? "…" : <Icon name="camera" size={20} />}
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                hidden
-                disabled={uploading}
-                onChange={(e) => {
-                  void onPickPhotos(e.target.files);
-                  e.target.value = "";
-                }}
-              />
-            </label>
+            </button>
           ) : null}
         </div>
         {photoError ? (
           <p className="text-caption font-semibold text-brand-ink">{photoError}</p>
         ) : null}
+        <input
+          ref={photoRef}
+          type="file"
+          accept="image/*"
+          multiple
+          className="sr-only"
+          tabIndex={-1}
+          aria-hidden="true"
+          onChange={(e) => {
+            void onPickPhotos(e.target.files);
+            e.target.value = "";
+          }}
+        />
       </div>
 
       <DateSheet

@@ -7,18 +7,16 @@
  * 그날만 영업을 바꾸는 것은 휴대폰에서 하지 않는다(운영자 결정, PC 캘린더에서). 쉬는 요일·영업시간은 스토어 탭 "영업시간".
  */
 import React, { useMemo, useRef, useState } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { AppScreen, BackHeader, BottomActionBar } from "@/apps/web-seller/common/ui/Screen";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
 import { Button } from "@/apps/web-seller/common/ui/Button";
-import { LoadErrorState } from "@/apps/web-seller/common/ui/Surface";
+
 import { Icon } from "@/apps/web-seller/common/ui/icons";
 import { cx } from "@/apps/web-seller/common/ui/cx";
 import {
   addDaysToKey,
   formatKeyMonthDayWeek,
-  isDateKey,
-  kstDateKey,
   monthEndKey,
   monthStartKey,
   shiftMonthKey,
@@ -26,20 +24,17 @@ import {
   weekdayOfKey,
 } from "@/apps/web-seller/common/utils/kst-date.util";
 import { useFollowToday, useKstTodayKey } from "@/apps/web-seller/common/hooks/useKstTodayKey";
-import { useCalendarMonthOrders } from "@/apps/web-seller/features/order/hooks/queries/useOrderQuery";
-import { CANCELED_ORDER_STATUSES } from "@/apps/web-seller/features/order/utils/order-mobile.util";
-import { PickupRow } from "@/apps/web-seller/features/order/components/mobile/OrderCards";
+
 import { cakeDayOf } from "@/apps/web-seller/common/utils/cake-days.util";
-import { DayMarks, DayTag } from "@/apps/web-seller/features/manual-order/components/DayMarks";
-import { ManualPickupRow } from "@/apps/web-seller/features/manual-order/components/ManualPickupRow";
+import { DayMarks, DayTag } from "@/apps/web-seller/common/ui/DayMarks";
+
 import { CalendarExportSheet } from "@/apps/web-seller/features/manual-order/components/CalendarExportSheet";
-import { useManualOrdersInRange } from "@/apps/web-seller/features/manual-order/hooks/useManualOrderQuery";
-import {
-  groupManualByDay,
-  mergeDayPickups,
-  pickupCountsByDay,
-} from "@/apps/web-seller/features/manual-order/utils/day-pickups.util";
-import type { OrderResponseDto } from "@/apps/web-seller/features/order/types/order.dto";
+import { DayPickupList } from "@/apps/web-seller/features/manual-order/components/DayPickupList";
+import { useDayPickups } from "@/apps/web-seller/features/manual-order/hooks/queries/useDayPickups";
+import { useDateParam } from "@/apps/web-seller/common/hooks/useDateParam";
+
+import { mergeDayPickups } from "@/apps/web-seller/features/manual-order/utils/day-pickups.util";
+
 import { useStoreDetail } from "@/apps/web-seller/features/store/hooks/queries/useStoreQuery";
 import {
   calendarOrDefault,
@@ -54,16 +49,8 @@ export const StoreDetailCalendarMobilePage: React.FC = () => {
   const navigate = useNavigate();
   const todayKey = useKstTodayKey();
   // 고른 날은 주소(?date=)에도 둔다: 주문 적기·상세에서 뒤로 오면 보던 날이 그대로 열리게(기획 I-42)
-  const [params, setParams] = useSearchParams();
-  const dateParam = params.get("date");
-  const initialKey = isDateKey(dateParam) ? dateParam : todayKey;
-  const [selectedKey, setSelectedKey] = useState(initialKey);
-  const [monthKey, setMonthKey] = useState(() => monthStartKey(initialKey));
-  /** 사장님이 날짜를 고르면 주소도 바꾼다(뒤로 가기 기록은 늘리지 않음) */
-  const pickDay = (key: string) => {
-    setSelectedKey(key);
-    setParams({ date: key }, { replace: true });
-  };
+  const { selectedKey, setSelectedKey, pickDay } = useDateParam(todayKey);
+  const [monthKey, setMonthKey] = useState(() => monthStartKey(selectedKey));
   // 켜 둔 채 날짜가 바뀌면 오늘을 보고 있던 칸·달도 새 오늘로(다른 날을 골라 뒀으면 그대로)
   useFollowToday(todayKey, (prev, next) => {
     setSelectedKey((s) => (s === prev ? next : s));
@@ -75,25 +62,9 @@ export const StoreDetailCalendarMobilePage: React.FC = () => {
   const { data: store } = useStoreDetail(storeId);
   const cal = calendarOrDefault(store?.businessCalendar);
   const monthEnd = monthEndKey(monthKey);
-  const monthQuery = useCalendarMonthOrders(storeId, monthKey, monthEnd);
-
-  const byDay = useMemo(() => {
-    const map: Record<string, OrderResponseDto[]> = {};
-    for (const o of monthQuery.data?.data ?? []) {
-      if (CANCELED_ORDER_STATUSES.includes(o.orderStatus)) continue;
-      const key = kstDateKey(o.pickupDate);
-      (map[key] ??= []).push(o);
-    }
-    for (const key of Object.keys(map)) {
-      map[key].sort((a, b) => new Date(a.pickupDate).getTime() - new Date(b.pickupDate).getTime());
-    }
-    return map;
-  }, [monthQuery.data]);
-
-  // 직접 적은 주문(기획 I-42): 같은 달
-  const monthManual = useManualOrdersInRange(storeId, monthKey, monthEnd);
-  const manualByDay = useMemo(() => groupManualByDay(monthManual.data), [monthManual.data]);
-  const counts = useMemo(() => pickupCountsByDay(byDay, manualByDay), [byDay, manualByDay]);
+  // 그달 Picake 주문(취소 빼고)과 직접 적은 주문(기획 I-42)
+  const month = useDayPickups(storeId, monthKey, monthEnd);
+  const { byDay, manualByDay, counts } = month;
 
   const [y, m] = monthKey.split("-").map(Number);
   const firstWeekday = weekdayOfKey(monthKey);
@@ -111,7 +82,7 @@ export const StoreDetailCalendarMobilePage: React.FC = () => {
     () => mergeDayPickups(byDay[selectedKey] ?? [], manualByDay[selectedKey] ?? []),
     [byDay, manualByDay, selectedKey],
   );
-  const monthLoaded = Boolean(monthQuery.data) && Boolean(monthManual.data);
+  const monthLoaded = month.loaded;
   const selectedTag = cakeDayOf(selectedKey);
   const [selMonth, selDay] = [Number(selectedKey.slice(5, 7)), Number(selectedKey.slice(8))];
   const selectedRule = effectiveRule(selectedKey, cal);
@@ -279,36 +250,17 @@ export const StoreDetailCalendarMobilePage: React.FC = () => {
               <span className="shrink-0 text-sub font-normal text-ink-600">{selectedTag.full}</span>
             ) : null}
           </h2>
-          {(monthQuery.isError && !monthQuery.data) ||
-          (monthManual.isError && !monthManual.data) ? (
-            <LoadErrorState
-              onRetry={() => {
-                void monthQuery.refetch();
-                void monthManual.refetch();
-              }}
-            />
-          ) : !monthLoaded ? (
-            // 불러오는 동안은 회색 뼈대(글자 "불러오는 중…" 대신, 다른 화면과 같게)
-            <span className="block h-16 animate-pulse rounded-card bg-ink-50" aria-busy="true" />
-          ) : selectedPickups.length > 0 ? (
-            <div className="-mt-1">
-              {selectedPickups.map((p, i) =>
-                p.kind === "order" ? (
-                  <PickupRow key={p.id} order={p.order} last={i === selectedPickups.length - 1} />
-                ) : (
-                  <ManualPickupRow
-                    key={p.id}
-                    manual={p.manual}
-                    last={i === selectedPickups.length - 1}
-                  />
-                ),
-              )}
-            </div>
-          ) : (
-            <p className="text-sub text-ink-600">
-              {selectedRule.isOpen ? "이 날은 픽업이 없어요" : "쉬는 날이라 픽업이 없어요"}
-            </p>
-          )}
+          <DayPickupList
+            pickups={selectedPickups}
+            loaded={month.loaded}
+            ordersFailed={month.ordersFailed}
+            manualFailed={month.manualFailed}
+            onRetryOrders={month.refetchOrders}
+            onRetryManual={month.refetchManual}
+            emptyText={selectedRule.isOpen ? "이 날은 픽업이 없어요" : "쉬는 날이라 픽업이 없어요"}
+            emptyClassName="text-sub text-ink-600"
+            listClassName="-mt-1"
+          />
         </>
       ) : null}
       <CalendarExportSheet

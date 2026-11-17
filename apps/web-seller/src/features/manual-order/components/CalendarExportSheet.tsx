@@ -16,10 +16,10 @@ import getApiMessage from "@/apps/web-seller/common/utils/getApiMessage";
 import { externalHref, isSellerAppWebView } from "@/apps/web-seller/common/utils/webview.bridge";
 import { copyText } from "@/apps/web-seller/common/utils/clipboard.util";
 import { manualOrderApi } from "@/apps/web-seller/features/manual-order/apis/manual-order.api";
-import { manualOrderQueryKeys } from "@/apps/web-seller/features/manual-order/constants/manual-order.constant";
+import { manualOrderQueryKeys } from "@/apps/web-seller/features/manual-order/constants/manualOrderQueryKeys.constant";
 import type { CalendarFeedDto } from "@/apps/web-seller/features/manual-order/types/manual-order.dto";
 
-const API_DOMAIN = import.meta.env.VITE_PUBLIC_API_DOMAIN as string;
+const API_DOMAIN = import.meta.env.VITE_PUBLIC_API_DOMAIN;
 
 /** 앱 안이면 앱이 휴대폰 캘린더·브라우저로 연다. 휴대폰 브라우저에서 구글 주소는 새 탭으로(판매자 화면을 떠나지 않게) */
 function openOutside(url: string) {
