@@ -117,7 +117,8 @@ export const QuoteRequestDetailPage: React.FC = () => {
             <div className="px-5 py-3">
               <h2 className="mb-2 font-semibold">요청한 손님</h2>
               <p className="mb-2 text-xs text-muted-foreground">
-                가게·디스코드에는 보내지 않아요. 문의 응대할 때만 써 주세요.
+                요청을 받은 가게에도 보여요(2026-11-13부터 보낸 요청, 견적·주문 상담용).
+                디스코드에는 보내지 않아요.
               </p>
               <Row label="닉네임">{data.consumer.nickname ?? data.consumer.name ?? "-"}</Row>
               <Row label="휴대폰">{data.consumer.phone}</Row>
