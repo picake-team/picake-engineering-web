@@ -1,6 +1,7 @@
 import { Suspense, useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { rememberLastStoreId } from "@/apps/web-seller/common/utils/last-store.util";
+import { isActAsMode } from "@/apps/web-seller/common/utils/act-as.util";
 import { SellerNotificationScope } from "@/apps/web-seller/features/notification/components/providers/SellerNotificationProvider";
 
 /** 휴대폰 화면이 열리는 동안 잠깐 보이는 빈 화면(위쪽 줄 높이만큼 비움) */
@@ -25,7 +26,8 @@ export function MobileLayout() {
   const { pathname } = useLocation();
   const storeId = pathname.match(/^\/stores\/([^/]+)/)?.[1];
   useEffect(() => {
-    if (storeId) rememberLastStoreId(storeId);
+    // 운영자 대신 입력 중(기획 I-41)에는 운영자 브라우저에 사장님 스토어를 기억하지 않는다
+    if (storeId && !isActAsMode()) rememberLastStoreId(storeId);
   }, [storeId]);
   return (
     <SellerNotificationScope>

@@ -1,5 +1,12 @@
 import React, { Suspense } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  Outlet,
+  useLocation,
+} from "react-router-dom";
 import { AdminLayout } from "@/apps/web-seller/common/components/layouts/AdminLayout";
 import { MobileLayout } from "@/apps/web-seller/common/components/layouts/MobileLayout";
 import {
@@ -20,6 +27,12 @@ import { LoadingFallback } from "./common/components/fallbacks/LoadingFallback";
 import { Alert } from "./common/components/alerts/Alert";
 import { ConfirmAlert } from "./common/components/alerts/ConfirmAlert";
 import BuildInfoLogger from "./common/components/debug/BuildInfoLogger";
+import { ActAsBanner } from "./common/components/act-as/ActAsBanner";
+import {
+  ActAsBlockedScreen,
+  isActAsBlockedPath,
+} from "./common/components/act-as/ActAsBlockedScreen";
+import { isActAsMode } from "./common/utils/act-as.util";
 
 /** 휴대폰 화면을 그릴 때 그 주소의 화면: 휴대폰 화면이 있으면 그것, 없으면 PC 화면 */
 function pickScreen(route: AppRouteConfig, showMobile: boolean) {
@@ -39,6 +52,11 @@ function AdminLayoutOutlet() {
  * 나머지는 지금처럼 AdminLayout(PC 화면) 안에 그린다.
  */
 function SignedInRoutes({ showMobile }: { showMobile: boolean }) {
+  const { pathname } = useLocation();
+  // 운영자 대신 입력 중(기획 I-41)에는 막힌 기능 화면 대신 짧은 안내
+  if (isActAsMode() && isActAsBlockedPath(pathname)) {
+    return <ActAsBlockedScreen showMobile={showMobile} />;
+  }
   const mobileRoutes = showMobile ? ADMIN_ROUTE_CONFIG.filter((r) => r.mobile) : [];
   const desktopRoutes = ADMIN_ROUTE_CONFIG.filter((r) => !(showMobile && r.mobile));
   return (
@@ -80,6 +98,8 @@ function AppRoutes() {
         </>
       )}
       <ConfirmAlert />
+      {/* 운영자 대신 입력 중(기획 I-41)인 탭만 맨 위 띠 */}
+      <ActAsBanner />
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
           {/* 인증 관련 경로 (AdminLayout 밖) */}

@@ -1,4 +1,5 @@
 import type { CaptureResult, PostHog } from "posthog-js";
+import { isActAsMode } from "@/apps/web-seller/common/utils/act-as.util";
 
 const POSTHOG_KEY = import.meta.env.VITE_PUBLIC_POSTHOG_KEY;
 const POSTHOG_HOST = import.meta.env.VITE_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com";
@@ -91,9 +92,13 @@ export function isReplayBlockedPath(pathname: string | null | undefined): boolea
   return pathname.startsWith("/auth");
 }
 
-/** PostHog를 켰는지(키가 있을 때만) */
+/**
+ * PostHog를 켰는지(키가 있을 때만).
+ * 운영자 대신 입력 중인 탭(기획 I-41)은 켜지 않는다 — 운영자 행동이 사장님 행동으로 잡혀
+ * "사장님이 직접 입력한 수"가 망가지고, 사장님 회원 번호로 묶이기 때문이다(들어오기 주소부터 끈다)
+ */
 function isPostHogEnabled(): boolean {
-  return typeof window !== "undefined" && !!POSTHOG_KEY;
+  return typeof window !== "undefined" && !!POSTHOG_KEY && !isActAsMode();
 }
 
 /**

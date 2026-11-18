@@ -3,6 +3,11 @@ import { rememberReturnTo } from "@/apps/web-seller/common/utils/return-to.util"
 import { getAccessToken, removeAccessToken } from "@/apps/web-seller/common/utils/token.util";
 import { ROUTES } from "@/apps/web-seller/common/constants/paths.constant";
 import { captureSentryApiError } from "@/apps/web-seller/common/utils/sentry.util";
+import {
+  endActAsAndLeave,
+  getActAsToken,
+  isActAsEndedInThisPage,
+} from "@/apps/web-seller/common/utils/act-as.util";
 
 const API_BASE_URL = import.meta.env.VITE_PUBLIC_API_DOMAIN;
 
@@ -40,6 +45,14 @@ const requestInterceptor = (config: InternalAxiosRequestConfig) => {
 const responseErrorHandler = async (error: AxiosError<any>) => {
   const status = error.response?.status;
   const message = error.response?.data?.data?.message;
+
+  // 운영자 대신 입력(기획 I-41)이 끝났거나 시간이 지났으면 로그인 화면이 아니라 끝난 화면으로.
+  // 사장님 출입증(localStorage)은 지우지 않는다
+  // 끝낸 뒤 늦게 온 요청의 401도 여기서 끝낸다(로그인 화면으로 덮어쓰지 않게)
+  if (status === 401 && (getActAsToken() || isActAsEndedInThisPage())) {
+    endActAsAndLeave();
+    return Promise.reject(error);
+  }
 
   // 401 && ACCESS_TOKEN_INVALID 오류 처리
   if (status === 401 && message?.includes("ACCESS_TOKEN_INVALID")) {

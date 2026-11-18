@@ -32,9 +32,16 @@ export function ManualPickupRow({ manual, last }: { manual: ManualOrderDto; last
         <span className="line-clamp-2 text-body font-semibold text-ink-900 [overflow-wrap:anywhere]">
           {manual.cakeName}
         </span>
-        {sub || manual.paid === false ? (
+        {sub || manual.paid === false || manual.enteredByOperator ? (
           // 띄어쓰기 없는 인스타 아이디(50자)도 받은 곳 칸을 밀지 않게 한 줄로 줄인다
           <span className="truncate text-sub text-ink-600">
+            {/* 운영자가 가게 대신 적은 주문(기획 I-41) — 긴 이름 뒤에서 잘리지 않게 맨 앞에 */}
+            {manual.enteredByOperator ? (
+              <>
+                운영자 입력
+                {sub || manual.paid === false ? " · " : null}
+              </>
+            ) : null}
             {sub ? <span className={NO_REPLAY}>{sub}</span> : null}
             {sub && manual.paid === false ? " · " : null}
             {manual.paid === false ? (

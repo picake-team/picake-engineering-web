@@ -246,7 +246,8 @@ export function AppScreen({
       )}
     >
       {header ? (
-        <header className="sticky top-0 z-20 bg-white pt-[env(safe-area-inset-top)]">
+        // 운영자 대신 입력 띠(기획 I-41)가 있으면 그 아래에 붙는다
+        <header className="sticky top-[var(--act-as-band,0px)] z-20 bg-white pt-[env(safe-area-inset-top)]">
           {header}
         </header>
       ) : (

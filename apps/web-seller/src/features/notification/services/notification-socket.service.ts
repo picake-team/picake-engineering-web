@@ -1,5 +1,6 @@
 import { io, type Socket } from "socket.io-client";
 import { getAccessToken } from "@/apps/web-seller/common/utils/token.util";
+import { isActAsMode } from "@/apps/web-seller/common/utils/act-as.util";
 import type { SellerNotificationItem } from "@/apps/web-seller/features/notification/types/notification.dto";
 import { NOTIFICATION_SOCKET_SURFACE } from "@/apps/web-seller/features/notification/constants/notification.constants";
 
@@ -25,7 +26,8 @@ export function connectNotificationSocket(params: {
   onChatUpdated?: (signal: ChatUpdatedSignal) => void;
   onConnectionChange?: (connected: boolean) => void;
 }): () => void {
-  if (!API_BASE_URL) {
+  // 운영자 대신 입력 중(기획 I-41)에는 실시간 주문 알림·채팅 신호를 받지 않는다(서버도 대리 출입증을 받지 않음)
+  if (!API_BASE_URL || isActAsMode()) {
     return () => undefined;
   }
 
