@@ -16,7 +16,7 @@
 | `picake-git-pr-create`         | Pull Request 생성(기본: draft, base `staging`)                                                |
 | `picake-deploy-release`        | 태그 기반 배포 진행 (web-user/web-seller/web-admin/web-info는 Vercel, backend는 backend 레포) |
 | `picake-docs-refresh`          | 특정 변경과 무관하게 문서 전체를 현재 코드베이스 기준으로 재점검                              |
-| `picake-auth-social-login`     | 구글/카카오/애플 등 소셜 로그인(OAuth) 기능 추가·수정 시 기존 패턴 재사용                     |
+| `picake-auth-social-login`     | 구글/카카오/네이버/애플 등 소셜 로그인(OAuth) 기능 추가·수정 시 기존 패턴 재사용                     |
 | `picake-link-app-deep-links`   | web-user 도메인 링크를 iOS/Android 네이티브 앱으로 여는 딥링크 설정 추가·수정                 |
 | `picake-legal-terms`           | 통신판매업 신고정보·이용약관·개인정보처리방침 등 법적 고지사항 작성·갱신                      |
 | `picake-app-review`            | 손님·사장님 앱 화면 검토·다듬기(로컬에서 눌러 보고 전·후 그림으로 골라 받기)                  |
