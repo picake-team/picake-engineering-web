@@ -198,7 +198,7 @@ curl -s -o /dev/null -w "%{http_code}\n" https://info.picakes.com/seller/about  
 ## 10. 보고
 
 - 태그명, run 결과, (production이면) PR 번호·머지 커밋
-- production: run의 `Notify Discord`(【PICAKE】개발)가 실제로 갔는지 — 단계는 보내기에 실패해도 success라 로그의 `Discord notification sent (HTTP 2xx)`로 본다. staging은 실패·취소일 때만 보낸다(성공이면 단계가 건너뜀, 운영자 11-18)
+- run의 `Notify Discord`(【PICAKE】개발, staging·production 모두)가 실제로 갔는지 — 단계는 보내기에 실패해도 success라 로그의 `Discord notification sent (HTTP 2xx)`로 본다
 - 실동작 검증 결과, 확인해볼 화면 경로
 - staging이었다면 운영 배포는 `/push-production`이라고 안내
 
