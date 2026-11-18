@@ -31,6 +31,7 @@ import type {
   SellerNotificationItem,
 } from "@/apps/web-seller/features/notification/types/notification.dto";
 import { LoadMoreSentinel } from "@/apps/web-seller/features/order/components/mobile/OrderCards";
+import { sellerNotificationPath } from "@/apps/web-seller/features/notification/utils/notification-path.util";
 
 const PAGE_SIZE = 30;
 
@@ -84,7 +85,7 @@ export const StoreDetailNotificationsListMobilePage: React.FC = () => {
 
   const open = (n: SellerNotificationItem) => {
     if (!n.read) markRead.mutate(n.id);
-    navigate(ROUTES.STORE_DETAIL_ORDERS_DETAIL(n.storeId, n.orderId));
+    navigate(sellerNotificationPath(n));
   };
 
   const setFilter = (v: "all" | "unread") => {

@@ -8,18 +8,18 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/apps/web-seller/common/components/tabs/Tabs";
-import { ROUTES } from "@/apps/web-seller/common/constants/paths.constant";
 import { cn } from "@/apps/web-seller/common/utils/classname.util";
 import { useSellerNotificationsRequired } from "@/apps/web-seller/features/notification/components/providers/SellerNotificationProvider";
 import type { SellerNotificationItem } from "@/apps/web-seller/features/notification/types/notification.dto";
 import { Bell, ChevronRight } from "lucide-react";
 import { ContentLoading } from "@/apps/web-seller/common/components/loading/ContentLoading";
+import { sellerNotificationPath } from "@/apps/web-seller/features/notification/utils/notification-path.util";
 
 /** 알림 행 클릭 시 읽음 처리 후 주문 상세로 이동 (주문 알림 전제). */
 function NotificationListCard(props: {
   entries: SellerNotificationItem[];
   emptyLabel: string;
-  onRowClick: (orderId: string, id: string) => void;
+  onRowClick: (n: SellerNotificationItem) => void;
 }) {
   const { entries, emptyLabel, onRowClick } = props;
   return (
@@ -36,7 +36,7 @@ function NotificationListCard(props: {
               <li key={n.id}>
                 <button
                   type="button"
-                  onClick={() => onRowClick(n.orderId, n.id)}
+                  onClick={() => onRowClick(n)}
                   className={cn(
                     "flex w-full items-center gap-3 px-4 py-4 text-left transition-colors hover:bg-muted/50",
                     !n.read && "bg-primary/5",
@@ -91,9 +91,9 @@ export const StoreDetailNotificationsListPage: React.FC = () => {
     );
   }
 
-  const onRowClick = (orderId: string, id: string) => {
-    markRead(id);
-    navigate(ROUTES.STORE_DETAIL_ORDERS_DETAIL(storeId, orderId));
+  const onRowClick = (n: SellerNotificationItem) => {
+    markRead(n.id);
+    navigate(sellerNotificationPath(n));
   };
 
   if (isListLoading && items.length === 0) {
