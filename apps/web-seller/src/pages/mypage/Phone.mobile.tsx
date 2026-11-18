@@ -8,6 +8,7 @@ import { PhoneVerifyFields } from "@/apps/web-seller/features/auth/components/mo
 import { PHONE_VERIFICATION_PURPOSE } from "@/apps/web-seller/features/auth/types/auth.dto";
 import { useMypageChangePhone } from "@/apps/web-seller/features/mypage/hooks/mutations/useMypageMutation";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
+import { SELLER_LOGIN_METHODS_LABEL } from "@/apps/web-seller/features/auth/components/mobile/socialLogin";
 
 export const MypagePhoneMobilePage: React.FC = () => {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ export const MypagePhoneMobilePage: React.FC = () => {
   return (
     <AppScreen header={<BackHeader title="휴대폰 번호 변경" />} bodyClassName="gap-4 pt-2">
       <p className="text-sub leading-normal text-ink-600">
-        새 번호로 인증하면 바로 바뀌어요. 로그인 방법(카카오·구글)은 그대로예요.
+        새 번호로 인증하면 바로 바뀌어요. 로그인 방법({SELLER_LOGIN_METHODS_LABEL})은 그대로예요.
       </p>
       <PhoneVerifyFields
         purpose={PHONE_VERIFICATION_PURPOSE.PHONE_CHANGE}

@@ -40,7 +40,7 @@ export function OAuthRegisterDuplicateAccountScreen({
       provider === "kakao"
         ? getKakaoOAuthLoginUrl()
         : provider === "naver"
-          ? getNaverOAuthLoginUrl()
+          ? getNaverOAuthLoginUrl({ reauthenticate: true })
           : provider === "apple"
             ? getAppleOAuthLoginUrl()
             : getGoogleOAuthLoginUrl();
