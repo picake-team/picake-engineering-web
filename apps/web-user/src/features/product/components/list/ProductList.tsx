@@ -80,7 +80,18 @@ function ProductItem({ product, likeDisabled, priority }: ProductItemProps) {
   };
 
   return (
-    <div ref={cardRef} onClick={handleProductClick} className="press bg-white cursor-pointer">
+    <div
+      ref={cardRef}
+      role="link"
+      tabIndex={0}
+      aria-label={product.name}
+      onClick={handleProductClick}
+      onKeyDown={(e) => {
+        // 카드 안 하트·가게 버튼에서 누른 Enter는 그 버튼 몫이다
+        if (e.key === "Enter" && e.target === e.currentTarget) handleProductClick();
+      }}
+      className="press bg-white cursor-pointer"
+    >
       {/* 상품 이미지 */}
       <div className="mb-[10px] w-full relative bg-gray-50">
         {product.images && product.images.length > 0 ? (

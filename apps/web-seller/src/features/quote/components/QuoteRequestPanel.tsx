@@ -225,9 +225,9 @@ function QuoteSendSheet({
                   type="button"
                   aria-label="사진 빼기"
                   onClick={() => setPhotos((p) => p.filter((x) => x !== url))}
-                  className="absolute -right-1.5 -top-1.5 flex size-5 items-center justify-center rounded-full bg-ink-900 text-white"
+                  className="absolute -right-2 -top-2 flex size-6 items-center justify-center rounded-full border border-ink-200 bg-white text-ink-700 before:absolute before:-inset-2 before:content-['']"
                 >
-                  <Icon name="close" size={12} />
+                  <Icon name="close" size={14} strokeWidth={2} />
                 </button>
               </div>
             ))}

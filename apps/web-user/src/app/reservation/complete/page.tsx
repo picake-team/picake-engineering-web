@@ -12,6 +12,7 @@ import { useProductDetail } from "@/apps/web-user/features/product/hooks/queries
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { navigateBack } from "@/apps/web-user/common/utils/navigate-back.util";
 import { Toast } from "@/apps/web-user/common/components/toast/Toast";
+import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import { formatSelectedOptionValue } from "@/apps/web-user/features/product/utils/custom-option.util";
 
@@ -54,12 +55,20 @@ export default function ReservationCompletePage() {
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // 주문 상세조회
-  const { data: orderData, isLoading: isOrderLoading } = useOrderDetail(orderId || "");
+  const {
+    data: orderData,
+    isLoading: isOrderLoading,
+    isError: isOrderError,
+    refetch: refetchOrder,
+  } = useOrderDetail(orderId || "");
 
   // 상품 상세조회 (주문 데이터가 있을 때만)
-  const { data: productData, isLoading: isProductLoading } = useProductDetail(
-    orderData?.productId || "",
-  );
+  const {
+    data: productData,
+    isLoading: isProductLoading,
+    isError: isProductError,
+    refetch: refetchProduct,
+  } = useProductDetail(orderData?.productId || "");
 
   useEffect(() => {
     // 주문 ID가 없으면 홈으로 리다이렉트.
@@ -84,6 +93,20 @@ export default function ReservationCompletePage() {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-sm text-gray-500">예약 정보가 없어요.</div>
+      </div>
+    );
+  }
+
+  // 못 불러오면 "로딩 중"에 멈추지 않고 다시 시도(11-18 디자인 검토 — 실패가 끝없는 로딩으로 보였음)
+  if (isOrderError || (!isQuoteOrder && !!orderData && isProductError)) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <LoadErrorState
+          onRetry={() => {
+            void refetchOrder();
+            if (!isQuoteOrder) void refetchProduct();
+          }}
+        />
       </div>
     );
   }

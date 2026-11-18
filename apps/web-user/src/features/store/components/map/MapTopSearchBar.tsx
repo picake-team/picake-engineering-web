@@ -45,8 +45,8 @@ export function MapPickupFilterChip({
       style={{
         borderRadius: 8,
         padding: "5px 8px",
-        background: "var(--primary-or-50, #FFEFEB)",
-        border: "1px solid var(--primary-or-100, #FFD2C7)",
+        background: "#FFEFEB",
+        border: "1px solid #FFD2C7",
         boxShadow: "0px 2px 10px 0px #0000000A",
         gap: 8,
       }}
@@ -120,7 +120,7 @@ export function MapTopSearchBar({
         className="box-border flex h-10 w-10 shrink-0 items-center justify-center"
         style={{
           borderRadius: 26,
-          border: "1px solid var(--grayscale-gr-100, #EBEBEA)",
+          border: "1px solid #EBEBEA",
           boxShadow: "0px 2px 10px 0px #0000000A",
           background: "#ffffff",
         }}
@@ -139,7 +139,7 @@ export function MapTopSearchBar({
           ? {
               padding: "16px 20px",
               background: "#FFFFFF",
-              borderBottom: "1px solid var(--grayscale-gr-100, #EBEBEA)",
+              borderBottom: "1px solid #EBEBEA",
             }
           : undefined
       }
@@ -161,7 +161,7 @@ export function MapTopSearchBar({
             style={{
               fontSize: 16,
               lineHeight: "140%",
-              color: "var(--grayscale-gr-900, #1A1A1A)",
+              color: "#1F1F1E",
             }}
             aria-label="검색어 수정"
           >
@@ -194,11 +194,11 @@ export function MapTopSearchBar({
                 style={{
                   borderRadius: 4,
                   padding: "2px 4px",
-                  background: "var(--primary-or-50, #FFEFEB)",
+                  background: "#FFEFEB",
                   fontWeight: 700,
                   fontSize: 11,
                   lineHeight: "140%",
-                  color: "var(--primary-or-400, #FF653E)",
+                  color: "#FF653E",
                 }}
                 aria-label="픽업 날짜 변경"
               >
@@ -239,7 +239,7 @@ export function MapTopSearchBar({
                 height: 40,
                 borderRadius: 999,
                 padding: "0 16px",
-                border: "1px solid var(--grayscale-gr-100, #EBEBEA)",
+                border: "1px solid #EBEBEA",
                 boxShadow: "0px 2px 10px 0px #0000000A",
               }}
             >
@@ -251,7 +251,7 @@ export function MapTopSearchBar({
                 style={{
                   fontSize: 14,
                   lineHeight: "140%",
-                  color: "var(--grayscale-gr-500, #82817D)",
+                  color: "#808386",
                 }}
               >
                 어떤 케이크를 찾으시나요?

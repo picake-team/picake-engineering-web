@@ -13,7 +13,10 @@ export function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps)
   };
 
   // error를 Error 타입으로 안전하게 변환
-  const errorMessage = error instanceof Error ? error.message : "알 수 없는 오류가 생겼어요.";
+  // 화면에는 영어 원문(Error.message)을 보이지 않는다(손님 앱 디자인 기준 "오류에 영어 원문 X", 11-18 검토).
+  // 원문은 Sentry가 받는다.
+  void error;
+  const errorMessage = "화면을 불러오지 못했어요. 잠시 뒤 다시 시도해 주세요.";
 
   return (
     <div

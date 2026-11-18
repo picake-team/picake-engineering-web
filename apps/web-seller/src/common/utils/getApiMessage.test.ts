@@ -31,6 +31,23 @@ describe("getApiMessage.error", () => {
     };
     expect(getApiMessage.error(error)).toBe("주문이 있는 상품은 지울 수 없어요.");
   });
+  it("서버가 일부러 보낸 502·503 한국어 안내는 그대로, 글 없는 502(nginx)·영어는 안내 문구로(11-18 검토)", () => {
+    expect(
+      getApiMessage.error({
+        response: {
+          status: 503,
+          data: { data: { message: "오늘은 AI 초안을 더 만들 수 없어요. 내일 다시 해 주세요." } },
+        },
+      }),
+    ).toBe("오늘은 AI 초안을 더 만들 수 없어요. 내일 다시 해 주세요.");
+    expect(
+      getApiMessage.error({ response: { status: 502, data: "<html>Bad Gateway</html>" } }),
+    ).toBe("일시적인 오류가 발생했어요. 잠시 후 다시 시도해 주세요.");
+    expect(
+      getApiMessage.error({ response: { status: 503, data: { message: "Service Unavailable" } } }),
+    ).toBe("일시적인 오류가 발생했어요. 잠시 후 다시 시도해 주세요.");
+  });
+
   it("500 오류·영어 원문은 안내 문구로 바꾼다", () => {
     const fallback = "일시적인 오류가 발생했어요. 잠시 후 다시 시도해 주세요.";
     expect(

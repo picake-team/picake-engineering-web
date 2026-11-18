@@ -8,6 +8,13 @@ describe("isReplayBlockedPath", () => {
     expect(isReplayBlockedPath("/q/abc123")).toBe(true);
   });
 
+  it("채팅 목록·방(/chat)은 녹화하지 않는다(F-66)", () => {
+    expect(isReplayBlockedPath("/chat")).toBe(true);
+    expect(isReplayBlockedPath("/chat/thread-1")).toBe(true);
+    expect(isReplayBlockedPath("/chat/store/store-1")).toBe(true);
+    expect(isReplayBlockedPath("/chatting")).toBe(false);
+  });
+
   it("그 밖의 화면은 녹화한다", () => {
     expect(isReplayBlockedPath("/")).toBe(false);
     expect(isReplayBlockedPath("/quote/new")).toBe(false);

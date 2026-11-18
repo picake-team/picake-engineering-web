@@ -89,6 +89,7 @@ export function PaymentPendingCard({ order }: { order: OrderResponse }) {
                 <span className="text-sm text-gray-900">{accountInfo}</span>
                 <button
                   type="button"
+                  aria-label="계좌번호 복사"
                   onClick={(e) => {
                     e.stopPropagation();
                     copyToClipboard(accountNumber);

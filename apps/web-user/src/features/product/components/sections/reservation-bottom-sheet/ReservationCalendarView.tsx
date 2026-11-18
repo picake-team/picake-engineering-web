@@ -109,9 +109,7 @@ export function ReservationCalendarView({
                       height: 40,
                       boxSizing: "border-box",
                       borderRadius: 6,
-                      border: selected
-                        ? "1px solid var(--primary-or-100, #FFD2C7)"
-                        : "1px solid var(--grayscale-gr-100, #EBEBEA)",
+                      border: selected ? "1px solid #FFD2C7" : "1px solid #EBEBEA",
                       padding: "10px 12px",
                       fontSize: 14,
                       lineHeight: "18px",

@@ -7,6 +7,7 @@ import {
   setAccessToken as setTokenToStorage,
   removeAccessToken,
 } from "@/apps/web-seller/common/utils/token.util";
+import { queryClient } from "@/apps/web-seller/common/config/query-client";
 
 interface AuthState {
   // 상태
@@ -34,6 +35,8 @@ export const useAuthStore = create<AuthState>()((set) => ({
   login: ({ navigate, accessToken }) => {
     set({ isAuthenticated: true, isInitialized: true });
     if (accessToken) {
+      // 계정이 바뀌면 화면 캐시를 비운다(가게·주문·채팅 캐시 키에 계정 구분이 없음, 11-18 검토)
+      queryClient.clear();
       setTokenToStorage(accessToken);
     }
 
@@ -52,6 +55,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
     }
     removeAccessToken();
     set({ isAuthenticated: false, isInitialized: false });
+    queryClient.clear();
     // 로그인 페이지로 이동
     if (navigate) {
       navigate(ROUTES.AUTH.LOGIN);

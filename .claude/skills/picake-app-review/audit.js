@@ -9,13 +9,14 @@ async (page) => {
           app: "손님",
           fontSizes: [11, 12, 13, 14, 16, 18, 20, 24],
           // design-tokens colors (gray·primary·red·blue·green·yellow·흰·검정)
-          colors: "FFFFFF 000000 1F1F1E F5F5F5 EBEBEA D4D4D3 BDBFC0 9B9B97 808386 686864 4E4E4B 343432 FF653E FFEFEB FFD2C7 FFAD99 FF896B EBF8FF B8E5FF 80D0FF 2EB2FF 009BF5 ECF9F1 C9EED8 9BDFB7 57CB87 27A55B FEECEC FCCACB F99FA1 F67476 F23A3E FFC83B FEE500",
+          colors: "FFFFFF 000000 1F1F1E F5F5F5 EBEBEA D4D4D3 BDBFC0 9B9B97 808386 686864 4E4E4B 343432 FF653E FFEFEB FFD2C7 FFAD99 FF896B EBF8FF B8E5FF 80D0FF 2EB2FF 009BF5 ECF9F1 C9EED8 9BDFB7 57CB87 27A55B FEECEC FCCACB F99FA1 F67476 F23A3E FFC83B FEE500 FFEB00 03C75A FFF6DF 5C3D2E B7791F",
+          // 뒤 다섯: 카카오 노랑(운영자가 #FFEB00 그대로를 고름)·네이버 녹색, 견적 칸 크림·초콜릿·글자(운영자 결정 11-09)
           minTap: 40,
         }
       : {
           app: "판매자",
           fontSizes: [11, 12, 13, 15, 16, 18, 20],
-          colors: "FFFFFF 000000 1F1F1E 4E4E4B 686864 767672 8C8C88 D4D4D3 EBEBEA F5F5F5 FF653E B5401C FF9442",
+          colors: "FFFFFF 000000 1F1F1E 4E4E4B 686864 767672 8C8C88 D4D4D3 EBEBEA F5F5F5 FF653E B5401C FF9442 FFEB00 03C75A",
           minTap: 40,
         };
     const palette = new Set(rule.colors.split(" "));
@@ -56,7 +57,16 @@ async (page) => {
       const bg = hex(s.backgroundColor);
       if (bg && !palette.has(bg)) push("color", `바탕 #${bg} ${label(el)}`);
       const r = el.getBoundingClientRect();
-      if (r.right > innerWidth + 1 && s.position !== "fixed" && !el.closest("[class*=overflow-x], .swiper")) push("overflow", `${Math.round(r.right)} > ${innerWidth} ${label(el)}`);
+      // 말줄임(…)처럼 부모가 overflow로 잘라 보이지 않는 넘침은 세지 않는다(11-18: 사장님 홈 "입금 전"을 잘못 잡았음)
+      const clipped = () => {
+        for (let p = el.parentElement, i = 0; p && i < 8; p = p.parentElement, i++) {
+          const ps = getComputedStyle(p);
+          if (/(hidden|clip|auto|scroll)/.test(ps.overflowX) && p.getBoundingClientRect().right <= innerWidth + 1) return true;
+        }
+        return false;
+      };
+      if (r.right > innerWidth + 1 && s.position !== "fixed" && !el.closest("[class*=overflow-x], .swiper") && !clipped())
+        push("overflow", `${Math.round(r.right)} > ${innerWidth} ${label(el)}`);
       const d = parseFloat(s.transitionDuration);
       if (d && ![0.1, 0.15, 0.2, 0.25, 0.3, 0.4].includes(d)) push("hardMotion", `${d}s ${label(el)}`);
     }

@@ -76,7 +76,7 @@ export function EmptyState({
           fontWeight: 400,
           fontSize: 14,
           lineHeight: "140%",
-          color: "var(--grayscale-gr-700, #6B6B6A)",
+          color: "#686864",
         }}
       >
         {message}

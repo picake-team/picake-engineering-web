@@ -439,9 +439,19 @@ function readOwnPhoto(id: string, dataUrl: string) {
       trackEvent("success_quote_photo_read");
     })
     .catch((e) => {
-      const r = (e as { response?: { status?: number; data?: { message?: unknown } } })?.response;
+      const r = (
+        e as {
+          response?: {
+            status?: number;
+            data?: { message?: unknown; data?: { message?: unknown } };
+          };
+        }
+      )?.response;
       // 하루 횟수(429 "오늘은…")만 "다 썼어요", 분당 제한·오류는 못 읽음
-      const limit = r?.status === 429 && JSON.stringify(r?.data?.message ?? "").includes("오늘은");
+      // 서버 오류 글은 본문의 data.message에 온다(맨 위 message만 봐서 "다 썼어요"가 한 번도 안 나왔음, 11-18 검토)
+      const limit =
+        r?.status === 429 &&
+        JSON.stringify(r?.data?.data?.message ?? r?.data?.message ?? "").includes("오늘은");
       finish({ read: null, readState: limit ? "limit" : "failed" });
       trackEvent("fail_quote_photo_read", { reason: limit ? "limit" : "error" });
     });
