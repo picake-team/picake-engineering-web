@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { consumeReturnTo } from "@/apps/web-seller/common/utils/return-to.util";
 import { ROUTES } from "@/apps/web-seller/common/constants/paths.constant";
+import { isActAsMode } from "@/apps/web-seller/common/utils/act-as.util";
+import { finishActAs } from "@/apps/web-seller/features/act-as/apis/act-as.api";
 import {
   setAccessToken as setTokenToStorage,
   removeAccessToken,
@@ -43,6 +45,11 @@ export const useAuthStore = create<AuthState>()((set) => ({
 
   // 로그아웃 (localStorage에서 토큰 제거)
   logout: (navigate) => {
+    // 운영자 대신 입력 중(기획 I-41)이면 로그아웃은 대신 입력 끝내기 — 이 브라우저의 원래 판매자 로그인(localStorage)은 지우지 않는다
+    if (isActAsMode()) {
+      void finishActAs();
+      return;
+    }
     removeAccessToken();
     set({ isAuthenticated: false, isInitialized: false });
     // 로그인 페이지로 이동

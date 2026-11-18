@@ -55,6 +55,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* 운영자 대신 입력 중(기획 I-41)이면 맨 위 띠 높이만큼 내린다(띠가 없으면 0, ActAsBanner) */
+body {
+  padding-top: var(--act-as-band, 0px);
+}
+
 a {
   color: inherit;
   text-decoration: none;

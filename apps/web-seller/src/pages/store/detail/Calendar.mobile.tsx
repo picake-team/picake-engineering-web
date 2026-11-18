@@ -29,6 +29,7 @@ import { cakeDayOf } from "@/apps/web-seller/common/utils/cake-days.util";
 import { DayMarks, DayTag } from "@/apps/web-seller/common/ui/DayMarks";
 
 import { CalendarExportSheet } from "@/apps/web-seller/features/manual-order/components/CalendarExportSheet";
+import { isActAsMode } from "@/apps/web-seller/common/utils/act-as.util";
 import { DayPickupList } from "@/apps/web-seller/features/manual-order/components/DayPickupList";
 import { useDayPickups } from "@/apps/web-seller/features/manual-order/hooks/queries/useDayPickups";
 import { useDateParam } from "@/apps/web-seller/common/hooks/useDateParam";
@@ -96,14 +97,17 @@ export const StoreDetailCalendarMobilePage: React.FC = () => {
           title="캘린더"
           onBack={() => navigate(ROUTES.STORE_DETAIL_HOME(storeId))}
           actions={
-            <button
-              type="button"
-              aria-label="다른 캘린더로 내보내기"
-              onClick={() => setExportOpen(true)}
-              className="mr-1 inline-flex size-11 items-center justify-center rounded-full text-ink-900 active:bg-ink-50"
-            >
-              <Icon name="share" size={22} strokeWidth={1.8} />
-            </button>
+            // 내보내기 주소는 사장님 비밀 주소라 운영자 대신 입력 중(기획 I-41)에는 감춘다(서버도 막음)
+            isActAsMode() ? undefined : (
+              <button
+                type="button"
+                aria-label="다른 캘린더로 내보내기"
+                onClick={() => setExportOpen(true)}
+                className="mr-1 inline-flex size-11 items-center justify-center rounded-full text-ink-900 active:bg-ink-50"
+              >
+                <Icon name="share" size={22} strokeWidth={1.8} />
+              </button>
+            )
           }
         />
       }

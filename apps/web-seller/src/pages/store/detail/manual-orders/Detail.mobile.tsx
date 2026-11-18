@@ -26,6 +26,7 @@ import {
 } from "@/apps/web-seller/common/utils/webview.bridge";
 import { formatWon } from "@/apps/web-seller/features/order/utils/order-mobile.util";
 import { manualOrderApi } from "@/apps/web-seller/features/manual-order/apis/manual-order.api";
+import { StatusPill } from "@/apps/web-seller/common/ui/Badge";
 import { MANUAL_ORDER_SOURCE_LABEL } from "@/apps/web-seller/features/manual-order/constants/manual-order.constant";
 import { manualOrderQueryKeys } from "@/apps/web-seller/features/manual-order/constants/manualOrderQueryKeys.constant";
 import {
@@ -139,6 +140,12 @@ export const StoreDetailManualOrderDetailMobilePage: React.FC = () => {
               {m.cakeName}
             </span>
             {tag ? <span className="text-sub text-ink-600">{tag.full}</span> : null}
+            {/* 운영자가 가게 대신 적은 주문(기획 I-41) */}
+            {m.enteredByOperator ? (
+              <StatusPill tone="wait" className="mt-1 self-start">
+                운영자 입력
+              </StatusPill>
+            ) : null}
           </div>
 
           {m.lettering ? (

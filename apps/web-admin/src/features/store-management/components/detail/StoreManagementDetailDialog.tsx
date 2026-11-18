@@ -1,6 +1,9 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Package, ShoppingBag, Wallet } from "lucide-react";
 import { StatusBadge } from "@/apps/web-admin/common/components/badges/StatusBadge";
+import { Button } from "@/apps/web-admin/common/components/buttons/Button";
+import { ActAsSessionList } from "@/apps/web-admin/features/store-management/components/detail/ActAsSessionList";
+import { ActAsStartDialog } from "@/apps/web-admin/features/store-management/components/detail/ActAsStartDialog";
 import {
   Card,
   CardContent,
@@ -53,6 +56,7 @@ export function StoreManagementDetailDialog({
   onClose,
 }: StoreManagementDetailDialogProps) {
   const { data, isLoading } = useStoreManagementDetail(storeId);
+  const [actAsOpen, setActAsOpen] = useState(false);
 
   if (!storeId) return null;
 
@@ -73,13 +77,21 @@ export function StoreManagementDetailDialog({
       >
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <h3 className={LIST_CARD_TITLE}>스토어 상세</h3>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-sm text-muted-foreground hover:text-foreground"
-          >
-            닫기
-          </button>
+          <div className="flex items-center gap-3">
+            {/* 운영자가 가게 대신 입력하기(기획 I-41) */}
+            {data ? (
+              <Button size="sm" onClick={() => setActAsOpen(true)}>
+                이 가게로 들어가기
+              </Button>
+            ) : null}
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
+              닫기
+            </button>
+          </div>
         </div>
 
         <div className="overflow-y-auto px-6 py-5">
@@ -93,6 +105,11 @@ export function StoreManagementDetailDialog({
 
           {!isLoading && data && statistics && (
             <div className="space-y-6">
+              <section>
+                <h4 className="mb-2 text-sm font-semibold">대리 입력 기록</h4>
+                <ActAsSessionList storeId={storeId} />
+              </section>
+
               <section>
                 <h4 className="mb-3 text-sm font-semibold">주문·매출 통계</h4>
                 <div className="grid gap-3 sm:grid-cols-3">
@@ -322,6 +339,13 @@ export function StoreManagementDetailDialog({
           )}
         </div>
       </div>
+      {actAsOpen && data ? (
+        <ActAsStartDialog
+          storeId={storeId}
+          storeName={data.name}
+          onClose={() => setActAsOpen(false)}
+        />
+      ) : null}
     </div>
   );
 }

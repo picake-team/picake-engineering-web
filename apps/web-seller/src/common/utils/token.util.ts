@@ -1,17 +1,19 @@
 /**
  * 토큰 관련 유틸리티 함수
  */
+import { getActAsToken } from "@/apps/web-seller/common/utils/act-as.util";
 
 const ACCESS_TOKEN_KEY = "accessToken";
 
 /**
- * localStorage에서 액세스 토큰 가져오기
+ * 액세스 토큰 가져오기. 운영자 대신 입력 중(기획 I-41)이면 이 탭의 대리 출입증을 먼저 쓴다
+ * (사장님 출입증은 localStorage에 그대로 둔다)
  */
 export const getAccessToken = (): string | null => {
   if (typeof window === "undefined") {
     return null;
   }
-  return localStorage.getItem(ACCESS_TOKEN_KEY);
+  return getActAsToken() ?? localStorage.getItem(ACCESS_TOKEN_KEY);
 };
 
 /**

@@ -246,6 +246,14 @@ const RootMobilePage = lazyPage(
   () => import("@/apps/web-seller/pages/Root.mobile"),
   "RootMobilePage",
 );
+const ActAsEntryPage = lazyPage(
+  () => import("@/apps/web-seller/pages/act-as/ActAs"),
+  "ActAsEntryPage",
+);
+const ActAsEndedPage = lazyPage(
+  () => import("@/apps/web-seller/pages/act-as/ActAs"),
+  "ActAsEndedPage",
+);
 const StoreCreateMobilePage = lazyPage(
   () => import("@/apps/web-seller/pages/store/detail/Framed.mobile"),
   "StoreCreateMobilePage",
@@ -272,6 +280,9 @@ export const AUTH_ROUTE_CONFIG: AppRouteConfig[] = [
   },
   { path: ROUTES.TERMS.TERMS_OF_SERVICE, element: TermsOfServicePage },
   { path: ROUTES.TERMS.PRIVACY_POLICY, element: PrivacyPolicyPage },
+  // 운영자 대신 입력(기획 I-41): 출입증을 받기 전이라 로그인 확인 밖에 둔다
+  { path: ROUTES.ACT_AS, element: ActAsEntryPage },
+  { path: ROUTES.ACT_AS_ENDED, element: ActAsEndedPage },
 ];
 
 // 로그인한 뒤의 경로 (PC: AdminLayout 안, 휴대폰: MobileLayout 안)

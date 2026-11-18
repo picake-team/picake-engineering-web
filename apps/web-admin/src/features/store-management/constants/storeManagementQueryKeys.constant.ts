@@ -9,4 +9,9 @@ export const storeManagementQueryKeys = {
   storeList: (params: StoreManagementListQueryDto) =>
     [...storeManagementQueryKeys.stores(), params] as const,
   storeDetail: (storeId: string) => [...storeManagementQueryKeys.stores(), storeId] as const,
+  /** 운영자 대신 입력 기록(기획 I-41) */
+  actAsSessions: (storeId: string) =>
+    [...storeManagementQueryKeys.all, "act-as-sessions", storeId] as const,
+  actAsActions: (sessionId: string) =>
+    [...storeManagementQueryKeys.all, "act-as-actions", sessionId] as const,
 } as const;

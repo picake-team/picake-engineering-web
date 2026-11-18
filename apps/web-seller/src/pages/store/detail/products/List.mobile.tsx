@@ -75,8 +75,16 @@ function ProductRow({
             ) : null}
             <b>{formatWon(product.salePrice)}</b>
           </span>
-          {product.visibilityStatus === EnableStatus.DISABLE ? (
-            <span className="text-badge font-bold text-ink-600">손님에게 숨김</span>
+          {product.visibilityStatus === EnableStatus.DISABLE || product.enteredByOperator ? (
+            <span className="text-badge font-bold text-ink-600">
+              {[
+                product.visibilityStatus === EnableStatus.DISABLE ? "손님에게 숨김" : null,
+                // 운영자가 가게 대신 만든 상품(기획 I-41)
+                product.enteredByOperator ? "운영자 입력" : null,
+              ]
+                .filter(Boolean)
+                .join(" · ")}
+            </span>
           ) : null}
         </span>
       </Link>
