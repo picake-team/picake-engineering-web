@@ -79,7 +79,10 @@ export function AppTabBar({ storeId, current }: { storeId: string; current: AppT
               ) : null}
             </span>
             <span
-              className={cx("text-tab", on ? "font-bold text-brand" : "font-normal text-ink-600")}
+              className={cx(
+                "text-tab",
+                on ? "font-bold text-brand-ink" : "font-normal text-ink-600",
+              )}
             >
               {label}
             </span>

@@ -536,16 +536,16 @@ function ManualOrderForm({
           </span>
           <div role="group" aria-label="입금" className="flex h-12 items-center gap-2">
             <Chip
+              selected={form.paid === false}
+              onClick={() => patch({ paid: form.paid === false ? null : false })}
+            >
+              입금 전
+            </Chip>
+            <Chip
               selected={form.paid === true}
               onClick={() => patch({ paid: form.paid === true ? null : true })}
             >
               받음
-            </Chip>
-            <Chip
-              selected={form.paid === false}
-              onClick={() => patch({ paid: form.paid === false ? null : false })}
-            >
-              아직
             </Chip>
           </div>
         </div>
@@ -605,9 +605,9 @@ function ManualOrderForm({
                 type="button"
                 aria-label="사진 빼기"
                 onClick={() => patch({ photoUrls: form.photoUrls.filter((x) => x !== url) })}
-                className="absolute -right-1.5 -top-1.5 flex size-5 items-center justify-center rounded-full bg-ink-900 text-white"
+                className="absolute -right-2 -top-2 flex size-6 items-center justify-center rounded-full border border-ink-200 bg-white text-ink-700 before:absolute before:-inset-2 before:content-['']"
               >
-                <Icon name="close" size={12} />
+                <Icon name="close" size={14} strokeWidth={2} />
               </button>
             </div>
           ))}
