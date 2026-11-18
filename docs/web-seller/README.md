@@ -91,7 +91,7 @@ Picake 플랫폼을 위한 React + Vite 기반 판매자 관리 시스템입니�
 
 ### 알림
 
-- **알림 목록**: `/stores/:storeId/notifications` - 알림 목록
+- **알림 목록**: `/stores/:storeId/notifications` - 주문 알림(누르면 주문 상세)과 스토어 안내(정산 계좌가 바뀜 — 누르면 스토어 정보 수정, 주문 알림을 꺼도 옴, 2026-11-18)
 - **알림 설정**: `/stores/:storeId/notifications/settings` - 알림 설정
 
 ### 통계

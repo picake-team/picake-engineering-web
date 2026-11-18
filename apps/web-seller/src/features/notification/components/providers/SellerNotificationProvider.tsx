@@ -36,6 +36,7 @@ import {
   chatQueryKeys,
   SELLER_CHAT_TITLE,
 } from "@/apps/web-seller/features/chat/constants/chat.constants";
+import { sellerNotificationPath } from "@/apps/web-seller/features/notification/utils/notification-path.util";
 
 /**
  * 스토어 컨텍스트 안에서 알림 목록·설정·미읽음 수를 React Query로 묶고,
@@ -163,8 +164,10 @@ export const SellerNotificationProvider: React.FC<{
         if (item.storeId !== storeId) {
           return;
         }
+        // 스토어 안내(정산 계좌가 바뀜 등)는 주문 알림 설정과 관계없이 띄운다 — 본인이 안 바꿨으면 바로 알아야 해서
+        const storeNotice = item.category === "STORE" || !item.orderId;
         // 이 화면에서 방금 바꾼 주문이면 "주문 상태가 변경되었습니다." 하나만 보이게
-        if (wasOrderChangedHere(item.orderId)) {
+        if (item.orderId && wasOrderChangedHere(item.orderId)) {
           return;
         }
         // 캐시에 prefs가 없으면 기본값으로 동작 (설정 페이지 미방문 등)
@@ -172,22 +175,22 @@ export const SellerNotificationProvider: React.FC<{
           queryClient.getQueryData<SellerNotificationSettings>(
             notificationQueryKeys.prefs(storeId),
           ) ?? DEFAULT_SELLER_NOTIFICATION_SETTINGS;
-        if (!prefs.orderNotificationsEnabled) {
+        if (!storeNotice && !prefs.orderNotificationsEnabled) {
           return;
         }
         useAlertStore.getState().addAlert({
-          severity: "info",
+          severity: storeNotice ? "warning" : "info",
           title: item.title,
           message: item.body,
           // 휴대폰 화면: 안내를 누르면 그 주문 상세로 바로 간다(알림 목록에서 누른 것과 같이 읽음 처리)
           onClick: () => {
             markReadRef.current(item.id);
-            navigateRef.current(ROUTES.STORE_DETAIL_ORDERS_DETAIL(item.storeId, item.orderId));
+            navigateRef.current(sellerNotificationPath(item));
           },
         });
         // 화면 안 알림 소리는 PC 화면에서만. 휴대폰 앱·휴대폰 화면은 휴대폰 알림 소리에 맡긴다
         // (앱 웹뷰는 누르는 순간이 아니면 소리를 막아 거의 울리지 않았다, 운영자 17차)
-        if (prefs.orderNotificationSoundEnabled && !isPhoneOrApp()) {
+        if (!storeNotice && prefs.orderNotificationSoundEnabled && !isPhoneOrApp()) {
           playNotificationChime();
         }
       },
