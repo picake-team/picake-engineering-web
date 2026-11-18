@@ -8,6 +8,15 @@ import {
   requestFcmTokenRemove,
   requestFcmTokenUpsert,
 } from "@/apps/web-user/common/utils/webview.bridge";
+import { queryClient } from "@/apps/web-user/common/config/query-client";
+
+/**
+ * 계정이 바뀌면 화면 캐시를 비운다. 채팅·주문·MY 캐시 키에 계정 구분이 없어, 새로고침 없이 다른 계정으로 들어가면
+ * 앞 사람의 채팅방 이름·미리보기가 잠깐 보이고 앞 사람 방 번호로 이동했다(11-18 검토)
+ */
+function clearAccountCache() {
+  queryClient.clear();
+}
 
 interface AuthState {
   // 상태
@@ -30,6 +39,7 @@ export const useAuthStore = create<AuthState>()(
 
       // 로그인 처리 (Zustand 상태 업데이트 + 웹뷰라면 앱에 FCM 토큰 업서트 요청)
       login: (token: string) => {
+        if (get().accessToken !== token) clearAccountCache();
         set({
           accessToken: token,
           isAuthenticated: true,
@@ -48,6 +58,7 @@ export const useAuthStore = create<AuthState>()(
             accessToken: null,
             isAuthenticated: false,
           });
+          clearAccountCache();
         }
       },
 
@@ -57,6 +68,7 @@ export const useAuthStore = create<AuthState>()(
           accessToken: null,
           isAuthenticated: false,
         });
+        clearAccountCache();
       },
 
       // 현재 토큰 조회

@@ -115,11 +115,14 @@ function initClient(posthog: PostHog): void {
  * 화면 녹화(세션 리플레이)를 하지 않는 주소.
  * - /auth/*: OAuth 콜백·가입 플로우라 이메일 등이 화면에 보인다
  * - /q/*: 사장님 견적 링크(손님 요청서·대화)
+ * - /chat·/chat/*: 채팅 목록·방(기획 F-66 "채팅 화면은 녹화하지 않는다"). 말풍선만 가려서 가게 이름·카드·요청서 사진이 남았다(11-18 검토)
  * startSessionRecording()은 disable_session_recording 설정을 덮어쓰므로 화면을 옮길 때마다 이 함수로 판단한다.
  */
 export function isReplayBlockedPath(pathname: string | null | undefined): boolean {
   if (!pathname) return false;
-  return pathname.startsWith("/auth") || isQuoteLinkPath(pathname);
+  return (
+    pathname.startsWith("/auth") || isQuoteLinkPath(pathname) || /^\/chat(\/|$)/.test(pathname)
+  );
 }
 
 /**

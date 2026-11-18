@@ -4,6 +4,17 @@ import getApiMessage from "@/apps/web-user/common/utils/getApiMessage";
 const FALLBACK = "일시적인 오류가 발생했어요. 잠시 후 다시 시도해 주세요.";
 
 describe("getApiMessage.error(손님)", () => {
+  it("서버가 일부러 보낸 502·503 한국어 안내는 그대로, 글 없는 502(nginx)는 안내 문구로(11-18 검토)", () => {
+    expect(
+      getApiMessage.error({
+        response: { status: 503, data: { data: { message: "지금은 사진을 읽을 수 없어요." } } },
+      }),
+    ).toBe("지금은 사진을 읽을 수 없어요.");
+    expect(
+      getApiMessage.error({ response: { status: 502, data: "<html>Bad Gateway</html>" } }),
+    ).toBe("일시적인 오류가 발생했어요. 잠시 후 다시 시도해 주세요.");
+  });
+
   it("서버가 준 한국어 문구는 그대로, 영어 원문·500은 안내 문구로", () => {
     expect(
       getApiMessage.error({

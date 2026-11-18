@@ -16,7 +16,12 @@ const getApiMessage = {
     }
     // 서버 기본 영어 문구("Internal server error" 등)나 500 오류 원문은 보이지 않고 안내 문구로
     const status = error?.response?.status;
-    if (typeof status === "number" && status >= 500) return FALLBACK_MESSAGE;
+    // 502·503은 우리 서버가 일부러 보내는 안내("오늘은 AI 초안을 더 만들 수 없어요", "지금은 대화를 읽을 수 없어요. 직접 적어 주세요.")가
+    // 있어 한국어면 그대로 보인다 — 모두 "잠시 후 다시 시도"로 바꾸면 하루 한도에 닿았는데 다시 하라고 했다(11-18 검토).
+    // nginx 502·503은 본문이 HTML이라 글이 없어 아래 안내 문구로 간다
+    const intentional =
+      (status === 502 || status === 503) && typeof message === "string" && /[가-힣]/.test(message);
+    if (typeof status === "number" && status >= 500 && !intentional) return FALLBACK_MESSAGE;
     if (typeof message === "string" && message && !/[가-힣]/.test(message)) return FALLBACK_MESSAGE;
     if (message) return message;
 

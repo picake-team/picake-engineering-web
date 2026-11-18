@@ -132,16 +132,23 @@ export function QuoteLinkChat({
     el.style.height = `${Math.min(el.scrollHeight, 96)}px`;
   }, [text]);
 
+  /** 보내지 못한 글을 그대로 다시 보내면 같은 번호를 쓴다 — 서버엔 저장됐는데 응답만 못 받았을 때 두 번 들어가지 않게(11-18 검토) */
+  const pendingRef = useRef<{ text: string; clientId: string } | null>(null);
+
   const onSend = async () => {
     const body = text.trim();
     if (!body || sending) return;
     setSending(true);
     setError(null);
-    try {
-      await quoteLinkApi.send(token, {
-        clientId: `link-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+    if (pendingRef.current?.text !== body) {
+      pendingRef.current = {
         text: body,
-      });
+        clientId: `link-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+      };
+    }
+    try {
+      await quoteLinkApi.send(token, { clientId: pendingRef.current.clientId, text: body });
+      pendingRef.current = null;
       setText("");
       trackEvent("success_quote_link_chat", { quote_request_id: requestId });
       scrollAfterSend.current = true;
