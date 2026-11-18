@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   keywords: ["케이크 지도", "근처 케이크", "케이크 픽업", "케이크 매장 지도", "내 주변 케이크"],
   alternates: { canonical: "/map" },
   openGraph: {
-    title: "케이크 지도 | Picake",
+    title: "케이크 지도 | 픽케이크",
     description: "지도에서 내 주변 케이크 매장을 탐색하세요.",
     url: `${SITE_BASE_URL}/map`,
   },
