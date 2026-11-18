@@ -178,8 +178,9 @@ jobs:
           echo "url=$DEPLOY_URL" >> "$GITHUB_OUTPUT"
           echo "✅ Deployed: $DEPLOY_URL"
 
+      # staging은 실패·취소만 알린다(운영자 11-18: 【개발】 한 주 332건 중 62%가 staging 성공이었음). 상용은 성공도 알린다
       - name: Notify Discord
-        if: always()
+        if: always() && (job.status != 'success' || steps.extract-project.outputs.environment != 'staging')
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL_WEB_FE }}
           PROJECT: ${{ steps.extract-project.outputs.project }}
