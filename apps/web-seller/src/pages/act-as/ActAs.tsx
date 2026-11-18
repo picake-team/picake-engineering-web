@@ -25,7 +25,11 @@ export const ActAsEntryPage: React.FC = () => {
   useEffect(() => {
     if (started.current) return;
     started.current = true;
-    const code = new URLSearchParams(window.location.search).get("code") ?? "";
+    // 코드는 # 뒤에 온다(서버·호스팅 접근 기록에 남지 않게). 예전 주소 모양(?code=)도 받는다
+    const code =
+      new URLSearchParams(window.location.hash.replace(/^#/, "")).get("code") ??
+      new URLSearchParams(window.location.search).get("code") ??
+      "";
     // 코드가 주소창·방문 기록에 남지 않게 바로 지운다
     window.history.replaceState(null, "", ACT_AS_PATH);
     clearActAsSession();
@@ -36,7 +40,14 @@ export const ActAsEntryPage: React.FC = () => {
     actAsApi
       .exchange(code)
       .then(({ accessToken, storeId, expiresAt }) => {
-        setActAsSession(accessToken, { storeId, expiresAt });
+        if (!setActAsSession(accessToken, { storeId, expiresAt })) {
+          // 이 탭에 출입증을 둘 수 없으면(사이트 데이터 막힘 등) 들어가지 않고 세션을 바로 끝낸다
+          void actAsApi.endWithToken(accessToken).catch(() => undefined);
+          setError(
+            "이 브라우저에서는 대신 입력을 열 수 없어요. 사이트 데이터 저장을 켜고 다시 들어가 주세요.",
+          );
+          return;
+        }
         // 새로 불러와 처음부터 대리 출입증으로 그린다(로그인 확인·스토어 목록)
         window.location.replace(ROUTES.STORE_DETAIL_HOME(storeId));
       })

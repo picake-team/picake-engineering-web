@@ -762,6 +762,12 @@ export const StoreCalendarPage: React.FC = () => {
                                 <span className="inline-flex items-center rounded-md border border-border/60 px-2 py-0.5 font-medium text-muted-foreground">
                                   {MANUAL_ORDER_SOURCE_LABEL[m.source]}
                                 </span>
+                                {/* 운영자가 가게 대신 적은 주문(기획 I-41) */}
+                                {m.enteredByOperator ? (
+                                  <span className="inline-flex items-center rounded-md border border-border/60 px-2 py-0.5 font-medium text-muted-foreground">
+                                    운영자 입력
+                                  </span>
+                                ) : null}
                                 {m.customerName ? (
                                   <span className={`${NO_REPLAY} font-medium text-foreground`}>
                                     {m.customerName}

@@ -44,17 +44,20 @@ function formatTime(iso: string): string {
   });
 }
 
+/** 누가 끝냈나: 서버 endedBy "self" | "admin:<id>" */
+function endedByLabel(endedBy: string | null): string {
+  if (endedBy === "self") return "직접";
+  if (endedBy?.startsWith("admin:")) return "관리자";
+  return "";
+}
+
 function ActionTable({ sessionId }: { sessionId: string }) {
-  const { data, isLoading } = useActAsActions(sessionId, true);
-  // 화면을 보기만 한 요청(GET)은 많아서 기본은 바꾼 것·막힌 것만
-  const [showViews, setShowViews] = useState(false);
+  // 서버가 바꾼 것·실패한 것만 준다(화면을 보기만 한 요청 수는 세션 요약에)
+  const { data: rows, isLoading } = useActAsActions(sessionId, true);
   if (isLoading) return <p className="py-2 text-xs text-muted-foreground">불러오는 중…</p>;
-  if (!data || data.length === 0) {
-    return <p className="py-2 text-xs text-muted-foreground">요청이 없습니다.</p>;
+  if (!rows || rows.length === 0) {
+    return <p className="py-2 text-xs text-muted-foreground">바꾼 것이 없습니다.</p>;
   }
-  const isView = (a: ActAsActionItemDto) => a.method === "GET" && a.status < 400;
-  const viewCount = data.filter(isView).length;
-  const rows = showViews ? data : data.filter((a) => !isView(a));
   return (
     <div className="mt-2">
       <table className="w-full table-fixed">
@@ -67,7 +70,7 @@ function ActionTable({ sessionId }: { sessionId: string }) {
           </tr>
         </thead>
         <tbody>
-          {rows.map((a) => (
+          {rows.map((a: ActAsActionItemDto) => (
             <tr key={a.id} className="border-b border-border/60 last:border-0 align-top">
               <td className={cn("px-2 py-1.5 tabular-nums", LIST_TABLE_CELL_MUTED)}>
                 {formatTime(a.createdAt)}
@@ -92,18 +95,18 @@ function ActionTable({ sessionId }: { sessionId: string }) {
           ))}
         </tbody>
       </table>
-      {viewCount > 0 ? (
-        <Button size="sm" variant="ghost" className="mt-1" onClick={() => setShowViews((v) => !v)}>
-          {showViews ? "본 화면 빼기" : `본 화면 ${viewCount}개도 보기`}
-        </Button>
-      ) : null}
     </div>
   );
 }
 
 function SessionRow({ session, storeId }: { session: ActAsSessionItemDto; storeId: string }) {
   const [open, setOpen] = useState(false);
+  // 끝내면 그 탭에서 쓰던 내용이 사라지므로 한 번 더 묻는다
+  const [confirmEnd, setConfirmEnd] = useState(false);
   const end = useEndActAs(storeId);
+  const ended = session.endedAt
+    ? `${formatTime(session.endedAt)}${endedByLabel(session.endedBy) ? ` · ${endedByLabel(session.endedBy)}` : ""}`
+    : null;
   const summary = SUMMARY_LABELS.filter(([key]) => session.summary[key] > 0)
     .map(([key, label]) => `${label} ${session.summary[key]}`)
     .join(" · ");
@@ -115,16 +118,27 @@ function SessionRow({ session, storeId }: { session: ActAsSessionItemDto; storeI
         <StatusBadge variant={session.status === "ACTIVE" ? "warning" : "default"}>
           {STATUS_LABEL[session.status]}
         </StatusBadge>
+        {ended ? <span className="text-xs text-muted-foreground">{ended}</span> : null}
         <span className="ml-auto flex gap-1">
-          {session.status === "ACTIVE" ? (
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={end.isPending}
-              onClick={() => end.mutate(session.id)}
-            >
+          {session.status === "ACTIVE" && !confirmEnd ? (
+            <Button size="sm" variant="outline" onClick={() => setConfirmEnd(true)}>
               끝내기
             </Button>
+          ) : null}
+          {session.status === "ACTIVE" && confirmEnd ? (
+            <>
+              <Button
+                size="sm"
+                variant="destructive"
+                disabled={end.isPending}
+                onClick={() => end.mutate(session.id, { onSettled: () => setConfirmEnd(false) })}
+              >
+                {end.isPending ? "끝내는 중…" : "지금 끝내기"}
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => setConfirmEnd(false)}>
+                취소
+              </Button>
+            </>
           ) : null}
           <Button size="sm" variant="ghost" onClick={() => setOpen((v) => !v)}>
             {open ? "접기" : "기록 보기"}

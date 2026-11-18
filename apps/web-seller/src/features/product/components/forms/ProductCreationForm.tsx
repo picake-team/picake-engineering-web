@@ -145,6 +145,8 @@ export const ProductCreationForm: React.FC<Props> = ({
   const inFrame = useInMobileFrame();
   // 운영자가 가게 대신 등록하면(기획 I-41) 서버가 숨김으로 저장한다 — 화면도 꺼 두고 바꾸지 못하게 맞춘다
   const actAsCreate = !isEdit && isActAsMode();
+  // 손님에게 보이기는 사장님만 바꾼다(등록·수정 모두, 서버도 다르면 403)
+  const visibilityLocked = isActAsMode();
   const [form, setForm] = useState<ProductForm>(
     initialValue ||
       (actAsCreate ? { ...defaultForm, visibilityStatus: EnableStatus.DISABLE } : defaultForm),
@@ -587,7 +589,7 @@ export const ProductCreationForm: React.FC<Props> = ({
                     on: form.visibilityStatus === EnableStatus.ENABLE,
                     set: (on: boolean) =>
                       patch({ visibilityStatus: on ? EnableStatus.ENABLE : EnableStatus.DISABLE }),
-                    locked: actAsCreate,
+                    locked: visibilityLocked,
                   },
                 ].map((row) => (
                   <div
@@ -629,7 +631,7 @@ export const ProductCreationForm: React.FC<Props> = ({
                   onChange={(on) =>
                     patch({ visibilityStatus: on ? EnableStatus.ENABLE : EnableStatus.DISABLE })
                   }
-                  disabled={disabled || actAsCreate}
+                  disabled={disabled || visibilityLocked}
                   label={
                     <span className="text-sm">
                       손님에게 보이기

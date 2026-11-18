@@ -13,7 +13,7 @@ import {
   getActAsToken,
   remainingMinutes,
 } from "@/apps/web-seller/common/utils/act-as.util";
-import { actAsApi } from "@/apps/web-seller/features/act-as/apis/act-as.api";
+import { actAsApi, finishActAs } from "@/apps/web-seller/features/act-as/apis/act-as.api";
 
 /** 띠 높이(px, h-10) */
 export const ACT_AS_BAND_HEIGHT = 40;
@@ -54,16 +54,13 @@ function ActAsBannerBar() {
   const end = () => {
     if (ending) return;
     setEnding(true);
-    // 서버가 끝내지 못해도(끊김) 이 탭에서는 출입증을 지운다. 세션은 60분이 지나면 저절로 끝난다
-    void actAsApi
-      .end()
-      .catch(() => undefined)
-      .finally(endActAsAndLeave);
+    void finishActAs();
   };
 
   return (
     <div
-      role="status"
+      role="region"
+      aria-label="운영자 대신 입력 중"
       className="fixed inset-x-0 top-0 z-[70] bg-ink-900 pt-[env(safe-area-inset-top)] font-app text-white"
     >
       <div className="mx-auto flex h-10 max-w-[1280px] items-center gap-2 pl-4 pr-1 text-sub">

@@ -4,6 +4,7 @@ import { BaseButton as Button } from "@/apps/web-seller/common/components/button
 import { Menu, User, LogOut, UserCircle } from "lucide-react";
 import { AdminSidebar } from "@/apps/web-seller/common/components/sidebar/AdminSidebar";
 import { ROUTES } from "@/apps/web-seller/common/constants/paths.constant";
+import { isActAsMode } from "@/apps/web-seller/common/utils/act-as.util";
 import { useAuthStore } from "@/apps/web-seller/features/auth/store/auth.store";
 import { useLogout } from "@/apps/web-seller/features/auth/hooks/mutations/useAuthMutation";
 import { SellerNotificationScope } from "@/apps/web-seller/features/notification/components/providers/SellerNotificationProvider";
@@ -21,6 +22,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(!isMobile);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const actAs = isActAsMode();
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
   const { isAuthenticated } = useAuthStore();
@@ -86,59 +88,64 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               <Menu className="h-6 w-6" />
             </Button>
             <h1 className="flex-1 text-xl font-semibold text-zinc-900">판매자 관리 시스템</h1>
-            <Button
-              variant="ghost"
-              onClick={() => navigate(ROUTES.STORE_CREATE)}
-              className="mr-2 text-zinc-700 hover:bg-zinc-100"
-            >
-              스토어 만들기
-            </Button>
+            {/* 운영자 대신 입력 중(기획 I-41)에는 스토어 만들기·마이페이지·로그아웃을 감춘다(끝내기는 맨 위 띠) */}
+            {!actAs && (
+              <Button
+                variant="ghost"
+                onClick={() => navigate(ROUTES.STORE_CREATE)}
+                className="mr-2 text-zinc-700 hover:bg-zinc-100"
+              >
+                스토어 만들기
+              </Button>
+            )}
             {isAuthenticated && (
               <div className="flex items-center">
                 <AdminHeaderNotificationDropdown />
-                <div ref={profileMenuRef} className="relative flex shrink-0 items-center">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    type="button"
-                    onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                    aria-expanded={isProfileMenuOpen}
-                    aria-haspopup="menu"
-                    className="text-zinc-700 hover:bg-zinc-100"
-                  >
-                    <User className="h-6 w-6" />
-                  </Button>
-                  {isProfileMenuOpen ? (
-                    <div
-                      role="menu"
-                      className="absolute right-0 top-full z-50 mt-2 w-52 rounded-md border border-zinc-200 bg-white py-1 shadow-lg"
+                {!actAs && (
+                  <div ref={profileMenuRef} className="relative flex shrink-0 items-center">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      type="button"
+                      onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                      aria-expanded={isProfileMenuOpen}
+                      aria-haspopup="menu"
+                      className="text-zinc-700 hover:bg-zinc-100"
                     >
-                      <button
-                        type="button"
-                        role="menuitem"
-                        onClick={() => {
-                          setIsProfileMenuOpen(false);
-                          navigate(ROUTES.MYPAGE);
-                        }}
-                        className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-zinc-900 hover:bg-zinc-100"
+                      <User className="h-6 w-6" />
+                    </Button>
+                    {isProfileMenuOpen ? (
+                      <div
+                        role="menu"
+                        className="absolute right-0 top-full z-50 mt-2 w-52 rounded-md border border-zinc-200 bg-white py-1 shadow-lg"
                       >
-                        <UserCircle className="h-4 w-4 shrink-0" />
-                        마이페이지
-                      </button>
-                      <div className="my-1 border-t border-zinc-200" />
-                      <button
-                        type="button"
-                        role="menuitem"
-                        onClick={handleLogout}
-                        disabled={logoutMutation.isPending}
-                        className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-zinc-900 hover:bg-zinc-100 disabled:opacity-50"
-                      >
-                        <LogOut className="h-4 w-4" />
-                        로그아웃
-                      </button>
-                    </div>
-                  ) : null}
-                </div>
+                        <button
+                          type="button"
+                          role="menuitem"
+                          onClick={() => {
+                            setIsProfileMenuOpen(false);
+                            navigate(ROUTES.MYPAGE);
+                          }}
+                          className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-zinc-900 hover:bg-zinc-100"
+                        >
+                          <UserCircle className="h-4 w-4 shrink-0" />
+                          마이페이지
+                        </button>
+                        <div className="my-1 border-t border-zinc-200" />
+                        <button
+                          type="button"
+                          role="menuitem"
+                          onClick={handleLogout}
+                          disabled={logoutMutation.isPending}
+                          className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-zinc-900 hover:bg-zinc-100 disabled:opacity-50"
+                        >
+                          <LogOut className="h-4 w-4" />
+                          로그아웃
+                        </button>
+                      </div>
+                    ) : null}
+                  </div>
+                )}
               </div>
             )}
           </div>

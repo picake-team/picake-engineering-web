@@ -24,7 +24,8 @@ let pendingLogout: { done: () => void; timer: number } | null = null;
 
 /** 앱이면 알림 토큰을 먼저 지우고 로그아웃, 아니면 바로 로그아웃 */
 export function logoutWithDevice(logout: () => void) {
-  if (!isSellerAppWebView() || !requestFcmTokenRemove()) {
+  // 운영자 대신 입력 중(기획 I-41)에는 이 기기의 사장님 알림 토큰을 건드리지 않는다(logout이 대신 입력만 끝낸다)
+  if (isActAsMode() || !isSellerAppWebView() || !requestFcmTokenRemove()) {
     logout();
     return;
   }
@@ -64,7 +65,7 @@ export function SellerAppBridgeProvider({ children }: { children: React.ReactNod
       remove: ({ deviceId }) => {
         const d = deviceId?.trim();
         const finish = () => (pendingLogout ? pendingLogout.done() : undefined);
-        if (!d || !getAccessToken()) {
+        if (!d || !getAccessToken() || isActAsMode()) {
           finish();
           return;
         }

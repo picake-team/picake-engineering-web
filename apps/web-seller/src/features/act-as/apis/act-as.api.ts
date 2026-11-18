@@ -1,4 +1,5 @@
 import { sellerClient } from "@/apps/web-seller/common/config/axios.config";
+import { endActAsAndLeave } from "@/apps/web-seller/common/utils/act-as.util";
 
 /** 서버 ExchangeActAsCodeResponseDto(기획 I-41) */
 export interface ActAsExchangeResponseDto {
@@ -28,4 +29,18 @@ export const actAsApi = {
   end: async (): Promise<void> => {
     await sellerClient.post("/act-as/end");
   },
+  /** 들어오기는 됐는데 이 탭에 출입증을 둘 수 없을 때: 받은 출입증으로 바로 끝낸다 */
+  endWithToken: async (accessToken: string): Promise<void> => {
+    await sellerClient.post("/act-as/end", undefined, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+  },
 };
+
+/** 끝내기(띠 버튼·로그아웃): 서버가 끝내지 못해도(끊김) 이 탭에서는 출입증을 지운다. 세션은 60분이 지나면 저절로 끝난다 */
+export function finishActAs(): Promise<void> {
+  return actAsApi
+    .end()
+    .catch(() => undefined)
+    .finally(endActAsAndLeave);
+}
