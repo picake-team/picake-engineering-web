@@ -54,7 +54,14 @@ export function CakeListItem({ product, href }: CakeListItemProps) {
   return (
     <div
       ref={cardRef}
+      role="link"
+      tabIndex={0}
+      aria-label={product.name}
       onClick={() => router.push(href)}
+      onKeyDown={(e) => {
+        // 카드 안 하트·가게 버튼에서 누른 Enter는 그 버튼 몫이다
+        if (e.key === "Enter" && e.target === e.currentTarget) router.push(href);
+      }}
       className="press min-w-[164px] bg-white cursor-pointer"
     >
       <div className="w-full aspect-square relative overflow-hidden rounded-xl bg-gray-50">

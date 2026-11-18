@@ -34,7 +34,8 @@ export function Switch({
       <span
         className={cx(
           "relative inline-block h-7 w-12 rounded-full transition-colors",
-          checked ? "bg-brand" : "bg-ink-200",
+          // 못 누르면 켜져 있어도 회색(흐린 주황 = 분홍으로 보이지 않게, 디자인 기준 3·"못 누르는 체크는 회색")
+          checked && !disabled ? "bg-brand" : checked ? "bg-ink-400" : "bg-ink-200",
         )}
       >
         <span
@@ -88,7 +89,11 @@ export function Checkbox({
         aria-hidden="true"
         className={cx(
           "inline-flex size-[22px] shrink-0 items-center justify-center rounded-check peer-focus-visible:ring-2 peer-focus-visible:ring-ink-900 peer-focus-visible:ring-offset-2",
-          checked ? "bg-brand text-white" : "border-[1.5px] border-ink-200 bg-white",
+          checked && !disabled
+            ? "bg-brand text-white"
+            : checked
+              ? "bg-ink-400 text-white"
+              : "border-[1.5px] border-ink-200 bg-white",
         )}
       >
         {checked ? (

@@ -237,7 +237,7 @@ export const StoreDetailManualOrderDetailMobilePage: React.FC = () => {
               disabled={deleting}
               onClick={() => setConfirmOpen(false)}
             >
-              취소
+              돌아가기
             </Button>
             <Button
               block

@@ -180,7 +180,7 @@ const ms = (key: keyof typeof motionDuration) => `${motionDuration[key]}ms`;
  * - 아래 창: 아래에서 slide in(slow·enter), 닫힐 때 내려감(medium·exit). 뒤 배경은 scrim(base)로 어두워짐
  * - 좋아요: 톡 튕김(scale 1→1.3→1, slower·spring)
  * - 체크: 선이 그려짐(stroke-dashoffset → 0, slow·move). path에 pathLength="1"을 주고 쓴다
- * - 로딩: 일정한 속도로 한 바퀴 800ms(linear)
+ * - 로딩: 일정한 속도로 한 바퀴 800ms(linear) — 값만 있고 쓰지 않는다. 운영자가 11-11 그림을 보고 1초(tailwind `animate-spin`) 그대로를 골랐다(손님 앱 디자인 기준 "다시 꺼내지 않을 것")
  * - 제목·설명 순서대로: rise(fade + 8px 위로, slow·enter) + 줄마다 animation-delay 80ms
  * - 제안: 입력 오류 흔들림(shake), 스켈레톤 흐르는 빛(shimmer)
  * 휴대폰 "동작 줄이기"를 켠 사람에게는 `motion-reduce:animate-fade-in|out`으로 이동·확대 없이 나타나고 사라지게 한다.

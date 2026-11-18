@@ -155,10 +155,16 @@ export function Tabs({
           scrollMarginTop = 헤더 높이만큼 띄워서 멈추도록 */}
       <div ref={anchorRef} aria-hidden className="h-0" style={{ scrollMarginTop: scrollOffset }} />
       {/* 탭 헤더 */}
-      <div className="flex justify-center border-b border-gray-100 p-0 sticky top-[52px] bg-white z-30">
+      <div
+        role="tablist"
+        className="flex justify-center border-b border-gray-100 p-0 sticky top-[52px] bg-white z-30"
+      >
         {tabs.map((tab) => (
           <button
             key={tab.id}
+            type="button"
+            role="tab"
+            aria-selected={activeTab === tab.id}
             onClick={() => handleTabClick(tab.id)}
             className="flex-1 h-[44px] flex items-center justify-center text-sm border-0 bg-transparent cursor-pointer transition-all duration-base"
           >

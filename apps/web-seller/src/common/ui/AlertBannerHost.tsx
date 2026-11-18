@@ -188,7 +188,6 @@ function ToastItem({ alert: a }: { alert: AlertItem }) {
     return (
       <button
         type="button"
-        role="status"
         onClick={() => {
           if (swiped.current) return;
           a.onClick?.();
