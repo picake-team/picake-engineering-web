@@ -131,7 +131,7 @@ export default function MapSearchPage() {
             style={{
               fontSize: 13,
               lineHeight: "140%",
-              color: "var(--grayscale-gr-900, #1A1A1A)",
+              color: "#1F1F1E",
             }}
           >
             지도
@@ -144,7 +144,7 @@ export default function MapSearchPage() {
           style={{
             fontSize: 14,
             lineHeight: "140%",
-            color: "var(--grayscale-gr-500, #82817D)",
+            color: "#808386",
             textDecoration: "underline",
             textDecorationStyle: "solid",
           }}
@@ -158,7 +158,7 @@ export default function MapSearchPage() {
         style={{
           padding: "16px 20px",
           background: "#FFFFFF",
-          borderBottom: "1px solid var(--grayscale-gr-100, #EBEBEA)",
+          borderBottom: "1px solid #EBEBEA",
         }}
       >
         <form onSubmit={handleSubmit} className="flex items-center gap-2 w-full min-w-0">
@@ -198,11 +198,11 @@ export default function MapSearchPage() {
                 style={{
                   borderRadius: 4,
                   padding: "2px 4px",
-                  background: "var(--primary-or-50, #FFEFEB)",
+                  background: "#FFEFEB",
                   fontWeight: 700,
                   fontSize: 11,
                   lineHeight: "140%",
-                  color: "var(--primary-or-400, #FF653E)",
+                  color: "#FF653E",
                 }}
                 aria-label="픽업 날짜 변경"
               >

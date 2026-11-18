@@ -221,7 +221,11 @@ export function ChoiceGrid<T extends string>({
             className={cx(
               "h-10 min-w-0 truncate rounded-control px-1 font-app font-bold disabled:opacity-40",
               large ? "text-body" : "text-sub",
-              on ? "bg-brand text-white" : "border border-ink-200 bg-white text-ink-900",
+              on && !o.disabled
+                ? "bg-brand text-white"
+                : on
+                  ? "bg-ink-400 text-white"
+                  : "border border-ink-200 bg-white text-ink-900",
             )}
           >
             {o.label}

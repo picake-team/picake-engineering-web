@@ -225,8 +225,8 @@ export function MapStoreListFilter({
               width: 36,
               height: 36,
               ...(active && {
-                background: "var(--primary-or-50, #FFEFEB)",
-                border: "1px solid var(--primary-or-100, #FFD2C7)",
+                background: "#FFEFEB",
+                border: "1px solid #FFD2C7",
               }),
             }}
             aria-expanded={panelOpen}
@@ -432,7 +432,7 @@ export function MapStoreListFilter({
                     height: 52,
                     fontSize: 16,
                     lineHeight: "140%",
-                    background: "var(--primary-or-400, #FF653E)",
+                    background: "#FF653E",
                   }}
                 >
                   결과보기

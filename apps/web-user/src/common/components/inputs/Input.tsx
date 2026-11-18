@@ -28,11 +28,11 @@ export const Input: React.FC<InputProps> = ({
         width: "100%",
         height: "42px",
         padding: "10px 12px",
-        border: `1px solid ${error ? "#e74c3c" : "var(--grayscale-gr-100, #EBEBEA)"}`,
+        border: `1px solid ${error ? "#e74c3c" : "#EBEBEA"}`,
         borderRadius: "6px",
         fontSize: "14px",
         fontWeight: 400,
-        color: "var(--grayscale-gr-900, #1F1F1E)",
+        color: "#1F1F1E",
         outline: "none",
         transition: `border-color ${motionDuration.base}ms`,
         ...styleProp,
@@ -49,16 +49,8 @@ export const Input: React.FC<InputProps> = ({
         ...styleProp,
       };
 
-  const blurBorderDefault = error
-    ? "#e74c3c"
-    : isRegister
-      ? "var(--grayscale-gr-100, #EBEBEA)"
-      : "#e0e0e0";
-  const focusBorderDefault = error
-    ? "#e74c3c"
-    : isRegister
-      ? "var(--grayscale-gr-200, #D4D4D3)"
-      : "#007bff";
+  const blurBorderDefault = error ? "#e74c3c" : isRegister ? "#EBEBEA" : "#e0e0e0";
+  const focusBorderDefault = error ? "#e74c3c" : isRegister ? "#D4D4D3" : "#007bff";
 
   const inputClassName = [className, isRegister ? "placeholder:text-gray-300" : ""]
     .filter(Boolean)

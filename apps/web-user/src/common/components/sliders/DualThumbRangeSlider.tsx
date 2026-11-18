@@ -10,8 +10,8 @@ const THUMB_CSS = `
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    border: 1px solid var(--grayscale-gr-200, #D4D4D3);
-    background: var(--grayscale-gr-00, #FFFFFF);
+    border: 1px solid #D4D4D3;
+    background: #FFFFFF;
     box-shadow: 0px 2px 5px 0px #0000000F;
   }
 `;

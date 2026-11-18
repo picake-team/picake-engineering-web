@@ -21,13 +21,13 @@ const SORT_OPTIONS: { value: MapListSortBy; label: string }[] = [
 const tabButtonStyle = {
   gap: 4,
   borderRadius: 26,
-  border: "1px solid var(--grayscale-gr-100, #EBEBEA)",
+  border: "1px solid #EBEBEA",
   padding: "8px 14px",
-  background: "var(--grayscale-gr-00, #FFFFFF)",
+  background: "#FFFFFF",
   fontWeight: 400,
   fontSize: 14,
   lineHeight: "140%" as const,
-  color: "var(--grayscale-gr-900, #1A1A1A)",
+  color: "#1F1F1E",
 };
 
 interface MapStoreListSectionProps {
@@ -158,9 +158,9 @@ export function MapStoreListSection({
                           top: sortDropdownRect.top,
                           minWidth: 120,
                           borderRadius: 10,
-                          border: "1px solid var(--grayscale-gr-100, #EBEBEA)",
+                          border: "1px solid #EBEBEA",
                           boxShadow: "0px 4px 8px 0px #0000001A",
-                          background: "var(--grayscale-gr-00, #FFFFFF)",
+                          background: "#FFFFFF",
                         }}
                       >
                         {SORT_OPTIONS.map((opt, index) => (
@@ -170,7 +170,7 @@ export function MapStoreListSection({
                             aria-selected={sortBy === opt.value}
                             style={
                               index < SORT_OPTIONS.length - 1
-                                ? { borderBottom: "1px solid var(--grayscale-gr-100, #EBEBEA)" }
+                                ? { borderBottom: "1px solid #EBEBEA" }
                                 : undefined
                             }
                           >
@@ -185,11 +185,11 @@ export function MapStoreListSection({
                                 minWidth: 120,
                                 height: 40,
                                 padding: "10px 14px",
-                                background: "var(--grayscale-gr-00, #FFFFFF)",
+                                background: "#FFFFFF",
                                 fontWeight: 400,
                                 fontSize: 14,
                                 lineHeight: "140%",
-                                color: "var(--grayscale-gr-900, #1A1A1A)",
+                                color: "#1F1F1E",
                               }}
                             >
                               {opt.label}

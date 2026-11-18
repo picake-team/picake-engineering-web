@@ -40,7 +40,7 @@ export function BottomNav() {
         {NAV_ITEMS.map(({ icon, activeIcon, label, path }) => {
           const isActive = pathname === path;
           return (
-            <li key={label} className="w-[25%]">
+            <li key={label} className="h-full w-[25%]">
               <Link
                 href={path}
                 aria-current={isActive ? "page" : undefined}
@@ -50,7 +50,7 @@ export function BottomNav() {
                   e.preventDefault();
                   scrollAppToTop();
                 }}
-                className={`flex flex-col items-center justify-center text-2xs font-bold ${isActive ? "text-primary" : "text-gray-400"}`}
+                className={`flex h-full w-full flex-col items-center justify-center text-2xs font-bold ${isActive ? "text-primary" : "text-gray-400"}`}
               >
                 <span className="relative">
                   <Icon name={isActive ? (activeIcon ?? icon) : icon} width={24} height={24} />

@@ -1128,7 +1128,7 @@ export default function MapPageClient() {
         style={{
           bottom: 110,
           borderRadius: 26,
-          border: "1px solid var(--grayscale-gr-100, #EBEBEA)",
+          border: "1px solid #EBEBEA",
           padding: "8px 14px",
           boxShadow: "0px 2px 10px 0px #0000000A",
         }}

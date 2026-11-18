@@ -166,6 +166,7 @@ export const ImageModal: React.FC<ImageModalProps> = ({
         <>
           <button
             type="button"
+            aria-label="이전 사진"
             onClick={() => swiper?.slidePrev()}
             className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 w-[40px] h-[56px] rounded-r-[8px] bg-black/30 flex items-center justify-center text-white transition-opacity duration-slow ${
               !isSliding ? "opacity-0" : currentIndex === 0 ? "opacity-30" : "opacity-100"
@@ -176,6 +177,7 @@ export const ImageModal: React.FC<ImageModalProps> = ({
           </button>
           <button
             type="button"
+            aria-label="다음 사진"
             onClick={() => swiper?.slideNext()}
             className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 w-[40px] h-[56px] rounded-l-[8px] bg-black/30 flex items-center justify-center text-white transition-opacity duration-slow ${
               !isSliding

@@ -10,6 +10,7 @@ import { cn } from "@/apps/web-user/common/lib/utils";
 import { QUOTE_NO_REPLAY } from "@/apps/web-user/features/quote/constants/quote.constant";
 import { useQuoteRequestDetail } from "@/apps/web-user/features/quote/hooks/useQuoteRequests";
 import { QuoteLoginGate } from "@/apps/web-user/features/quote/components/QuoteLoginGate";
+import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
 
 /**
  * 견적 요청을 보낸 뒤(SC-17 1) — 지금 예약 완료 화면과 같은 모양.
@@ -18,12 +19,20 @@ import { QuoteLoginGate } from "@/apps/web-user/features/quote/components/QuoteL
 function QuoteSentContent() {
   const router = useRouter();
   const requestId = useSearchParams().get("requestId");
-  const { data, isLoading } = useQuoteRequestDetail(requestId);
+  const { data, isLoading, isError, refetch } = useQuoteRequestDetail(requestId);
 
   if (!requestId) {
     return (
       <div className="flex h-screen items-center justify-center text-sm text-gray-500">
         요청 정보가 없어요.
+      </div>
+    );
+  }
+  // 못 불러오면 "불러오는 중"에 멈추지 않고 다시 시도(11-18 디자인 검토)
+  if (isError) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <LoadErrorState onRetry={() => void refetch()} />
       </div>
     );
   }

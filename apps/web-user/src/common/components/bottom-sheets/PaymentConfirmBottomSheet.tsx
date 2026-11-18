@@ -104,6 +104,7 @@ export function PaymentConfirmBottomSheet({
             {depositorName && (
               <button
                 type="button"
+                aria-label="입력 지우기"
                 onClick={() => setDepositorName("")}
                 className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 flex items-center justify-center"
               >
