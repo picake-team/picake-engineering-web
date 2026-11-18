@@ -9,11 +9,15 @@ export const SITE_OG_IMAGE = {
   url: `${SITE_BASE_URL}/images/og/picake.png`,
   width: 1200,
   height: 630,
-  alt: "Picake",
+  alt: "픽케이크",
   type: "image/png",
 } as const;
 
-export const SITE_NAME = "Picake";
+/** 검색 결과·공유 미리보기에 보이는 이름. 사람들이 검색하는 한글 이름으로 쓰고 영문 Picake는 설명·구조화 데이터에 같이 둔다(정보 사이트와 같은 표기) */
+export const SITE_NAME = "픽케이크";
+
+/** 영문 이름(구조화 데이터 alternateName) */
+export const SITE_NAME_EN = "Picake";
 
 /**
  * 운영사 정보(전자상거래법 제10조 사이버몰 표시, 2026-11-17 네이버 로그인 검수 반려로 화면에 넣음).

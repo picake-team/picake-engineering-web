@@ -21,11 +21,11 @@ export const metadata: Metadata = {
   // 하위 페이지의 상대경로 canonical(`/product/<id>` 등)을 절대 주소로 해석하는 기준
   metadataBase: new URL(SITE_BASE_URL),
   title: {
-    default: "Picake - 케이크 주문 플랫폼",
-    template: "%s | Picake",
+    default: "픽케이크 - 주문제작 케이크 예약",
+    template: "%s | 픽케이크",
   },
   description:
-    "Picake에서 내 주변 케이크 전문 매장을 찾고 예약하세요. 생일케이크, 레터링케이크, 커스텀케이크 등 다양한 케이크를 간편하게 주문할 수 있어요.",
+    "픽케이크(Picake)에서 내 주변 케이크 전문 매장을 찾고 예약하세요. 생일케이크, 레터링케이크, 커스텀케이크 등 다양한 케이크를 간편하게 주문할 수 있어요.",
   keywords: [
     "케이크 주문",
     "케이크 예약",
@@ -36,8 +36,8 @@ export const metadata: Metadata = {
     "근처 케이크",
     "케이크 맛집",
     "디저트 주문",
+    "픽케이크",
     "Picake",
-    "피케이크",
     "케이크 배달",
   ],
   authors: [{ name: SITE_NAME, url: SITE_BASE_URL }],
@@ -56,9 +56,9 @@ export const metadata: Metadata = {
     locale: "ko_KR",
     url: SITE_BASE_URL,
     siteName: SITE_NAME,
-    title: "Picake - 케이크 주문 플랫폼",
+    title: "픽케이크 - 주문제작 케이크 예약",
     description:
-      "Picake에서 내 주변 케이크 전문 매장을 찾고 예약하세요. 생일케이크, 레터링케이크, 커스텀케이크 등 다양한 케이크를 간편하게 주문할 수 있어요.",
+      "픽케이크(Picake)에서 내 주변 케이크 전문 매장을 찾고 예약하세요. 생일케이크, 레터링케이크, 커스텀케이크 등 다양한 케이크를 간편하게 주문할 수 있어요.",
     // 카카오톡·인스타그램은 SVG 미리보기를 보여 주지 않아 PNG
     images: [SITE_OG_IMAGE],
   },
@@ -68,9 +68,9 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     site: "@picake_kr",
     creator: "@picake_kr",
-    title: "Picake - 케이크 주문 플랫폼",
+    title: "픽케이크 - 주문제작 케이크 예약",
     description:
-      "Picake에서 내 주변 케이크 전문 매장을 찾고 예약하세요. 생일케이크, 레터링케이크, 커스텀케이크 등 다양한 케이크를 간편하게 주문할 수 있어요.",
+      "픽케이크(Picake)에서 내 주변 케이크 전문 매장을 찾고 예약하세요. 생일케이크, 레터링케이크, 커스텀케이크 등 다양한 케이크를 간편하게 주문할 수 있어요.",
     images: [SITE_OG_IMAGE.url],
   },
 

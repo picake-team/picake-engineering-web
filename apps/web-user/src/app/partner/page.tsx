@@ -16,7 +16,7 @@ import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 export const metadata: Metadata = {
   title: "사장님 입점 안내",
   description:
-    "Picake는 케이크 전문 매장을 위한 주문·예약 플랫폼이에요. 사장님 소개 페이지에서 쓰는 법과 입점 방법을 보세요.",
+    "픽케이크는 케이크 전문 매장을 위한 주문·예약 플랫폼이에요. 사장님 소개 페이지에서 쓰는 법과 입점 방법을 보세요.",
   // 오프라인 QR 전용 경유 페이지라 검색 노출은 불필요합니다.
   robots: { index: false, follow: false },
 };

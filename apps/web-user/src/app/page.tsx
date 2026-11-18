@@ -2,6 +2,8 @@ import HomeScreen from "@/apps/web-user/features/home/components/HomeScreen";
 import { magazineDesigns, visibleDesigns } from "@/apps/web-user/features/design/utils/design.util";
 import { fetchConsumerApi } from "@/apps/web-user/common/utils/server-api.util";
 import type { HomeBannerListResponse } from "@/apps/web-user/features/home-banner/types/home-banner.type";
+import { JsonLd } from "@/apps/web-user/common/components/seo/JsonLd";
+import { buildWebSiteJsonLd } from "@/apps/web-user/common/utils/json-ld.util";
 
 /** 배너를 바꾸면 1분 안에 첫 화면에도 반영된다(화면은 받은 뒤 한 번 더 새로 받음) */
 export const revalidate = 60;
@@ -18,6 +20,14 @@ export default async function HomePage() {
   const magazineIds = magazineDesigns().map((d) => d.id);
   const showSeason = visibleDesigns().some((d) => d.seasonal !== null);
   return (
-    <HomeScreen initialBanners={banners?.data} magazineIds={magazineIds} showSeason={showSeason} />
+    <>
+      {/* 검색 결과에 보이는 사이트 이름(픽케이크) */}
+      <JsonLd data={buildWebSiteJsonLd()} />
+      <HomeScreen
+        initialBanners={banners?.data}
+        magazineIds={magazineIds}
+        showSeason={showSeason}
+      />
+    </>
   );
 }
