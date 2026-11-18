@@ -22,14 +22,19 @@ export function getKakaoOAuthLoginUrl(): string | null {
  * 브라우저에서 네이버 로그인 시작 URL (동일 도메인 Callback URL, 이 탭의 state).
  * 손님·사장님이 네이버 앱 하나를 같이 쓴다. 키가 없는 환경(검수 승인 전 상용 등)은 null — 버튼이 안 보인다.
  * 받는 정보(이름·휴대전화번호)는 네이버 개발자센터 앱 설정에서 정한다(요청에 범위를 싣지 않음).
+ *
+ * `reauthenticate`: 네이버에 로그인돼 있어도 아이디·비밀번호를 다시 받는다(네이버 `auth_type=reauthenticate`).
+ * "이미 가입한 계정" 화면에서만 쓴다 — 네이버 아이디가 둘인 사람이 지금 로그인된 다른 아이디로 그냥 넘어가
+ * 같은 화면으로 돌아오지 않게(구글은 늘 계정 고르기 `prompt=select_account`, 11-18 검토).
  */
-export function getNaverOAuthLoginUrl(): string | null {
+export function getNaverOAuthLoginUrl(options?: { reauthenticate?: boolean }): string | null {
   if (typeof window === "undefined") return null;
   const clientId = process.env.NEXT_PUBLIC_NAVER_CLIENT_ID;
   if (!clientId) return null;
   const redirectUri = `${window.location.origin}${PATHS.AUTH.NAVER_REDIRECT_URI}`;
   const state = getOrCreateNaverOAuthState();
-  return `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}`;
+  const authType = options?.reauthenticate ? "&auth_type=reauthenticate" : "";
+  return `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}${authType}`;
 }
 
 /**

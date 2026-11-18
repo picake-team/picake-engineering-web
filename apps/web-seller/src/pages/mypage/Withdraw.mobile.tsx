@@ -18,12 +18,7 @@ import { useMypageWithdraw } from "@/apps/web-seller/features/mypage/hooks/mutat
 import { orderApi } from "@/apps/web-seller/features/order/apis/order.api";
 import { OrderSortBy, OrderStatus } from "@/apps/web-seller/features/order/types/order.dto";
 import { useMyStores } from "@/apps/web-seller/features/store/hooks/queries/useMyStores";
-import { SELLER_NAVER_LOGIN_ENABLED } from "@/apps/web-seller/features/auth/components/mobile/socialLogin";
-
-/** 다시 가입할 수 있는 로그인 방법 — 사장님은 애플 로그인이 없고, 네이버는 키를 넣은 환경에서만(11-16 검토) */
-const SELLER_LOGIN_METHODS_LABEL = SELLER_NAVER_LOGIN_ENABLED
-  ? "카카오·네이버·구글"
-  : "카카오·구글";
+import { SELLER_LOGIN_METHODS_LABEL } from "@/apps/web-seller/features/auth/components/mobile/socialLogin";
 
 const MAX_REASON = 1000;
 

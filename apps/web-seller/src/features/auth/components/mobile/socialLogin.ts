@@ -21,15 +21,25 @@ export const SOCIAL_LOGIN_NAVER_ICON_CLASS = "absolute left-[22px] top-1/2 size-
 /** 네이버 키가 있는 환경만 네이버 버튼(검수 승인 전 상용은 키를 넣지 않는다) */
 export const SELLER_NAVER_LOGIN_ENABLED = Boolean(import.meta.env.VITE_PUBLIC_NAVER_CLIENT_ID);
 
+/** 사장님 로그인 방법 이름(탈퇴 안내·번호 바꾸기 안내) — 사장님은 애플 로그인이 없고, 네이버는 키를 넣은 환경에서만(11-16 검토) */
+export const SELLER_LOGIN_METHODS_LABEL = SELLER_NAVER_LOGIN_ENABLED
+  ? "카카오·네이버·구글"
+  : "카카오·구글";
+
 /**
  * 네이버 로그인 시작 주소(손님과 같은 네이버 앱, 이 탭의 state). 받는 정보(이름·휴대전화번호)는 네이버 앱 설정에서 정한다.
+ *
+ * `reauthenticate`: 네이버에 로그인돼 있어도 아이디·비밀번호를 다시 받는다(네이버 `auth_type=reauthenticate`).
+ * "이미 가입한 계정" 화면에서만 쓴다 — 네이버 아이디가 둘인 사람이 지금 로그인된 다른 아이디로 그냥 넘어가
+ * 같은 화면으로 돌아오지 않게(구글은 늘 계정 고르기 `prompt=select_account`, 11-18 검토).
  */
-export function naverAuthorizeUrl(): string {
+export function naverAuthorizeUrl(options?: { reauthenticate?: boolean }): string {
   const clientId = encodeURIComponent(import.meta.env.VITE_PUBLIC_NAVER_CLIENT_ID ?? "");
   const redirectUri = encodeURIComponent(
     `${window.location.origin}${ROUTES.AUTH.NAVER_REDIRECT_URI}`,
   );
-  return `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&state=${getOrCreateNaverOAuthState()}`;
+  const authType = options?.reauthenticate ? "&auth_type=reauthenticate" : "";
+  return `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&state=${getOrCreateNaverOAuthState()}${authType}`;
 }
 
 /**
@@ -38,6 +48,11 @@ export function naverAuthorizeUrl(): string {
  */
 export function refreshNaverHrefOnClick(event: { currentTarget: HTMLAnchorElement }): void {
   event.currentTarget.href = naverAuthorizeUrl();
+}
+
+/** "이미 가입한 계정" 화면의 네이버 버튼 — 누를 때 주소를 다시 만들고 아이디·비밀번호를 다시 받는다 */
+export function refreshNaverReauthHrefOnClick(event: { currentTarget: HTMLAnchorElement }): void {
+  event.currentTarget.href = naverAuthorizeUrl({ reauthenticate: true });
 }
 
 /**
