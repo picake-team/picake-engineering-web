@@ -81,24 +81,40 @@ export function useChatRoom(input: {
   const [notFound, setNotFound] = useState(false);
   const [pending, setPending] = useState<PendingChatMessage[]>([]);
   const [loadingOlder, setLoadingOlder] = useState(false);
-  const lastIdRef = useRef<string | null>(null);
+  /**
+   * 새 글 확인의 기준(서버에서 어디까지 가져왔나). 불러오기·새 글 확인 결과로만 옮긴다 — 화면의 마지막 글로 잡으면
+   * 내가 보낸 글이 들어오는 순간 기준이 내 글로 넘어가, 그 전에 와 있던 상대 글을 영영 못 가져왔다(11-18 검토)
+   */
+  const fetchedIdRef = useRef<string | null>(null);
   const fetchingRef = useRef(false);
+  /** 확인하는 동안 온 신호(끝난 뒤 한 번 더) */
+  const againRef = useRef(false);
   /** 주문·상품에서 열었으면 첫 글은 카드를 붙이는 주소(start)로 보낸다 */
   const cardSentRef = useRef(false);
   const socketConnected = useChatSignalStore((s) => s.socketConnected);
   const tick = useChatSignalStore((s) => (threadId ? (s.ticks[threadId] ?? 0) : 0));
 
-  const lastId = messages.length ? messages[messages.length - 1].id : null;
-  lastIdRef.current = lastId;
-
   const visible = () => typeof document === "undefined" || document.visibilityState === "visible";
+  /**
+   * 읽음·"보고 있음"은 창이 앞에 있을 때만 남긴다. PC에서 방을 띄워 두고 다른 창을 쓰거나 자리를 비우면 탭은 "보임"이라
+   * 15초마다 읽음 처리돼 휴대폰 알림·알림톡이 하나도 안 갔다(기획 P-82, 11-18 검토). 새 글은 지금처럼 가져온다
+   */
+  const looking = () =>
+    visible() &&
+    (typeof document === "undefined" ||
+      typeof document.hasFocus !== "function" ||
+      document.hasFocus());
 
   const loadInitial = useCallback(async () => {
     if (!threadId) return;
+    // 다른 방으로 바뀌었으면 앞 방의 기준으로 새 글을 찾지 않게
+    fetchedIdRef.current = null;
     setLoading(true);
     try {
-      const res = await chatApi.messages(threadId, { markRead: visible() });
-      setMessages(sortMessages(res.messages));
+      const res = await chatApi.messages(threadId, { markRead: looking() });
+      const sorted = sortMessages(res.messages);
+      fetchedIdRef.current = sorted.length ? sorted[sorted.length - 1].id : null;
+      setMessages(sorted);
       setThread(res.thread);
       setHasMore(res.hasMore);
       setError(null);
@@ -114,18 +130,27 @@ export function useChatRoom(input: {
   }, [threadId, queryClient]);
 
   const fetchNew = useCallback(async () => {
-    if (!threadId || fetchingRef.current || !lastIdRef.current) return;
+    if (!threadId || !fetchedIdRef.current) return;
+    if (fetchingRef.current) {
+      againRef.current = true;
+      return;
+    }
     fetchingRef.current = true;
     try {
-      const res = await chatApi.messages(threadId, {
-        after: lastIdRef.current,
-        markRead: visible(),
-      });
-      setThread(res.thread);
-      if (res.messages.length) {
-        setMessages((prev) => mergeMessages(prev, res.messages));
-        void queryClient.invalidateQueries({ queryKey: chatQueryKeys.unread() });
-      }
+      do {
+        againRef.current = false;
+        const res = await chatApi.messages(threadId, {
+          after: fetchedIdRef.current,
+          markRead: looking(),
+        });
+        setThread(res.thread);
+        if (res.messages.length) {
+          const sorted = sortMessages(res.messages);
+          fetchedIdRef.current = sorted[sorted.length - 1].id;
+          setMessages((prev) => mergeMessages(prev, sorted));
+          void queryClient.invalidateQueries({ queryKey: chatQueryKeys.unread() });
+        }
+      } while (againRef.current);
     } catch {
       // 잠깐 실패는 다음 확인 때 다시
     } finally {
@@ -151,7 +176,7 @@ export function useChatRoom(input: {
 
   // 소켓 신호를 받으면 바로
   useEffect(() => {
-    if (tick > 0) void (lastIdRef.current ? fetchNew() : loadInitial());
+    if (tick > 0) void (fetchedIdRef.current ? fetchNew() : loadInitial());
   }, [tick, fetchNew, loadInitial]);
 
   // 확인 주기(화면이 보일 때만)
@@ -165,9 +190,12 @@ export function useChatRoom(input: {
       if (visible()) void fetchNew();
     };
     document.addEventListener("visibilitychange", onVisible);
+    // 다른 창에서 돌아오면 그때 읽음으로(창이 앞에 없을 때는 읽음을 남기지 않으므로)
+    window.addEventListener("focus", onVisible);
     return () => {
       window.clearInterval(timer);
       document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", onVisible);
     };
   }, [threadId, socketConnected, fetchNew]);
 

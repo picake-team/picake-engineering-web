@@ -85,11 +85,12 @@ function initClient(posthog: PostHog): void {
 /**
  * 화면 녹화(세션 리플레이)를 하지 않는 주소.
  * - /auth/*: 로그인·가입·OAuth 콜백이라 휴대폰 번호·이메일이 화면에 보인다
+ * - /stores/:id/chats·/stores/:id/chats/*: 채팅 목록·방. 말풍선만 가려서 손님 닉네임·주문 카드(주문번호·픽업 날짜)가 남았다(11-18 검토, 손님 앱 F-66과 같게)
  * startSessionRecording()은 disable_session_recording 설정을 덮어쓰므로 화면을 옮길 때마다 이 함수로 판단한다.
  */
 export function isReplayBlockedPath(pathname: string | null | undefined): boolean {
   if (!pathname) return false;
-  return pathname.startsWith("/auth");
+  return pathname.startsWith("/auth") || /^\/stores\/[^/]+\/chats(\/|$)/.test(pathname);
 }
 
 /**

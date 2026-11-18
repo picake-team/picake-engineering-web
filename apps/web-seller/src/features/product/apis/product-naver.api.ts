@@ -55,9 +55,11 @@ export const productNaverApi = {
     storeId: string,
     request: ProductDescriptionDraftRequestDto,
   ): Promise<ProductDescriptionDraftResponseDto> => {
+    // 기본 10초는 초안을 만드는 시간보다 짧다 — 서버 마감(40초)보다 조금 길게(11-18 검토)
     const response = await sellerClient.post(
       `/store/${storeId}/products/description-draft`,
       request,
+      { timeout: 45_000 },
     );
     return response.data.data;
   },
