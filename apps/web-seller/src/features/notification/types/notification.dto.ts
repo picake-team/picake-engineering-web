@@ -20,7 +20,10 @@ export interface SellerNotificationItem {
   body: string;
   read: boolean;
   storeId: string;
-  orderId: string;
+  /** 주문 알림만. 스토어 안내(STORE)는 null */
+  orderId: string | null;
+  /** ORDER 주문 알림 / STORE 스토어 안내(정산 계좌가 바뀜 등). 옛 서버는 보내지 않음 */
+  category?: "ORDER" | "STORE";
 }
 
 export interface SellerNotificationSettings {

@@ -7,6 +7,7 @@ import { cn } from "@/apps/web-seller/common/utils/classname.util";
 import { LoadingSpinner } from "@/apps/web-seller/common/components/loading/LoadingSpinner";
 import { useSellerNotifications } from "@/apps/web-seller/features/notification/components/providers/SellerNotificationProvider";
 import type { SellerNotificationItem } from "@/apps/web-seller/features/notification/types/notification.dto";
+import { sellerNotificationPath } from "@/apps/web-seller/features/notification/utils/notification-path.util";
 
 const PREVIEW_LIMIT = 8;
 
@@ -105,10 +106,10 @@ export function AdminHeaderNotificationDropdown() {
   const unread = notif.unreadCount;
   const hasUnread = notif.items.some((n) => !n.read);
 
-  const onRowClick = (orderId: string, id: string) => {
-    notif.markRead(id);
+  const onRowClick = (n: SellerNotificationItem) => {
+    notif.markRead(n.id);
     setIsOpen(false);
-    navigate(ROUTES.STORE_DETAIL_ORDERS_DETAIL(storeId, orderId));
+    navigate(sellerNotificationPath(n));
   };
 
   const onViewAll = () => {
@@ -182,7 +183,7 @@ export function AdminHeaderNotificationDropdown() {
                   <NotificationDropdownItem
                     key={item.id}
                     item={item}
-                    onClick={() => onRowClick(item.orderId, item.id)}
+                    onClick={() => onRowClick(item)}
                   />
                 ))}
               </ul>
