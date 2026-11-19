@@ -65,9 +65,10 @@ export const appShadow = {
   dialog: "0 16px 48px rgba(31,31,30,0.18)",
 } as const;
 
-/** 휴대폰 화면 한 줄 폭: 넓은 화면에서도 휴대폰 화면·창은 가운데 640 */
+/** 폭: 휴대폰 화면 한 줄(넓은 화면에서도 휴대폰 화면·창은 가운데 640), 좁은 칸(PC 로그인 420) */
 export const appMaxWidth = {
   column: "640px",
+  narrow: "420px",
 } as const;
 
 /** 높이: 주 버튼·입력·위쪽 줄 48(h-12), 작은 버튼·검색 40(h-10), 칩·동그라미 36(h-9), 목록 한 줄 52(min-h-13). 누르는 영역은 44(size-11·min-h-11) 유지 */
