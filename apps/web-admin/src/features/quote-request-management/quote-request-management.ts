@@ -6,7 +6,14 @@ import type { PaginationMetaDto } from "@/apps/web-admin/common/types/api.dto";
 /** 견적 요청(기획 I-46) — backend `/v1/admin/quote-request-management` */
 
 export type QuoteRequestStatus = "OPEN" | "CONNECTED" | "CLOSED";
-export type QuoteRequestEntry = "HOME" | "SEARCH" | "MAP" | "STORE" | "MYPAGE" | "DESIGN";
+export type QuoteRequestEntry =
+  | "HOME"
+  | "SEARCH"
+  | "MAP"
+  | "STORE"
+  | "MYPAGE"
+  | "DESIGN"
+  | "PRODUCT";
 
 export const QUOTE_REQUEST_STATUS_LABELS: Record<QuoteRequestStatus, string> = {
   OPEN: "견적 받는 중",
@@ -21,6 +28,8 @@ export const QUOTE_REQUEST_ENTRY_LABELS: Record<QuoteRequestEntry, string> = {
   STORE: "가게 상세",
   MYPAGE: "MY",
   DESIGN: "디자인 모음",
+  // 상품 화면 "이 디자인으로 견적 받기"(견적 받기 상품, 기획 I-01)
+  PRODUCT: "상품 상세",
 };
 
 export interface QuoteRequestSummaryDto {
