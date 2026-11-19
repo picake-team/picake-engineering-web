@@ -1,5 +1,6 @@
 "use client";
 
+import { formatProductPrice } from "@/apps/web-user/features/product/utils/product-price.util";
 import { useState } from "react";
 import { FadeInImage } from "@/apps/web-user/common/components/motion/FadeInImage";
 import { useRouter } from "next/navigation";
@@ -104,7 +105,7 @@ export function CakeListItem({ product, href }: CakeListItemProps) {
       <div className="mb-[10px] pt-2">
         <div className="mb-[2px] text-sm text-gray-900">
           <p>{product.name}</p>
-          <p className="font-bold">{product.salePrice.toLocaleString()}원~</p>
+          <p className="font-bold">{formatProductPrice(product)}</p>
         </div>
         <div className="flex items-center gap-4 text-xs">
           <span className="flex items-center gap-[2px] text-gray-900 font-bold">

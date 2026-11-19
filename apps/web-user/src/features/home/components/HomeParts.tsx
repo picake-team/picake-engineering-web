@@ -305,8 +305,9 @@ export function ProductTabsSection() {
       /* 저장소를 못 써도 이번 화면에서는 바뀐다 */
     }
   };
-  const latest = useProductList({ sortBy: SortBy.LATEST, limit: 10 });
-  const saved = useProductList({ sortBy: SortBy.POPULAR, limit: 10 });
+  // 바로 예약할 수 있는 상품만(견적 받기 상품은 빼고, 기획 I-01 2026-11-19)
+  const latest = useProductList({ sortBy: SortBy.LATEST, limit: 10, orderMethod: "RESERVATION" });
+  const saved = useProductList({ sortBy: SortBy.POPULAR, limit: 10, orderMethod: "RESERVATION" });
   const current = tab === "latest" ? latest : saved;
   const products: Product[] = current.data?.pages?.[0]?.data?.slice(0, 10) ?? [];
   const tabs = [

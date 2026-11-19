@@ -104,6 +104,9 @@ export interface CustomOptionDto {
   maxCount?: number;
 }
 
+/** 주문 받는 방법(기획 I-01 2026-11-19). 커스텀 케이크만 견적 받기를 고를 수 있다 */
+export type ProductOrderMethod = "RESERVATION" | "QUOTE";
+
 export interface CreateProductRequestDto {
   storeId: string;
   name: string;
@@ -115,6 +118,8 @@ export interface CreateProductRequestDto {
   cakeSizeOptions: CakeSizeOptionDto[];
   customOptions?: CustomOptionDto[];
   productType: ProductType;
+  /** 주문 받는 방법. 커스텀 케이크만 QUOTE */
+  orderMethod?: ProductOrderMethod;
   productCategoryTypes?: ProductCategoryType[];
   searchTags?: string[];
   detailDescription?: string;
@@ -157,6 +162,8 @@ export interface ProductResponseDto {
   customOptions: CustomOptionDto[];
   optionsVersion: number;
   productType: ProductType;
+  /** 주문 받는 방법. 옛 서버 응답에는 없다(없으면 예약 받기) */
+  orderMethod?: ProductOrderMethod;
   productCategoryTypes: ProductCategoryType[];
   searchTags: string[];
   detailDescription?: string | null;
@@ -227,6 +234,7 @@ export interface UpdateProductRequestDto {
   cakeSizeOptions?: CakeSizeOptionDto[];
   customOptions?: CustomOptionDto[];
   productType?: ProductType;
+  orderMethod?: ProductOrderMethod;
   productCategoryTypes?: ProductCategoryType[];
   searchTags?: string[];
   detailDescription?: string;

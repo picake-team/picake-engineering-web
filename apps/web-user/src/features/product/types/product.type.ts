@@ -28,6 +28,12 @@ export enum ProductType {
   CUSTOM_CAKE = "CUSTOM_CAKE", // 커스텀 케이크
 }
 
+/**
+ * 주문 받는 방법(기획 I-01 2026-11-19). 커스텀 케이크만 사장님이 견적 받기를 고를 수 있다.
+ * 견적 받기 상품은 예약신청 대신 "이 디자인으로 견적 받기"(이 가게에만)
+ */
+export type ProductOrderMethod = "RESERVATION" | "QUOTE";
+
 /** 상품 카테고리 타입 (복수 선택 가능) */
 /**
  * 상품 카테고리(2026-11-15 다시 나눔, 서버와 같은 값). 묶음과 이름은 constants/product-category.constant.ts
@@ -120,6 +126,10 @@ export interface Product {
   /** 주문 시 productOptionsVersion으로 그대로 전달 (옵션이 바뀌었으면 서버가 409) */
   optionsVersion: number;
   productType: ProductType;
+  /** 주문 받는 방법. 옛 서버 응답에는 없다(없으면 예약 받기) */
+  orderMethod?: ProductOrderMethod;
+  /** 보이는 크기·옵션에 추가금이 있는지. 없으면 가격 뒤 물결을 뺀다(옛 응답에는 없음 → 물결 그대로) */
+  hasExtraPrice?: boolean;
   productCategoryTypes: ProductCategoryType[]; // 카테고리 (없거나 여러 개)
   searchTags: string[]; // 검색 태그 (없거나 여러 개)
   detailDescription?: string;
@@ -173,6 +183,8 @@ export interface ProductListQueryParams {
   maxPrice?: number;
   storeId?: string;
   productType?: ProductType;
+  /** 홈 "바로 예약할 수 있는 케이크"는 RESERVATION만 */
+  orderMethod?: ProductOrderMethod;
   productCategoryTypes?: ProductCategoryType[];
   regions?: string;
   /** 케이크 사이즈 표시명(도시락·미니·1호…), 스토어 목록과 같은 값 */

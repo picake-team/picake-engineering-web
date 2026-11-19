@@ -1,3 +1,4 @@
+import { contactVisibilityOf } from "@/apps/web-seller/features/store/utils/store-form.mapper";
 import React, { useRef, useState } from "react";
 import { cx } from "@/apps/web-seller/common/ui/cx";
 import { PageTitle } from "@/apps/web-seller/common/components/layouts/MobileFrame";
@@ -146,6 +147,7 @@ export const StoreCreatePage: React.FC<StoreCreatePageProps> = ({ step, onStepCh
       logoImageUrl: data.logoImageUrl,
       kakaoChannelId: data.kakaoChannelId?.trim(),
       instagramId: data.instagramId?.trim(),
+      ...contactVisibilityOf(data),
       naverPlaceId: data.naverPlaceId || undefined,
       bankAccountNumber: data.bankAccountNumber.trim(),
       bankName: data.bankName as StoreBankName,

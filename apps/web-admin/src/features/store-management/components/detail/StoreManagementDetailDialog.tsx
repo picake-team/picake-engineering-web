@@ -263,6 +263,20 @@ export function StoreManagementDetailDialog({
                         .join(" · ") || "-"
                     }
                   />
+                  {/* 사장님이 끈 연락 방법은 손님 화면 문의 창에서 빠진다(기획 I-01) */}
+                  <DetailRow
+                    label="손님에게 숨김"
+                    value={
+                      [
+                        data.chatInquiryVisible === false && "채팅",
+                        data.kakaoChannelVisible === false && "카카오",
+                        data.instagramVisible === false && "인스타",
+                        data.phoneVisible === false && "전화",
+                      ]
+                        .filter(Boolean)
+                        .join(" · ") || "없음"
+                    }
+                  />
                   <DetailRow
                     label="등록일시"
                     value={formatStoreManagementDateTime(data.createdAt)}

@@ -73,6 +73,8 @@ function Price({ product }: { product: ProductResponseDto }) {
 
 function Badges({ product }: { product: ProductResponseDto }) {
   const parts = [
+    // 견적 받기 상품(기획 I-01): 손님 화면에 예약신청 대신 "이 디자인으로 견적 받기"(휴대폰 목록과 같은 순서)
+    product.orderMethod === "QUOTE" ? "견적 받기" : null,
     product.visibilityStatus === EnableStatus.DISABLE ? "손님에게 숨김" : null,
     // 운영자가 가게 대신 만든 상품(기획 I-41)
     product.enteredByOperator ? "운영자 입력" : null,

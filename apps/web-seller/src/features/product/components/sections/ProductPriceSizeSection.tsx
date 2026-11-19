@@ -37,6 +37,10 @@ const selectClass =
  * 정가는 할인할 때만 보인다(할인하지 않으면 정가 = 판매가).
  */
 export function ProductPriceSizeSection({ form, errors, onChange, disabled }: Props) {
+  // 견적 받기 상품(기획 I-01)은 손님이 이 값을 바로 내지 않는다 — 손님 화면에 "~"를 붙여 보이는 시작 가격
+  const quote = form.orderMethod === "QUOTE";
+  const priceLabel = quote ? "손님 화면" : "손님 결제";
+  const priceSuffix = quote ? "~" : "";
   const inFrame = useInMobileFrame();
   // 정가가 판매가보다 크면(수정 화면·네이버 가져오기) 할인 중으로 본다
   const [discountOn, setDiscountOn] = useState(false);
@@ -241,9 +245,10 @@ export function ProductPriceSizeSection({ form, errors, onChange, disabled }: Pr
                   />
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-caption text-ink-600">
-                      손님 결제{" "}
+                      {priceLabel}{" "}
                       <b className="text-sub font-bold text-ink-900">
                         {won(base + (size.price || 0))}
+                        {priceSuffix}
                       </b>
                     </span>
                     <span className="flex items-center gap-2 text-sub text-ink-700">
@@ -305,7 +310,11 @@ export function ProductPriceSizeSection({ form, errors, onChange, disabled }: Pr
                     <span className="text-xs text-muted-foreground">원</span>
                   </div>
                   <span className="text-sm text-muted-foreground">
-                    = 손님 결제 <b className="text-foreground">{won(base + (size.price || 0))}</b>
+                    = {priceLabel}{" "}
+                    <b className="text-foreground">
+                      {won(base + (size.price || 0))}
+                      {priceSuffix}
+                    </b>
                   </span>
                   <div className="ml-auto flex items-center gap-2">
                     <Checkbox
