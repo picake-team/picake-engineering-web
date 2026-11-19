@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { getProductDiscountRate, isProductOnSale } from "./product-price.util";
+import {
+  formatProductPrice,
+  getProductDiscountRate,
+  isProductOnSale,
+  showsFromPrice,
+} from "./product-price.util";
 
 describe("isProductOnSale", () => {
   it("판매가가 정가보다 낮으면 할인 중이다", () => {
@@ -29,5 +34,29 @@ describe("getProductDiscountRate", () => {
   it("정확히 .5인 할인율은 올림한다 (Math.round 기본 동작)", () => {
     // (1 - 141/200) * 100 = 29.5 -> 반올림 30
     expect(getProductDiscountRate(200, 141)).toBe(30);
+  });
+});
+
+describe("가격 물결(기획 I-01 2026-11-19)", () => {
+  it("추가금이 없으면 딱 그 값", () => {
+    expect(formatProductPrice({ salePrice: 35000, hasExtraPrice: false })).toBe("35,000원");
+    expect(
+      formatProductPrice({ salePrice: 35000, hasExtraPrice: false, orderMethod: "RESERVATION" }),
+    ).toBe("35,000원");
+  });
+
+  it("추가금이 있으면 물결", () => {
+    expect(formatProductPrice({ salePrice: 35000, hasExtraPrice: true })).toBe("35,000원~");
+  });
+
+  it("견적 받기 상품은 추가금이 없어도 물결", () => {
+    expect(
+      formatProductPrice({ salePrice: 45000, hasExtraPrice: false, orderMethod: "QUOTE" }),
+    ).toBe("45,000원~");
+  });
+
+  it("옛 서버 응답(값 없음)은 지금처럼 물결", () => {
+    expect(formatProductPrice({ salePrice: 30000 })).toBe("30,000원~");
+    expect(showsFromPrice({})).toBe(true);
   });
 });

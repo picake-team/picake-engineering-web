@@ -28,6 +28,11 @@ export function useCreateQuoteRequest() {
     }) => {
       const photoUrls: string[] = [];
       for (const [index, photo] of photos.entries()) {
+        // 상품 사진(기획 I-01)은 이미 올라가 있어 그 주소를 그대로 보낸다(서버가 그 요청의 상품 사진인지 확인)
+        if (photo.remoteUrl) {
+          photoUrls.push(photo.remoteUrl);
+          continue;
+        }
         const name = `quote-${Date.now()}-${index}.jpg`;
         // 디자인 모음 사진은 앱에 함께 배포한 파일 주소라 내려받아 올린다
         let file: File;

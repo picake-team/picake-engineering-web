@@ -2,7 +2,15 @@
 
 export type QuoteCakeSize = "LUNCHBOX" | "MINI" | "NO1" | "NO2" | "NO3" | "LARGER";
 export type QuoteCream = "FRESH_CREAM" | "BUTTER_CREAM" | "CREAM_CHEESE";
-export type QuoteRequestEntry = "HOME" | "SEARCH" | "MAP" | "STORE" | "MYPAGE" | "DESIGN";
+export type QuoteRequestEntry =
+  | "HOME"
+  | "SEARCH"
+  | "MAP"
+  | "STORE"
+  | "MYPAGE"
+  | "DESIGN"
+  /** 상품 화면 "이 디자인으로 견적 받기"(견적 받기 상품, 기획 I-01) */
+  | "PRODUCT";
 
 /** 사진에서 가져올 것(기획 I-112) */
 export type QuotePhotoPart = "ALL" | "SHAPE" | "COLOR" | "DECORATION" | "LETTERING";
@@ -54,6 +62,8 @@ export interface CreateQuoteRequestBody {
   budgetMax?: number;
   requestNote?: string;
   entry?: QuoteRequestEntry;
+  /** 상품 화면에서 연 요청이면 그 상품(이 가게에만일 때만 서버가 받음) */
+  productId?: string;
 }
 
 export interface CreateQuoteRequestResponse {

@@ -31,6 +31,7 @@ export function useProductList({
   minPrice,
   maxPrice,
   productType,
+  orderMethod,
   productCategoryTypes,
   regions,
   sizes,
@@ -48,6 +49,7 @@ export function useProductList({
       minPrice,
       maxPrice,
       productType,
+      orderMethod,
       productCategoryTypes,
       regions,
       sizes,
@@ -74,6 +76,9 @@ export function useProductList({
       }
       if (productType) {
         params.productType = productType;
+      }
+      if (orderMethod) {
+        params.orderMethod = orderMethod;
       }
       if (productCategoryTypes && productCategoryTypes.length > 0) {
         params.productCategoryTypes = productCategoryTypes;

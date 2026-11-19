@@ -94,6 +94,11 @@ export interface StoreInfo {
   kakaoChannelId?: string | null;
   /** 인스타그램 ID(@ 없이). 비어 있으면 "" */
   instagramId?: string | null;
+  /**
+   * 사장님이 고른 "손님에게 보이기"(기획 I-01). 카톡·인스타·전화는 꺼 두면 서버가 값을 빼고 보낸다.
+   * 채팅은 false면 가게·상품 화면 문의 창에서 뺀다(주문 화면은 늘 보임). 옛 응답에는 없다(없으면 켜짐)
+   */
+  chatInquiryVisible?: boolean;
   isLiked: boolean | null;
   // 사업자 정보
   businessNo: string;

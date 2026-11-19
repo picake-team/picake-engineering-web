@@ -13,11 +13,6 @@ import { useUserLocation } from "@/apps/web-user/common/hooks/useUserLocation";
 import { calculateDistance, formatDistance } from "@/apps/web-user/common/utils/distance.util";
 import { useAuthStore } from "@/apps/web-user/common/store/auth.store";
 import { useLoginSheetStore } from "@/apps/web-user/common/store/login-sheet.store";
-import { StoreInquiryBottomSheet } from "@/apps/web-user/common/components/bottom-sheets/StoreInquiryBottomSheet";
-import {
-  storeInstagramUrl,
-  storeKakaoChatUrl,
-} from "@/apps/web-user/common/utils/external-link.util";
 
 interface StoreDetailIntroSectionProps {
   store: StoreInfo;
@@ -37,10 +32,6 @@ export function StoreDetailIntroSection({
   useEffect(() => {
     setIsLiked(store.isLiked ?? false);
   }, [store.isLiked]);
-  const [isInquiryOpen, setIsInquiryOpen] = useState(false);
-  // "문의"는 늘 보인다 — 채팅(I-11)이 있고, 사장님이 적은 카카오톡 채널·인스타·전화도 같은 창에(I-61 첫 조각)
-  const kakaoUrl = storeKakaoChatUrl(store.kakaoChannelId);
-  const instaUrl = storeInstagramUrl(store.instagramId);
 
   const { mutate: addLike, isPending: isAddingLike } = useAddStoreLike();
   const { mutate: removeLike, isPending: isRemovingLike } = useRemoveStoreLike();
@@ -120,16 +111,7 @@ export function StoreDetailIntroSection({
           </div>
         </div>
 
-        {/* 문의 버튼(아이콘만, 2026-11-11 운영자): 주문 화면의 "스토어 문의"와 같은 창 */}
-        <button
-          type="button"
-          onClick={() => setIsInquiryOpen(true)}
-          aria-label="스토어 문의"
-          className="flex items-center px-[8px] py-[6px] border border-gray-100 rounded-md"
-        >
-          <Icon name="reviewQna" width={18} height={18} className="text-gray-900" />
-        </button>
-
+        {/* 문의는 오른쪽 아래 떠 있는 버튼으로 옮겼다(상품 화면과 같은 자리·모양, 운영자 2026-11-19, 기획 I-01) */}
         {/* 좋아요 버튼 */}
         <button
           type="button"
@@ -195,15 +177,6 @@ export function StoreDetailIntroSection({
           </button>
         )}
       </div>
-
-      <StoreInquiryBottomSheet
-        isOpen={isInquiryOpen}
-        onClose={() => setIsInquiryOpen(false)}
-        storeId={store.id}
-        kakaoChannelUrl={kakaoUrl}
-        instagramUrl={instaUrl}
-        phoneNumber={store.phoneNumber}
-      />
 
       {showCopyToast && (
         <Toast

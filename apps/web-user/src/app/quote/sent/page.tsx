@@ -95,7 +95,10 @@ function QuoteSentContent() {
         <div className="h-[calc(100%-56px)] overflow-y-auto pb-[60px]">
           <p className="mb-[28px] flex items-center gap-[8px] rounded-xl bg-blue-50 px-[12px] py-[10px] text-sm text-gray-900 animate-rise motion-reduce:animate-none [animation-delay:80ms]">
             <Icon name="warning" width={16} height={16} className="shrink-0 text-blue-400" />
-            Picake가 근처 가게에 물어보고, 견적이 오면 알려 드릴게요
+            {/* "이 가게에만"(가게 화면·상품 화면에서 연 요청)은 근처 가게를 찾지 않는다 */}
+            {data.onlyDesignatedStores
+              ? `${data.stores[0]?.name ?? "가게"}에 물어보고, 견적이 오면 알려 드릴게요`
+              : "Picake가 근처 가게에 물어보고, 견적이 오면 알려 드릴게요"}
           </p>
           <div className="mb-[20px] flex flex-col gap-[6px] border-b border-gray-100 px-[16px] pb-[16px] animate-rise motion-reduce:animate-none [animation-delay:160ms]">
             {rows.map(([label, value]) => (

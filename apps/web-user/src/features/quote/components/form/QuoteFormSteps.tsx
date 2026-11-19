@@ -469,7 +469,8 @@ export function StepCake() {
   const { showAlert } = useAlertStore();
   const hasPhoto = draft.photos.length > 0;
   const multi = draft.photos.length >= 2;
-  const ownPhotos = draft.photos.filter((p) => !p.designId);
+  // 직접 올린 사진만(디자인 모음·상품 사진은 읽지 않는다)
+  const ownPhotos = draft.photos.filter((p) => !p.designId && !p.remoteUrl);
   const room = QUOTE_LIMITS.MAX_PHOTOS - draft.photos.length;
   const reading = ownPhotos.some((p) => p.readState === "reading");
   const readProblem = ownPhotos.map((p) => p.readState).find((st) => st && PHOTO_READ_MESSAGE[st]);

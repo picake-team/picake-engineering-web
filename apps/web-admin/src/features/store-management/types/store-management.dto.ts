@@ -95,6 +95,11 @@ export interface StoreManagementDetailResponseDto extends StoreManagementItemRes
   accountHolderName: string | null;
   kakaoChannelId: string | null;
   instagramId: string | null;
+  /** 손님에게 보이기(기획 I-01). 옛 서버 응답에는 없다 */
+  chatInquiryVisible?: boolean;
+  kakaoChannelVisible?: boolean;
+  instagramVisible?: boolean;
+  phoneVisible?: boolean;
   feedCount: number;
   statistics: StoreManagementStatisticsDto;
 }
