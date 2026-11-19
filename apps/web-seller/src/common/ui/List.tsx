@@ -106,13 +106,13 @@ export function RowIconBox({ children }: { children: React.ReactNode }) {
   );
 }
 
-/** 줄 오른쪽 큰 숫자(20/700). 0건이면 흐리게 */
+/** 줄 오른쪽 큰 숫자(20/700). 0건이면 흐리게(ink-500, 흰 바탕 대비 4.6 — 운영자 결정 2026-11-20) */
 export function RowCount({ value, dimmed }: { value: React.ReactNode; dimmed?: boolean }) {
   return (
     <span
       className={cx(
         "shrink-0 text-heading font-bold tabular-nums",
-        dimmed ? "text-ink-400" : "text-ink-900",
+        dimmed ? "text-ink-500" : "text-ink-900",
       )}
     >
       {value}
