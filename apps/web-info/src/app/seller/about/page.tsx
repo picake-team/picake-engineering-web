@@ -486,6 +486,13 @@ export default function SellerAboutPage() {
                   손님이 고르면 <b className="text-gray-900">그 견적으로 예약 신청</b>이 들어오고,
                   확인·입금·픽업은 다른 예약과 같아요.
                 </p>
+                {/* 견적 받기 상품(기획 I-01, 2026-11-19 상용): 화면에 있는 사실만 */}
+                <p className={SHEET_BODY}>
+                  대표 디자인은 상품으로 올리고 <b className="text-gray-900">"견적 받기"</b>를
+                  고르면, 손님 화면에 예약 대신{" "}
+                  <b className="text-gray-900">"이 디자인으로 견적 받기"</b>가 보여요. 그 디자인
+                  사진이 담긴 요청서가 사장님께만 와요.
+                </p>
                 <SheetScreen
                   src={screenQuoteSend}
                   alt="견적 보내기 창. 금액 52,000원을 적고 사진과 얼마나 비슷하게 만들지 '거의 똑같이'를 고른 모습(예시)"
