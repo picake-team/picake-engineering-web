@@ -85,6 +85,11 @@ export interface StoreResponseDto extends StoreAddressDto {
   phoneNumber?: string | null;
   kakaoChannelId?: string | null;
   instagramId?: string | null;
+  /** 손님 문의 "손님에게 보이기"(기획 I-01). 끄면 값이 있어도 손님 화면에 안 보인다. 옛 서버 응답에는 없다(없으면 켜짐) */
+  chatInquiryVisible?: boolean;
+  kakaoChannelVisible?: boolean;
+  instagramVisible?: boolean;
+  phoneVisible?: boolean;
   businessNo: string;
   representativeName: string;
   openingDate: string;
@@ -148,6 +153,11 @@ export interface CreateStoreRequestDto extends StoreAddressDto {
   logoImageUrl?: string;
   kakaoChannelId?: string;
   instagramId?: string;
+  /** 손님 문의 "손님에게 보이기"(기획 I-01). 끄면 값이 있어도 손님 화면에 안 보인다. 옛 서버 응답에는 없다(없으면 켜짐) */
+  chatInquiryVisible?: boolean;
+  kakaoChannelVisible?: boolean;
+  instagramVisible?: boolean;
+  phoneVisible?: boolean;
   /** 판매자가 자기 매장이 맞다고 확인한 네이버 플레이스 ID */
   naverPlaceId?: string;
   bankAccountNumber: string;
@@ -167,6 +177,11 @@ export interface UpdateStoreRequestDto extends StoreAddressDto {
   logoImageUrl?: string;
   kakaoChannelId?: string;
   instagramId?: string;
+  /** 손님 문의 "손님에게 보이기"(기획 I-01). 끄면 값이 있어도 손님 화면에 안 보인다. 옛 서버 응답에는 없다(없으면 켜짐) */
+  chatInquiryVisible?: boolean;
+  kakaoChannelVisible?: boolean;
+  instagramVisible?: boolean;
+  phoneVisible?: boolean;
   bankAccountNumber: string;
   bankName: StoreBankName;
   accountHolderName: string;

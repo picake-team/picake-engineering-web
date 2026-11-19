@@ -18,6 +18,11 @@ export interface StoreForm extends StoreAddressDto {
   /** 채널 정보 */
   kakaoChannelId?: string;
   instagramId?: string;
+  /** 손님 문의 "손님에게 보이기"(기획 I-01). 끄면 값이 있어도 손님 화면에 안 보인다. 옛 서버 응답에는 없다(없으면 켜짐) */
+  chatInquiryVisible?: boolean;
+  kakaoChannelVisible?: boolean;
+  instagramVisible?: boolean;
+  phoneVisible?: boolean;
   /** 환불·취소 규정 (필수, `rules` 배열) */
   refundCancellationPolicy: RefundCancellationPolicyDto;
   /** 스토어 등록 때 함께 연결할 네이버 플레이스 ID (등록 화면에서만 사용) */
