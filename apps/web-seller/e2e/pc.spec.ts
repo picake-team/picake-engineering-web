@@ -1,6 +1,7 @@
 /**
- * PC(1440) 사장님 화면(기획 I-54): 왼쪽 메뉴, 홈, 주문 목록 | 상세와 처리, 찾기, 엑셀, 주문서 인쇄, 상품 표·판매 스위치,
- * 상품 등록 미리보기, 주문 적기, 캘린더 그날만 영업 바꾸기, 채팅 목록 | 대화, 알림 설정 "이 컴퓨터", PC 가운데 창.
+ * PC(1440) 사장님 화면(기획 I-54): 왼쪽 메뉴, 홈, 주문 목록 | 상세와 처리(확인·확정·취소·노쇼·환불 완료), 찾기, 엑셀,
+ * 주문서 인쇄, 상품 표·판매 스위치, 상품 등록 미리보기, 주문 적기·고치기·지우기, 캘린더 그날만 영업 바꾸기,
+ * 채팅 목록 | 대화·보내기, 알림 설정 "이 컴퓨터", PC 가운데 창.
  * 심사용 가게의 상태별 예시 주문을 쓴다. 탭 하나에서 메뉴를 눌러 옮겨 다닌다(helpers.ts openSeller).
  */
 import fs from "node:fs";
@@ -85,6 +86,70 @@ test("주문: 목록 줄에서 바로 예약 확정", async () => {
   await dialog.getByRole("button", { name: "예약 확정" }).click();
   await expect(page.getByText("예약을 확정했어요")).toBeVisible();
   await expect(page.locator("#group-deposit")).toHaveCount(0);
+});
+
+type OrderRow = { id: string; orderNumber: string; orderStatus: string; pickupDate: string };
+const ordersNow = async () =>
+  (await api<{ data: OrderRow[] }>(`/orders?page=1&limit=50&sortBy=LATEST&storeId=${storeId}`))
+    .data;
+
+/** 주문번호로 찾아 오른쪽 칸에 상세를 연다 */
+async function openOrderDetail(orderNumber: string) {
+  await openMenu("주문");
+  await page.getByRole("searchbox", { name: "주문 찾기" }).fill(orderNumber);
+  // 찾은 결과(한 줄)가 뜬 뒤에 누른다 — 바로 누르면 찾기 전 목록의 첫 줄을 연다
+  await expect(page.getByRole("heading", { name: `'${orderNumber}' 검색 결과` })).toBeVisible();
+  await expect(page.locator('[role="row"] a')).toHaveCount(1);
+  await page.locator('[role="row"] a').first().click();
+  await expect(page.getByRole("heading", { name: "주문 상세" })).toBeVisible();
+}
+
+/** 상세 아래 버튼으로 처리하고(없으면 "다른 처리" 창에서) 확인 창을 연다 */
+async function startAction(button: string, dialogTitle: string) {
+  const direct = page.getByRole("button", { name: button, exact: true });
+  if (await direct.count()) await direct.last().click();
+  else {
+    await page.getByRole("button", { name: "다른 처리" }).last().click();
+    await page
+      .getByRole("dialog", { name: "다른 처리" })
+      .getByRole("button", { name: button })
+      .click();
+  }
+  const dialog = page.getByRole("dialog", { name: dialogTitle });
+  await expect(dialog).toBeVisible();
+  return dialog;
+}
+
+test("주문: 입금대기 예약 취소(사유 고르기)", async () => {
+  const target = (await ordersNow()).find((o) => o.orderStatus === "PAYMENT_PENDING")!;
+  await openOrderDetail(target.orderNumber);
+  const dialog = await startAction("예약 취소", "예약을 취소할까요?");
+  await dialog.getByText("재료 소진").click();
+  await dialog.getByRole("button", { name: "예약 취소" }).click();
+  await expect(dialog).toHaveCount(0);
+  // 서버에 다시 묻지 않고(같은 경로 1분 100번 한도) 처리한 뒤 띠로 확인한다
+  await expect(page.getByText("예약을 취소했어요").first()).toBeVisible();
+});
+
+test("주문: 픽업대기 노쇼 처리(사유 적기)", async () => {
+  const target = (await ordersNow()).find((o) => o.orderStatus === "PICKUP_PENDING")!;
+  await openOrderDetail(target.orderNumber);
+  const dialog = await startAction("노쇼 처리", "노쇼로 처리할까요?");
+  await dialog.getByRole("textbox").first().fill("픽업 시간에 오지 않았어요");
+  await dialog.getByRole("button", { name: "노쇼 처리" }).click();
+  await expect(dialog).toHaveCount(0);
+  // 서버에 다시 묻지 않고(같은 경로 1분 100번 한도) 처리한 뒤 띠로 확인한다
+  await expect(page.getByText("노쇼로 바꿨어요").first()).toBeVisible();
+});
+
+test("주문: 환불대기 취소환불 완료", async () => {
+  const target = (await ordersNow()).find((o) => o.orderStatus === "CANCEL_REFUND_PENDING")!;
+  await openOrderDetail(target.orderNumber);
+  const dialog = await startAction("취소환불 완료", "환불을 마쳤나요?");
+  await dialog.getByRole("button", { name: "취소환불 완료" }).click();
+  await expect(dialog).toHaveCount(0);
+  // 서버에 다시 묻지 않고(같은 경로 1분 100번 한도) 처리한 뒤 띠로 확인한다
+  await expect(page.getByText("취소환불 완료로 바꿨어요").first()).toBeVisible();
 });
 
 test("주문: 찾기 칸에 치면 바로 찾는다", async () => {
@@ -178,7 +243,7 @@ test("상품 등록: 오른쪽 손님 화면 미리보기가 입력대로 바뀐
   await expectNoSideScroll(page);
 });
 
-test("주문 적기: 홈 버튼으로 열고 메뉴 옆 본문에 그린다", async () => {
+test("주문 적기: 홈에서 적고(시각은 가운데 창) → 홈 주간 보기에서 열어 고치고 → 지우기", async () => {
   await openMenu("홈");
   await page.getByRole("button", { name: "주문 적기" }).click();
   await expect(page).toHaveURL(new RegExp(`/stores/${storeId}/manual-orders/new`));
@@ -187,6 +252,36 @@ test("주문 적기: 홈 버튼으로 열고 메뉴 옆 본문에 그린다", as
   const box = (await page.getByRole("button", { name: "등록하기" }).boundingBox())!;
   expect(box.x).toBeGreaterThan(240);
   await expectNoSideScroll(page);
+
+  const cake = "PC 테스트 생크림 케이크";
+  await page.getByPlaceholder("예: 2호 초코 리스").fill(cake);
+  await page.getByPlaceholder("예: 45,000").fill("45000");
+  // 시간 칸(버튼 안 "미정") → 시각 창(PC는 가운데 창) → 14:00
+  await page.locator('button:has-text("미정")').first().click();
+  const time = page.getByRole("dialog").last();
+  await time.getByRole("radio", { name: "14:00" }).click();
+  await expect(page.locator('button:has-text("14:00")').first()).toBeVisible();
+  await page.getByRole("button", { name: "등록하기" }).click();
+  await expect(page).toHaveURL(new RegExp(`/stores/${storeId}$`));
+
+  await page
+    .getByRole("link", { name: new RegExp(cake) })
+    .first()
+    .click();
+  await expect(page.getByRole("heading", { name: "직접 적은 주문" })).toBeVisible();
+  await page.getByRole("button", { name: "고치기" }).click();
+  await expect(page.getByRole("heading", { name: "주문 고치기" })).toBeVisible();
+  await page.getByPlaceholder("예: 45,000").fill("52000");
+  await page.getByRole("button", { name: "저장하기" }).click();
+  await expect(page.getByRole("heading", { name: "직접 적은 주문" })).toBeVisible();
+  await expect(page.getByText("52,000원").first()).toBeVisible();
+
+  await page.getByRole("button", { name: "지우기" }).first().click();
+  const confirm = page.getByRole("dialog", { name: "이 주문을 지울까요?" });
+  await confirm.getByRole("button", { name: "지우기" }).click();
+  // 지우면 들어온 화면(여기서는 홈)으로 돌아간다
+  await expect(page).not.toHaveURL(/\/manual-orders\//);
+  await expect(page.getByText(cake)).toHaveCount(0);
 });
 
 test("캘린더: 그날만 휴무로 바꾸고 평소대로 되돌리기", async () => {
@@ -222,7 +317,20 @@ test("채팅: 방을 누르면 오른쪽에 대화", async () => {
   await expect(
     page.locator("main h1, header h1").filter({ hasText: /손님/ }).first(),
   ).toBeVisible();
-  await expect(page.getByRole("textbox").last()).toBeVisible();
+  const box = page.getByRole("textbox").last();
+  await expect(box).toBeVisible();
+  // 대화 칸에서 보내기(Enter)
+  const text = `PC에서 보낸 확인 ${Date.now() % 100000}`;
+  await box.fill(text);
+  await box.press("Enter");
+  // 가게마다 처음 보낼 때 한 번 "채팅 이용 규칙"에 동의한다
+  const rules = page.getByRole("dialog", { name: "채팅 이용 규칙" });
+  if (await rules.isVisible().catch(() => false)) {
+    await rules.getByRole("button", { name: "동의하고 보내기" }).click();
+  }
+  await expect(rules).toHaveCount(0);
+  await expect(box).toHaveValue("");
+  await expect(page.getByText(text).first()).toBeVisible();
 });
 
 test("알림 설정: 설정 → 알림 설정에 PC에만 있는 '이 컴퓨터' 묶음", async () => {

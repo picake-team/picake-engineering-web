@@ -44,6 +44,7 @@ import {
 import { DayHoursSheet } from "@/apps/web-seller/features/store/components/DayHoursSheet";
 import { orderItemsShort } from "@/apps/web-seller/features/order/utils/order-mobile.util";
 import { printOrdersPath } from "@/apps/web-seller/features/order/utils/order-print.util";
+import { canExportOrPrint } from "@/apps/web-seller/common/utils/pc-extras.util";
 
 /** 칸 안에 픽업 줄을 보여 줄 달력 넓이(좁으면 수만) */
 const DETAIL_GRID_MIN = 600;
@@ -254,7 +255,7 @@ export const StoreDetailCalendarDesktopPage: React.FC = () => {
             <h3 className="text-group font-bold text-ink-900">
               픽업 {month.loaded && inMonth ? `${selectedPickups.length}건` : ""}
             </h3>
-            {selectedPickups.length > 0 ? (
+            {selectedPickups.length > 0 && canExportOrPrint() ? (
               <a
                 href={printOrdersPath(storeId, selectedKey)}
                 target="_blank"

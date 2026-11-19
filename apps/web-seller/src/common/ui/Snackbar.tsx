@@ -57,7 +57,7 @@ export function Snackbar({
       // PC 틀(기획 I-54)에서는 왼쪽 메뉴를 뺀 본문 가운데(--shell-left는 DesktopLayout이 정한다)
       className={cx(
         APP_COLUMN_CLASS,
-        "pointer-events-none fixed left-[var(--shell-left,0px)] right-0 z-[80] px-4 font-app",
+        "pointer-events-none fixed left-[var(--shell-left,0px)] right-0 print:hidden z-[80] px-4 font-app",
       )}
       style={{ bottom: `calc(${bottomOffset}px + env(safe-area-inset-bottom))` }}
     >

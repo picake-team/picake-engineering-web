@@ -11,6 +11,8 @@ import { formatKeyMonthDayWeek } from "@/apps/web-seller/common/utils/kst-date.u
 import type { StoreBusinessCalendarDto } from "@/apps/web-seller/features/store/types/store.dto";
 import type { OrderResponseDto } from "@/apps/web-seller/features/order/types/order.dto";
 import { useUpdateStoreBusinessCalendar } from "@/apps/web-seller/features/store/hooks/mutations/useStoreMutation";
+import { useFetchFreshBusinessCalendar } from "@/apps/web-seller/features/store/hooks/queries/useStoreQuery";
+import { useAlertStore } from "@/apps/web-seller/common/store/alert.store";
 import {
   baseRule,
   formatHoursRange,
@@ -65,9 +67,25 @@ export function DayHoursSheet({
   const baseText = base.isOpen ? `평소 ${formatHoursRange(base.start, base.end)}` : "평소 쉬는 날";
   const timeError = dayHoursTimeError(draft);
 
-  const submit = () => {
-    if (timeError) return;
-    const next = calendarWithDay(calendar, dateKey, draft);
+  const fetchFresh = useFetchFreshBusinessCalendar(storeId);
+  const [checking, setChecking] = useState(false);
+  const submit = async () => {
+    if (timeError || checking) return;
+    // 저장 직전 서버의 지금 달력 위에 그날만 바꾼다(다른 기기에서 바꾼 쉬는 요일·날을 되돌리지 않게)
+    setChecking(true);
+    let fresh: StoreBusinessCalendarDto;
+    try {
+      fresh = await fetchFresh();
+    } catch {
+      useAlertStore.getState().addAlert({
+        severity: "error",
+        message: "영업시간을 불러오지 못했어요. 잠시 뒤 다시 저장해 주세요",
+      });
+      return;
+    } finally {
+      setChecking(false);
+    }
+    const next = calendarWithDay(fresh, dateKey, draft);
     const conflicts = findCalendarOrderConflicts(next, dayOrders);
     if (conflicts.length > 0) {
       setConflict(formatCalendarConflictMessage(conflicts));
@@ -89,7 +107,11 @@ export function DayHoursSheet({
             <Button variant="secondary" onClick={onClose} disabled={save.isPending}>
               돌아가기
             </Button>
-            <Button onClick={submit} loading={save.isPending} disabled={Boolean(timeError)}>
+            <Button
+              onClick={() => void submit()}
+              loading={save.isPending || checking}
+              disabled={Boolean(timeError)}
+            >
               저장하기
             </Button>
           </ButtonPair>

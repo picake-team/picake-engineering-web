@@ -25,9 +25,10 @@ import { getOrderStatusLabel } from "@/apps/web-seller/features/order/utils/orde
 import {
   ORDER_ACTION_LABEL,
   formatWon,
-  isDimmedPastStatus,
-  orderCardMeta,
+  isCanceledOrNoShow,
+  orderExpiryMarks,
   orderItemsLine,
+  orderSubline,
   statusTone,
 } from "@/apps/web-seller/features/order/utils/order-mobile.util";
 
@@ -104,6 +105,7 @@ export function OrderTableRow({
   quickAction,
   quickTone = "primary",
   onQuickAction,
+  searching = false,
 }: {
   order: OrderResponseDto;
   /** 누르면 갈 주소(찾기·탭 조건을 붙인 상세) */
@@ -114,12 +116,16 @@ export function OrderTableRow({
   quickAction?: OrderStatus;
   quickTone?: "primary" | "secondary";
   onQuickAction?: (order: OrderResponseDto, to: OrderStatus) => void;
+  /** 찾기 결과 줄(금액 뒤 글을 예약자로 — 휴대폰 찾기 결과와 같음) */
+  searching?: boolean;
 }) {
-  const dim = isDimmedPastStatus(order.orderStatus);
+  // 처리할 주문은 흐리게 하지 않는다 — 취소·노쇼만(휴대폰 지난 주문 줄과 같음)
+  const dim = isCanceledOrNoShow(order.orderStatus);
   const status = getOrderStatusLabel(order.orderStatus);
   const name = order.reservationContactName?.trim() || "예약자 미입력";
   const items = orderItemsLine(order);
-  const meta = orderCardMeta(order, now);
+  const meta = orderSubline(order, now, searching ? "search" : "group");
+  const marks = orderExpiryMarks(order);
   const action =
     quickAction && onQuickAction ? (
       <button
@@ -181,8 +187,11 @@ export function OrderTableRow({
           <span className="text-right text-sub font-semibold tabular-nums text-ink-900">
             {formatWon(order.totalPrice)}
           </span>
-          <span>
+          <span className="flex flex-col items-start gap-1">
             <StatusPill tone={statusTone(order.orderStatus)}>{status}</StatusPill>
+            {marks.length ? (
+              <span className="text-caption text-ink-600">{marks.join(" · ")}</span>
+            ) : null}
           </span>
           <span className="flex">{action}</span>
         </div>
@@ -207,8 +216,11 @@ export function OrderTableRow({
               )}
             >
               <StatusPill tone={statusTone(order.orderStatus)}>{status}</StatusPill>
-              <span>{name}</span>
-              <span className="tabular-nums">{formatWon(order.totalPrice)}</span>
+              {marks.length ? <span>{marks.join(" · ")}</span> : null}
+              {/* 휴대폰 카드와 같은 "금액 · 할 일 정보"(입금자명·입금 마감·예약자) */}
+              <span className="min-w-0">
+                <span className="tabular-nums">{formatWon(order.totalPrice)}</span> · {meta}
+              </span>
             </span>
           </span>
           {action}

@@ -159,6 +159,7 @@ export function OrderFindSheet({
           enterKeyHint="search"
           aria-label="이름, 전화번호 뒷자리, 상품명, 주문번호"
           placeholder="이름, 번호 뒷자리, 상품명"
+          maxLength={50}
           value={draft.query}
           onChange={(e) => setDraft((d) => ({ ...d, query: e.target.value }))}
           className="h-12 min-w-0 flex-1 rounded-control border border-ink-200 bg-white px-4 text-body text-ink-900 outline-none placeholder:text-ink-500 focus:border-[1.5px] focus:border-ink-900 [&::-webkit-search-cancel-button]:hidden"

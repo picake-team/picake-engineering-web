@@ -85,7 +85,7 @@ function Sheet({ sheet, index }: { sheet: PrintSheet; index: number }) {
                 className="size-[120px] rounded-control border border-ink-100 object-cover"
               />
               {sheet.photos.length > 1 ? (
-                <span className="absolute left-1 top-1 flex size-5 items-center justify-center rounded-full bg-ink-900/70 text-badge font-bold text-white">
+                <span className="absolute left-1 top-1 flex size-5 items-center justify-center rounded-full bg-ink-900/70 text-badge font-bold text-white print:border print:border-ink-900 print:bg-white print:text-ink-900">
                   {i + 1}
                 </span>
               ) : null}
@@ -100,6 +100,22 @@ function Sheet({ sheet, index }: { sheet: PrintSheet; index: number }) {
       </footer>
     </article>
   );
+}
+
+/** 참고 사진이 다 받아진 뒤 인쇄 창을 연다(받는 중에 열면 사진 칸이 비어 찍혔다) */
+async function printWhenImagesReady() {
+  const imgs = Array.from(document.querySelectorAll<HTMLImageElement>("#print-sheets img"));
+  await Promise.all(
+    imgs.map((img) =>
+      img.complete
+        ? null
+        : new Promise<void>((resolve) => {
+            img.addEventListener("load", () => resolve(), { once: true });
+            img.addEventListener("error", () => resolve(), { once: true });
+          }),
+    ),
+  );
+  window.print();
 }
 
 export const StoreDetailPrintOrdersPage: React.FC = () => {
@@ -122,7 +138,10 @@ export const StoreDetailPrintOrdersPage: React.FC = () => {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-[860px] flex-col gap-5 px-6 py-6 font-app text-ink-900 print:max-w-none print:p-0">
+    <div
+      id="print-sheets"
+      className="mx-auto flex w-full max-w-[860px] flex-col gap-5 px-6 py-6 font-app text-ink-900 print:max-w-none print:p-0"
+    >
       <div className="flex flex-wrap items-center gap-3 print:hidden">
         <h1 className="text-[22px] font-bold tracking-[-0.02em]">
           {formatKeyMonthDayWeek(dateKey)} 주문서
@@ -141,7 +160,7 @@ export const StoreDetailPrintOrdersPage: React.FC = () => {
           </Button>
           <Button
             size="md"
-            onClick={() => window.print()}
+            onClick={() => void printWhenImagesReady()}
             disabled={!loaded || sheets.length === 0}
           >
             인쇄하기
@@ -164,7 +183,7 @@ export const StoreDetailPrintOrdersPage: React.FC = () => {
           이 날은 픽업이 없어요
         </p>
       ) : (
-        <div className="flex flex-col gap-4 print:gap-3">
+        <div className="flex flex-col gap-4 print:block print:space-y-3">
           {manuals.isError ? (
             <p className="text-sub font-semibold text-brand-ink print:hidden">
               직접 적은 주문을 불러오지 못해 Picake 주문만 보여요

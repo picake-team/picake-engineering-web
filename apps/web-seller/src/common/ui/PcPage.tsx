@@ -97,7 +97,8 @@ export function PcPanel({
 
 /**
  * 목록 | 상세. 상세가 없으면(고르기 전) empty를 그린다.
- * - wide="list"(주문): 목록이 표라 넓게, 상세는 휴대폰 상세 화면이라 390~560
+ * - wide="list"(주문): 목록이 표라 넓게, 상세는 휴대폰 상세 화면이라 380~560.
+ *   두 칸이 시작하는 840에서 칸 안 넓이는 840 − 메뉴 88 − 여백 48 − 테두리 2 = 702라 최소 320 + 380 = 700(넘으면 오른쪽이 잘렸다, 11-19)
  * - wide="detail"(채팅): 목록은 360~400으로 두고 대화를 넓게(Material 3 목록-상세: 목록 고정 + 상세 늘어남)
  */
 export function PcSplit({
@@ -118,7 +119,7 @@ export function PcSplit({
       className={cx(
         "grid min-h-0 flex-1 overflow-hidden rounded-card border border-ink-100",
         wide === "list"
-          ? "grid-cols-[minmax(360px,1fr)_minmax(390px,560px)]"
+          ? "grid-cols-[minmax(320px,1fr)_minmax(380px,560px)]"
           : "grid-cols-[minmax(320px,400px)_minmax(0,1fr)]",
         className,
       )}

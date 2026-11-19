@@ -25,6 +25,7 @@ import {
   isActAsBlockedPath,
 } from "./common/components/act-as/ActAsBlockedScreen";
 import { isActAsMode } from "./common/utils/act-as.util";
+import { isSellerAppWebView } from "./common/utils/webview.bridge";
 
 /**
  * 로그인한 뒤의 경로. 휴대폰 폭은 MobileLayout(아래 탭은 화면이 그림), 넓으면 DesktopLayout(왼쪽 메뉴, 기획 I-54).
@@ -47,7 +48,7 @@ function SignedInRoutes({ showMobile }: { showMobile: boolean }) {
     <Routes>
       <Route element={<Layout />}>
         {ADMIN_ROUTE_CONFIG.map((route) => {
-          const Screen = screenFor(route, showMobile);
+          const Screen = screenFor(route, showMobile, isSellerAppWebView());
           return <Route key={route.path} path={route.path} element={<Screen />} />;
         })}
         <Route path="*" element={<Navigate to={ROUTES.ROOT} replace />} />
@@ -69,9 +70,10 @@ function AppRoutes() {
       <ActAsBanner />
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
-          {/* 인증 관련 경로 (휴대폰·PC 틀 밖) */}
+          {/* 인증 관련 경로 (휴대폰·PC 틀 밖). 앱 안에서는 폭이 넓어도(아이패드) 휴대폰 로그인·가입 —
+              심사용 로그인 입구(로고 10번)·Apple 버튼·"이미 가입한 계정" 안내가 휴대폰 화면에만 있다(앱 심사) */}
           {AUTH_ROUTE_CONFIG.map((route) => {
-            const Screen = screenFor(route, showMobile);
+            const Screen = screenFor(route, showMobile || isSellerAppWebView());
             return <Route key={route.path} path={route.path} element={<Screen />} />;
           })}
           <Route

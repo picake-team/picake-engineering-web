@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { useQueryErrorAlert } from "@/apps/web-seller/common/hooks/useQueryErrorAlert";
 import { orderApi } from "@/apps/web-seller/features/order/apis/order.api";
 import { orderQueryKeys } from "@/apps/web-seller/features/order/constants/orderQueryKeys.constant";
 import {
@@ -76,8 +75,6 @@ export function useOrderList({
     },
   });
 
-  useQueryErrorAlert(query);
-
   return query;
 }
 
@@ -87,8 +84,6 @@ export function useOrderDetail(orderId: string) {
     queryFn: () => orderApi.getOrderDetail(orderId),
     enabled: !!orderId,
   });
-
-  useQueryErrorAlert(query);
 
   return query;
 }
@@ -108,8 +103,6 @@ export function useCalendarDayOrders(storeId: string, pickupDayKey: string | nul
       }),
     enabled: !!storeId && !!pickupDayKey,
   });
-
-  useQueryErrorAlert(query);
 
   return query;
 }
@@ -134,8 +127,6 @@ export function useCalendarMonthOrders(
       }),
     enabled: (opts?.enabled ?? true) && !!storeId && !!pickupStartKey && !!pickupEndKey,
   });
-
-  useQueryErrorAlert(query);
 
   return query;
 }

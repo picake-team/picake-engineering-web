@@ -1,4 +1,3 @@
-import { sellerHomeQueryKeys } from "@/apps/web-seller/features/home/constants/sellerHomeQueryKeys.constant";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAlertStore } from "@/apps/web-seller/common/store/alert.store";
 import getApiMessage from "@/apps/web-seller/common/utils/getApiMessage";
@@ -45,7 +44,6 @@ export function useMarkNotificationRead(storeId: string) {
       void queryClient.invalidateQueries({ queryKey: notificationQueryKeys.list(storeId) });
       void queryClient.invalidateQueries({ queryKey: notificationQueryKeys.unread(storeId) });
       // PC 홈 "최근 알림"의 안 읽음 표시도(종에서 읽어도 홈에 빨간 N이 남던 것, 11-16 검토)
-      void queryClient.invalidateQueries({ queryKey: sellerHomeQueryKeys.all });
     },
     onError: (error) => {
       addAlert({
@@ -67,7 +65,6 @@ export function useMarkAllNotificationsRead(storeId: string) {
       void queryClient.invalidateQueries({ queryKey: notificationQueryKeys.list(storeId) });
       void queryClient.invalidateQueries({ queryKey: notificationQueryKeys.unread(storeId) });
       // PC 홈 "최근 알림"의 안 읽음 표시도(종에서 읽어도 홈에 빨간 N이 남던 것, 11-16 검토)
-      void queryClient.invalidateQueries({ queryKey: sellerHomeQueryKeys.all });
     },
     onError: (error) => {
       addAlert({

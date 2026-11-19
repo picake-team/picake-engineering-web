@@ -9,6 +9,7 @@
  */
 import React from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { LoadErrorState } from "@/apps/web-seller/common/ui/Surface";
 import { PcPage, PcPanel } from "@/apps/web-seller/common/ui/PcPage";
 import { Button } from "@/apps/web-seller/common/ui/Button";
 import { Icon, TaskIcon } from "@/apps/web-seller/common/ui/icons";
@@ -41,6 +42,7 @@ import {
 } from "@/apps/web-seller/features/store/utils/business-day.util";
 import { WeekBoard, WeekNav } from "@/apps/web-seller/features/home/components/desktop/WeekBoard";
 import { printOrdersPath } from "@/apps/web-seller/features/order/utils/order-print.util";
+import { canExportOrPrint } from "@/apps/web-seller/common/utils/pc-extras.util";
 
 const TODO_GROUPS = groupsForTab("todo");
 
@@ -159,15 +161,17 @@ export const StoreDetailHomeDesktopPage: React.FC = () => {
       title="홈"
       actions={
         <>
-          <a
-            href={printOrdersPath(storeId, todayKey)}
-            target="_blank"
-            rel="noopener"
-            className="press inline-flex h-10 items-center gap-1.5 rounded-control border border-ink-200 bg-white px-4 text-sub font-bold text-ink-700 hover:bg-ink-50"
-          >
-            <Icon name="copy" size={16} strokeWidth={1.9} />
-            오늘 주문서 인쇄
-          </a>
+          {canExportOrPrint() ? (
+            <a
+              href={printOrdersPath(storeId, todayKey)}
+              target="_blank"
+              rel="noopener"
+              className="press inline-flex h-10 items-center gap-1.5 rounded-control border border-ink-200 bg-white px-4 text-sub font-bold text-ink-700 hover:bg-ink-50"
+            >
+              <Icon name="copy" size={16} strokeWidth={1.9} />
+              오늘 주문서 인쇄
+            </a>
+          ) : null}
           <Button
             variant="secondary"
             size="md"
@@ -258,14 +262,23 @@ export const StoreDetailHomeDesktopPage: React.FC = () => {
               </Button>
             </div>
           ) : (
-            <WeekBoard
-              weekStartKey={weekStart}
-              todayKey={todayKey}
-              byDay={week.byDay}
-              manualByDay={week.manualByDay}
-              markOf={(key) => dayMark(key, cal)}
-              loaded={week.loaded}
-            />
+            <>
+              <WeekBoard
+                weekStartKey={weekStart}
+                todayKey={todayKey}
+                byDay={week.byDay}
+                manualByDay={week.manualByDay}
+                markOf={(key) => dayMark(key, cal)}
+                loaded={week.loaded}
+              />
+              {/* 직접 적은 주문만 못 불러오면 Picake 주문은 그대로 보이고 따로 알린다(휴대폰 홈·캘린더와 같음) */}
+              {week.manualFailed ? (
+                <LoadErrorState
+                  title="직접 적은 주문을 불러오지 못했어요"
+                  onRetry={week.refetchManual}
+                />
+              ) : null}
+            </>
           )}
         </PcPanel>
 

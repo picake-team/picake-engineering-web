@@ -24,9 +24,18 @@ export interface AppRouteConfig {
   onlyOn?: { surface: "mobile" | "desktop"; reason: string };
 }
 
-/** 그 폭에서 그릴 화면 */
-export function screenFor(route: AppRouteConfig, phone: boolean): ComponentType<object> {
+/**
+ * 그 폭에서 그릴 화면.
+ * 앱 안(inApp)에서는 폭이 넓어도(아이패드 — iOS 앱은 아이패드에서도 돈다) 휴대폰에만 뜻이 있는 화면(onlyOn mobile,
+ * 예: 처음 사용 안내·알림 허용)을 휴대폰 화면으로 그린다.
+ */
+export function screenFor(
+  route: AppRouteConfig,
+  phone: boolean,
+  inApp = false,
+): ComponentType<object> {
   if (phone || route.desktop === SAME_SCREEN) return route.mobile;
+  if (inApp && route.onlyOn?.surface === "mobile") return route.mobile;
   return route.desktop;
 }
 

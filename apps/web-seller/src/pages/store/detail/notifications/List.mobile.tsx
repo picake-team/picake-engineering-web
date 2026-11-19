@@ -11,7 +11,6 @@ import { ChipGroup } from "@/apps/web-seller/common/ui/Choice";
 import { EmptyState, LoadErrorState, SkeletonCards } from "@/apps/web-seller/common/ui/Surface";
 import { PullToRefresh } from "@/apps/web-seller/common/ui/PullToRefresh";
 import { cx } from "@/apps/web-seller/common/ui/cx";
-import { useQueryErrorAlert } from "@/apps/web-seller/common/hooks/useQueryErrorAlert";
 import {
   addDaysToKey,
   formatKeyMonthDayWeek,
@@ -61,7 +60,6 @@ export const StoreDetailNotificationsListMobilePage: React.FC = () => {
     getNextPageParam: (last) => (last.meta.hasNext ? last.meta.currentPage + 1 : undefined),
     enabled: !!storeId,
   });
-  useQueryErrorAlert(list);
   const unread = useNotificationUnreadCount(storeId);
   const markRead = useMarkNotificationRead(storeId);
   const markAll = useMarkAllNotificationsRead(storeId);

@@ -6,11 +6,7 @@ import { Link } from "react-router-dom";
 import { cx } from "@/apps/web-seller/common/ui/cx";
 import { StatusPill } from "@/apps/web-seller/common/ui/Badge";
 import { Card, CardFooterButton, Thumb } from "@/apps/web-seller/common/ui/Surface";
-import {
-  formatKstMonthDayTime,
-  formatKstMonthDayWeekTime,
-  kstTime,
-} from "@/apps/web-seller/common/utils/kst-date.util";
+import { formatKstMonthDayWeekTime, kstTime } from "@/apps/web-seller/common/utils/kst-date.util";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
 import type {
   OrderResponseDto,
@@ -20,8 +16,9 @@ import { getOrderStatusLabel } from "@/apps/web-seller/features/order/utils/orde
 import {
   ORDER_ACTION_LABEL,
   formatWon,
-  isDimmedPastStatus,
-  orderCardMeta,
+  isCanceledOrNoShow,
+  orderExpiryMarks,
+  orderSubline,
   orderItemsLine,
   orderItemsShort,
   statusTone,
@@ -82,13 +79,8 @@ export function OrderCard({
           {/* 줄 안에 예약자·입금자 이름이 들어갈 수 있어 화면 녹화에서 가린다 */}
           <span className={`${NO_REPLAY} text-sub text-ink-600`}>
             {formatWon(order.totalPrice)} ·{" "}
-            {/* 검색 결과(칸 없음)는 상태 배지 + 예약자 이름(이름·번호 뒷자리로 찾은 손님이 맞는지 바로 보이게).
-                이름이 없으면 주문 시각 */}
-            {showStatus
-              ? order.reservationContactName?.trim()
-                ? `예약자 ${order.reservationContactName.trim()}`
-                : `주문 ${formatKstMonthDayTime(order.createdAt)}`
-              : orderCardMeta(order, now)}
+            {/* 검색 결과(칸 없음)는 상태 배지 + 예약자 이름, 묶음 목록은 그 할 일에 필요한 정보 */}
+            {orderSubline(order, now, showStatus ? "search" : "group")}
           </span>
         </span>
       </Link>
@@ -98,7 +90,7 @@ export function OrderCard({
 
 /** 지난 주문 줄: 시각 · 상품 · 금액 · 상태 글자(배지 없이). 취소·노쇼는 흐리게 */
 export function PastOrderRow({ order }: { order: OrderResponseDto }) {
-  const dim = isDimmedPastStatus(order.orderStatus);
+  const dim = isCanceledOrNoShow(order.orderStatus);
   return (
     <Link
       to={orderDetailPath(order)}
@@ -120,8 +112,9 @@ export function PastOrderRow({ order }: { order: OrderResponseDto }) {
       </span>
       <span className="flex shrink-0 flex-col items-end gap-1 text-caption text-ink-600">
         <span className="font-bold">{getOrderStatusLabel(order.orderStatus)}</span>
-        {order.paymentPendingExpiredAt ? <span>기한 만료</span> : null}
-        {order.reservationExpiredAt ? <span>미확인</span> : null}
+        {orderExpiryMarks(order).map((m) => (
+          <span key={m}>{m}</span>
+        ))}
       </span>
     </Link>
   );

@@ -21,17 +21,23 @@ import {
   type OrderResponseDto,
 } from "@/apps/web-seller/features/order/types/order.dto";
 import { manualOrderApi } from "@/apps/web-seller/features/manual-order/apis/manual-order.api";
+import type { ManualOrderDto } from "@/apps/web-seller/features/manual-order/types/manual-order.dto";
 import {
   buildOrdersCsv,
   downloadCsv,
   exportFileName,
+  splitDateRange,
 } from "@/apps/web-seller/features/order/utils/order-export.util";
 
 type Preset = "thisMonth" | "lastMonth" | "last3" | "custom";
 
 const PAGE = 100;
-/** 한 번에 받는 최대 주문 수(서버 부담을 막는 안전장치) */
+/** 한 번에 받는 최대 주문 수(서버 부담을 막는 안전장치). 넘으면 일부만 담지 않고 기간을 줄여 달라고 한다 */
 const MAX_PAGES = 50;
+/** 직접 적은 주문 목록을 한 번에 물을 수 있는 날 수(서버 MANUAL_ORDER_LIMITS.LIST_MAX_DAYS) */
+const MANUAL_LIST_MAX_DAYS = 62;
+
+class TooManyOrdersError extends Error {}
 
 export function rangeForPreset(preset: Exclude<Preset, "custom">, todayKey: string) {
   const thisMonth = monthStartKey(todayKey);
@@ -60,7 +66,21 @@ async function fetchAllOrders(
       pickupEndDate: end,
     });
     out.push(...res.data);
-    if (!res.meta?.hasNext) break;
+    if (!res.meta?.hasNext) return out;
+  }
+  // 5,000건을 넘으면 일부만 담긴 장부가 되지 않게 멈춘다
+  throw new TooManyOrdersError();
+}
+
+/** 직접 적은 주문: 62일씩 나눠 받아 합친다(실패하면 빠진 채로 만들지 않게 그대로 던진다) */
+async function fetchAllManualOrders(
+  storeId: string,
+  start: string,
+  end: string,
+): Promise<ManualOrderDto[]> {
+  const out: ManualOrderDto[] = [];
+  for (const r of splitDateRange(start, end, MANUAL_LIST_MAX_DAYS)) {
+    out.push(...(await manualOrderApi.list(storeId, r.start, r.end)));
   }
   return out;
 }
@@ -89,17 +109,20 @@ export function OrderExportSheet({
     try {
       const [orders, manuals] = await Promise.all([
         fetchAllOrders(storeId, range.start, range.end),
-        manualOrderApi.list(storeId, range.start, range.end).catch(() => []),
+        fetchAllManualOrders(storeId, range.start, range.end),
       ]);
       downloadCsv(
         exportFileName(storeName, range.start, range.end),
         buildOrdersCsv(orders, manuals),
       );
       onClose();
-    } catch {
+    } catch (e) {
       useAlertStore.getState().addAlert({
         severity: "error",
-        message: "엑셀 파일을 만들지 못했어요. 잠시 뒤 다시 해 주세요",
+        message:
+          e instanceof TooManyOrdersError
+            ? "주문이 너무 많아요. 기간을 나눠 내려받아 주세요"
+            : "엑셀 파일을 만들지 못했어요. 잠시 뒤 다시 해 주세요",
       });
     } finally {
       setBusy(false);

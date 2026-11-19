@@ -1,5 +1,4 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { useQueryErrorAlert } from "@/apps/web-seller/common/hooks/useQueryErrorAlert";
 import { feedApi } from "@/apps/web-seller/features/feed/apis/feed.api";
 import {
   FeedListRequestDto,
@@ -29,8 +28,6 @@ export function useFeedList(storeId: string, limit: number = 20) {
     enabled: !!storeId,
   });
 
-  useQueryErrorAlert(query);
-
   return query;
 }
 
@@ -41,8 +38,6 @@ export function useFeedDetail(storeId: string, feedId: string) {
     queryFn: () => feedApi.getFeedDetail(storeId, feedId),
     enabled: !!storeId && !!feedId,
   });
-
-  useQueryErrorAlert(query);
 
   return query;
 }

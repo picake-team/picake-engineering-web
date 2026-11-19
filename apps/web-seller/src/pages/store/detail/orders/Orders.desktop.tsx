@@ -63,6 +63,7 @@ import {
 } from "@/apps/web-seller/features/order/components/desktop/OrderTable";
 import { OrderExportSheet } from "@/apps/web-seller/features/order/components/desktop/OrderExportSheet";
 import { StoreDetailOrderDetailMobilePage } from "@/apps/web-seller/pages/store/detail/orders/Detail.mobile";
+import { canExportOrPrint } from "@/apps/web-seller/common/utils/pc-extras.util";
 
 const TABS: OrderTab[] = ["todo", "doing", "past"];
 
@@ -130,15 +131,12 @@ function useTabState(
 ) {
   // 탭 숫자와 빈 탭 판단(GroupRows와 같은 조건이라 캐시를 같이 쓴다) — 휴대폰 주문 목록과 같다
   const groups = groupsForTab(tab);
-  const silent = { silent: true };
-  const a = useOrderStatusGroup(storeId, groups[0].status, filter, silent);
-  const b = useOrderStatusGroup(storeId, groups[1].status, filter, silent);
+  const a = useOrderStatusGroup(storeId, groups[0].status, filter);
+  const b = useOrderStatusGroup(storeId, groups[1].status, filter);
   const c = useOrderStatusGroup(storeId, groups[2]?.status ?? groups[0].status, filter, {
-    ...silent,
     enabled: Boolean(groups[2]),
   });
   const d = useOrderStatusGroup(storeId, groups[3]?.status ?? groups[0].status, filter, {
-    ...silent,
     enabled: Boolean(groups[3]),
   });
   const qs = [a, b, c, d].slice(0, groups.length);
@@ -305,6 +303,7 @@ function SearchRows({
           wide={ctx.wide}
           selected={ctx.selectedId === o.id}
           now={ctx.now}
+          searching
         />
       ))}
       <LoadMoreSentinel
@@ -493,9 +492,11 @@ export const StoreDetailOrdersDesktopPage: React.FC = () => {
       fill
       actions={
         <>
-          <Button variant="secondary" size="md" onClick={() => setExportOpen(true)}>
-            엑셀 내려받기
-          </Button>
+          {canExportOrPrint() ? (
+            <Button variant="secondary" size="md" onClick={() => setExportOpen(true)}>
+              엑셀 내려받기
+            </Button>
+          ) : null}
           <HeaderIconButton
             icon="help"
             label="주문 상태 안내"
@@ -529,6 +530,7 @@ export const StoreDetailOrdersDesktopPage: React.FC = () => {
         <SearchInput
           label="주문 찾기"
           placeholder="이름·번호 뒷자리·상품명·주문번호"
+          maxLength={50}
           value={text}
           onChange={(e) => setText(e.target.value)}
           className="min-w-[220px] flex-1"

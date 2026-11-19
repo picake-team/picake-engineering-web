@@ -6,6 +6,8 @@
  */
 import React from "react";
 import { useParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
+import { chatQueryKeys } from "@/apps/web-seller/features/chat/constants/chat.constants";
 import { PcPage, PcSplit } from "@/apps/web-seller/common/ui/PcPage";
 import { PaneContext } from "@/apps/web-seller/common/ui/shell";
 import { EmptyState } from "@/apps/web-seller/common/ui/Surface";
@@ -42,6 +44,13 @@ export const StoreDetailChatsDesktopPage: React.FC = () => {
   }>();
   const twoPane = useMinWidth(TWO_PANE_MIN_WIDTH_PX);
   const open = Boolean(threadId || orderId);
+  // 주문에서 연 방(/chats/order/:orderId)도 이미 있는 방이면 목록에서 고른 방으로 보인다(OrderChatRoom이 받아 둔 값)
+  const queryClient = useQueryClient();
+  const orderThreadId = orderId
+    ? queryClient.getQueryData<{ threadId?: string | null }>(
+        chatQueryKeys.byOrder(storeId, orderId),
+      )?.threadId
+    : undefined;
 
   // 768~839(한 칸): 방을 열면 대화만(SellerChatRoom이 PC 틀 높이에 맞춘다)
   if (!twoPane && open) {
@@ -50,7 +59,7 @@ export const StoreDetailChatsDesktopPage: React.FC = () => {
 
   const list = (
     <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overscroll-contain pt-4">
-      <ChatListBody storeId={storeId} selectedId={threadId ?? null} />
+      <ChatListBody storeId={storeId} selectedId={threadId ?? orderThreadId ?? null} />
     </div>
   );
 

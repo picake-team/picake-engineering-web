@@ -171,15 +171,12 @@ function useTabState(
 ) {
   // 탭 숫자와 빈 탭 판단에 쓰는 칸들(GroupSection과 같은 조건이라 캐시를 같이 쓴다)
   const groups = groupsForTab(tab);
-  const silent = { silent: true };
-  const a = useOrderStatusGroup(storeId, groups[0].status, filter, silent);
-  const b = useOrderStatusGroup(storeId, groups[1].status, filter, silent);
+  const a = useOrderStatusGroup(storeId, groups[0].status, filter);
+  const b = useOrderStatusGroup(storeId, groups[1].status, filter);
   const c = useOrderStatusGroup(storeId, groups[2]?.status ?? groups[0].status, filter, {
-    ...silent,
     enabled: Boolean(groups[2]),
   });
   const d = useOrderStatusGroup(storeId, groups[3]?.status ?? groups[0].status, filter, {
-    ...silent,
     enabled: Boolean(groups[3]),
   });
   const qs = [a, b, c, d].slice(0, groups.length);

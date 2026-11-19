@@ -10,7 +10,9 @@ const STORAGE_KEY = "picake:seller-browser-notify";
 export type BrowserNotifyPermission = NotificationPermission | "unsupported";
 
 export function browserNotifySupported(): boolean {
-  return typeof window !== "undefined" && "Notification" in window;
+  if (typeof window === "undefined" || !("Notification" in window)) return false;
+  // 안드로이드 브라우저는 Notification이 있어도 new Notification()을 막는다(서비스 워커로만) — 켜기 칸을 숨긴다
+  return !/Android/i.test(window.navigator.userAgent);
 }
 
 export function browserNotifyPermission(): BrowserNotifyPermission {
@@ -80,7 +82,13 @@ export function showBrowserNotification({
     return;
   }
   try {
-    const n = new window.Notification(title, { body, tag, icon: "/favicon.ico" });
+    // renotify: 같은 방의 새 글도 다시 알린다(같은 tag는 소리·팝업 없이 바뀌기만 했다)
+    const n = new window.Notification(title, {
+      body,
+      tag,
+      icon: "/favicon.ico",
+      renotify: true,
+    } as NotificationOptions);
     n.onclick = () => {
       window.focus();
       onClick();

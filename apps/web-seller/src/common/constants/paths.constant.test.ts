@@ -74,4 +74,13 @@ describe("주소 목록: PC ≥ 휴대폰", () => {
     const mypage = ADMIN_ROUTE_CONFIG.find((r) => r.path === "/mypage")!;
     expect(nameOf(screenFor(mypage, false))).toBe("MypageIndexMobilePage");
   });
+
+  it("앱 안(아이패드처럼 넓은 폭)에서는 휴대폰에만 뜻이 있는 화면을 휴대폰 화면으로", () => {
+    const welcome = ADMIN_ROUTE_CONFIG.find((r) => r.path === "/stores/:storeId/welcome")!;
+    expect(nameOf(screenFor(welcome, false, true))).toBe(nameOf(welcome.mobile));
+    expect(nameOf(screenFor(welcome, false, false))).toBe(nameOf(welcome.desktop));
+    // 따로 만든 PC 화면은 앱 안에서도 넓으면 PC 화면(태블릿 지원)
+    const home = ADMIN_ROUTE_CONFIG.find((r) => r.path === "/stores/:storeId")!;
+    expect(nameOf(screenFor(home, false, true))).toBe("StoreDetailHomeDesktopPage");
+  });
 });

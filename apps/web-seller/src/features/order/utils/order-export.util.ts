@@ -5,8 +5,11 @@
  *
  * 엑셀이 한글을 깨뜨리지 않게 UTF-8 BOM을 붙인 CSV로 만든다(엑셀·구글 시트·Numbers 모두 열림).
  */
-import { kstDateKey, kstTime } from "@/apps/web-seller/common/utils/kst-date.util";
-import type { OrderResponseDto } from "@/apps/web-seller/features/order/types/order.dto";
+import { addDaysToKey, kstDateKey, kstTime } from "@/apps/web-seller/common/utils/kst-date.util";
+import {
+  OrderStatus,
+  type OrderResponseDto,
+} from "@/apps/web-seller/features/order/types/order.dto";
 import type { ManualOrderDto } from "@/apps/web-seller/features/manual-order/types/manual-order.dto";
 import { MANUAL_ORDER_SOURCE_LABEL } from "@/apps/web-seller/features/manual-order/constants/manual-order.constant";
 import { orderItemsDetailText } from "@/apps/web-seller/features/order/utils/order-item-text.util";
@@ -23,6 +26,7 @@ export const EXPORT_COLUMNS = [
   "사이즈·옵션",
   "수량",
   "금액",
+  "매출",
   "예약자",
 ] as const;
 
@@ -51,6 +55,8 @@ function orderRow(o: OrderResponseDto): Row {
     "사이즈·옵션": orderItemsDetailText(o),
     수량: o.totalQuantity,
     금액: o.totalPrice,
+    // 앱 매출과 같은 기준: Picake 주문은 픽업 완료만(취소·노쇼·예약신청은 0) — 이 칸을 더하면 매출
+    매출: o.orderStatus === OrderStatus.PICKUP_COMPLETED ? o.totalPrice : 0,
     예약자: o.reservationContactName?.trim() || "",
   };
 }
@@ -67,13 +73,18 @@ function manualRow(m: ManualOrderDto): Row {
     "사이즈·옵션": m.lettering?.trim() ? `레터링 "${m.lettering.trim()}"` : "",
     수량: 1,
     금액: m.price ?? "",
+    // 직접 적은 주문은 매출에 넣는다(통계·홈 이번 주 매출과 같음)
+    매출: m.price ?? 0,
     예약자: m.customerName?.trim() || "",
   };
 }
 
 /** 픽업 날·시각 순 표(맨 위 이름 줄 포함) */
 export function buildOrdersCsv(orders: OrderResponseDto[], manuals: ManualOrderDto[]): string {
-  const rows = [...orders.map(orderRow), ...manuals.map(manualRow)].sort((a, b) => {
+  // 쪽을 넘겨 받는 사이 새 주문이 들어오면 같은 주문이 두 번 올 수 있어 id로 한 번만
+  const uniqueOrders = [...new Map(orders.map((o) => [o.id, o])).values()];
+  const uniqueManuals = [...new Map(manuals.map((m) => [m.id, m])).values()];
+  const rows = [...uniqueOrders.map(orderRow), ...uniqueManuals.map(manualRow)].sort((a, b) => {
     const ka = `${a["픽업 날"]} ${a["픽업 시각"] || "99:99"}`;
     const kb = `${b["픽업 날"]} ${b["픽업 시각"] || "99:99"}`;
     return ka < kb ? -1 : ka > kb ? 1 : 0;
@@ -83,6 +94,26 @@ export function buildOrdersCsv(orders: OrderResponseDto[], manuals: ManualOrderD
     ...rows.map((r) => EXPORT_COLUMNS.map((c) => csvCell(r[c])).join(",")),
   ];
   return lines.join("\r\n");
+}
+
+/**
+ * 기간을 maxDays일 이하 조각으로 나눈다(양 끝 포함). 직접 적은 주문 목록은 서버가 한 번에 62일까지만 준다 —
+ * "최근 3개월"(90일 안팎)을 한 번에 물으면 거절돼 엑셀에서 빠졌다(11-19 검토)
+ */
+export function splitDateRange(
+  startKey: string,
+  endKey: string,
+  maxDays: number,
+): { start: string; end: string }[] {
+  const out: { start: string; end: string }[] = [];
+  let s = startKey;
+  while (s <= endKey) {
+    const last = addDaysToKey(s, maxDays - 1);
+    const e = last < endKey ? last : endKey;
+    out.push({ start: s, end: e });
+    s = addDaysToKey(e, 1);
+  }
+  return out;
 }
 
 /** 파일 이름: "주문_달콤스토어_2026-11-01_2026-11-30.csv" (파일 이름에 못 쓰는 글자는 뺀다) */

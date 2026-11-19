@@ -23,12 +23,9 @@ import { cakeDayOf } from "@/apps/web-seller/common/utils/cake-days.util";
 import { mergeDayPickups } from "@/apps/web-seller/features/manual-order/utils/day-pickups.util";
 import { MANUAL_ORDER_SOURCE_LABEL } from "@/apps/web-seller/features/manual-order/constants/manual-order.constant";
 import type { ManualOrderDto } from "@/apps/web-seller/features/manual-order/types/manual-order.dto";
+import type { OrderResponseDto } from "@/apps/web-seller/features/order/types/order.dto";
 import {
-  OrderStatus,
-  type OrderResponseDto,
-} from "@/apps/web-seller/features/order/types/order.dto";
-import {
-  isDimmedPastStatus,
+  isFinishedStatus,
   orderItemsShort,
   statusTone,
 } from "@/apps/web-seller/features/order/utils/order-mobile.util";
@@ -38,22 +35,22 @@ import { orderDetailPath } from "@/apps/web-seller/features/order/components/mob
 type DayMark = "closed" | "changed" | null;
 
 function OrderCard({ order }: { order: OrderResponseDto }) {
-  const dim =
-    order.orderStatus === OrderStatus.PICKUP_COMPLETED || isDimmedPastStatus(order.orderStatus);
+  // 끝난 주문(픽업 완료·노쇼)만 흐리게 — 처리할 주문까지 흐려 보이던 것(11-19 검토)
+  const dim = isFinishedStatus(order.orderStatus);
   return (
     <Link
       to={orderDetailPath(order)}
       className="flex min-w-0 flex-col gap-0.5 rounded-control border border-ink-100 bg-white px-2.5 py-2 transition-colors duration-fast hover:border-ink-200 hover:bg-ink-50"
     >
       <span
-        className={cx("text-sub font-bold tabular-nums", dim ? "text-ink-400" : "text-ink-900")}
+        className={cx("text-sub font-bold tabular-nums", dim ? "text-ink-600" : "text-ink-900")}
       >
         {kstTime(order.pickupDate)}
       </span>
       <span
         className={cx(
           "line-clamp-2 text-sub leading-snug [overflow-wrap:anywhere]",
-          dim ? "text-ink-400" : "text-ink-900",
+          dim ? "text-ink-600" : "text-ink-900",
         )}
       >
         {orderItemsShort(order)}
@@ -89,6 +86,10 @@ function ManualCard({ manual }: { manual: ManualOrderDto }) {
       </span>
       <span className="mt-1 flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-1">
         <StatusPill tone="done">{MANUAL_ORDER_SOURCE_LABEL[manual.source]}</StatusPill>
+        {/* 운영자가 가게 대신 적은 주문(기획 I-41) — 휴대폰 그날 목록과 같은 표시 */}
+        {manual.enteredByOperator ? (
+          <span className="text-caption text-ink-600">운영자 입력</span>
+        ) : null}
         {manual.paid === false ? (
           <span className="text-caption font-semibold text-brand-ink">입금 전</span>
         ) : null}

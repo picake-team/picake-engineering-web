@@ -14,6 +14,7 @@ import {
   buildOrdersCsv,
   csvCell,
   EXPORT_COLUMNS,
+  splitDateRange,
   exportFileName,
 } from "@/apps/web-seller/features/order/utils/order-export.util";
 
@@ -135,6 +136,8 @@ describe("엑셀 내려받기", () => {
     expect(lines[2]).toContain("ORD-1");
     expect(lines[2]).toContain("42000");
     expect(lines[2]).toContain("예약확정");
+    // 예약확정은 아직 매출이 아니다(픽업 완료만) — 금액 42000 뒤 매출 0
+    expect(lines[2]).toContain("42000,0,");
     expect(csv).not.toContain("1234");
     expect(csv).not.toContain("2231");
   });
@@ -153,5 +156,23 @@ describe("엑셀 내려받기", () => {
     expect(exportFileName('달콤/스토어:"1"', "2026-11-01", "2026-11-30")).toBe(
       "주문_달콤스토어1_2026-11-01_2026-11-30.csv",
     );
+  });
+});
+
+describe("엑셀: 기간 나누기·같은 주문 한 번", () => {
+  it("62일 넘는 기간은 62일 이하로 나눈다(양 끝 포함, 빈틈 없이)", () => {
+    const parts = splitDateRange("2026-09-01", "2026-11-30", 62);
+    expect(parts).toEqual([
+      { start: "2026-09-01", end: "2026-11-01" },
+      { start: "2026-11-02", end: "2026-11-30" },
+    ]);
+    expect(splitDateRange("2026-11-01", "2026-11-30", 62)).toEqual([
+      { start: "2026-11-01", end: "2026-11-30" },
+    ]);
+  });
+
+  it("쪽을 넘기다 같은 주문이 두 번 와도 한 줄만", () => {
+    const csv = buildOrdersCsv([order(), order()], []);
+    expect(csv.split("\r\n")).toHaveLength(2);
   });
 });

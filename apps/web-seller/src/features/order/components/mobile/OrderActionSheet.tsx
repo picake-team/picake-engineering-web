@@ -141,11 +141,12 @@ export function OrderActionSheet({
     mutation.mutate(
       { orderId: order.id, request, meta: { fromStatus: order.orderStatus, fromList } },
       {
-        onSettled: () => {
-          // 그사이 상태가 바뀌어 처리하지 못했어도 바뀐 상태를 다시 보여 준다(SC-77 ④)
+        onError: () => {
+          // 그사이 상태가 바뀌어 처리하지 못했으면 바뀐 상태를 다시 보여 준다(SC-77 ④).
+          // 성공하면 useUpdateOrderStatus가 이미 새로 불러온다 — 여기서 또 부르면 같은 조회가 두 번씩 나간다(요청 한도)
           void queryClient.invalidateQueries({ queryKey: orderQueryKeys.all });
-          onClose();
         },
+        onSettled: () => onClose(),
       },
     );
   };

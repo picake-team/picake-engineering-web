@@ -17,7 +17,10 @@ import { Checkbox } from "@/apps/web-seller/common/ui/Toggle";
 import { TimeBox, TimeSlotSheet } from "@/apps/web-seller/common/ui/TimeSlotSheet";
 import { weekdayLabel } from "@/apps/web-seller/common/utils/kst-date.util";
 import { useAlertStore } from "@/apps/web-seller/common/store/alert.store";
-import { useStoreDetail } from "@/apps/web-seller/features/store/hooks/queries/useStoreQuery";
+import {
+  useFetchFreshBusinessCalendar,
+  useStoreDetail,
+} from "@/apps/web-seller/features/store/hooks/queries/useStoreQuery";
 import {
   usePreviewNaverPlace,
   useUpdateStoreBusinessCalendar,
@@ -209,9 +212,24 @@ export const StoreDetailHoursMobilePage: React.FC = () => {
     }
   }, [store, draft]);
 
-  const submit = () => {
-    if (!store || !draft) return;
-    const cal = calendarOrDefault(store.businessCalendar);
+  const fetchFresh = useFetchFreshBusinessCalendar(storeId);
+  const [checking, setChecking] = useState(false);
+  const submit = async () => {
+    if (!store || !draft || checking) return;
+    // 그날만 바꾼 날(dayOverrides)은 이 화면에서 고치지 않으므로 서버의 지금 값을 그대로 둔다(다른 기기에서 바꾼 날을 되돌리지 않게)
+    setChecking(true);
+    let cal;
+    try {
+      cal = await fetchFresh();
+    } catch {
+      addAlert({
+        severity: "error",
+        message: "영업시간을 불러오지 못했어요. 잠시 뒤 다시 저장해 주세요",
+      });
+      return;
+    } finally {
+      setChecking(false);
+    }
     save.mutate(
       {
         storeId,
@@ -243,7 +261,12 @@ export const StoreDetailHoursMobilePage: React.FC = () => {
       bodyClassName="gap-5 pt-2"
       footer={
         <BottomActionBar>
-          <Button block onClick={submit} loading={save.isPending} disabled={!draft || endTooEarly}>
+          <Button
+            block
+            onClick={() => void submit()}
+            loading={save.isPending || checking}
+            disabled={!draft || endTooEarly}
+          >
             저장하기
           </Button>
         </BottomActionBar>
