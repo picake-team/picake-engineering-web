@@ -116,6 +116,8 @@ async function openOrderDetail(orderNumber: string) {
 /** 상세 아래 버튼으로 처리하고(없으면 "다른 처리" 창에서) 확인 창을 연다 */
 async function startAction(button: string, dialogTitle: string) {
   const direct = page.getByRole("button", { name: button, exact: true });
+  // 상세 아래 버튼이 그려진 뒤에 고른다 — 그리기 전에 세면 없는 줄 알고 "다른 처리"를 찾다 멈춘다(CI에서 느릴 때)
+  await expect(direct.or(page.getByRole("button", { name: "다른 처리" })).first()).toBeVisible();
   if (await direct.count()) await direct.last().click();
   else {
     await page.getByRole("button", { name: "다른 처리" }).last().click();
