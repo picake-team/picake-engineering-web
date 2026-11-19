@@ -93,10 +93,19 @@ const ordersNow = async () =>
   (await api<{ data: OrderRow[] }>(`/orders?page=1&limit=50&sortBy=LATEST&storeId=${storeId}`))
     .data;
 
+/** 주문 메뉴를 열고 찾기 칸이 빈 것을 본 뒤 돌려준다 — 주소의 옛 검색어(q)가 칸에 다시 들어오기 전에 치면 지워진다 */
+async function openOrderSearch() {
+  await openMenu("주문");
+  await expect(page).toHaveURL(new RegExp(`/stores/${storeId}/orders$`));
+  const search = page.getByRole("searchbox", { name: "주문 찾기" });
+  await expect(search).toHaveValue("");
+  return search;
+}
+
 /** 주문번호로 찾아 오른쪽 칸에 상세를 연다 */
 async function openOrderDetail(orderNumber: string) {
-  await openMenu("주문");
-  await page.getByRole("searchbox", { name: "주문 찾기" }).fill(orderNumber);
+  const search = await openOrderSearch();
+  await search.fill(orderNumber);
   // 찾은 결과(한 줄)가 뜬 뒤에 누른다 — 바로 누르면 찾기 전 목록의 첫 줄을 연다
   await expect(page.getByRole("heading", { name: `'${orderNumber}' 검색 결과` })).toBeVisible();
   await expect(page.locator('[role="row"] a')).toHaveCount(1);
@@ -153,8 +162,7 @@ test("주문: 환불대기 취소환불 완료", async () => {
 });
 
 test("주문: 찾기 칸에 치면 바로 찾는다", async () => {
-  await openMenu("주문");
-  const search = page.getByRole("searchbox", { name: "주문 찾기" });
+  const search = await openOrderSearch();
   await search.fill("딸기");
   await expect(page.getByRole("heading", { name: /'딸기' 검색 결과/ })).toBeVisible();
   await expect(page.locator('[role="row"] a').first()).toBeVisible();
@@ -253,7 +261,8 @@ test("주문 적기: 홈에서 적고(시각은 가운데 창) → 홈 주간 �
   expect(box.x).toBeGreaterThan(240);
   await expectNoSideScroll(page);
 
-  const cake = "PC 테스트 생크림 케이크";
+  // 실행마다 다른 이름: 앞 실행이 중간에 멈춰 남긴 주문(테스트 DB에 남는다)과 섞이지 않게
+  const cake = `PC 테스트 생크림 케이크 ${Date.now() % 100000}`;
   await page.getByPlaceholder("예: 2호 초코 리스").fill(cake);
   await page.getByPlaceholder("예: 45,000").fill("45000");
   // 시간 칸(버튼 안 "미정") → 시각 창(PC는 가운데 창) → 14:00
