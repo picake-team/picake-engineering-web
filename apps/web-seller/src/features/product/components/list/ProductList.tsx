@@ -70,6 +70,10 @@ export function ProductList({ products }: ProductListProps) {
                   {product.enteredByOperator ? (
                     <StatusBadge variant="default">운영자 입력</StatusBadge>
                   ) : null}
+                  {/* 견적 받기 상품(기획 I-01): 손님 화면에 예약신청 대신 "이 디자인으로 견적 받기" */}
+                  {product.orderMethod === "QUOTE" ? (
+                    <StatusBadge variant="default">견적 받기</StatusBadge>
+                  ) : null}
                 </div>
                 <div className="text-base font-bold tabular-nums sm:text-lg">
                   {isProductOnSale(product.originalPrice, product.salePrice) ? (

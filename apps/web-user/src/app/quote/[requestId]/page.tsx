@@ -325,7 +325,10 @@ function QuoteRequestDetailContent() {
           <div className="flex flex-col items-center gap-[16px] rounded-xl bg-gray-50 px-[20px] py-[32px]">
             <Icon name="noData" width={62} height={57} />
             <p className="text-center text-sm leading-[22px] text-gray-700">
-              Picake가 근처 가게에 물어보고 있어요.
+              {/* "이 가게에만"(가게·상품 화면에서 연 요청)은 근처 가게를 찾지 않는다 */}
+              {data.onlyDesignatedStores
+                ? `${data.stores[0]?.name ?? "가게"}에 물어보고 있어요.`
+                : "Picake가 근처 가게에 물어보고 있어요."}
               <br />
               견적이 오면 알림으로 알려 드릴게요.
             </p>

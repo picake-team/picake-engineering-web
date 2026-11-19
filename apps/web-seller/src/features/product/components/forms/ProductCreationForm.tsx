@@ -22,6 +22,7 @@ import {
   CakeSizeDisplayName,
   EnableStatus,
   ProductType,
+  type ProductOrderMethod,
 } from "@/apps/web-seller/features/product/types/product.dto";
 import type { ProductForm } from "@/apps/web-seller/features/product/types/product.ui";
 import { FormSection } from "@/apps/web-seller/common/components/sections/FormSection";
@@ -82,6 +83,7 @@ export const defaultForm: ProductForm = {
   ],
   // 상품 유형은 판매자가 반드시 고르도록 비워 둔다
   productType: undefined,
+  orderMethod: "RESERVATION",
   customOptions: [],
   productCategoryTypes: [],
   searchTags: [],
@@ -106,6 +108,86 @@ const PRODUCT_TYPES = [
   { value: ProductType.BASIC_CAKE, label: "기본 케이크", desc: "정해진 디자인으로 만들어요" },
   { value: ProductType.CUSTOM_CAKE, label: "커스텀 케이크", desc: "손님 요청대로 디자인해요" },
 ];
+
+/** 커스텀 케이크의 주문 받는 방법(기획 I-01). 견적 받기면 손님 화면에 예약신청 대신 "이 디자인으로 견적 받기" */
+const ORDER_METHODS: { value: ProductOrderMethod; label: string; desc: string }[] = [
+  { value: "RESERVATION", label: "예약 받기", desc: "판매가로 바로 예약해요" },
+  { value: "QUOTE", label: "견적 받기", desc: "디자인을 보고 가격을 정해요" },
+];
+
+/** 종류·주문 받는 방법처럼 둘 중 하나를 고르는 카드(휴대폰: 얇은 주황 테두리 + 주황 점, PC: 테두리) */
+function ProductChoiceCards<T extends string>({
+  ariaLabel,
+  items,
+  value,
+  inFrame,
+  disabled,
+  onPick,
+}: {
+  ariaLabel: string;
+  items: { value: T; label: string; desc: string }[];
+  value: T | undefined;
+  inFrame: boolean;
+  disabled?: boolean;
+  onPick: (value: T) => void;
+}) {
+  return (
+    <div
+      className={inFrame ? "grid grid-cols-2 gap-2" : "grid gap-2 sm:grid-cols-2"}
+      role="radiogroup"
+      aria-label={ariaLabel}
+    >
+      {items.map((t) => {
+        const on = value === t.value;
+        return (
+          <button
+            key={t.value}
+            type="button"
+            role="radio"
+            aria-checked={on}
+            disabled={disabled}
+            onClick={() => onPick(t.value)}
+            className={
+              inFrame
+                ? // 고른 카드: 얇은 주황 테두리 + 주황 점만(바탕은 흰색)
+                  cn(
+                    "relative flex flex-col gap-1 rounded-control bg-white p-4 text-left font-app",
+                    on ? "border-[1.5px] border-brand p-[15.5px]" : "border border-ink-200",
+                  )
+                : `rounded-lg border px-3 py-2.5 text-left transition-colors ${
+                    on ? "border-primary bg-primary/5 ring-1 ring-primary" : "hover:bg-muted/50"
+                  }`
+            }
+          >
+            <span
+              className={
+                inFrame ? "pr-6 text-body font-bold text-ink-900" : "block text-sm font-medium"
+              }
+            >
+              {t.label}
+            </span>
+            <span
+              className={
+                inFrame ? "text-caption text-ink-600" : "block text-xs text-muted-foreground"
+              }
+            >
+              {t.desc}
+            </span>
+            {inFrame ? (
+              <span
+                aria-hidden="true"
+                className={cn(
+                  "absolute right-3 top-3 inline-block size-5 rounded-full bg-white",
+                  on ? "border-[6px] border-brand" : "border-[1.5px] border-ink-200",
+                )}
+              />
+            ) : null}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 /** 에러가 난 칸 → 화면의 섹션 (위에서부터 이 순서로 찾아 이동한다) */
 const SECTION_ORDER: { id: string; keys: (k: string) => boolean }[] = [
@@ -369,72 +451,47 @@ export const ProductCreationForm: React.FC<Props> = ({
                 >
                   종류 <span className="text-destructive">*</span>
                 </p>
-                <div
-                  className={inFrame ? "grid grid-cols-2 gap-2" : "grid gap-2 sm:grid-cols-2"}
-                  role="radiogroup"
-                  aria-label="상품 종류"
-                >
-                  {PRODUCT_TYPES.map((t) => {
-                    const on = form.productType === t.value;
-                    return (
-                      <button
-                        key={t.value}
-                        type="button"
-                        role="radio"
-                        aria-checked={on}
-                        disabled={disabled}
-                        onClick={() => patch({ productType: t.value })}
-                        className={
-                          inFrame
-                            ? // 고른 카드: 얇은 주황 테두리 + 주황 점만(바탕은 흰색)
-                              cn(
-                                "relative flex flex-col gap-1 rounded-control bg-white p-4 text-left font-app",
-                                on
-                                  ? "border-[1.5px] border-brand p-[15.5px]"
-                                  : "border border-ink-200",
-                              )
-                            : `rounded-lg border px-3 py-2.5 text-left transition-colors ${
-                                on
-                                  ? "border-primary bg-primary/5 ring-1 ring-primary"
-                                  : "hover:bg-muted/50"
-                              }`
-                        }
-                      >
-                        <span
-                          className={
-                            inFrame
-                              ? "pr-6 text-body font-bold text-ink-900"
-                              : "block text-sm font-medium"
-                          }
-                        >
-                          {t.label}
-                        </span>
-                        <span
-                          className={
-                            inFrame
-                              ? "text-caption text-ink-600"
-                              : "block text-xs text-muted-foreground"
-                          }
-                        >
-                          {t.desc}
-                        </span>
-                        {inFrame ? (
-                          <span
-                            aria-hidden="true"
-                            className={cn(
-                              "absolute right-3 top-3 inline-block size-5 rounded-full bg-white",
-                              on ? "border-[6px] border-brand" : "border-[1.5px] border-ink-200",
-                            )}
-                          />
-                        ) : null}
-                      </button>
-                    );
-                  })}
-                </div>
+                <ProductChoiceCards
+                  ariaLabel="상품 종류"
+                  items={PRODUCT_TYPES}
+                  value={form.productType}
+                  inFrame={inFrame}
+                  disabled={disabled}
+                  onPick={(productType) =>
+                    // 기본 케이크는 정해진 디자인이라 예약만 받는다(기획 I-01 2026-11-19)
+                    patch(
+                      productType === ProductType.BASIC_CAKE
+                        ? { productType, orderMethod: "RESERVATION" }
+                        : { productType },
+                    )
+                  }
+                />
                 {errors.productType && (
                   <p className="mt-1 text-sm text-destructive">{errors.productType}</p>
                 )}
               </div>
+              {form.productType === ProductType.CUSTOM_CAKE && (
+                // 주문 받는 방법(기획 I-01, 운영자 2026-11-19): 종류와 같은 모양으로 하나만 고른다
+                <div>
+                  <p
+                    className={
+                      inFrame
+                        ? "mb-2 font-app text-sub font-bold text-ink-700"
+                        : "mb-1 text-sm font-medium"
+                    }
+                  >
+                    주문 받는 방법
+                  </p>
+                  <ProductChoiceCards
+                    ariaLabel="주문 받는 방법"
+                    items={ORDER_METHODS}
+                    value={form.orderMethod ?? "RESERVATION"}
+                    inFrame={inFrame}
+                    disabled={disabled}
+                    onPick={(orderMethod) => patch({ orderMethod })}
+                  />
+                </div>
+              )}
             </div>
           </FormSection>
 

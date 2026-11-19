@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { JsonLd } from "@/apps/web-user/common/components/seo/JsonLd";
 import { fetchProductForMetadata } from "@/apps/web-user/common/apis/metadata.api";
 import { buildProductJsonLd } from "@/apps/web-user/common/utils/json-ld.util";
+import { showsFromPrice } from "@/apps/web-user/features/product/utils/product-price.util";
 import {
   buildNotFoundMetadata,
   buildShareMetadata,
@@ -32,7 +33,7 @@ export async function generateMetadata({ params }: ProductDetailLayoutProps): Pr
   const pickupLocation = product.pickupRoadAddress || product.pickupAddress;
   const description = toMetaDescription(
     product.detailDescription,
-    `${product.storeName} · ${formatKrwPrice(product.salePrice)} · ${pickupLocation} 픽업 가능`,
+    `${product.storeName} · ${formatKrwPrice(product.salePrice)}${showsFromPrice(product) ? "~" : ""} · ${pickupLocation} 픽업 가능`,
   );
 
   return buildShareMetadata({

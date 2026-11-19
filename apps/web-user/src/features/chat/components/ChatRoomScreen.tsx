@@ -23,6 +23,8 @@ import type { ChatCard, ChatMessage } from "@/apps/web-user/features/chat/types/
 import { ChatRoomSkeleton } from "@/apps/web-user/common/components/skeleton/ChatSkeleton";
 import { LoadErrorState } from "@/apps/web-user/common/components/fallbacks/LoadErrorState";
 import { EmptyState } from "@/apps/web-user/common/components/fallbacks/EmptyState";
+import { useStoreDetail } from "@/apps/web-user/features/store/hooks/queries/useStoreDetail";
+import { isStoreOpenForPickupNow } from "@/apps/web-user/features/store/utils/store-business-calendar.util";
 
 const SEOUL_PARTS = new Intl.DateTimeFormat("ko-KR", {
   timeZone: "Asia/Seoul",
@@ -239,6 +241,14 @@ export function ChatRoomScreen({
   const composerHidden = room.notFound || (!!room.error && room.messages.length === 0);
   const agreed = thread?.rulesAgreed ?? rulesAgreed;
   const storeId = thread?.storeId ?? start?.storeId ?? null;
+  // 입점 가게가 쉬는 날·영업시간 밖이면 방 위에 한 줄(기획 I-11 "영업 캘린더를 그대로", I-01 2026-11-19)
+  const { data: storeDetail } = useStoreDetail(
+    thread?.unenteredShop ? "" : (storeId ?? ""),
+    undefined,
+    { silentError: true },
+  );
+  const storeClosedNow =
+    !!storeDetail?.businessCalendar && !isStoreOpenForPickupNow(storeDetail.businessCalendar);
 
   // 새 글: 맨 아래를 보고 있으면 내려가고, 위를 보는 중이면 "새 메시지 ↓"
   // 위로 올려 옛 글을 불러오는 것은 새 글이 아니라서 맨 아래 글·보내는 중인 글만 본다
@@ -407,6 +417,11 @@ export function ChatRoomScreen({
         // 입점 전 가게(견적 링크로 대화): Picake 밖에서 주문·결제한다는 고지(기획 I-11, 법무 점검표 2번)
         <p className="shrink-0 bg-gray-50 px-[16px] py-[8px] text-xs text-gray-700">
           Picake는 대화를 이어 드려요. 주문과 결제는 가게와 직접 해요.
+        </p>
+      )}
+      {!thread?.unenteredShop && storeClosedNow && (
+        <p className="shrink-0 bg-gray-50 px-[16px] py-[8px] text-center text-xs text-gray-700">
+          지금은 영업시간이 아니에요 · 답이 늦을 수 있어요
         </p>
       )}
       <div

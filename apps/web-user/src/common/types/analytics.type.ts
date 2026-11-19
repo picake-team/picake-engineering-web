@@ -59,7 +59,7 @@ export type ReservationDetailEntryPoint =
   | "reservation_complete";
 
 /** 채팅 입구(기획 I-11): 스토어 문의 창(스토어 상세) / 스토어 문의 창(예약에서 열어 주문 카드가 붙음) / MY 바로가기 */
-export type ChatEntryPoint = "store_inquiry" | "order_inquiry" | "mypage";
+export type ChatEntryPoint = "store_inquiry" | "product_inquiry" | "order_inquiry" | "mypage";
 
 /** 간편 입금 결제 수단 */
 export type EasyPaymentMethod = "toss" | "kakao";
@@ -80,7 +80,15 @@ export type ReservationFilterName = "all" | "pickup_waiting" | "pickup_complete"
 export type MapAreaSearchTrigger = "drag" | "zoom" | "current_location";
 
 /** 견적 요청서로 들어온 곳(서버 QuoteRequest.entry를 소문자로, 주소로 바로 열면 direct) */
-export type QuoteEntryPoint = "home" | "search" | "map" | "store" | "mypage" | "design" | "direct";
+export type QuoteEntryPoint =
+  | "home"
+  | "search"
+  | "map"
+  | "store"
+  | "mypage"
+  | "design"
+  | "product"
+  | "direct";
 
 /** 케이크 디자인 모음(I-112)을 본 곳 */
 export type DesignEntryPoint = "home" | "search" | "saved" | "similar" | "direct";

@@ -44,7 +44,13 @@ export type PhotoReadState = "reading" | "done" | "failed" | "limit" | "off";
  */
 export interface QuoteDraftPhoto {
   id: string;
+  /** 보여 줄 사진(줄인 data URL, 디자인 사진 주소, 상품 사진 주소) */
   dataUrl: string;
+  /**
+   * 이미 올라가 있는 사진 주소(상품 화면에서 연 요청의 상품 사진, 기획 I-01). 보낼 때 다시 올리지 않고 이 주소를 쓴다.
+   * 서버는 같은 요청의 상품 사진일 때만 받는다
+   */
+  remoteUrl?: string;
   designId?: string;
   /** 이 사진에서 가져올 것(없으면 전체) */
   parts?: DesignPart[];
@@ -70,6 +76,8 @@ export interface QuoteDraft {
   budgetMax: number;
   /** 사진 보고 마지막으로 채운 값(✦ 표시) */
   autoFill?: QuoteAutoFill;
+  /** 상품 화면 "이 디자인으로 견적 받기"에서 연 요청의 상품(기획 I-01). 이 가게에만일 때만 보낸다 */
+  productId?: string | null;
 }
 
 export const EMPTY_QUOTE_DRAFT: QuoteDraft = {
@@ -155,9 +163,9 @@ export const useQuoteDraftStore = create<QuoteDraftState>()(
             // 저장 공간이 모자라면 사진을 빼고 남긴다
             try {
               const parsed = JSON.parse(value);
-              // 디자인 모음 사진은 주소만이라 남긴다
+              // 디자인 모음·상품 사진은 주소만이라 남긴다
               parsed.state.draft.photos = (parsed.state.draft.photos ?? []).filter(
-                (p: QuoteDraftPhoto) => p.designId,
+                (p: QuoteDraftPhoto) => p.designId || p.remoteUrl,
               );
               window.localStorage.setItem(name, JSON.stringify(parsed));
             } catch {

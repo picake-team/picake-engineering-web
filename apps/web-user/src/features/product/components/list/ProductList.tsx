@@ -1,5 +1,6 @@
 "use client";
 
+import { formatProductPrice } from "@/apps/web-user/features/product/utils/product-price.util";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { FadeInImage } from "@/apps/web-user/common/components/motion/FadeInImage";
@@ -139,7 +140,7 @@ function ProductItem({ product, likeDisabled, priority }: ProductItemProps) {
 
         {/* 가격 */}
         <div className="mb-[2px] text-sm font-bold text-gray-900">
-          {product.salePrice.toLocaleString()}원~
+          {formatProductPrice(product)}
         </div>
 
         {/* 별점 & 후기 */}
