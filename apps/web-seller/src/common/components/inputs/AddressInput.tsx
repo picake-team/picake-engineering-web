@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { BaseButton as Button } from "@/apps/web-seller/common/components/buttons/BaseButton";
 import { BaseInput as Input } from "@/apps/web-seller/common/components/inputs/BaseInput";
 import { Label } from "@/apps/web-seller/common/components/labels/Label";
-import { openAddressSearch } from "@/apps/web-seller/common/utils/kakao-address.util";
 import { useInMobileFrame } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
 import { AddressSearchSheet } from "@/apps/web-seller/common/components/inputs/AddressSearchSheet";
 import type { StoreAddressDto } from "@/apps/web-seller/features/store/types/store.dto";
@@ -43,13 +42,8 @@ export const AddressInput: React.FC<AddressInputProps> = ({
       longitude: data.longitude,
     });
 
-  const handleAddressSearch = async () => {
-    if (inFrame) {
-      setSheetOpen(true);
-      return;
-    }
-    await openAddressSearch(apply);
-  };
+  // 주소 검색은 화면 안 창(AddressSearchSheet). 이 칸은 늘 휴대폰 틀 안이라(PC도 같은 화면) 새 창은 쓰지 않는다
+  const handleAddressSearch = () => setSheetOpen(true);
 
   return (
     <div className="space-y-2">
@@ -74,9 +68,7 @@ export const AddressInput: React.FC<AddressInputProps> = ({
         </Button>
       </div>
       {error && <p className="text-sm text-destructive mt-1">{error}</p>}
-      {inFrame ? (
-        <AddressSearchSheet open={sheetOpen} onClose={() => setSheetOpen(false)} onSelect={apply} />
-      ) : null}
+      <AddressSearchSheet open={sheetOpen} onClose={() => setSheetOpen(false)} onSelect={apply} />
     </div>
   );
 };
