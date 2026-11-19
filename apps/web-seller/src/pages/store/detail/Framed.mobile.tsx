@@ -20,13 +20,13 @@ import { StoreDetailEditPage } from "@/apps/web-seller/pages/store/detail/Edit";
 import { StoreCreatePage } from "@/apps/web-seller/pages/store/Create";
 
 export const StoreDetailProductCreateMobilePage: React.FC = () => (
-  <MobileFrame title="상품 등록">
+  <MobileFrame title="상품 등록" wide>
     <StoreDetailProductCreatePage />
   </MobileFrame>
 );
 
 export const StoreDetailProductDetailMobilePage: React.FC = () => (
-  <MobileFrame title="상품 수정">
+  <MobileFrame title="상품 수정" wide>
     <StoreDetailProductDetailPage />
   </MobileFrame>
 );

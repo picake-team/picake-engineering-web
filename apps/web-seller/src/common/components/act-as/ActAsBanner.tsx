@@ -61,7 +61,7 @@ function ActAsBannerBar() {
     <div
       role="region"
       aria-label="운영자 대신 입력 중"
-      className="fixed inset-x-0 top-0 z-[70] bg-ink-900 pt-[env(safe-area-inset-top)] font-app text-white"
+      className="fixed inset-x-0 top-0 z-[70] bg-ink-900 pt-[env(safe-area-inset-top)] font-app text-white print:hidden"
     >
       <div className="mx-auto flex h-10 max-w-[1280px] items-center gap-2 pl-4 pr-1 text-sub">
         <span className="shrink-0 font-bold">운영자 대신 입력 중</span>
@@ -82,7 +82,7 @@ function ActAsBannerBar() {
           type="button"
           onClick={end}
           disabled={ending}
-          className="inline-flex h-10 shrink-0 items-center rounded-[8px] px-3 font-bold text-brand active:bg-white/10 disabled:text-ink-400"
+          className="inline-flex h-10 shrink-0 items-center rounded-banner px-3 font-bold text-brand active:bg-white/10 disabled:text-ink-400"
         >
           {ending ? "끝내는 중…" : "끝내기"}
         </button>

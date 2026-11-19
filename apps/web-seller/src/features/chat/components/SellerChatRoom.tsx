@@ -4,6 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { cx } from "@/apps/web-seller/common/ui/cx";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
 import { BackHeader, APP_COLUMN_CLASS } from "@/apps/web-seller/common/ui/Screen";
+import {
+  DESKTOP_COLUMN_CLASS,
+  useIsDesktopShell,
+  usePane,
+} from "@/apps/web-seller/common/ui/shell";
 import { Button, ButtonPair, HeaderIconButton } from "@/apps/web-seller/common/ui/Button";
 import { BottomSheet } from "@/apps/web-seller/common/ui/Sheet";
 import { ListRowButton } from "@/apps/web-seller/common/ui/List";
@@ -217,7 +222,6 @@ export function SellerChatRoom({
   initialTitle,
   initialWrite,
   initialRulesAgreed,
-  pc = false,
 }: {
   storeId: string;
   threadId: string | null;
@@ -225,10 +229,11 @@ export function SellerChatRoom({
   initialTitle?: string;
   initialWrite?: ChatWriteState;
   initialRulesAgreed?: boolean;
-  /** PC 화면(왼쪽 메뉴·위쪽 줄 안): 높이를 그 안에 맞춘다(위 80 + 아래 24) */
-  pc?: boolean;
 }) {
   const navigate = useNavigate();
+  // PC 틀(기획 I-54): 나란히 보기의 한 칸이면 칸 높이에, PC 틀 한 칸 화면이면 화면 높이에 맞춘다
+  const pane = usePane();
+  const desktop = useIsDesktopShell();
   const { addAlert } = useAlertStore();
   const room = useSellerChatRoom({
     storeId,
@@ -429,15 +434,18 @@ export function SellerChatRoom({
   return (
     <div
       className={cx(
-        APP_COLUMN_CLASS,
         "flex flex-col bg-white font-app text-ink-900",
-        pc ? "-mt-4 h-[calc(100dvh-88px)]" : "h-dvh",
+        pane
+          ? "h-full min-h-0 w-full"
+          : desktop
+            ? cx(DESKTOP_COLUMN_CLASS, "h-[calc(100dvh-var(--act-as-band,0px))]")
+            : cx(APP_COLUMN_CLASS, "h-dvh"),
       )}
     >
       <header
         className={cx(
           "shrink-0 border-b border-ink-100 bg-white",
-          !pc && "pt-[env(safe-area-inset-top)]",
+          !desktop && "pt-[env(safe-area-inset-top)]",
         )}
       >
         <BackHeader

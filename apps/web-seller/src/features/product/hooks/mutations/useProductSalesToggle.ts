@@ -21,6 +21,8 @@ export function useProductSalesToggle() {
   const showSnackbar = useSnackbarStore((s) => s.showSnackbar);
 
   const mutation = useMutation({
+    // 빨리 두 번 누르면 요청이 뒤집혀 도착할 수 있어(먼저 보낸 것이 늦게 저장) 차례대로 보낸다(2026-11-20 검토)
+    scope: { id: "product-sales-toggle" },
     mutationFn: ({
       productId,
       next,

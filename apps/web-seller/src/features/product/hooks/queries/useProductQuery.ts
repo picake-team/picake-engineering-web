@@ -1,5 +1,4 @@
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
-import { useQueryErrorAlert } from "@/apps/web-seller/common/hooks/useQueryErrorAlert";
 import { productApi } from "@/apps/web-seller/features/product/apis/product.api";
 import { productQueryKeys } from "@/apps/web-seller/features/product/constants/productQueryKeys.constant";
 import {
@@ -16,8 +15,6 @@ export function useProductDetail(productId: string) {
     queryFn: () => productApi.getProductDetail(productId),
     enabled: !!productId,
   });
-
-  useQueryErrorAlert(query);
 
   return query;
 }
@@ -92,8 +89,6 @@ export function useProductList({
     },
     initialPageParam: 1,
   });
-
-  useQueryErrorAlert(query);
 
   return query;
 }

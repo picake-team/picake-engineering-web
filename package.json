@@ -27,6 +27,7 @@
     "web-user:test:e2e": "yarn workspace @picake/web-user test:e2e",
     "web-seller:dev": "yarn workspace @picake/web-seller dev",
     "web-seller:build": "yarn workspace @picake/web-seller build",
+    "web-seller:test:e2e": "yarn workspace @picake/web-seller test:e2e",
     "web-seller:storybook": "yarn workspace @picake/web-seller storybook",
     "web-seller:storybook:build": "yarn workspace @picake/web-seller build-storybook",
     "web-admin:dev": "yarn workspace @picake/web-admin dev",

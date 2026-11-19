@@ -1,19 +1,12 @@
 import React, { Suspense } from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-  Outlet,
-  useLocation,
-} from "react-router-dom";
-import { AdminLayout } from "@/apps/web-seller/common/components/layouts/AdminLayout";
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { MobileLayout } from "@/apps/web-seller/common/components/layouts/MobileLayout";
+import { DesktopLayout } from "@/apps/web-seller/common/components/layouts/DesktopLayout";
 import {
   ROUTES,
   AUTH_ROUTE_CONFIG,
   ADMIN_ROUTE_CONFIG,
-  type AppRouteConfig,
+  screenFor,
 } from "@/apps/web-seller/common/constants/paths.constant";
 import { AuthInitializerProvider } from "@/apps/web-seller/features/auth/components/providers/AuthInitializer";
 import { useShowMobileScreens } from "@/apps/web-seller/common/hooks/useShowMobileScreens";
@@ -24,8 +17,6 @@ import { ErrorBoundaryProvider } from "./common/components/providers/ErrorBounda
 import { QueryProvider } from "./common/components/providers/QueryProvider";
 import { PostHogProvider, PostHogPageView } from "./common/components/providers/PostHogProvider";
 import { LoadingFallback } from "./common/components/fallbacks/LoadingFallback";
-import { Alert } from "./common/components/alerts/Alert";
-import { ConfirmAlert } from "./common/components/alerts/ConfirmAlert";
 import BuildInfoLogger from "./common/components/debug/BuildInfoLogger";
 import { ActAsBanner } from "./common/components/act-as/ActAsBanner";
 import {
@@ -33,45 +24,30 @@ import {
   isActAsBlockedPath,
 } from "./common/components/act-as/ActAsBlockedScreen";
 import { isActAsMode } from "./common/utils/act-as.util";
-
-/** 휴대폰 화면을 그릴 때 그 주소의 화면: 휴대폰 화면이 있으면 그것, 없으면 PC 화면 */
-function pickScreen(route: AppRouteConfig, showMobile: boolean) {
-  return showMobile && route.mobile ? route.mobile : route.element;
-}
-
-function AdminLayoutOutlet() {
-  return (
-    <AdminLayout>
-      <Outlet />
-    </AdminLayout>
-  );
-}
+import { isSellerAppWebView } from "./common/utils/webview.bridge";
 
 /**
- * 로그인한 뒤의 경로. 휴대폰 화면이 있는 주소는 MobileLayout(아래 탭은 화면이 그림),
- * 나머지는 지금처럼 AdminLayout(PC 화면) 안에 그린다.
+ * 로그인한 뒤의 경로. 휴대폰 폭은 MobileLayout(아래 탭은 화면이 그림), 넓으면 DesktopLayout(왼쪽 메뉴, 기획 I-54).
+ * 주소마다 그 폭의 화면을 고른다(PC 화면이 따로 없으면 같은 화면을 PC 틀 안에).
  */
 function SignedInRoutes({ showMobile }: { showMobile: boolean }) {
   const { pathname } = useLocation();
-  // 운영자 대신 입력 중(기획 I-41)에는 막힌 기능 화면 대신 짧은 안내
+  const Layout = showMobile ? MobileLayout : DesktopLayout;
+  // 운영자 대신 입력 중(기획 I-41)에는 막힌 기능 화면 대신 짧은 안내(틀·메뉴는 그대로)
   if (isActAsMode() && isActAsBlockedPath(pathname)) {
-    return <ActAsBlockedScreen showMobile={showMobile} />;
+    return (
+      <Routes>
+        <Route element={<Layout />}>
+          <Route path="*" element={<ActAsBlockedScreen />} />
+        </Route>
+      </Routes>
+    );
   }
-  const mobileRoutes = showMobile ? ADMIN_ROUTE_CONFIG.filter((r) => r.mobile) : [];
-  const desktopRoutes = ADMIN_ROUTE_CONFIG.filter((r) => !(showMobile && r.mobile));
   return (
     <Routes>
-      {mobileRoutes.length > 0 ? (
-        <Route element={<MobileLayout />}>
-          {mobileRoutes.map((route) => {
-            const Screen = pickScreen(route, true);
-            return <Route key={route.path} path={route.path} element={<Screen />} />;
-          })}
-        </Route>
-      ) : null}
-      <Route element={<AdminLayoutOutlet />}>
-        {desktopRoutes.map((route) => {
-          const Screen = route.element;
+      <Route element={<Layout />}>
+        {ADMIN_ROUTE_CONFIG.map((route) => {
+          const Screen = screenFor(route, showMobile, isSellerAppWebView());
           return <Route key={route.path} path={route.path} element={<Screen />} />;
         })}
         <Route path="*" element={<Navigate to={ROUTES.ROOT} replace />} />
@@ -84,27 +60,18 @@ function AppRoutes() {
   const showMobile = useShowMobileScreens();
   return (
     <>
-      {/* 서버 오류·실시간 알림 안내: 휴대폰 화면은 위쪽 알림 배너(AlertBannerHost), PC는 지금 모양.
-          한 일 + 되돌리기는 아래 스낵바(SnackbarHost) — PC도(채팅 쓰는 칸 위) */}
-      {showMobile ? (
-        <>
-          <AlertBannerHost />
-          <SnackbarHost />
-        </>
-      ) : (
-        <>
-          <Alert />
-          <SnackbarHost bottomOffset={88} />
-        </>
-      )}
-      <ConfirmAlert />
+      {/* 서버 오류·실시간 알림 안내는 위쪽 안내 띠, 한 일 + 되돌리기는 아래 스낵바. PC도 같은 모양(기획 I-54)이고
+          왼쪽 메뉴를 피해 본문 가운데에 온다. PC는 아래 탭이 없어 스낵바를 조금 낮게(채팅 쓰는 칸 위) */}
+      <AlertBannerHost />
+      {showMobile ? <SnackbarHost /> : <SnackbarHost bottomOffset={88} />}
       {/* 운영자 대신 입력 중(기획 I-41)인 탭만 맨 위 띠 */}
       <ActAsBanner />
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
-          {/* 인증 관련 경로 (AdminLayout 밖) */}
+          {/* 인증 관련 경로 (휴대폰·PC 틀 밖). 앱 안에서는 폭이 넓어도(아이패드) 휴대폰 로그인·가입 —
+              심사용 로그인 입구(로고 10번)·Apple 버튼·"이미 가입한 계정" 안내가 휴대폰 화면에만 있다(앱 심사) */}
           {AUTH_ROUTE_CONFIG.map((route) => {
-            const Screen = pickScreen(route, showMobile);
+            const Screen = screenFor(route, showMobile || isSellerAppWebView());
             return <Route key={route.path} path={route.path} element={<Screen />} />;
           })}
           <Route

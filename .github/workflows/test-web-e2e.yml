@@ -1,7 +1,7 @@
 name: Test Web E2E
 
-# web-user의 Playwright 브라우저 E2E(apps/web-user/e2e)는 실제 화면을 클릭/입력하며
-# backend까지 함께 띄워야 해서, vitest만 도는 test-web.yml과 분리했다.
+# web-user(apps/web-user/e2e)·web-seller(apps/web-seller/e2e, 사장님 PC·태블릿·휴대폰 폭 — 기획 I-54)의
+# Playwright 브라우저 E2E는 실제 화면을 클릭/입력하며 backend까지 함께 띄워야 해서, vitest만 도는 test-web.yml과 분리했다.
 # backend는 별도 레포(picake-team/picake-engineering-backend)라서 CI에서 checkout해 띄운다.
 # 어느 브랜치를 받을지는 "브랜치 매칭" — PR의 head 브랜치와 같은 이름이 backend 레포에 있으면
 # 그것을, 없으면 PR의 base 브랜치(staging/main)를 쓴다. backend 변경만으로는 이 워크플로우가
@@ -13,6 +13,8 @@ on:
     branches: [staging, main]
     paths:
       - "apps/web-user/**"
+      - "apps/web-seller/**"
+      - "packages/**"
       - ".github/workflows/test-web-e2e.yml"
 
 permissions:
@@ -117,9 +119,14 @@ jobs:
       # --with-server: start:test(=main.ts)는 실제로 포트를 열고 CORS를 검사하므로 PORT·CORS_ORIGIN이 추가로 필요하다.
       # (test:e2e/test:integration은 app.listen()을 안 타서 불필요. PORT가 없으면 app.listen(NaN)이
       # 에러도 없이 조용히 멈춰 로그가 안 남는 문제가 있었다.)
+      # 사장님 웹 e2e용 두 줄: web-seller dev 서버(3002)도 CORS에 넣고, 사장님 심사용 로그인 테스트 코드
+      # (000000, apps/web-seller/e2e/helpers.ts — 상용·staging 코드는 GitHub 비밀값이고 이 값과 다름)의 SHA-256을 켠다.
       - name: Create .env.test for backend
         working-directory: backend-repo
-        run: bash apps/backend/scripts/ci/create-env-test.sh --with-server
+        run: |
+          bash apps/backend/scripts/ci/create-env-test.sh --with-server
+          sed -i 's#^CORS_ORIGIN=.*#CORS_ORIGIN=http://localhost:3001,http://localhost:3002#' apps/backend/.env.test
+          echo "SELLER_REVIEW_LOGIN_CODE_SHA256=$(printf 000000 | sha256sum | cut -d' ' -f1)" >> apps/backend/.env.test
 
       # web-user dev 서버(next dev)가 읽는 값. NEXT_PUBLIC_API_DOMAIN만 있으면 리뷰
       # 로그인·예약 생성 플로우는 충분하고(OAuth 로그인 버튼 등은 이 E2E가 다루지 않음),
@@ -176,10 +183,37 @@ jobs:
           cat /tmp/web-user.log
           exit 1
 
+      # playwright.config.ts의 webServer와 같은 명령(--mode e2e: 분석·오류 기록 키 없이)
+      - name: Start web-seller (dev)
+        id: web-seller-up
+        working-directory: apps/web-seller
+        env:
+          VITE_PUBLIC_API_DOMAIN: http://localhost:3000
+          VITE_PUBLIC_NODE_ENV: development
+        run: |
+          nohup npx vite --port 3002 --strictPort --mode e2e > /tmp/web-seller.log 2>&1 &
+          for i in $(seq 1 60); do
+            if curl -s -o /dev/null "http://localhost:3002"; then
+              echo "web-seller is up"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::web-seller가 기동하지 않음 — 로그:"
+          cat /tmp/web-seller.log
+          exit 1
+
       - name: Run web-user Playwright E2E
         env:
           BACKEND_DIR: ${{ github.workspace }}/backend-repo
         run: yarn workspace @picake/web-user test:e2e
+
+      # web-user가 실패해도 사장님 웹 결과는 따로 본다
+      - name: Run web-seller Playwright E2E
+        if: ${{ !cancelled() && steps.web-seller-up.outcome == 'success' }}
+        env:
+          BACKEND_DIR: ${{ github.workspace }}/backend-repo
+        run: yarn workspace @picake/web-seller test:e2e
 
       - name: Show backend/web-user server logs
         if: failure()
@@ -190,6 +224,9 @@ jobs:
           echo "::group::web-user.log"
           cat /tmp/web-user.log || true
           echo "::endgroup::"
+          echo "::group::web-seller.log"
+          cat /tmp/web-seller.log || true
+          echo "::endgroup::"
 
       - name: Upload Playwright report
         if: failure()
@@ -197,4 +234,13 @@ jobs:
         with:
           name: playwright-report
           path: apps/web-user/playwright-report/
+          retention-days: 7
+
+      # 사장님 웹은 실패한 테스트의 trace(retain-on-failure)를 남긴다: npx playwright show-trace <zip>
+      - name: Upload web-seller test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-seller-test-results
+          path: apps/web-seller/test-results/
           retention-days: 7

@@ -1,6 +1,8 @@
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useCallback } from "react";
+import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
+import { calendarOrDefault } from "@/apps/web-seller/features/store/utils/business-day.util";
+import type { StoreBusinessCalendarDto } from "@/apps/web-seller/features/store/types/store.dto";
 import { QUERY_STALE_TIME } from "@/apps/web-seller/common/constants/query-cache.constants";
-import { useQueryErrorAlert } from "@/apps/web-seller/common/hooks/useQueryErrorAlert";
 import { storeApi } from "@/apps/web-seller/features/store/apis/store.api";
 import {
   GetSellerStoresRequestDto,
@@ -40,8 +42,6 @@ export function useStoreList({
     staleTime: QUERY_STALE_TIME.STORE,
   });
 
-  useQueryErrorAlert(query);
-
   return query;
 }
 
@@ -54,8 +54,6 @@ export function useStoreDetail(storeId: string) {
     staleTime: QUERY_STALE_TIME.STORE,
   });
 
-  useQueryErrorAlert(query);
-
   return query;
 }
 
@@ -67,4 +65,21 @@ export function useStoreLinkStats(storeId: string) {
     enabled: !!storeId,
     staleTime: 0,
   });
+}
+
+/**
+ * 저장 직전에 서버의 지금 영업 달력을 받는다. 영업 달력 저장은 쉬는 요일·영업시간·그날만 바꾼 날을 통째로 바꾸므로,
+ * 화면에 갖고 있던(몇 시간 전일 수 있는) 값으로 저장하면 그사이 다른 기기에서 바꾼 것을 되돌린다(11-19 검토).
+ * 받은 값은 화면 캐시에도 넣는다.
+ */
+export function useFetchFreshBusinessCalendar(storeId: string) {
+  const queryClient = useQueryClient();
+  return useCallback(async (): Promise<StoreBusinessCalendarDto> => {
+    const store = await queryClient.fetchQuery({
+      queryKey: storeQueryKeys.detail(storeId),
+      queryFn: () => storeApi.getStoreDetail(storeId),
+      staleTime: 0,
+    });
+    return calendarOrDefault(store.businessCalendar);
+  }, [queryClient, storeId]);
 }

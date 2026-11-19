@@ -27,7 +27,7 @@ Picake 개발 코드는 아래 레포들로 나뉘어 있습니다.
 
 ### 백엔드 실행
 
-API 서버는 별도 레포입니다. 이 레포의 **형제 폴더**에 clone해서 실행하세요(web-user e2e 테스트도 이 위치를 기본값으로 씁니다).
+API 서버는 별도 레포입니다. 이 레포의 **형제 폴더**에 clone해서 실행하세요(web-user·web-seller e2e 테스트도 이 위치를 기본값으로 씁니다).
 
 ```bash
 git clone https://github.com/picake-team/picake-engineering-backend.git ../picake-engineering-backend
@@ -211,7 +211,7 @@ hotfix/xxx (긴급 수정 브랜치)
 
 - **[사용자 - 웹뷰 인증 가이드](./docs/common/feature/사용자%20-%20웹뷰%20인증.md)**: 앱(웹뷰) 안에서의 사용자 인증과 웹–앱 약속
 - **[판매자 인증 가이드](./docs/common/feature/판매자%20인증.md)**: 웹 애플리케이션 환경에서의 판매자 인증 시스템 가이드
-- **[스토어 등록(3단계) 가이드](<./docs/common/feature/스토어%20등록(3단계)%20-%20가이드.md>)**: 스토어 등록(3단계) 가이드
+- **[스토어 등록 가이드](./docs/common/feature/스토어%20등록%20-%20가이드.md)**: 스토어 등록(사업자 진위 확인 → 스토어 정보)
 - **[채팅 시스템 가이드](./docs/common/feature/채팅%20시스템%20-%20가이드.md)**: Socket.IO 기반 실시간 채팅 시스템 가이드
 - **[위치 필터 기능 스펙](./docs/location-filter-spec.md)**: 지역(시/도·시/군/구) 기반 상품/스토어 필터링 스펙
 

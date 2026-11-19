@@ -8,6 +8,7 @@ import {
   removeAccessToken,
 } from "@/apps/web-seller/common/utils/token.util";
 import { queryClient } from "@/apps/web-seller/common/config/query-client";
+import { setBrowserNotifyOn } from "@/apps/web-seller/features/notification/utils/browser-notification.util";
 
 interface AuthState {
   // 상태
@@ -54,6 +55,8 @@ export const useAuthStore = create<AuthState>()((set) => ({
       return;
     }
     removeAccessToken();
+    // 같은 PC를 다음 사람이 쓸 때 이 사람이 켠 브라우저 알림이 이어지지 않게(기획 I-54)
+    setBrowserNotifyOn(false);
     set({ isAuthenticated: false, isInitialized: false });
     queryClient.clear();
     // 로그인 페이지로 이동

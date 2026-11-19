@@ -92,20 +92,6 @@ export function buildHalfHourTimeOptions(): string[] {
   return out;
 }
 
-export const WEEKDAY_LABELS_KO = ["일", "월", "화", "수", "목", "금", "토"] as const;
-
-export function toDateKey(d: Date): string {
-  const y = d.getFullYear();
-  const mo = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${mo}-${day}`;
-}
-
-export function parseDateKey(key: string): Date {
-  const [y, m, d] = key.split("-").map(Number);
-  return new Date(y, m - 1, d);
-}
-
 export function timeToMinutes(t: string): number {
   const [h, m] = t.split(":").map(Number);
   return h * 60 + m;
@@ -114,10 +100,4 @@ export function timeToMinutes(t: string): number {
 /** 백엔드와 동일: 00:00~00:00 = 하루 전체 영업 */
 export function isFullDayBusinessWindow(start: string, end: string): boolean {
   return start === "00:00" && end === "00:00";
-}
-
-export function formatBusinessHoursShortLabel(isOpen: boolean, start: string, end: string): string {
-  if (!isOpen) return "휴무";
-  if (isFullDayBusinessWindow(start, end)) return "전일 영업";
-  return `영업 ${start}–${end}`;
 }

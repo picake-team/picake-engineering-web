@@ -9,16 +9,10 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { AppScreen, HomeHeader } from "@/apps/web-seller/common/ui/Screen";
 import { Button } from "@/apps/web-seller/common/ui/Button";
-import {
-  GrayBand,
-  GroupTitle,
-  ListRowLink,
-  RowCount,
-  RowIconBox,
-} from "@/apps/web-seller/common/ui/List";
+import { GrayBand, GroupTitle } from "@/apps/web-seller/common/ui/List";
 
 import { PullToRefresh } from "@/apps/web-seller/common/ui/PullToRefresh";
-import { Icon, TaskIcon } from "@/apps/web-seller/common/ui/icons";
+import { Icon } from "@/apps/web-seller/common/ui/icons";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
 import {
   addDaysToKey,
@@ -27,12 +21,7 @@ import {
   sundayOfKey,
 } from "@/apps/web-seller/common/utils/kst-date.util";
 
-import { useOrderStatusGroup } from "@/apps/web-seller/features/order/hooks/queries/useOrderMobileQuery";
-import {
-  formatWon,
-  groupsForTab,
-  type OrderTaskGroup,
-} from "@/apps/web-seller/features/order/utils/order-mobile.util";
+import { formatWon } from "@/apps/web-seller/common/utils/won.util";
 
 import { WeekStrip } from "@/apps/web-seller/features/home/components/mobile/WeekStrip";
 import { useDayPickups } from "@/apps/web-seller/features/manual-order/hooks/queries/useDayPickups";
@@ -53,37 +42,8 @@ import { useNotificationPreferences } from "@/apps/web-seller/features/notificat
 import { usePushPermissionStore } from "@/apps/web-seller/common/store/push-permission.store";
 import { isSellerAppWebView } from "@/apps/web-seller/common/utils/webview.bridge";
 import { hasSeenWelcome } from "@/apps/web-seller/features/notification/utils/welcome.util";
-import { useSellerChatUnread } from "@/apps/web-seller/features/chat/hooks/useChat";
-
-const TODO_GROUPS = groupsForTab("todo");
-
-function TaskRow({
-  storeId,
-  group,
-  count,
-  last,
-}: {
-  storeId: string;
-  group: OrderTaskGroup;
-  count: number | undefined;
-  last: boolean;
-}) {
-  const zero = !count;
-  return (
-    <ListRowLink
-      to={`${ROUTES.STORE_DETAIL_ORDERS_LIST(storeId)}?tab=todo&group=${group.key}`}
-      tall
-      divider={!last}
-      dimmed={zero}
-      leading={
-        <RowIconBox>{group.icon ? <TaskIcon name={group.icon} active={!zero} /> : null}</RowIconBox>
-      }
-      title={group.label}
-      description={group.homeHint}
-      trailing={<RowCount value={count ?? "–"} dimmed={zero} />}
-    />
-  );
-}
+import { useTodoTaskCounts } from "@/apps/web-seller/features/order/hooks/queries/useTodoTaskCounts";
+import { TodoTaskRows } from "@/apps/web-seller/features/home/components/TodoTaskRows";
 
 function FirstProductCard({ storeId }: { storeId: string }) {
   const navigate = useNavigate();
@@ -121,19 +81,8 @@ export const StoreDetailHomeMobilePage: React.FC = () => {
   const { stores } = useMyStores();
   const notifications = useSellerNotifications();
 
-  // 처리할 주문: 상태마다 전체 수(주문 탭 칸과 같은 조회라 캐시를 같이 쓴다)
-  const confirm = useOrderStatusGroup(storeId, TODO_GROUPS[0].status);
-  const deposit = useOrderStatusGroup(storeId, TODO_GROUPS[1].status);
-  const pickup = useOrderStatusGroup(storeId, TODO_GROUPS[2].status);
-  const refund = useOrderStatusGroup(storeId, TODO_GROUPS[3].status);
-  const taskQueries = [confirm, deposit, pickup, refund];
-  const tasksLoaded = taskQueries.every((q) => q.total !== undefined);
-  // 답할 채팅(기획 I-11): "처리할 일"에 한 줄 더한다
-  const chat = useSellerChatUnread(storeId);
-  // 견적 요청(기획 I-46): 채팅방으로 받은 요청 중 아직 답하지 않은 것. 그 방은 "답할 채팅"에서 뺀다
-  const quoteOpen = chat.data?.quoteRequests ?? 0;
-  const chatReply = chat.data?.replyNeededChats ?? chat.data?.replyNeeded ?? 0;
-  const taskTotal = taskQueries.reduce((sum, q) => sum + (q.total ?? 0), 0) + quoteOpen + chatReply;
+  // 처리할 일(주문 묶음 + 견적 요청 + 답할 채팅): 휴대폰 홈·PC 홈·PC 메뉴 공용
+  const todo = useTodoTaskCounts(storeId);
 
   // 주간 달력 점·고른 날 픽업: 그 주 Picake 주문(취소 빼고)과 직접 적은 주문(기획 I-42)
   const week = useDayPickups(storeId, weekStart, weekEnd);
@@ -265,44 +214,9 @@ export const StoreDetailHomeMobilePage: React.FC = () => {
         </Button>
 
         <GrayBand />
-        <GroupTitle>처리할 일 {tasksLoaded ? `${taskTotal}건` : ""}</GroupTitle>
+        <GroupTitle>처리할 일 {todo.loaded ? `${todo.total}건` : ""}</GroupTitle>
         <div className="-mt-3">
-          {TODO_GROUPS.map((g, i) => (
-            <TaskRow
-              key={g.key}
-              storeId={storeId}
-              group={g}
-              count={taskQueries[i].total}
-              last={false}
-            />
-          ))}
-          <ListRowLink
-            to={ROUTES.STORE_DETAIL_CHATS(storeId)}
-            tall
-            dimmed={quoteOpen === 0}
-            leading={
-              <RowIconBox>
-                <TaskIcon name="quote" active={quoteOpen > 0} />
-              </RowIconBox>
-            }
-            title="견적 요청"
-            description="마감 전에 견적을 보내 주세요"
-            trailing={<RowCount value={quoteOpen} dimmed={quoteOpen === 0} />}
-          />
-          <ListRowLink
-            to={ROUTES.STORE_DETAIL_CHATS(storeId)}
-            tall
-            divider={false}
-            dimmed={chatReply === 0}
-            leading={
-              <RowIconBox>
-                <TaskIcon name="chat" active={chatReply > 0} />
-              </RowIconBox>
-            }
-            title="답할 채팅"
-            description="손님이 답을 기다려요"
-            trailing={<RowCount value={chatReply} dimmed={chatReply === 0} />}
-          />
+          <TodoTaskRows storeId={storeId} todo={todo} />
         </div>
 
         <GrayBand />

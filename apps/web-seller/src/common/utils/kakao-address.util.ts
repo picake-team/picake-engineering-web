@@ -33,7 +33,7 @@ export const loadKakaoAddressScript = (): Promise<void> => {
     }
 
     const script = document.createElement("script");
-    script.src = "//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
+    script.src = "//t1.kakaocdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
     script.async = true;
     script.onload = () => resolve();
     script.onerror = () => reject(new Error("카카오 주소 검색 스크립트 로드 실패"));
@@ -93,32 +93,7 @@ async function toStoreAddress(data: any): Promise<Omit<StoreAddressDto, "detailA
 }
 
 /**
- * 카카오 우편번호 주소 검색 서비스를 사용하여 주소를 가져옴(PC: 새 창)
- * 카카오 "주소로 좌표 변환" API 사용하여 가져온 주소를 통해 좌표를 가져옴
- */
-export const openAddressSearch = async (
-  onComplete: (data: Omit<StoreAddressDto, "detailAddress">) => void,
-): Promise<void> => {
-  try {
-    await loadKakaoAddressScript();
-
-    if (!window.daum || !window.daum.Postcode) {
-      throw new Error("카카오 주소 검색 API가 로드되지 않았습니다.");
-    }
-
-    new window.daum.Postcode({
-      oncomplete: async (data: any) => onComplete(await toStoreAddress(data)),
-      width: "100%",
-      height: "100%",
-    }).open();
-  } catch (error) {
-    console.error("주소 검색 오류:", error);
-    throw error;
-  }
-};
-
-/**
- * 휴대폰 화면(앱 웹뷰 포함): 새 창은 앱 안에서 막히므로 element 안에 검색 화면을 그린다(SC-67, I-48 "주소 검색").
+ * 주소 검색 화면을 element 안에 그린다(휴대폰·PC 같은 창, SC-67·I-48 "주소 검색"). 새 창은 앱 안에서 막혀 쓰지 않는다.
  */
 export const embedAddressSearch = async (
   element: HTMLElement,

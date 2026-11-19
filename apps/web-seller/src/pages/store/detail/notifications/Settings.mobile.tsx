@@ -1,6 +1,7 @@
 /**
  * 휴대폰 알림 설정 (SC-93, 디자인 A93). 스토어마다: 주문 알림 받기(끌 때 한 번 묻기), 아침 요약.
- * "주문 알림 소리"(앱을 켜 둔 동안의 화면 안 소리)는 PC 화면에만 둔다. 휴대폰은 휴대폰 알림 소리에 맡긴다(운영자 17차).
+ * "주문 알림 소리"(앱을 켜 둔 동안의 화면 안 소리)와 브라우저 알림은 PC 틀에서만 "이 컴퓨터" 묶음에 둔다(기획 I-54).
+ * 휴대폰은 휴대폰 알림 소리에 맡긴다(운영자 17차).
  * 아래 묶음 "테스트 알림 보내기"로 내 휴대폰에 오는지 확인하고(심사관도 이 버튼으로 확인), 안 오면 "알림이 안 와요"를 편다.
  * 맨 위 "이 휴대폰 알림" 칸은 앱에서만 보인다(허용 상태, 꺼져 있으면 "켜기": 허용 창 또는 휴대폰 설정).
  */
@@ -22,6 +23,9 @@ import { useUpdateNotificationPreferences } from "@/apps/web-seller/features/not
 import { sellerPushApi } from "@/apps/web-seller/features/notification/apis/notification.api";
 import { DEFAULT_SELLER_NOTIFICATION_SETTINGS } from "@/apps/web-seller/features/notification/types/notification.dto";
 import { DevicePushStatusCard } from "@/apps/web-seller/features/notification/components/mobile/PushOffBanner";
+import { PcNotificationRows } from "@/apps/web-seller/features/notification/components/desktop/PcNotificationRows";
+import { useIsDesktopShell } from "@/apps/web-seller/common/ui/shell";
+import { isSellerAppWebView } from "@/apps/web-seller/common/utils/webview.bridge";
 
 const TIPS = [
   "휴대폰 설정 > 알림에서 '픽케이크 사장님' 알림이 켜져 있는지",
@@ -40,6 +44,8 @@ export const StoreDetailNotificationSettingsMobilePage: React.FC = () => {
   const addAlert = useAlertStore((s) => s.addAlert);
   const [confirmOff, setConfirmOff] = useState(false);
   const [tipsOpen, setTipsOpen] = useState(false);
+  // PC 틀(앱이 아닌 브라우저)에서만 "이 컴퓨터" 묶음
+  const pc = useIsDesktopShell() && !isSellerAppWebView();
 
   const prefs = prefsQuery.data ?? DEFAULT_SELLER_NOTIFICATION_SETTINGS;
   const showChat = typeof prefs.chatNotificationsEnabled === "boolean";
@@ -124,6 +130,17 @@ export const StoreDetailNotificationSettingsMobilePage: React.FC = () => {
           />
         ) : null}
       </div>
+
+      {pc ? (
+        <>
+          <GrayBand />
+          <PcNotificationRows
+            loaded={loaded}
+            soundOn={prefs.orderNotificationSoundEnabled}
+            onSoundChange={(next) => update.mutate({ orderNotificationSoundEnabled: next })}
+          />
+        </>
+      ) : null}
 
       {/* 테스트 알림은 이 스토어가 아니라 내 휴대폰 모두에 가서, 스토어 묶음과 띠로 나누고 "알림이 안 와요"와 한 묶음 */}
       <GrayBand />

@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { useQueryErrorAlert } from "@/apps/web-seller/common/hooks/useQueryErrorAlert";
 import { termsApi } from "@/apps/web-seller/features/terms/apis/terms.api";
 import { SELLER_TERMS_TYPES } from "@/apps/web-seller/features/terms/constants/terms.constant";
 import { termsQueryKeys } from "@/apps/web-seller/features/terms/constants/termsQueryKeys.constant";
@@ -14,8 +13,6 @@ export function useActiveTerms(type: TermsType) {
     queryKey: termsQueryKeys.active(type),
     queryFn: () => termsApi.getActiveTerms(type),
   });
-
-  useQueryErrorAlert(query);
 
   return query;
 }
@@ -33,8 +30,6 @@ export function useSellerActiveTerms() {
       ) as Record<TermsType, TermsDocumentResponseDto>;
     },
   });
-
-  useQueryErrorAlert(query);
 
   return query;
 }

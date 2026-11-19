@@ -11,6 +11,7 @@ import React from "react";
 import { APP_COLUMN_CLASS, BottomActionBar } from "@/apps/web-seller/common/ui/Screen";
 import { useKeyboardOpen } from "@/apps/web-seller/common/hooks/useKeyboardOpen";
 import { cx } from "@/apps/web-seller/common/ui/cx";
+import { useIsDesktopShell } from "@/apps/web-seller/common/ui/shell";
 
 export function FrameSubmitBar({
   children,
@@ -21,6 +22,18 @@ export function FrameSubmitBar({
   below?: React.ReactNode;
 }) {
   const keyboardOpen = useKeyboardOpen();
+  const desktop = useIsDesktopShell();
+  // PC 틀(기획 I-54): 왼쪽 메뉴를 피해 칸 안 아래에 붙고(sticky), 버튼은 오른쪽에 모은다(넓은 화면에 가득 찬 주황 버튼 대신)
+  if (desktop) {
+    return (
+      <div className="sticky bottom-0 z-20 -mx-5 mt-6 border-t border-ink-100 bg-white px-5 py-4">
+        <div className="ml-auto flex w-full max-w-[420px] flex-col gap-2">
+          <div className="flex gap-2">{children}</div>
+          {below ? <div className="flex justify-center">{below}</div> : null}
+        </div>
+      </div>
+    );
+  }
   return (
     <>
       {/* 아래에 붙은 줄이 마지막 칸을 가리지 않게 같은 높이만큼 비워 둔다 */}

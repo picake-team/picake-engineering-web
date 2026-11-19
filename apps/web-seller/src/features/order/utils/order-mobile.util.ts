@@ -125,9 +125,24 @@ export function statusTone(status: OrderStatus): StatusTone {
   return "done";
 }
 
-/** 지난 주문 줄을 흐리게(취소·노쇼) */
-export function isDimmedPastStatus(status: OrderStatus): boolean {
-  return status !== OrderStatus.PICKUP_COMPLETED;
+/** 끝난 주문(픽업 완료·취소·노쇼 — 지난 주문 탭) */
+export function isFinishedStatus(status: OrderStatus): boolean {
+  return tabForStatus(status) === "past";
+}
+
+/** 흐리게 보일 주문: 끝났는데 픽업 완료가 아닌 것(취소·노쇼). 처리할 주문은 흐리게 하지 않는다 */
+export function isCanceledOrNoShow(status: OrderStatus): boolean {
+  return isFinishedStatus(status) && status !== OrderStatus.PICKUP_COMPLETED;
+}
+
+/** 지난 주문 줄 표시: 입금 기한이 지나 취소(기한 만료), 사장님이 확인하지 않아 취소(미확인) — 휴대폰·PC 같음 */
+export function orderExpiryMarks(
+  order: Pick<OrderResponseDto, "paymentPendingExpiredAt" | "reservationExpiredAt">,
+): string[] {
+  const marks: string[] = [];
+  if (order.paymentPendingExpiredAt) marks.push("기한 만료");
+  if (order.reservationExpiredAt) marks.push("미확인");
+  return marks;
 }
 
 export const ORDER_STEP_LABELS = [
@@ -256,10 +271,6 @@ export function orderItemsShort(
   return order.totalQuantity > 1 ? `${withSize} ${order.totalQuantity}개` : withSize;
 }
 
-export function formatWon(amount: number): string {
-  return `${amount.toLocaleString("ko-KR")}원`;
-}
-
 /** 입금 마감 시각(서버 값, 없으면 입금대기 진입 + 12시간) */
 export function paymentDeadlineMs(
   order: Pick<OrderResponseDto, "paymentPendingDeadlineAt" | "paymentPendingAt" | "createdAt">,
@@ -289,6 +300,21 @@ export function orderCardMeta(order: OrderResponseDto, now: number): string {
     default:
       return `주문 ${formatKstMonthDayTime(order.createdAt)}`;
   }
+}
+
+/**
+ * 주문 줄의 금액 뒤 작은 글(휴대폰 카드·PC 줄 같음).
+ * - 묶음 목록: 그 할 일에 필요한 것(입금 확인 = 입금자명, 입금 대기 = 마감까지 남은 시간, 확정·픽업 = 예약자)
+ * - 찾기 결과: 예약자(이름·번호 뒷자리로 찾은 손님이 맞는지 바로 보이게), 없으면 주문 시각
+ */
+export function orderSubline(
+  order: OrderResponseDto,
+  now: number,
+  mode: "group" | "search",
+): string {
+  if (mode === "group") return orderCardMeta(order, now);
+  const name = order.reservationContactName?.trim();
+  return name ? `예약자 ${name}` : `주문 ${formatKstMonthDayTime(order.createdAt)}`;
 }
 
 /**

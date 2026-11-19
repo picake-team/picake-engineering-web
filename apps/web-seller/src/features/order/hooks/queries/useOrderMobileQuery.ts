@@ -3,7 +3,6 @@
  * 홈 "처리할 주문" 숫자와 주문 탭 칸이 같은 조건이면 같은 캐시를 쓴다.
  */
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { useQueryErrorAlert } from "@/apps/web-seller/common/hooks/useQueryErrorAlert";
 import { orderApi } from "@/apps/web-seller/features/order/apis/order.api";
 import { orderQueryKeys } from "@/apps/web-seller/features/order/constants/orderQueryKeys.constant";
 import {
@@ -55,17 +54,11 @@ function cleanParams(params: OrderMobileListParams): Omit<OrderListRequestDto, "
 export interface OrderMobileListOptions {
   enabled?: boolean;
   pageSize?: number;
-  /** 같은 조회를 여러 곳에서 쓸 때 오류 안내를 한 번만 띄우려고 나머지는 조용히 */
-  silent?: boolean;
 }
 
 export function useOrderMobileList(
   params: OrderMobileListParams,
-  {
-    enabled = true,
-    pageSize = ORDER_MOBILE_PAGE_SIZE,
-    silent = false,
-  }: OrderMobileListOptions = {},
+  { enabled = true, pageSize = ORDER_MOBILE_PAGE_SIZE }: OrderMobileListOptions = {},
 ) {
   const base = cleanParams(params);
   const query = useInfiniteQuery<OrderListResponseDto>({
@@ -76,7 +69,6 @@ export function useOrderMobileList(
     getNextPageParam: (last) => (last.meta.hasNext ? last.meta.currentPage + 1 : undefined),
     enabled: enabled && !!params.storeId,
   });
-  useQueryErrorAlert({ isError: silent ? false : query.isError, error: query.error });
 
   const orders: OrderResponseDto[] = [];
   const seen = new Set<string>();

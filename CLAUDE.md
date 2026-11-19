@@ -13,6 +13,7 @@ Picake(디저트 주문 플랫폼)의 **웹 프론트엔드** 레포입니다. Y
 
 - 문서에 나오는 `apps/backend/...` 경로와 `deploy-*-backend-ec2.yml`은 backend 레포의 것입니다.
 - 판매자 휴대폰 화면(판매자 앱)을 만들거나 고치면 [`docs/web-seller/판매자 앱 디자인 기준.md`](docs/web-seller/판매자%20앱%20디자인%20기준.md)를 먼저 보고 `apps/web-seller/src/common/ui` 부품만 씁니다(높이 48/40/36, 흰색·회색·주황만, 연한·흐린 주황 금지, 날짜는 앱 창). 화면을 검토·다듬을 때(“사장님 앱 검토해줘”, “더 있을 것 같아”)는 skill `picake-app-review`(두 앱 공용, 전·후 그림으로 골라 받기)를 따릅니다. 손님 화면은 [`docs/web-user/손님 앱 디자인 기준.md`](docs/web-user/손님%20앱%20디자인%20기준.md)를 먼저 봅니다(지금 있는 부품에 맞추고 꾸미지 않기). 외부 디자인 skill(`design-taste-frontend`·`emil-design-eng`)은 소개 페이지처럼 새로 디자인할 때만 참고하고, 손님·사장님 앱 화면에서는 위 기준 문서와 `picake-app-review`가 먼저입니다.
+- 판매자 화면은 휴대폰·PC 둘 다입니다(기획 I-54, 운영자 결정 2026-11-19: 기능은 PC ≥ 휴대폰). 새 주소는 `apps/web-seller/src/common/constants/paths.constant.ts`에 `mobile`·`desktop`(따로 만든 PC 화면 또는 `SAME_SCREEN`)을 같이 적고, 휴대폰에 넣은 기능은 PC에서도 되게 합니다. PC에만·휴대폰에만 넣을 때는 운영자에게 먼저 묻습니다. 나누는 원칙은 [`프로젝트 구조 - 가이드.md`](docs/common/structure/프로젝트%20구조%20-%20가이드.md) "휴대폰·PC 나누는 원칙", PC 디자인은 판매자 앱 디자인 기준 "PC 화면" 절.
 - 공통 디자인 값(Picake 색, 움직임 시간·곡선·프리셋, 손님 화면 tailwind preset)은 `packages/design-tokens`(`@picake/design-tokens`)에 있고 web-user·web-info·web-seller가 씁니다. 움직임은 화면마다 `duration-200 ease-out`을 직접 적지 않고 `duration-base ease-enter`·`animate-sheet-in` 같은 이름을 씁니다. 바꾸면 세 앱 화면이 같이 바뀝니다. 두 앱 이상이 같이 쓰는 값만 두고, 판매자 휴대폰 화면 값은 `apps/web-seller/src/common/ui/tokens.ts`에 둡니다.
 - 프로젝트 공통 문서는 이 레포 `docs/common`이 정본입니다. 구조는 `docs/common/structure/프로젝트 구조 - 가이드.md`, AI 에이전트 설정은 `docs/common/structure/AI 코딩 에이전트 - 가이드.md`를 참고하세요.
 
@@ -23,6 +24,7 @@ yarn web-user:dev | yarn web-seller:dev | yarn web-admin:dev | yarn web-info:dev
 yarn web-user:build | yarn web-seller:build | yarn web-admin:build | yarn web-info:build
 yarn web-user:test:unit
 yarn web-user:test:e2e          # 형제 폴더의 backend 레포가 필요 (BACKEND_DIR로 변경 가능)
+yarn web-seller:test:e2e        # 사장님 PC·태블릿·휴대폰 폭 (같은 backend 테스트 서버, 심사용 가게)
 yarn common:lint && yarn common:format:check
 ```
 

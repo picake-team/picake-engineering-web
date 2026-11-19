@@ -5,9 +5,9 @@
 export const ROUTES = {
   ROOT: "/",
   MYPAGE: "/mypage",
-  /** 휴대폰 화면 휴대폰 번호 변경(SC-94 ③). PC 폭에서는 마이페이지로 */
+  /** 휴대폰 번호 변경(SC-94 ③). PC도 같은 화면을 PC 틀 안에(기획 I-54) */
   MYPAGE_PHONE: "/mypage/phone",
-  /** 휴대폰 화면 회원 탈퇴(SC-95). PC 폭에서는 마이페이지로 */
+  /** 회원 탈퇴(SC-95). PC도 같은 화면을 PC 틀 안에 */
   MYPAGE_WITHDRAW: "/mypage/withdraw",
   STORE_CREATE: "/store/create",
   STORE_DETAIL_HOME: (storeId: string) => `/stores/${storeId}`,
@@ -36,7 +36,7 @@ export const ROUTES = {
     `/stores/${storeId}/notifications/settings`,
   STORE_DETAIL_EDIT: (storeId: string) => `/stores/${storeId}/edit`,
   STORE_DETAIL_CALENDAR: (storeId: string) => `/stores/${storeId}/calendar`,
-  /** 직접 적은 주문(기획 I-42) 적기. ?date=YYYY-MM-DD면 그 날이 미리 골라진다. 휴대폰 화면만(PC 폭에서는 캘린더로) */
+  /** 직접 적은 주문(기획 I-42) 적기. ?date=YYYY-MM-DD면 그 날이 미리 골라진다. PC도 같은 화면을 PC 틀 안에 */
   STORE_DETAIL_MANUAL_ORDER_CREATE: (storeId: string) => `/stores/${storeId}/manual-orders/new`,
   STORE_DETAIL_MANUAL_ORDER_DETAIL: (storeId: string, id: string) =>
     `/stores/${storeId}/manual-orders/${id}`,
@@ -44,12 +44,14 @@ export const ROUTES = {
     `/stores/${storeId}/manual-orders/${id}/edit`,
   /** 휴대폰 앱 처음 사용 안내(SC-69, 앱에서만). PC 폭·휴대폰 브라우저에서는 스토어 홈으로 */
   STORE_DETAIL_WELCOME: (storeId: string) => `/stores/${storeId}/welcome`,
-  /** 휴대폰 화면 영업시간(쉬는 요일·영업시간, SC-81). PC 폭에서는 캘린더("기본 운영 관리")로 */
+  /** 영업시간(쉬는 요일·영업시간, SC-81). PC도 같은 화면을 PC 틀 안에 */
   STORE_DETAIL_HOURS: (storeId: string) => `/stores/${storeId}/hours`,
-  /** 휴대폰 화면 "스토어" 탭(내 스토어·설정 메뉴). PC 화면에는 없어 PC 폭에서는 스토어 홈으로 */
+  /** "스토어" 탭(링크 보내기·내 스토어·스토어 바꾸기). PC는 왼쪽 메뉴 "스토어" */
   STORE_DETAIL_MENU: (storeId: string) => `/stores/${storeId}/menu`,
-  /** 휴대폰 화면 설정(SC-98, 스토어 탭 위쪽 톱니): 알림 설정·마이페이지·문의하기. PC 폭에서는 스토어 홈으로 */
+  /** 설정(SC-98): 알림 설정·마이페이지·문의하기. PC는 왼쪽 메뉴 아래 "설정" */
   STORE_DETAIL_SETTINGS: (storeId: string) => `/stores/${storeId}/settings`,
+  /** 그날 주문서 묶음 인쇄(PC에만, 기획 I-54). ?date=YYYY-MM-DD */
+  STORE_DETAIL_PRINT_ORDERS: (storeId: string) => `/stores/${storeId}/print/orders`,
   AUTH: {
     LOGIN: "/auth/login",
     FIND_ACCOUNT: "/auth/login/find-account",

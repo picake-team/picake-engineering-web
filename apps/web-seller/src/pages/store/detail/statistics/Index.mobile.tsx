@@ -32,7 +32,7 @@ import type {
   OrderStatisticsHourlyDto,
   OrderStatisticsWeekdayDto,
 } from "@/apps/web-seller/features/statistics/types/statistics.dto";
-import { formatWon } from "@/apps/web-seller/features/order/utils/order-mobile.util";
+import { formatWon } from "@/apps/web-seller/common/utils/won.util";
 import { MANUAL_ORDER_SOURCE_LABEL } from "@/apps/web-seller/features/manual-order/constants/manual-order.constant";
 import { euRo } from "@/apps/web-seller/common/utils/josa.util";
 

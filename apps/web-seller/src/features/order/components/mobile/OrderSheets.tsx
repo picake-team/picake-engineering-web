@@ -11,7 +11,6 @@ import { PickerButton } from "@/apps/web-seller/common/ui/Field";
 import { DateRangeSheet } from "@/apps/web-seller/common/ui/DateRangeSheet";
 import { formatKeyMonthDayWeek, kstDateKey } from "@/apps/web-seller/common/utils/kst-date.util";
 import { OrderSortBy } from "@/apps/web-seller/features/order/types/order.dto";
-import type { OrderDateFilter } from "@/apps/web-seller/features/order/hooks/queries/useOrderMobileQuery";
 import {
   FINISHED_ORDER_STATUSES,
   ORDER_STEP_LABELS,
@@ -20,29 +19,13 @@ import {
   type OrderTab,
 } from "@/apps/web-seller/features/order/utils/order-mobile.util";
 import { getOrderStatusLabel } from "@/apps/web-seller/features/order/utils/order-status-ui.util";
+import {
+  EMPTY_FIND,
+  SORT_LABEL,
+  defaultSortFor,
+  type OrderFindState,
+} from "@/apps/web-seller/features/order/utils/order-find.util";
 import { getOrderStatusSellerHint } from "@/apps/web-seller/features/order/utils/order-status-seller-guide.util";
-
-export interface OrderFindState extends OrderDateFilter {
-  query: string;
-  sortBy?: OrderSortBy;
-}
-
-export const EMPTY_FIND: OrderFindState = { query: "" };
-
-/** 탭·검색마다 기본 정렬(SC-74 ③) */
-export function defaultSortFor(tab: OrderTab, searching: boolean): OrderSortBy {
-  if (searching) return OrderSortBy.LATEST;
-  return tab === "past" ? OrderSortBy.PICKUP_DESC : OrderSortBy.PICKUP_ASC;
-}
-
-export const SORT_LABEL: Record<OrderSortBy, string> = {
-  [OrderSortBy.PICKUP_ASC]: "픽업 가까운 순",
-  [OrderSortBy.PICKUP_DESC]: "픽업 최근 순",
-  [OrderSortBy.LATEST]: "최신 주문 순",
-  [OrderSortBy.OLDEST]: "오래된 주문 순",
-  [OrderSortBy.PRICE_DESC]: "금액 높은 순",
-  [OrderSortBy.PRICE_ASC]: "금액 낮은 순",
-};
 
 /**
  * 기간 칸: 고르는 칸(PickerButton)을 누르면 앱 달력 창(DateRangeSheet)이 이 창 위에 열린다.
@@ -159,6 +142,7 @@ export function OrderFindSheet({
           enterKeyHint="search"
           aria-label="이름, 전화번호 뒷자리, 상품명, 주문번호"
           placeholder="이름, 번호 뒷자리, 상품명"
+          maxLength={50}
           value={draft.query}
           onChange={(e) => setDraft((d) => ({ ...d, query: e.target.value }))}
           className="h-12 min-w-0 flex-1 rounded-control border border-ink-200 bg-white px-4 text-body text-ink-900 outline-none placeholder:text-ink-500 focus:border-[1.5px] focus:border-ink-900 [&::-webkit-search-cancel-button]:hidden"
