@@ -4,7 +4,8 @@
  * 픽업이 없으면 "휴무"·그날만 바꾼 날 "바꿈". 그 아래 대목 이름(이브·성탄절 등, 기획 I-42).
  * 날짜를 누르면 아래가 그날 픽업(Picake + 직접 적은 주문 시각 순)으로 바뀌고, 화면 아래 "○월 ○일 주문 적기"는
  * 고른 날로 주문 적기를 연다. 오른쪽 위 버튼은 다른 캘린더로 내보내기.
- * 그날만 영업을 바꾸는 것은 휴대폰에서 하지 않는다(운영자 결정, PC 캘린더에서). 쉬는 요일·영업시간은 스토어 탭 "영업시간".
+ * 고른 날 아래 한 줄에서 그날만 영업을 바꾼다(DayHoursSheet, PC 캘린더와 같은 창 — 운영자 결정 2026-11-19 "휴대폰에도").
+ * 쉬는 요일·매주 영업시간은 스토어 탭 "영업시간".
  */
 import React, { useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -41,7 +42,9 @@ import {
   calendarOrDefault,
   dayMark,
   effectiveRule,
+  formatHoursRange,
 } from "@/apps/web-seller/features/store/utils/business-day.util";
+import { DayHoursSheet } from "@/apps/web-seller/features/store/components/DayHoursSheet";
 
 const SWIPE_PX = 56;
 
@@ -59,6 +62,7 @@ export const StoreDetailCalendarMobilePage: React.FC = () => {
   });
   const touch = useRef<{ x: number; y: number } | null>(null);
   const [exportOpen, setExportOpen] = useState(false);
+  const [hoursOpen, setHoursOpen] = useState(false);
 
   const { data: store } = useStoreDetail(storeId);
   const cal = calendarOrDefault(store?.businessCalendar);
@@ -254,6 +258,23 @@ export const StoreDetailCalendarMobilePage: React.FC = () => {
               <span className="shrink-0 text-sub font-normal text-ink-600">{selectedTag.full}</span>
             ) : null}
           </h2>
+          <div className="flex items-center gap-2 rounded-control bg-ink-50 py-1.5 pl-4 pr-1.5">
+            <span className="min-w-0 flex-1 text-sub text-ink-700">
+              {selectedRule.isOpen
+                ? `영업 ${formatHoursRange(selectedRule.start, selectedRule.end)}`
+                : "휴무"}
+              {selectedRule.overridden ? " · 이날만 바꿈" : ""}
+            </span>
+            <Button
+              variant="secondary"
+              size="md"
+              className="px-3"
+              disabled={!store}
+              onClick={() => setHoursOpen(true)}
+            >
+              영업 바꾸기
+            </Button>
+          </div>
           <DayPickupList
             pickups={selectedPickups}
             loaded={month.loaded}
@@ -271,6 +292,14 @@ export const StoreDetailCalendarMobilePage: React.FC = () => {
         storeId={storeId}
         open={exportOpen}
         onClose={() => setExportOpen(false)}
+      />
+      <DayHoursSheet
+        open={hoursOpen}
+        onClose={() => setHoursOpen(false)}
+        storeId={storeId}
+        dateKey={selectedKey}
+        calendar={cal}
+        dayOrders={byDay[selectedKey] ?? []}
       />
     </AppScreen>
   );
