@@ -64,7 +64,7 @@ export default function StoreDetailScreen({
   }
 
   return (
-    <div className="w-full pb-[100px]">
+    <div className="w-full pb-[calc(160px+env(safe-area-inset-bottom))]">
       <div className="px-[20px]">
         <StoreDetailIntroSection store={data} likeDisabled={isPlaceholderData} />
       </div>

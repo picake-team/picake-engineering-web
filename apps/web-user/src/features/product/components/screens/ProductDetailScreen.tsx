@@ -120,7 +120,14 @@ export default function ProductDetailScreen({
   const checkedDraftRef = useRef(false);
   const optionsVersion = data?.optionsVersion;
   useEffect(() => {
-    if (!isAuthenticated || optionsVersion === undefined || checkedDraftRef.current) return;
+    // 서버가 미리 받은 값(placeholder, 최대 5분 캐시)이 아니라 새로 받은 상품으로 판단한다
+    if (
+      !isAuthenticated ||
+      optionsVersion === undefined ||
+      isPlaceholderData ||
+      checkedDraftRef.current
+    )
+      return;
     checkedDraftRef.current = true;
     void takeReservationDraft(productId).then((draft) => {
       // 판매중지·견적 받기 상품이면 예약 창을 다시 열지 않는다(로그인하는 사이 사장님이 바꿨을 수 있음)
@@ -128,7 +135,12 @@ export default function ProductDetailScreen({
       setResumeDraft(draft);
       setIsBottomSheetOpen(true);
     });
-  }, [isAuthenticated, optionsVersion, productId, isSalesStopped, isQuote]);
+  }, [isAuthenticated, optionsVersion, productId, isSalesStopped, isQuote, isPlaceholderData]);
+
+  // 예약 창을 연 사이 사장님이 견적 받기로 바꿨으면(새로 받은 값) 창을 닫는다 — 아래 버튼도 견적으로 바뀐다
+  useEffect(() => {
+    if (isQuote) setIsBottomSheetOpen(false);
+  }, [isQuote]);
 
   /**
    * 예약 시트 청크는 초기 렌더 경로에서 빼되(아래 조건부 렌더),
@@ -194,7 +206,8 @@ export default function ProductDetailScreen({
   }
 
   return (
-    <div className="pb-[100px]">
+    // 아래 여백: 버튼 줄(72px) + 떠 있는 문의 버튼(48px, 위 12px) + 12px
+    <div className="pb-[144px]">
       {/* 이미지 갤러리 */}
       <ProductDetailImageGallerySection images={data.images} productName={data.name} />
       {/* 상품 정보 */}

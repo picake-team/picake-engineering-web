@@ -130,7 +130,8 @@ function readInit(params: URLSearchParams): Partial<QuoteDraft> | null {
   if (entry === "PRODUCT" && productId && store?.storeId && init.onlyDesignatedStores) {
     init.productId = productId;
     const photo = params.get("photo");
-    if (photo && /^https:\/\//.test(photo)) {
+    // 우리 사진 주소(상품 사진이 올라가는 곳)만 받는다 — 꾸민 주소로 바깥 그림이 요청서에 뜨지 않게
+    if (photo && PRODUCT_PHOTO_URL.test(photo)) {
       init.photos = [
         {
           id: `product-${productId}-${Date.now()}`,
@@ -140,11 +141,14 @@ function readInit(params: URLSearchParams): Partial<QuoteDraft> | null {
         },
       ];
     }
-    const productName = params.get("productName")?.trim();
+    const productName = params.get("productName")?.trim().slice(0, 50);
     if (productName) init.description = `${productName} 디자인으로 부탁드려요.`;
   }
   return init;
 }
+
+/** 상품 사진이 올라가는 주소(next.config images와 같은 곳) */
+const PRODUCT_PHOTO_URL = /^https:\/\/static(-staging|-production)?\.picakes\.com\//;
 
 function hasContent(d: QuoteDraft) {
   return Boolean(d.pickupDate || d.area || d.photos.length || d.description.trim() || d.size);
@@ -160,6 +164,7 @@ function QuoteNewContent() {
   const create = useCreateQuoteRequest();
   const [hydrated, setHydrated] = useState(false);
   const [pendingInit, setPendingInit] = useState<Partial<QuoteDraft> | null>(null);
+  const [pendingProductName, setPendingProductName] = useState<string | null>(null);
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
@@ -188,8 +193,11 @@ function QuoteNewContent() {
     setInitDone(true);
     const init = readInit(new URLSearchParams(params.toString()));
     if (!init) return;
-    if (hadDraftRef.current) setPendingInit(init);
-    else {
+    if (hadDraftRef.current) {
+      setPendingInit(init);
+      // 아래에서 주소를 지우므로 이어 쓰기 창에 보일 상품 이름은 지금 담아 둔다
+      setPendingProductName(params.get("productName")?.trim().slice(0, 50) || null);
+    } else {
       start(init);
       fillAreaFromStore(init);
     }
@@ -210,6 +218,27 @@ function QuoteNewContent() {
   }
 
   const pendingDesign = getDesign(pendingInit?.photos?.[0]?.designId);
+  // 이어 쓰기로 그 가게를 받는 가게에 더할 수 있는지. "이 가게에만" 요청서는 가게 하나만 보낼 수 있어(서버도 막음)
+  // 다른 가게는 더하지 않고 쓰던 요청서를 그대로 잇는다
+  const pendingStore = pendingInit?.stores?.[0];
+  const pendingStoreIn = !!pendingStore && draft.stores.some((s) => s.key === pendingStore.key);
+  const canAddPendingStore =
+    !!pendingStore &&
+    (pendingStoreIn ||
+      (!draft.onlyDesignatedStores && draft.stores.length < QUOTE_LIMITS.MAX_STORES));
+  // 상품 화면에서 왔고 쓰던 요청서가 있을 때 창에 보일 상품(기획 I-01). 그 가게가 받는 가게에 들어갈 때만
+  // 더한다 — 서버는 받는 가게의 상품 사진만 받는다
+  const pendingRemote = pendingInit?.productId ? pendingInit.photos?.[0]?.remoteUrl : undefined;
+  const pendingProductPhoto =
+    pendingRemote && canAddPendingStore && !draft.photos.some((p) => p.remoteUrl === pendingRemote)
+      ? pendingRemote
+      : undefined;
+  const pendingProduct = pendingProductPhoto
+    ? {
+        photo: pendingProductPhoto,
+        name: pendingProductName || "이 상품",
+      }
+    : null;
   const only = draft.onlyDesignatedStores;
   const order = useMemo(() => (only ? [1, 4, 5, 6] : [1, 2, 3, 4, 5, 6]), [only]);
   const position = Math.max(0, order.indexOf(step));
@@ -282,6 +311,9 @@ function QuoteNewContent() {
       // 사진 보고 채우는 칸은 설명 하나(11-14부터): 채운 그대로 보내면 1
       auto_filled_count: isAutoFilled("description", draft, draft.autoFill) ? 1 : 0,
     });
+    const sendProductId = Boolean(
+      draft.productId && draft.onlyDesignatedStores && draft.stores.length === 1,
+    );
     create.mutate(
       {
         photos: draft.photos,
@@ -324,12 +356,10 @@ function QuoteNewContent() {
           budgetMin: draft.budgetMin,
           budgetMax: draft.budgetMax >= QUOTE_LIMITS.BUDGET_MAX ? undefined : draft.budgetMax,
           requestNote: draft.requestNote.trim() || undefined,
-          entry: draft.entry ?? undefined,
+          entry:
+            (draft.entry === "PRODUCT" && !sendProductId ? undefined : draft.entry) ?? undefined,
           // 상품 화면에서 연 요청(기획 I-01): 서버는 "이 가게에만" 그 상품의 가게 하나일 때만 받는다
-          productId:
-            draft.productId && draft.onlyDesignatedStores && draft.stores.length === 1
-              ? draft.productId
-              : undefined,
+          productId: sendProductId ? (draft.productId ?? undefined) : undefined,
           photoDetails: draft.photos.length
             ? draft.photos.map((p) => ({
                 designId: p.designId ?? null,
@@ -423,6 +453,19 @@ function QuoteNewContent() {
         title="쓰던 요청서가 있어요"
       >
         <p className="px-[20px] pt-[4px] text-sm text-gray-500">{draftSummary(draft)}</p>
+        {pendingProduct && (
+          <div className="mx-[20px] mt-[14px] flex items-center gap-[10px] rounded-xl border border-gray-100 p-[10px]">
+            <img
+              src={pendingProduct.photo}
+              alt=""
+              className="h-[44px] w-[44px] shrink-0 rounded-lg bg-gray-50 object-cover"
+            />
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-gray-900">{pendingProduct.name}</p>
+              <p className="text-2sm text-gray-500">쓰던 요청서에 이 사진을 더할까요?</p>
+            </div>
+          </div>
+        )}
         {pendingDesign && (
           <div className="mx-[20px] mt-[14px] flex items-center gap-[10px] rounded-xl border border-gray-100 p-[10px]">
             <img
@@ -453,13 +496,21 @@ function QuoteNewContent() {
             size="lg"
             className="flex-1"
             onClick={() => {
-              // 이어 쓰기: 쓰던 내용에 그 가게·디자인 사진을 더한다(사진은 3장까지).
-              // 상품 화면에서 온 경우(기획 I-01)는 가게만 더한다 — 상품 사진·상품은 "이 가게에만" 새 요청에서만 보낼 수 있다
-              const extraPhotos = pendingInit?.productId
-                ? []
-                : (pendingInit?.photos ?? []).filter(
-                    (p) => !draft.photos.some((x) => x.designId && x.designId === p.designId),
-                  );
+              // 이어 쓰기: 쓰던 내용에 그 가게·디자인(상품) 사진을 더한다(사진은 3장까지).
+              // 상품 사진(기획 I-01)은 그 가게가 받는 가게에 들어갈 때만 더한다(위 canAddPendingStore).
+              // 상품 표시(productId)는 "이 가게에만" 그 가게 하나일 때만 보낸다(보낼 때 판단)
+              const fromProduct = !!pendingInit?.productId;
+              const extraPhotos =
+                fromProduct && !pendingProduct
+                  ? []
+                  : (pendingInit?.photos ?? []).filter(
+                      (p) =>
+                        !draft.photos.some(
+                          (x) =>
+                            (x.designId && x.designId === p.designId) ||
+                            (x.remoteUrl && x.remoteUrl === p.remoteUrl),
+                        ),
+                    );
               if (extraPhotos.length) {
                 const room = QUOTE_LIMITS.MAX_PHOTOS - draft.photos.length;
                 if (room < extraPhotos.length) {
@@ -471,22 +522,21 @@ function QuoteNewContent() {
                 }
                 if (room > 0) {
                   setPhotos([...draft.photos, ...extraPhotos.slice(0, room)]);
-                  // 디자인을 보고 이어 쓴 요청은 들어온 곳을 디자인으로(기획 I-112 숫자)
-                  update({ entry: "DESIGN" });
+                  // 디자인(상품)을 보고 이어 쓴 요청은 들어온 곳을 디자인(상품)으로(기획 I-112·I-01 숫자)
+                  update(
+                    fromProduct
+                      ? { entry: "PRODUCT", productId: pendingInit?.productId }
+                      : { entry: "DESIGN" },
+                  );
                 }
               }
-              const extra = pendingInit?.stores?.[0];
-              if (
-                extra &&
-                !draft.stores.some((s) => s.key === extra.key) &&
-                draft.stores.length < QUOTE_LIMITS.MAX_STORES
-              ) {
-                update({ stores: [...draft.stores, extra] });
+              if (pendingStore && canAddPendingStore && !pendingStoreIn) {
+                update({ stores: [...draft.stores, pendingStore] });
               }
               setPendingInit(null);
             }}
           >
-            {pendingDesign ? "이 사진 더해 이어 쓰기" : "이어 쓰기"}
+            {pendingDesign || pendingProduct ? "이 사진 더해 이어 쓰기" : "이어 쓰기"}
           </Button>
         </div>
       </BottomSheet>

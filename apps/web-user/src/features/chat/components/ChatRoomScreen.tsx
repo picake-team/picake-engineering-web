@@ -242,7 +242,11 @@ export function ChatRoomScreen({
   const agreed = thread?.rulesAgreed ?? rulesAgreed;
   const storeId = thread?.storeId ?? start?.storeId ?? null;
   // 입점 가게가 쉬는 날·영업시간 밖이면 방 위에 한 줄(기획 I-11 "영업 캘린더를 그대로", I-01 2026-11-19)
-  const { data: storeDetail } = useStoreDetail(thread?.unenteredShop ? "" : (storeId ?? ""));
+  const { data: storeDetail } = useStoreDetail(
+    thread?.unenteredShop ? "" : (storeId ?? ""),
+    undefined,
+    { silentError: true },
+  );
   const storeClosedNow =
     !!storeDetail?.businessCalendar && !isStoreOpenForPickupNow(storeDetail.businessCalendar);
 
