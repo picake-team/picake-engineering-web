@@ -28,6 +28,7 @@ import {
   exportFileName,
   splitDateRange,
 } from "@/apps/web-seller/features/order/utils/order-export.util";
+import { trackSellerEvent } from "@/apps/web-seller/common/utils/analytics.util";
 
 type Preset = "thisMonth" | "lastMonth" | "last3" | "custom";
 
@@ -115,6 +116,14 @@ export function OrderExportSheet({
         exportFileName(storeName, range.start, range.end),
         buildOrdersCsv(orders, manuals),
       );
+      // 사용량만(운영자 결정 2026-11-20): 기간 종류·날 수·건수. 같은 주문이 두 쪽에 걸쳐 올 수 있어 id로 센다
+      trackSellerEvent("success_order_export", {
+        range_preset: preset,
+        days: Math.round((Date.parse(range.end) - Date.parse(range.start)) / 86_400_000) + 1,
+        order_count: new Set(orders.map((x) => x.id)).size,
+        manual_order_count: new Set(manuals.map((x) => x.id)).size,
+        surface: "pc",
+      });
       onClose();
     } catch (e) {
       useAlertStore.getState().addAlert({
