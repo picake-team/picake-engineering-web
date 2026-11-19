@@ -7,7 +7,7 @@ import { SellerNotificationScope } from "@/apps/web-seller/features/notification
 /** 휴대폰 화면이 열리는 동안 잠깐 보이는 빈 화면(위쪽 줄 높이만큼 비움) */
 function MobileScreenLoading() {
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-[640px] flex-col bg-white pt-[env(safe-area-inset-top)]">
+    <div className="mx-auto flex min-h-dvh w-full max-w-column flex-col bg-white pt-[env(safe-area-inset-top)]">
       <div className="h-12" />
       <div className="flex flex-col gap-3 px-5 pt-4" aria-busy="true" aria-label="불러오는 중">
         <span className="block h-6 w-1/3 animate-pulse rounded-check bg-ink-50" />

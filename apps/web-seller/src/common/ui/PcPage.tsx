@@ -39,9 +39,7 @@ export function PcPage({
           {store?.name ? (
             <span className="truncate text-caption text-ink-600">{store.name}</span>
           ) : null}
-          <h1 className="truncate text-[22px] font-bold leading-tight tracking-[-0.02em] text-ink-900">
-            {title}
-          </h1>
+          <h1 className="truncate text-display font-bold text-ink-900">{title}</h1>
         </div>
         {actions ? <div className="ml-auto flex shrink-0 items-center gap-2">{actions}</div> : null}
       </header>

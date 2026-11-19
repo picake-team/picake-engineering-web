@@ -65,7 +65,7 @@ export function Snackbar({
         role="status"
         aria-live="polite"
         className={cx(
-          "pointer-events-auto flex min-h-12 items-center gap-3 rounded-[8px] bg-ink-900 py-2 pl-4 pr-2 text-body text-white shadow-[0_6px_20px_rgba(31,31,30,0.24)]",
+          "pointer-events-auto flex min-h-12 items-center gap-3 rounded-banner bg-ink-900 py-2 pl-4 pr-2 text-body text-white shadow-snackbar",
           leaving
             ? "animate-snackbar-out motion-reduce:animate-toast-out"
             : "animate-snackbar-in motion-reduce:animate-toast-in",
@@ -79,7 +79,7 @@ export function Snackbar({
               onAction?.();
               close();
             }}
-            className="-my-1 inline-flex h-10 shrink-0 items-center rounded-[8px] px-3 text-body font-bold text-brand active:bg-white/10"
+            className="-my-1 inline-flex h-10 shrink-0 items-center rounded-banner px-3 text-body font-bold text-brand active:bg-white/10"
           >
             {actionLabel}
           </button>

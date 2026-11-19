@@ -38,7 +38,7 @@ export function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps)
 
   return (
     <div className="fixed inset-0 z-[9999] flex flex-col bg-white px-5 pt-[env(safe-area-inset-top)] font-app">
-      <div className="mx-auto flex w-full max-w-[640px] flex-1 flex-col">
+      <div className="mx-auto flex w-full max-w-column flex-1 flex-col">
         <LoadErrorState big title="화면을 보여 주지 못했어요" onRetry={retry} />
       </div>
     </div>

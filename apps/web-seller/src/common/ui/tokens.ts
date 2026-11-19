@@ -35,6 +35,8 @@ export const appColors = {
  * 손님 웹(본문 14·제목 18~20)에 맞춰 한 단계씩 작게 정했다.
  */
 export const appFontSize = {
+  number: ["24px", { lineHeight: "1.25", letterSpacing: "-0.02em" }], // PC 홈 숫자 칸
+  display: ["22px", { lineHeight: "1.25", letterSpacing: "-0.02em" }], // PC 화면 제목
   title: ["20px", { lineHeight: "1.4", letterSpacing: "-0.02em" }], // 화면 제목(아래 탭 화면)·큰 숫자
   heading: ["18px", { lineHeight: "1.4", letterSpacing: "-0.01em" }], // 창 제목·할 일 한 줄
   group: ["16px", { lineHeight: "1.4" }], // 묶음 제목
@@ -43,14 +45,29 @@ export const appFontSize = {
   caption: ["12px", { lineHeight: "1.5" }], // 설명 글·도움말·고칠 곳
   badge: ["11px", { lineHeight: "1.4" }], // 배지
   tab: ["11px", { lineHeight: "1.3" }], // 아래 탭 이름·단계 이름(손님 웹 아래 탭과 같음)
+  count: ["10px", { lineHeight: "1" }], // 메뉴·아래 탭 숫자 동그라미
 } as const;
 
 /** 모서리: 체크 6, 위쪽 안내 띠 8, 버튼·입력 12, 카드·칸·안내 16, 창 22, 칩·배지·토글은 rounded-full */
 export const appRadius = {
   check: "6px",
+  banner: "8px",
   control: "12px",
   card: "16px",
   sheet: "22px",
+} as const;
+
+/** 그림자: 떠 있는 것만(카드·칸은 그림자 없이 테두리). 아래 고정 버튼 줄, 위쪽 안내 띠, 스낵바(어두운 바탕), PC 가운데 창 */
+export const appShadow = {
+  bar: "0 -6px 20px rgba(31,31,30,0.07)",
+  banner: "0 6px 20px rgba(31,31,30,0.14)",
+  snackbar: "0 6px 20px rgba(31,31,30,0.24)",
+  dialog: "0 16px 48px rgba(31,31,30,0.18)",
+} as const;
+
+/** 휴대폰 화면 한 줄 폭: 넓은 화면에서도 휴대폰 화면·창은 가운데 640 */
+export const appMaxWidth = {
+  column: "640px",
 } as const;
 
 /** 높이: 주 버튼·입력·위쪽 줄 48(h-12), 작은 버튼·검색 40(h-10), 칩·동그라미 36(h-9), 목록 한 줄 52(min-h-13). 누르는 영역은 44(size-11·min-h-11) 유지 */

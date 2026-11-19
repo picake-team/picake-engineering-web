@@ -31,7 +31,7 @@ function Count({ value, rail }: { value: number; rail: boolean }) {
       className={cx(
         "flex items-center justify-center rounded-full bg-brand font-bold tabular-nums leading-none text-white",
         rail
-          ? "absolute right-3 top-1 h-[18px] min-w-[18px] px-1 text-[10px]"
+          ? "absolute right-3 top-1 h-[18px] min-w-[18px] px-1 text-count"
           : "ml-auto h-5 min-w-5 px-1.5 text-badge",
       )}
     >

@@ -4,7 +4,9 @@ import {
   appColors,
   appFontFamily,
   appFontSize,
+  appMaxWidth,
   appRadius,
+  appShadow,
   appSpacing,
 } from "./src/common/ui/tokens";
 import {
@@ -43,6 +45,8 @@ const config: Config = {
       fontSize: { ...appFontSize },
       fontFamily: { app: appFontFamily },
       spacing: { ...appSpacing },
+      boxShadow: { ...appShadow },
+      maxWidth: { ...appMaxWidth },
       colors: {
         // 휴대폰 화면(디자인 기준 B): ink-*, brand-*, kakao
         ...appColors,

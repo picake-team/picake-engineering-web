@@ -173,7 +173,7 @@ function ToastItem({ alert: a }: { alert: AlertItem }) {
 
   const shell = cx(
     // 모서리는 카드(16)보다 각진 8(운영자 17차)
-    "pointer-events-auto relative flex w-full touch-none items-center gap-3 overflow-hidden rounded-[8px] border border-ink-100 bg-white px-4 py-3.5 text-left text-body text-ink-900 shadow-[0_6px_20px_rgba(31,31,30,0.14)] transition-[opacity,transform] duration-200 ease-out animate-in fade-in-0 slide-in-from-top-2",
+    "pointer-events-auto relative flex w-full touch-none items-center gap-3 overflow-hidden rounded-banner border border-ink-100 bg-white px-4 py-3.5 text-left text-body text-ink-900 shadow-banner transition-[opacity,transform] duration-200 ease-out animate-in fade-in-0 slide-in-from-top-2",
     leaving && "opacity-0",
     // 손가락을 따라올 때는 바로, 놓으면 부드럽게
     (drag.x !== 0 || drag.y !== 0) && !leaving && "transition-none",

@@ -82,7 +82,7 @@ function ActAsBannerBar() {
           type="button"
           onClick={end}
           disabled={ending}
-          className="inline-flex h-10 shrink-0 items-center rounded-[8px] px-3 font-bold text-brand active:bg-white/10 disabled:text-ink-400"
+          className="inline-flex h-10 shrink-0 items-center rounded-banner px-3 font-bold text-brand active:bg-white/10 disabled:text-ink-400"
         >
           {ending ? "끝내는 중…" : "끝내기"}
         </button>

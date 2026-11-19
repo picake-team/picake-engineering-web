@@ -22,7 +22,7 @@ import {
 } from "@/apps/web-seller/common/ui/shell";
 
 /** 화면 칸 너비(손님 웹 PC 가운데 칸과 같은 값) */
-export const APP_COLUMN_CLASS = "mx-auto w-full max-w-[640px]";
+export const APP_COLUMN_CLASS = "mx-auto w-full max-w-column";
 
 export type AppTab = TabIconName;
 
@@ -77,7 +77,7 @@ export function AppTabBar({ storeId, current }: { storeId: string; current: AppT
               {tab === "chat" && chatCount > 0 ? (
                 <span
                   aria-label={`안 읽은 채팅 ${chatCount}`}
-                  className="absolute -right-2.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-1 text-[10px] font-bold leading-none text-white"
+                  className="absolute -right-2.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-1 text-count font-bold leading-none text-white"
                 >
                   {chatCount > 99 ? "99+" : chatCount}
                 </span>
@@ -330,7 +330,7 @@ export function BottomActionBar({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-2 bg-white px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-4 font-app shadow-[0_-6px_20px_rgba(31,31,30,0.07)]">
+    <div className="flex flex-col gap-2 bg-white px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-4 font-app shadow-bar">
       {reason ? (
         onReasonClick ? (
           <button

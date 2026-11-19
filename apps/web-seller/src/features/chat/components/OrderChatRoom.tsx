@@ -16,14 +16,14 @@ export function OrderChatRoom({ storeId, orderId }: { storeId: string; orderId: 
   });
   if (q.isLoading) {
     return (
-      <div className="mx-auto w-full max-w-[640px] px-5 py-6">
+      <div className="mx-auto w-full max-w-column px-5 py-6">
         <SkeletonCards count={3} thumb={false} />
       </div>
     );
   }
   if (q.isError || !q.data) {
     return (
-      <div className="mx-auto flex min-h-[50dvh] w-full max-w-[640px] flex-col px-5">
+      <div className="mx-auto flex min-h-[50dvh] w-full max-w-column flex-col px-5">
         <LoadErrorState big onRetry={() => void q.refetch()} />
       </div>
     );

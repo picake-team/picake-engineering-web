@@ -161,8 +161,8 @@ export function BottomSheet({
         className={cx(
           "relative flex w-full flex-col bg-white text-ink-900 outline-none",
           desktop
-            ? "max-h-[85dvh] max-w-[480px] rounded-sheet shadow-[0_16px_48px_rgba(31,31,30,0.18)]"
-            : "mx-auto max-h-[90dvh] max-w-[640px] rounded-t-sheet",
+            ? "max-h-[85dvh] max-w-[480px] rounded-sheet shadow-dialog"
+            : "mx-auto max-h-[90dvh] max-w-column rounded-t-sheet",
           leaving
             ? desktop
               ? "animate-fade-out"

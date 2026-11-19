@@ -53,9 +53,7 @@ function StatTile({
   const body = (
     <>
       <span className="text-sub text-ink-600">{label}</span>
-      <span className="text-[24px] font-bold leading-tight tracking-[-0.02em] tabular-nums text-ink-900">
-        {value}
-      </span>
+      <span className="text-number font-bold tabular-nums text-ink-900">{value}</span>
       {sub ? <span className="text-caption text-ink-600">{sub}</span> : null}
     </>
   );

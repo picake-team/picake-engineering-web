@@ -70,6 +70,26 @@ button {
   outline: none;
 }
 
+/*
+ * 키보드(Tab)로 옮겨 다닐 때만 테두리를 보인다(PC 화면, 기획 I-54). 마우스·손가락으로 누를 때는 :focus-visible이 아니라 보이지 않는다.
+ * 입력 칸은 칸 테두리가 진해지는 것으로 대신한다. :where라 부품이 따로 정한 focus 모양이 있으면 그것이 이긴다.
+ */
+:where(
+  a,
+  button,
+  summary,
+  [role="button"],
+  [role="tab"],
+  [role="switch"],
+  [role="radio"],
+  [role="checkbox"],
+  [role="option"],
+  [tabindex]:not([tabindex="-1"])
+):focus-visible {
+  outline: 2px solid theme("colors.ink.900");
+  outline-offset: 2px;
+}
+
 input,
 textarea {
   outline: none;
