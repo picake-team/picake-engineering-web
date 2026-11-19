@@ -33,7 +33,7 @@ export const loadKakaoAddressScript = (): Promise<void> => {
     }
 
     const script = document.createElement("script");
-    script.src = "//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
+    script.src = "//t1.kakaocdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
     script.async = true;
     script.onload = () => resolve();
     script.onerror = () => reject(new Error("카카오 주소 검색 스크립트 로드 실패"));
