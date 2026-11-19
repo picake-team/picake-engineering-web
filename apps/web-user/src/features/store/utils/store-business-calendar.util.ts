@@ -210,3 +210,55 @@ export function isStoreOpenOnSeoulCalendarDay(
 
   return Boolean(calendar.standardOpenTime && calendar.standardCloseTime);
 }
+
+const KOREAN_WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"] as const;
+
+/** 서울 달력 날짜(dateKey·요일)의 영업 구간(분). 휴무면 null */
+function seoulDayOpenRange(
+  calendar: StoreBusinessCalendar,
+  dateKey: string,
+  weekday: number,
+): { openMin: number; closeMin: number } | null {
+  const override = calendar.dayOverrides.find((o) => o.date === dateKey);
+  const open = override ? override.openTime : calendar.standardOpenTime;
+  const close = override ? override.closeTime : calendar.standardCloseTime;
+  if (override ? !override.isOpen : calendar.weeklyClosedWeekdays.includes(weekday)) return null;
+  if (!open || !close) return null;
+  if (isStoreBusinessFullDayWindow(open, close)) return { openMin: 0, closeMin: 24 * 60 };
+  return { openMin: parseHalfHourTimeToMinutes(open), closeMin: parseHalfHourTimeToMinutes(close) };
+}
+
+function koreanClockLabel(minuteOfDay: number): string {
+  const h = Math.floor(minuteOfDay / 60);
+  const m = minuteOfDay % 60;
+  const hour12 = h % 12 === 0 ? 12 : h % 12;
+  return `${h < 12 ? "오전" : "오후"} ${hour12}시${m ? ` ${m}분` : ""}`;
+}
+
+/**
+ * 영업시간 밖이면 다음에 여는 때(예: "내일 오전 11시부터", "11월 24일(화) 오후 2시부터").
+ * 지금 영업 중이면 null, 14일 안에 여는 날이 없으면 "" (영업시간 밖이지만 언제 여는지 모름).
+ * 손님 문의 창·채팅방의 "지금은 영업시간이 아니에요" 줄에 쓴다(기획 I-01·I-11, 영업 캘린더를 그대로 씀).
+ */
+export function getNextStoreOpenLabel(
+  calendar: StoreBusinessCalendar,
+  at: Date = new Date(),
+): string | null {
+  if (isStoreOpenForPickupNow(calendar, at)) return null;
+  for (let i = 0; i < 14; i += 1) {
+    const { dateKey, weekday, minuteOfDay } = getSeoulWallClockForPickup(
+      new Date(at.getTime() + i * 24 * 60 * 60 * 1000),
+    );
+    const range = seoulDayOpenRange(calendar, dateKey, weekday);
+    if (!range) continue;
+    // 오늘은 아직 열기 전일 때만(닫은 뒤면 다음 날)
+    if (i === 0 && minuteOfDay >= range.openMin) continue;
+    const [, month, day] = dateKey.split("-").map((x) => Number.parseInt(x, 10));
+    const dayWord =
+      i === 0 ? "오늘" : i === 1 ? "내일" : `${month}월 ${day}일(${KOREAN_WEEKDAYS[weekday]})`;
+    return range.openMin === 0 && range.closeMin === 24 * 60
+      ? `${dayWord}부터`
+      : `${dayWord} ${koreanClockLabel(range.openMin)}부터`;
+  }
+  return "";
+}

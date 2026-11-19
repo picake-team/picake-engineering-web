@@ -12,6 +12,7 @@ import { Tabs } from "@/apps/web-user/common/components/tabs/Tabs";
 import { StoreDetailSkeleton } from "@/apps/web-user/common/components/skeleton/StoreDetailSkeleton";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 import { StoreQuoteEntry } from "@/apps/web-user/features/quote/components/entry/StoreQuoteEntry";
+import { StoreInquiryFab } from "@/apps/web-user/features/store/components/StoreInquiryFab";
 import { useScrollRestoration } from "@/apps/web-user/common/hooks/useScrollRestoration";
 import { useStoreLinkVisit } from "@/apps/web-user/features/store/hooks/useStoreLinkVisit";
 import type { StoreInfo } from "@/apps/web-user/features/store/types/store.type";
@@ -92,6 +93,8 @@ export default function StoreDetailScreen({
       />
       {/* 견적 요청 입구(기획 I-46 SC-13 3): 상품·후기·피드 탭 모두 같은 자리 */}
       <StoreQuoteEntry store={data} />
+      {/* 떠 있는 문의 버튼(기획 I-01): 아래 견적 칸(76px, 아래 12px) 위로 12px */}
+      <StoreInquiryFab store={data} bottom="calc(100px + env(safe-area-inset-bottom))" />
     </div>
   );
 }

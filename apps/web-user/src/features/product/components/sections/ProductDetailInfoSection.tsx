@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Product } from "@/apps/web-user/features/product/types/product.type";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import {
+  formatProductPrice,
   getProductDiscountRate,
   isProductOnSale,
 } from "@/apps/web-user/features/product/utils/product-price.util";
@@ -52,7 +53,7 @@ export function ProductDetailInfoSection({ product }: ProductDetailInfoSectionPr
           )}
           <p className="flex items-center gap-[4px] text-xl font-bold text-gray-900">
             {discountRate != null && <span className="text-primary">{discountRate}%</span>}
-            {product.salePrice.toLocaleString()}원~
+            {formatProductPrice(product)}
           </p>
         </div>
       </div>

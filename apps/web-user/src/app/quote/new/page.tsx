@@ -53,7 +53,15 @@ function draftSummary(draft: QuoteDraft): string {
     : "쓰던 내용이 이 휴대폰에 남아 있어요";
 }
 
-const ENTRIES: QuoteRequestEntry[] = ["HOME", "SEARCH", "MAP", "STORE", "MYPAGE", "DESIGN"];
+const ENTRIES: QuoteRequestEntry[] = [
+  "HOME",
+  "SEARCH",
+  "MAP",
+  "STORE",
+  "MYPAGE",
+  "DESIGN",
+  "PRODUCT",
+];
 
 const STEP_NAMES: Record<number, QuoteStepName> = {
   1: "when",
@@ -116,6 +124,25 @@ function readInit(params: URLSearchParams): Partial<QuoteDraft> | null {
     QUOTE_LIMITS.MAX_PHOTOS,
   );
   if (photos.length) init.photos = photos;
+  // 상품 화면 "이 디자인으로 견적 받기"(기획 I-01): 그 가게에만, 그 상품 사진·이름으로 채운다
+  // (?entry=PRODUCT&storeId=…&name=…&only=1&productId=…&productName=…&photo=…)
+  const productId = params.get("productId");
+  if (entry === "PRODUCT" && productId && store?.storeId && init.onlyDesignatedStores) {
+    init.productId = productId;
+    const photo = params.get("photo");
+    if (photo && /^https:\/\//.test(photo)) {
+      init.photos = [
+        {
+          id: `product-${productId}-${Date.now()}`,
+          dataUrl: photo,
+          remoteUrl: photo,
+          parts: ["ALL"],
+        },
+      ];
+    }
+    const productName = params.get("productName")?.trim();
+    if (productName) init.description = `${productName} 디자인으로 부탁드려요.`;
+  }
   return init;
 }
 
@@ -298,6 +325,11 @@ function QuoteNewContent() {
           budgetMax: draft.budgetMax >= QUOTE_LIMITS.BUDGET_MAX ? undefined : draft.budgetMax,
           requestNote: draft.requestNote.trim() || undefined,
           entry: draft.entry ?? undefined,
+          // 상품 화면에서 연 요청(기획 I-01): 서버는 "이 가게에만" 그 상품의 가게 하나일 때만 받는다
+          productId:
+            draft.productId && draft.onlyDesignatedStores && draft.stores.length === 1
+              ? draft.productId
+              : undefined,
           photoDetails: draft.photos.length
             ? draft.photos.map((p) => ({
                 designId: p.designId ?? null,
@@ -421,10 +453,13 @@ function QuoteNewContent() {
             size="lg"
             className="flex-1"
             onClick={() => {
-              // 이어 쓰기: 쓰던 내용에 그 가게·디자인 사진을 더한다(사진은 3장까지)
-              const extraPhotos = (pendingInit?.photos ?? []).filter(
-                (p) => !draft.photos.some((x) => x.designId && x.designId === p.designId),
-              );
+              // 이어 쓰기: 쓰던 내용에 그 가게·디자인 사진을 더한다(사진은 3장까지).
+              // 상품 화면에서 온 경우(기획 I-01)는 가게만 더한다 — 상품 사진·상품은 "이 가게에만" 새 요청에서만 보낼 수 있다
+              const extraPhotos = pendingInit?.productId
+                ? []
+                : (pendingInit?.photos ?? []).filter(
+                    (p) => !draft.photos.some((x) => x.designId && x.designId === p.designId),
+                  );
               if (extraPhotos.length) {
                 const room = QUOTE_LIMITS.MAX_PHOTOS - draft.photos.length;
                 if (room < extraPhotos.length) {

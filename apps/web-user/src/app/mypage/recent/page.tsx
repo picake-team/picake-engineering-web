@@ -1,5 +1,6 @@
 "use client";
 
+import { formatProductPrice } from "@/apps/web-user/features/product/utils/product-price.util";
 import { useRef, useMemo } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -82,7 +83,7 @@ export default function RecentPage() {
                       <div className="flex-1 min-w-0 py-1">
                         <p className="text-sm text-gray-900 truncate">{product.name}</p>
                         <p className="text-sm font-bold text-gray-900">
-                          {product.salePrice.toLocaleString()}원~
+                          {formatProductPrice(product)}
                         </p>
                         <div className="flex items-center gap-4 mt-1 text-xs">
                           <span className="flex items-center text-gray-900 font-bold">

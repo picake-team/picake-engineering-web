@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useProductDetail } from "@/apps/web-user/features/product/hooks/queries/useProductDetail";
 import { SalesStatus, type Product } from "@/apps/web-user/features/product/types/product.type";
 import { useProductReviews } from "@/apps/web-user/features/review/hooks/queries/useProductReviews";
@@ -26,6 +26,8 @@ import {
 import { ProductDetailSkeleton } from "@/apps/web-user/common/components/skeleton/ProductDetailSkeleton";
 import { useStoreDetail } from "@/apps/web-user/features/store/hooks/queries/useStoreDetail";
 import { useStoreLinkVisit } from "@/apps/web-user/features/store/hooks/useStoreLinkVisit";
+import { StoreInquiryFab } from "@/apps/web-user/features/store/components/StoreInquiryFab";
+import { buildQuoteNewHref } from "@/apps/web-user/features/quote/components/entry/QuoteEntry";
 import { useAuthStore } from "@/apps/web-user/common/store/auth.store";
 import { useLoginSheetStore } from "@/apps/web-user/common/store/login-sheet.store";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
@@ -88,6 +90,24 @@ export default function ProductDetailScreen({
   // 로그인 없이도 예약 창을 연다. 다 고르고 "로그인하고 예약신청"을 누를 때 로그인한다(I-59 A)
   // 판매중지 상품은 목록에 그대로 두되(11-15 운영자) 예약 버튼을 막아 끝에서 막히지 않게 한다
   const isSalesStopped = data?.salesStatus === SalesStatus.DISABLE;
+  // 견적 받기 상품(기획 I-01): 예약신청 대신 이 가게에만 견적 요청
+  const isQuote = data?.orderMethod === "QUOTE";
+  const router = useRouter();
+
+  const handleQuoteClick = () => {
+    if (!data || isSalesStopped) return;
+    // 들어온 곳은 요청서 단계 이벤트(view_quote_step entry_point "product")로 센다
+    router.push(
+      buildQuoteNewHref("PRODUCT", {
+        storeId: data.storeId,
+        name: data.storeName,
+        only: 1,
+        productId: data.id,
+        productName: data.name,
+        photo: data.images[0],
+      }),
+    );
+  };
 
   const handleReservationClick = () => {
     if (isSalesStopped) return;
@@ -103,12 +123,12 @@ export default function ProductDetailScreen({
     if (!isAuthenticated || optionsVersion === undefined || checkedDraftRef.current) return;
     checkedDraftRef.current = true;
     void takeReservationDraft(productId).then((draft) => {
-      // 판매중지면 예약 창을 다시 열지 않는다
-      if (!draft || draft.optionsVersion !== optionsVersion || isSalesStopped) return;
+      // 판매중지·견적 받기 상품이면 예약 창을 다시 열지 않는다(로그인하는 사이 사장님이 바꿨을 수 있음)
+      if (!draft || draft.optionsVersion !== optionsVersion || isSalesStopped || isQuote) return;
       setResumeDraft(draft);
       setIsBottomSheetOpen(true);
     });
-  }, [isAuthenticated, optionsVersion, productId, isSalesStopped]);
+  }, [isAuthenticated, optionsVersion, productId, isSalesStopped, isQuote]);
 
   /**
    * 예약 시트 청크는 초기 렌더 경로에서 빼되(아래 조건부 렌더),
@@ -238,18 +258,33 @@ export default function ProductDetailScreen({
             <span className="text-xs text-gray-900 font-bold">{data.likeCount}</span>
           </button>
           <span className="flex-1">
-            <Button
-              onClick={handleReservationClick}
-              onMouseEnter={preloadReservationBottomSheet}
-              onTouchStart={preloadReservationBottomSheet}
-              disabled={isSalesStopped}
-            >
-              {/* 모든 상품이 예약신청 → 판매자 확인 순서로 진행되므로 문구를 통일 */}
-              {isSalesStopped ? "판매중지된 상품이에요" : "예약신청"}
-            </Button>
+            {isQuote ? (
+              // 견적 받기 상품(기획 I-01): 이 가게에만, 이 상품 사진으로 요청서를 연다
+              <Button onClick={handleQuoteClick} disabled={isSalesStopped}>
+                {isSalesStopped ? "판매중지된 상품이에요" : "이 디자인으로 견적 받기"}
+              </Button>
+            ) : (
+              <Button
+                onClick={handleReservationClick}
+                onMouseEnter={preloadReservationBottomSheet}
+                onTouchStart={preloadReservationBottomSheet}
+                disabled={isSalesStopped}
+              >
+                {/* 모든 상품이 예약신청 → 판매자 확인 순서로 진행되므로 문구를 통일 */}
+                {isSalesStopped ? "판매중지된 상품이에요" : "예약신청"}
+              </Button>
+            )}
           </span>
         </div>
       </div>
+
+      {/* 떠 있는 문의 버튼(기획 I-01): 아래 버튼 줄(72px) 위로 12px. 예약 창이 열리면 숨긴다 */}
+      <StoreInquiryFab
+        store={storeDetail}
+        productId={data.id}
+        bottom="84px"
+        hidden={reservationSheet.present}
+      />
 
       {/* 예약 바텀시트 — 열릴 때만 마운트해 상세 진입 시 청크 선다운로드를 막는다(닫힐 때는 내려간 뒤 뺀다) */}
       {reservationSheet.present && (
