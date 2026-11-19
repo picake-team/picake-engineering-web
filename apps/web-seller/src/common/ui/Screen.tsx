@@ -15,6 +15,11 @@ import { HeaderIconButton } from "@/apps/web-seller/common/ui/Button";
 import { useKeyboardOpen } from "@/apps/web-seller/common/hooks/useKeyboardOpen";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
 import { useSellerChatUnread } from "@/apps/web-seller/features/chat/hooks/useChat";
+import {
+  DESKTOP_COLUMN_CLASS,
+  useIsDesktopShell,
+  usePane,
+} from "@/apps/web-seller/common/ui/shell";
 
 /** 화면 칸 너비(손님 웹 PC 가운데 칸과 같은 값) */
 export const APP_COLUMN_CLASS = "mx-auto w-full max-w-[640px]";
@@ -135,13 +140,17 @@ export function BackHeader({
   noBack?: boolean;
 }) {
   const navigate = useNavigate();
+  // PC 나란히 보기의 한 칸(주문 상세·채팅방)이 목록 옆에 있으면 뒤로가 필요 없다(기획 I-54)
+  const pane = usePane();
+  const hideBack = noBack || Boolean(pane?.besideList);
+  const back = pane?.onBack ?? onBack ?? (() => navigate(-1));
   return (
-    <div className="flex h-12 items-center px-2">
-      {noBack ? null : (
+    <div className={cx("flex h-12 items-center", hideBack && pane ? "px-3" : "px-2")}>
+      {hideBack ? null : (
         <button
           type="button"
           aria-label={backLabel}
-          onClick={onBack ?? (() => navigate(-1))}
+          onClick={back}
           className="inline-flex size-11 shrink-0 items-center justify-center rounded-full text-ink-900 active:bg-ink-50"
         >
           <Icon name={icon} size={24} strokeWidth={1.8} />
@@ -150,7 +159,7 @@ export function BackHeader({
       <h1
         className={cx(
           "min-w-0 flex-1 truncate font-app text-body font-bold text-ink-900",
-          noBack ? "ml-3" : "ml-0.5",
+          hideBack ? "ml-3" : "ml-0.5",
         )}
       >
         {title}
@@ -219,6 +228,10 @@ export function HomeHeader({
 /**
  * 화면 틀. header는 위에 붙고(sticky), footer(아래 붙은 버튼 띠)와 아래 탭은 아래에 붙는다.
  * 본문 좌우 여백 20은 여기서 준다(가득 찬 회색 띠는 GrayBand가 -20으로 넘긴다).
+ *
+ * PC 틀(기획 I-54) 안에서는 같은 화면을 그대로 쓴다:
+ * - PC 틀 안(같은 화면을 PC에): 아래 탭 대신 왼쪽 메뉴가 있어 아래 탭을 그리지 않고, 가운데 720 칸에 둔다.
+ * - PC 나란히 보기의 한 칸(PaneContext): 칸 높이 안에서 본문만 스크롤하고, 위쪽 줄·아래 버튼 띠는 칸 위·아래에.
  */
 export function AppScreen({
   header,
@@ -228,9 +241,12 @@ export function AppScreen({
   children,
   className,
   bodyClassName,
+  width = "normal",
 }: {
   header?: React.ReactNode;
   footer?: React.ReactNode;
+  /** PC 틀에서 칸 너비: normal 720, wide 1120(상품 등록처럼 옆에 미리보기를 두는 화면). 휴대폰은 늘 640 */
+  width?: "normal" | "wide";
   /** 아래 탭 화면이면 그 탭 */
   tab?: AppTab;
   /** 아래 탭 링크에 쓸 스토어(tab이 있으면 필요) */
@@ -240,10 +256,39 @@ export function AppScreen({
   bodyClassName?: string;
 }) {
   const keyboardOpen = useKeyboardOpen();
+  const desktop = useIsDesktopShell();
+  const pane = usePane();
+  if (pane) {
+    return (
+      <div
+        className={cx(
+          "flex h-full min-h-0 w-full flex-col bg-white font-app text-ink-900 [word-break:keep-all]",
+          className,
+        )}
+      >
+        {header ? (
+          <header className="shrink-0 border-b border-ink-100 bg-white">{header}</header>
+        ) : null}
+        <main
+          className={cx(
+            "flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain px-5 pb-6 pt-1",
+            bodyClassName,
+          )}
+        >
+          {children}
+        </main>
+        {footer ? <div className="shrink-0">{footer}</div> : null}
+      </div>
+    );
+  }
   return (
     <div
       className={cx(
-        APP_COLUMN_CLASS,
+        desktop
+          ? width === "wide"
+            ? "mx-auto w-full max-w-[1120px]"
+            : DESKTOP_COLUMN_CLASS
+          : APP_COLUMN_CLASS,
         "flex min-h-dvh flex-col bg-white font-app text-ink-900 [word-break:keep-all]",
         className,
       )}
@@ -260,7 +305,7 @@ export function AppScreen({
         {children}
       </main>
       {footer && !keyboardOpen ? <div className="sticky bottom-0 z-20">{footer}</div> : null}
-      {tab && storeId && !keyboardOpen ? (
+      {tab && storeId && !keyboardOpen && !desktop ? (
         <div className="sticky bottom-0 z-20">
           <AppTabBar storeId={storeId} current={tab} />
         </div>

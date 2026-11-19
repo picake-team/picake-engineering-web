@@ -1,27 +1,35 @@
 import { describe, expect, it } from "vitest";
 import {
-  SCREEN_MODE,
-  shouldShowMobileScreens,
-} from "@/apps/web-seller/common/constants/screen.constant";
+  NAV_EXPANDED_MIN_WIDTH_PX,
+  PHONE_MAX_WIDTH_PX,
+  TWO_PANE_MIN_WIDTH_PX,
+  WIDE_MIN_WIDTH_PX,
+  windowClassOf,
+} from "./screen.constant";
 
-describe("SCREEN_MODE", () => {
-  it("모든 환경(production 포함)에서 휴대폰 폭이면 휴대폰 화면, PC 폭은 지금 PC 화면", () => {
-    expect(SCREEN_MODE).toBe("mobile-on-phone");
-  });
-});
-
-describe("shouldShowMobileScreens", () => {
-  it("desktop-only는 폭과 관계없이 PC 화면", () => {
-    expect(shouldShowMobileScreens("desktop-only", true)).toBe(false);
-    expect(shouldShowMobileScreens("desktop-only", false)).toBe(false);
+describe("windowClassOf", () => {
+  it("767까지는 휴대폰 화면", () => {
+    expect(windowClassOf(320)).toBe("phone");
+    expect(windowClassOf(390)).toBe("phone");
+    expect(windowClassOf(PHONE_MAX_WIDTH_PX)).toBe("phone");
   });
 
-  it("mobile-on-phone은 휴대폰 폭에서만", () => {
-    expect(shouldShowMobileScreens("mobile-on-phone", true)).toBe(true);
-    expect(shouldShowMobileScreens("mobile-on-phone", false)).toBe(false);
+  it("768~1199는 태블릿(아이콘 메뉴)", () => {
+    expect(windowClassOf(768)).toBe("tablet");
+    expect(windowClassOf(834)).toBe("tablet");
+    expect(windowClassOf(1024)).toBe("tablet");
+    expect(windowClassOf(NAV_EXPANDED_MIN_WIDTH_PX - 1)).toBe("tablet");
   });
 
-  it("mobile-everywhere는 PC에서도 휴대폰 화면", () => {
-    expect(shouldShowMobileScreens("mobile-everywhere", false)).toBe(true);
+  it("1200부터 PC, 1600부터 넓은 PC", () => {
+    expect(windowClassOf(1200)).toBe("desktop");
+    expect(windowClassOf(1440)).toBe("desktop");
+    expect(windowClassOf(WIDE_MIN_WIDTH_PX)).toBe("wide");
+    expect(windowClassOf(1920)).toBe("wide");
+  });
+
+  it("두 칸은 태블릿 구간 안에서 시작한다(840)", () => {
+    expect(TWO_PANE_MIN_WIDTH_PX).toBeGreaterThan(PHONE_MAX_WIDTH_PX);
+    expect(TWO_PANE_MIN_WIDTH_PX).toBeLessThan(NAV_EXPANDED_MIN_WIDTH_PX);
   });
 });

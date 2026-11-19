@@ -20,7 +20,7 @@ function MobileScreenLoading() {
 
 /**
  * 휴대폰 화면(판매자 앱 I-48)의 바깥 틀. 화면마다 `AppScreen`으로 위쪽 줄·아래 탭을 그리고,
- * 여기서는 PC 화면(AdminLayout)과 같은 스토어 알림(실시간 알림·소리)만 붙인다.
+ * 여기서는 PC 틀(DesktopLayout)과 같은 스토어 알림(실시간 알림·소리)만 붙인다.
  */
 export function MobileLayout() {
   const { pathname } = useLocation();

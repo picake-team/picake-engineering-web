@@ -4,8 +4,8 @@
  * 저절로 사라지는 안내는 아래쪽 주황 막대가 남은 시간만큼 줄어들고, 누르고 있는 동안은 멈춘다.
  * 옆이나 위로 밀면 손가락을 따라오다가 그쪽으로 사라지고, 끝나면 위로 살짝 올라가며 흐려진다. 아이콘은 내용에 맞춘다(`toastIconFor`).
  *
- * PC 화면과 같은 알림 저장소(`useAlertStore`)를 읽어, 서버 오류·실시간 주문 알림·처리 결과가
- * 휴대폰 화면에서도 같은 곳에 뜬다. PC 화면에서는 기존 `Alert`가 그대로 그린다.
+ * 알림 저장소(`useAlertStore`)를 읽어 서버 오류·실시간 주문 알림·처리 결과를 그린다. PC 틀(기획 I-54)도 이 배너를
+ * 그대로 쓰고, 왼쪽 메뉴를 뺀 본문 위쪽 가운데에 띄운다(App에 하나).
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -43,8 +43,9 @@ export function AlertBannerHost() {
       aria-live="polite"
       className={cx(
         APP_COLUMN_CLASS,
-        // 실제 앱 알림처럼 화면 맨 위(상태 표시줄 바로 아래). 제목 줄을 잠깐 덮지만 옆·위로 밀면 닫힌다
-        "pointer-events-none fixed inset-x-0 top-[calc(12px+env(safe-area-inset-top)+var(--act-as-band,0px))] z-[60] flex flex-col-reverse gap-2 px-4 font-app",
+        // 실제 앱 알림처럼 화면 맨 위(상태 표시줄 바로 아래). 제목 줄을 잠깐 덮지만 옆·위로 밀면 닫힌다.
+        // PC 틀(기획 I-54)에서는 왼쪽 메뉴를 뺀 본문 가운데(--shell-left는 DesktopLayout이 정한다)
+        "pointer-events-none fixed left-[var(--shell-left,0px)] right-0 top-[calc(12px+env(safe-area-inset-top)+var(--act-as-band,0px))] z-[60] flex flex-col-reverse gap-2 px-4 font-app",
       )}
     >
       {visible.map((a) => (

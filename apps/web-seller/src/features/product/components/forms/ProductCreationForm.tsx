@@ -8,6 +8,10 @@ import {
   useInMobileFrame,
 } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
 import { FrameSubmitBar } from "@/apps/web-seller/common/components/layouts/FrameSubmitBar";
+import { useIsDesktopShell } from "@/apps/web-seller/common/ui/shell";
+import { useMinWidth } from "@/apps/web-seller/common/hooks/useShowMobileScreens";
+import { NAV_EXPANDED_MIN_WIDTH_PX } from "@/apps/web-seller/common/constants/screen.constant";
+import { ProductCustomerPreview } from "@/apps/web-seller/features/product/components/preview/ProductCustomerPreview";
 import { Button as AppButton } from "@/apps/web-seller/common/ui/Button";
 import { Switch } from "@/apps/web-seller/common/ui/Toggle";
 import { cn } from "@/apps/web-seller/common/utils/classname.util";
@@ -143,6 +147,10 @@ export const ProductCreationForm: React.FC<Props> = ({
 }) => {
   const isEdit = !!initialValue;
   const inFrame = useInMobileFrame();
+  // PC 틀의 넓은 화면(1200 이상)에서는 오른쪽에 손님 화면 미리보기(PC에만, 기획 I-54)
+  const desktopShell = useIsDesktopShell();
+  const wideScreen = useMinWidth(NAV_EXPANDED_MIN_WIDTH_PX);
+  const withPreview = inFrame && desktopShell && wideScreen;
   // 운영자가 가게 대신 등록하면(기획 I-41) 서버가 숨김으로 저장한다 — 화면도 꺼 두고 바꾸지 못하게 맞춘다
   const actAsCreate = !isEdit && isActAsMode();
   // 손님에게 보이기는 사장님만 바꾼다(등록·수정 모두, 서버도 다르면 403)
@@ -311,359 +319,368 @@ export const ProductCreationForm: React.FC<Props> = ({
     <form onSubmit={handleSubmit} noValidate>
       {naverBar}
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
-        {/* 왼쪽: 입력 순서대로 */}
-        <div className="min-w-0 space-y-6">
-          <FormSection
-            id="section-photos"
-            title={
-              <>
-                사진 <span className="text-destructive">*</span>
-              </>
-            }
-            description={
-              inFrame
-                ? "첫 번째 사진이 대표 사진이에요. 다른 사진을 누르면 대표로 바꿀 수 있어요."
-                : "첫 번째 사진이 대표 사진이에요. 최대 8장까지 올릴 수 있어요."
-            }
-            error={sectionHasError("section-photos")}
-          >
-            <ImageMultiUpload
-              width={140}
-              height={140}
-              value={form.images ?? []}
-              onChange={(images) => patch({ images })}
-              maxImages={8}
-              enableDragDrop
-              showMinResolutionHint={false}
-            />
-            {errors.images && <p className="mt-2 text-sm text-destructive">{errors.images}</p>}
-          </FormSection>
-
-          <FormSection
-            id="section-basic"
-            title="상품 이름과 종류"
-            error={sectionHasError("section-basic")}
-          >
-            <div className="space-y-4">
-              <div>
-                <label className="mb-1 block text-sm font-medium">
-                  상품명 <span className="text-destructive">*</span>
-                </label>
-                <Input
-                  value={form.name}
-                  onChange={(e) => patch({ name: e.target.value })}
-                  placeholder="예: 무화과 생크림 케이크"
-                  disabled={disabled}
-                  className={errors.name ? "border-destructive" : ""}
-                />
-                {errors.name && <p className="mt-1 text-sm text-destructive">{errors.name}</p>}
-              </div>
-              <div>
-                <p
-                  className={
-                    inFrame
-                      ? "mb-2 font-app text-sub font-bold text-ink-700"
-                      : "mb-1 text-sm font-medium"
-                  }
-                >
-                  종류 <span className="text-destructive">*</span>
-                </p>
-                <div
-                  className={inFrame ? "grid grid-cols-2 gap-2" : "grid gap-2 sm:grid-cols-2"}
-                  role="radiogroup"
-                  aria-label="상품 종류"
-                >
-                  {PRODUCT_TYPES.map((t) => {
-                    const on = form.productType === t.value;
-                    return (
-                      <button
-                        key={t.value}
-                        type="button"
-                        role="radio"
-                        aria-checked={on}
-                        disabled={disabled}
-                        onClick={() => patch({ productType: t.value })}
-                        className={
-                          inFrame
-                            ? // 고른 카드: 얇은 주황 테두리 + 주황 점만(바탕은 흰색)
-                              cn(
-                                "relative flex flex-col gap-1 rounded-control bg-white p-4 text-left font-app",
-                                on
-                                  ? "border-[1.5px] border-brand p-[15.5px]"
-                                  : "border border-ink-200",
-                              )
-                            : `rounded-lg border px-3 py-2.5 text-left transition-colors ${
-                                on
-                                  ? "border-primary bg-primary/5 ring-1 ring-primary"
-                                  : "hover:bg-muted/50"
-                              }`
-                        }
-                      >
-                        <span
-                          className={
-                            inFrame
-                              ? "pr-6 text-body font-bold text-ink-900"
-                              : "block text-sm font-medium"
-                          }
-                        >
-                          {t.label}
-                        </span>
-                        <span
-                          className={
-                            inFrame
-                              ? "text-caption text-ink-600"
-                              : "block text-xs text-muted-foreground"
-                          }
-                        >
-                          {t.desc}
-                        </span>
-                        {inFrame ? (
-                          <span
-                            aria-hidden="true"
-                            className={cn(
-                              "absolute right-3 top-3 inline-block size-5 rounded-full bg-white",
-                              on ? "border-[6px] border-brand" : "border-[1.5px] border-ink-200",
-                            )}
-                          />
-                        ) : null}
-                      </button>
-                    );
-                  })}
-                </div>
-                {errors.productType && (
-                  <p className="mt-1 text-sm text-destructive">{errors.productType}</p>
-                )}
-              </div>
-            </div>
-          </FormSection>
-
-          <ProductPriceSizeSection
-            form={form}
-            errors={errors}
-            onChange={patch}
-            disabled={disabled}
-          />
-
-          <ProductCreationCustomOptionsSection
-            form={form}
-            errors={errors}
-            onCustomOptionsChange={(customOptions) => patch({ customOptions })}
-            disabled={disabled}
-          />
-
-          <FormSection
-            id="section-detail"
-            title="상세 설명"
-            description="손님이 주문 전에 읽는 설명이에요. 사진·글을 자유롭게 넣을 수 있어요."
-            error={sectionHasError("section-detail") || (submitted && checkMarkLeft)}
-            action={
-              tools && (
-                <Button type="button" size="sm" variant="outline" onClick={() => setAiOpen(true)}>
-                  <Sparkles className="h-4 w-4" />
-                  AI로 쓰기
-                </Button>
-              )
-            }
-          >
-            <RichTextEditor
-              value={form.detailDescription || ""}
-              onChange={(detailDescription) => patch({ detailDescription })}
-              placeholder="재료, 크기, 보관 방법, 픽업 안내 등을 적어 주세요."
-              minHeight={260}
-              error={!!errors.detailDescription}
-            />
-            {errors.detailDescription && (
-              <p className="mt-1 text-sm text-destructive">{errors.detailDescription}</p>
-            )}
-            {checkMarkLeft && (
-              <p className={`mt-2 text-sm ${submitted ? "text-destructive" : "text-amber-800"}`}>
-                AI가 남긴 {SELLER_CHECK_MARK} 표시가 있어요. 그 부분을 사실대로 고쳐야 저장돼요.
-              </p>
-            )}
-          </FormSection>
-
-          {PRODUCT_NOTICE_MODE === "ORIGIN_ONLY" ? (
-            // 고시는 원산지만 받는다(법 검토: product-notice.util의 PRODUCT_NOTICE_MODE)
+      <div
+        className={
+          withPreview ? "grid grid-cols-[minmax(0,1fr)_340px] items-start gap-10" : undefined
+        }
+      >
+        <div className={inFrame ? "grid gap-6" : "grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]"}>
+          {/* 왼쪽: 입력 순서대로 */}
+          <div className="min-w-0 space-y-6">
             <FormSection
-              id="section-notice"
+              id="section-photos"
               title={
                 <>
-                  원산지 <span className="text-destructive">*</span>
+                  사진 <span className="text-destructive">*</span>
                 </>
               }
-              description="케이크에 쓴 주요 원료의 원산지예요."
-              error={sectionHasError("section-notice")}
+              description={
+                inFrame
+                  ? "첫 번째 사진이 대표 사진이에요. 다른 사진을 누르면 대표로 바꿀 수 있어요."
+                  : "첫 번째 사진이 대표 사진이에요. 최대 8장까지 올릴 수 있어요."
+              }
+              error={sectionHasError("section-photos")}
             >
-              <Input
-                aria-label="원산지"
-                value={form.productNoticeOrigin || ""}
-                onChange={(e) => patch({ productNoticeOrigin: e.target.value })}
-                placeholder="예: 밀가루(미국산), 생크림·우유(국산), 딸기(국산)"
-                disabled={disabled}
-                className={errors.productNoticeOrigin ? "border-destructive" : ""}
+              <ImageMultiUpload
+                width={140}
+                height={140}
+                value={form.images ?? []}
+                onChange={(images) => patch({ images })}
+                maxImages={8}
+                enableDragDrop
+                showMinResolutionHint={false}
               />
-              {errors.productNoticeOrigin && (
-                <p className="mt-1 text-sm text-destructive">{errors.productNoticeOrigin}</p>
-              )}
+              {errors.images && <p className="mt-2 text-sm text-destructive">{errors.images}</p>}
             </FormSection>
-          ) : (
+
             <FormSection
-              id="section-notice"
-              title="상품정보제공고시"
-              hint={`${noticeFilled}/${PRODUCT_NOTICE_FIELDS.length} 입력`}
-              description="식품을 팔 때 법으로 정해진 표시예요. 다른 상품에서 복사할 수 있어요."
-              error={
-                sectionHasError("section-notice") || (noticeCopyError && !noticeCopy?.confirmed)
-              }
-              action={
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="ghost"
-                  aria-expanded={noticeOpen}
-                  onClick={() => setNoticeOpen((v) => !v)}
-                >
-                  {noticeOpen ? (
-                    <ChevronDown className="h-4 w-4" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4" />
+              id="section-basic"
+              title="상품 이름과 종류"
+              error={sectionHasError("section-basic")}
+            >
+              <div className="space-y-4">
+                <div>
+                  <label className="mb-1 block text-sm font-medium">
+                    상품명 <span className="text-destructive">*</span>
+                  </label>
+                  <Input
+                    value={form.name}
+                    onChange={(e) => patch({ name: e.target.value })}
+                    placeholder="예: 무화과 생크림 케이크"
+                    disabled={disabled}
+                    className={errors.name ? "border-destructive" : ""}
+                  />
+                  {errors.name && <p className="mt-1 text-sm text-destructive">{errors.name}</p>}
+                </div>
+                <div>
+                  <p
+                    className={
+                      inFrame
+                        ? "mb-2 font-app text-sub font-bold text-ink-700"
+                        : "mb-1 text-sm font-medium"
+                    }
+                  >
+                    종류 <span className="text-destructive">*</span>
+                  </p>
+                  <div
+                    className={inFrame ? "grid grid-cols-2 gap-2" : "grid gap-2 sm:grid-cols-2"}
+                    role="radiogroup"
+                    aria-label="상품 종류"
+                  >
+                    {PRODUCT_TYPES.map((t) => {
+                      const on = form.productType === t.value;
+                      return (
+                        <button
+                          key={t.value}
+                          type="button"
+                          role="radio"
+                          aria-checked={on}
+                          disabled={disabled}
+                          onClick={() => patch({ productType: t.value })}
+                          className={
+                            inFrame
+                              ? // 고른 카드: 얇은 주황 테두리 + 주황 점만(바탕은 흰색)
+                                cn(
+                                  "relative flex flex-col gap-1 rounded-control bg-white p-4 text-left font-app",
+                                  on
+                                    ? "border-[1.5px] border-brand p-[15.5px]"
+                                    : "border border-ink-200",
+                                )
+                              : `rounded-lg border px-3 py-2.5 text-left transition-colors ${
+                                  on
+                                    ? "border-primary bg-primary/5 ring-1 ring-primary"
+                                    : "hover:bg-muted/50"
+                                }`
+                          }
+                        >
+                          <span
+                            className={
+                              inFrame
+                                ? "pr-6 text-body font-bold text-ink-900"
+                                : "block text-sm font-medium"
+                            }
+                          >
+                            {t.label}
+                          </span>
+                          <span
+                            className={
+                              inFrame
+                                ? "text-caption text-ink-600"
+                                : "block text-xs text-muted-foreground"
+                            }
+                          >
+                            {t.desc}
+                          </span>
+                          {inFrame ? (
+                            <span
+                              aria-hidden="true"
+                              className={cn(
+                                "absolute right-3 top-3 inline-block size-5 rounded-full bg-white",
+                                on ? "border-[6px] border-brand" : "border-[1.5px] border-ink-200",
+                              )}
+                            />
+                          ) : null}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {errors.productType && (
+                    <p className="mt-1 text-sm text-destructive">{errors.productType}</p>
                   )}
-                  {noticeOpen ? "접기" : "펼치기"}
-                </Button>
+                </div>
+              </div>
+            </FormSection>
+
+            <ProductPriceSizeSection
+              form={form}
+              errors={errors}
+              onChange={patch}
+              disabled={disabled}
+            />
+
+            <ProductCreationCustomOptionsSection
+              form={form}
+              errors={errors}
+              onCustomOptionsChange={(customOptions) => patch({ customOptions })}
+              disabled={disabled}
+            />
+
+            <FormSection
+              id="section-detail"
+              title="상세 설명"
+              description="손님이 주문 전에 읽는 설명이에요. 사진·글을 자유롭게 넣을 수 있어요."
+              error={sectionHasError("section-detail") || (submitted && checkMarkLeft)}
+              action={
+                tools && (
+                  <Button type="button" size="sm" variant="outline" onClick={() => setAiOpen(true)}>
+                    <Sparkles className="h-4 w-4" />
+                    AI로 쓰기
+                  </Button>
+                )
               }
             >
-              {noticeOpen ? (
-                <ProductCreationProductNoticeSection
-                  hideHeader
-                  form={form}
-                  errors={errors}
-                  onChange={(key) => (e) =>
-                    patch({ [key]: e.target.value } as Partial<ProductForm>)
-                  }
-                  copy={
-                    tools
-                      ? {
-                          storeId: storeId!,
-                          excludeProductId: productId,
-                          copiedFrom: noticeCopy?.fromName ?? null,
-                          confirmed: noticeCopy?.confirmed ?? false,
-                          showConfirmError: noticeCopyError,
-                          onCopy: handleCopyNotice,
-                          onConfirmedChange: (confirmed) =>
-                            setNoticeCopy((prev) => (prev ? { ...prev, confirmed } : prev)),
-                        }
-                      : undefined
-                  }
-                />
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  {noticeFilled === PRODUCT_NOTICE_FIELDS.length
-                    ? "모두 입력했어요."
-                    : `${PRODUCT_NOTICE_FIELDS.length - noticeFilled}개가 비어 있어요. 펼쳐서 채워 주세요.`}
+              <RichTextEditor
+                value={form.detailDescription || ""}
+                onChange={(detailDescription) => patch({ detailDescription })}
+                placeholder="재료, 크기, 보관 방법, 픽업 안내 등을 적어 주세요."
+                minHeight={260}
+                error={!!errors.detailDescription}
+              />
+              {errors.detailDescription && (
+                <p className="mt-1 text-sm text-destructive">{errors.detailDescription}</p>
+              )}
+              {checkMarkLeft && (
+                <p className={`mt-2 text-sm ${submitted ? "text-destructive" : "text-amber-800"}`}>
+                  AI가 남긴 {SELLER_CHECK_MARK} 표시가 있어요. 그 부분을 사실대로 고쳐야 저장돼요.
                 </p>
               )}
             </FormSection>
-          )}
-        </div>
 
-        {/* 오른쪽: 상태·분류 */}
-        <aside className="space-y-6 lg:sticky lg:top-6 lg:self-start">
-          <FormSection id="section-status" title="판매 상태">
-            {inFrame ? (
-              <div className="-mt-2">
-                {[
-                  {
-                    key: "sales",
-                    title: "판매 중",
-                    desc: "끄면 손님이 주문할 수 없어요",
-                    on: form.salesStatus === EnableStatus.ENABLE,
-                    set: (on: boolean) =>
-                      patch({ salesStatus: on ? EnableStatus.ENABLE : EnableStatus.DISABLE }),
-                    locked: false,
-                  },
-                  {
-                    key: "visible",
-                    title: "손님에게 보이기",
-                    desc: "끄면 목록·검색에서 숨겨요",
-                    on: form.visibilityStatus === EnableStatus.ENABLE,
-                    set: (on: boolean) =>
-                      patch({ visibilityStatus: on ? EnableStatus.ENABLE : EnableStatus.DISABLE }),
-                    locked: visibilityLocked,
-                  },
-                ].map((row) => (
-                  <div
-                    key={row.key}
-                    className="flex min-h-14 items-center gap-3 border-b border-ink-100 py-2 font-app last:border-b-0"
-                  >
-                    <span className="flex min-w-0 flex-1 flex-col gap-1">
-                      <span className="text-body font-semibold text-ink-900">{row.title}</span>
-                      <span className="text-caption text-ink-600">{row.desc}</span>
-                    </span>
-                    <Switch
-                      label={row.title}
-                      checked={row.on}
-                      disabled={disabled || row.locked}
-                      onChange={row.set}
-                    />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <Checkbox
-                  checked={form.salesStatus === EnableStatus.ENABLE}
-                  onChange={(on) =>
-                    patch({ salesStatus: on ? EnableStatus.ENABLE : EnableStatus.DISABLE })
-                  }
+            {PRODUCT_NOTICE_MODE === "ORIGIN_ONLY" ? (
+              // 고시는 원산지만 받는다(법 검토: product-notice.util의 PRODUCT_NOTICE_MODE)
+              <FormSection
+                id="section-notice"
+                title={
+                  <>
+                    원산지 <span className="text-destructive">*</span>
+                  </>
+                }
+                description="케이크에 쓴 주요 원료의 원산지예요."
+                error={sectionHasError("section-notice")}
+              >
+                <Input
+                  aria-label="원산지"
+                  value={form.productNoticeOrigin || ""}
+                  onChange={(e) => patch({ productNoticeOrigin: e.target.value })}
+                  placeholder="예: 밀가루(미국산), 생크림·우유(국산), 딸기(국산)"
                   disabled={disabled}
-                  label={
-                    <span className="text-sm">
-                      판매 중
-                      <span className="block text-xs text-muted-foreground">
-                        끄면 손님이 주문할 수 없어요
-                      </span>
-                    </span>
-                  }
+                  className={errors.productNoticeOrigin ? "border-destructive" : ""}
                 />
-                <Checkbox
-                  checked={form.visibilityStatus === EnableStatus.ENABLE}
-                  onChange={(on) =>
-                    patch({ visibilityStatus: on ? EnableStatus.ENABLE : EnableStatus.DISABLE })
-                  }
-                  disabled={disabled || visibilityLocked}
-                  label={
-                    <span className="text-sm">
-                      손님에게 보이기
-                      <span className="block text-xs text-muted-foreground">
-                        끄면 목록·검색에서 숨겨요
+                {errors.productNoticeOrigin && (
+                  <p className="mt-1 text-sm text-destructive">{errors.productNoticeOrigin}</p>
+                )}
+              </FormSection>
+            ) : (
+              <FormSection
+                id="section-notice"
+                title="상품정보제공고시"
+                hint={`${noticeFilled}/${PRODUCT_NOTICE_FIELDS.length} 입력`}
+                description="식품을 팔 때 법으로 정해진 표시예요. 다른 상품에서 복사할 수 있어요."
+                error={
+                  sectionHasError("section-notice") || (noticeCopyError && !noticeCopy?.confirmed)
+                }
+                action={
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    aria-expanded={noticeOpen}
+                    onClick={() => setNoticeOpen((v) => !v)}
+                  >
+                    {noticeOpen ? (
+                      <ChevronDown className="h-4 w-4" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4" />
+                    )}
+                    {noticeOpen ? "접기" : "펼치기"}
+                  </Button>
+                }
+              >
+                {noticeOpen ? (
+                  <ProductCreationProductNoticeSection
+                    hideHeader
+                    form={form}
+                    errors={errors}
+                    onChange={(key) => (e) =>
+                      patch({ [key]: e.target.value } as Partial<ProductForm>)
+                    }
+                    copy={
+                      tools
+                        ? {
+                            storeId: storeId!,
+                            excludeProductId: productId,
+                            copiedFrom: noticeCopy?.fromName ?? null,
+                            confirmed: noticeCopy?.confirmed ?? false,
+                            showConfirmError: noticeCopyError,
+                            onCopy: handleCopyNotice,
+                            onConfirmedChange: (confirmed) =>
+                              setNoticeCopy((prev) => (prev ? { ...prev, confirmed } : prev)),
+                          }
+                        : undefined
+                    }
+                  />
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    {noticeFilled === PRODUCT_NOTICE_FIELDS.length
+                      ? "모두 입력했어요."
+                      : `${PRODUCT_NOTICE_FIELDS.length - noticeFilled}개가 비어 있어요. 펼쳐서 채워 주세요.`}
+                  </p>
+                )}
+              </FormSection>
+            )}
+          </div>
+
+          {/* 오른쪽: 상태·분류 */}
+          <aside className={inFrame ? "space-y-6" : "space-y-6 lg:sticky lg:top-6 lg:self-start"}>
+            <FormSection id="section-status" title="판매 상태">
+              {inFrame ? (
+                <div className="-mt-2">
+                  {[
+                    {
+                      key: "sales",
+                      title: "판매 중",
+                      desc: "끄면 손님이 주문할 수 없어요",
+                      on: form.salesStatus === EnableStatus.ENABLE,
+                      set: (on: boolean) =>
+                        patch({ salesStatus: on ? EnableStatus.ENABLE : EnableStatus.DISABLE }),
+                      locked: false,
+                    },
+                    {
+                      key: "visible",
+                      title: "손님에게 보이기",
+                      desc: "끄면 목록·검색에서 숨겨요",
+                      on: form.visibilityStatus === EnableStatus.ENABLE,
+                      set: (on: boolean) =>
+                        patch({
+                          visibilityStatus: on ? EnableStatus.ENABLE : EnableStatus.DISABLE,
+                        }),
+                      locked: visibilityLocked,
+                    },
+                  ].map((row) => (
+                    <div
+                      key={row.key}
+                      className="flex min-h-14 items-center gap-3 border-b border-ink-100 py-2 font-app last:border-b-0"
+                    >
+                      <span className="flex min-w-0 flex-1 flex-col gap-1">
+                        <span className="text-body font-semibold text-ink-900">{row.title}</span>
+                        <span className="text-caption text-ink-600">{row.desc}</span>
                       </span>
-                    </span>
-                  }
+                      <Switch
+                        label={row.title}
+                        checked={row.on}
+                        disabled={disabled || row.locked}
+                        onChange={row.set}
+                      />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <Checkbox
+                    checked={form.salesStatus === EnableStatus.ENABLE}
+                    onChange={(on) =>
+                      patch({ salesStatus: on ? EnableStatus.ENABLE : EnableStatus.DISABLE })
+                    }
+                    disabled={disabled}
+                    label={
+                      <span className="text-sm">
+                        판매 중
+                        <span className="block text-xs text-muted-foreground">
+                          끄면 손님이 주문할 수 없어요
+                        </span>
+                      </span>
+                    }
+                  />
+                  <Checkbox
+                    checked={form.visibilityStatus === EnableStatus.ENABLE}
+                    onChange={(on) =>
+                      patch({ visibilityStatus: on ? EnableStatus.ENABLE : EnableStatus.DISABLE })
+                    }
+                    disabled={disabled || visibilityLocked}
+                    label={
+                      <span className="text-sm">
+                        손님에게 보이기
+                        <span className="block text-xs text-muted-foreground">
+                          끄면 목록·검색에서 숨겨요
+                        </span>
+                      </span>
+                    }
+                  />
+                </div>
+              )}
+            </FormSection>
+
+            <FormSection
+              title="분류와 검색 태그"
+              hint="(선택)"
+              description="손님이 상품을 찾기 쉬워져요."
+            >
+              <div className="space-y-5">
+                <ProductCreationCategorySection
+                  value={form.productCategoryTypes ?? []}
+                  onChange={(productCategoryTypes) => patch({ productCategoryTypes })}
+                  disabled={disabled}
+                />
+                <ProductCreationSearchTagSection
+                  value={form.searchTags ?? []}
+                  onChange={(searchTags) => patch({ searchTags })}
+                  disabled={disabled}
                 />
               </div>
-            )}
-          </FormSection>
-
-          <FormSection
-            title="분류와 검색 태그"
-            hint="(선택)"
-            description="손님이 상품을 찾기 쉬워져요."
-          >
-            <div className="space-y-5">
-              <ProductCreationCategorySection
-                value={form.productCategoryTypes ?? []}
-                onChange={(productCategoryTypes) => patch({ productCategoryTypes })}
-                disabled={disabled}
-              />
-              <ProductCreationSearchTagSection
-                value={form.searchTags ?? []}
-                onChange={(searchTags) => patch({ searchTags })}
-                disabled={disabled}
-              />
-            </div>
-          </FormSection>
-        </aside>
+            </FormSection>
+          </aside>
+        </div>
+        {withPreview ? <ProductCustomerPreview form={form} storeName={store?.name ?? ""} /> : null}
       </div>
 
       {/* 저장 버튼은 항상 화면 아래에 */}

@@ -3,11 +3,7 @@ import { sellerHomeQueryKeys } from "@/apps/web-seller/features/home/constants/s
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
-import {
-  PHONE_MAX_WIDTH_PX,
-  SCREEN_MODE,
-  shouldShowMobileScreens,
-} from "@/apps/web-seller/common/constants/screen.constant";
+import { isPhoneWidthNow } from "@/apps/web-seller/common/constants/screen.constant";
 import { isSellerAppWebView } from "@/apps/web-seller/common/utils/webview.bridge";
 import { useQueryClient } from "@tanstack/react-query";
 import { connectNotificationSocket } from "@/apps/web-seller/features/notification/services/notification-socket.service";
@@ -37,6 +33,7 @@ import {
   SELLER_CHAT_TITLE,
 } from "@/apps/web-seller/features/chat/constants/chat.constants";
 import { sellerNotificationPath } from "@/apps/web-seller/features/notification/utils/notification-path.util";
+import { showBrowserNotification } from "@/apps/web-seller/features/notification/utils/browser-notification.util";
 
 /**
  * 스토어 컨텍스트 안에서 알림 목록·설정·미읽음 수를 React Query로 묶고,
@@ -61,13 +58,9 @@ interface SellerNotificationContextValue {
 
 const SellerNotificationContext = createContext<SellerNotificationContextValue | null>(null);
 
-/** 휴대폰 앱 안이거나 휴대폰 화면을 그리는 중인지(화면 안 알림 소리를 내지 않음) */
+/** 휴대폰 앱 안이거나 휴대폰 화면을 그리는 중인지(화면 안 알림 소리·브라우저 알림을 내지 않음) */
 function isPhoneOrApp(): boolean {
-  if (isSellerAppWebView()) return true;
-  return shouldShowMobileScreens(
-    SCREEN_MODE,
-    window.matchMedia(`(max-width: ${PHONE_MAX_WIDTH_PX}px)`).matches,
-  );
+  return isSellerAppWebView() || isPhoneWidthNow();
 }
 
 /** 소켓 알림 뒤 다시 불러오기를 모으는 시간 */
@@ -157,6 +150,15 @@ export const SellerNotificationProvider: React.FC<{
           message: signal.senderName,
           onClick: () => navigateRef.current(roomPath),
         });
+        // PC 브라우저 알림(기획 I-54): 탭이 뒤에 있으면 운영체제 알림으로도
+        if (!isPhoneOrApp()) {
+          showBrowserNotification({
+            title: SELLER_CHAT_TITLE,
+            body: signal.senderName,
+            tag: `chat-${signal.threadId}`,
+            onClick: () => navigateRef.current(roomPath),
+          });
+        }
       },
       onNotification: (item) => {
         scheduleRefresh();
@@ -192,6 +194,18 @@ export const SellerNotificationProvider: React.FC<{
         // (앱 웹뷰는 누르는 순간이 아니면 소리를 막아 거의 울리지 않았다, 운영자 17차)
         if (!storeNotice && prefs.orderNotificationSoundEnabled && !isPhoneOrApp()) {
           playNotificationChime();
+        }
+        // PC 브라우저 알림(기획 I-54): 탭이 뒤에 있거나 다른 창을 보고 있으면 운영체제 알림으로도
+        if (!isPhoneOrApp()) {
+          showBrowserNotification({
+            title: item.title,
+            body: item.body,
+            tag: item.id,
+            onClick: () => {
+              markReadRef.current(item.id);
+              navigateRef.current(sellerNotificationPath(item));
+            },
+          });
         }
       },
     });

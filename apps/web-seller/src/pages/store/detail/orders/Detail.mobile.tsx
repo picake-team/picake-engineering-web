@@ -54,6 +54,11 @@ import {
 } from "@/apps/web-seller/features/order/components/mobile/OrderActionSheet";
 import { OrderGuideSheet } from "@/apps/web-seller/features/order/components/mobile/OrderSheets";
 import { orderThumbSrc } from "@/apps/web-seller/features/order/components/mobile/OrderCards";
+import {
+  itemPriceLine,
+  optionLine,
+  referenceImages,
+} from "@/apps/web-seller/features/order/utils/order-item-text.util";
 
 function Divider() {
   return <div aria-hidden="true" className="h-px shrink-0 bg-ink-100" />;
@@ -102,40 +107,6 @@ function PaymentDeadline({ order }: { order: OrderResponseDto }) {
       )}
     </div>
   );
-}
-
-function optionLine(item: OrderItemResponseDto): string | null {
-  const parts: string[] = [];
-  for (const o of item.selectedOptions ?? []) {
-    if (o.type === "SINGLE_SELECT" || o.type === "MULTI_SELECT") {
-      const labels = (o.choices ?? []).map((c) =>
-        c.price > 0 ? `${c.label}(+${c.price.toLocaleString("ko-KR")}원)` : c.label,
-      );
-      if (labels.length) parts.push(`${o.name} ${labels.join(", ")}`);
-    }
-  }
-  return parts.length ? parts.join(" · ") : null;
-}
-
-function itemPriceLine(item: OrderItemResponseDto): string {
-  const unitBeforeOptions = Math.max(0, item.itemPrice - (item.optionsPrice ?? 0));
-  const parts = [
-    item.sizeDisplayName?.trim(),
-    `${item.quantity}개`,
-    formatWon(unitBeforeOptions * item.quantity),
-  ].filter(Boolean);
-  return parts.join(" · ");
-}
-
-function referenceImages(item: OrderItemResponseDto): string[] {
-  const urls = [
-    ...(item.selectedOptions ?? []).reduce<string[]>(
-      (acc, o) => (o.type === "IMAGE" ? acc.concat(o.imageUrls ?? []) : acc),
-      [],
-    ),
-    ...(item.imageUrls ?? []),
-  ];
-  return Array.from(new Set(urls));
 }
 
 function OrderItemBlock({

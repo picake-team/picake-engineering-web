@@ -49,6 +49,10 @@ const TAB_GLYPHS = {
     ],
     inner: "M10.5 20v-3.5h3V20",
   },
+  /** PC 왼쪽 메뉴 "통계"(기획 I-54): 막대 셋. 고르면 칠한다 */
+  stats: {
+    base: ["M4.5 13h3.5v7H4.5z", "M10.25 8h3.5v12h-3.5z", "M16 4h3.5v16H16z"],
+  },
 } satisfies Record<string, GlyphDef>;
 
 const TASK_GLYPHS = {

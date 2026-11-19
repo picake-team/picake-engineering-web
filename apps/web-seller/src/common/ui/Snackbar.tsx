@@ -54,7 +54,11 @@ export function Snackbar({
 
   return (
     <div
-      className={cx(APP_COLUMN_CLASS, "pointer-events-none fixed inset-x-0 z-[80] px-4 font-app")}
+      // PC 틀(기획 I-54)에서는 왼쪽 메뉴를 뺀 본문 가운데(--shell-left는 DesktopLayout이 정한다)
+      className={cx(
+        APP_COLUMN_CLASS,
+        "pointer-events-none fixed left-[var(--shell-left,0px)] right-0 z-[80] px-4 font-app",
+      )}
       style={{ bottom: `calc(${bottomOffset}px + env(safe-area-inset-bottom))` }}
     >
       <div
@@ -87,8 +91,7 @@ export function Snackbar({
 
 /**
  * 스낵바 저장소(`useSnackbarStore`)에 띄운 것을 그린다. App에 한 번만 둔다.
- * PC는 아래 탭이 없어 화면 아래에 가깝게(bottomOffset) — PC에는 이 자리가 없어 채팅 차단·판매 상태 바꾸기의
- * "되돌리기"가 보이지 않던 것(F-67, 11-17)
+ * PC 틀은 아래 탭이 없어 화면 아래에 가깝게(bottomOffset) 둔다(F-67, 11-17).
  */
 export function SnackbarHost({ bottomOffset }: { bottomOffset?: number } = {}) {
   const current = useSnackbarStore((s) => s.current);

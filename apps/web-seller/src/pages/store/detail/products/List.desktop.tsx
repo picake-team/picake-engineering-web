@@ -1,349 +1,332 @@
-import React, { useState, useRef, useCallback } from "react";
-import { useParams } from "react-router-dom";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/apps/web-seller/common/components/selects/Select";
-import { BaseInput as Input } from "@/apps/web-seller/common/components/inputs/BaseInput";
-import { NumberInput } from "@/apps/web-seller/common/components/inputs/NumberInput";
-import { BaseButton as Button } from "@/apps/web-seller/common/components/buttons/BaseButton";
-import { Label } from "@/apps/web-seller/common/components/labels/Label";
+/**
+ * PC 상품 목록(기획 I-54, 시안 D): 탭(전체·판매중·판매중지·숨김) + 찾기 + 정렬·거르기 + 표.
+ * 판매 상태는 표 안 스위치로 바로 바꾸고(아래 "되돌리기"), 줄을 누르면 상품 수정. 칸이 좁으면 휴대폰처럼 두 줄.
+ * 조회·거르기·바로 바꾸기는 휴대폰 상품 목록과 같은 것(useProductList·ProductFilterSheet·useProductSalesToggle)이다.
+ */
+import React, { useMemo, useRef, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { PcPage } from "@/apps/web-seller/common/ui/PcPage";
+import { Button } from "@/apps/web-seller/common/ui/Button";
+import { ChipGroup } from "@/apps/web-seller/common/ui/Choice";
+import { SearchInput } from "@/apps/web-seller/common/ui/Field";
+import { EmptyState, LoadErrorState } from "@/apps/web-seller/common/ui/Surface";
+import { Switch } from "@/apps/web-seller/common/ui/Toggle";
+import { Icon } from "@/apps/web-seller/common/ui/icons";
+import { cx } from "@/apps/web-seller/common/ui/cx";
+import { useDebouncedValue } from "@/apps/web-seller/common/hooks/useDebouncedValue";
+import { useElementWidth } from "@/apps/web-seller/common/hooks/useElementWidth";
+import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
+import { flattenAndDeduplicateInfiniteData } from "@/apps/web-seller/common/utils/pagination.util";
 import { useProductList } from "@/apps/web-seller/features/product/hooks/queries/useProductQuery";
-import { useInfiniteScroll } from "@/apps/web-seller/common/hooks/useInfiniteScroll";
-import { ContentLoading } from "@/apps/web-seller/common/components/loading/ContentLoading";
-import { InfiniteScrollLoading } from "@/apps/web-seller/common/components/loading/InfiniteScrollLoading";
-import { ProductList } from "@/apps/web-seller/features/product/components/list/ProductList";
+import { useProductSalesToggle } from "@/apps/web-seller/features/product/hooks/mutations/useProductSalesToggle";
 import {
-  SortBy,
-  ProductResponseDto,
   EnableStatus,
-  ProductType,
-  ProductCategoryType,
-  CakeSizeDisplayName,
+  type ProductResponseDto,
 } from "@/apps/web-seller/features/product/types/product.dto";
 import {
-  PRODUCT_CATEGORY_GROUPS,
-  CAKE_SIZE_DISPLAY_NAME_OPTIONS,
-} from "@/apps/web-seller/features/product/constants/product.constant";
-import { flattenAndDeduplicateInfiniteData } from "@/apps/web-seller/common/utils/pagination.util";
-import { useDebouncedValue } from "@/apps/web-seller/common/hooks/useDebouncedValue";
+  DEFAULT_PRODUCT_FILTER,
+  ProductFilterSheet,
+  productFilterSummary,
+  type ProductFilter,
+} from "@/apps/web-seller/features/product/components/mobile/ProductFilterSheet";
+import { LoadMoreSentinel } from "@/apps/web-seller/features/order/components/mobile/OrderCards";
+import { formatWon } from "@/apps/web-seller/features/order/utils/order-mobile.util";
 
-const DEBOUNCE_DELAY_MS = 300;
+type Bucket = "all" | "on" | "off" | "hidden";
 
-export const StoreDetailProductListPage: React.FC = () => {
-  const { storeId } = useParams();
-  const [sortBy, setSortBy] = useState<SortBy>(SortBy.LATEST);
-  const [search, setSearch] = useState<string>("");
-  const [salesStatus, setSalesStatus] = useState<EnableStatus | undefined>(undefined);
-  const [visibilityStatus, setVisibilityStatus] = useState<EnableStatus | undefined>(undefined);
-  const [minPrice, setMinPrice] = useState<number | undefined>(undefined);
-  const [maxPrice, setMaxPrice] = useState<number | undefined>(undefined);
-  const [productType, setProductType] = useState<ProductType | undefined>(undefined);
-  const [productCategoryTypes, setProductCategoryTypes] = useState<ProductCategoryType[]>([]);
-  const [sizes, setSizes] = useState<CakeSizeDisplayName[]>([]);
-  const loadMoreRef = useRef<HTMLDivElement>(null);
+const BUCKET_PARAMS: Record<
+  Bucket,
+  { salesStatus?: EnableStatus; visibilityStatus?: EnableStatus }
+> = {
+  all: {},
+  on: { salesStatus: EnableStatus.ENABLE },
+  off: { salesStatus: EnableStatus.DISABLE },
+  hidden: { visibilityStatus: EnableStatus.DISABLE },
+};
 
-  // 검색 및 가격 필터 debounce (과도한 API 호출 방지)
-  const debouncedSearch = useDebouncedValue(search, DEBOUNCE_DELAY_MS);
-  const debouncedMinPrice = useDebouncedValue(minPrice, DEBOUNCE_DELAY_MS);
-  const debouncedMaxPrice = useDebouncedValue(maxPrice, DEBOUNCE_DELAY_MS);
+const TABLE_MIN_WIDTH = 640;
+const COLS = "grid-cols-[minmax(0,1fr)_140px_140px_120px]";
 
-  const handleResetFilters = useCallback(() => {
-    setSearch("");
-    setSalesStatus(undefined);
-    setVisibilityStatus(undefined);
-    setMinPrice(undefined);
-    setMaxPrice(undefined);
-    setProductType(undefined);
-    setProductCategoryTypes([]);
-    setSizes([]);
-  }, []);
+function Thumb({ product }: { product: ProductResponseDto }) {
+  return (
+    <span className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-control bg-ink-50 text-ink-400">
+      {product.images?.[0] ? (
+        <img src={product.images[0]} alt="" loading="lazy" className="size-full object-cover" />
+      ) : (
+        <Icon name="cake" size={22} strokeWidth={1.6} />
+      )}
+    </span>
+  );
+}
 
-  const handleResetSizes = useCallback(() => {
-    setSizes([]);
-  }, []);
+function Price({ product }: { product: ProductResponseDto }) {
+  const discounted = product.originalPrice > product.salePrice;
+  return (
+    <span className="flex flex-col text-sub tabular-nums text-ink-900">
+      {discounted ? (
+        <s className="text-caption text-ink-600">{formatWon(product.originalPrice)}</s>
+      ) : null}
+      <b>{formatWon(product.salePrice)}</b>
+    </span>
+  );
+}
 
-  const handleResetCategories = useCallback(() => {
-    setProductCategoryTypes([]);
-  }, []);
+function Badges({ product }: { product: ProductResponseDto }) {
+  const parts = [
+    product.visibilityStatus === EnableStatus.DISABLE ? "손님에게 숨김" : null,
+    // 운영자가 가게 대신 만든 상품(기획 I-41)
+    product.enteredByOperator ? "운영자 입력" : null,
+  ].filter(Boolean);
+  return parts.length ? (
+    <span className="text-badge font-bold text-ink-600">{parts.join(" · ")}</span>
+  ) : null;
+}
 
-  const hasActiveFilters =
-    search.trim() !== "" ||
-    salesStatus !== undefined ||
-    visibilityStatus !== undefined ||
-    minPrice !== undefined ||
-    maxPrice !== undefined ||
-    productType !== undefined ||
-    productCategoryTypes.length > 0 ||
-    sizes.length > 0;
+function SaleSwitch({ product, onToggle }: { product: ProductResponseDto; onToggle: () => void }) {
+  const onSale = product.salesStatus === EnableStatus.ENABLE;
+  return (
+    <span className="pointer-events-auto relative z-[2] flex items-center gap-2">
+      <Switch
+        label={`${product.name} 판매`}
+        checked={onSale}
+        className="-my-2 h-11"
+        onChange={onToggle}
+      />
+      <span className="text-caption text-ink-600">{onSale ? "판매중" : "판매중지"}</span>
+    </span>
+  );
+}
 
-  if (!storeId) {
-    return (
-      <div>
-        <h2 className="text-xl font-semibold">스토어가 선택되지 않았습니다.</h2>
-      </div>
-    );
-  }
+function ProductTableRow({
+  product,
+  wide,
+  onToggle,
+}: {
+  product: ProductResponseDto;
+  wide: boolean;
+  onToggle: () => void;
+}) {
+  const to = ROUTES.STORE_DETAIL_PRODUCTS_DETAIL(product.storeId, product.id);
+  const visible = product.visibilityStatus !== EnableStatus.DISABLE;
+  return (
+    <div
+      role="row"
+      className="relative border-b border-ink-100 transition-colors duration-fast hover:bg-ink-50/60"
+    >
+      <Link
+        to={to}
+        aria-label={`${product.name} 수정`}
+        className="absolute inset-0 z-[1] focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand"
+      />
+      {wide ? (
+        <div className={cx("pointer-events-none grid items-center gap-4 px-4 py-3", COLS)}>
+          <span className="flex min-w-0 items-center gap-3">
+            <Thumb product={product} />
+            <span className="flex min-w-0 flex-col gap-0.5">
+              <span className="truncate text-body font-semibold text-ink-900">{product.name}</span>
+              <Badges product={product} />
+            </span>
+          </span>
+          <Price product={product} />
+          <span className={cx("text-sub", visible ? "text-ink-700" : "text-ink-600")}>
+            {visible ? "손님에게 보임" : "손님에게 숨김"}
+          </span>
+          <SaleSwitch product={product} onToggle={onToggle} />
+        </div>
+      ) : (
+        <div className="pointer-events-none flex items-center gap-3 px-4 py-3">
+          <Thumb product={product} />
+          <span className="flex min-w-0 flex-1 flex-col gap-1">
+            <span className="truncate text-body font-semibold text-ink-900">{product.name}</span>
+            <Price product={product} />
+            <Badges product={product} />
+          </span>
+          <SaleSwitch product={product} onToggle={onToggle} />
+        </div>
+      )}
+    </div>
+  );
+}
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useProductList({
+export const StoreDetailProductListDesktopPage: React.FC = () => {
+  const { storeId = "" } = useParams<{ storeId: string }>();
+  const navigate = useNavigate();
+  const [search, setSearch] = useState("");
+  const debounced = useDebouncedValue(search.trim(), 300);
+  const [bucket, setBucket] = useState<Bucket>("all");
+  const [filter, setFilter] = useState<ProductFilter>(DEFAULT_PRODUCT_FILTER);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const toggle = useProductSalesToggle();
+  const tableRef = useRef<HTMLDivElement>(null);
+  const wide = useElementWidth(tableRef) >= TABLE_MIN_WIDTH;
+
+  const common = {
     storeId,
-    sortBy,
-    search: debouncedSearch.trim() || undefined,
-    salesStatus,
-    visibilityStatus,
-    minPrice: debouncedMinPrice,
-    maxPrice: debouncedMaxPrice,
-    productType,
-    productCategoryTypes: productCategoryTypes.length ? productCategoryTypes : undefined,
-    sizes: sizes.length ? sizes : undefined,
-  });
+    sortBy: filter.sortBy,
+    search: debounced || undefined,
+    productType: filter.productType,
+    minPrice: filter.minPrice,
+    maxPrice: filter.maxPrice,
+    sizes: filter.sizes.length ? filter.sizes : undefined,
+    productCategoryTypes: filter.categories.length ? filter.categories : undefined,
+  };
+  const list = useProductList({ ...common, limit: 20, ...BUCKET_PARAMS[bucket] });
+  // 칩 숫자: 같은 조건으로 1개씩만 받아 전체 수를 본다(휴대폰과 같다)
+  const all = useProductList({ ...common, limit: 1 });
+  const on = useProductList({ ...common, limit: 1, ...BUCKET_PARAMS.on });
+  const off = useProductList({ ...common, limit: 1, ...BUCKET_PARAMS.off });
+  const hidden = useProductList({ ...common, limit: 1, ...BUCKET_PARAMS.hidden });
+  const count = (q: typeof all) => q.data?.pages[0]?.meta.totalItems;
 
-  // 무한 스크롤 훅 사용
-  useInfiniteScroll({
-    hasNextPage,
-    isFetchingNextPage,
-    fetchNextPage,
-    loadMoreRef,
-  });
-
-  // 상품 목록 평탄화 및 중복 제거
-  const products = flattenAndDeduplicateInfiniteData<ProductResponseDto>(data);
-  // 전체 개수는 첫 번째 페이지의 meta에서 가져옴 (무한 스크롤)
-  const totalItems = data?.pages?.[0]?.meta?.totalItems || products.length || 0;
+  const products = useMemo(
+    () => flattenAndDeduplicateInfiniteData<ProductResponseDto>(list.data),
+    [list.data],
+  );
+  const summary = productFilterSummary(filter);
+  const noProductsAtAll = count(all) === 0 && !debounced && !summary;
+  const create = () => navigate(ROUTES.STORE_DETAIL_PRODUCTS_CREATE(storeId));
 
   return (
-    <div className="space-y-6">
-      {/* 헤더 */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">상품 목록</h1>
-      </div>
-
-      {/* 필터 및 정렬 */}
-      <div className="space-y-4 rounded-lg border bg-card p-4">
-        {/* 통계 및 정렬 */}
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="text-sm text-muted-foreground">
-              총 <span className="font-semibold text-foreground">{totalItems}</span>개의 상품
-            </div>
-            {hasActiveFilters && (
-              <Button variant="outline" size="sm" onClick={handleResetFilters}>
-                전체 초기화
+    <PcPage
+      title="상품"
+      actions={
+        <Button size="md" onClick={create}>
+          <Icon name="plus" size={16} strokeWidth={2} />
+          상품 등록
+        </Button>
+      }
+    >
+      {noProductsAtAll ? (
+        <div className="flex flex-1 flex-col rounded-card border border-ink-100">
+          <EmptyState
+            big
+            title="등록된 상품이 없어요"
+            description="첫 상품을 등록하면 손님 앱에 보여요"
+            action={
+              <Button className="px-8" onClick={create}>
+                상품 등록
               </Button>
-            )}
-            {sizes.length > 0 && (
-              <Button variant="outline" size="sm" onClick={handleResetSizes}>
-                사이즈 초기화
-              </Button>
-            )}
-            {productCategoryTypes.length > 0 && (
-              <Button variant="outline" size="sm" onClick={handleResetCategories}>
-                카테고리 초기화
-              </Button>
-            )}
-          </div>
-          <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortBy)}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="정렬 선택" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={SortBy.LATEST}>최신순</SelectItem>
-              <SelectItem value={SortBy.POPULAR}>인기순</SelectItem>
-              <SelectItem value={SortBy.PRICE_ASC}>가격 낮은순</SelectItem>
-              <SelectItem value={SortBy.PRICE_DESC}>가격 높은순</SelectItem>
-              <SelectItem value={SortBy.REVIEW_COUNT}>후기 많은 순</SelectItem>
-              <SelectItem value={SortBy.RATING_AVG}>별점 높은순</SelectItem>
-            </SelectContent>
-          </Select>
+            }
+          />
         </div>
-
-        {/* 필터 */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-          {/* 검색 */}
-          <div className="space-y-2">
-            <Label>상품명 검색</Label>
-            <Input
+      ) : (
+        <>
+          <div className="flex flex-wrap items-center gap-3">
+            <ChipGroup
+              label="판매 상태"
+              value={bucket}
+              onChange={setBucket}
+              options={[
+                { value: "all", label: "전체", count: count(all) },
+                { value: "on", label: "판매중", count: count(on) },
+                { value: "off", label: "판매중지", count: count(off) },
+                { value: "hidden", label: "숨김", count: count(hidden) },
+              ]}
+            />
+            <SearchInput
+              label="상품명 검색"
               placeholder="상품명 검색"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              className="min-w-[220px] flex-1"
             />
+            <Button variant="secondary" size="md" onClick={() => setFilterOpen(true)}>
+              <Icon name="filter" size={16} strokeWidth={2} />
+              정렬·거르기
+            </Button>
           </div>
-
-          {/* 상품 타입 */}
-          <div className="space-y-2">
-            <Label>상품 타입</Label>
-            <Select
-              value={productType || "ALL"}
-              onValueChange={(value) =>
-                setProductType(value === "ALL" ? undefined : (value as ProductType))
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="상품 타입 선택" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">전체</SelectItem>
-                <SelectItem value={ProductType.BASIC_CAKE}>기본 케이크</SelectItem>
-                <SelectItem value={ProductType.CUSTOM_CAKE}>커스텀 케이크</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* 판매 상태 */}
-          <div className="space-y-2">
-            <Label>판매 상태</Label>
-            <Select
-              value={salesStatus || "ALL"}
-              onValueChange={(value) =>
-                setSalesStatus(value === "ALL" ? undefined : (value as EnableStatus))
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="상태 선택" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">전체</SelectItem>
-                <SelectItem value={EnableStatus.ENABLE}>판매중</SelectItem>
-                <SelectItem value={EnableStatus.DISABLE}>판매중지</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* 노출 상태 */}
-          <div className="space-y-2">
-            <Label>노출 상태</Label>
-            <Select
-              value={visibilityStatus || "ALL"}
-              onValueChange={(value) =>
-                setVisibilityStatus(value === "ALL" ? undefined : (value as EnableStatus))
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="상태 선택" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">전체</SelectItem>
-                <SelectItem value={EnableStatus.ENABLE}>노출</SelectItem>
-                <SelectItem value={EnableStatus.DISABLE}>숨김</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* 최소 가격 */}
-          <div className="space-y-2">
-            <Label>최소 가격</Label>
-            <NumberInput value={minPrice} onChange={setMinPrice} placeholder="최소 가격" min={0} />
-          </div>
-
-          {/* 최대 가격 */}
-          <div className="space-y-2">
-            <Label>최대 가격</Label>
-            <NumberInput value={maxPrice} onChange={setMaxPrice} placeholder="최대 가격" min={0} />
-          </div>
-        </div>
-
-        {/* 케이크 사이즈 필터 (복수 선택) */}
-        <div className="space-y-2">
-          <Label>케이크 사이즈 (해당 중 하나라도 포함)</Label>
-          <div className="flex flex-wrap gap-2">
-            {CAKE_SIZE_DISPLAY_NAME_OPTIONS.map((opt) => {
-              const isSelected = sizes.includes(opt.value);
-              return (
-                <label
-                  key={opt.value}
-                  className={`
-                      inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm cursor-pointer select-none transition-all duration-150 border
-                      ${
-                        isSelected
-                          ? "border-primary bg-primary/10 text-primary font-medium"
-                          : "border-border bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
-                      }
-                    `}
-                >
-                  <input
-                    type="checkbox"
-                    checked={isSelected}
-                    onChange={() => {
-                      if (isSelected) {
-                        setSizes(sizes.filter((s) => s !== opt.value));
-                      } else {
-                        setSizes([...sizes, opt.value]);
-                      }
-                    }}
-                    className="sr-only"
-                  />
-                  {opt.label}
-                </label>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* 카테고리 필터 (복수 선택) */}
-        <div className="space-y-2">
-          <Label>카테고리 (칸 안은 하나라도, 칸끼리는 모두 맞는 상품)</Label>
-          {PRODUCT_CATEGORY_GROUPS.map((group) => (
-            <div key={group.label} className="space-y-1.5">
-              <p className="text-xs text-muted-foreground">{group.label}</p>
-              <div className="flex flex-wrap gap-2">
-                {group.options.map((opt) => {
-                  const isSelected = productCategoryTypes.includes(opt.value);
-                  return (
-                    <label
-                      key={opt.value}
-                      className={`
-                      inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm cursor-pointer select-none transition-all duration-150 border
-                      ${
-                        isSelected
-                          ? "border-primary bg-primary/10 text-primary font-medium"
-                          : "border-border bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
-                      }
-                    `}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={() => {
-                          if (isSelected) {
-                            setProductCategoryTypes(
-                              productCategoryTypes.filter((t) => t !== opt.value),
-                            );
-                          } else {
-                            setProductCategoryTypes([...productCategoryTypes, opt.value]);
-                          }
-                        }}
-                        className="sr-only"
-                      />
-                      {opt.label}
-                    </label>
-                  );
-                })}
+          {summary ? (
+            <div className="flex items-center gap-2 rounded-control bg-ink-50 py-1.5 pl-4 pr-2">
+              <span className="min-w-0 flex-1 truncate text-sub font-bold text-ink-700">
+                {summary}
+              </span>
+              <button
+                type="button"
+                aria-label="거르기 지우기"
+                onClick={() => setFilter(DEFAULT_PRODUCT_FILTER)}
+                className="inline-flex size-9 items-center justify-center rounded-full text-ink-700 hover:bg-ink-100"
+              >
+                <Icon name="close" size={18} strokeWidth={2} />
+              </button>
+            </div>
+          ) : null}
+          <div
+            ref={tableRef}
+            role="table"
+            aria-label="상품 목록"
+            className="flex flex-col rounded-card border border-ink-100"
+          >
+            {wide ? (
+              <div
+                role="row"
+                className={cx(
+                  "grid items-center gap-4 border-b border-ink-100 px-4 py-2.5 text-caption font-semibold text-ink-600",
+                  COLS,
+                )}
+              >
+                <span role="columnheader">상품</span>
+                <span role="columnheader">가격</span>
+                <span role="columnheader">손님에게</span>
+                <span role="columnheader">판매</span>
               </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* 상품 목록 */}
-      {isLoading ? (
-        <ContentLoading variant="section" message="상품을 불러오는 중…" className="py-12" />
-      ) : (
-        <>
-          <ProductList products={products} />
-
-          {/* 무한 스크롤 트리거 */}
-          {hasNextPage && (
-            <div ref={loadMoreRef} className="flex min-h-[100px] items-center justify-center py-8">
-              {isFetchingNextPage ? (
-                <InfiniteScrollLoading message="더 많은 상품을 불러오는 중…" />
-              ) : null}
-            </div>
-          )}
+            ) : null}
+            {list.isError && !list.data ? (
+              <div className="flex min-h-[240px] flex-col px-4">
+                <LoadErrorState big onRetry={() => void list.refetch()} />
+              </div>
+            ) : list.isLoading ? (
+              <div className="flex flex-col gap-2 p-4" aria-busy="true" aria-label="불러오는 중">
+                {[0, 1, 2].map((i) => (
+                  <span key={i} className="block h-14 animate-pulse rounded-control bg-ink-50" />
+                ))}
+              </div>
+            ) : products.length === 0 ? (
+              <div className="flex min-h-[240px] flex-col px-4">
+                <EmptyState
+                  big
+                  icon="search"
+                  title="맞는 상품이 없어요"
+                  description="다른 말로 찾거나 거르기를 지워 보세요"
+                />
+              </div>
+            ) : (
+              <>
+                {products.map((p) => (
+                  <ProductTableRow
+                    key={p.id}
+                    product={p}
+                    wide={wide}
+                    onToggle={() =>
+                      toggle.mutate({
+                        productId: p.id,
+                        name: p.name,
+                        next:
+                          p.salesStatus === EnableStatus.ENABLE
+                            ? EnableStatus.DISABLE
+                            : EnableStatus.ENABLE,
+                      })
+                    }
+                  />
+                ))}
+                <LoadMoreSentinel
+                  hasNext={Boolean(list.hasNextPage)}
+                  loading={list.isFetchingNextPage}
+                  onLoad={() => void list.fetchNextPage()}
+                />
+              </>
+            )}
+          </div>
         </>
       )}
-    </div>
+      <ProductFilterSheet
+        open={filterOpen}
+        value={filter}
+        onClose={() => setFilterOpen(false)}
+        onApply={(f) => {
+          setFilter(f);
+          setFilterOpen(false);
+        }}
+      />
+    </PcPage>
   );
 };

@@ -5,6 +5,8 @@
  * - 내용이 길면 창 안에서 스크롤하고 버튼 줄은 아래에 둔다
  * - 뒤를 누르거나 Esc로, 손잡이·제목 부분을 아래로 끌어 닫는다(처리 중에는 닫지 않음). 열린 동안 화면 스크롤을 멈춘다
  * - 안드로이드 뒤로 버튼은 기본 동작만(I-48 "뒤로 가기" 결정)
+ * - PC 틀(기획 I-54)에서는 같은 내용을 화면 가운데 창으로 연다(너비 480, 모서리 22, 손잡이·끌기 없음).
+ *   마우스로 쓰는 PC에서 아래에서 올라오는 넓은 창은 눈과 손이 멀어서다(Material 3: 넓은 화면은 가운데 창).
  */
 import React, { useEffect, useId, useRef } from "react";
 import { useSheetDrag } from "@/apps/web-seller/common/ui/useSheetDrag";
@@ -12,6 +14,7 @@ import { createPortal } from "react-dom";
 import { cx } from "@/apps/web-seller/common/ui/cx";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
 import { usePresence } from "@/apps/web-seller/common/ui/usePresence";
+import { useIsDesktopShell } from "@/apps/web-seller/common/ui/shell";
 
 /** 닫힐 때 내려가는 시간(공용 움직임 값 sheet-out = medium) */
 const SHEET_EXIT_MS = 250;
@@ -116,7 +119,13 @@ export function BottomSheet({
     };
   }, [open]);
 
-  const dragHandle = useSheetDrag({ panelRef, backdropRef, onClose, enabled: dismissible });
+  const desktop = useIsDesktopShell();
+  const dragHandle = useSheetDrag({
+    panelRef,
+    backdropRef,
+    onClose,
+    enabled: dismissible && !desktop,
+  });
 
   // 닫힐 때도 내려가는 움직임이 끝날 때까지 그린다(그동안 내용은 마지막으로 열려 있던 때 그대로)
   const presence = usePresence(open, SHEET_EXIT_MS, { title, description, children, footer });
@@ -127,7 +136,8 @@ export function BottomSheet({
   return createPortal(
     <div
       className={cx(
-        "fixed inset-0 z-50 flex flex-col justify-end font-app",
+        "fixed inset-0 z-50 flex font-app",
+        desktop ? "items-center justify-center p-6" : "flex-col justify-end",
         leaving && "pointer-events-none",
       )}
     >
@@ -149,15 +159,24 @@ export function BottomSheet({
         aria-labelledby={titleId}
         tabIndex={-1}
         className={cx(
-          "relative mx-auto flex max-h-[90dvh] w-full max-w-[640px] flex-col rounded-t-sheet bg-white text-ink-900 outline-none",
+          "relative flex w-full flex-col bg-white text-ink-900 outline-none",
+          desktop
+            ? "max-h-[85dvh] max-w-[480px] rounded-sheet shadow-[0_16px_48px_rgba(31,31,30,0.18)]"
+            : "mx-auto max-h-[90dvh] max-w-[640px] rounded-t-sheet",
           leaving
-            ? "animate-sheet-out motion-reduce:animate-fade-out"
-            : "animate-sheet-in motion-reduce:animate-fade-in",
+            ? desktop
+              ? "animate-fade-out"
+              : "animate-sheet-out motion-reduce:animate-fade-out"
+            : desktop
+              ? "animate-fade-in"
+              : "animate-sheet-in motion-reduce:animate-fade-in",
           className,
         )}
       >
-        <div className="flex flex-col gap-4 px-5 pt-3" {...dragHandle}>
-          <span aria-hidden="true" className="mx-auto mb-1 h-1 w-9 rounded-sm bg-ink-200" />
+        <div className={cx("flex flex-col gap-4 px-5", desktop ? "pt-5" : "pt-3")} {...dragHandle}>
+          {desktop ? null : (
+            <span aria-hidden="true" className="mx-auto mb-1 h-1 w-9 rounded-sm bg-ink-200" />
+          )}
           <div className="flex items-start justify-between gap-2">
             <div className="flex min-w-0 flex-col gap-2">
               <h2 id={titleId} className="text-heading font-bold">
@@ -184,7 +203,14 @@ export function BottomSheet({
             {shown.children}
           </div>
         ) : null}
-        <div className="px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-5">{shown.footer}</div>
+        <div
+          className={cx(
+            "px-5 pt-5",
+            desktop ? "pb-5" : "pb-[max(20px,env(safe-area-inset-bottom))]",
+          )}
+        >
+          {shown.footer}
+        </div>
       </div>
     </div>,
     document.body,
