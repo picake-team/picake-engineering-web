@@ -1,8 +1,9 @@
 /**
  * 상품 등록·수정 중 손님 화면 미리보기(PC에만, 기획 I-54, 운영자 결정 2026-11-19).
  * 스마트스토어 "미리보기는 PC만"·쿠팡이츠 "손님에게 보이는 메뉴를 보며 편집" 근거.
- * 넓은 PC 화면 오른쪽에 손님 앱 상품 화면을 줄여 그린다: 대표 사진 · 스토어 · 상품 이름 · 가격(할인) · 분류 ·
- * 사이즈(추가금) · 추가 옵션 · 상세 설명. 입력하는 대로 바로 바뀐다(저장 전 값).
+ * 넓은 PC 화면 오른쪽에 손님 앱 상품 화면을 줄여 그린다: 대표 사진 · 스토어 · 상품 이름 · 가격(할인, 뒤 물결) · 분류 ·
+ * 사이즈(추가금) · 추가 옵션 · 상세 설명 · 아래 버튼(예약신청 / 견적 받기 상품이면 "이 디자인으로 견적 받기", 기획 I-01).
+ * 입력하는 대로 바로 바뀐다(저장 전 값).
  */
 import { cx } from "@/apps/web-seller/common/ui/cx";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
@@ -14,8 +15,10 @@ import { EnableStatus } from "@/apps/web-seller/features/product/types/product.d
 import type { ProductForm } from "@/apps/web-seller/features/product/types/product.ui";
 import { formatWon } from "@/apps/web-seller/features/order/utils/order-mobile.util";
 import {
+  customerButtonLabel,
   descriptionText,
   discountRate,
+  showsFromPrice,
 } from "@/apps/web-seller/features/product/utils/product-preview.util";
 
 const CATEGORY_LABEL = new Map<string, string>(
@@ -46,6 +49,7 @@ export function ProductCustomerPreview({
   const text = descriptionText(form.detailDescription);
   const hidden = form.visibilityStatus === EnableStatus.DISABLE;
   const off = form.salesStatus === EnableStatus.DISABLE;
+  const fromPrice = showsFromPrice(form);
 
   return (
     <aside
@@ -77,7 +81,7 @@ export function ProductCustomerPreview({
           <span className="flex flex-wrap items-baseline gap-x-1.5">
             {rate > 0 ? <b className="text-body text-brand">{rate}%</b> : null}
             <b className="text-heading tabular-nums text-ink-900">
-              {sale ? formatWon(sale) : "가격"}
+              {sale ? `${formatWon(sale)}${fromPrice ? "~" : ""}` : "가격"}
             </b>
             {rate > 0 && original ? (
               <s className="text-caption tabular-nums text-ink-500">{formatWon(original)}</s>
@@ -133,6 +137,17 @@ export function ProductCustomerPreview({
             {text}
           </p>
         ) : null}
+        <div className="border-t border-ink-100 px-4 py-3">
+          {/* 손님 화면 아래 버튼(누를 수 없는 그림) */}
+          <span
+            className={cx(
+              "flex h-10 items-center justify-center rounded-control text-sub font-bold",
+              off ? "bg-ink-100 text-ink-500" : "bg-brand text-white",
+            )}
+          >
+            {customerButtonLabel(form)}
+          </span>
+        </div>
       </div>
     </aside>
   );
