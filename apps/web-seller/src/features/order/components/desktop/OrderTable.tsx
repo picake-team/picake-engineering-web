@@ -24,13 +24,13 @@ import type {
 import { getOrderStatusLabel } from "@/apps/web-seller/features/order/utils/order-status-ui.util";
 import {
   ORDER_ACTION_LABEL,
-  formatWon,
   isCanceledOrNoShow,
   orderExpiryMarks,
   orderItemsLine,
   orderSubline,
   statusTone,
 } from "@/apps/web-seller/features/order/utils/order-mobile.util";
+import { formatWon } from "@/apps/web-seller/common/utils/won.util";
 
 /** 표로 그리는 칸 넓이(이보다 좁으면 두 줄) */
 export const ORDER_TABLE_MIN_WIDTH = 600;

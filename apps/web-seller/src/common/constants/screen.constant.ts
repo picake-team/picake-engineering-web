@@ -5,11 +5,10 @@
  * | ---------- | ------- | ------------------------------------ | --------------------- |
  * | ~767       | phone   | 휴대폰 화면(아래 탭 5개)             | 한 칸                 |
  * | 768~1199   | tablet  | PC 틀, 왼쪽 아이콘 줄                | 840부터 두 칸         |
- * | 1200~1599  | desktop | PC 틀, 이름이 보이는 왼쪽 메뉴       | 두 칸                 |
- * | 1600~      | wide    | 〃                                   | 두 칸(넓게)           |
+ * | 1200~      | desktop | PC 틀, 이름이 보이는 왼쪽 메뉴       | 두 칸                 |
  *
  * 근거: Material 3 window size classes(medium 600~839 한 창, expanded 840~ 두 창, large 1200~ 펼친 레일),
- * Shopify Polaris 768. tailwind `split`(840)·`nav`(1200)·`wide`(1600)도 같은 값이다(tailwind.config.ts).
+ * Shopify Polaris 768. tailwind `md`(768)·`split`(840)·`nav`(1200)는 tailwind.config.ts가 이 값을 가져다 쓴다.
  * 휴대폰 화면과 PC 화면은 같은 주소를 쓰고, 기능은 같거나 PC가 더 많다(운영자 결정 2026-11-19).
  */
 export const PHONE_MAX_WIDTH_PX = 767;
@@ -17,16 +16,6 @@ export const PHONE_MAX_WIDTH_PX = 767;
 export const TWO_PANE_MIN_WIDTH_PX = 840;
 /** 왼쪽 메뉴에 이름까지 보이는 폭 */
 export const NAV_EXPANDED_MIN_WIDTH_PX = 1200;
-export const WIDE_MIN_WIDTH_PX = 1600;
-
-export type WindowClass = "phone" | "tablet" | "desktop" | "wide";
-
-export function windowClassOf(width: number): WindowClass {
-  if (width <= PHONE_MAX_WIDTH_PX) return "phone";
-  if (width < NAV_EXPANDED_MIN_WIDTH_PX) return "tablet";
-  if (width < WIDE_MIN_WIDTH_PX) return "desktop";
-  return "wide";
-}
 
 /** 지금 휴대폰 폭인지(훅 밖에서 한 번 읽을 때) */
 export function isPhoneWidthNow(): boolean {

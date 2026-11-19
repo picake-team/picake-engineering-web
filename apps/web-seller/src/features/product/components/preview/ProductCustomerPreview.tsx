@@ -13,7 +13,7 @@ import {
 } from "@/apps/web-seller/features/product/constants/product.constant";
 import { EnableStatus } from "@/apps/web-seller/features/product/types/product.dto";
 import type { ProductForm } from "@/apps/web-seller/features/product/types/product.ui";
-import { formatWon } from "@/apps/web-seller/features/order/utils/order-mobile.util";
+import { formatWon } from "@/apps/web-seller/common/utils/won.util";
 import {
   customerButtonLabel,
   descriptionText,

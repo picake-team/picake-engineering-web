@@ -39,7 +39,7 @@ const MANUAL_LIST_MAX_DAYS = 62;
 
 class TooManyOrdersError extends Error {}
 
-export function rangeForPreset(preset: Exclude<Preset, "custom">, todayKey: string) {
+function rangeForPreset(preset: Exclude<Preset, "custom">, todayKey: string) {
   const thisMonth = monthStartKey(todayKey);
   if (preset === "thisMonth") return { start: thisMonth, end: monthEndKey(thisMonth) };
   if (preset === "lastMonth") {

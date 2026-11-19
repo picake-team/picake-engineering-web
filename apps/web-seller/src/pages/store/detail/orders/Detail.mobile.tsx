@@ -42,11 +42,11 @@ import {
   ORDER_ACTION_LABEL,
   ORDER_STEP_LABELS,
   detailActionsFor,
-  formatWon,
   orderStepState,
   paymentDeadlineMs,
   telHref,
 } from "@/apps/web-seller/features/order/utils/order-mobile.util";
+import { formatWon } from "@/apps/web-seller/common/utils/won.util";
 import {
   OrderActionSheet,
   OrderMoreActionsSheet,

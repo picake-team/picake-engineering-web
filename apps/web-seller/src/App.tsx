@@ -17,7 +17,6 @@ import { ErrorBoundaryProvider } from "./common/components/providers/ErrorBounda
 import { QueryProvider } from "./common/components/providers/QueryProvider";
 import { PostHogProvider, PostHogPageView } from "./common/components/providers/PostHogProvider";
 import { LoadingFallback } from "./common/components/fallbacks/LoadingFallback";
-import { ConfirmAlert } from "./common/components/alerts/ConfirmAlert";
 import BuildInfoLogger from "./common/components/debug/BuildInfoLogger";
 import { ActAsBanner } from "./common/components/act-as/ActAsBanner";
 import {
@@ -65,7 +64,6 @@ function AppRoutes() {
           왼쪽 메뉴를 피해 본문 가운데에 온다. PC는 아래 탭이 없어 스낵바를 조금 낮게(채팅 쓰는 칸 위) */}
       <AlertBannerHost />
       {showMobile ? <SnackbarHost /> : <SnackbarHost bottomOffset={88} />}
-      <ConfirmAlert />
       {/* 운영자 대신 입력 중(기획 I-41)인 탭만 맨 위 띠 */}
       <ActAsBanner />
       <Suspense fallback={<LoadingFallback />}>

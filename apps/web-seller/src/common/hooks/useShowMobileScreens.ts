@@ -1,9 +1,5 @@
 import { useSyncExternalStore } from "react";
-import {
-  PHONE_MAX_WIDTH_PX,
-  windowClassOf,
-  type WindowClass,
-} from "@/apps/web-seller/common/constants/screen.constant";
+import { PHONE_MAX_WIDTH_PX } from "@/apps/web-seller/common/constants/screen.constant";
 
 function subscribeQuery(query: string) {
   return (onChange: () => void) => {
@@ -44,19 +40,5 @@ export function useMinWidth(px: number): boolean {
     subscribe,
     () => window.matchMedia(query).matches,
     () => true,
-  );
-}
-
-function subscribeResize(onChange: () => void) {
-  window.addEventListener("resize", onChange);
-  return () => window.removeEventListener("resize", onChange);
-}
-
-/** 지금 폭 구간(phone · tablet · desktop · wide). 구간이 바뀔 때만 다시 그린다 */
-export function useWindowClass(): WindowClass {
-  return useSyncExternalStore(
-    subscribeResize,
-    () => windowClassOf(window.innerWidth),
-    () => "desktop",
   );
 }

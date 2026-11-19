@@ -20,7 +20,7 @@ import {
   optionLine,
   referenceImages,
 } from "@/apps/web-seller/features/order/utils/order-item-text.util";
-import { formatWon } from "@/apps/web-seller/features/order/utils/order-mobile.util";
+import { formatWon } from "@/apps/web-seller/common/utils/won.util";
 import { getOrderStatusLabel } from "@/apps/web-seller/features/order/utils/order-status-ui.util";
 
 export function printOrdersPath(storeId: string, dateKey: string): string {

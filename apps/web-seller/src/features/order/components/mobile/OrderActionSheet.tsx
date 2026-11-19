@@ -20,7 +20,7 @@ import {
   type UpdateOrderStatusRequestDto,
 } from "@/apps/web-seller/features/order/types/order.dto";
 import { OrderSummaryBox } from "@/apps/web-seller/features/order/components/mobile/OrderCards";
-import { formatWon } from "@/apps/web-seller/features/order/utils/order-mobile.util";
+import { formatWon } from "@/apps/web-seller/common/utils/won.util";
 import { storeBankLabel } from "@/apps/web-seller/features/store/constants/store.constants";
 import { NO_REPLAY } from "@/apps/web-seller/common/constants/replay.constant";
 

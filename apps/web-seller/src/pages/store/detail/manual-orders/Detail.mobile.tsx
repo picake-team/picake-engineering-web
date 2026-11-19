@@ -24,7 +24,7 @@ import {
   isSellerAppWebView,
   saveImageToDevice,
 } from "@/apps/web-seller/common/utils/webview.bridge";
-import { formatWon } from "@/apps/web-seller/features/order/utils/order-mobile.util";
+import { formatWon } from "@/apps/web-seller/common/utils/won.util";
 import { manualOrderApi } from "@/apps/web-seller/features/manual-order/apis/manual-order.api";
 import { StatusPill } from "@/apps/web-seller/common/ui/Badge";
 import { MANUAL_ORDER_SOURCE_LABEL } from "@/apps/web-seller/features/manual-order/constants/manual-order.constant";

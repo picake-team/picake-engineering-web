@@ -7,6 +7,11 @@ import {
   appRadius,
   appSpacing,
 } from "./src/common/ui/tokens";
+import {
+  NAV_EXPANDED_MIN_WIDTH_PX,
+  PHONE_MAX_WIDTH_PX,
+  TWO_PANE_MIN_WIDTH_PX,
+} from "./src/common/constants/screen.constant";
 
 const config: Config = {
   // 움직임 시간·곡선·프리셋은 공용 기초(packages/design-tokens). 손님 앱과 같은 값
@@ -17,16 +22,15 @@ const config: Config = {
   darkMode: ["class"],
   content: ["./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
-    // 폭 구간(common/constants/screen.constant.ts와 같은 값). 작은 것부터 순서대로 둬야 넓은 쪽이 이긴다
+    // 폭 구간은 common/constants/screen.constant.ts 한 곳에서 정한다. 작은 것부터 순서대로 둬야 넓은 쪽이 이긴다
     screens: {
       sm: "640px",
-      md: "768px",
-      split: "840px", // 목록과 상세를 나란히
+      md: `${PHONE_MAX_WIDTH_PX + 1}px`, // PC 틀(휴대폰 화면 다음)
+      split: `${TWO_PANE_MIN_WIDTH_PX}px`, // 목록과 상세를 나란히
       lg: "1024px",
-      nav: "1200px", // 왼쪽 메뉴에 이름까지
+      nav: `${NAV_EXPANDED_MIN_WIDTH_PX}px`, // 왼쪽 메뉴에 이름까지
       xl: "1280px",
       "2xl": "1536px",
-      wide: "1600px",
     },
     extend: {
       borderRadius: {

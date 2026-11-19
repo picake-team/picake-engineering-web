@@ -6,7 +6,7 @@ import type {
   OrderItemResponseDto,
   OrderResponseDto,
 } from "@/apps/web-seller/features/order/types/order.dto";
-import { formatWon } from "@/apps/web-seller/features/order/utils/order-mobile.util";
+import { formatWon } from "@/apps/web-seller/common/utils/won.util";
 
 /** 고르는 옵션 한 줄: "맛 초코 · 초 큰 초(+1,000원)" */
 export function optionLine(item: OrderItemResponseDto): string | null {

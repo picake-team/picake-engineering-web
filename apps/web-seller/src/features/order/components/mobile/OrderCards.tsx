@@ -15,7 +15,6 @@ import type {
 import { getOrderStatusLabel } from "@/apps/web-seller/features/order/utils/order-status-ui.util";
 import {
   ORDER_ACTION_LABEL,
-  formatWon,
   isCanceledOrNoShow,
   orderExpiryMarks,
   orderSubline,
@@ -23,6 +22,7 @@ import {
   orderItemsShort,
   statusTone,
 } from "@/apps/web-seller/features/order/utils/order-mobile.util";
+import { formatWon } from "@/apps/web-seller/common/utils/won.util";
 import { NO_REPLAY } from "@/apps/web-seller/common/constants/replay.constant";
 
 export function orderDetailPath(order: Pick<OrderResponseDto, "storeId" | "id">) {
@@ -192,40 +192,6 @@ export function PastDateHeader({ label, count }: { label: string; count: number 
     <div className="flex justify-between pb-1 pt-3 text-sub font-bold text-ink-700">
       <span>{label}</span>
       <span className="font-normal text-ink-600">{count}건</span>
-    </div>
-  );
-}
-
-export function LoadMoreSentinel({
-  hasNext,
-  loading,
-  onLoad,
-}: {
-  hasNext: boolean;
-  loading: boolean;
-  onLoad: () => void;
-}) {
-  const ref = React.useRef<HTMLDivElement>(null);
-  const loadRef = React.useRef(onLoad);
-  loadRef.current = onLoad;
-  React.useEffect(() => {
-    const el = ref.current;
-    if (!el || !hasNext || loading) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) loadRef.current();
-      },
-      { rootMargin: "200px 0px" },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [hasNext, loading]);
-  if (!hasNext) return null;
-  return (
-    <div ref={ref} className="flex justify-center py-3" aria-busy={loading}>
-      {loading ? (
-        <span className="inline-block size-5 animate-spin rounded-full border-2 border-ink-100 border-t-brand" />
-      ) : null}
     </div>
   );
 }

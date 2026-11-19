@@ -3,7 +3,7 @@
  * 판매 상태는 표 안 스위치로 바로 바꾸고(아래 "되돌리기"), 줄을 누르면 상품 수정. 칸이 좁으면 휴대폰처럼 두 줄.
  * 조회·거르기·바로 바꾸기는 휴대폰 상품 목록과 같은 것(useProductList·ProductFilterSheet·useProductSalesToggle)이다.
  */
-import React, { useMemo, useRef, useState } from "react";
+import React, { useRef } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { PcPage } from "@/apps/web-seller/common/ui/PcPage";
 import { Button } from "@/apps/web-seller/common/ui/Button";
@@ -13,36 +13,17 @@ import { EmptyState, LoadErrorState } from "@/apps/web-seller/common/ui/Surface"
 import { Switch } from "@/apps/web-seller/common/ui/Toggle";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
 import { cx } from "@/apps/web-seller/common/ui/cx";
-import { useDebouncedValue } from "@/apps/web-seller/common/hooks/useDebouncedValue";
 import { useElementWidth } from "@/apps/web-seller/common/hooks/useElementWidth";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
-import { flattenAndDeduplicateInfiniteData } from "@/apps/web-seller/common/utils/pagination.util";
-import { useProductList } from "@/apps/web-seller/features/product/hooks/queries/useProductQuery";
-import { useProductSalesToggle } from "@/apps/web-seller/features/product/hooks/mutations/useProductSalesToggle";
 import {
   EnableStatus,
   type ProductResponseDto,
 } from "@/apps/web-seller/features/product/types/product.dto";
-import {
-  DEFAULT_PRODUCT_FILTER,
-  ProductFilterSheet,
-  productFilterSummary,
-  type ProductFilter,
-} from "@/apps/web-seller/features/product/components/mobile/ProductFilterSheet";
-import { LoadMoreSentinel } from "@/apps/web-seller/features/order/components/mobile/OrderCards";
-import { formatWon } from "@/apps/web-seller/features/order/utils/order-mobile.util";
-
-type Bucket = "all" | "on" | "off" | "hidden";
-
-const BUCKET_PARAMS: Record<
-  Bucket,
-  { salesStatus?: EnableStatus; visibilityStatus?: EnableStatus }
-> = {
-  all: {},
-  on: { salesStatus: EnableStatus.ENABLE },
-  off: { salesStatus: EnableStatus.DISABLE },
-  hidden: { visibilityStatus: EnableStatus.DISABLE },
-};
+import { ProductFilterSheet } from "@/apps/web-seller/features/product/components/mobile/ProductFilterSheet";
+import { LoadMoreSentinel } from "@/apps/web-seller/common/ui/LoadMoreSentinel";
+import { formatWon } from "@/apps/web-seller/common/utils/won.util";
+import { FilterSummaryBar } from "@/apps/web-seller/common/ui/FilterSummaryBar";
+import { useProductListState } from "@/apps/web-seller/features/product/hooks/useProductListState";
 
 const TABLE_MIN_WIDTH = 640;
 const COLS = "grid-cols-[minmax(0,1fr)_140px_140px_120px]";
@@ -153,39 +134,23 @@ function ProductTableRow({
 export const StoreDetailProductListDesktopPage: React.FC = () => {
   const { storeId = "" } = useParams<{ storeId: string }>();
   const navigate = useNavigate();
-  const [search, setSearch] = useState("");
-  const debounced = useDebouncedValue(search.trim(), 300);
-  const [bucket, setBucket] = useState<Bucket>("all");
-  const [filter, setFilter] = useState<ProductFilter>(DEFAULT_PRODUCT_FILTER);
-  const [filterOpen, setFilterOpen] = useState(false);
-  const toggle = useProductSalesToggle();
+  const {
+    search,
+    setSearch,
+    bucket,
+    setBucket,
+    bucketOptions,
+    list,
+    products,
+    summary,
+    clearFilter,
+    openFilter,
+    noProductsAtAll,
+    toggleSales,
+    filterSheet,
+  } = useProductListState(storeId);
   const tableRef = useRef<HTMLDivElement>(null);
   const wide = useElementWidth(tableRef) >= TABLE_MIN_WIDTH;
-
-  const common = {
-    storeId,
-    sortBy: filter.sortBy,
-    search: debounced || undefined,
-    productType: filter.productType,
-    minPrice: filter.minPrice,
-    maxPrice: filter.maxPrice,
-    sizes: filter.sizes.length ? filter.sizes : undefined,
-    productCategoryTypes: filter.categories.length ? filter.categories : undefined,
-  };
-  const list = useProductList({ ...common, limit: 20, ...BUCKET_PARAMS[bucket] });
-  // 칩 숫자: 같은 조건으로 1개씩만 받아 전체 수를 본다(휴대폰과 같다)
-  const all = useProductList({ ...common, limit: 1 });
-  const on = useProductList({ ...common, limit: 1, ...BUCKET_PARAMS.on });
-  const off = useProductList({ ...common, limit: 1, ...BUCKET_PARAMS.off });
-  const hidden = useProductList({ ...common, limit: 1, ...BUCKET_PARAMS.hidden });
-  const count = (q: typeof all) => q.data?.pages[0]?.meta.totalItems;
-
-  const products = useMemo(
-    () => flattenAndDeduplicateInfiniteData<ProductResponseDto>(list.data),
-    [list.data],
-  );
-  const summary = productFilterSummary(filter);
-  const noProductsAtAll = count(all) === 0 && !debounced && !summary;
   const create = () => navigate(ROUTES.STORE_DETAIL_PRODUCTS_CREATE(storeId));
 
   return (
@@ -218,12 +183,7 @@ export const StoreDetailProductListDesktopPage: React.FC = () => {
               label="판매 상태"
               value={bucket}
               onChange={setBucket}
-              options={[
-                { value: "all", label: "전체", count: count(all) },
-                { value: "on", label: "판매중", count: count(on) },
-                { value: "off", label: "판매중지", count: count(off) },
-                { value: "hidden", label: "숨김", count: count(hidden) },
-              ]}
+              options={bucketOptions}
             />
             <SearchInput
               label="상품명 검색"
@@ -232,25 +192,13 @@ export const StoreDetailProductListDesktopPage: React.FC = () => {
               onChange={(e) => setSearch(e.target.value)}
               className="min-w-[220px] flex-1"
             />
-            <Button variant="secondary" size="md" onClick={() => setFilterOpen(true)}>
+            <Button variant="secondary" size="md" onClick={openFilter}>
               <Icon name="filter" size={16} strokeWidth={2} />
               정렬·거르기
             </Button>
           </div>
           {summary ? (
-            <div className="flex items-center gap-2 rounded-control bg-ink-50 py-1.5 pl-4 pr-2">
-              <span className="min-w-0 flex-1 truncate text-sub font-bold text-ink-700">
-                {summary}
-              </span>
-              <button
-                type="button"
-                aria-label="거르기 지우기"
-                onClick={() => setFilter(DEFAULT_PRODUCT_FILTER)}
-                className="inline-flex size-9 items-center justify-center rounded-full text-ink-700 hover:bg-ink-100"
-              >
-                <Icon name="close" size={18} strokeWidth={2} />
-              </button>
-            </div>
+            <FilterSummaryBar text={summary} onClear={clearFilter} clearLabel="거르기 지우기" />
           ) : null}
           <div
             ref={tableRef}
@@ -298,16 +246,7 @@ export const StoreDetailProductListDesktopPage: React.FC = () => {
                     key={p.id}
                     product={p}
                     wide={wide}
-                    onToggle={() =>
-                      toggle.mutate({
-                        productId: p.id,
-                        name: p.name,
-                        next:
-                          p.salesStatus === EnableStatus.ENABLE
-                            ? EnableStatus.DISABLE
-                            : EnableStatus.ENABLE,
-                      })
-                    }
+                    onToggle={() => toggleSales(p)}
                   />
                 ))}
                 <LoadMoreSentinel
@@ -320,15 +259,7 @@ export const StoreDetailProductListDesktopPage: React.FC = () => {
           </div>
         </>
       )}
-      <ProductFilterSheet
-        open={filterOpen}
-        value={filter}
-        onClose={() => setFilterOpen(false)}
-        onApply={(f) => {
-          setFilter(f);
-          setFilterOpen(false);
-        }}
-      />
+      <ProductFilterSheet {...filterSheet} />
     </PcPage>
   );
 };

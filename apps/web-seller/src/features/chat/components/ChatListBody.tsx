@@ -8,7 +8,7 @@ import { cx } from "@/apps/web-seller/common/ui/cx";
 import { SegmentedTabs } from "@/apps/web-seller/common/ui/Choice";
 import { EmptyState, LoadErrorState, SkeletonCards } from "@/apps/web-seller/common/ui/Surface";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
-import { LoadMoreSentinel } from "@/apps/web-seller/features/order/components/mobile/OrderCards";
+import { LoadMoreSentinel } from "@/apps/web-seller/common/ui/LoadMoreSentinel";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
 import { formatRelativeTime } from "@/apps/web-seller/common/utils/date.util";
 import { CHAT_NO_REPLAY } from "@/apps/web-seller/features/chat/constants/chat.constants";

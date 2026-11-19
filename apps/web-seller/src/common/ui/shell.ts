@@ -13,10 +13,6 @@ export type Shell = "phone" | "desktop";
 
 export const ShellContext = createContext<Shell>("phone");
 
-export function useShell(): Shell {
-  return useContext(ShellContext);
-}
-
 export function useIsDesktopShell(): boolean {
   return useContext(ShellContext) === "desktop";
 }

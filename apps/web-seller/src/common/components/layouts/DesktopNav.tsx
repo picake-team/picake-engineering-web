@@ -22,19 +22,7 @@ import { useMyStores } from "@/apps/web-seller/features/store/hooks/queries/useM
 import { StoreSwitchSheet } from "@/apps/web-seller/features/store/components/mobile/StoreSwitchSheet";
 import { useSellerChatUnread } from "@/apps/web-seller/features/chat/hooks/useChat";
 import { useSellerNotifications } from "@/apps/web-seller/features/notification/components/providers/SellerNotificationProvider";
-import { useOrderStatusGroup } from "@/apps/web-seller/features/order/hooks/queries/useOrderMobileQuery";
-import { groupsForTab } from "@/apps/web-seller/features/order/utils/order-mobile.util";
-
-const TODO_GROUPS = groupsForTab("todo");
-
-function useTodoCount(storeId: string): number {
-  // 홈 "처리할 일"·주문 탭 숫자와 같은 조회(캐시를 같이 쓴다)
-  const a = useOrderStatusGroup(storeId, TODO_GROUPS[0].status);
-  const b = useOrderStatusGroup(storeId, TODO_GROUPS[1].status);
-  const c = useOrderStatusGroup(storeId, TODO_GROUPS[2].status);
-  const d = useOrderStatusGroup(storeId, TODO_GROUPS[3].status);
-  return [a, b, c, d].reduce((sum, q) => sum + (q.total ?? 0), 0);
-}
+import { useTodoTaskCounts } from "@/apps/web-seller/features/order/hooks/queries/useTodoTaskCounts";
 
 function Count({ value, rail }: { value: number; rail: boolean }) {
   if (!value) return null;
@@ -100,7 +88,7 @@ export function DesktopNav({ storeId, expanded }: { storeId: string; expanded: b
   const { data: store } = useStoreDetail(storeId);
   const { stores } = useMyStores();
   const [switchOpen, setSwitchOpen] = useState(false);
-  const todo = useTodoCount(storeId);
+  const todo = useTodoTaskCounts(storeId).orderTotal;
   const chat = useSellerChatUnread(storeId);
   const notifications = useSellerNotifications();
   const counts: Record<string, number> = {

@@ -8,7 +8,7 @@
  * - 다른 캘린더로 내보내기·고른 날 주소(?date=)·자정이 지나면 오늘 바꾸기는 휴대폰 캘린더와 같다.
  * 1200보다 좁으면 고른 날 칸이 달력 아래로 내려간다.
  */
-import React, { useMemo, useRef, useState } from "react";
+import React, { useRef } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { PcPage, PcPanel } from "@/apps/web-seller/common/ui/PcPage";
 import { Button } from "@/apps/web-seller/common/ui/Button";
@@ -17,34 +17,22 @@ import { cx } from "@/apps/web-seller/common/ui/cx";
 import { useElementWidth } from "@/apps/web-seller/common/hooks/useElementWidth";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
 import {
-  addDaysToKey,
   formatKeyMonthDayWeek,
   kstTime,
-  monthEndKey,
-  monthStartKey,
-  shiftMonthKey,
   weekdayLabel,
-  weekdayOfKey,
 } from "@/apps/web-seller/common/utils/kst-date.util";
-import { useFollowToday, useKstTodayKey } from "@/apps/web-seller/common/hooks/useKstTodayKey";
-import { useDateParam } from "@/apps/web-seller/common/hooks/useDateParam";
 import { cakeDayOf } from "@/apps/web-seller/common/utils/cake-days.util";
 import { isActAsMode } from "@/apps/web-seller/common/utils/act-as.util";
 import { CalendarExportSheet } from "@/apps/web-seller/features/manual-order/components/CalendarExportSheet";
 import { DayPickupList } from "@/apps/web-seller/features/manual-order/components/DayPickupList";
-import { useDayPickups } from "@/apps/web-seller/features/manual-order/hooks/queries/useDayPickups";
 import { mergeDayPickups } from "@/apps/web-seller/features/manual-order/utils/day-pickups.util";
-import { useStoreDetail } from "@/apps/web-seller/features/store/hooks/queries/useStoreQuery";
-import {
-  calendarOrDefault,
-  dayMark,
-  effectiveRule,
-  formatHoursRange,
-} from "@/apps/web-seller/features/store/utils/business-day.util";
+import { dayMark } from "@/apps/web-seller/features/store/utils/business-day.util";
 import { DayHoursSheet } from "@/apps/web-seller/features/store/components/DayHoursSheet";
 import { orderItemsShort } from "@/apps/web-seller/features/order/utils/order-mobile.util";
 import { printOrdersPath } from "@/apps/web-seller/features/order/utils/order-print.util";
 import { canExportOrPrint } from "@/apps/web-seller/common/utils/pc-extras.util";
+import { useMonthCalendar } from "@/apps/web-seller/features/manual-order/hooks/useMonthCalendar";
+import { DayHoursRow } from "@/apps/web-seller/features/store/components/DayHoursRow";
 
 /** 칸 안에 픽업 줄을 보여 줄 달력 넓이(좁으면 수만) */
 const DETAIL_GRID_MIN = 600;
@@ -53,42 +41,33 @@ const MAX_LINES = 3;
 export const StoreDetailCalendarDesktopPage: React.FC = () => {
   const { storeId = "" } = useParams<{ storeId: string }>();
   const navigate = useNavigate();
-  const todayKey = useKstTodayKey();
-  const { selectedKey, setSelectedKey, pickDay } = useDateParam(todayKey);
-  const [monthKey, setMonthKey] = useState(() => monthStartKey(selectedKey));
-  useFollowToday(todayKey, (prev, next) => {
-    setSelectedKey((s) => (s === prev ? next : s));
-    setMonthKey((m) => (m === monthStartKey(prev) ? monthStartKey(next) : m));
-  });
-  const [exportOpen, setExportOpen] = useState(false);
-  const [hoursOpen, setHoursOpen] = useState(false);
+  const {
+    todayKey,
+    selectedKey,
+    pickDay,
+    y,
+    m,
+    firstWeekday,
+    days,
+    goMonth,
+    cal,
+    month,
+    counts,
+    selectedPickups,
+    selectedTag,
+    selectedRule,
+    inMonth,
+    goToday,
+    storeLoaded,
+    byDay,
+    manualByDay,
+    openExport,
+    openHours,
+    exportSheet,
+    hoursSheet,
+  } = useMonthCalendar(storeId);
   const gridRef = useRef<HTMLDivElement>(null);
   const detailed = useElementWidth(gridRef) >= DETAIL_GRID_MIN;
-
-  const { data: store } = useStoreDetail(storeId);
-  const cal = calendarOrDefault(store?.businessCalendar);
-  const monthEnd = monthEndKey(monthKey);
-  const month = useDayPickups(storeId, monthKey, monthEnd);
-  const { byDay, manualByDay, counts } = month;
-
-  const [y, m] = monthKey.split("-").map(Number);
-  const firstWeekday = weekdayOfKey(monthKey);
-  const days: string[] = [];
-  for (let k = monthKey; k <= monthEnd; k = addDaysToKey(k, 1)) days.push(k);
-
-  const goMonth = (delta: number) => {
-    const next = shiftMonthKey(monthKey, delta);
-    setMonthKey(next);
-    pickDay(next === monthStartKey(todayKey) ? todayKey : next);
-  };
-
-  const selectedPickups = useMemo(
-    () => mergeDayPickups(byDay[selectedKey] ?? [], manualByDay[selectedKey] ?? []),
-    [byDay, manualByDay, selectedKey],
-  );
-  const selectedRule = effectiveRule(selectedKey, cal);
-  const selectedTag = cakeDayOf(selectedKey);
-  const inMonth = selectedKey.slice(0, 7) === monthKey.slice(0, 7);
 
   return (
     <PcPage
@@ -96,7 +75,7 @@ export const StoreDetailCalendarDesktopPage: React.FC = () => {
       actions={
         // 내보내기 주소는 사장님 비밀 주소라 운영자 대신 입력 중(기획 I-41)에는 감춘다(서버도 막음)
         isActAsMode() ? undefined : (
-          <Button variant="secondary" size="md" onClick={() => setExportOpen(true)}>
+          <Button variant="secondary" size="md" onClick={openExport}>
             <Icon name="share" size={16} strokeWidth={1.9} />
             다른 캘린더로 내보내기
           </Button>
@@ -125,15 +104,7 @@ export const StoreDetailCalendarDesktopPage: React.FC = () => {
               >
                 <Icon name="chevronRight" size={20} strokeWidth={2} />
               </button>
-              <Button
-                variant="secondary"
-                size="md"
-                className="ml-1 px-3"
-                onClick={() => {
-                  setMonthKey(monthStartKey(todayKey));
-                  pickDay(todayKey);
-                }}
-              >
+              <Button variant="secondary" size="md" className="ml-1 px-3" onClick={goToday}>
                 오늘
               </Button>
             </>
@@ -234,23 +205,7 @@ export const StoreDetailCalendarDesktopPage: React.FC = () => {
           labelledBy="calendar-day"
           bodyClassName="gap-3"
         >
-          <div className="flex items-center gap-2 rounded-control bg-ink-50 py-1.5 pl-4 pr-1.5">
-            <span className="min-w-0 flex-1 text-sub text-ink-700">
-              {selectedRule.isOpen
-                ? `영업 ${formatHoursRange(selectedRule.start, selectedRule.end)}`
-                : "휴무"}
-              {selectedRule.overridden ? " · 이날만 바꿈" : ""}
-            </span>
-            <Button
-              variant="secondary"
-              size="md"
-              className="px-3"
-              disabled={!store}
-              onClick={() => setHoursOpen(true)}
-            >
-              영업 바꾸기
-            </Button>
-          </div>
+          <DayHoursRow rule={selectedRule} disabled={!storeLoaded} onChange={openHours} />
           <div className="flex items-baseline justify-between">
             <h3 className="text-group font-bold text-ink-900">
               픽업 {month.loaded && inMonth ? `${selectedPickups.length}건` : ""}
@@ -302,19 +257,8 @@ export const StoreDetailCalendarDesktopPage: React.FC = () => {
         </PcPanel>
       </div>
 
-      <CalendarExportSheet
-        storeId={storeId}
-        open={exportOpen}
-        onClose={() => setExportOpen(false)}
-      />
-      <DayHoursSheet
-        open={hoursOpen}
-        onClose={() => setHoursOpen(false)}
-        storeId={storeId}
-        dateKey={selectedKey}
-        calendar={cal}
-        dayOrders={byDay[selectedKey] ?? []}
-      />
+      <CalendarExportSheet {...exportSheet} />
+      <DayHoursSheet {...hoursSheet} />
     </PcPage>
   );
 };

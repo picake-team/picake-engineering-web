@@ -271,10 +271,6 @@ export function orderItemsShort(
   return order.totalQuantity > 1 ? `${withSize} ${order.totalQuantity}개` : withSize;
 }
 
-export function formatWon(amount: number): string {
-  return `${amount.toLocaleString("ko-KR")}원`;
-}
-
 /** 입금 마감 시각(서버 값, 없으면 입금대기 진입 + 12시간) */
 export function paymentDeadlineMs(
   order: Pick<OrderResponseDto, "paymentPendingDeadlineAt" | "paymentPendingAt" | "createdAt">,

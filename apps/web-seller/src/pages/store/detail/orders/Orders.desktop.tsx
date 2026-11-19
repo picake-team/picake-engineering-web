@@ -10,7 +10,7 @@
  * - PC에만 더한 것: 엑셀 내려받기(운영자 결정 2026-11-19), 찾기 칸을 위에 늘 열어 둠.
  */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useLocation, useParams, useSearchParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { PcPage, PcSplit } from "@/apps/web-seller/common/ui/PcPage";
 import { PaneContext } from "@/apps/web-seller/common/ui/shell";
 import { Button, HeaderIconButton } from "@/apps/web-seller/common/ui/Button";
@@ -37,22 +37,24 @@ import {
   type OrderStatus,
 } from "@/apps/web-seller/features/order/types/order.dto";
 import {
-  groupByKey,
   groupsForTab,
   searchParamsFor,
-  type OrderTab,
   type OrderTaskGroup,
 } from "@/apps/web-seller/features/order/utils/order-mobile.util";
-import { LoadMoreSentinel } from "@/apps/web-seller/features/order/components/mobile/OrderCards";
+import { LoadMoreSentinel } from "@/apps/web-seller/common/ui/LoadMoreSentinel";
 import { OrderActionSheet } from "@/apps/web-seller/features/order/components/mobile/OrderActionSheet";
 import {
-  EMPTY_FIND,
   OrderFindSheet,
   OrderGuideSheet,
+} from "@/apps/web-seller/features/order/components/mobile/OrderSheets";
+import {
   SORT_LABEL,
   defaultSortFor,
   type OrderFindState,
-} from "@/apps/web-seller/features/order/components/mobile/OrderSheets";
+  orderDateFilterOf,
+  writeOrderFind,
+} from "@/apps/web-seller/features/order/utils/order-find.util";
+import { FilterSummaryBar } from "@/apps/web-seller/common/ui/FilterSummaryBar";
 import {
   ORDER_TABLE_MIN_WIDTH,
   OrderDateRow,
@@ -64,55 +66,7 @@ import {
 import { OrderExportSheet } from "@/apps/web-seller/features/order/components/desktop/OrderExportSheet";
 import { StoreDetailOrderDetailMobilePage } from "@/apps/web-seller/pages/store/detail/orders/Detail.mobile";
 import { canExportOrPrint } from "@/apps/web-seller/common/utils/pc-extras.util";
-
-const TABS: OrderTab[] = ["todo", "doing", "past"];
-
-function readFind(params: URLSearchParams): OrderFindState {
-  const sort = params.get("sort");
-  return {
-    query: params.get("q") ?? "",
-    pickupStartDate: params.get("ps") ?? undefined,
-    pickupEndDate: params.get("pe") ?? undefined,
-    startDate: params.get("os") ?? undefined,
-    endDate: params.get("oe") ?? undefined,
-    sortBy: sort && sort in SORT_LABEL ? (sort as OrderSortBy) : undefined,
-  };
-}
-
-function writeFind(params: URLSearchParams, find: OrderFindState) {
-  const set = (k: string, v?: string) => (v ? params.set(k, v) : params.delete(k));
-  set("q", find.query.trim() || undefined);
-  set("ps", find.pickupStartDate);
-  set("pe", find.pickupEndDate);
-  set("os", find.startDate);
-  set("oe", find.endDate);
-  set("sort", find.sortBy);
-}
-
-function dateFilterOf(find: OrderFindState): OrderDateFilter {
-  return {
-    pickupStartDate: find.pickupStartDate,
-    pickupEndDate: find.pickupEndDate,
-    startDate: find.startDate,
-    endDate: find.endDate,
-  };
-}
-
-function shortRange(start?: string, end?: string) {
-  const f = (v?: string) => (v ? v.slice(5).replace("-", ".") : "");
-  return `${f(start)} ~ ${f(end)}`.trim();
-}
-
-function filterSummary(find: OrderFindState, tab: OrderTab): string | null {
-  const parts: string[] = [];
-  if (find.pickupStartDate || find.pickupEndDate)
-    parts.push(`픽업 ${shortRange(find.pickupStartDate, find.pickupEndDate)}`);
-  if (find.startDate || find.endDate)
-    parts.push(`주문 ${shortRange(find.startDate, find.endDate)}`);
-  if (find.sortBy && find.sortBy !== defaultSortFor(tab, Boolean(find.query.trim())))
-    parts.push(SORT_LABEL[find.sortBy]);
-  return parts.length ? parts.join(" · ") : null;
-}
+import { useOrderListParams } from "@/apps/web-seller/features/order/hooks/useOrderListParams";
 
 type QuickAct = (order: OrderResponseDto, to: OrderStatus) => void;
 
@@ -122,28 +76,6 @@ interface RowCtx {
   selectedId: string | null;
   hrefFor: (order: OrderResponseDto) => string;
   onQuickAction: QuickAct;
-}
-
-function useTabState(
-  storeId: string,
-  tab: Exclude<OrderTab, "past">,
-  filter: OrderDateFilter & { sortBy?: OrderSortBy },
-) {
-  // 탭 숫자와 빈 탭 판단(GroupRows와 같은 조건이라 캐시를 같이 쓴다) — 휴대폰 주문 목록과 같다
-  const groups = groupsForTab(tab);
-  const a = useOrderStatusGroup(storeId, groups[0].status, filter);
-  const b = useOrderStatusGroup(storeId, groups[1].status, filter);
-  const c = useOrderStatusGroup(storeId, groups[2]?.status ?? groups[0].status, filter, {
-    enabled: Boolean(groups[2]),
-  });
-  const d = useOrderStatusGroup(storeId, groups[3]?.status ?? groups[0].status, filter, {
-    enabled: Boolean(groups[3]),
-  });
-  const qs = [a, b, c, d].slice(0, groups.length);
-  const loading = qs.some((q) => q.isLoading);
-  const error = qs.find((q) => q.isError);
-  const total = qs.reduce((sum, q) => sum + (q.total ?? 0), 0);
-  return { loading, error, total, refetch: () => Promise.all(qs.map((q) => q.refetch())) };
 }
 
 function GroupRows({
@@ -267,7 +199,7 @@ function SearchRows({
   const q = useOrderMobileList({
     storeId,
     sortBy,
-    ...dateFilterOf(find),
+    ...orderDateFilterOf(find),
     ...searchParamsFor(find.query),
   });
   if (q.isLoading) return <RowsSkeleton />;
@@ -325,49 +257,34 @@ function RowsSkeleton() {
   );
 }
 
-function SummaryBar({
-  text,
-  onClear,
-  clearLabel,
-}: {
-  text: string;
-  onClear: () => void;
-  clearLabel: string;
-}) {
-  return (
-    <div className="flex items-center gap-2 rounded-control bg-ink-50 py-1.5 pl-4 pr-2">
-      <span className="min-w-0 flex-1 truncate text-sub font-bold text-ink-700">{text}</span>
-      <button
-        type="button"
-        aria-label={clearLabel}
-        onClick={onClear}
-        className="inline-flex size-9 shrink-0 items-center justify-center rounded-full text-ink-700 hover:bg-ink-100"
-      >
-        <Icon name="close" size={18} strokeWidth={2} />
-      </button>
-    </div>
-  );
-}
-
 export const StoreDetailOrdersDesktopPage: React.FC = () => {
   const { storeId = "", orderId } = useParams<{ storeId: string; orderId?: string }>();
-  const [params, setParams] = useSearchParams();
   const location = useLocation();
   const now = useNow(30_000);
   const twoPane = useMinWidth(TWO_PANE_MIN_WIDTH_PX);
   const { data: store } = useStoreDetail(storeId);
 
-  const tabParam = params.get("tab");
-  const tab: OrderTab = TABS.includes(tabParam as OrderTab) ? (tabParam as OrderTab) : "todo";
-  const find = useMemo(() => readFind(params), [params]);
-  const searching = Boolean(find.query.trim());
-  const dates = dateFilterOf(find);
-  const groupSort = find.sortBy && tab !== "past" ? find.sortBy : undefined;
-  const groupFilter = { ...dates, sortBy: groupSort ?? OrderSortBy.PICKUP_ASC };
-  const todo = useTabState(storeId, "todo", groupFilter);
-  const doing = useTabState(storeId, "doing", groupFilter);
+  const listRef = useRef<HTMLDivElement>(null);
+  const {
+    params,
+    setParams,
+    tab,
+    find,
+    searching,
+    dates,
+    groupFilter,
+    todo,
+    doing,
+    tabState,
+    summary,
+    findOpen,
+    setFindOpen,
+    setTab,
+    applyFind,
+    clearFind,
+    clearSearchOnly: clearSearchParams,
+  } = useOrderListParams(storeId, () => listRef.current?.scrollTo({ top: 0 }));
 
-  const [findOpen, setFindOpen] = useState(false);
   const [guideOpen, setGuideOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const [action, setAction] = useState<{ order: OrderResponseDto; to: OrderStatus } | null>(null);
@@ -379,51 +296,17 @@ export const StoreDetailOrdersDesktopPage: React.FC = () => {
     if (text.trim() === find.query.trim()) return;
     const t = window.setTimeout(() => {
       const p = new URLSearchParams(params);
-      writeFind(p, { ...find, query: text });
+      writeOrderFind(p, { ...find, query: text });
       p.delete("group");
       setParams(p, { replace: true });
     }, 300);
     return () => window.clearTimeout(t);
   }, [text, find, params, setParams]);
 
-  const setTab = (next: OrderTab) => {
-    const p = new URLSearchParams(params);
-    p.set("tab", next);
-    p.delete("group");
-    p.delete("sort");
-    setParams(p, { replace: true });
-    listRef.current?.scrollTo({ top: 0 });
-  };
-  const applyFind = (next: OrderFindState) => {
-    const p = new URLSearchParams(params);
-    writeFind(p, next);
-    p.delete("group");
-    setParams(p);
-    setFindOpen(false);
-    listRef.current?.scrollTo({ top: 0 });
-  };
-  const clearFind = () => applyFind(EMPTY_FIND);
   const clearSearchOnly = () => {
     setText("");
-    applyFind({ ...find, query: "", sortBy: undefined });
+    clearSearchParams();
   };
-
-  // 홈 "처리할 일" 줄에서 오면 그 칸으로(?group=deposit) — 휴대폰과 같다
-  const listRef = useRef<HTMLDivElement>(null);
-  const groupParam = params.get("group");
-  const targetGroup = groupByKey(groupParam);
-  const activeLoading = tab === "todo" ? todo.loading : tab === "doing" ? doing.loading : false;
-  useEffect(() => {
-    if (!targetGroup || activeLoading) return;
-    document.getElementById(`group-${targetGroup.key}`)?.scrollIntoView({ block: "start" });
-  }, [targetGroup, activeLoading]);
-  useEffect(() => {
-    if (targetGroup && targetGroup.tab !== tab) {
-      const p = new URLSearchParams(params);
-      p.set("tab", targetGroup.tab);
-      setParams(p, { replace: true });
-    }
-  }, [targetGroup, tab, params, setParams]);
 
   const onQuickAction = useCallback<QuickAct>((order, to) => setAction({ order, to }), []);
   const width = useElementWidth(listRef);
@@ -434,9 +317,6 @@ export const StoreDetailOrdersDesktopPage: React.FC = () => {
     hrefFor: (o) => `${ROUTES.STORE_DETAIL_ORDERS_DETAIL(storeId, o.id)}${location.search}`,
     onQuickAction,
   };
-
-  const summary = filterSummary(find, tab);
-  const tabState = tab === "todo" ? todo : tab === "doing" ? doing : null;
 
   // 768~839(한 칸): 상세를 고르면 상세 화면만(휴대폰 상세를 PC 틀 안에, 뒤로 = 목록)
   if (!twoPane && orderId) {
@@ -541,13 +421,13 @@ export const StoreDetailOrdersDesktopPage: React.FC = () => {
         </Button>
       </div>
       {searching ? (
-        <SummaryBar
+        <FilterSummaryBar
           text={`'${find.query.trim()}' 찾는 중 · ${SORT_LABEL[find.sortBy ?? defaultSortFor("todo", true)]}`}
           clearLabel="검색 지우기"
           onClear={clearSearchOnly}
         />
       ) : summary ? (
-        <SummaryBar text={summary} clearLabel="거르기 지우기" onClear={clearFind} />
+        <FilterSummaryBar text={summary} clearLabel="거르기 지우기" onClear={clearFind} />
       ) : null}
 
       {twoPane ? (

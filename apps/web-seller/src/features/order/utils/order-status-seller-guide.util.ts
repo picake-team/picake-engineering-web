@@ -3,7 +3,6 @@
  * 입금 마감(픽업까지 남은 시간에 따라 최대 12h·6h·1h)·픽업 시각 도달 자동 전환 등은 백엔드 `order-automation`·`order-datetime.util` 규칙과 맞춥니다.
  */
 import { OrderStatus } from "@/apps/web-seller/features/order/types/order.dto";
-import { getOrderStatusLabel } from "@/apps/web-seller/features/order/utils/order-status-ui.util";
 
 export type OrderStatusGuideItem = {
   label: string;
@@ -32,23 +31,6 @@ export const ORDER_STATUS_SELLER_FLOW_LINE_BY_STATUS: Record<OrderStatus, string
   [OrderStatus.CANCEL_REFUND_COMPLETED]: "취소환불완료: 환불까지 마친 예약이에요.",
 };
 
-/**
- * 전체 흐름 안내 (판매자 교육용, `<details>` 등)
- * 순서는 일반적인 진행 흐름 기준
- */
-export const ORDER_STATUS_FLOW_LINES_FOR_SELLER: readonly string[] = [
-  ORDER_STATUS_SELLER_FLOW_LINE_BY_STATUS[OrderStatus.RESERVATION_REQUESTED],
-  ORDER_STATUS_SELLER_FLOW_LINE_BY_STATUS[OrderStatus.PAYMENT_PENDING],
-  ORDER_STATUS_SELLER_FLOW_LINE_BY_STATUS[OrderStatus.PAYMENT_COMPLETED],
-  ORDER_STATUS_SELLER_FLOW_LINE_BY_STATUS[OrderStatus.CONFIRMED],
-  ORDER_STATUS_SELLER_FLOW_LINE_BY_STATUS[OrderStatus.PICKUP_PENDING],
-  ORDER_STATUS_SELLER_FLOW_LINE_BY_STATUS[OrderStatus.PICKUP_COMPLETED],
-  ORDER_STATUS_SELLER_FLOW_LINE_BY_STATUS[OrderStatus.NO_SHOW],
-  ORDER_STATUS_SELLER_FLOW_LINE_BY_STATUS[OrderStatus.CANCEL_COMPLETED],
-  ORDER_STATUS_SELLER_FLOW_LINE_BY_STATUS[OrderStatus.CANCEL_REFUND_PENDING],
-  ORDER_STATUS_SELLER_FLOW_LINE_BY_STATUS[OrderStatus.CANCEL_REFUND_COMPLETED],
-];
-
 /** 현재 주문 상태에 대한 판매자용 안내 (`ORDER_STATUS_SELLER_FLOW_LINE_BY_STATUS`와 동일 문장) */
 export function getOrderStatusSellerHint(status: OrderStatus): string {
   return ORDER_STATUS_SELLER_FLOW_LINE_BY_STATUS[status] ?? "";
@@ -64,35 +46,3 @@ export function getOrderStatusSellerHintBody(status: OrderStatus): string {
   if (idx === -1) return full.trim();
   return full.slice(idx + 2).trim();
 }
-
-/**
- * PC 주문 목록 "주문 상태" 안내 창 — 상세 안내와 같은 글(ORDER_STATUS_SELLER_FLOW_LINE_BY_STATUS)을 흐름 순서로 쓰고,
- * 목록 표시 "기한 만료"·"미확인" 줄을 더한다. 전에는 따로 쓴 옛 글이라 입금완료를 "입금이 확인된 상태"로,
- * 픽업대기를 "제작 완료·픽업 준비 중"으로 적고 두 표시 설명이 없었다(F-26, 11-17)
- */
-export const ORDER_STATUS_LIST_GUIDE_ITEMS: readonly OrderStatusGuideItem[] = [
-  ...[
-    OrderStatus.RESERVATION_REQUESTED,
-    OrderStatus.PAYMENT_PENDING,
-    OrderStatus.PAYMENT_COMPLETED,
-    OrderStatus.CONFIRMED,
-    OrderStatus.PICKUP_PENDING,
-    OrderStatus.PICKUP_COMPLETED,
-    OrderStatus.NO_SHOW,
-    OrderStatus.CANCEL_COMPLETED,
-    OrderStatus.CANCEL_REFUND_PENDING,
-    OrderStatus.CANCEL_REFUND_COMPLETED,
-  ].map((status) => ({
-    label: getOrderStatusLabel(status),
-    description: getOrderStatusSellerHintBody(status),
-  })),
-  {
-    label: "기한 만료",
-    description:
-      "입금 마감이 지나 자동으로 취소된 예약이에요. 손님이 입금했는지 통장을 확인해 주세요.",
-  },
-  {
-    label: "미확인",
-    description: "픽업 날까지 확인하지 않아 자동으로 취소된 예약신청이에요.",
-  },
-];

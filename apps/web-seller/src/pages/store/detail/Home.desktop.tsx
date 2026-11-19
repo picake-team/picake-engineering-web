@@ -12,8 +12,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { LoadErrorState } from "@/apps/web-seller/common/ui/Surface";
 import { PcPage, PcPanel } from "@/apps/web-seller/common/ui/PcPage";
 import { Button } from "@/apps/web-seller/common/ui/Button";
-import { Icon, TaskIcon } from "@/apps/web-seller/common/ui/icons";
-import { ListRowLink, RowCount, RowIconBox } from "@/apps/web-seller/common/ui/List";
+import { Icon } from "@/apps/web-seller/common/ui/icons";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
 import {
   addDaysToKey,
@@ -22,12 +21,7 @@ import {
 } from "@/apps/web-seller/common/utils/kst-date.util";
 import { useFollowToday, useKstTodayKey } from "@/apps/web-seller/common/hooks/useKstTodayKey";
 import { useDateParam } from "@/apps/web-seller/common/hooks/useDateParam";
-import { useOrderStatusGroup } from "@/apps/web-seller/features/order/hooks/queries/useOrderMobileQuery";
-import {
-  formatWon,
-  groupsForTab,
-  type OrderTaskGroup,
-} from "@/apps/web-seller/features/order/utils/order-mobile.util";
+import { formatWon } from "@/apps/web-seller/common/utils/won.util";
 import { useDayPickups } from "@/apps/web-seller/features/manual-order/hooks/queries/useDayPickups";
 import { useStatisticsOverviewQuery } from "@/apps/web-seller/features/statistics/hooks/queries/useStatisticsOverviewQuery";
 import { useProductList } from "@/apps/web-seller/features/product/hooks/queries/useProductQuery";
@@ -35,7 +29,6 @@ import {
   useStoreDetail,
   useStoreLinkStats,
 } from "@/apps/web-seller/features/store/hooks/queries/useStoreQuery";
-import { useSellerChatUnread } from "@/apps/web-seller/features/chat/hooks/useChat";
 import {
   calendarOrDefault,
   dayMark,
@@ -43,33 +36,8 @@ import {
 import { WeekBoard, WeekNav } from "@/apps/web-seller/features/home/components/desktop/WeekBoard";
 import { printOrdersPath } from "@/apps/web-seller/features/order/utils/order-print.util";
 import { canExportOrPrint } from "@/apps/web-seller/common/utils/pc-extras.util";
-
-const TODO_GROUPS = groupsForTab("todo");
-
-function TaskRow({
-  storeId,
-  group,
-  count,
-}: {
-  storeId: string;
-  group: OrderTaskGroup;
-  count: number | undefined;
-}) {
-  const zero = !count;
-  return (
-    <ListRowLink
-      to={`${ROUTES.STORE_DETAIL_ORDERS_LIST(storeId)}?tab=todo&group=${group.key}`}
-      tall
-      dimmed={zero}
-      leading={
-        <RowIconBox>{group.icon ? <TaskIcon name={group.icon} active={!zero} /> : null}</RowIconBox>
-      }
-      title={group.label}
-      description={group.homeHint}
-      trailing={<RowCount value={count ?? "–"} dimmed={zero} />}
-    />
-  );
-}
+import { useTodoTaskCounts } from "@/apps/web-seller/features/order/hooks/queries/useTodoTaskCounts";
+import { TodoTaskRows } from "@/apps/web-seller/features/home/components/TodoTaskRows";
 
 function StatTile({
   label,
@@ -121,17 +89,8 @@ export const StoreDetailHomeDesktopPage: React.FC = () => {
   const { data: store } = useStoreDetail(storeId);
   const cal = calendarOrDefault(store?.businessCalendar);
 
-  // 처리할 일: 휴대폰 홈·주문 탭과 같은 조회
-  const confirm = useOrderStatusGroup(storeId, TODO_GROUPS[0].status);
-  const deposit = useOrderStatusGroup(storeId, TODO_GROUPS[1].status);
-  const pickup = useOrderStatusGroup(storeId, TODO_GROUPS[2].status);
-  const refund = useOrderStatusGroup(storeId, TODO_GROUPS[3].status);
-  const taskQueries = [confirm, deposit, pickup, refund];
-  const tasksLoaded = taskQueries.every((q) => q.total !== undefined);
-  const chat = useSellerChatUnread(storeId);
-  const quoteOpen = chat.data?.quoteRequests ?? 0;
-  const chatReply = chat.data?.replyNeededChats ?? chat.data?.replyNeeded ?? 0;
-  const taskTotal = taskQueries.reduce((sum, q) => sum + (q.total ?? 0), 0) + quoteOpen + chatReply;
+  // 처리할 일(주문 묶음 + 견적 요청 + 답할 채팅): 휴대폰 홈·PC 홈·PC 메뉴 공용
+  const todo = useTodoTaskCounts(storeId);
 
   // 주간 보기(보고 있는 주)와 이번 주 픽업 수(오늘이 든 주). 같은 주면 같은 조회
   const week = useDayPickups(storeId, weekStart, weekEnd);
@@ -283,40 +242,11 @@ export const StoreDetailHomeDesktopPage: React.FC = () => {
         </PcPanel>
 
         <PcPanel
-          title={`처리할 일 ${tasksLoaded ? `${taskTotal}건` : ""}`.trim()}
+          title={`처리할 일 ${todo.loaded ? `${todo.total}건` : ""}`.trim()}
           labelledBy="home-tasks"
         >
           <div className="grid gap-x-6 sm:grid-cols-2 nav:grid-cols-1">
-            {TODO_GROUPS.map((g, i) => (
-              <TaskRow key={g.key} storeId={storeId} group={g} count={taskQueries[i].total} />
-            ))}
-            <ListRowLink
-              to={ROUTES.STORE_DETAIL_CHATS(storeId)}
-              tall
-              dimmed={quoteOpen === 0}
-              leading={
-                <RowIconBox>
-                  <TaskIcon name="quote" active={quoteOpen > 0} />
-                </RowIconBox>
-              }
-              title="견적 요청"
-              description="마감 전에 견적을 보내 주세요"
-              trailing={<RowCount value={quoteOpen} dimmed={quoteOpen === 0} />}
-            />
-            <ListRowLink
-              to={ROUTES.STORE_DETAIL_CHATS(storeId)}
-              tall
-              divider={false}
-              dimmed={chatReply === 0}
-              leading={
-                <RowIconBox>
-                  <TaskIcon name="chat" active={chatReply > 0} />
-                </RowIconBox>
-              }
-              title="답할 채팅"
-              description="손님이 답을 기다려요"
-              trailing={<RowCount value={chatReply} dimmed={chatReply === 0} />}
-            />
+            <TodoTaskRows storeId={storeId} todo={todo} />
           </div>
         </PcPanel>
       </div>

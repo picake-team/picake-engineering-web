@@ -29,7 +29,7 @@ import type {
   NotificationListResponseDto,
   SellerNotificationItem,
 } from "@/apps/web-seller/features/notification/types/notification.dto";
-import { LoadMoreSentinel } from "@/apps/web-seller/features/order/components/mobile/OrderCards";
+import { LoadMoreSentinel } from "@/apps/web-seller/common/ui/LoadMoreSentinel";
 import { sellerNotificationPath } from "@/apps/web-seller/features/notification/utils/notification-path.util";
 
 const PAGE_SIZE = 30;
