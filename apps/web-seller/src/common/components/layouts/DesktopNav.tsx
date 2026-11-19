@@ -40,6 +40,13 @@ function Count({ value, rail }: { value: number; rail: boolean }) {
   );
 }
 
+/** 메뉴 숫자 뜻(화면 읽기 프로그램용) */
+const COUNT_MEANING: Record<string, string> = {
+  orders: "처리할 일",
+  chat: "안 읽은 대화",
+  notifications: "안 읽은 알림",
+};
+
 function NavLinkRow({
   item,
   storeId,
@@ -57,7 +64,10 @@ function NavLinkRow({
     <Link
       to={item.to(storeId)}
       aria-current={active ? "page" : undefined}
-      aria-label={rail && count ? `${item.label} ${count}` : undefined}
+      // 숫자 뜻까지 읽어 준다("채팅 1"이 아니라 "채팅, 안 읽은 대화 1")
+      aria-label={
+        count ? `${item.label}, ${COUNT_MEANING[item.key] ?? "새 소식"} ${count}` : undefined
+      }
       className={cx(
         "relative flex items-center rounded-control font-app transition-colors duration-fast",
         rail
