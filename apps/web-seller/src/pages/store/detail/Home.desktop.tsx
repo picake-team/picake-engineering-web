@@ -188,7 +188,8 @@ export const StoreDetailHomeDesktopPage: React.FC = () => {
         />
       </div>
 
-      <div className="grid items-start gap-4 nav:grid-cols-[minmax(0,1fr)_340px]">
+      {/* 주간 보기 옆에 처리할 일은 1280부터: 1200~1279(이름 메뉴 240)는 주간 칸이 좁아 글자·배지가 넘쳐 아래로 둔다(11-20 검토) */}
+      <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
         <PcPanel
           title="이번 주"
           labelledBy="home-week"
@@ -243,7 +244,7 @@ export const StoreDetailHomeDesktopPage: React.FC = () => {
           title={`처리할 일 ${todo.loaded ? `${todo.total}건` : ""}`.trim()}
           labelledBy="home-tasks"
         >
-          <div className="grid gap-x-6 sm:grid-cols-2 nav:grid-cols-1">
+          <div className="grid gap-x-6 sm:grid-cols-2 xl:grid-cols-1">
             <TodoTaskRows storeId={storeId} todo={todo} />
           </div>
         </PcPanel>
