@@ -51,7 +51,7 @@ Picake 플랫폼을 위한 React + Vite 기반 판매자 관리 시스템입니�
 
 ### 인증 관련
 
-- **로그인**: `/auth/login` - Kakao/Naver/Google 소셜 로그인(PC도 카카오→네이버→구글 순서, 2026-11-16). PC 로그인 카드 아래에 운영사 정보 작은 글(상호·대표·사업자등록번호·통신판매업신고·주소·전화·이메일, 2026-11-17 네이버 로그인 검수 반려로 넣음, 값은 `common/constants/business-info.constant.ts`). 휴대폰 로그인 화면에는 두지 않는다. 휴대폰·PC 모두 이 기기에서 마지막으로 로그인(가입 포함)한 방법 버튼에 주황 말풍선 "최근 로그인"(`RecentLoginBubble`, 기기 저장소 `picake:last-login-provider`, 탈퇴하면 지움, 심사용 로그인은 남기지 않음, 2026-11-16)
+- **로그인**: `/auth/login` - Kakao/Naver/Google 소셜 로그인(카카오→네이버→구글 순서). 로그인 전 화면(로그인·계정 찾기·소셜 로그인 뒤 가입)은 PC도 휴대폰 화면을 쓴다(2026-11-20 운영자 결정, 옛 PC 카드 화면은 지움). PC 브라우저 로그인만 좁은 칸을 가운데에 두고(로고·문장 가운데) 아래에 운영사 정보 작은 글(상호·대표·사업자등록번호·통신판매업신고·주소·전화·이메일, 2026-11-17 네이버 로그인 검수 반려로 넣음, `BusinessInfoLines`, 값은 `common/constants/business-info.constant.ts`). 휴대폰·앱 안 로그인 화면에는 두지 않는다. 휴대폰·PC 모두 이 기기에서 마지막으로 로그인(가입 포함)한 방법 버튼에 주황 말풍선 "최근 로그인"(`RecentLoginBubble`, 기기 저장소 `picake:last-login-provider`, 탈퇴하면 지움, 심사용 로그인은 남기지 않음, 2026-11-16)
 - **심사용 로그인 창**(휴대폰 로그인 화면의 로고를 2초 안에 10번, SC-62, `ReviewLoginSheet`): 6자리 코드 → `POST /v1/seller/auth/review-login`. 코드는 레포에 두지 않는다(서버 비밀값 `SELLER_REVIEW_LOGIN_CODE_SHA256`에 해시만). 들어가면 손님 목록에 보이지 않는 심사용 가게와 상태별 예시 주문
 - **계정 찾기**: `/auth/login/find-account` - 계정 정보 찾기
 - **Google 콜백**: `/auth/login/google` - Google OAuth 콜백

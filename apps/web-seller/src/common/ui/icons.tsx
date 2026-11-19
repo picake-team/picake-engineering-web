@@ -138,7 +138,8 @@ export type IconName = keyof typeof LINE_PATHS;
 
 function Glyph({ def, active, size }: { def: GlyphDef; active: boolean; size: number }) {
   const color = appColors.brand.DEFAULT;
-  const line = active ? color : appColors.ink[400];
+  // 0건(꺼짐) 선은 ink-500: 흰 바탕 대비 4.6(운영자 결정 2026-11-20, 전에는 ink-400 3.3)
+  const line = active ? color : appColors.ink[500];
   return (
     <svg
       width={size}
