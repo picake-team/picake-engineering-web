@@ -27,7 +27,7 @@ Picake 개발 코드는 아래 레포들로 나뉘어 있습니다.
 
 ### 백엔드 실행
 
-API 서버는 별도 레포입니다. 이 레포의 **형제 폴더**에 clone해서 실행하세요(web-user e2e 테스트도 이 위치를 기본값으로 씁니다).
+API 서버는 별도 레포입니다. 이 레포의 **형제 폴더**에 clone해서 실행하세요(web-user·web-seller e2e 테스트도 이 위치를 기본값으로 씁니다).
 
 ```bash
 git clone https://github.com/picake-team/picake-engineering-backend.git ../picake-engineering-backend
