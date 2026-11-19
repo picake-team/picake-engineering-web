@@ -6,17 +6,40 @@ import { lazyPage } from "@/apps/web-seller/common/utils/lazy-page.util";
 import { LoginPage } from "@/apps/web-seller/pages/auth/Login";
 
 /**
- * 경로 하나 = 화면 하나. 같은 주소에 PC 화면(`element`)과 휴대폰 화면(`mobile`, 판매자 앱 I-48)을 둔다.
- * 휴대폰 화면이 아직 없는 주소는 휴대폰 폭에서도 PC 화면을 그린다(`SCREEN_MODE`, `useShowMobileScreens`).
- * 파일은 `Home.desktop.tsx` / `Home.mobile.tsx`처럼 화면 파일만 나눈다(프로젝트 구조 가이드 "앱 구조 원칙").
+ * 경로 하나 = 화면 하나. 같은 주소에 휴대폰 화면(`mobile`)과 PC 화면(`desktop`)을 둔다(기획 I-48·I-54).
+ *
+ * - 휴대폰 폭(767까지)은 `mobile`, 넓으면 `desktop`을 그린다(`useShowMobileScreens`).
+ * - `desktop`은 꼭 적는다: PC 화면을 따로 만들었으면 그 화면, 같은 화면을 PC 틀 안에 쓰면 `SAME_SCREEN`.
+ *   빈칸이 없어서 PC에 화면이 빠질 수 없다("PC ≥ 휴대폰", 운영자 결정 2026-11-19). `paths.constant.test.ts`가 확인한다.
+ * - PC 화면을 따로 만드는 곳은 무엇을 함께 보여 주는지가 다른 곳만(홈·주문·캘린더·상품 목록·채팅). 나머지는 같은 화면.
+ * - 파일은 `Home.desktop.tsx` / `Home.mobile.tsx`처럼 화면 파일만 나눈다(프로젝트 구조 가이드 "앱 구조 원칙").
  */
+export const SAME_SCREEN = "same-screen" as const;
+
 export interface AppRouteConfig {
   path: string;
-  element: ComponentType<object>;
-  mobile?: ComponentType<object>;
+  mobile: ComponentType<object>;
+  desktop: ComponentType<object> | typeof SAME_SCREEN;
+  /** 한쪽에서만 뜻이 있는 화면의 이유(예: "앱에서만: 처음 사용 안내"). 테스트가 목록을 확인한다 */
+  onlyOn?: { surface: "mobile" | "desktop"; reason: string };
 }
 
-// 로그인은 첫 진입점 — static import 유지
+/**
+ * 그 폭에서 그릴 화면.
+ * 앱 안(inApp)에서는 폭이 넓어도(아이패드 — iOS 앱은 아이패드에서도 돈다) 휴대폰에만 뜻이 있는 화면(onlyOn mobile,
+ * 예: 처음 사용 안내·알림 허용)을 휴대폰 화면으로 그린다.
+ */
+export function screenFor(
+  route: AppRouteConfig,
+  phone: boolean,
+  inApp = false,
+): ComponentType<object> {
+  if (phone || route.desktop === SAME_SCREEN) return route.mobile;
+  if (inApp && route.onlyOn?.surface === "mobile") return route.mobile;
+  return route.desktop;
+}
+
+// ---------- 인증·약관(로그인 확인 밖) ----------
 const FindAccountPage = lazyPage(
   () => import("@/apps/web-seller/pages/auth/FindAccount"),
   "FindAccountPage",
@@ -42,53 +65,32 @@ const PrivacyPolicyPage = lazyPage(
   () => import("@/apps/web-seller/pages/terms/PrivacyPolicy"),
   "PrivacyPolicyPage",
 );
+const LoginMobilePage = lazyPage(
+  () => import("@/apps/web-seller/pages/auth/Login.mobile"),
+  "LoginMobilePage",
+);
+const FindAccountMobilePage = lazyPage(
+  () => import("@/apps/web-seller/pages/auth/FindAccount.mobile"),
+  "FindAccountMobilePage",
+);
+const oauthMobile = () => import("@/apps/web-seller/pages/auth/OAuthCallback.mobile");
+const GoogleAuthCallbackMobilePage = lazyPage(oauthMobile, "GoogleAuthCallbackMobilePage");
+const KakaoAuthCallbackMobilePage = lazyPage(oauthMobile, "KakaoAuthCallbackMobilePage");
+const NaverAuthCallbackMobilePage = lazyPage(oauthMobile, "NaverAuthCallbackMobilePage");
+const ActAsEntryPage = lazyPage(
+  () => import("@/apps/web-seller/pages/act-as/ActAs"),
+  "ActAsEntryPage",
+);
+const ActAsEndedPage = lazyPage(
+  () => import("@/apps/web-seller/pages/act-as/ActAs"),
+  "ActAsEndedPage",
+);
 
-const RootPage = lazyPage(() => import("@/apps/web-seller/pages/Root"), "RootPage");
-const MypageIndexPage = lazyPage(
-  () => import("@/apps/web-seller/pages/mypage/Index.desktop"),
-  "MypageIndexPage",
+// ---------- 휴대폰 화면(판매자 앱 I-48). PC도 같은 화면을 PC 틀 안에 쓰는 곳이 많다 ----------
+const RootMobilePage = lazyPage(
+  () => import("@/apps/web-seller/pages/Root.mobile"),
+  "RootMobilePage",
 );
-const StoreCreatePage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/Create"),
-  "StoreCreatePage",
-);
-const StoreDetailHomePage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/Home.desktop"),
-  "StoreDetailHomePage",
-);
-const StoreDetailProductListPage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/products/List.desktop"),
-  "StoreDetailProductListPage",
-);
-const StoreDetailProductCreatePage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/products/Create"),
-  "StoreDetailProductCreatePage",
-);
-const StoreDetailProductDetailPage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/products/Detail"),
-  "StoreDetailProductDetailPage",
-);
-const StoreDetailEditPage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/Edit"),
-  "StoreDetailEditPage",
-);
-const StoreDetailCalendarPage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/Calendar.desktop"),
-  "StoreDetailCalendarPage",
-);
-const StoreDetailFeedListPage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/feed/List"),
-  "StoreDetailFeedListPage",
-);
-const StoreDetailFeedCreatePage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/feed/Create"),
-  "StoreDetailFeedCreatePage",
-);
-const StoreDetailFeedDetailPage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/feed/Detail"),
-  "StoreDetailFeedDetailPage",
-);
-// 휴대폰 화면(판매자 앱 I-48). 같은 주소의 PC 화면 옆에 둔다
 const StoreDetailHomeMobilePage = lazyPage(
   () => import("@/apps/web-seller/pages/store/detail/Home.mobile"),
   "StoreDetailHomeMobilePage",
@@ -105,10 +107,6 @@ const StoreDetailNotificationsListMobilePage = lazyPage(
   () => import("@/apps/web-seller/pages/store/detail/notifications/List.mobile"),
   "StoreDetailNotificationsListMobilePage",
 );
-const StoreDetailMenuPage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/Menu.desktop"),
-  "StoreDetailMenuPage",
-);
 const StoreDetailMenuMobilePage = lazyPage(
   () => import("@/apps/web-seller/pages/store/detail/Menu.mobile"),
   "StoreDetailMenuMobilePage",
@@ -117,58 +115,30 @@ const StoreSettingsMobilePage = lazyPage(
   () => import("@/apps/web-seller/pages/store/detail/Settings.mobile"),
   "StoreSettingsMobilePage",
 );
-// 채팅(기획 I-11). PC에서도 휴대폰 화면을 가운데에 쓴다(PC는 아래 탭 없이, 높이는 PC 틀 안에)
-const StoreDetailChatsPage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/chats/Chats.mobile"),
-  "StoreDetailChatsPage",
-);
-const StoreDetailChatRoomPage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/chats/Chats.mobile"),
-  "StoreDetailChatRoomPage",
-);
-const StoreDetailChatOrderPage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/chats/Chats.mobile"),
-  "StoreDetailChatOrderPage",
-);
-const StoreDetailChatsMobilePage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/chats/Chats.mobile"),
-  "StoreDetailChatsMobilePage",
-);
-const StoreDetailChatRoomMobilePage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/chats/Chats.mobile"),
-  "StoreDetailChatRoomMobilePage",
-);
-const StoreDetailChatOrderMobilePage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/chats/Chats.mobile"),
-  "StoreDetailChatOrderMobilePage",
-);
+const chatsMobile = () => import("@/apps/web-seller/pages/store/detail/chats/Chats.mobile");
+const StoreDetailChatsMobilePage = lazyPage(chatsMobile, "StoreDetailChatsMobilePage");
+const StoreDetailChatRoomMobilePage = lazyPage(chatsMobile, "StoreDetailChatRoomMobilePage");
+const StoreDetailChatOrderMobilePage = lazyPage(chatsMobile, "StoreDetailChatOrderMobilePage");
 const StoreDetailCalendarMobilePage = lazyPage(
   () => import("@/apps/web-seller/pages/store/detail/Calendar.mobile"),
   "StoreDetailCalendarMobilePage",
 );
+const manualForm = () => import("@/apps/web-seller/pages/store/detail/manual-orders/Form.mobile");
 const StoreDetailManualOrderCreateMobilePage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/manual-orders/Form.mobile"),
+  manualForm,
   "StoreDetailManualOrderCreateMobilePage",
 );
 const StoreDetailManualOrderEditMobilePage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/manual-orders/Form.mobile"),
+  manualForm,
   "StoreDetailManualOrderEditMobilePage",
 );
 const StoreDetailManualOrderDetailMobilePage = lazyPage(
   () => import("@/apps/web-seller/pages/store/detail/manual-orders/Detail.mobile"),
   "StoreDetailManualOrderDetailMobilePage",
 );
-const StoreDetailManualOrderDesktopRedirect = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/manual-orders/Redirect.desktop"),
-  "StoreDetailManualOrderDesktopRedirect",
-);
 const StoreDetailHoursMobilePage = lazyPage(
   () => import("@/apps/web-seller/pages/store/detail/Hours.mobile"),
   "StoreDetailHoursMobilePage",
-);
-const StoreDetailCalendarSubPage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/CalendarSub.desktop"),
-  "StoreDetailCalendarSubPage",
 );
 const StoreDetailStatisticsMobilePage = lazyPage(
   () => import("@/apps/web-seller/pages/store/detail/statistics/Index.mobile"),
@@ -190,10 +160,6 @@ const MypageWithdrawMobilePage = lazyPage(
   () => import("@/apps/web-seller/pages/mypage/Withdraw.mobile"),
   "MypageWithdrawMobilePage",
 );
-const MypageSubPage = lazyPage(
-  () => import("@/apps/web-seller/pages/mypage/Sub.desktop"),
-  "MypageSubPage",
-);
 const StoreDetailProductListMobilePage = lazyPage(
   () => import("@/apps/web-seller/pages/store/detail/products/List.mobile"),
   "StoreDetailProductListMobilePage",
@@ -205,218 +171,208 @@ const StoreDetailFeedListMobilePage = lazyPage(framed, "StoreDetailFeedListMobil
 const StoreDetailFeedCreateMobilePage = lazyPage(framed, "StoreDetailFeedCreateMobilePage");
 const StoreDetailFeedDetailMobilePage = lazyPage(framed, "StoreDetailFeedDetailMobilePage");
 const StoreDetailEditMobilePage = lazyPage(framed, "StoreDetailEditMobilePage");
+const StoreCreateMobilePage = lazyPage(framed, "StoreCreateMobilePage");
 const StoreWelcomeMobilePage = lazyPage(
   () => import("@/apps/web-seller/pages/store/detail/Welcome.mobile"),
   "StoreWelcomeMobilePage",
 );
-const StoreDetailOrderListPage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/orders/List.desktop"),
-  "StoreDetailOrderListPage",
+
+// ---------- PC 화면을 따로 만든 곳(기획 I-54) ----------
+const StoreDetailHomeDesktopPage = lazyPage(
+  () => import("@/apps/web-seller/pages/store/detail/Home.desktop"),
+  "StoreDetailHomeDesktopPage",
 );
-const StoreDetailOrderDetailPage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/orders/Detail.desktop"),
-  "StoreDetailOrderDetailPage",
+const ordersDesktop = () => import("@/apps/web-seller/pages/store/detail/orders/Orders.desktop");
+const StoreDetailOrdersDesktopPage = lazyPage(ordersDesktop, "StoreDetailOrdersDesktopPage");
+const StoreDetailProductListDesktopPage = lazyPage(
+  () => import("@/apps/web-seller/pages/store/detail/products/List.desktop"),
+  "StoreDetailProductListDesktopPage",
 );
-const StoreDetailNotificationsListPage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/notifications/List.desktop"),
-  "StoreDetailNotificationsListPage",
+const StoreDetailCalendarDesktopPage = lazyPage(
+  () => import("@/apps/web-seller/pages/store/detail/Calendar.desktop"),
+  "StoreDetailCalendarDesktopPage",
 );
-const StoreDetailNotificationsSettingsPage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/notifications/Settings.desktop"),
-  "StoreDetailNotificationsSettingsPage",
+const chatsDesktop = () => import("@/apps/web-seller/pages/store/detail/chats/Chats.desktop");
+const StoreDetailChatsDesktopPage = lazyPage(chatsDesktop, "StoreDetailChatsDesktopPage");
+const StoreWelcomeDesktopPage = lazyPage(
+  () => import("@/apps/web-seller/pages/store/detail/Welcome.desktop"),
+  "StoreWelcomeDesktopPage",
 );
-const StoreDetailStatisticsPage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/statistics/Index.desktop"),
-  "StoreDetailStatisticsPage",
+const StoreDetailPrintOrdersPage = lazyPage(
+  () => import("@/apps/web-seller/pages/store/detail/print/Orders"),
+  "StoreDetailPrintOrdersPage",
 );
 
-const LoginMobilePage = lazyPage(
-  () => import("@/apps/web-seller/pages/auth/Login.mobile"),
-  "LoginMobilePage",
-);
-const FindAccountMobilePage = lazyPage(
-  () => import("@/apps/web-seller/pages/auth/FindAccount.mobile"),
-  "FindAccountMobilePage",
-);
-const oauthMobile = () => import("@/apps/web-seller/pages/auth/OAuthCallback.mobile");
-const GoogleAuthCallbackMobilePage = lazyPage(oauthMobile, "GoogleAuthCallbackMobilePage");
-const KakaoAuthCallbackMobilePage = lazyPage(oauthMobile, "KakaoAuthCallbackMobilePage");
-const NaverAuthCallbackMobilePage = lazyPage(oauthMobile, "NaverAuthCallbackMobilePage");
-const RootMobilePage = lazyPage(
-  () => import("@/apps/web-seller/pages/Root.mobile"),
-  "RootMobilePage",
-);
-const ActAsEntryPage = lazyPage(
-  () => import("@/apps/web-seller/pages/act-as/ActAs"),
-  "ActAsEntryPage",
-);
-const ActAsEndedPage = lazyPage(
-  () => import("@/apps/web-seller/pages/act-as/ActAs"),
-  "ActAsEndedPage",
-);
-const StoreCreateMobilePage = lazyPage(
-  () => import("@/apps/web-seller/pages/store/detail/Framed.mobile"),
-  "StoreCreateMobilePage",
-);
-
-// 인증 관련 경로 (AdminLayout 밖)
+// 인증 관련 경로 (로그인 확인 밖). PC 로그인은 가운데 카드(사업자 정보 포함)라 따로 둔다
 export const AUTH_ROUTE_CONFIG: AppRouteConfig[] = [
-  { path: ROUTES.AUTH.LOGIN, element: LoginPage, mobile: LoginMobilePage },
-  { path: ROUTES.AUTH.FIND_ACCOUNT, element: FindAccountPage, mobile: FindAccountMobilePage },
+  { path: ROUTES.AUTH.LOGIN, mobile: LoginMobilePage, desktop: LoginPage },
+  { path: ROUTES.AUTH.FIND_ACCOUNT, mobile: FindAccountMobilePage, desktop: FindAccountPage },
   {
     path: ROUTES.AUTH.GOOGLE_REDIRECT_URI,
-    element: GoogleAuthCallbackPage,
     mobile: GoogleAuthCallbackMobilePage,
+    desktop: GoogleAuthCallbackPage,
   },
   {
     path: ROUTES.AUTH.KAKAO_REDIRECT_URI,
-    element: KakaoAuthCallbackPage,
     mobile: KakaoAuthCallbackMobilePage,
+    desktop: KakaoAuthCallbackPage,
   },
   {
     path: ROUTES.AUTH.NAVER_REDIRECT_URI,
-    element: NaverAuthCallbackPage,
     mobile: NaverAuthCallbackMobilePage,
+    desktop: NaverAuthCallbackPage,
   },
-  { path: ROUTES.TERMS.TERMS_OF_SERVICE, element: TermsOfServicePage },
-  { path: ROUTES.TERMS.PRIVACY_POLICY, element: PrivacyPolicyPage },
+  { path: ROUTES.TERMS.TERMS_OF_SERVICE, mobile: TermsOfServicePage, desktop: SAME_SCREEN },
+  { path: ROUTES.TERMS.PRIVACY_POLICY, mobile: PrivacyPolicyPage, desktop: SAME_SCREEN },
   // 운영자 대신 입력(기획 I-41): 출입증을 받기 전이라 로그인 확인 밖에 둔다
-  { path: ROUTES.ACT_AS, element: ActAsEntryPage },
-  { path: ROUTES.ACT_AS_ENDED, element: ActAsEndedPage },
+  { path: ROUTES.ACT_AS, mobile: ActAsEntryPage, desktop: SAME_SCREEN },
+  { path: ROUTES.ACT_AS_ENDED, mobile: ActAsEndedPage, desktop: SAME_SCREEN },
 ];
 
-// 로그인한 뒤의 경로 (PC: AdminLayout 안, 휴대폰: MobileLayout 안)
+// 로그인한 뒤의 경로 (휴대폰: MobileLayout 안, PC: DesktopLayout 안)
 export const ADMIN_ROUTE_CONFIG: AppRouteConfig[] = [
-  { path: ROUTES.ROOT, element: RootPage, mobile: RootMobilePage },
-  { path: ROUTES.MYPAGE, element: MypageIndexPage, mobile: MypageIndexMobilePage },
-  { path: ROUTES.MYPAGE_PHONE, element: MypageSubPage, mobile: MypagePhoneMobilePage },
-  { path: ROUTES.MYPAGE_WITHDRAW, element: MypageSubPage, mobile: MypageWithdrawMobilePage },
-  // 스토어 관련 경로
-  { path: ROUTES.STORE_CREATE, element: StoreCreatePage, mobile: StoreCreateMobilePage },
+  { path: ROUTES.ROOT, mobile: RootMobilePage, desktop: SAME_SCREEN },
+  { path: ROUTES.MYPAGE, mobile: MypageIndexMobilePage, desktop: SAME_SCREEN },
+  { path: ROUTES.MYPAGE_PHONE, mobile: MypagePhoneMobilePage, desktop: SAME_SCREEN },
+  { path: ROUTES.MYPAGE_WITHDRAW, mobile: MypageWithdrawMobilePage, desktop: SAME_SCREEN },
+  { path: ROUTES.STORE_CREATE, mobile: StoreCreateMobilePage, desktop: SAME_SCREEN },
   {
     path: ROUTES.STORE_DETAIL_HOME(":storeId"),
-    element: StoreDetailHomePage,
     mobile: StoreDetailHomeMobilePage,
+    desktop: StoreDetailHomeDesktopPage,
   },
   {
     path: ROUTES.STORE_DETAIL_PRODUCTS(":storeId"),
-    element: StoreDetailProductListPage,
     mobile: StoreDetailProductListMobilePage,
+    desktop: StoreDetailProductListDesktopPage,
   },
   {
     path: ROUTES.STORE_DETAIL_PRODUCTS_LIST(":storeId"),
-    element: StoreDetailProductListPage,
     mobile: StoreDetailProductListMobilePage,
+    desktop: StoreDetailProductListDesktopPage,
   },
   {
     path: ROUTES.STORE_DETAIL_PRODUCTS_CREATE(":storeId"),
-    element: StoreDetailProductCreatePage,
     mobile: StoreDetailProductCreateMobilePage,
+    desktop: SAME_SCREEN,
   },
   {
     path: ROUTES.STORE_DETAIL_PRODUCTS_DETAIL(":storeId", ":productId"),
-    element: StoreDetailProductDetailPage,
     mobile: StoreDetailProductDetailMobilePage,
+    desktop: SAME_SCREEN,
   },
   {
     path: ROUTES.STORE_DETAIL_FEED_LIST(":storeId"),
-    element: StoreDetailFeedListPage,
     mobile: StoreDetailFeedListMobilePage,
+    desktop: SAME_SCREEN,
   },
   {
     path: ROUTES.STORE_DETAIL_FEED_CREATE(":storeId"),
-    element: StoreDetailFeedCreatePage,
     mobile: StoreDetailFeedCreateMobilePage,
+    desktop: SAME_SCREEN,
   },
   {
     path: ROUTES.STORE_DETAIL_FEED_DETAIL(":storeId", ":feedId"),
-    element: StoreDetailFeedDetailPage,
     mobile: StoreDetailFeedDetailMobilePage,
+    desktop: SAME_SCREEN,
   },
   {
     path: ROUTES.STORE_DETAIL_ORDERS_LIST(":storeId"),
-    element: StoreDetailOrderListPage,
     mobile: StoreDetailOrderListMobilePage,
+    desktop: StoreDetailOrdersDesktopPage,
   },
   {
     path: ROUTES.STORE_DETAIL_ORDERS_DETAIL(":storeId", ":orderId"),
-    element: StoreDetailOrderDetailPage,
     mobile: StoreDetailOrderDetailMobilePage,
+    desktop: StoreDetailOrdersDesktopPage,
   },
   {
     path: ROUTES.STORE_DETAIL_STATISTICS_ORDERS(":storeId"),
-    element: StoreDetailStatisticsPage,
     mobile: StoreDetailStatisticsMobilePage,
+    desktop: SAME_SCREEN,
   },
   {
     path: ROUTES.STORE_DETAIL_CHATS(":storeId"),
-    element: StoreDetailChatsPage,
     mobile: StoreDetailChatsMobilePage,
+    desktop: StoreDetailChatsDesktopPage,
   },
   {
     path: ROUTES.STORE_DETAIL_CHAT_ORDER(":storeId", ":orderId"),
-    element: StoreDetailChatOrderPage,
     mobile: StoreDetailChatOrderMobilePage,
+    desktop: StoreDetailChatsDesktopPage,
   },
   {
     path: ROUTES.STORE_DETAIL_CHAT_ROOM(":storeId", ":threadId"),
-    element: StoreDetailChatRoomPage,
     mobile: StoreDetailChatRoomMobilePage,
+    desktop: StoreDetailChatsDesktopPage,
   },
   {
     path: ROUTES.STORE_DETAIL_NOTIFICATIONS_LIST(":storeId"),
-    element: StoreDetailNotificationsListPage,
     mobile: StoreDetailNotificationsListMobilePage,
+    desktop: SAME_SCREEN,
   },
   {
     path: ROUTES.STORE_DETAIL_NOTIFICATIONS_SETTINGS(":storeId"),
-    element: StoreDetailNotificationsSettingsPage,
     mobile: StoreDetailNotificationSettingsMobilePage,
+    desktop: SAME_SCREEN,
   },
   {
     path: ROUTES.STORE_DETAIL_EDIT(":storeId"),
-    element: StoreDetailEditPage,
     mobile: StoreDetailEditMobilePage,
+    desktop: SAME_SCREEN,
   },
   {
     path: ROUTES.STORE_DETAIL_CALENDAR(":storeId"),
-    element: StoreDetailCalendarPage,
     mobile: StoreDetailCalendarMobilePage,
+    desktop: StoreDetailCalendarDesktopPage,
   },
-  // 직접 적은 주문(기획 I-42): 휴대폰 화면만, PC 폭에서는 캘린더로
+  // 직접 적은 주문(기획 I-42)
   {
     path: ROUTES.STORE_DETAIL_MANUAL_ORDER_CREATE(":storeId"),
-    element: StoreDetailManualOrderDesktopRedirect,
     mobile: StoreDetailManualOrderCreateMobilePage,
+    desktop: SAME_SCREEN,
   },
   {
     path: ROUTES.STORE_DETAIL_MANUAL_ORDER_EDIT(":storeId", ":manualOrderId"),
-    element: StoreDetailManualOrderDesktopRedirect,
     mobile: StoreDetailManualOrderEditMobilePage,
+    desktop: SAME_SCREEN,
   },
   {
     path: ROUTES.STORE_DETAIL_MANUAL_ORDER_DETAIL(":storeId", ":manualOrderId"),
-    element: StoreDetailManualOrderDesktopRedirect,
     mobile: StoreDetailManualOrderDetailMobilePage,
+    desktop: SAME_SCREEN,
   },
   {
     path: ROUTES.STORE_DETAIL_HOURS(":storeId"),
-    element: StoreDetailCalendarSubPage,
     mobile: StoreDetailHoursMobilePage,
+    desktop: SAME_SCREEN,
   },
   {
     path: ROUTES.STORE_DETAIL_MENU(":storeId"),
-    element: StoreDetailMenuPage,
     mobile: StoreDetailMenuMobilePage,
+    desktop: SAME_SCREEN,
   },
   {
     path: ROUTES.STORE_DETAIL_SETTINGS(":storeId"),
-    element: StoreDetailMenuPage,
     mobile: StoreSettingsMobilePage,
+    desktop: SAME_SCREEN,
   },
   {
     path: ROUTES.STORE_DETAIL_WELCOME(":storeId"),
-    element: StoreDetailMenuPage,
     mobile: StoreWelcomeMobilePage,
+    desktop: StoreWelcomeDesktopPage,
+    onlyOn: {
+      surface: "mobile",
+      reason: "앱에서만: 처음 사용 안내(알림 켜기). PC는 스토어 홈으로",
+    },
+  },
+  {
+    path: ROUTES.STORE_DETAIL_PRINT_ORDERS(":storeId"),
+    mobile: StoreDetailPrintOrdersPage,
+    desktop: SAME_SCREEN,
+    onlyOn: {
+      surface: "desktop",
+      reason: "PC에만: 그날 주문서 묶음 인쇄(휴대폰에는 들어가는 버튼이 없다)",
+    },
   },
 ];

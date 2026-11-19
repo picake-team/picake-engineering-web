@@ -1,13 +1,8 @@
 import { statisticsQueryKeys } from "@/apps/web-seller/features/statistics/constants/statisticsQueryKeys.constant";
-import { sellerHomeQueryKeys } from "@/apps/web-seller/features/home/constants/sellerHomeQueryKeys.constant";
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
-import {
-  PHONE_MAX_WIDTH_PX,
-  SCREEN_MODE,
-  shouldShowMobileScreens,
-} from "@/apps/web-seller/common/constants/screen.constant";
+import { isPhoneWidthNow } from "@/apps/web-seller/common/constants/screen.constant";
 import { isSellerAppWebView } from "@/apps/web-seller/common/utils/webview.bridge";
 import { useQueryClient } from "@tanstack/react-query";
 import { connectNotificationSocket } from "@/apps/web-seller/features/notification/services/notification-socket.service";
@@ -37,6 +32,7 @@ import {
   SELLER_CHAT_TITLE,
 } from "@/apps/web-seller/features/chat/constants/chat.constants";
 import { sellerNotificationPath } from "@/apps/web-seller/features/notification/utils/notification-path.util";
+import { showBrowserNotification } from "@/apps/web-seller/features/notification/utils/browser-notification.util";
 
 /**
  * 스토어 컨텍스트 안에서 알림 목록·설정·미읽음 수를 React Query로 묶고,
@@ -61,13 +57,9 @@ interface SellerNotificationContextValue {
 
 const SellerNotificationContext = createContext<SellerNotificationContextValue | null>(null);
 
-/** 휴대폰 앱 안이거나 휴대폰 화면을 그리는 중인지(화면 안 알림 소리를 내지 않음) */
+/** 휴대폰 앱 안이거나 휴대폰 화면을 그리는 중인지(화면 안 알림 소리·브라우저 알림을 내지 않음) */
 function isPhoneOrApp(): boolean {
-  if (isSellerAppWebView()) return true;
-  return shouldShowMobileScreens(
-    SCREEN_MODE,
-    window.matchMedia(`(max-width: ${PHONE_MAX_WIDTH_PX}px)`).matches,
-  );
+  return isSellerAppWebView() || isPhoneWidthNow();
 }
 
 /** 소켓 알림 뒤 다시 불러오기를 모으는 시간 */
@@ -110,16 +102,20 @@ export const SellerNotificationProvider: React.FC<{
     // 알림이 몰려 와도(예약 여러 건, 연달아 처리) 다시 불러오기는 잠깐 모아 한 번만 한다.
     // 알림마다 주문 목록 여러 개를 다시 부르면 서버 요청 한도(1분 100회)에 걸려 화면이 "불러오지 못했어요"가 된다
     let refreshTimer: number | null = null;
-    const scheduleRefresh = () => {
+    let refreshOrders = false;
+    /** orders: 주문 목록·홈 숫자·통계도 새로 할지. 이 탭에서 방금 바꾼 주문의 알림이면 처리 직후 이미 새로 불러왔다 */
+    const scheduleRefresh = (orders: boolean) => {
+      if (orders) refreshOrders = true;
       if (refreshTimer !== null) return;
       refreshTimer = window.setTimeout(() => {
         refreshTimer = null;
+        const withOrders = refreshOrders;
+        refreshOrders = false;
         void queryClient.invalidateQueries({ queryKey: notificationQueryKeys.list(storeId) });
         void queryClient.invalidateQueries({ queryKey: notificationQueryKeys.unread(storeId) });
-        // 주문 알림이면 주문 목록·상세·홈 숫자도 새로(앱을 켜 둔 채 새 예약이 오면 바로 보이게)
+        if (!withOrders) return;
+        // 주문 알림이면 주문 목록·상세·홈 숫자·통계도 새로(앱을 켜 둔 채 새 예약이 오면 바로 보이게)
         void queryClient.invalidateQueries({ queryKey: orderQueryKeys.all });
-        // PC 홈(최근 주문·오늘 픽업·최근 알림)과 통계도 — 주문 키만 새로 해 PC 홈이 그대로이던 것(11-16 검토)
-        void queryClient.invalidateQueries({ queryKey: sellerHomeQueryKeys.all });
         void queryClient.invalidateQueries({ queryKey: statisticsQueryKeys.all });
       }, SOCKET_REFRESH_DELAY_MS);
     };
@@ -145,7 +141,16 @@ export const SellerNotificationProvider: React.FC<{
         // 손님이 보낸 글만 안내(내가 보낸 글·다른 기기에서 보낸 글은 조용히)
         if (!signal.senderName || signal.muted) return;
         const roomPath = ROUTES.STORE_DETAIL_CHAT_ROOM(storeId, signal.threadId);
-        if (pathRef.current === roomPath && document.visibilityState === "visible") return;
+        // 그 방을 보고 있을 때만 조용히 — 창이 보여도 다른 앱을 쓰는 중이면(창이 포커스를 잃음) 알린다(읽음 처리와 같은 기준, P-82).
+        // 주문에서 연 방(/chats/order/:orderId)도 같은 방이면 보고 있는 것으로 본다
+        const orderRoom = pathRef.current.match(/\/chats\/order\/([^/]+)$/)?.[1];
+        const viewingRoom =
+          pathRef.current === roomPath ||
+          (orderRoom !== undefined &&
+            queryClient.getQueryData<{ threadId?: string | null }>(
+              chatQueryKeys.byOrder(storeId, orderRoom),
+            )?.threadId === signal.threadId);
+        if (viewingRoom && document.visibilityState === "visible" && document.hasFocus()) return;
         const prefs =
           queryClient.getQueryData<SellerNotificationSettings>(
             notificationQueryKeys.prefs(storeId),
@@ -157,9 +162,20 @@ export const SellerNotificationProvider: React.FC<{
           message: signal.senderName,
           onClick: () => navigateRef.current(roomPath),
         });
+        // PC 브라우저 알림(기획 I-54): 탭이 뒤에 있으면 운영체제 알림으로도. 앱만 뺀다(켜기는 PC 틀에서만 — 창을 좁게 줄여도 온다)
+        if (!isSellerAppWebView()) {
+          showBrowserNotification({
+            title: SELLER_CHAT_TITLE,
+            body: signal.senderName,
+            tag: `chat-${signal.threadId}`,
+            onClick: () => navigateRef.current(roomPath),
+          });
+        }
       },
       onNotification: (item) => {
-        scheduleRefresh();
+        // 이 탭에서 방금 바꾼 주문이면 주문 목록은 다시 부르지 않는다 — PC는 처리 한 번에 주문 조회가 7개라
+        // 소켓 알림마다 또 부르면 같은 경로 1분 100번 한도에 금방 닿는다(11-19 재 보니 처리 한 번에 21번)
+        scheduleRefresh(!(item.orderId && wasOrderChangedHere(item.orderId)));
         // 소켓은 계정 단위로 붙으므로, 현재 라우트 스토어와 일치할 때만 UI 반응
         if (item.storeId !== storeId) {
           return;
@@ -192,6 +208,18 @@ export const SellerNotificationProvider: React.FC<{
         // (앱 웹뷰는 누르는 순간이 아니면 소리를 막아 거의 울리지 않았다, 운영자 17차)
         if (!storeNotice && prefs.orderNotificationSoundEnabled && !isPhoneOrApp()) {
           playNotificationChime();
+        }
+        // PC 브라우저 알림(기획 I-54): 탭이 뒤에 있거나 다른 창을 보고 있으면 운영체제 알림으로도(앱만 뺀다)
+        if (!isSellerAppWebView()) {
+          showBrowserNotification({
+            title: item.title,
+            body: item.body,
+            tag: item.id,
+            onClick: () => {
+              markReadRef.current(item.id);
+              navigateRef.current(sellerNotificationPath(item));
+            },
+          });
         }
       },
     });
@@ -284,7 +312,8 @@ export function SellerNotificationScope({ children }: { children: React.ReactNod
     return m ? m[1] : null;
   }, [location.pathname]);
 
-  if (!storeId) {
+  // 주문서 인쇄 탭(기획 I-54)에는 알림을 붙이지 않는다 — 인쇄하고 둔 탭이 소리·운영체제 알림을 한 번 더 냈다
+  if (!storeId || /\/print\//.test(location.pathname)) {
     return <>{children}</>;
   }
 

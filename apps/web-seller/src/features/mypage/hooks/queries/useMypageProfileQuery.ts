@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { useQueryErrorAlert } from "@/apps/web-seller/common/hooks/useQueryErrorAlert";
 import { useAuthStore } from "@/apps/web-seller/features/auth/store/auth.store";
 import { mypageApi } from "@/apps/web-seller/features/mypage/apis/mypage.api";
 import { mypageQueryKeys } from "@/apps/web-seller/features/mypage/constants/mypageQueryKeys.constant";
@@ -13,8 +12,6 @@ export function useMypageProfile() {
     queryFn: () => mypageApi.getProfile(),
     enabled: isAuthenticated,
   });
-
-  useQueryErrorAlert(query);
 
   return query;
 }

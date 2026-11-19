@@ -1,27 +1,15 @@
 import { describe, expect, it } from "vitest";
 import {
-  SCREEN_MODE,
-  shouldShowMobileScreens,
-} from "@/apps/web-seller/common/constants/screen.constant";
+  NAV_EXPANDED_MIN_WIDTH_PX,
+  PHONE_MAX_WIDTH_PX,
+  TWO_PANE_MIN_WIDTH_PX,
+} from "./screen.constant";
 
-describe("SCREEN_MODE", () => {
-  it("모든 환경(production 포함)에서 휴대폰 폭이면 휴대폰 화면, PC 폭은 지금 PC 화면", () => {
-    expect(SCREEN_MODE).toBe("mobile-on-phone");
-  });
-});
-
-describe("shouldShowMobileScreens", () => {
-  it("desktop-only는 폭과 관계없이 PC 화면", () => {
-    expect(shouldShowMobileScreens("desktop-only", true)).toBe(false);
-    expect(shouldShowMobileScreens("desktop-only", false)).toBe(false);
-  });
-
-  it("mobile-on-phone은 휴대폰 폭에서만", () => {
-    expect(shouldShowMobileScreens("mobile-on-phone", true)).toBe(true);
-    expect(shouldShowMobileScreens("mobile-on-phone", false)).toBe(false);
-  });
-
-  it("mobile-everywhere는 PC에서도 휴대폰 화면", () => {
-    expect(shouldShowMobileScreens("mobile-everywhere", false)).toBe(true);
+// tailwind md·split·nav는 tailwind.config.ts가 이 상수를 가져다 쓴다(값이 갈라지지 않는다)
+describe("화면 폭 구간(기획 I-54)", () => {
+  it("휴대폰 화면 → PC 틀(아이콘 메뉴) → 두 칸 → 이름 메뉴 순서", () => {
+    expect(PHONE_MAX_WIDTH_PX).toBe(767);
+    expect(TWO_PANE_MIN_WIDTH_PX).toBeGreaterThan(PHONE_MAX_WIDTH_PX);
+    expect(TWO_PANE_MIN_WIDTH_PX).toBeLessThan(NAV_EXPANDED_MIN_WIDTH_PX);
   });
 });

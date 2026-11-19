@@ -142,3 +142,6 @@ apps/web-user/PRODUCT.md
 
 # 개인용 로컬 셋업 메모
 SETUP-LOCAL.md
+
+# 사장님 웹 e2e 출입증(테스트 DB 심사용 로그인)
+apps/web-seller/e2e/.auth/

@@ -98,8 +98,7 @@ export function Dialog({
         className={cn(
           "relative flex max-h-[92vh] w-full flex-col rounded-t-2xl bg-background shadow-xl outline-none sm:rounded-2xl",
           size === "lg" ? "sm:max-w-3xl" : "sm:max-w-xl",
-          inFrame &&
-            "max-h-[92dvh] max-w-[640px] rounded-t-sheet font-app text-ink-900 shadow-none",
+          inFrame && "max-h-[92dvh] max-w-column rounded-t-sheet font-app text-ink-900 shadow-none",
           inFrame &&
             (leaving
               ? "animate-sheet-out motion-reduce:animate-fade-out"

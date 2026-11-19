@@ -1,5 +1,4 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useQueryErrorAlert } from "@/apps/web-seller/common/hooks/useQueryErrorAlert";
 import { manualOrderApi } from "@/apps/web-seller/features/manual-order/apis/manual-order.api";
 import { manualOrderQueryKeys } from "@/apps/web-seller/features/manual-order/constants/manualOrderQueryKeys.constant";
 import type { ManualOrderDto } from "@/apps/web-seller/features/manual-order/types/manual-order.dto";
@@ -17,7 +16,6 @@ export function useManualOrdersInRange(
     queryFn: () => manualOrderApi.list(storeId, startKey, endKey),
     enabled: (opts?.enabled ?? true) && !!storeId && !!startKey && !!endKey,
   });
-  useQueryErrorAlert(query);
   return query;
 }
 
@@ -27,7 +25,6 @@ export function useManualOrder(storeId: string, id: string) {
     queryFn: () => manualOrderApi.get(storeId, id),
     enabled: !!storeId && !!id,
   });
-  useQueryErrorAlert(query);
   return query;
 }
 

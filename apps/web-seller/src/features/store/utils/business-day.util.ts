@@ -1,6 +1,6 @@
 /**
  * 휴대폰 캘린더(SC-79)와 영업시간(SC-81)의 날짜별 영업 계산.
- * 규칙은 지금 PC 캘린더와 같다: 쉬는 요일 → 그날만 바꾼 것(dayOverrides, 바꾸기는 PC 캘린더에서)이 우선,
+ * 규칙은 지금 PC 캘린더와 같다: 쉬는 요일 → 그날만 바꾼 것(dayOverrides, 바꾸기는 캘린더의 "영업 바꾸기" 창 DayHoursSheet)이 우선,
  * 00:00~00:00은 하루 전체.
  */
 import { weekdayOfKey } from "@/apps/web-seller/common/utils/kst-date.util";

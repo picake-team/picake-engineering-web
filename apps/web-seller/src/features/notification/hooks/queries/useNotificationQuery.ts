@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { useQueryErrorAlert } from "@/apps/web-seller/common/hooks/useQueryErrorAlert";
 import { notificationApi } from "@/apps/web-seller/features/notification/apis/notification.api";
 import { notificationQueryKeys } from "@/apps/web-seller/features/notification/constants/notificationQueryKeys.constant";
 import type {
@@ -15,8 +14,6 @@ export function useNotificationList(storeId: string, page: number = 1, limit: nu
     enabled: !!storeId,
   });
 
-  useQueryErrorAlert(query);
-
   return query;
 }
 
@@ -28,8 +25,6 @@ export function useNotificationUnreadCount(storeId: string) {
     enabled: !!storeId,
   });
 
-  useQueryErrorAlert(query);
-
   return query;
 }
 
@@ -40,8 +35,6 @@ export function useNotificationPreferences(storeId: string) {
     queryFn: () => notificationApi.getPreferences(storeId),
     enabled: !!storeId,
   });
-
-  useQueryErrorAlert(query);
 
   return query;
 }

@@ -29,9 +29,12 @@ export function MobileFrame({
   actions,
   onBack,
   noBack,
+  wide = false,
   children,
 }: {
   title: string;
+  /** PC 틀에서 넓은 칸(상품 등록·수정: 오른쪽에 손님 화면 미리보기, 기획 I-54) */
+  wide?: boolean;
   /** 위쪽 줄 오른쪽(예: 피드 목록의 + 아이콘 "피드 등록") */
   actions?: React.ReactNode;
   /** 왼쪽 위 뒤로(없으면 브라우저 뒤로) */
@@ -50,6 +53,7 @@ export function MobileFrame({
       <AppScreen
         header={<BackHeader title={title} actions={actions} onBack={onBack} noBack={noBack} />}
         bodyClassName={cx("pt-2")}
+        width={wide ? "wide" : "normal"}
       >
         {children}
       </AppScreen>
