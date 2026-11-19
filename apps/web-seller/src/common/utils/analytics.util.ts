@@ -22,6 +22,18 @@ export interface SellerAnalyticsEventMap {
     photo_count: number;
     surface: "app" | "mobile_web" | "pc";
   };
+  /**
+   * PC 주문 화면에서 주문·매출 엑셀을 내려받음(기획 I-54, PC에만). 건수만 보내고 손님 정보는 보내지 않는다.
+   * 그날 주문서 인쇄는 새 탭 주소라 $pageview(/stores/…/print/orders)로 센다
+   */
+  success_order_export: {
+    range_preset: "thisMonth" | "lastMonth" | "last3" | "custom";
+    /** 고른 기간의 날 수(처음·끝 날 포함) */
+    days: number;
+    order_count: number;
+    manual_order_count: number;
+    surface: "pc";
+  };
   /** 판매자 앱에서 "어려워요"로 답함 */
   success_quote_decline: {
     quote_request_id: string;
