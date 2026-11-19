@@ -3,7 +3,6 @@ export { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant"
 import type { ComponentType } from "react";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
 import { lazyPage } from "@/apps/web-seller/common/utils/lazy-page.util";
-import { LoginPage } from "@/apps/web-seller/pages/auth/Login";
 
 /**
  * 경로 하나 = 화면 하나. 같은 주소에 휴대폰 화면(`mobile`)과 PC 화면(`desktop`)을 둔다(기획 I-48·I-54).
@@ -40,23 +39,6 @@ export function screenFor(
 }
 
 // ---------- 인증·약관(로그인 확인 밖) ----------
-const FindAccountPage = lazyPage(
-  () => import("@/apps/web-seller/pages/auth/FindAccount"),
-  "FindAccountPage",
-);
-const GoogleAuthCallbackPage = lazyPage(
-  () => import("@/apps/web-seller/pages/auth/GoogleAuthCallback"),
-  "GoogleAuthCallbackPage",
-);
-const KakaoAuthCallbackPage = lazyPage(
-  () => import("@/apps/web-seller/pages/auth/KakaoAuthCallback"),
-  "KakaoAuthCallbackPage",
-);
-// 네이버 PC 콜백은 카카오와 같은 화면(번호 칸 + 다른 번호)
-const NaverAuthCallbackPage = lazyPage(
-  () => import("@/apps/web-seller/pages/auth/KakaoAuthCallback"),
-  "NaverAuthCallbackPage",
-);
 const TermsOfServicePage = lazyPage(
   () => import("@/apps/web-seller/pages/terms/TermsOfService"),
   "TermsOfServicePage",
@@ -203,24 +185,24 @@ const StoreDetailPrintOrdersPage = lazyPage(
   "StoreDetailPrintOrdersPage",
 );
 
-// 인증 관련 경로 (로그인 확인 밖). PC 로그인은 가운데 카드(사업자 정보 포함)라 따로 둔다
+// 인증 관련 경로 (로그인 확인 밖). PC도 휴대폰 화면을 쓴다(2026-11-20 운영자 결정). PC 로그인에만 사업자 정보 줄(네이버 로그인 검수)
 export const AUTH_ROUTE_CONFIG: AppRouteConfig[] = [
-  { path: ROUTES.AUTH.LOGIN, mobile: LoginMobilePage, desktop: LoginPage },
-  { path: ROUTES.AUTH.FIND_ACCOUNT, mobile: FindAccountMobilePage, desktop: FindAccountPage },
+  { path: ROUTES.AUTH.LOGIN, mobile: LoginMobilePage, desktop: SAME_SCREEN },
+  { path: ROUTES.AUTH.FIND_ACCOUNT, mobile: FindAccountMobilePage, desktop: SAME_SCREEN },
   {
     path: ROUTES.AUTH.GOOGLE_REDIRECT_URI,
     mobile: GoogleAuthCallbackMobilePage,
-    desktop: GoogleAuthCallbackPage,
+    desktop: SAME_SCREEN,
   },
   {
     path: ROUTES.AUTH.KAKAO_REDIRECT_URI,
     mobile: KakaoAuthCallbackMobilePage,
-    desktop: KakaoAuthCallbackPage,
+    desktop: SAME_SCREEN,
   },
   {
     path: ROUTES.AUTH.NAVER_REDIRECT_URI,
     mobile: NaverAuthCallbackMobilePage,
-    desktop: NaverAuthCallbackPage,
+    desktop: SAME_SCREEN,
   },
   { path: ROUTES.TERMS.TERMS_OF_SERVICE, mobile: TermsOfServicePage, desktop: SAME_SCREEN },
   { path: ROUTES.TERMS.PRIVACY_POLICY, mobile: PrivacyPolicyPage, desktop: SAME_SCREEN },

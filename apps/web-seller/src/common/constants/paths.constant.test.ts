@@ -14,11 +14,6 @@ vi.mock("@/apps/web-seller/common/utils/lazy-page.util", () => ({
     return Screen;
   },
 }));
-vi.mock("@/apps/web-seller/pages/auth/Login", () => {
-  const LoginPage = () => null;
-  LoginPage.displayName = "LoginPage";
-  return { LoginPage };
-});
 
 const { ADMIN_ROUTE_CONFIG, AUTH_ROUTE_CONFIG, SAME_SCREEN, screenFor } =
   await import("@/apps/web-seller/common/constants/paths.constant");

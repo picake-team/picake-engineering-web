@@ -13,7 +13,7 @@ import type { PhoneVerificationPurpose } from "@/apps/web-seller/features/auth/t
 import { toPhoneDigits } from "@/apps/web-seller/common/utils/phone-input.util";
 
 /**
- * 휴대폰 인증 상태(번호·인증번호·남은 시간)와 보내기·확인. 서버 호출과 검사는 PC `PhoneVerificationForm`과 같다.
+ * 휴대폰 인증 상태(번호·인증번호·남은 시간)와 보내기·확인. (옛 PC 가입 폼은 2026-11-20 지움, PC도 이 화면을 쓴다)
  * 회원가입(가입하기 한 번에 확인 + 가입)과 휴대폰 번호 변경·계정 찾기(확인 버튼)가 같이 쓴다.
  */
 export function usePhoneVerification(purpose: PhoneVerificationPurpose) {

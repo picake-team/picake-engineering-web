@@ -26,7 +26,9 @@ import {
 import { NaverLogoIcon } from "@/apps/web-seller/common/components/icons/NaverLogoIcon";
 import { ReviewLoginSheet } from "@/apps/web-seller/features/auth/components/mobile/ReviewLoginSheet";
 import { SELLER_INTRO_URL } from "@/apps/web-seller/common/constants/seller-intro.constant";
-import { externalHref } from "@/apps/web-seller/common/utils/webview.bridge";
+import { externalHref, isSellerAppWebView } from "@/apps/web-seller/common/utils/webview.bridge";
+import { useShowMobileScreens } from "@/apps/web-seller/common/hooks/useShowMobileScreens";
+import { BusinessInfoLines } from "@/apps/web-seller/features/auth/components/BusinessInfoLines";
 import { RecentLoginBubble } from "@/apps/web-seller/features/auth/components/RecentLoginBubble";
 import { readLastLoginProvider } from "@/apps/web-seller/features/auth/utils/last-login-provider.util";
 
@@ -42,6 +44,8 @@ export const LoginMobilePage: React.FC = () => {
   // 이 기기에서 마지막으로 로그인한 방법 — 그 버튼에 "최근 로그인" 말풍선
   const [lastProvider] = useState(readLastLoginProvider);
   const tapTimesRef = useRef<number[]>([]);
+  // 앱 안(아이패드 포함)은 늘 휴대폰 모양: 사업자 정보 줄은 PC 브라우저 로그인에만
+  const wide = !useShowMobileScreens() && !isSellerAppWebView();
 
   const onLogoTap = () => {
     const now = Date.now();
@@ -57,16 +61,25 @@ export const LoginMobilePage: React.FC = () => {
   return (
     <div
       className={cx(
-        APP_COLUMN_CLASS,
-        "flex min-h-dvh flex-col bg-white px-5 pt-[calc(env(safe-area-inset-top)+48px)] font-app text-ink-900",
+        wide
+          ? // PC(넓은 브라우저): 같은 화면을 좁은 칸으로 가운데에, 아래에 사업자 정보 줄(2026-11-20 운영자 결정)
+            "mx-auto flex min-h-dvh w-full max-w-narrow flex-col justify-center bg-white px-5 py-12 font-app text-ink-900"
+          : cx(
+              APP_COLUMN_CLASS,
+              "flex min-h-dvh flex-col bg-white px-5 pt-[calc(env(safe-area-inset-top)+48px)] font-app text-ink-900",
+            ),
       )}
     >
-      <div className="flex flex-col gap-3">
+      {/* PC는 로고·문장을 가운데에(운영자 결정 2026-11-20) */}
+      <div className={cx("flex flex-col gap-3", wide && "items-center text-center")}>
         {/* 빠르게 눌러도 확대되지 않게(touch-manipulation), 누른 표시 없이 */}
         <button
           type="button"
           onClick={onLogoTap}
-          className="mb-2 size-16 touch-manipulation select-none self-start [-webkit-tap-highlight-color:transparent]"
+          className={cx(
+            "mb-2 size-16 touch-manipulation select-none [-webkit-tap-highlight-color:transparent]",
+            wide ? "self-center" : "self-start",
+          )}
         >
           <img
             src={logoUrl}
@@ -86,7 +99,7 @@ export const LoginMobilePage: React.FC = () => {
         </h1>
         <p className="text-sub text-ink-600">픽케이크 사장님</p>
       </div>
-      <div className="flex-1" />
+      <div className={wide ? "h-10" : "flex-1"} />
       <div className="flex flex-col gap-3" role="group" aria-label="로그인">
         <a href={kakaoAuthorizeUrl()} className={cx(BTN, "bg-kakao text-ink-900")}>
           <img src={kakaoIcon} alt="" width={20} height={20} className={SOCIAL_LOGIN_ICON_CLASS} />
@@ -136,6 +149,11 @@ export const LoginMobilePage: React.FC = () => {
           계정을 잊으셨나요?
         </Link>
       </div>
+      {wide ? (
+        <div className="mt-6">
+          <BusinessInfoLines />
+        </div>
+      ) : null}
       <ReviewLoginSheet open={reviewOpen} onClose={() => setReviewOpen(false)} />
     </div>
   );
