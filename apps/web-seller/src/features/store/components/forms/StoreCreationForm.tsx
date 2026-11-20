@@ -72,7 +72,8 @@ export const defaultForm: StoreForm = {
 
 /** 에러가 난 칸 → 화면의 섹션 (위에서부터 이 순서로 찾아 이동한다) */
 const SECTION_ORDER: { id: string; keys: string[] }[] = [
-  { id: "section-store-basic", keys: ["name", "description", "phoneNumber"] },
+  { id: "section-store-basic", keys: ["name", "description"] },
+  { id: "section-store-contact", keys: ["phoneNumber"] },
   { id: "section-store-location", keys: ["address", "detailAddress"] },
   { id: "section-store-bank", keys: ["bankName", "bankAccountNumber", "accountHolderName"] },
   { id: "section-store-refund", keys: ["refundCancellationPolicy"] },
@@ -276,23 +277,15 @@ export const StoreCreationForm: React.FC<Props> = ({
               className={errors.description ? "border-destructive" : undefined}
             />
           </Field>
-          <Field label="연락처" required error={errors.phoneNumber}>
-            <Input
-              placeholder="010-1234-5678"
-              inputMode="tel"
-              autoComplete="tel"
-              value={form.phoneNumber}
-              onChange={handleChange("phoneNumber")}
-              className={errors.phoneNumber ? "border-destructive" : ""}
-            />
-          </Field>
         </div>
       </FormSection>
 
+      {/* 전화번호만 꼭 적는다(판매자 정보로도 쓰는 번호, 기획 P-46). 손님에게 보일지는 스위치로 정한다(P-95) */}
       <FormSection
+        id="section-store-contact"
         title="손님 연락 채널"
-        hint="(선택)"
         description="손님이 스토어·상품 화면의 문의 버튼으로 연락해요."
+        error={sectionHasError("section-store-contact")}
       >
         <div className="space-y-5">
           {/* Picake 채팅(기획 I-01 2026-11-19): 끄면 스토어·상품 화면 문의 창에서 빠진다. 예약한 손님은 주문 화면에서 늘 채팅할 수 있다 */}
@@ -346,14 +339,25 @@ export const StoreCreationForm: React.FC<Props> = ({
                 onChange={(on) => patch({ instagramVisible: on })}
               />
             </div>
+            <div>
+              <Field label="전화번호" required error={errors.phoneNumber}>
+                <Input
+                  placeholder="010-1234-5678"
+                  inputMode="tel"
+                  autoComplete="tel"
+                  value={form.phoneNumber}
+                  onChange={handleChange("phoneNumber")}
+                  className={errors.phoneNumber ? "border-destructive" : ""}
+                />
+              </Field>
+              <VisibleRow
+                title="전화"
+                disabled={visibilityLocked || !form.phoneNumber?.trim()}
+                checked={!!form.phoneNumber?.trim() && form.phoneVisible !== false}
+                onChange={(on) => patch({ phoneVisible: on })}
+              />
+            </div>
           </div>
-          {/* 전화: 기본 정보의 연락처를 손님에게 보일지 */}
-          <VisibleRow
-            title={`전화${form.phoneNumber?.trim() ? ` · ${form.phoneNumber.trim()}` : ""}`}
-            disabled={visibilityLocked || !form.phoneNumber?.trim()}
-            checked={!!form.phoneNumber?.trim() && form.phoneVisible !== false}
-            onChange={(on) => patch({ phoneVisible: on })}
-          />
         </div>
       </FormSection>
 
