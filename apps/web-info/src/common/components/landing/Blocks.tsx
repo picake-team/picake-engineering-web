@@ -89,6 +89,7 @@ export function SolveRow({
   body,
   shot,
   flip = false,
+  headingLevel = "h3",
 }: {
   id?: string;
   tag: string;
@@ -97,7 +98,10 @@ export function SolveRow({
   /** 칸 아래에 붙는 화면(PhoneShot 등) */
   shot: ReactNode;
   flip?: boolean;
+  /** 앞 칸 제목 아래 줄이면 h3, 혼자 서는 칸이면 h2(화면 읽기 프로그램의 제목 순서) */
+  headingLevel?: "h2" | "h3";
 }) {
+  const Heading = headingLevel;
   return (
     <article
       id={id}
@@ -105,7 +109,7 @@ export function SolveRow({
     >
       <div className={`px-6 pt-8 md:px-10 md:pt-12 lg:px-14 lg:pt-0 ${flip ? "lg:order-2" : ""}`}>
         <p className={KICKER}>{tag}</p>
-        <h3 className={`${CARD_TITLE} mt-2 text-gray-900`}>{title}</h3>
+        <Heading className={`${CARD_TITLE} mt-2 text-gray-900`}>{title}</Heading>
         <p className={`${CARD_BODY} mt-3`}>{body}</p>
       </div>
       <div className="mt-8 flex justify-center self-end px-6 md:mt-10 lg:mt-0">{shot}</div>

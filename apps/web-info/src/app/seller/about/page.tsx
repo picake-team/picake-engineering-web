@@ -513,9 +513,10 @@ export default function SellerAboutPage() {
         />
 
         {/* 6. 가게 링크(R-03 "손님 가입이 간편해야") */}
-        <section aria-label="가게 링크" className="pb-16 md:pb-28">
+        <section className="pb-16 md:pb-28">
           <div className={WRAP}>
             <SolveRow
+              headingLevel="h2"
               tag="가게 링크"
               title={
                 <>
