@@ -305,7 +305,11 @@ export default function CustomerHomePage() {
         </section>
 
         {/* 3. 해결 줄: 디자인 고르기 · 견적 받기 · 예약 */}
-        <section aria-label="픽케이크로 고르고 묻고 예약하기" className={SECTION_Y}>
+        <section aria-labelledby="solve-title" className={SECTION_Y}>
+          {/* 고민 칸과 나눠 읽히게 제목을 둔다(화면에는 줄마다 제목이 있어 숨김) */}
+          <h2 id="solve-title" className="sr-only">
+            픽케이크로 고르고 묻고 예약하기
+          </h2>
           <div className={`${WRAP} grid gap-4 md:gap-5`}>
             <SolveRow
               id={ANCHOR.design}
