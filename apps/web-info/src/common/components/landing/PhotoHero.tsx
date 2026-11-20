@@ -6,6 +6,11 @@ interface PhotoHeroProps {
   photo: StaticImageData;
   /** 사진에서 보일 곳. 휴대폰은 세로로 길게, PC는 가로로 넓게 잘린다 */
   position: { phone: string; pc: string };
+  /**
+   * 사진을 받을 크기(next/image sizes). 휴대폰은 사진 칸이 세로로 길어 가로 사진은 화면보다 넓게 그려진다
+   * (손님 쪽 3:2 사진은 390폭 휴대폰에서 약 800px). 기본은 화면 폭
+   */
+  sizes?: string;
   children: ReactNode;
 }
 
@@ -14,7 +19,7 @@ interface PhotoHeroProps {
  * 휴대폰은 아래에서 위로, PC는 왼쪽에서 오른쪽으로 어두운 막을 깔아 글자가 읽힌다(사진은 어두운 바탕 사진만 쓴다).
  * 사진은 첫 화면의 가장 큰 그림(LCP)이라 먼저 받는다.
  */
-export function PhotoHero({ photo, position, children }: PhotoHeroProps) {
+export function PhotoHero({ photo, position, sizes = "100vw", children }: PhotoHeroProps) {
   return (
     <section
       id="top"
@@ -30,7 +35,7 @@ export function PhotoHero({ photo, position, children }: PhotoHeroProps) {
           priority
           // priority만으로는 fetchpriority가 붙지 않았다(Lighthouse 2026-11-14)
           fetchPriority="high"
-          sizes="100vw"
+          sizes={sizes}
           className="object-cover [object-position:var(--hero-pos-phone)] md:[object-position:var(--hero-pos-pc)]"
         />
       </div>

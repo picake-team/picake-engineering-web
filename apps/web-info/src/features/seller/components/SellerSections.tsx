@@ -68,18 +68,15 @@ export function CompareTable({ rows }: { rows: CompareRow[] }) {
               role="cell"
               className="px-5 pt-1 text-[15px] leading-[1.55] text-gray-600 md:px-7 md:py-5 md:text-[17px]"
             >
-              <span aria-hidden className="text-gray-500 md:hidden">
-                지금 ·{" "}
-              </span>
+              {/* 휴대폰은 위 머리 줄이 없어(md부터) 칸 앞 글자가 어느 쪽인지 알려 준다 — 화면 읽기 프로그램도 읽는다 */}
+              <span className="text-gray-500 md:hidden">지금 · </span>
               {r.before}
             </span>
             <span
               role="cell"
               className="px-5 pt-1 pb-4 text-[15px] leading-[1.55] font-semibold text-gray-900 md:bg-[#FFF6F3] md:px-7 md:py-5 md:text-[17px]"
             >
-              <span aria-hidden className="font-bold text-primary md:hidden">
-                픽케이크 ·{" "}
-              </span>
+              <span className="font-bold text-primary md:hidden">픽케이크 · </span>
               {r.after}
             </span>
           </div>

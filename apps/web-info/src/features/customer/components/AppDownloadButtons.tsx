@@ -12,14 +12,26 @@ import {
 /**
  * 손님 소개 첫 화면의 앱 받기(2026-11-20 운영자: "QR이 바로 보이지 말고 배달의민족처럼 버튼으로").
  * - 휴대폰: "앱 받기" 하나. 손님 웹 `/app`이 기기에 맞는 스토어로 보낸다(QR은 휴대폰에서 쓸 일이 없다).
- * - PC: [App Store] [Google Play] [QR] 버튼. QR 버튼을 누르면 그 아래에 QR 카드가 열린다(바깥을 누르거나 Esc로 닫힘).
+ * - PC: [App Store] [Google Play] [QR] 버튼. QR 버튼을 누르면 그 오른쪽에 QR 카드가 열린다(바깥을 누르거나 Esc로 닫힘).
+ *   아래로 열면 노트북 화면(높이 900 이하)에서 첫 화면 밖으로 나가 잘렸다(2026-11-20 검토).
+ *   PC 위쪽 줄 "앱 받기"(`openerId`)를 눌러도 열린다 — 손님 웹 `/app`은 PC를 손님 웹 홈으로 보내서 PC에서는 QR이 길이다.
  * 스토어 상표 그림(배지)은 쓰지 않고 글자 버튼으로 둔다.
  */
-export function AppDownloadButtons({ id }: { id?: string }) {
+export function AppDownloadButtons({ id, openerId }: { id?: string; openerId?: string }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const cardId = useId();
+
+  // 위쪽 줄 "앱 받기": 링크(#top)가 첫 화면으로 올리고, 여기서 QR 카드를 연다
+  useEffect(() => {
+    if (!openerId) return;
+    const onClick = (e: MouseEvent) => {
+      if (e.target instanceof Element && e.target.closest(`#${openerId}`)) setOpen(true);
+    };
+    document.addEventListener("click", onClick);
+    return () => document.removeEventListener("click", onClick);
+  }, [openerId]);
 
   useEffect(() => {
     if (!open) return;
@@ -79,16 +91,21 @@ export function AppDownloadButtons({ id }: { id?: string }) {
         >
           <QrGlyph />
         </button>
+        {/* 버튼 줄 오른쪽. 카드(높이 약 277px) 위끝을 버튼 줄보다 72px 위에 둔다 — 제목을 가리지 않고, 첫 화면이 가장 낮을 때(600px)도
+            아래가 잘리지 않는다. 움직임(popup-in)이 transform을 써서 위치는 margin으로 */}
         <div
           id={cardId}
-          role="dialog"
-          aria-label="앱 받기 QR 코드"
           hidden={!open}
-          className="absolute top-[calc(100%+12px)] left-0 z-20 w-[248px] rounded-[18px] bg-white p-4 text-gray-900 shadow-[0_24px_48px_-16px_rgba(0,0,0,0.45)] data-[open=true]:animate-popup-in"
+          className="absolute top-1/2 left-[calc(100%+14px)] z-20 -mt-[100px] w-[248px] rounded-[18px] bg-white p-6 text-gray-900 shadow-[0_24px_48px_-16px_rgba(0,0,0,0.45)] data-[open=true]:animate-popup-in"
           data-open={open}
         >
-          <QrAppDownload aria-hidden className="mx-auto block size-[168px]" />
-          <p className="mt-3 text-center text-[15px] leading-[1.5] font-semibold">
+          {/* QR 둘레는 흰 여백 24px(약 4칸) — 카메라가 QR 끝을 찾게 */}
+          <QrAppDownload
+            role="img"
+            aria-label="앱 받기 QR 코드"
+            className="mx-auto block size-[168px]"
+          />
+          <p className="mt-4 text-center text-[15px] leading-[1.5] font-semibold">
             휴대폰 카메라로 찍으면
             <br />
             앱을 받을 수 있어요

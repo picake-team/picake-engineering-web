@@ -9,6 +9,8 @@ export interface HeaderLink {
   href: string;
   /** 다른 사이트로 나가는 링크(새 탭) */
   external?: boolean;
+  /** 페이지의 다른 부품이 이 링크 누름을 알아야 할 때(손님 쪽 "앱 받기" → 첫 화면 QR 열기) */
+  id?: string;
 }
 
 interface SiteHeaderProps {
@@ -24,7 +26,7 @@ interface SiteHeaderProps {
 
 /**
  * 소개 페이지 위쪽 줄(2026-11-20). 휴대폰 56px: 로고 · 오른쪽 작은 링크. PC 72px: 로고 · 칸 이동 메뉴(lg) · 작은 링크 · 주 버튼.
- * 내려도 위에 남는다(sticky). 칸 이동 때 가리지 않게 globals.css의 scroll-padding-top이 이 높이와 같다.
+ * 내려도 위에 남는다(sticky). 칸 이동 때 가리지 않게 globals.css의 scroll-padding-top이 이 높이보다 8px 크다.
  */
 export function SiteHeader({ brandSuffix, menu, secondary, cta }: SiteHeaderProps) {
   const active = useActiveSection(menu.map((m) => m.href));
@@ -78,6 +80,7 @@ export function SiteHeader({ brandSuffix, menu, secondary, cta }: SiteHeaderProp
             {secondary.label}
           </a>
           <a
+            id={cta.id}
             href={cta.href}
             {...(cta.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
             // 주황 바탕 + 흰 글자(운영자 2026-11-17 결정, 대비 2.9:1을 알리고 정함)

@@ -78,6 +78,8 @@ const ANCHOR = {
 } as const;
 
 const HERO_CTA_ID = "customer-hero-cta";
+/** PC 위쪽 줄 "앱 받기". 첫 화면으로 올리고 QR 카드를 연다(손님 웹 `/app`은 PC를 손님 웹 홈으로 보낸다) */
+const HEADER_APP_ID = "customer-header-app";
 const BAND_ID = "customer-seller-band";
 const FOOTER_ID = "customer-footer";
 
@@ -141,7 +143,7 @@ const QAS: Qa[] = [
     q: "더 물어볼 게 있어요",
     a: (
       <>
-        가게와 <b>채팅</b>으로 이야기해요
+        가게가 열어 둔 <b>채팅·카톡·전화</b>로 물어봐요
       </>
     ),
   },
@@ -255,12 +257,17 @@ export default function CustomerHomePage() {
           { label: "자주 묻는 질문", href: `#${ANCHOR.faq}` },
         ]}
         secondary={{ label: "사장님이세요?", href: "/seller/about" }}
-        cta={{ label: "앱 받기", href: APP_DOWNLOAD_URL }}
+        cta={{ label: "앱 받기", href: "#top", id: HEADER_APP_ID }}
       />
 
       <main className="bg-white text-gray-900">
         {/* 1. 첫 화면: 어두운 하트 케이크 사진 + 흰 글자(시안 F), 앱 받기(배민처럼 버튼, PC는 QR을 눌러 열기) */}
-        <PhotoHero photo={photoHero} position={{ phone: "50% 45%", pc: "62% 50%" }}>
+        {/* 가로 사진이라 휴대폰에서는 화면 폭의 약 2배로 그려진다. 1.5배로 받아 첫 화면 받는 시간과 선명함을 나눈다 */}
+        <PhotoHero
+          photo={photoHero}
+          position={{ phone: "50% 45%", pc: "62% 50%" }}
+          sizes="(max-width: 767px) 150vw, 100vw"
+        >
           <HeroTitle eyebrow="주문제작 케이크 예약">
             원하는 케이크,
             <br />
@@ -268,7 +275,7 @@ export default function CustomerHomePage() {
           </HeroTitle>
           <HeroLead>디자인 고르기부터 예약·픽업 안내까지 한 곳에서</HeroLead>
           <div className="mt-7 w-full md:mt-9 md:w-auto">
-            <AppDownloadButtons id={HERO_CTA_ID} />
+            <AppDownloadButtons id={HERO_CTA_ID} openerId={HEADER_APP_ID} />
           </div>
           <a
             href={CUSTOMER_WEB_URL}
