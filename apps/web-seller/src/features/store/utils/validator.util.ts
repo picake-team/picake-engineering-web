@@ -58,18 +58,18 @@ export const validateStoreDescription = (description: string | undefined): strin
 };
 
 /**
- * 스토어 연락처 유효성 검증 (필수)
+ * 스토어 전화번호 유효성 검증 (필수)
  */
 export const validateStorePhoneNumber = (value: string | undefined): string | null => {
   const trimmed = (value ?? "").trim();
   if (!trimmed) {
-    return "스토어 연락처를 입력해 주세요.";
+    return "전화번호를 입력해 주세요.";
   }
   if (trimmed.length < 8 || trimmed.length > 20) {
-    return "스토어 연락처는 8자 이상 20자 이하여야 해요.";
+    return "전화번호는 8자 이상 20자 이하여야 해요.";
   }
   if (!/^[0-9\-+() ]+$/.test(trimmed)) {
-    return "스토어 연락처는 숫자·하이픈(-)·공백·괄호·+만 쓸 수 있어요.";
+    return "전화번호는 숫자·하이픈(-)·공백·괄호·+만 쓸 수 있어요.";
   }
   return null;
 };

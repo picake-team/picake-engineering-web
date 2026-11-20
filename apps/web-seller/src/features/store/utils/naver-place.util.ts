@@ -13,7 +13,7 @@ import {
 export const NAVER_IMPORT_FIELDS = [
   { key: "name", label: "스토어 이름" },
   { key: "description", label: "스토어 설명" },
-  { key: "phoneNumber", label: "스토어 연락처" },
+  { key: "phoneNumber", label: "전화번호" },
   { key: "instagramId", label: "인스타그램 ID" },
 ] as const;
 
