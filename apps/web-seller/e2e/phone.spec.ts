@@ -28,6 +28,10 @@ const tabs = () => page.getByRole("navigation", { name: "아래 탭" });
 async function openTab(name: string) {
   for (let i = 0; i < 3 && !(await tabs().isVisible()); i += 1) {
     await page.getByRole("button", { name: "뒤로" }).click();
+    // 화면이 넘어가는 동안 다시 누르지 않게 아래 탭이 나올 때까지 잠깐 기다린다(더 안쪽이면 다음 바퀴에 또 뒤로)
+    await tabs()
+      .waitFor({ state: "visible", timeout: 2000 })
+      .catch(() => {});
   }
   await tabs()
     .getByRole("link", { name: new RegExp(`^${name}`) })
@@ -70,5 +74,33 @@ test("휴대폰 캘린더에서도 그날만 영업 바꾸기", async () => {
   await expect(dialog.getByRole("button", { name: /^시작 / })).toBeVisible();
   await dialog.getByRole("button", { name: "돌아가기" }).click();
   await expect(dialog).toHaveCount(0);
+  await expectNoSideScroll(page);
+});
+
+// 스토어 정보 "손님 연락 채널"(운영자 2026-11-20 시안 B): 채널마다 한 줄, 누르면 아래 창에서 적는다.
+// 저장은 하지 않는다(심사용 가게 값을 바꾸지 않게) — 빈 전화번호는 화면이 먼저 막는다
+test("스토어 정보: 연락 채널 줄을 눌러 적고, 전화번호가 비면 그 줄에 고칠 곳", async () => {
+  await openTab("스토어");
+  await page.getByRole("link", { name: /스토어 정보/ }).click();
+  const section = page.locator("#section-store-contact");
+  await expect(section.getByText("Picake 채팅")).toBeVisible();
+
+  const insta = section.getByRole("button", { name: /인스타그램/ });
+  await insta.click();
+  const instaSheet = page.getByRole("dialog", { name: "인스타그램 ID" });
+  await instaSheet.getByRole("textbox").fill("picake_e2e");
+  await instaSheet.getByRole("button", { name: "확인" }).click();
+  await expect(instaSheet).toHaveCount(0);
+  await expect(insta).toContainText("picake_e2e");
+  await expect(section.getByRole("switch", { name: "인스타그램 손님에게 보이기" })).toBeEnabled();
+
+  await section.getByRole("button", { name: /전화/ }).click();
+  const phoneSheet = page.getByRole("dialog", { name: "전화번호" });
+  await phoneSheet.getByRole("textbox").fill("");
+  await phoneSheet.getByRole("button", { name: "확인" }).click();
+  await expect(section.getByRole("switch", { name: "전화 손님에게 보이기" })).toBeDisabled();
+  await page.getByRole("button", { name: "저장하기" }).click();
+  await expect(section.getByText("전화번호를 입력해 주세요.")).toBeVisible();
+  await expect(page.getByRole("button", { name: "고칠 곳 1개" })).toBeVisible();
   await expectNoSideScroll(page);
 });
