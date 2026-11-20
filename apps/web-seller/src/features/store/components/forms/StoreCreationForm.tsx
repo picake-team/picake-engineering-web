@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Switch } from "@/apps/web-seller/common/ui/Toggle";
 import { isActAsMode } from "@/apps/web-seller/common/utils/act-as.util";
 import { cn } from "@/apps/web-seller/common/utils/classname.util";
 import type { StoreForm } from "@/apps/web-seller/features/store/types/store.ui";
@@ -31,6 +30,7 @@ import { Textarea } from "@/apps/web-seller/common/components/textareas/Textarea
 import { BaseInput as Input } from "@/apps/web-seller/common/components/inputs/BaseInput";
 import { AddressInput } from "@/apps/web-seller/common/components/inputs/AddressInput";
 import { FormSection } from "@/apps/web-seller/common/components/sections/FormSection";
+import { StoreContactChannels } from "@/apps/web-seller/features/store/components/StoreContactChannels";
 import { StoreRefundCancellationPolicyFields } from "@/apps/web-seller/features/store/components/StoreRefundCancellationPolicyFields";
 import {
   createInitialRefundCancellationPolicy,
@@ -72,7 +72,8 @@ export const defaultForm: StoreForm = {
 
 /** 에러가 난 칸 → 화면의 섹션 (위에서부터 이 순서로 찾아 이동한다) */
 const SECTION_ORDER: { id: string; keys: string[] }[] = [
-  { id: "section-store-basic", keys: ["name", "description", "phoneNumber"] },
+  { id: "section-store-basic", keys: ["name", "description"] },
+  { id: "section-store-contact", keys: ["phoneNumber"] },
   { id: "section-store-location", keys: ["address", "detailAddress"] },
   { id: "section-store-bank", keys: ["bankName", "bankAccountNumber", "accountHolderName"] },
   { id: "section-store-refund", keys: ["refundCancellationPolicy"] },
@@ -96,34 +97,6 @@ function validateStoreForm(form: StoreForm): Errors {
   set("accountHolderName", validateAccountHolderName(form.accountHolderName));
   set("refundCancellationPolicy", validateRefundCancellationPolicy(form.refundCancellationPolicy));
   return errors;
-}
-
-/** 손님 연락 채널 한 줄: 이름 + "손님에게 보이기" 스위치(상품 옵션과 같은 말, 기획 I-01) */
-function VisibleRow({
-  title,
-  checked,
-  disabled,
-  onChange,
-}: {
-  title: string;
-  checked: boolean;
-  disabled?: boolean;
-  onChange: (on: boolean) => void;
-}) {
-  return (
-    <div className="flex min-h-12 items-center justify-between gap-3">
-      <span className="min-w-0 truncate text-sm font-medium">{title}</span>
-      <span className="flex shrink-0 items-center gap-2">
-        <span className="text-xs text-muted-foreground">손님에게 보이기</span>
-        <Switch
-          label={`${title} 손님에게 보이기`}
-          checked={checked}
-          disabled={disabled}
-          onChange={onChange}
-        />
-      </span>
-    </div>
-  );
 }
 
 /** 칸 이름 + 필수 표시 + 아래 오류 문구 */
@@ -178,7 +151,9 @@ export const StoreCreationForm: React.FC<Props> = ({
   const formRef = useRef(form);
 
   useEffect(() => {
-    if (initialValue) {
+    // 스토어 만들기는 칸을 고칠 때마다 onChange로 받은 값을 initialValue로 다시 내려준다. 방금 보낸 값이면 다시 채우지 않는다
+    // (다시 채우면 고칠 곳이 모두 지워졌다, 11-20 검토). 수정 화면은 서버에서 새로 받은 값일 때만 바뀐다
+    if (initialValue && initialValue !== formRef.current) {
       formRef.current = initialValue;
       setForm(initialValue);
       setErrors({});
@@ -276,85 +251,22 @@ export const StoreCreationForm: React.FC<Props> = ({
               className={errors.description ? "border-destructive" : undefined}
             />
           </Field>
-          <Field label="연락처" required error={errors.phoneNumber}>
-            <Input
-              placeholder="010-1234-5678"
-              inputMode="tel"
-              autoComplete="tel"
-              value={form.phoneNumber}
-              onChange={handleChange("phoneNumber")}
-              className={errors.phoneNumber ? "border-destructive" : ""}
-            />
-          </Field>
         </div>
       </FormSection>
 
+      {/* 전화번호만 꼭 적는다(판매자 정보로도 쓰는 번호, 기획 P-46). 손님에게 보일지는 스위치로 정한다(P-95) */}
       <FormSection
+        id="section-store-contact"
         title="손님 연락 채널"
-        hint="(선택)"
-        description="손님이 스토어·상품 화면의 문의 버튼으로 연락해요."
+        description="켜 둔 곳으로 손님이 문의해요."
+        error={sectionHasError("section-store-contact")}
       >
-        <div className="space-y-5">
-          {/* Picake 채팅(기획 I-01 2026-11-19): 끄면 스토어·상품 화면 문의 창에서 빠진다. 예약한 손님은 주문 화면에서 늘 채팅할 수 있다 */}
-          <VisibleRow
-            title="Picake 채팅"
-            disabled={visibilityLocked}
-            checked={form.chatInquiryVisible !== false}
-            onChange={(on) => patch({ chatInquiryVisible: on })}
-          />
-          <div className="grid gap-5 sm:grid-cols-2">
-            <div>
-              <Field
-                label="카카오톡 채널 ID"
-                hint={
-                  <details className="mt-1 text-xs text-muted-foreground">
-                    <summary className="cursor-pointer">ID는 어디서 찾나요?</summary>
-                    <p className="mt-1">
-                      카카오비즈니스 파트너센터 → 전체메뉴 → 링크 공유 → 채널 URL의 마지막
-                      부분이에요. 예: <span className="font-mono">pf.kakao.com/_xeaCon</span>이면{" "}
-                      <span className="font-mono">_xeaCon</span>
-                    </p>
-                  </details>
-                }
-              >
-                <Input
-                  placeholder="예: _xeaCon"
-                  value={form.kakaoChannelId || ""}
-                  onChange={handleChange("kakaoChannelId")}
-                />
-              </Field>
-              <VisibleRow
-                title="카카오톡 채널"
-                // 값이 없으면 보일 것이 없어 켤 수 없다
-                disabled={visibilityLocked || !form.kakaoChannelId?.trim()}
-                checked={!!form.kakaoChannelId?.trim() && form.kakaoChannelVisible !== false}
-                onChange={(on) => patch({ kakaoChannelVisible: on })}
-              />
-            </div>
-            <div>
-              <Field label="인스타그램 ID">
-                <Input
-                  placeholder="예: picake_official"
-                  value={form.instagramId || ""}
-                  onChange={handleChange("instagramId")}
-                />
-              </Field>
-              <VisibleRow
-                title="인스타그램"
-                disabled={visibilityLocked || !form.instagramId?.trim()}
-                checked={!!form.instagramId?.trim() && form.instagramVisible !== false}
-                onChange={(on) => patch({ instagramVisible: on })}
-              />
-            </div>
-          </div>
-          {/* 전화: 기본 정보의 연락처를 손님에게 보일지 */}
-          <VisibleRow
-            title={`전화${form.phoneNumber?.trim() ? ` · ${form.phoneNumber.trim()}` : ""}`}
-            disabled={visibilityLocked || !form.phoneNumber?.trim()}
-            checked={!!form.phoneNumber?.trim() && form.phoneVisible !== false}
-            onChange={(on) => patch({ phoneVisible: on })}
-          />
-        </div>
+        <StoreContactChannels
+          form={form}
+          patch={patch}
+          phoneError={errors.phoneNumber}
+          locked={visibilityLocked}
+        />
       </FormSection>
 
       <FormSection

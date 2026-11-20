@@ -52,6 +52,14 @@ export async function openSeller(
     acceptDownloads: true,
   });
   await blockAnalytics(context);
+  // 개발 서버의 TanStack 도구 버튼(오른쪽 아래 야자수)이 아래 탭 "스토어"를 가린다 — 사장님 화면에는 없는 것이라 숨긴다
+  await context.addInitScript(() => {
+    document.addEventListener("DOMContentLoaded", () => {
+      const style = document.createElement("style");
+      style.textContent = ".tsqd-parent-container{display:none!important}";
+      document.head.appendChild(style);
+    });
+  });
   const page = await context.newPage();
   await page.goto("/");
   await page.waitForURL(/\/stores\/[^/]+$/);
