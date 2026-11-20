@@ -3,13 +3,12 @@ import {
   KAKAO_CHANNEL_CHAT_URL,
   SELLER_SIGNUP_URL,
 } from "@/apps/web-info/common/constants/partner.constants";
-import {
-  INSTAGRAM_URL,
-  KAKAO_CHANNEL_URL,
-  SITE_BASE_URL,
-  SITE_OG_IMAGE,
-} from "@/apps/web-info/common/constants/site.constants";
+import { SITE_BASE_URL } from "@/apps/web-info/common/constants/site.constants";
 import { JsonLd } from "@/apps/web-info/common/components/seo/JsonLd";
+import {
+  ORGANIZATION_ID,
+  ORGANIZATION_JSON_LD,
+} from "@/apps/web-info/common/components/seo/organization";
 import { SiteHeader } from "@/apps/web-info/common/components/landing/SiteHeader";
 import { SiteFooter } from "@/apps/web-info/common/components/landing/SiteFooter";
 import { StickyCta } from "@/apps/web-info/common/components/landing/StickyCta";
@@ -297,15 +296,7 @@ export const metadata: Metadata = {
 const STRUCTURED_DATA = {
   "@context": "https://schema.org",
   "@graph": [
-    {
-      "@type": "Organization",
-      "@id": "https://picakes.com/#organization",
-      name: "Picake",
-      alternateName: ["픽케이크"],
-      url: "https://picakes.com",
-      logo: SITE_OG_IMAGE.url,
-      sameAs: [INSTAGRAM_URL, KAKAO_CHANNEL_URL],
-    },
+    ORGANIZATION_JSON_LD,
     {
       "@type": "WebPage",
       "@id": `${PAGE_URL}#webpage`,
@@ -313,13 +304,13 @@ const STRUCTURED_DATA = {
       name: TITLE,
       description: DESCRIPTION,
       inLanguage: "ko-KR",
-      publisher: { "@id": "https://picakes.com/#organization" },
+      publisher: { "@id": ORGANIZATION_ID },
       audience: { "@type": "BusinessAudience", audienceType: "주문제작 케이크 가게 사장님" },
       mainEntity: {
         "@type": "Service",
         name: "픽케이크 사장님 입점",
         serviceType: "주문제작 케이크 예약·견적 관리",
-        provider: { "@id": "https://picakes.com/#organization" },
+        provider: { "@id": ORGANIZATION_ID },
         areaServed: { "@type": "Country", name: "대한민국" },
         description:
           "손님이 사진·픽업 날짜·예산으로 견적을 물으면 사장님이 금액을 보내고, 손님이 고르면 그 견적으로 예약 신청이 들어온다. 정해진 케이크는 사이즈·맛·레터링·참고 사진·픽업 시간을 담은 주문서로 받고, 손님은 가게가 여는 날·시간만 고른다. 입금 안내·픽업 전날 안내·후기 부탁은 알림톡으로 자동으로 간다. 카카오톡·인스타그램·전화로 받은 주문은 대화를 붙여 넣거나 캡처를 올리면 AI가 칸을 채워 같은 달력에 보이고, 손님 참고 사진은 AI가 읽어 요청서 설명을 채우며, 상품 설명은 사장님이 적은 사실로 AI가 초안을 쓴다. 가게 링크로 온 손님은 가입 전에 끝까지 고르고 마지막에 로그인하며, 링크로 들어온 손님 수와 예약 수를 보여 준다. 휴대폰과 컴퓨터에서 같은 기능을 쓰고, 컴퓨터에서는 주문 목록과 상세를 나란히 보고 엑셀로 내려받고 그날 주문서를 한 번에 인쇄한다. 이용료·수수료 0원, 처음 상품 등록 대행, 받아 둔 카톡 주문을 달력에 넣어 드림·대목 상품과 픽업 날짜·영업시간 맞춰 드림·예약 안내 이미지 만들어 드림·주문서 링크 거는 법 안내, 손님 입금은 가게 계좌로 바로, 매장 픽업 주문.",

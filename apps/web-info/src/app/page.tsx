@@ -1,15 +1,14 @@
 import type { Metadata } from "next";
-import {
-  INSTAGRAM_URL,
-  KAKAO_CHANNEL_URL,
-  SITE_BASE_URL,
-  SITE_OG_IMAGE,
-} from "@/apps/web-info/common/constants/site.constants";
+import { SITE_BASE_URL, SITE_OG_IMAGE } from "@/apps/web-info/common/constants/site.constants";
 import {
   APP_DOWNLOAD_URL,
   CUSTOMER_WEB_URL,
 } from "@/apps/web-info/common/constants/app-download.constants";
 import { JsonLd } from "@/apps/web-info/common/components/seo/JsonLd";
+import {
+  ORGANIZATION_ID,
+  ORGANIZATION_JSON_LD,
+} from "@/apps/web-info/common/components/seo/organization";
 import { SiteHeader } from "@/apps/web-info/common/components/landing/SiteHeader";
 import { SiteFooter } from "@/apps/web-info/common/components/landing/SiteFooter";
 import { StickyCta } from "@/apps/web-info/common/components/landing/StickyCta";
@@ -213,15 +212,7 @@ export const metadata: Metadata = {
 const STRUCTURED_DATA = {
   "@context": "https://schema.org",
   "@graph": [
-    {
-      "@type": "Organization",
-      "@id": "https://picakes.com/#organization",
-      name: "Picake",
-      alternateName: ["픽케이크"],
-      url: "https://picakes.com",
-      logo: SITE_OG_IMAGE.url,
-      sameAs: [INSTAGRAM_URL, KAKAO_CHANNEL_URL],
-    },
+    ORGANIZATION_JSON_LD,
     {
       "@type": "WebPage",
       "@id": `${PAGE_URL}#webpage`,
@@ -229,12 +220,12 @@ const STRUCTURED_DATA = {
       name: TITLE,
       description: DESCRIPTION,
       inLanguage: "ko-KR",
-      publisher: { "@id": "https://picakes.com/#organization" },
+      publisher: { "@id": ORGANIZATION_ID },
       mainEntity: {
         "@type": "Service",
         name: "픽케이크 주문제작 케이크 예약",
         serviceType: "주문제작 케이크 예약·견적",
-        provider: { "@id": "https://picakes.com/#organization" },
+        provider: { "@id": ORGANIZATION_ID },
         areaServed: { "@type": "Country", name: "대한민국" },
         description:
           "케이크 디자인 모음에서 생일·기념일 같은 어떤 날이나 레터링·꽃 같은 모양으로 디자인을 골라 저장하고, 사진에서 가져갈 것(모양·색·장식·글자)을 고르면 요청서가 채워진다. 내 사진은 AI가 읽어 설명을 채운다. 픽업 날짜·동네·예산을 적어 가게 5곳까지 한 번에 견적을 받고, 견적에는 사진과 얼마나 비슷하게 만들지가 적혀 온다. 정해진 케이크는 사이즈·맛·레터링을 골라 주문서로 예약하고, 가게가 여는 날·시간만 고른다. 가입은 다 고른 뒤 마지막에 카카오·네이버·구글·애플로 하고, 입금은 가게 계좌로 바로(토스·카카오페이 송금 화면), 예약 확인·입금 안내·픽업 전날 안내는 알림톡으로 온다. 매장 픽업만, 앱과 웹(picakes.com) 모두.",

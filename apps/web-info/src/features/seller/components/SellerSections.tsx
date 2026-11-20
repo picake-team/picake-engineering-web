@@ -185,7 +185,12 @@ export function PcGallery({ items }: { items: PcFeature[] }) {
     >
       {items.map((f) => (
         <li key={f.title} className="w-[84%] shrink-0 snap-start md:w-auto">
-          <PcShot src={f.src} alt={f.alt} />
+          <PcShot
+            src={f.src}
+            alt={f.alt}
+            // 넓은 PC는 두 칸(최대 약 600px), PC는 두 칸, 휴대폰은 옆으로 넘기는 카드 한 장
+            sizes="(min-width: 1280px) 600px, (min-width: 768px) 46vw, 84vw"
+          />
           <p className="mt-3 text-[17px] font-bold tracking-[-0.02em] text-gray-900 md:mt-3.5 md:text-[20px]">
             {f.title}
           </p>

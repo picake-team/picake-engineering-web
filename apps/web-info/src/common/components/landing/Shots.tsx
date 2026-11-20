@@ -33,10 +33,13 @@ export function PcShot({
   src,
   alt,
   className = "",
+  sizes = "(min-width: 1024px) 640px, (min-width: 768px) 90vw, 85vw",
 }: {
   src: StaticImageData;
   alt: string;
   className?: string;
+  /** 놓이는 칸 폭(next/image가 알맞은 크기를 고르게). 기본은 글 | 화면 한 장 */
+  sizes?: string;
 }) {
   return (
     <div
@@ -45,7 +48,7 @@ export function PcShot({
       <Image
         src={src}
         alt={alt}
-        sizes="(min-width: 1024px) 640px, (min-width: 768px) 90vw, 85vw"
+        sizes={sizes}
         className="block h-full w-full object-cover object-top"
       />
     </div>
