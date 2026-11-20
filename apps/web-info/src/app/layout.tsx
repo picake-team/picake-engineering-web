@@ -44,7 +44,7 @@ export const metadata: Metadata = {
   },
 };
 
-// web-user와 같은 폭 설정 — 모바일에서 보이는 모습을 그대로 유지한다(확대는 막지 않는다)
+// 기기 폭에 맞춘다(확대는 막지 않는다). 휴대폰·PC 배치는 페이지가 CSS로 나눈다
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
@@ -62,17 +62,12 @@ export default function RootLayout({
     <html lang="ko">
       <body>
         {/*
-          web-user의 RootWrapperLayout과 같은 스크롤 컨테이너. 모바일은 전체 폭, 640px 이상은 가운데 640px
-          열로 보이고, 스크롤은 문서가 아니라 이 안에서 일어난다 (StickyJoinCta 등이 이 전제로 짜여 있다).
+          문서 전체가 스크롤된다(2026-11-20 소개 페이지 PC). 예전에는 web-user처럼 640px 스크롤 칸 안에 휴대폰 화면만
+          있었다. 이제 페이지가 휴대폰·PC 배치를 스스로 나눈다(common/constants/screen.constants.ts).
         */}
         <PostHogProvider>
           <BuildInfoLogger />
-          <div
-            id="root-scroll-container"
-            className="w-full sm:w-[640px] h-screen mx-auto sm:border-x border-gray-200 overflow-y-auto overflow-x-hidden scrollbar-hide"
-          >
-            <div>{children}</div>
-          </div>
+          {children}
         </PostHogProvider>
       </body>
     </html>

@@ -23,16 +23,46 @@ html,
   color-scheme: only light;
 }
 
+/*
+ * 페이지는 문서 전체가 스크롤된다(2026-11-20 소개 페이지 PC — 예전 640px 스크롤 칸을 없앰).
+ * 칸 이동(#견적 등)이 위쪽 줄에 가리지 않게 위쪽 줄 높이(휴대폰 56, PC 72 — SiteHeader)보다 8px 더 띄운다.
+ */
+html {
+  scroll-padding-top: 64px;
+}
+
+@media (min-width: 768px) {
+  html {
+    scroll-padding-top: 80px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
 body {
   max-width: 100vw;
   overflow-x: hidden;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  /* 한글은 낱말 단위로 줄을 바꾼다("열려/요"처럼 끊기지 않게). 아주 긴 주소는 칸 밖으로 넘치지 않게 끊는다 */
+  word-break: keep-all;
+  overflow-wrap: anywhere;
 }
 
-html::-webkit-scrollbar,
-body::-webkit-scrollbar {
-  display: none;
+/* 휴대폰은 앱처럼 스크롤 막대를 숨긴다. PC는 마우스로 길이를 볼 수 있게 보인다 */
+@media (max-width: 767px) {
+  html,
+  body {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 body {
