@@ -151,7 +151,9 @@ export const StoreCreationForm: React.FC<Props> = ({
   const formRef = useRef(form);
 
   useEffect(() => {
-    if (initialValue) {
+    // 스토어 만들기는 칸을 고칠 때마다 onChange로 받은 값을 initialValue로 다시 내려준다. 방금 보낸 값이면 다시 채우지 않는다
+    // (다시 채우면 고칠 곳이 모두 지워졌다, 11-20 검토). 수정 화면은 서버에서 새로 받은 값일 때만 바뀐다
+    if (initialValue && initialValue !== formRef.current) {
       formRef.current = initialValue;
       setForm(initialValue);
       setErrors({});

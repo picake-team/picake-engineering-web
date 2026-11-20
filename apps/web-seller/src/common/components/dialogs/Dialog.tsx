@@ -41,6 +41,10 @@ export function Dialog({
   const backdropRef = useRef<HTMLDivElement>(null);
   const inFrame = useInMobileFrame();
   const dragHandle = useSheetDrag({ panelRef, backdropRef, onClose, enabled: inFrame });
+  // 부르는 쪽은 onClose를 그릴 때마다 새로 만든다(`() => setOpen(false)`). 아래 효과가 onClose에 걸리면 창 안 칸에
+  // 한 글자 칠 때마다 다시 돌아 초점을 창 본체로 옮겨 휴대폰 키보드가 내려간다(11-20) — 아래 창(Sheet)처럼 ref로 둔다
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
 
   useEffect(() => {
     if (!open) return;
@@ -56,7 +60,7 @@ export function Dialog({
     document.body.style.overflow = "hidden";
     panelRef.current?.focus();
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") closeRef.current();
     };
     window.addEventListener("keydown", onKey);
     return () => {
@@ -64,7 +68,7 @@ export function Dialog({
       window.removeEventListener("keydown", onKey);
       previous?.focus?.();
     };
-  }, [open, onClose]);
+  }, [open]);
 
   // 휴대폰 틀 안에서는 닫힐 때도 내려가는 움직임이 끝날 때까지 그린다(그동안 내용은 열려 있던 때 그대로)
   const presence = usePresence(open, SHEET_EXIT_MS, { title, description, footer, children });

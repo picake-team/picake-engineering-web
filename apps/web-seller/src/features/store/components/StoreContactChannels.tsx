@@ -4,7 +4,7 @@
  * 값이 있는 채널(카카오톡·인스타그램·전화)은 줄을 누르면 아래 창에서 적는다. 칸이 비면 스위치를 켤 수 없다.
  * 전화번호는 꼭 적는다(판매자 정보로도 쓰는 번호, 기획 P-46). 비면 줄에 고칠 곳 문구를 보인다.
  */
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Switch } from "@/apps/web-seller/common/ui/Toggle";
 import { Icon, type IconName } from "@/apps/web-seller/common/ui/icons";
 import { RowIconBox } from "@/apps/web-seller/common/ui/List";
@@ -14,6 +14,7 @@ import { BaseButton as Button } from "@/apps/web-seller/common/components/button
 import { Dialog } from "@/apps/web-seller/common/components/dialogs/Dialog";
 import { FRAME_SUBMIT_BUTTON_CLASS } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
 import type { StoreForm } from "@/apps/web-seller/features/store/types/store.ui";
+import { validateStorePhoneNumber } from "@/apps/web-seller/features/store/utils/validator.util";
 
 type ValueKey = "kakaoChannelId" | "instagramId" | "phoneNumber";
 type VisibleKey =
@@ -88,10 +89,20 @@ interface Props {
 export function StoreContactChannels({ form, patch, phoneError, locked }: Props) {
   const [editing, setEditing] = useState<Channel | null>(null);
   const [draft, setDraft] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // 창이 열리면 칸에 초점(autoFocus는 창이 열릴 때 본체로 초점을 옮겨 소용없다). 이 효과는 창(자식) 효과 뒤에 돌아서
+  // 창은 누른 줄을 "열기 전 초점"으로 기억하고, 닫으면 그 줄로 돌아간다
+  useEffect(() => {
+    if (editing) inputRef.current?.focus();
+  }, [editing]);
 
   const text = (c: Channel) => (c.value ? (form[c.value.key] ?? "").trim() : "");
   const hasValue = (c: Channel) => !c.value || !!text(c);
   const errorOf = (c: Channel) => (c.value?.key === "phoneNumber" ? phoneError : undefined);
+  // 저장을 눌러 고칠 곳이 생긴 뒤에는 창 안에서도 적는 대로 다시 검사해 보인다
+  const sheetError =
+    editing?.value?.key === "phoneNumber" && phoneError ? validateStorePhoneNumber(draft) : null;
 
   const open = (c: Channel) => {
     setDraft(c.value ? (form[c.value.key] ?? "") : "");
@@ -119,8 +130,13 @@ export function StoreContactChannels({ form, patch, phoneError, locked }: Props)
               {c.value && (
                 <span
                   className={cn(
-                    "truncate text-sub",
-                    error ? "text-destructive" : hasValue(c) ? "text-ink-600" : "text-ink-500",
+                    "text-sub",
+                    // 적은 값은 한 줄로 자르고, 고칠 곳·안내 글은 잘리지 않게 줄을 바꾼다(320 폭)
+                    error
+                      ? "break-keep text-destructive"
+                      : hasValue(c)
+                        ? "truncate text-ink-600"
+                        : "break-keep text-ink-500",
                   )}
                 >
                   {error ?? (hasValue(c) ? text(c) : `${c.value.label}를 적어 주세요`)}
@@ -172,13 +188,15 @@ export function StoreContactChannels({ form, patch, phoneError, locked }: Props)
         {editing?.value && (
           <div>
             <Input
-              autoFocus
+              ref={inputRef}
               aria-label={editing.value.label}
+              aria-invalid={sheetError ? true : undefined}
               placeholder={editing.value.placeholder}
               inputMode={editing.value.tel ? "tel" : undefined}
               autoComplete={editing.value.tel ? "tel" : undefined}
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
+              className={sheetError ? "border-destructive" : undefined}
               onKeyDown={(e) => {
                 // 바깥 스토어 폼이 제출되지 않게 막고 창만 닫는다
                 if (e.key === "Enter") {
@@ -187,6 +205,7 @@ export function StoreContactChannels({ form, patch, phoneError, locked }: Props)
                 }
               }}
             />
+            {sheetError && <p className="mt-1 text-sm text-destructive">{sheetError}</p>}
             {editing.help}
           </div>
         )}
