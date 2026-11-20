@@ -11,12 +11,9 @@ const NOINDEX_HEADERS =
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
-  async rewrites() {
-    // 첫 주소(info.picakes.com)에 페이지가 없어 404였다. 네이버 서치어드바이저 소유확인이 첫 주소를 읽다가
-    // "접근 실패 404"로 막혀(2026-11-14), 넘기지(리다이렉트) 않고 사장님 소개 페이지를 200으로 그대로 보여 준다.
-    // 그 페이지의 canonical이 /seller/about이라 검색에는 한 페이지로 잡힌다.
-    return [{ source: "/", destination: "/seller/about" }];
-  },
+  // 첫 주소(info.picakes.com)는 손님 소개 페이지(src/app/page.tsx, 2026-11-20)다. 그 전에는 페이지가 없어
+  // 사장님 소개를 그대로 보여 주는 rewrite를 두었다(네이버 서치어드바이저 소유 확인이 첫 주소 404로 막혀서, 2026-11-14).
+  // 네이버 확인 태그는 layout의 metadata.verification이라 첫 주소에도 그대로 있다.
   async headers() {
     // 보안 헤더: 다른 사이트가 이 화면을 틀(iframe)에 넣어 누르게 하는 것을 막고, 파일 종류를 추측하지 않게 한다(2026-11-12 전체 검토)
     return [
