@@ -60,7 +60,8 @@ export function PainGrid({ items }: { items: Pain[] }) {
     <ul className="mt-8 grid gap-3 md:mt-11 md:grid-cols-2 md:gap-4 lg:grid-cols-4">
       {items.map((p) => (
         <li
-          key={p.answerName}
+          // 같은 기능이 두 고민에 답할 수 있어(손님 쪽 "견적") 기능 이름과 답을 같이 키로 쓴다
+          key={`${p.answerName}-${p.answer}`}
           className={`grid grid-rows-[1fr_auto] gap-4 rounded-[20px] border ${LINE} bg-white p-5 md:rounded-[22px] md:p-7`}
         >
           <p className="text-[18px] leading-[1.45] font-bold tracking-[-0.02em] text-gray-900 md:text-[20px]">
