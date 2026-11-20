@@ -13,10 +13,12 @@ import { SiteHeader } from "@/apps/web-info/common/components/landing/SiteHeader
 import { SiteFooter } from "@/apps/web-info/common/components/landing/SiteFooter";
 import { StickyCta } from "@/apps/web-info/common/components/landing/StickyCta";
 import {
+  HERO_MUTED_TEXT,
   HeroLead,
   HeroTitle,
   PhotoHero,
 } from "@/apps/web-info/common/components/landing/PhotoHero";
+import { PHONE_HERO } from "@/apps/web-info/common/components/landing/phone-hero";
 import { PhoneShot } from "@/apps/web-info/common/components/landing/Shots";
 import {
   FaqList,
@@ -59,7 +61,7 @@ import screenHomeDesigns from "@/apps/web-info/features/customer/assets/screen-h
  * 실제 가게가 아직 없어 가게 수·후기 수·평점은 쓰지 않는다. 사진 후기는 기능만 한 줄.
  *
  * 화면 그림: 상용 손님 웹을 2026-11-20 휴대폰 크기(390×844, 2배)로 찍은 것(로그인 안 함).
- * 사진: 첫 화면 Unsplash m4uypz8-zHU(Kurt Harvey, 분홍 하트 케이크 — 손님 앱 디자인 모음 "하트 빈티지"와 같은 사진의 큰 원본).
+ * 사진: PC 첫 화면 Unsplash m4uypz8-zHU(Kurt Harvey, 분홍 하트 케이크 — 손님 앱 디자인 모음 "하트 빈티지"와 같은 사진의 큰 원본).
  *   상업 사용·수정 무료, 출처 표시 의무 없음.
  */
 const TITLE = "주문제작 케이크 예약·견적 | 픽케이크(Picake)";
@@ -261,13 +263,8 @@ export default function CustomerHomePage() {
       />
 
       <main className="bg-white text-gray-900">
-        {/* 1. 첫 화면: 어두운 하트 케이크 사진 + 흰 글자(시안 F), 앱 받기(배민처럼 버튼, PC는 QR을 눌러 열기) */}
-        {/* 가로 사진이라 휴대폰에서는 화면 폭의 약 2배로 그려진다. 1.5배로 받아 첫 화면 받는 시간과 선명함을 나눈다 */}
-        <PhotoHero
-          photo={photoHero}
-          position={{ phone: "50% 45%", pc: "62% 50%" }}
-          sizes="(max-width: 767px) 150vw, 100vw"
-        >
+        {/* 1. 첫 화면: PC는 어두운 하트 케이크 사진 + 흰 글자(시안 F), 휴대폰은 딸기 생크림 사진(PHONE_HERO). 앱 받기(배민처럼 버튼, PC는 QR을 눌러 열기) */}
+        <PhotoHero photo={photoHero} position="62% 50%" phone={PHONE_HERO}>
           <HeroTitle eyebrow="주문제작 케이크 예약">
             원하는 케이크,
             <br />
@@ -279,7 +276,7 @@ export default function CustomerHomePage() {
           </div>
           <a
             href={CUSTOMER_WEB_URL}
-            className="mt-4 inline-block rounded-sm py-1 text-[15px] text-white/80 underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white md:mt-5"
+            className={`mt-4 inline-block rounded-sm py-1 text-[15px] underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-current md:mt-5 ${HERO_MUTED_TEXT}`}
           >
             앱 없이 웹으로 둘러보기
           </a>

@@ -29,28 +29,8 @@ export function PrimaryLink({
       id={id}
       href={href}
       {...linkProps(external)}
-      className={`${BASE} bg-primary text-white focus-visible:outline-white`}
-    >
-      {children}
-    </a>
-  );
-}
-
-/** 어두운 사진 위 보조 버튼(흰 테두리) */
-export function GhostLink({
-  href,
-  external,
-  children,
-}: {
-  href: string;
-  external?: boolean;
-  children: ReactNode;
-}) {
-  return (
-    <a
-      href={href}
-      {...linkProps(external)}
-      className={`${BASE} border border-white/45 text-white hover:bg-white/10 focus-visible:outline-white`}
+      // 키보드 초점은 주황 테두리 — 휴대폰 흰 첫 화면과 PC 어두운 사진 위 모두에서 보인다
+      className={`${BASE} bg-primary text-white focus-visible:outline-primary`}
     >
       {children}
     </a>
@@ -85,7 +65,7 @@ export function KakaoLink({ href, children }: { href: string; children: ReactNod
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className={`${BASE} bg-[#FFEB00] text-gray-900 focus-visible:outline-white`}
+      className={`${BASE} bg-[#FFEB00] text-gray-900 focus-visible:outline-primary`}
     >
       <Image
         src={kakaoIcon}

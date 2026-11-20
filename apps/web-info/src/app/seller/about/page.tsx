@@ -17,11 +17,8 @@ import {
   HeroTitle,
   PhotoHero,
 } from "@/apps/web-info/common/components/landing/PhotoHero";
-import {
-  GhostLink,
-  KakaoLink,
-  PrimaryLink,
-} from "@/apps/web-info/common/components/landing/Buttons";
+import { KakaoLink, PrimaryLink } from "@/apps/web-info/common/components/landing/Buttons";
+import { PHONE_HERO } from "@/apps/web-info/common/components/landing/phone-hero";
 import { PhoneShot } from "@/apps/web-info/common/components/landing/Shots";
 import {
   ClosingBox,
@@ -346,8 +343,8 @@ export default function SellerAboutPage() {
       />
 
       <main className="bg-white text-gray-900">
-        {/* 1. 첫 화면: 어두운 케이크 사진 + 흰 글자(시안 F). 휴대폰은 사진 아래쪽, PC는 왼쪽에 글 */}
-        <PhotoHero photo={photoHero} position={{ phone: "50% 62%", pc: "50% 56%" }}>
+        {/* 1. 첫 화면: PC는 어두운 케이크 사진 + 흰 글자(시안 F), 휴대폰은 딸기 생크림 사진(PHONE_HERO) */}
+        <PhotoHero photo={photoHero} position="50% 56%" phone={PHONE_HERO}>
           <HeroTitle eyebrow="주문제작 케이크 가게 사장님께">
             사진으로 묻는 손님께
             <br />
@@ -358,9 +355,8 @@ export default function SellerAboutPage() {
             <PrimaryLink id={HERO_CTA_ID} href={SELLER_SIGNUP_URL}>
               입점 신청하기
             </PrimaryLink>
-            <GhostLink href={KAKAO_CHANNEL_CHAT_URL} external>
-              카카오톡으로 물어보기
-            </GhostLink>
+            {/* 맨 아래 마무리 칸과 같은 노랑 카카오 버튼(운영자 2026-11-21) */}
+            <KakaoLink href={KAKAO_CHANNEL_CHAT_URL}>카카오톡으로 물어보기</KakaoLink>
           </div>
         </PhotoHero>
 
