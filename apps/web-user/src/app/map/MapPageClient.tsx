@@ -190,6 +190,8 @@ export default function MapPageClient() {
   // 현재위치 마커 그림(방향 5° 단위로 한 번씩 만들어 다시 씀, 방향 없음은 "none")
   const userLocationMarkerImagesRef = useRef<Map<number | "none", any>>(new Map());
   const headingRef = useRef<number | null>(null);
+  /** 지금 점 그림에 그린 방향 칸(5° 단위) — 같은 칸이면 그림을 바꾸지 않는다 */
+  const headingBucketShownRef = useRef<number | null>(null);
   const userLocationRef = useRef<{ latitude: number; longitude: number } | null>(null); // load 콜백에서 최신 위치 참조용
   const searchQueryRef = useRef<string | null>(searchQuery);
   const pickupFilterRef = useRef<MapPickupFilter | null>(pickupFilter);
@@ -482,6 +484,7 @@ export default function MapPageClient() {
       }
       const position = new window.kakao.maps.LatLng(location.latitude, location.longitude);
       const image = userLocationMarkerImage(headingRef.current);
+      headingBucketShownRef.current = headingBucket(headingRef.current);
       if (userLocationMarkerRef.current) {
         userLocationMarkerRef.current.setPosition(position);
         userLocationMarkerRef.current.setImage(image);
@@ -906,15 +909,24 @@ export default function MapPageClient() {
     updateUserLocationMarker(userLocation ?? null);
   }, [userLocation, updateUserLocationMarker, mapReady]);
 
-  // 휴대폰이 향한 방향: 점 바깥 작은 삼각형(운영자 2026-11-21 H3). 나침반이 없거나 아이폰에서 아직 허용 전이면 점만
-  const { heading, requestPermission: requestHeadingPermission } = useDeviceHeading(
-    mapReady && userLocation != null,
+  // 휴대폰이 향한 방향: 점 바깥 작은 삼각형(운영자 2026-11-21 H3). 나침반이 없거나 아이폰에서 아직 허용 전이면 점만.
+  // 방향은 화면을 다시 그리지 않고 점 그림만 바꾼다(그림이 5° 단위라 같은 칸이면 그대로, 지도를 만지는 중이면 미룸)
+  const handleHeading = useCallback(
+    (deg: number) => {
+      headingRef.current = deg;
+      if (isUserInteractingRef.current) return;
+      const bucket = headingBucket(deg);
+      if (bucket === headingBucketShownRef.current) return;
+      if (!window.kakao?.maps || !userLocationMarkerRef.current) return;
+      headingBucketShownRef.current = bucket;
+      userLocationMarkerRef.current.setImage(userLocationMarkerImage(deg));
+    },
+    [userLocationMarkerImage],
   );
-  useEffect(() => {
-    headingRef.current = heading;
-    if (!window.kakao?.maps || !userLocationMarkerRef.current) return;
-    userLocationMarkerRef.current.setImage(userLocationMarkerImage(heading));
-  }, [heading, userLocationMarkerImage]);
+  const { requestPermission: requestHeadingPermission } = useDeviceHeading(
+    mapReady && userLocation != null,
+    handleHeading,
+  );
 
   // 플랫폼 스토어 전체 조회 (React Query 캐시 — 지도 탭 재진입 시 캐시로 즉시 마커 표시, stale이면 백그라운드 갱신)
   const { data: platformStores } = useMapPlatformStores({ listFilter, pickupFilter });
