@@ -75,6 +75,8 @@ export const metadata: Metadata = {
   },
 
   applicationName: SITE_NAME,
+  // 아이폰 "홈 화면에 추가" 이름. 없으면 <title> 전체("픽케이크 - 주문제작…")가 잘려 들어간다. 손님 앱 이름과 같게
+  appleWebApp: { title: SITE_NAME },
   category: "Food & Dining",
   referrer: "origin-when-cross-origin",
   // 네이버 서치어드바이저 사이트 소유 확인(picakes.com). 공개해도 되는 값이고, 지우면 네이버 등록이 풀린다.

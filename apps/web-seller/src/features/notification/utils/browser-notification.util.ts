@@ -5,6 +5,8 @@
  * 화면을 보고 있으면 화면 안 위쪽 안내 띠로 충분해서 띄우지 않는다. 휴대폰 앱은 휴대폰 알림(FCM)이 있어 쓰지 않는다.
  * 켜고 끄기는 이 기기(브라우저)에만 둔다 — 허용도 브라우저마다 따로 받기 때문이다.
  */
+import appIconUrl from "@/apps/web-seller/assets/images/apple-touch-icon.png";
+
 const STORAGE_KEY = "picake:seller-browser-notify";
 
 export type BrowserNotifyPermission = NotificationPermission | "unsupported";
@@ -86,7 +88,9 @@ export function showBrowserNotification({
     const n = new window.Notification(title, {
       body,
       tag,
-      icon: "/favicon.ico",
+      // 사장님 앱과 같은 주황 아이콘(180px). 파일은 빌드 때 해시 주소가 되니 글자 주소("/favicon.ico")로 부르지 않는다 —
+      // 사장님 웹엔 public 폴더가 없어 그 주소는 HTML을 준다(2026-11-21까지 알림에 아이콘이 안 나옴)
+      icon: appIconUrl,
       renotify: true,
     } as NotificationOptions);
     n.onclick = () => {
