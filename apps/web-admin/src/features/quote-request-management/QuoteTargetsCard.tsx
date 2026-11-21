@@ -46,7 +46,7 @@ function kakaoPlaceIdFrom(url: string): string | undefined {
 function contactText(req: AdminQuoteDetailDtoLike, linkUrl: string): string {
   const area = req.areaName ? `${req.areaName} 근처 ` : "";
   return [
-    "사장님, 안녕하세요. 케이크 주문 앱 Picake예요.",
+    "사장님, 안녕하세요. 케이크 주문 앱 픽케이크예요.",
     `${area}손님이 케이크 견적을 받고 싶어 해요.`,
     `· 픽업: ${req.summary.pickup}`,
     `· 케이크: ${req.summary.cake}`,
