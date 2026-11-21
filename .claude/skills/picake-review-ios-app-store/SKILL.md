@@ -13,7 +13,7 @@ description: 손님·사장님 앱 스토어 심사 준비·반려 대응, 심�
 
 > **비밀번호·개인 연락처를 이 문서에 적지 마세요.** 이 레포는 공개 레포입니다. 2026-11-05에 §3-2의 구글 데모 계정 비밀번호와 운영자 개인 번호를 지웠습니다. git 기록에는 남아 있으므로 그 계정 비밀번호는 바꿔야 합니다.
 
-Picake web-user는 겉면만 앱 껍데기로 감싼 **웹뷰 앱**입니다 — 로그인부터 주문·결제까지 대부분의 로직이 `apps/web-user`(Next.js)와 `apps/backend`에 있고, 네이티브 쪽(앱 레포)은 스플래시, FCM 푸시 토큰, 위치 브릿지(`window.mylocation`), 딥링크 스킴 처리 정도만 담당합니다(`apps/web-user/src/common/utils/webview.bridge.ts` 참고). 이 구조 자체가 Apple 심사에서 반복적으로 걸리는 지점이므로, **반려 메일을 받으면 먼저 이 문서에서 해당 가이드라인 번호를 찾아 이미 구현된 대응이 있는지 확인하고, 없는 부분만 새로 작업하세요.**
+Picake web-user는 겉면만 앱 껍데기로 감싼 **웹뷰 앱**입니다 — 로그인부터 주문·결제까지 대부분의 로직이 `apps/web-user`(Next.js)와 `apps/backend`에 있고, 네이티브 쪽(앱 레포)은 스플래시, FCM 푸시 토큰, 위치, 바깥 링크 열기, 딥링크 스킴 처리 정도만 담당합니다(웹과는 앱이 넣는 `window.PicakeApp`으로 주고받음, `apps/web-user/src/common/utils/webview.bridge.ts` 참고). 이 구조 자체가 Apple 심사에서 반복적으로 걸리는 지점이므로, **반려 메일을 받으면 먼저 이 문서에서 해당 가이드라인 번호를 찾아 이미 구현된 대응이 있는지 확인하고, 없는 부분만 새로 작업하세요.**
 
 ## 0. 이 저장소에서 할 수 있는 일 vs 없는 일
 
@@ -30,7 +30,7 @@ Picake web-user는 겉면만 앱 껍데기로 감싼 **웹뷰 앱**입니다 —
 
 웹뷰 비중이 높은 앱에서 가장 흔한 반려 사유입니다. 이 앱이 단순 웹사이트 래핑이 아니라는 근거로 심사노트·질의응답에 쓸 수 있는 사실:
 
-- 네이티브 브릿지로 OS 기능을 실제로 사용: FCM 푸시 토큰 등록/해제(`requestFcmTokenUpsert`/`requestFcmTokenRemove`), 위치 정보 요청(`requestLocationFromWebView`, 지도·거리순 검색 결과를 열 때 한 번 — 2026-11-16부터 앱 진입 때는 묻지 않음, `useLocationWhenNeeded`), OS 설정 화면 열기(`requestOpenAppSettings`) — 전부 `webview.bridge.ts`.
+- 네이티브 기능(`window.PicakeApp`)으로 OS 기능을 실제로 사용: FCM 푸시 토큰 등록/해제(`getPushToken`·`getDeviceId` → `registerPushDevice`/`unregisterPushDevice`), 위치 정보 요청(`getLocation` → `requestLocationFromApp`, 지도·거리순 검색 결과를 열 때 한 번 — 2026-11-16부터 앱 진입 때는 묻지 않음, `useLocationWhenNeeded`), OS 설정 화면 열기(`openSettings` → `openAppSettings`), 바깥 앱 열기(`openExternal`) — 웹 쪽은 전부 `webview.bridge.ts`. 2026-11-21에 Flutter 때 채널(`requestFcmTokenUpsert` 등)에서 바꿨습니다.
 - 커스텀 URL 스킴(`picake://`)으로 카카오 알림톡 등 외부에서 앱을 직접 열 수 있음 ([[picake-link-app-deep-links]] skill).
 - 콘텐츠가 100% 웹 렌더링이 아니라 위치 기반 필터링, FCM 실시간 알림 등 디바이스 상태에 반응하는 기능이 있음.
 - **반려 근거로 계속 쓰였다면**: 웹뷰 비중을 줄이라는 요구일 수 있으므로, 반려 메일의 정확한 문구를 사용자에게 받아 어떤 하위 사유(4.2.1 기능 없음 / 4.2.2 사업성 등)인지 먼저 특정하세요 — 뭉뚱그려 "웹뷰라서"로 판단하지 않습니다.

@@ -6,12 +6,12 @@ Picake(디저트 주문 플랫폼)의 웹 프론트엔드(`web-user`, `web-selle
 
 Picake 개발 코드는 아래 레포들로 나뉘어 있습니다.
 
-| 레포                                                                                       | 내용                                                                                                                                  |
-| ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
-| **[picake-engineering-web](https://github.com/picake-team/picake-engineering-web)** (현재) | 웹 프론트엔드 (`web-user`, `web-seller`, `web-admin`, `web-info`)                                                                     |
-| [picake-engineering-backend](https://github.com/picake-team/picake-engineering-backend)    | 백엔드 API 서버 (NestJS, EC2 배포)                                                                                                    |
-| [picake-engineering-app](https://github.com/picake-team/picake-engineering-app)            | 손님·사장님 앱 (웹을 담는 앱 껍데기, 2026-11-13 Flutter → Capacitor로 옮기는 중). 웹–앱 약속 정본은 그 레포 `docs/bridge-contract.md` |
-| picake-hq (비공개)                                                                         | 회사 운영·운영 자동화 (브리핑, 주간 회의, 데이터·인프라 점검)                                                                         |
+| 레포                                                                                       | 내용                                                                                                                                                                                       |
+| ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **[picake-engineering-web](https://github.com/picake-team/picake-engineering-web)** (현재) | 웹 프론트엔드 (`web-user`, `web-seller`, `web-admin`, `web-info`)                                                                                                                          |
+| [picake-engineering-backend](https://github.com/picake-team/picake-engineering-backend)    | 백엔드 API 서버 (NestJS, EC2 배포)                                                                                                                                                         |
+| [picake-engineering-app](https://github.com/picake-team/picake-engineering-app)            | 손님·사장님 앱 (웹을 담는 앱 껍데기, Capacitor — 2026-11-13 Flutter에서 옮김, 예전 앱 호환은 2026-11-21에 걷어냄). 웹–앱 약속(`window.PicakeApp`) 정본은 그 레포 `docs/bridge-contract.md` |
+| picake-hq (비공개)                                                                         | 회사 운영·운영 자동화 (브리핑, 주간 회의, 데이터·인프라 점검)                                                                                                                              |
 
 ## 🚀 시작하기
 

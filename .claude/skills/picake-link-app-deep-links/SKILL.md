@@ -44,7 +44,7 @@ description: 링크가 iOS·안드로이드 앱으로 바로 열리게(Universal
 - `app/quote/[requestId]/layout.tsx` — `/quote/:requestId`(견적 알림톡 [견적 보기]·[요청 보기], 2026-11-11). 요청서 쓰기 `/quote/new`·보낸 뒤 `/quote/sent`에는 달지 않음
 - `app/chat/[threadId]/layout.tsx` — `/chat/:threadId`(채팅 알림톡 [답변 보기], 2026-11-14). 목록 `/chat`·가게에서 문의 시작 `/chat/store/:storeId`에는 달지 않음
 
-이미 손님 앱(웹뷰) 안이면 넘기지 않습니다(`isWebViewEnvironment()`, 앱이 넣는 `window.mylocation`으로 판단, 2026-11-11). 앱 웹뷰 UA에도 iPhone이 들어 있어 막지 않으면 앱 안에서 같은 화면을 다시 `picake://`로 열려고 합니다.
+이미 손님 앱(웹뷰) 안이면 넘기지 않습니다(`isWebViewEnvironment()`, 앱이 넣는 `window.PicakeApp`으로 판단. 2026-11-11에 넣었고 2026-11-21에 Flutter 때 `window.mylocation`에서 바꿈). 앱 웹뷰 UA에도 iPhone이 들어 있어 막지 않으면 앱 안에서 같은 화면을 다시 `picake://`로 열려고 합니다.
 
 **iOS/Android가 근본적으로 다른 점(재활성화 시 참고)**:
 
