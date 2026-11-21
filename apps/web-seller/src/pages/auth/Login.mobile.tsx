@@ -67,40 +67,39 @@ export const LoginMobilePage: React.FC = () => {
             "mx-auto flex min-h-dvh w-full max-w-narrow flex-col justify-center bg-white px-5 py-12 font-app text-ink-900"
           : cx(
               APP_COLUMN_CLASS,
-              "flex min-h-dvh flex-col bg-white px-5 pt-[calc(env(safe-area-inset-top)+48px)] font-app text-ink-900",
+              "flex min-h-dvh flex-col bg-white px-5 pt-[env(safe-area-inset-top)] font-app text-ink-900",
             ),
       )}
     >
-      {/* PC는 로고·문장을 가운데에(운영자 결정 2026-11-20) */}
-      <div className={cx("flex flex-col gap-3", wide && "items-center text-center")}>
-        {/* 빠르게 눌러도 확대되지 않게(touch-manipulation), 누른 표시 없이 */}
+      {/* 로고 + "픽케이크 사장님"을 가운데 크게(운영자 2026-11-21 시안 C — 요기요·땡겨요 사장님처럼, 손님 앱과 구분).
+          휴대폰은 남는 높이의 가운데, PC는 버튼 위에 */}
+      <div
+        className={cx(
+          "flex flex-col items-center gap-2.5 text-center",
+          wide ? "" : "flex-1 justify-center pb-8",
+        )}
+      >
+        {/* 빠르게 눌러도 확대되지 않게(touch-manipulation), 누른 표시 없이. 10번 누르면 심사용 로그인 */}
         <button
           type="button"
           onClick={onLogoTap}
-          className={cx(
-            "mb-2 size-16 touch-manipulation select-none [-webkit-tap-highlight-color:transparent]",
-            wide ? "self-center" : "self-start",
-          )}
+          className="mb-1 size-[84px] touch-manipulation select-none [-webkit-tap-highlight-color:transparent]"
         >
           <img
             src={logoUrl}
             alt="Picake"
-            width={64}
-            height={64}
-            className="size-16"
+            width={84}
+            height={84}
+            className="size-[84px]"
             draggable={false}
           />
         </button>
-        <h1 className="text-title font-bold">
-          새 예약을
-          <br />
-          휴대폰으로 바로
-          <br />
-          받아 보세요
+        <h1 className="text-number font-extrabold tracking-[-0.03em]">
+          픽케이크 <span className="text-brand">사장님</span>
         </h1>
-        <p className="text-sub text-ink-600">픽케이크 사장님</p>
+        <p className="text-body text-ink-600">새 예약을 휴대폰으로 바로 받아 보세요</p>
       </div>
-      <div className={wide ? "h-10" : "flex-1"} />
+      {wide ? <div className="h-10" /> : null}
       <div className="flex flex-col gap-3" role="group" aria-label="로그인">
         <a href={kakaoAuthorizeUrl()} className={cx(BTN, "bg-kakao text-ink-900")}>
           <img src={kakaoIcon} alt="" width={20} height={20} className={SOCIAL_LOGIN_ICON_CLASS} />
