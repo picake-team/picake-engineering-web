@@ -16,8 +16,12 @@ function orientationEventClass(): PermissionRequestableOrientation | undefined {
     .DeviceOrientationEvent;
 }
 
-/** 아이폰(사파리·앱 웹뷰)은 방향을 읽기 전에 허용을 받아야 한다 */
+/**
+ * 아이폰(사파리·앱 웹뷰)은 방향을 읽기 전에 허용을 받아야 한다. 안드로이드 크롬·웹뷰도 요즘 `requestPermission`이 있지만
+ * 허용 없이 `deviceorientationabsolute`가 온다 — 절대 방향 신호가 있으면 기다리지 않는다(2026-11-21 에뮬레이터 앱에서 확인)
+ */
 function needsPermission(): boolean {
+  if (typeof window !== "undefined" && "ondeviceorientationabsolute" in window) return false;
   return typeof orientationEventClass()?.requestPermission === "function";
 }
 
@@ -84,7 +88,7 @@ export function useDeviceHeading(active: boolean) {
   /** 아이폰: 버튼을 누른 그 순간에 부른다(허용 창). 필요 없거나 이미 허용됐으면 그대로 */
   const requestPermission = useCallback(() => {
     const OrientationEvent = orientationEventClass();
-    if (typeof OrientationEvent?.requestPermission !== "function") {
+    if (!needsPermission() || typeof OrientationEvent?.requestPermission !== "function") {
       setAllowed(true);
       return;
     }
