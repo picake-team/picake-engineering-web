@@ -14,6 +14,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { BottomNav } from "@/apps/web-user/common/components/navigation/BottomNav";
 import { useLocationWhenNeeded } from "@/apps/web-user/common/hooks/useLocationWhenNeeded";
 import { useUserLocation } from "@/apps/web-user/common/hooks/useUserLocation";
+import { useDeviceHeading } from "@/apps/web-user/common/hooks/useDeviceHeading";
+import {
+  USER_LOCATION_MARKER_SIZE,
+  headingBucket,
+  userLocationMarkerSrc,
+} from "@/apps/web-user/features/store/utils/user-location-marker.util";
 import { Icon } from "@/apps/web-user/common/components/icons";
 import { storeApi } from "@/apps/web-user/features/store/apis/store.api";
 import {
@@ -93,6 +99,10 @@ export default function MapPageClient() {
 
   const [kakaoLoaded, setKakaoLoaded] = useState(false);
   const [mapReady, setMapReady] = useState(false);
+  /** 지도가 내 위치를 보고 있는지(내 위치 버튼 파랑). 손으로 지도를 옮기면 회색 */
+  const [followingUser, setFollowingUser] = useState(false);
+  /** "내 위치" 버튼으로 새 위치를 받는 중(버튼 아이콘이 돈다) */
+  const [locatingUser, setLocatingUser] = useState(false);
   const [selectedStore, setSelectedStore] = useState<StoreInfo | null>(null);
   const [selectedUnenteredStore, setSelectedUnenteredStore] = useState<MapUnenteredStore | null>(
     null,
@@ -177,7 +187,9 @@ export default function MapPageClient() {
   const isCenteringFromClickRef = useRef(false); // 마커 클릭으로 panTo 한 직후 idle에서 재처리 방지
   const usedUserLocationForCenterRef = useRef(false); // 이미 현재위치로 중심 잡았는지
   const userLocationMarkerRef = useRef<any | null>(null); // 현재위치(파란 점) 마커
-  const userLocationMarkerImageRef = useRef<any | null>(null); // 현재위치 마커 이미지(1회 생성 후 재사용)
+  // 현재위치 마커 그림(방향 5° 단위로 한 번씩 만들어 다시 씀, 방향 없음은 "none")
+  const userLocationMarkerImagesRef = useRef<Map<number | "none", any>>(new Map());
+  const headingRef = useRef<number | null>(null);
   const userLocationRef = useRef<{ latitude: number; longitude: number } | null>(null); // load 콜백에서 최신 위치 참조용
   const searchQueryRef = useRef<string | null>(searchQuery);
   const pickupFilterRef = useRef<MapPickupFilter | null>(pickupFilter);
@@ -434,6 +446,29 @@ export default function MapPageClient() {
    * CustomOverlay(HTML img)는 지도 생성 직후·panTo 도중 렌더되지 않는 카카오 타이밍 이슈가 있어
    * 스토어 마커와 동일하게 Marker + MarkerImage로 그린다.
    */
+  /** 현재위치 점 그림(작은 점 + 방향이면 바깥 작은 삼각형). 방향 5° 단위로 한 번 만들어 다시 쓴다 */
+  const userLocationMarkerImage = useCallback((heading: number | null) => {
+    const bucket = headingBucket(heading);
+    const key = bucket ?? "none";
+    const cache = userLocationMarkerImagesRef.current;
+    let image = cache.get(key);
+    if (!image) {
+      image = new window.kakao.maps.MarkerImage(
+        userLocationMarkerSrc(bucket),
+        new window.kakao.maps.Size(USER_LOCATION_MARKER_SIZE, USER_LOCATION_MARKER_SIZE),
+        // 좌표가 점 중앙에 오도록
+        {
+          offset: new window.kakao.maps.Point(
+            USER_LOCATION_MARKER_SIZE / 2,
+            USER_LOCATION_MARKER_SIZE / 2,
+          ),
+        },
+      );
+      cache.set(key, image);
+    }
+    return image;
+  }, []);
+
   const updateUserLocationMarker = useCallback(
     (location: { latitude: number; longitude: number } | null) => {
       const map = mapInstanceRef.current;
@@ -446,27 +481,22 @@ export default function MapPageClient() {
         return;
       }
       const position = new window.kakao.maps.LatLng(location.latitude, location.longitude);
-      if (!userLocationMarkerImageRef.current) {
-        userLocationMarkerImageRef.current = new window.kakao.maps.MarkerImage(
-          "/images/contents/map-current-position.png",
-          new window.kakao.maps.Size(34, 34),
-          { offset: new window.kakao.maps.Point(17, 17) }, // 좌표가 점 중앙에 오도록
-        );
-      }
+      const image = userLocationMarkerImage(headingRef.current);
       if (userLocationMarkerRef.current) {
         userLocationMarkerRef.current.setPosition(position);
+        userLocationMarkerRef.current.setImage(image);
         userLocationMarkerRef.current.setMap(map);
       } else {
         userLocationMarkerRef.current = new window.kakao.maps.Marker({
           map,
           position,
-          image: userLocationMarkerImageRef.current,
+          image,
           clickable: false,
           zIndex: 1, // 스토어 마커 위에 항상 보이도록
         });
       }
     },
-    [],
+    [userLocationMarkerImage],
   );
 
   /** 미입점 검색 결과를 기억해 둔다. 다시 본 곳은 최근으로 옮기고, 넘치면 오래된 것부터 지운다 */
@@ -685,6 +715,7 @@ export default function MapPageClient() {
   const getInitialCenter = useCallback((): { lat: number; lng: number } => {
     if (userLocation) {
       usedUserLocationForCenterRef.current = true;
+      setFollowingUser(true);
       return { lat: userLocation.latitude, lng: userLocation.longitude };
     }
     return DEFAULT_MAP_CENTER;
@@ -726,6 +757,9 @@ export default function MapPageClient() {
         window.kakao.maps.event.addListener(map, "dragstart", () => {
           lastMapGestureRef.current = "drag";
           isUserInteractingRef.current = true;
+          // 손으로 옮기면 내 위치를 보고 있지 않음(버튼 회색). 받는 중인 새 위치로 다시 끌고 가지 않는다
+          setFollowingUser(false);
+          usedUserLocationForCenterRef.current = true;
         });
         window.kakao.maps.event.addListener(map, "dragend", () => {
           isUserInteractingRef.current = false;
@@ -829,19 +863,14 @@ export default function MapPageClient() {
     initializeMap(getInitialCenter(), Boolean(searchQuery || pickupFilter));
   }, [kakaoLoaded, userLocation, searchQuery, pickupFilter, getInitialCenter, initializeMap]);
 
-  // 검색 모드가 아닐 때만: 현재위치 획득 시 지도 중심을 현재위치로 이동 (검색 후 덮어쓰기 방지)
-  useEffect(() => {
-    if (
-      searchQuery ||
-      !userLocation ||
-      !mapInstanceRef.current ||
-      usedUserLocationForCenterRef.current
-    )
-      return;
-    const map = mapInstanceRef.current;
-    if (map.panTo) {
+  /** 지도 중심을 내 위치로 옮기고 그 자리 가게를 다시 찾는다(검색·픽업 거르기 중이면 찾지 않음) */
+  const centerMapOnUser = useCallback(
+    (location: { latitude: number; longitude: number }) => {
+      const map = mapInstanceRef.current;
+      if (!map?.panTo) return;
       isCenteringFromClickRef.current = true;
-      map.panTo(new window.kakao.maps.LatLng(userLocation.latitude, userLocation.longitude));
+      map.panTo(new window.kakao.maps.LatLng(location.latitude, location.longitude));
+      setFollowingUser(true);
       if (
         searchStoresRef.current === null &&
         !searchQueryRef.current &&
@@ -858,15 +887,34 @@ export default function MapPageClient() {
         });
         lastMapGestureRef.current = null;
       }
-    }
+    },
+    [searchPlaces, getStoresForList],
+  );
+
+  // 현재위치를 새로 받으면 지도 중심을 옮긴다: 처음 들어올 때(검색 모드가 아닐 때만 — 검색 후 덮어쓰기 방지),
+  // "내 위치" 버튼으로 새 위치를 받았을 때(손으로 지도를 옮기지 않았으면)
+  useEffect(() => {
+    if (!userLocation || !mapInstanceRef.current || usedUserLocationForCenterRef.current) return;
+    if (searchQuery && lastMapGestureRef.current !== "current_location") return;
+    centerMapOnUser(userLocation);
     usedUserLocationForCenterRef.current = true;
-  }, [userLocation, searchQuery, pickupFilter, searchPlaces, getStoresForList]);
+  }, [userLocation, searchQuery, pickupFilter, centerMapOnUser]);
 
   // 현재위치 변경 또는 지도 준비 완료 시 현재위치 마커(점) 갱신
   useEffect(() => {
     if (!mapReady || !mapInstanceRef.current) return;
     updateUserLocationMarker(userLocation ?? null);
   }, [userLocation, updateUserLocationMarker, mapReady]);
+
+  // 휴대폰이 향한 방향: 점 바깥 작은 삼각형(운영자 2026-11-21 H3). 나침반이 없거나 아이폰에서 아직 허용 전이면 점만
+  const { heading, requestPermission: requestHeadingPermission } = useDeviceHeading(
+    mapReady && userLocation != null,
+  );
+  useEffect(() => {
+    headingRef.current = heading;
+    if (!window.kakao?.maps || !userLocationMarkerRef.current) return;
+    userLocationMarkerRef.current.setImage(userLocationMarkerImage(heading));
+  }, [heading, userLocationMarkerImage]);
 
   // 플랫폼 스토어 전체 조회 (React Query 캐시 — 지도 탭 재진입 시 캐시로 즉시 마커 표시, stale이면 백그라운드 갱신)
   const { data: platformStores } = useMapPlatformStores({ listFilter, pickupFilter });
@@ -1025,12 +1073,22 @@ export default function MapPageClient() {
   }, [pickupFilter, getStoresForList, setListSheetStores]);
 
   // ---- Handlers ----
-  /** 내 위치 버튼: 현재위치 재요청 후 다음 effect에서 지도 중심 이동 */
+  /**
+   * 내 위치 버튼: 알고 있던 위치로 바로 옮기고(새 위치를 기다리지 않음), 새 위치를 받아 오면 한 번 더 맞춘다.
+   * 전에는 새 위치를 받은 뒤에야 움직여 몇 초 걸렸고, 받은 위치가 같으면 아예 움직이지 않았다(2026-11-21 운영자).
+   */
   const handleRefreshLocation = () => {
     trackEvent("engage_current_location");
+    // 아이폰: 방향 허용 창은 누르는 순간에만 띄울 수 있다
+    requestHeadingPermission();
     lastMapGestureRef.current = "current_location";
+    const known = userLocationRef.current;
+    if (known) centerMapOnUser(known);
+    // 새 위치가 오면 effect가 한 번 더 맞춘다(그 사이 손으로 옮기면 dragstart가 막음). 알던 위치가 없었으면
+    // 그때 처음 옮기며 "다시 찾기 완료" 이벤트를 보낸다(있었으면 위에서 이미 보냄 — 두 번 보내지 않음)
     usedUserLocationForCenterRef.current = false;
-    refreshUserLocation();
+    setLocatingUser(true);
+    void refreshUserLocation().finally(() => setLocatingUser(false));
   };
 
   const handleListSheetTouchStart = (e: React.TouchEvent) => {
@@ -1117,8 +1175,30 @@ export default function MapPageClient() {
         className="absolute right-[15px] bottom-32 z-10 flex h-10 w-10 items-center justify-center rounded-[26px] border border-gray-100 bg-white p-2.5"
         style={{ boxShadow: "0px 2px 10px 0px #0000000A" }}
         aria-label="내 위치로 이동"
+        aria-busy={locatingUser || undefined}
       >
-        <Icon name="currentLocation" width={20} height={20} className="text-blue-400" />
+        {locatingUser ? (
+          <svg
+            width={20}
+            height={20}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            className="animate-spin text-blue-400 motion-reduce:animate-none"
+            aria-hidden
+          >
+            <circle cx="12" cy="12" r="8" strokeOpacity={0.25} />
+            <path d="M12 4a8 8 0 0 1 8 8" strokeLinecap="round" />
+          </svg>
+        ) : (
+          <Icon
+            name="currentLocation"
+            width={20}
+            height={20}
+            className={followingUser ? "text-blue-400" : "text-gray-400"}
+          />
+        )}
       </button>
 
       <button

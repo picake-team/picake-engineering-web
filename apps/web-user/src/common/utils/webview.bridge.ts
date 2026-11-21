@@ -279,6 +279,8 @@ export function useWebViewBridge() {
         (error) => {
           console.error("브라우저 위치 정보 요청 실패:", error.message);
         },
+        // 들어올 때는 빨리 점을 그리는 게 먼저 — 5분 안에 받은 위치가 있으면 그것을(지도 "내 위치"는 새로 받는다)
+        { maximumAge: 5 * 60 * 1000, timeout: 10000 },
       );
     });
   }, [setLocation, setAddress]);
