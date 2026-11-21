@@ -10,7 +10,7 @@ import { ListRowLink } from "@/apps/web-seller/common/ui/List";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
 import { SUPPORT_KAKAO_CHAT_URL } from "@/apps/web-seller/common/constants/customer-web.constant";
-import { externalHref } from "@/apps/web-seller/common/utils/webview.bridge";
+import { externalLinkProps } from "@/apps/web-seller/common/utils/app-actions.util";
 
 export const StoreSettingsMobilePage: React.FC = () => {
   const { storeId = "" } = useParams<{ storeId: string }>();
@@ -30,7 +30,7 @@ export const StoreSettingsMobilePage: React.FC = () => {
           divider={false}
         />
         <a
-          href={externalHref(SUPPORT_KAKAO_CHAT_URL)}
+          {...externalLinkProps(SUPPORT_KAKAO_CHAT_URL)}
           target="_blank"
           rel="noopener noreferrer"
           className="flex min-h-13 w-full items-center gap-3 py-2 active:bg-ink-50"

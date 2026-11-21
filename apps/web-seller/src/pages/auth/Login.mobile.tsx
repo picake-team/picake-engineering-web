@@ -26,7 +26,8 @@ import {
 import { NaverLogoIcon } from "@/apps/web-seller/common/components/icons/NaverLogoIcon";
 import { ReviewLoginSheet } from "@/apps/web-seller/features/auth/components/mobile/ReviewLoginSheet";
 import { SELLER_INTRO_URL } from "@/apps/web-seller/common/constants/seller-intro.constant";
-import { externalHref, isSellerAppWebView } from "@/apps/web-seller/common/utils/webview.bridge";
+import { isSellerAppWebView } from "@/apps/web-seller/common/utils/webview.bridge";
+import { externalLinkProps } from "@/apps/web-seller/common/utils/app-actions.util";
 import { useShowMobileScreens } from "@/apps/web-seller/common/hooks/useShowMobileScreens";
 import { BusinessInfoLines } from "@/apps/web-seller/features/auth/components/BusinessInfoLines";
 import { RecentLoginBubble } from "@/apps/web-seller/features/auth/components/RecentLoginBubble";
@@ -136,7 +137,7 @@ export const LoginMobilePage: React.FC = () => {
         {/* 처음 온 사장님이 무엇인지 볼 곳(기획 I-49). 글자는 "처음이세요?"만(운영자 11-14), 화면 읽기에는 가는 곳을 말한다.
             앱 안에서는 휴대폰 브라우저로 연다(앱 안에서 열면 돌아올 길이 없어서) */}
         <a
-          href={externalHref(SELLER_INTRO_URL)}
+          {...externalLinkProps(SELLER_INTRO_URL)}
           target="_blank"
           rel="noopener noreferrer"
           aria-label="처음이세요? 픽케이크 사장님 소개 보기"

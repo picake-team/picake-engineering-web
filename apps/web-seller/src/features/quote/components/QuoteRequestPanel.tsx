@@ -17,11 +17,8 @@ import { dataUrlToFile, shrinkPhoto } from "@/apps/web-seller/features/chat/hook
 import { quoteApi } from "@/apps/web-seller/features/quote/apis/quote.api";
 import { CHAT_NO_REPLAY } from "@/apps/web-seller/features/chat/constants/chat.constants";
 import { trackSellerEvent } from "@/apps/web-seller/common/utils/analytics.util";
-import {
-  isSellerAppWebView,
-  saveImageToDevice,
-  sellerSurface,
-} from "@/apps/web-seller/common/utils/webview.bridge";
+import { sellerSurface } from "@/apps/web-seller/common/utils/webview.bridge";
+import { phoneImageSaver } from "@/apps/web-seller/common/utils/app-actions.util";
 import { ImageLightbox } from "@/apps/web-seller/common/components/images/ImageLightbox";
 import { PHONE_MAX_WIDTH_PX } from "@/apps/web-seller/common/constants/screen.constant";
 
@@ -539,7 +536,7 @@ export function QuoteRequestPanel({ storeId, requestId }: { storeId: string; req
             initialIndex={viewer}
             alt="참고 사진"
             onClose={() => setViewer(null)}
-            onSave={isSellerAppWebView() ? (src) => saveImageToDevice(src) : undefined}
+            onSave={phoneImageSaver()}
           />
         </div>
       ) : null}

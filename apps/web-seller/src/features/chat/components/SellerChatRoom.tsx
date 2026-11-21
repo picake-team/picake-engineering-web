@@ -15,10 +15,7 @@ import { ListRowButton } from "@/apps/web-seller/common/ui/List";
 import { Field, TextArea } from "@/apps/web-seller/common/ui/Field";
 import { EmptyState, LoadErrorState } from "@/apps/web-seller/common/ui/Surface";
 import { ImageLightbox } from "@/apps/web-seller/common/components/images/ImageLightbox";
-import {
-  isSellerAppWebView,
-  saveImageToDevice,
-} from "@/apps/web-seller/common/utils/webview.bridge";
+import { phoneImageSaver } from "@/apps/web-seller/common/utils/app-actions.util";
 import { formatKstMonthDayWeek, kstTime } from "@/apps/web-seller/common/utils/kst-date.util";
 import { useAlertStore } from "@/apps/web-seller/common/store/alert.store";
 import getApiMessage from "@/apps/web-seller/common/utils/getApiMessage";
@@ -691,7 +688,7 @@ export function SellerChatRoom({
             initialIndex={viewer.index}
             alt="채팅 사진"
             onClose={() => setViewer(null)}
-            onSave={isSellerAppWebView() ? (src) => saveImageToDevice(src) : undefined}
+            onSave={phoneImageSaver()}
           />
         </div>
       ) : null}

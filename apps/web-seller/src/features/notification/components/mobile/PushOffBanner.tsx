@@ -7,11 +7,13 @@ import { Button } from "@/apps/web-seller/common/ui/Button";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
 import { RowIconBox } from "@/apps/web-seller/common/ui/List";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
-import { usePushPermissionStore } from "@/apps/web-seller/common/store/push-permission.store";
+import {
+  askPushPermission,
+  usePushPermissionStore,
+} from "@/apps/web-seller/common/store/push-permission.store";
 import {
   isSellerAppWebView,
-  openAppSettings,
-  requestPushPermission,
+  openNotificationSettings,
 } from "@/apps/web-seller/common/utils/webview.bridge";
 
 export function PushOffBanner({
@@ -30,8 +32,8 @@ export function PushOffBanner({
   if (!permissionOff && !settingOff) return null;
 
   const turnOn = () => {
-    if (status === "notDetermined") requestPushPermission();
-    else if (status === "denied") openAppSettings();
+    if (status === "notDetermined") void askPushPermission();
+    else if (status === "denied") void openNotificationSettings();
     else navigate(ROUTES.STORE_DETAIL_NOTIFICATIONS_SETTINGS(storeId));
   };
 
@@ -96,7 +98,9 @@ export function DevicePushStatusCard() {
         <Button
           size="md"
           className="shrink-0"
-          onClick={() => (status === "notDetermined" ? requestPushPermission() : openAppSettings())}
+          onClick={() =>
+            void (status === "notDetermined" ? askPushPermission() : openNotificationSettings())
+          }
         >
           켜기
         </Button>

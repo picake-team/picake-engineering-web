@@ -11,12 +11,12 @@ import { Icon } from "@/apps/web-seller/common/ui/icons";
 import { cx } from "@/apps/web-seller/common/ui/cx";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
 import { useAlertStore } from "@/apps/web-seller/common/store/alert.store";
-import { usePushPermissionStore } from "@/apps/web-seller/common/store/push-permission.store";
-import getApiMessage from "@/apps/web-seller/common/utils/getApiMessage";
 import {
-  isSellerAppWebView,
-  requestPushPermission,
-} from "@/apps/web-seller/common/utils/webview.bridge";
+  askPushPermission,
+  usePushPermissionStore,
+} from "@/apps/web-seller/common/store/push-permission.store";
+import getApiMessage from "@/apps/web-seller/common/utils/getApiMessage";
+import { isSellerAppWebView } from "@/apps/web-seller/common/utils/webview.bridge";
 import { sellerPushApi } from "@/apps/web-seller/features/notification/apis/notification.api";
 import { markWelcomeSeen } from "@/apps/web-seller/features/notification/utils/welcome.util";
 
@@ -109,7 +109,7 @@ export const StoreWelcomeMobilePage: React.FC = () => {
         </>
       ) : (
         <>
-          <Button block onClick={() => requestPushPermission()}>
+          <Button block onClick={() => void askPushPermission()}>
             알림 받기
           </Button>
           <Button variant="quiet" className="self-center" onClick={goHome}>
