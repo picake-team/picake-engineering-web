@@ -13,7 +13,8 @@ import { Icon } from "@/apps/web-seller/common/ui/icons";
 import { LoadErrorState } from "@/apps/web-seller/common/ui/Surface";
 import { useAlertStore } from "@/apps/web-seller/common/store/alert.store";
 import getApiMessage from "@/apps/web-seller/common/utils/getApiMessage";
-import { externalHref, isSellerAppWebView } from "@/apps/web-seller/common/utils/webview.bridge";
+import { appPlatform, isSellerAppWebView } from "@/apps/web-seller/common/utils/webview.bridge";
+import { openOutsideApp } from "@/apps/web-seller/common/utils/app-actions.util";
 import { copyText } from "@/apps/web-seller/common/utils/clipboard.util";
 import { manualOrderApi } from "@/apps/web-seller/features/manual-order/apis/manual-order.api";
 import { manualOrderQueryKeys } from "@/apps/web-seller/features/manual-order/constants/manualOrderQueryKeys.constant";
@@ -21,21 +22,23 @@ import type { CalendarFeedDto } from "@/apps/web-seller/features/manual-order/ty
 
 const API_DOMAIN = import.meta.env.VITE_PUBLIC_API_DOMAIN;
 
-/** 앱 안이면 앱이 휴대폰 캘린더·브라우저로 연다. 휴대폰 브라우저에서 구글 주소는 새 탭으로(판매자 화면을 떠나지 않게) */
+/** 앱 안이면 앱이 휴대폰 캘린더·브라우저로 연다(못 열면 주소 복사). 휴대폰 브라우저에서 구글 주소는 새 탭으로(판매자 화면을 떠나지 않게) */
 function openOutside(url: string) {
-  if (!isSellerAppWebView() && url.startsWith("https://")) {
+  if (isSellerAppWebView()) {
+    void openOutsideApp(url);
+    return;
+  }
+  if (url.startsWith("https://")) {
     window.open(url, "_blank", "noopener");
     return;
   }
-  window.location.href = externalHref(url);
+  window.location.href = url;
 }
 
 /** 안드로이드는 webcal 주소를 여는 앱이 없어 아이폰 줄을 숨긴다 */
 function isAndroid(): boolean {
   if (typeof window === "undefined") return false;
-  return (
-    window.PicakeSellerApp?.platform === "android" || /Android/i.test(window.navigator.userAgent)
-  );
+  return appPlatform() === "android" || /Android/i.test(window.navigator.userAgent);
 }
 
 export function CalendarExportSheet({

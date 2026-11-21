@@ -101,7 +101,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko">
+    // 앱(Capacitor)이 화면 여백 값(--safe-area-inset-*)을 hydration 전에 <html style>에 넣는다. 그 차이는 알리지 않는다
+    <html lang="ko" suppressHydrationWarning>
       <body>
         <ErrorBoundaryProvider>
           <PostHogProvider>

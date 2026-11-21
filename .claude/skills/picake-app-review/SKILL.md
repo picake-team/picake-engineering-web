@@ -26,7 +26,28 @@ description: 판매자 앱(휴대폰·PC)·손님 앱 화면 검토·다듬기(�
 - **손님 앱**: `apps/web-user`에서 `NEXT_PUBLIC_API_DOMAIN=http://localhost:3000 npx next dev -p 3001`(빌드 결과 `.next`가 있으면 먼저 지운다. 개발 서버를 켠 채 `next build`를 돌리면 `.next`를 덮어써 500이 난다). 로그인은 `localStorage["picake:auth"] = {state:{isAuthenticated:true, accessToken}, version:0}`에 테스트 DB 손님 토큰. 화면은 `#root-scroll-container` 안에서 스크롤한다. 개발 표시(`nextjs-portal`, TanStack 야자수 버튼 `.tsqd-parent-container`)가 누르기를 가리면 CSS로 숨긴다. Playwright `locator.click()`은 누르기 전에 스크롤을 옮기므로 스크롤 자리를 볼 때는 화면에 보이는 점을 `page.mouse.click`으로 누르고 `mouse.wheel`로 내린다. `packages/design-tokens`(색·겹침 순서·움직임 이름)를 바꾸면 켜 둔 개발 서버(손님·판매자 둘 다)는 새 이름을 만들지 못하니 다시 켠다(`z-modal`이 `auto`로 보임).
 
 - **토큰을 브라우저에 넣기**: Playwright 코드에서는 파일을 못 읽으므로, 토큰을 넣은 JS 파일을 `.playwright-mcp/`에 만들어 `browser_run_code_unsafe`의 `filename`으로 돌린다. 로그인 화면이 다 뜬 뒤 `localStorage.accessToken`에 넣는다(먼저 넣으면 첫 화면의 401이 지운다).
-- **앱 안처럼**: init script로 앱 채널을 흉내 낸다. 웹은 판매자 `window.requestFcmTokenUpsert`, 손님 `window.mylocation`이 있으면 앱으로 본다. 채널은 `{ postMessage(message) {} }` 객체이고, 알림 권한 요청(`requestPushPermission`·`getPushPermission`)에는 `receivePushPermission('granted')`로 답한다. 채널 목록은 앱 레포 `docs/bridge-contract.md`. 화면은 390×844.
+- **앱 안처럼**: init script(`page.addInitScript`)로 `window.PicakeApp`을 흉내 낸다. 두 웹 모두 이것이 있으면 앱으로 보고, 메서드는 모두 Promise로 답해야 한다. 아래 하나를 두 웹에 같이 써도 된다(판매자는 `share`·`saveImage`, 손님은 `getLocation`만 쓴다). `getPushToken`이 `null`이라 서버에 알림 토큰을 보내지 않는다. 처음 사용 안내를 보려면 허용 상태를 `"notDetermined"`, 홈 "휴대폰 알림이 꺼져 있어요"는 `"denied"`. 바깥 링크가 안 열릴 때 모양은 `openExternal`을 `Promise.reject(Object.assign(new Error(), { code: "unsupported" }))`로. 약속 정본은 앱 레포 `docs/bridge-contract.md` 1절. 화면은 390×844.
+
+  ```js
+  const ok = () => Promise.resolve();
+  window.PicakeApp = {
+    app: "seller", // 손님이면 "customer"
+    platform: "ios",
+    version: "1.0.0",
+    build: "1",
+    getDeviceId: () => Promise.resolve("review-device"),
+    getPushToken: () => Promise.resolve(null),
+    getPushPermission: () => Promise.resolve("granted"),
+    requestPushPermission: () => Promise.resolve("granted"),
+    openSettings: ok,
+    openExternal: ok,
+    on: () => () => {},
+    share: ok,
+    saveImage: ok,
+    getLocation: () => Promise.resolve({ latitude: 37.5665, longitude: 126.978 }),
+  };
+  ```
+
 - **상태별 주문**: 백엔드 `src/test/e2e/tmp-*.script.ts` 임시 시드(처음에 `assertTestDatabase()`, 끝나면 지움)로 상태 10가지 예시 주문을 넣는다. nest가 컴파일하는 중에는 만들지 않는다.
 - **서버 응답 흉내**: 실제로 못 만드는 화면(네이버 연결·사업자 조회·가입)은 `page.route`로 응답을 바꿔 연다.
 - **화면 전체 점검**: 화면 20여 개를 돌며 이 폴더의 [`audit.js`](audit.js)를 `browser_run_code_unsafe`의 `filename`으로 돌린다. 지금 화면의 기준 밖 글자 크기·색(앱마다 다름), 40 아래 누르는 칸, 이름 없는 버튼(화면 읽기), 360 폭 넘침, 공용 값이 아닌 움직임 시간을 뽑는다. 고친 뒤 다시 돌려 없어졌는지 본다. 기준 값이 바뀌면 `audit.js`도 맞춘다.

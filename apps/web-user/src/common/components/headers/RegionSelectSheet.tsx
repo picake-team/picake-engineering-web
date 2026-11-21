@@ -10,7 +10,7 @@ import {
 import { RegionData } from "@/apps/web-user/features/store/types/region.type";
 import { useUserCurrentLocationStore } from "@/apps/web-user/common/store/user-current-location.store";
 import {
-  requestLocationFromWebView,
+  requestLocationFromApp,
   isWebViewEnvironment,
 } from "@/apps/web-user/common/utils/webview.bridge";
 import { reverseGeocode } from "@/apps/web-user/common/utils/kakao-geocode.util";
@@ -203,9 +203,9 @@ export function RegionSelectSheet({
     addressBeforeGpsRef.current = address;
     setIsWaitingForLocation(true);
     if (isWebViewEnvironment()) {
-      // 웹뷰: window.receiveLocation → setAddress가 외부에서 호출됨. address 변경 시 useEffect가 처리.
-      // 권한 거부 시 window.receiveLocationError → 전역 모달 (userInitiated)
-      requestLocationFromWebView({ userInitiated: true });
+      // 앱: requestLocationFromApp이 위치를 받으면 setAddress. address 변경 시 useEffect가 처리.
+      // 권한 거부·실패 시 전역 모달 (userInitiated)
+      void requestLocationFromApp({ userInitiated: true });
     } else if (navigator.geolocation) {
       useUserCurrentLocationStore.getState().markLocationRequestUserInitiated();
       navigator.geolocation.getCurrentPosition(

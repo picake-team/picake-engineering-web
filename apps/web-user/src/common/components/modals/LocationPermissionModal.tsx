@@ -2,10 +2,7 @@
 
 import { Modal } from "@/apps/web-user/common/components/modals/Modal";
 import { useUserCurrentLocationStore } from "@/apps/web-user/common/store/user-current-location.store";
-import {
-  isWebViewEnvironment,
-  requestOpenAppSettings,
-} from "@/apps/web-user/common/utils/webview.bridge";
+import { isWebViewEnvironment, openAppSettings } from "@/apps/web-user/common/utils/webview.bridge";
 
 /**
  * 위치 권한 거부 시 설정 유도 모달 (전역 1회 마운트)
@@ -22,7 +19,7 @@ export function LocationPermissionModal() {
 
   const handleOpenSettings = () => {
     if (isWebViewEnvironment()) {
-      requestOpenAppSettings();
+      openAppSettings();
     }
     closeLocationPermissionModal();
   };

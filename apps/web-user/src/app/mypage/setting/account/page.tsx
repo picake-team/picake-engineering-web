@@ -9,7 +9,6 @@ import { useUpdateMypageProfile } from "@/apps/web-user/features/mypage/hooks/mu
 import { PhoneEditBottomSheet } from "@/apps/web-user/features/mypage/components/PhoneEditBottomSheet";
 import { NameEditBottomSheet } from "@/apps/web-user/features/mypage/components/NameEditBottomSheet";
 import { WithdrawBottomSheet } from "@/apps/web-user/features/mypage/components/WithdrawBottomSheet";
-import { isWebViewEnvironment } from "@/apps/web-user/common/utils/webview.bridge";
 import { useAuthStore } from "@/apps/web-user/common/store/auth.store";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 
@@ -43,7 +42,7 @@ function InfoRow({ label, children, gap = "gap-2.5" }: InfoRowProps) {
 export default function SettingAccountPage() {
   const router = useRouter();
   const { data: user } = useMypageProfile();
-  const { logout, handleLogoutByEnvironment } = useAuthStore();
+  const { handleLogoutByEnvironment } = useAuthStore();
   const { mutate: updateProfile, isPending: isUpdatingProfile } = useUpdateMypageProfile();
 
   const [isPhoneEditOpen, setIsPhoneEditOpen] = useState(false);
@@ -51,15 +50,10 @@ export default function SettingAccountPage() {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
 
-  // 앱에서는 기기 알림 연결을 먼저 지워야 로그아웃한 휴대폰에 알림이 안 간다(앱이 FcmToken.remove로 답하면 로그아웃).
-  // 옛 앱처럼 답이 없으면 3초 뒤에라도 로그아웃한다
+  // 앱에서는 기기 알림 연결을 먼저 지워야 로그아웃한 휴대폰에 알림이 안 간다. 앱·서버가 답하지 않아도
+  // 3초 뒤에는 로그아웃된다(auth.store handleLogoutByEnvironment)
   const handleLogout = () => {
-    handleLogoutByEnvironment();
-    if (isWebViewEnvironment()) {
-      window.setTimeout(() => {
-        if (useAuthStore.getState().isAuthenticated) logout();
-      }, 3000);
-    }
+    void handleLogoutByEnvironment();
     router.push(PATHS.HOME);
   };
 

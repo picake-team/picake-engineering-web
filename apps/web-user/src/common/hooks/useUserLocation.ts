@@ -4,7 +4,7 @@ import { useCallback, useMemo } from "react";
 import { useUserCurrentLocationStore } from "@/apps/web-user/common/store/user-current-location.store";
 import {
   isWebViewEnvironment,
-  requestLocationFromWebView,
+  requestLocationFromApp,
 } from "@/apps/web-user/common/utils/webview.bridge";
 import { reverseGeocode } from "@/apps/web-user/common/utils/kakao-geocode.util";
 
@@ -15,7 +15,7 @@ interface UserLocation {
 
 /**
  * 사용자의 현재 위치를 가져오는 훅
- * - 좌표는 user-current-location store를 구독 (브릿지 receiveLocation이 store에 기록)
+ * - 좌표는 user-current-location store를 구독 (앱이면 requestLocationFromApp이 store에 기록)
  * - refresh()는 사용자 명시 요청으로 취급 → 권한 거부 시 안내 모달
  */
 export function useUserLocation() {
@@ -37,7 +37,7 @@ export function useUserLocation() {
 
   const refresh = useCallback(() => {
     if (isWebViewEnvironment()) {
-      requestLocationFromWebView({ userInitiated: true });
+      void requestLocationFromApp({ userInitiated: true });
       return;
     }
 
