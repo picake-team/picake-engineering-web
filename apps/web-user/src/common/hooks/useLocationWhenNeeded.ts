@@ -5,7 +5,7 @@ import { useUserCurrentLocationStore } from "@/apps/web-user/common/store/user-c
 import { reverseGeocode } from "@/apps/web-user/common/utils/kakao-geocode.util";
 import {
   isWebViewEnvironment,
-  requestLocationFromWebView,
+  requestLocationFromApp,
 } from "@/apps/web-user/common/utils/webview.bridge";
 
 /** 들어와 있는 동안(새로 고치기 전) 한 번만 묻는다. 거부한 손님에게 화면마다 다시 묻지 않게 */
@@ -24,7 +24,7 @@ export function useLocationWhenNeeded(enabled: boolean): void {
     askedThisSession = true;
 
     if (isWebViewEnvironment()) {
-      requestLocationFromWebView();
+      void requestLocationFromApp();
       return;
     }
     if (typeof navigator === "undefined" || !navigator.geolocation) return;

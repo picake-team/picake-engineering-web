@@ -19,10 +19,7 @@ import { InfoRow } from "@/apps/web-seller/common/ui/List";
 import { NO_REPLAY } from "@/apps/web-seller/common/constants/replay.constant";
 import { EmptyState, LoadErrorState, StepBar, Thumb } from "@/apps/web-seller/common/ui/Surface";
 import { ImageLightbox } from "@/apps/web-seller/common/components/images/ImageLightbox";
-import {
-  isSellerAppWebView,
-  saveImageToDevice,
-} from "@/apps/web-seller/common/utils/webview.bridge";
+import { phoneImageSaver } from "@/apps/web-seller/common/utils/app-actions.util";
 import { useNow } from "@/apps/web-seller/common/hooks/useNow";
 import { copyWithToast } from "@/apps/web-seller/common/utils/clipboard.util";
 import {
@@ -561,7 +558,7 @@ export const StoreDetailOrderDetailMobilePage: React.FC = () => {
           initialIndex={lightbox.index}
           alt="참고 사진"
           onClose={() => setLightbox(null)}
-          onSave={isSellerAppWebView() ? (src) => saveImageToDevice(src) : undefined}
+          onSave={phoneImageSaver()}
         />
       ) : null}
     </AppScreen>

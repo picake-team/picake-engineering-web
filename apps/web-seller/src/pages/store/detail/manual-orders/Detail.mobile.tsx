@@ -20,10 +20,7 @@ import getApiMessage from "@/apps/web-seller/common/utils/getApiMessage";
 import { cakeDayOf } from "@/apps/web-seller/common/utils/cake-days.util";
 import { formatKeyMonthDayWeek } from "@/apps/web-seller/common/utils/kst-date.util";
 import { ImageLightbox } from "@/apps/web-seller/common/components/images/ImageLightbox";
-import {
-  isSellerAppWebView,
-  saveImageToDevice,
-} from "@/apps/web-seller/common/utils/webview.bridge";
+import { phoneImageSaver } from "@/apps/web-seller/common/utils/app-actions.util";
 import { formatWon } from "@/apps/web-seller/common/utils/won.util";
 import { manualOrderApi } from "@/apps/web-seller/features/manual-order/apis/manual-order.api";
 import { StatusPill } from "@/apps/web-seller/common/ui/Badge";
@@ -218,7 +215,7 @@ export const StoreDetailManualOrderDetailMobilePage: React.FC = () => {
               initialIndex={photoIndex}
               alt="주문 사진"
               onClose={() => setPhotoIndex(null)}
-              onSave={isSellerAppWebView() ? (src) => saveImageToDevice(src) : undefined}
+              onSave={phoneImageSaver()}
             />
           ) : null}
         </>

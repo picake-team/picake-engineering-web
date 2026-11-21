@@ -11,8 +11,8 @@ import { BaseInput as Input } from "@/apps/web-seller/common/components/inputs/B
 import { Checkbox } from "@/apps/web-seller/common/components/inputs/Checkbox";
 import { Dialog } from "@/apps/web-seller/common/components/dialogs/Dialog";
 import { useAlertStore } from "@/apps/web-seller/common/store/alert.store";
-// 앱 안에서는 apps://로 바꿔 휴대폰 브라우저·네이버 지도 앱으로 연다(PC·휴대폰 브라우저는 그대로)
-import { externalHref } from "@/apps/web-seller/common/utils/webview.bridge";
+// 앱 안에서는 앱이 휴대폰 브라우저·네이버 지도 앱으로 연다(PC·휴대폰 브라우저는 그대로)
+import { externalLinkProps } from "@/apps/web-seller/common/utils/app-actions.util";
 import type {
   NaverPlacePreviewResponseDto,
   StoreNaverPlaceDto,
@@ -151,7 +151,7 @@ export const StoreNaverPlaceCard: React.FC<Props> = ({ storeId, connected, form,
           <>
             네이버 매장과 연결돼 있어요 ({formatDate(connected.connectedAt)}) ·{" "}
             <a
-              href={externalHref(connected.placeUrl)}
+              {...externalLinkProps(connected.placeUrl)}
               target="_blank"
               rel="noreferrer"
               className="text-primary underline-offset-4 hover:underline"
@@ -305,7 +305,7 @@ export const StoreNaverPlaceCard: React.FC<Props> = ({ storeId, connected, form,
                 {[preview.category, address].filter(Boolean).join(" · ")}
               </p>
               <a
-                href={externalHref(preview.placeUrl)}
+                {...externalLinkProps(preview.placeUrl)}
                 target="_blank"
                 rel="noreferrer"
                 className="text-xs text-primary underline-offset-4 hover:underline"

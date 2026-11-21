@@ -24,10 +24,9 @@ function copyQuietly(text: string) {
 }
 
 /**
- * 카카오톡 채팅·인스타·메일·전화 같은 바깥 앱 열기 + 열리지 않았을 때 대신할 길.
- * 스토어에 남은 예전(Flutter) 안드로이드 손님 앱은 `apps://`의 https·mailto·tel을 넘기지 않는다(2026-11-11 확인, 판매자 앱은 됨).
- * 새 앱(Capacitor, picake-engineering-app)은 넘기지만 예전 앱이 남아 있는 동안은 대신할 길을 둔다.
- * 앱에서는 누를 때 값을 미리 복사해 두고(누른 순간에만 복사가 허용됨), 1.5초 안에 화면이 내려가지 않으면 안내를 띄운다.
+ * 카카오톡 채팅·인스타·메일·전화 같은 바깥 앱 열기 + 열리지 않았을 때 대신할 길(값 복사 + 안내).
+ * 앱에서는 앱이 열었는지 답해 주므로 열지 못했을 때(열 앱이 없음)만 대신할 길을 보인다.
+ * 브라우저는 알 수 없어 1.5초 안에 화면이 내려가지 않으면 열리지 않은 것으로 본다.
  */
 export function useOpenExternal() {
   const [message, setMessage] = useState<string | null>(null);
@@ -37,7 +36,15 @@ export function useOpenExternal() {
 
   const open = useCallback((url: string, fallback?: ExternalFallback) => {
     cleanupRef.current?.();
-    if (fallback && isWebViewEnvironment()) copyQuietly(fallback.copyText);
+
+    if (isWebViewEnvironment()) {
+      openExternalUrl(url).catch(() => {
+        if (!fallback) return;
+        copyQuietly(fallback.copyText);
+        setMessage(fallback.message);
+      });
+      return;
+    }
 
     let left = false;
     const markHidden = () => {
@@ -60,12 +67,12 @@ export function useOpenExternal() {
     const timer = window.setTimeout(() => {
       cleanup();
       if (left || document.hidden || !fallback) return;
-      if (!isWebViewEnvironment()) copyQuietly(fallback.copyText);
+      copyQuietly(fallback.copyText);
       setMessage(fallback.message);
     }, LEAVE_TIMEOUT_MS);
     cleanupRef.current = cleanup;
 
-    openExternalUrl(url);
+    void openExternalUrl(url);
   }, []);
 
   const toast = message ? (

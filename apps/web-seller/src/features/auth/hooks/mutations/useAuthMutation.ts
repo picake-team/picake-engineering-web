@@ -21,8 +21,9 @@ export function useLogout() {
   return useMutation({
     mutationFn: async () => Promise.resolve(),
     onSuccess: () => {
-      // 판매자 앱이면 이 휴대폰의 알림 토큰을 먼저 해제한다(손님 앱과 같은 흐름)
-      logoutWithDevice(() => logout(navigate));
+      // 판매자 앱이면 이 휴대폰의 알림 토큰을 먼저 해제한다(손님 앱과 같은 흐름, 길어도 3초).
+      // 기다리는 동안 로그아웃 버튼이 처리 중으로 보이게(두 번 눌리지 않게) 돌려준다
+      return logoutWithDevice(() => logout(navigate));
     },
   });
 }
