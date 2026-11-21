@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   storeInstagramUrl,
   storeKakaoChatUrl,
@@ -26,19 +26,53 @@ describe("가게 연락 주소", () => {
 });
 
 describe("바깥 링크 열기", () => {
-  it("전화는 앱에서도 tel: 그대로(apps://를 붙이지 않음)", async () => {
-    const { openExternalUrl } = await import("@/apps/web-user/common/utils/external-link.util");
-    const loc = { href: "" };
-    const win = { location: loc, mylocation: {}, open: () => null } as unknown as Window;
+  async function withWindow(win: object, run: () => Promise<void>) {
     const original = globalThis.window;
     Object.defineProperty(globalThis, "window", { value: win, configurable: true });
     try {
-      openExternalUrl("tel:01012345678");
-      expect(loc.href).toBe("tel:01012345678");
-      openExternalUrl("https://pf.kakao.com/_x/chat");
-      expect(loc.href).toBe("apps://https://pf.kakao.com/_x/chat");
+      await run();
     } finally {
       Object.defineProperty(globalThis, "window", { value: original, configurable: true });
     }
+  }
+
+  it("앱에서는 전화·웹 주소 모두 앱이 연다(openExternal)", async () => {
+    const { openExternalUrl } = await import("@/apps/web-user/common/utils/external-link.util");
+    const loc = { href: "" };
+    const open = vi.fn();
+    const openExternal = vi.fn().mockResolvedValue(undefined);
+    await withWindow({ location: loc, open, PicakeApp: { openExternal } }, async () => {
+      await openExternalUrl("tel:01012345678");
+      await openExternalUrl("https://pf.kakao.com/_x/chat");
+    });
+    expect(openExternal).toHaveBeenNthCalledWith(1, "tel:01012345678");
+    expect(openExternal).toHaveBeenNthCalledWith(2, "https://pf.kakao.com/_x/chat");
+    expect(loc.href).toBe("");
+    expect(open).not.toHaveBeenCalled();
+  });
+
+  it("앱이 열지 못하면(unsupported) 실패를 돌려준다(대신할 길은 useOpenExternal)", async () => {
+    const { openExternalUrl } = await import("@/apps/web-user/common/utils/external-link.util");
+    const unsupported = Object.assign(new Error("unsupported"), { code: "unsupported" });
+    const openExternal = vi.fn().mockRejectedValue(unsupported);
+    await withWindow({ location: { href: "" }, PicakeApp: { openExternal } }, async () => {
+      await expect(openExternalUrl("mailto:help@example.com")).rejects.toBe(unsupported);
+    });
+  });
+
+  it("브라우저에서는 웹 주소는 새 창, 전화는 그 자리에서", async () => {
+    const { openExternalUrl } = await import("@/apps/web-user/common/utils/external-link.util");
+    const loc = { href: "" };
+    const open = vi.fn();
+    await withWindow({ location: loc, open }, async () => {
+      await openExternalUrl("https://instagram.com/dalcom_cake");
+      await openExternalUrl("tel:01012345678");
+    });
+    expect(open).toHaveBeenCalledWith(
+      "https://instagram.com/dalcom_cake",
+      "_blank",
+      "noopener,noreferrer",
+    );
+    expect(loc.href).toBe("tel:01012345678");
   });
 });

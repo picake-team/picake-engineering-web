@@ -5,8 +5,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import {
   isWebViewEnvironment,
-  requestFcmTokenRemove,
-  requestFcmTokenUpsert,
+  unregisterPushDevice,
 } from "@/apps/web-user/common/utils/webview.bridge";
 import { queryClient } from "@/apps/web-user/common/config/query-client";
 
@@ -25,7 +24,7 @@ interface AuthState {
 
   // 액션
   login: (token: string) => void;
-  handleLogoutByEnvironment: () => void;
+  handleLogoutByEnvironment: () => Promise<void>;
   logout: () => void;
   getAccessToken: () => string | null;
 }
@@ -37,32 +36,24 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       accessToken: null,
 
-      // 로그인 처리 (Zustand 상태 업데이트 + 웹뷰라면 앱에 FCM 토큰 업서트 요청)
+      // 로그인 처리 (앱이면 useWebViewBridge가 로그인을 보고 이 휴대폰을 알림 받을 곳으로 등록)
       login: (token: string) => {
         if (get().accessToken !== token) clearAccountCache();
         set({
           accessToken: token,
           isAuthenticated: true,
         });
-        if (isWebViewEnvironment()) {
-          requestFcmTokenUpsert();
-        }
       },
 
-      // 로그아웃 준비 (웹뷰라면 FCM 토큰 제거 요청, 웹뷰가 아니라면 상태 초기화)
-      handleLogoutByEnvironment: () => {
+      // 손님이 누른 로그아웃. 앱이면 서버에서 이 휴대폰의 알림 연결을 먼저 지운다(3초까지만 기다리고 그래도 로그아웃)
+      handleLogoutByEnvironment: async () => {
         if (isWebViewEnvironment()) {
-          requestFcmTokenRemove();
-        } else {
-          set({
-            accessToken: null,
-            isAuthenticated: false,
-          });
-          clearAccountCache();
+          await unregisterPushDevice();
         }
+        get().logout();
       },
 
-      // 로그아웃 처리 (Zustand 상태 초기화)
+      // 로그아웃 처리 (Zustand 상태 초기화). 로그인이 끝나(401) 로그아웃할 때는 이것만 부른다
       logout: () => {
         set({
           accessToken: null,

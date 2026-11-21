@@ -10,7 +10,7 @@ import { useStoreDetail } from "@/apps/web-user/features/store/hooks/queries/use
 import { SortBy, Product } from "@/apps/web-user/features/product/types/product.type";
 import { PATHS } from "@/apps/web-user/common/constants/paths.constant";
 import { Icon } from "@/apps/web-user/common/components/icons";
-import { toExternalAppSchemeUrl } from "@/apps/web-user/common/utils/webview.bridge";
+import { openExternalUrl } from "@/apps/web-user/common/utils/external-link.util";
 import {
   getGoogleOAuthLoginUrl,
   getKakaoOAuthLoginUrl,
@@ -224,7 +224,7 @@ export default function QAPage() {
           {isAuthenticated && (
             <div className="pt-4 mt-3 border-t border-gray-100">
               <button
-                onClick={() => handleLogoutByEnvironment()}
+                onClick={() => void handleLogoutByEnvironment()}
                 className="w-full px-4 py-2.5 text-xs font-bold text-white bg-red-500 rounded-2xl hover:bg-red-400 transition-colors"
               >
                 로그아웃
@@ -251,9 +251,9 @@ export default function QAPage() {
             </Link>
             <button
               onClick={() => {
-                window.location.href = toExternalAppSchemeUrl(
+                openExternalUrl(
                   "supertoss://send?bank=농협&accountNo=3521047093883&amount=10000",
-                );
+                ).catch((error) => console.warn("토스를 열지 못했습니다:", error));
               }}
               className="flex items-center justify-between w-full px-4 py-3 bg-[#0064FF]/10 rounded-xl text-sm text-[#0064FF] hover:bg-[#0064FF]/20 transition-colors text-left"
             >
@@ -311,7 +311,9 @@ function StoreItem({ storeId }: { storeId: string }) {
     e.stopPropagation();
     if (store) {
       const appUrl = `nmap://map?lat=${store.latitude}&lng=${store.longitude}&zoom=15&appname=com.example.picake`;
-      window.location.href = toExternalAppSchemeUrl(appUrl);
+      openExternalUrl(appUrl).catch((error) =>
+        console.warn("네이버 지도를 열지 못했습니다:", error),
+      );
     }
   };
 
@@ -320,7 +322,7 @@ function StoreItem({ storeId }: { storeId: string }) {
     e.stopPropagation();
     if (store) {
       const appUrl = `kakaomap://look?p=${store.latitude},${store.longitude}`;
-      window.location.href = toExternalAppSchemeUrl(appUrl);
+      openExternalUrl(appUrl).catch((error) => console.warn("카카오맵을 열지 못했습니다:", error));
     }
   };
 

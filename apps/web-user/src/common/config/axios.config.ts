@@ -46,7 +46,8 @@ const responseErrorHandler = async (error: AxiosError<{ data?: { message?: strin
 
   // 401 && ACCESS_TOKEN_INVALID 오류 처리
   if (status === 401 && message?.includes("ACCESS_TOKEN_INVALID")) {
-    useAuthStore.getState().handleLogoutByEnvironment();
+    // 이 기기에서만 로그아웃한다. 서버의 알림 연결 해제는 같은 토큰이라 어차피 401이라 부르지 않는다
+    useAuthStore.getState().logout();
     useAlertStore.getState().showAlert({
       type: "error",
       title: "로그인",

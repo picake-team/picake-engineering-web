@@ -65,13 +65,10 @@ function sanitizeUrl(rawUrl: string): string {
  */
 function sanitizeEvent(event: CaptureResult | null): CaptureResult | null {
   if (!event?.properties) return event;
-  // 손님 앱(웹뷰)인지 브라우저인지. Flutter가 브리지를 늦게 넣을 수 있어 보낼 때마다 본다
+  // 손님 앱(웹뷰)인지 브라우저인지. 앱이 넣는 window.PicakeApp이 있는지로 본다
   // (webview.bridge의 isWebViewEnvironment와 같은 기준, 저장소를 불러오지 않으려고 여기서 직접 봄)
   event.properties.surface =
-    typeof window !== "undefined" &&
-    typeof (window as { mylocation?: unknown }).mylocation !== "undefined"
-      ? "app"
-      : "web";
+    typeof window !== "undefined" && window.PicakeApp != null ? "app" : "web";
   if (typeof event.properties.$current_url === "string") {
     event.properties.$current_url = sanitizeUrl(event.properties.$current_url);
   }

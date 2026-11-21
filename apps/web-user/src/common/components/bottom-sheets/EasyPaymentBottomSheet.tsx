@@ -9,7 +9,7 @@ import { BottomSheetOptionList } from "./BottomSheetOptionList";
 import { APP_ONLY_MODAL } from "@/apps/web-user/common/constants/messages.constant";
 import {
   isWebViewEnvironment,
-  toExternalAppSchemeUrl,
+  openExternalInApp,
 } from "@/apps/web-user/common/utils/webview.bridge";
 import { trackEvent } from "@/apps/web-user/common/utils/analytics.util";
 
@@ -53,8 +53,8 @@ export function EasyPaymentBottomSheet({
   }, [isOpen, reservationId]);
 
   /**
-   * 외부 앱 스키마 실행 후 앱 전환 여부로 설치 상태를 판단한다.
-   * 앱이 열리면 페이지가 백그라운드로 내려가고, 미설치면 화면에 그대로 남는다.
+   * 외부 앱 스키마를 실행한다. 앱에서는 앱이 열었는지 답해 준다(열 앱이 없으면 reject).
+   * 브라우저는 앱 전환 여부로 설치 상태를 판단한다 — 앱이 열리면 페이지가 백그라운드로 내려가고, 미설치면 화면에 그대로 남는다.
    */
   const handleDeepLink = (url: string) => {
     if (!isMobileDevice()) {
@@ -63,6 +63,12 @@ export function EasyPaymentBottomSheet({
     }
 
     cleanupRef.current?.();
+
+    if (isWebViewEnvironment()) {
+      // 시트는 열지 못했을 때 닫지 않는다 — 다른 결제 수단을 바로 고를 수 있어야 함
+      openExternalInApp(url).then(onClose, () => setIsNotInstalledToastOpen(true));
+      return;
+    }
 
     let hasLeftPage = false;
     const markLeftOnHidden = () => {
@@ -96,8 +102,7 @@ export function EasyPaymentBottomSheet({
     };
     cleanupRef.current = cleanup;
 
-    // 웹뷰에서는 Flutter가 가로채 외부 앱을 실행하도록 커스텀 스키마로 감싼다
-    window.location.href = isWebViewEnvironment() ? toExternalAppSchemeUrl(url) : url;
+    window.location.href = url;
   };
 
   return (
