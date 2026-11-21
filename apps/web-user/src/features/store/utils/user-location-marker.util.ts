@@ -1,6 +1,6 @@
 /**
  * 지도 현재 위치 표시(운영자 2026-11-21): 작은 파란 점(흰 테두리·옅은 둘레) + 보는 방향이면 점 바로 바깥 작은 삼각형(시안 H3).
- * 예전 34px 그림(map-current-position.png)보다 작다. 카카오 Marker 그림으로 쓰려고 SVG data URI로 만든다
+ * 예전 34px 그림(map-current-position.png, 2026-11-21 지움)보다 작다. 카카오 Marker 그림으로 쓰려고 SVG data URI로 만든다
  * (CustomOverlay는 지도 생성 직후·panTo 도중 안 그려지는 문제가 있어 Marker를 쓴다 — MapPageClient).
  */
 export const USER_LOCATION_MARKER_SIZE = 44;

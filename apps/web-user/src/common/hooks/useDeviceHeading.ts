@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type CompassOrientationEvent = DeviceOrientationEvent & { webkitCompassHeading?: number };
 type PermissionRequestableOrientation = typeof DeviceOrientationEvent & {
@@ -39,11 +39,17 @@ function screenAngle(): number {
  * - 안드로이드(크롬·앱 웹뷰): `deviceorientationabsolute`, 허용 창 없음
  * - 아이폰: 처음 한 번 "동작 및 방향" 허용(`requestPermission`은 누르는 순간에만 부를 수 있다) 뒤 `webkitCompassHeading`.
  *   새 앱은 우리 주소에 한해 앱이 대신 허용한다(앱 레포 PicakeShell)
- * - PC·나침반이 없는 기기는 늘 null
+ * - PC·나침반이 없는 기기는 부르지 않음
+ *
+ * 방향은 React 상태로 두지 않고 `onHeading`으로 넘긴다 — 휴대폰을 돌리는 동안 초당 수십 번 바뀌어, 상태로 두면 받는 화면
+ * (지도 전체)이 그때마다 다시 그려진다. 받는 쪽이 필요한 것만(지도 점 그림) 바꾼다.
  */
-export function useDeviceHeading(active: boolean) {
-  const [heading, setHeading] = useState<number | null>(null);
+export function useDeviceHeading(active: boolean, onHeading: (deg: number) => void) {
   const [allowed, setAllowed] = useState<boolean>(() => !needsPermission());
+  const onHeadingRef = useRef(onHeading);
+  useEffect(() => {
+    onHeadingRef.current = onHeading;
+  }, [onHeading]);
 
   useEffect(() => {
     if (!active || !allowed || typeof window === "undefined") return;
@@ -60,7 +66,7 @@ export function useDeviceHeading(active: boolean) {
         const diff = shown == null ? 360 : Math.abs(((pending - shown + 540) % 360) - 180);
         if (diff < MIN_CHANGE_DEG) return;
         shown = pending;
-        setHeading(Math.round(pending));
+        onHeadingRef.current(pending);
       });
     };
 
@@ -99,5 +105,5 @@ export function useDeviceHeading(active: boolean) {
       });
   }, []);
 
-  return { heading, requestPermission };
+  return { requestPermission };
 }
