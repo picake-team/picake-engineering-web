@@ -122,14 +122,13 @@ export function TextWithPc({
   title,
   points,
   shot,
-  shotAlt,
 }: {
   id?: string;
   kicker: string;
   title: ReactNode;
   points: ReactNode[];
-  shot: StaticImageData;
-  shotAlt: string;
+  /** 오른쪽(휴대폰은 아래) 컴퓨터 화면: 그림(PcShot) 또는 사용법 영상(ShotVideo frame="pc") */
+  shot: ReactNode;
 }) {
   const headingId = id ? `${id}-title` : undefined;
   return (
@@ -158,7 +157,7 @@ export function TextWithPc({
             ))}
           </ul>
         </div>
-        <PcShot src={shot} alt={shotAlt} />
+        {shot}
       </div>
     </section>
   );

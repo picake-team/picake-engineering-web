@@ -19,7 +19,7 @@ import {
 } from "@/apps/web-info/common/components/landing/PhotoHero";
 import { KakaoLink, PrimaryLink } from "@/apps/web-info/common/components/landing/Buttons";
 import { PHONE_HERO } from "@/apps/web-info/common/components/landing/phone-hero";
-import { PhoneShot } from "@/apps/web-info/common/components/landing/Shots";
+import { ShotVideo } from "@/apps/web-info/common/components/landing/ShotVideo";
 import {
   ClosingBox,
   FaqList,
@@ -51,15 +51,15 @@ import {
 } from "@/apps/web-info/features/seller/components/SellerSections";
 import photoHero from "@/apps/web-info/features/seller/assets/photo-hero-ribbon.jpg";
 import photoFlower from "@/apps/web-info/features/seller/assets/photo-flower.jpg";
-import screenChatFilled from "@/apps/web-info/features/seller/assets/screen-chat-filled.png";
-import screenLink from "@/apps/web-info/features/seller/assets/screen-link.png";
-import screenOrder from "@/apps/web-info/features/seller/assets/screen-order.png";
-import screenQuoteRequest from "@/apps/web-info/features/seller/assets/screen-quote-request.png";
+import videoQuote from "@/apps/web-info/features/seller/assets/video-quote.jpg";
+import videoOrder from "@/apps/web-info/features/seller/assets/video-order.jpg";
+import videoChatOrder from "@/apps/web-info/features/seller/assets/video-chat-order.jpg";
+import videoStoreLink from "@/apps/web-info/features/seller/assets/video-store-link.jpg";
+import videoProductCreate from "@/apps/web-info/features/seller/assets/video-product-create.jpg";
 import pcCalendar from "@/apps/web-info/features/seller/assets/pc-calendar.png";
 import pcExport from "@/apps/web-info/features/seller/assets/pc-export.png";
 import pcOrders from "@/apps/web-info/features/seller/assets/pc-orders.png";
 import pcPrint from "@/apps/web-info/features/seller/assets/pc-print.png";
-import pcProductCreate from "@/apps/web-info/features/seller/assets/pc-product-create.png";
 
 /**
  * 사장님 입점 소개 페이지 (`https://info.picakes.com/seller/about`).
@@ -80,8 +80,10 @@ import pcProductCreate from "@/apps/web-info/features/seller/assets/pc-product-c
  * 네이버 예약 상품·매장 정보 가져오기(I-10·I-43)는 공식 연동이 아니고 법무 점검표 18번이 "확인 필요"라 내세우지 않는다
  * (2026-11-20 운영자 "네이버 크롤링은 합법이 아닌 걸로 안다" → AI 판단).
  *
- * 화면 그림: 판매자 앱 휴대폰 화면은 로컬 테스트 DB의 예시 가게 "달콤스토어"(2026-11-14·17), PC 화면은 로컬 심사용 예시 가게를
- * "달콤스토어"로 보이게 해 찍은 것(2026-11-20). 실제 가게·손님·주문이 아니다.
+ * 화면 그림: PC 화면 4장은 로컬 심사용 예시 가게를 "달콤스토어"로 보이게 해 찍은 것(2026-11-20). 실제 가게·손님·주문이 아니다.
+ * 사용법 영상(2026-11-24, 운영자 "소개페이지에 동영상", 이 페이지에만 올림): 그림 한 장으로는 "바뀌는 순간"이 안 보이는 칸만
+ *   견적·주문서·카톡 주문 정리·상품 등록(PC)·가게 링크 다섯 칸. 로컬 테스트 서버의 예시 가게 "달콤스토어"를 실제로 눌러 녹화했다.
+ *   카톡 대화 읽기 결과는 같은 대화를 실제 AI가 읽은 결과(AI Draft Smoke 2026-11-19)다. 찍는 법은 docs/web-info/README.md "사용법 영상".
  * 사진: 첫 화면 Pexels 30637504(Meryem Şahin, 검정 리본 케이크 — 손님 앱 디자인 모음 "검정 리본"과 같은 사진의 큰 원본),
  *   마지막 칸 Unsplash lqM8r5cg5k4(Kash Tandon). 상업 사용·수정 무료, 출처 표시 의무 없음.
  */
@@ -108,6 +110,17 @@ const SHARE_IMAGE = {
   alt: "픽케이크 사장님 입점: 사진으로 묻는 손님께 금액만 보내세요",
   type: "image/jpeg",
 };
+
+/** 사용법 영상(public/videos/seller). 파일을 바꾸면 v를 올린다(브라우저가 옛 영상을 기억한다) */
+const VIDEO = {
+  quote: "/videos/seller/quote.mp4?v=1",
+  order: "/videos/seller/order.mp4?v=1",
+  chatOrder: "/videos/seller/chat-order.mp4?v=1",
+  storeLink: "/videos/seller/store-link.mp4?v=1",
+  productCreate: "/videos/seller/product-create.mp4?v=1",
+} as const;
+/** 휴대폰 틀 폭: 영상 화면(390×560)이 PC 칸 높이 460px 안에 다 들어가게 280 */
+const PHONE_VIDEO = "w-[240px] md:w-[280px]";
 
 /** 칸 주소(위쪽 줄 칸 이동) */
 const ANCHOR = {
@@ -403,10 +416,13 @@ export default function SellerAboutPage() {
                 }
                 body="손님이 사진·픽업 날짜·예산을 보내면 채팅으로 요청서가 와요. 손님은 고른 견적으로 바로 예약 신청해요. 대표 디자인을 “견적 받기” 상품으로 올려 두면 손님이 그 디자인으로 바로 물어봐요."
                 shot={
-                  <PhoneShot
-                    src={screenQuoteRequest}
-                    alt="판매자 앱 채팅에 온 손님 견적 요청서. 참고 사진, 픽업 날짜와 시간, 1호 케이크, 예산 4만~6만원, 레터링 설명과 견적 보내기 버튼(예시)"
-                    className="h-[300px] w-[240px] md:h-[400px] md:w-[300px]"
+                  <ShotVideo
+                    frame="phone"
+                    src={VIDEO.quote}
+                    poster={videoQuote}
+                    start={0.5}
+                    alt="판매자 앱 채팅에 온 손님 견적 요청서(참고 사진, 픽업 날짜, 1호 생크림, 예산 4만~6만원)에 금액 45,000원과 '비슷하게'를 골라 보내고, 손님이 그 견적으로 예약을 신청하자 '새 예약 신청이 왔어요' 알림을 눌러 예약을 여는 영상(예시)"
+                    className={PHONE_VIDEO}
                   />
                 }
               />
@@ -423,10 +439,13 @@ export default function SellerAboutPage() {
                 }
                 body="상품에 레터링 문구·참고 사진 칸을 넣어 두면 손님이 사이즈·맛·픽업 시간과 함께 골라 보내요. 예약을 확인하면 입금 안내·픽업 전날 안내·후기 부탁이 알림톡으로 가요."
                 shot={
-                  <PhoneShot
-                    src={screenOrder}
-                    alt="판매자 앱 주문 상세. 픽업 일시, 예약자, 주문 항목과 레터링 문구가 한 화면에 보이는 모습(예시)"
-                    className="h-[300px] w-[240px] md:h-[400px] md:w-[300px]"
+                  <ShotVideo
+                    frame="phone"
+                    src={VIDEO.order}
+                    poster={videoOrder}
+                    start={5.6}
+                    alt="판매자 앱 주문 목록에서 예약 신청을 열어 사이즈·맛·초, 레터링 문구 '서연아 생일 축하해', 참고 사진, 요청 사항을 한 화면에서 보고 '예약 확인'을 누르자 입금 대기로 바뀌는 영상(예시)"
+                    className={PHONE_VIDEO}
                   />
                 }
               />
@@ -442,10 +461,13 @@ export default function SellerAboutPage() {
                 }
                 body="대화를 붙여 넣거나 캡처를 올리면 날짜·케이크·금액이 채워지고, 픽케이크로 받은 예약과 같은 달력에 보여요. 아이폰·구글 캘린더로도 내보내요."
                 shot={
-                  <PhoneShot
-                    src={screenChatFilled}
-                    alt="주문 적기 화면에 픽업 12월 24일 15:00, 1호 딸기 생크림, 레터링, 38,000원 입금 받음이 채워진 모습(예시)"
-                    className="h-[300px] w-[240px] md:h-[390px] md:w-[300px]"
+                  <ShotVideo
+                    frame="phone"
+                    src={VIDEO.chatOrder}
+                    poster={videoChatOrder}
+                    start={7.2}
+                    alt="판매자 앱 '주문 적기'에서 복사해 둔 카톡 대화를 붙여 넣자 픽업 11월 28일 15:00, 2호 초코, 레터링, 52,000원 입금 받음, 손님 이름, 받은 곳 카톡, 메모가 채워지고, 등록하면 그날 달력에 픽케이크 예약과 함께 보이는 영상(예시)"
+                    className={PHONE_VIDEO}
                   />
                 }
               />
@@ -496,8 +518,16 @@ export default function SellerAboutPage() {
               그래도 바쁘시면 <b>처음 등록은 저희가</b> 해 드려요
             </>,
           ]}
-          shot={pcProductCreate}
-          shotAlt="사장님 PC 상품 등록 화면. 왼쪽에 사진·이름·종류·가격 칸, 오른쪽에 손님이 볼 상품 화면 미리보기(예시 가게)"
+          shot={
+            <ShotVideo
+              frame="pc"
+              src={VIDEO.productCreate}
+              poster={videoProductCreate}
+              start={10.5}
+              alt="사장님 PC 상품 등록 화면에서 사진, 상품명 '딸기 생크림 케이크', 기본 케이크, 판매가 38,000원, 사이즈 1호를 넣는 동안 오른쪽 손님 화면 미리보기가 바로 바뀌는 영상(예시 가게)"
+              sizes="(min-width: 1024px) 640px, (min-width: 768px) 90vw, 85vw"
+            />
+          }
         />
 
         {/* 6. 가게 링크(R-03 "손님 가입이 간편해야") */}
@@ -515,10 +545,13 @@ export default function SellerAboutPage() {
               }
               body="로그인은 마지막에 한 번이고 카카오·네이버·구글·애플 중 고르면 돼요. 링크로 몇 명이 들어와 몇 건 예약했는지도 보여요."
               shot={
-                <PhoneShot
-                  src={screenLink}
-                  alt="판매자 앱 '손님에게 링크 보내기' 창. 최근 30일 링크로 온 손님 48명, 예약 신청 9건(예시)"
-                  className="h-[300px] w-[240px] md:h-[400px] md:w-[300px]"
+                <ShotVideo
+                  frame="phone"
+                  src={VIDEO.storeLink}
+                  poster={videoStoreLink}
+                  start={2}
+                  alt="판매자 앱 '손님에게 링크 보내기' 창(최근 30일 링크로 온 손님 48명, 예약 신청 9건)에서 링크를 복사하고, 손님이 그 링크로 들어와 로그인 없이 상품·픽업 날짜·사이즈·맛을 고른 뒤 마지막에 '로그인하고 예약신청'을 누르자 카카오·네이버·구글·애플 로그인 창이 뜨는 영상(예시)"
+                  className={PHONE_VIDEO}
                 />
               }
             />
