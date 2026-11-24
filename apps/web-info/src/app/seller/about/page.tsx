@@ -117,7 +117,7 @@ const VIDEO = {
   order: "/videos/seller/order.mp4?v=1",
   chatOrder: "/videos/seller/chat-order.mp4?v=1",
   storeLink: "/videos/seller/store-link.mp4?v=1",
-  productCreate: "/videos/seller/product-create.mp4?v=2",
+  productCreate: "/videos/seller/product-create.mp4?v=3",
 } as const;
 /** 휴대폰 틀 폭: 영상 화면(390×560)이 PC 칸 높이 460px 안에 다 들어가게 280 */
 const PHONE_VIDEO = "w-[240px] md:w-[280px]";
@@ -527,8 +527,8 @@ export default function SellerAboutPage() {
               src={VIDEO.productCreate}
               poster={videoProductCreate}
               label="상품 등록"
-              start={9}
-              alt="사장님 PC 상품 등록 화면에서 사진, 상품명 '레터링 도시락 케이크', 커스텀 케이크, 판매가 18,000원을 넣는 동안 오른쪽 손님 화면 미리보기가 바로 바뀌는 영상(예시 가게)"
+              start={9.6}
+              alt="사장님 PC 상품 등록 화면에서 사진, 상품명 '딸기 생크림 케이크', 기본 케이크, 판매가 38,000원, 사이즈 1호를 넣는 동안 오른쪽 손님 화면 미리보기가 바로 바뀌는 영상(예시 가게)"
               sizes="(min-width: 1024px) 640px, (min-width: 768px) 90vw, 85vw"
             />
           }
