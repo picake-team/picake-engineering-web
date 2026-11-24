@@ -253,6 +253,40 @@ test("상품 등록: 오른쪽 손님 화면 미리보기가 입력대로 바뀐
   await expectNoSideScroll(page);
 });
 
+test("상품 등록: 스크롤한 채 창을 열어도 왼쪽 메뉴·미리보기·스크롤 자리가 그대로", async () => {
+  // 2026-11-24: 창이 body에 overflow:hidden을 걸어(html·body는 overflow-x: clip) body가 스크롤 상자가 되고,
+  // sticky 왼쪽 메뉴·손님 화면 미리보기가 스크롤한 만큼 위로 튀었다 → html을 잠근다(usePageScrollLock)
+  await openMenu("상품");
+  await page.getByRole("button", { name: "상품 등록" }).first().click();
+  await expect(page).toHaveURL(new RegExp(`/stores/${storeId}/products/create`));
+  await expect(page.getByRole("button", { name: "사이즈", exact: true }).first()).toBeVisible();
+  await page.evaluate(() => window.scrollTo(0, 360));
+  const top = (name: string) =>
+    page
+      .getByRole(name === "menu" ? "navigation" : "complementary", {
+        name: name === "menu" ? "스토어 메뉴" : "손님 화면 미리보기",
+      })
+      .evaluate((el) => Math.round(el.getBoundingClientRect().top));
+  const before = {
+    y: await page.evaluate(() => window.scrollY),
+    menu: await top("menu"),
+    preview: await top("preview"),
+  };
+  expect(before.y).toBeGreaterThan(100);
+  // 사이즈 고르기(SheetSelect, aria-label "사이즈") — "사이즈 추가"와 구분
+  const size = page.getByRole("button", { name: "사이즈", exact: true }).first();
+  const sb = (await size.boundingBox())!;
+  await page.mouse.click(sb.x + sb.width / 2, sb.y + sb.height / 2);
+  await expect(page.getByRole("dialog")).toBeVisible();
+  expect(await page.evaluate(() => window.scrollY)).toBe(before.y);
+  expect(await top("menu")).toBe(before.menu);
+  expect(await top("preview")).toBe(before.preview);
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  expect(await page.evaluate(() => document.documentElement.style.overflow)).toBe("");
+  expect(await page.evaluate(() => window.scrollY)).toBe(before.y);
+});
+
 test("주문 적기: 홈에서 적고(시각은 가운데 창) → 홈 주간 보기에서 열어 고치고 → 지우기", async () => {
   await openMenu("홈");
   await page.getByRole("button", { name: "주문 적기" }).click();
