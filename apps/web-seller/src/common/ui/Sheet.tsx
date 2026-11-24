@@ -15,27 +15,13 @@ import { cx } from "@/apps/web-seller/common/ui/cx";
 import { Icon } from "@/apps/web-seller/common/ui/icons";
 import { usePresence } from "@/apps/web-seller/common/ui/usePresence";
 import { useIsDesktopShell } from "@/apps/web-seller/common/ui/shell";
+import { lockPageScroll } from "@/apps/web-seller/common/hooks/usePageScrollLock";
 
 /** 닫힐 때 내려가는 시간(공용 움직임 값 sheet-out = medium) */
 const SHEET_EXIT_MS = 250;
 
-let openSheetCount = 0;
 /** 열린 창 차례(창 위에 창을 열면 Esc·Tab은 맨 위 창만) */
 const sheetStack: symbol[] = [];
-
-function lockScroll() {
-  openSheetCount += 1;
-  if (openSheetCount === 1) {
-    document.body.style.overflow = "hidden";
-  }
-}
-
-function unlockScroll() {
-  openSheetCount = Math.max(0, openSheetCount - 1);
-  if (openSheetCount === 0) {
-    document.body.style.overflow = "";
-  }
-}
 
 const FOCUSABLE =
   'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
@@ -86,7 +72,8 @@ export function BottomSheet({
     restoreRef.current = document.activeElement as HTMLElement | null;
     const me = Symbol("sheet");
     sheetStack.push(me);
-    lockScroll();
+    // 뒤 화면 스크롤 잠금(html — body를 잠그면 PC sticky 메뉴가 튐, usePageScrollLock)
+    const releaseScroll = lockPageScroll();
     // 첫 칸에 바로 키보드를 올리지 않게 창 자체에 초점
     panelRef.current?.focus();
     const onKey = (e: KeyboardEvent) => {
@@ -114,7 +101,7 @@ export function BottomSheet({
     return () => {
       document.removeEventListener("keydown", onKey);
       sheetStack.splice(sheetStack.indexOf(me), 1);
-      unlockScroll();
+      releaseScroll();
       restoreRef.current?.focus?.();
     };
   }, [open]);

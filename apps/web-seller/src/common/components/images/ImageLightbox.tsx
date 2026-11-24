@@ -12,6 +12,7 @@ import {
   ZoomOut,
 } from "lucide-react";
 import { cn } from "@/apps/web-seller/common/utils/classname.util";
+import { usePageScrollLock } from "@/apps/web-seller/common/hooks/usePageScrollLock";
 
 export interface ImageLightboxProps {
   /** 표시할 이미지 URL 목록 */
@@ -131,14 +132,8 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [onClose, goPrev, goNext, zoom, rotate, resetTransform]);
 
-  // 배경 스크롤 잠금
-  useEffect(() => {
-    const original = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = original;
-    };
-  }, []);
+  // 배경 스크롤 잠금(html — body를 잠그면 PC sticky 메뉴가 튐)
+  usePageScrollLock(true);
 
   const onWheel = useCallback(
     (e: React.WheelEvent) => {
