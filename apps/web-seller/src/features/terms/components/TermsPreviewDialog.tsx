@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { X } from "lucide-react";
 import { TermsDocumentScreen } from "@/apps/web-seller/features/terms/components/TermsDocumentScreen";
 import type { TermsType } from "@/apps/web-seller/features/terms/types/terms.dto";
+import { lockPageScroll } from "@/apps/web-seller/common/hooks/usePageScrollLock";
 
 interface TermsPreviewDialogProps {
   open: boolean;
@@ -19,11 +20,12 @@ export function TermsPreviewDialog({ open, onClose, title, termsType }: TermsPre
     };
 
     document.addEventListener("keydown", handleKeyDown);
-    document.body.style.overflow = "hidden";
+    // 뒤 화면 스크롤 잠금(html — body를 잠그면 PC sticky 메뉴가 튐, usePageScrollLock)
+    const releaseScroll = lockPageScroll();
 
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "";
+      releaseScroll();
     };
   }, [open, onClose]);
 

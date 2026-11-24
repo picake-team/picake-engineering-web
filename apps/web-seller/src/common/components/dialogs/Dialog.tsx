@@ -5,6 +5,7 @@ import { cn } from "@/apps/web-seller/common/utils/classname.util";
 import { useInMobileFrame } from "@/apps/web-seller/common/components/layouts/mobile-frame.context";
 import { useSheetDrag } from "@/apps/web-seller/common/ui/useSheetDrag";
 import { usePresence } from "@/apps/web-seller/common/ui/usePresence";
+import { lockPageScroll } from "@/apps/web-seller/common/hooks/usePageScrollLock";
 
 /** 휴대폰 틀 안에서 닫힐 때 내려가는 시간(공용 움직임 값 sheet-out = medium, 앱 BottomSheet와 같음) */
 const SHEET_EXIT_MS = 250;
@@ -56,15 +57,15 @@ export function Dialog({
       el.style.opacity = "";
     }
     const previous = document.activeElement as HTMLElement | null;
-    const { overflow } = document.body.style;
-    document.body.style.overflow = "hidden";
+    // 뒤 화면 스크롤 잠금(html — body를 잠그면 PC sticky 메뉴가 튐, usePageScrollLock)
+    const releaseScroll = lockPageScroll();
     panelRef.current?.focus();
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") closeRef.current();
     };
     window.addEventListener("keydown", onKey);
     return () => {
-      document.body.style.overflow = overflow;
+      releaseScroll();
       window.removeEventListener("keydown", onKey);
       previous?.focus?.();
     };
