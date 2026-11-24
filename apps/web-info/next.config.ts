@@ -26,6 +26,12 @@ const nextConfig: NextConfig = {
           ...NOINDEX_HEADERS,
         ],
       },
+      {
+        // 사용법 영상: 주소에 ?v=를 붙여 바꿀 때마다 새 주소가 되므로 오래 둔다(다시 온 사장님이 영상마다 확인 요청을 보내지 않게).
+        // 파일을 바꾸면 페이지의 VIDEO 주소 ?v=를 꼭 올린다(docs/web-info/README.md "사용법 영상")
+        source: "/videos/:path*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+      },
     ];
   },
   env: {
