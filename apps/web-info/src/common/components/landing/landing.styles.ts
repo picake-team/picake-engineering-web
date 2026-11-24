@@ -33,10 +33,10 @@ export const CARD_TITLE =
 /** 큰 칸 안 본문 */
 export const CARD_BODY = "text-[15px] leading-[1.65] text-gray-700 md:text-[17px]";
 
-/** 휴대폰 틀: 아래가 칸 끝에서 잘린다(위쪽만). 화면 그림(PhoneShot)과 사용법 영상(ShotVideo)이 같이 쓴다 */
+/** 휴대폰 틀: 아래가 칸 끝에서 잘린다(토스플레이스·똑독처럼 위쪽만). 사용법 영상(ShotVideo)이 쓴다 */
 export const PHONE_FRAME =
   "overflow-hidden rounded-t-[30px] border-[6px] border-b-0 border-[#111] bg-white shadow-[0_30px_60px_-24px_rgba(0,0,0,0.4)] md:rounded-t-[38px] md:border-[7px] md:border-b-0";
 
-/** 컴퓨터 화면 틀: 화면 비율(1440×820)로 위쪽부터 보인다 */
+/** 컴퓨터 화면 틀: 화면 비율(1440×820)로 위쪽부터 보인다. 화면 그림(PcShot)과 사용법 영상(ShotVideo)이 같이 쓴다 */
 export const PC_FRAME =
   "aspect-[1440/820] overflow-hidden rounded-[12px] border-[6px] border-[#1d1d1d] bg-white shadow-[0_24px_50px_-28px_rgba(0,0,0,0.45)] md:rounded-[16px] md:border-[10px]";

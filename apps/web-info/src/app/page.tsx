@@ -19,7 +19,7 @@ import {
   PhotoHero,
 } from "@/apps/web-info/common/components/landing/PhotoHero";
 import { PHONE_HERO } from "@/apps/web-info/common/components/landing/phone-hero";
-import { PhoneShot } from "@/apps/web-info/common/components/landing/Shots";
+import { ShotVideo } from "@/apps/web-info/common/components/landing/ShotVideo";
 import {
   FaqList,
   PainGrid,
@@ -40,9 +40,9 @@ import {
   type Qa,
 } from "@/apps/web-info/features/customer/components/CustomerSections";
 import photoHero from "@/apps/web-info/features/customer/assets/photo-hero-heart.jpg";
-import screenDesignPick from "@/apps/web-info/features/customer/assets/screen-design-pick.png";
-import screenHome from "@/apps/web-info/features/customer/assets/screen-home.png";
-import screenHomeDesigns from "@/apps/web-info/features/customer/assets/screen-home-designs.png";
+import videoDesign from "@/apps/web-info/features/customer/assets/video-design.jpg";
+import videoQuote from "@/apps/web-info/features/customer/assets/video-quote.jpg";
+import videoReserve from "@/apps/web-info/features/customer/assets/video-reserve.jpg";
 
 /**
  * 손님 소개 페이지 (`https://info.picakes.com/`, 2026-11-20 새로).
@@ -60,7 +60,10 @@ import screenHomeDesigns from "@/apps/web-info/features/customer/assets/screen-h
  *   예약 안내    예약 가능 날짜·진행 상황을 모른다(R-02) → 가게가 여는 날만(F-24), 알림톡(F-61)
  * 실제 가게가 아직 없어 가게 수·후기 수·평점은 쓰지 않는다. 사진 후기는 기능만 한 줄.
  *
- * 화면 그림: 상용 손님 웹을 2026-11-20 휴대폰 크기(390×844, 2배)로 찍은 것(로그인 안 함).
+ * 사용법 영상(2026-11-25, 사장님 소개 페이지와 같은 방식): 해결 줄 세 칸(디자인 고르기·견적 받기·예약)을 로컬 테스트 서버의
+ *   손님 웹을 실제로 눌러 녹화했다. 가게·손님은 예시("달콤스토어", 예시 손님). 디자인·견적은 로그인한 손님, 예약은 처음 온 손님(마지막에 로그인).
+ *   견적은 동네로 보내 운영자가 근처 가게에 묻는 실제 흐름이라 그 사이 시간을 잘라 냈고, 카카오의 실제 가게 이름이 뜨는 "꼭 물어볼 가게" 검색은
+ *   찍지 않았다. 내 사진 AI 읽기도 찍지 않았다(디자인 모음 사진은 미리 정리된 설명을 쓴다). 찍는 법은 docs/web-info/README.md "사용법 영상".
  * 사진: PC 첫 화면 Unsplash m4uypz8-zHU(Kurt Harvey, 분홍 하트 케이크 — 손님 앱 디자인 모음 "하트 빈티지"와 같은 사진의 큰 원본).
  *   상업 사용·수정 무료, 출처 표시 의무 없음.
  */
@@ -71,6 +74,15 @@ const SHARE_TITLE = "원하는 케이크, 사진으로 견적 받아요 | 픽케
 const SHARE_DESCRIPTION =
   "디자인 고르기부터 예약·픽업 안내까지 한 곳에서. 주문제작 케이크 예약은 픽케이크.";
 const PAGE_URL = `${SITE_BASE_URL}/`;
+
+/** 사용법 영상(public/videos/customer). 파일을 바꾸면 v를 올린다(/videos는 1년 캐시) */
+const VIDEO = {
+  design: "/videos/customer/design.mp4?v=1",
+  quote: "/videos/customer/quote.mp4?v=1",
+  reserve: "/videos/customer/reserve.mp4?v=1",
+} as const;
+/** 휴대폰 틀 폭: 영상 화면(390×560)이 PC 칸 높이 460px 안에 다 들어가게 280 */
+const PHONE_VIDEO = "w-[240px] md:w-[280px]";
 
 const ANCHOR = {
   design: "design",
@@ -318,10 +330,14 @@ export default function CustomerHomePage() {
               }
               body="생일·기념일처럼 어떤 날로, 레터링·꽃처럼 모양으로 골라 저장해요."
               shot={
-                <PhoneShot
-                  src={screenHomeDesigns}
-                  alt="손님 앱 홈의 '이런 디자인은 어떠세요?' 칸. 크리스마스 리스 케이크 사진과 '이 디자인으로 견적 받기'"
-                  className="h-[300px] w-[240px] md:h-[400px] md:w-[300px]"
+                <ShotVideo
+                  frame="phone"
+                  src={VIDEO.design}
+                  poster={videoDesign}
+                  start={3.6}
+                  label="디자인 고르기"
+                  alt="손님 앱 홈에서 '어떤 날 케이크가 필요하세요?'의 생일을 눌러 디자인 45개를 둘러보고, 딸기 빈티지 디자인을 열어 모양·색·장식을 본 뒤 저장하는 영상(예시)"
+                  className={PHONE_VIDEO}
                 />
               }
             />
@@ -338,10 +354,14 @@ export default function CustomerHomePage() {
               }
               body="사진에서 가져갈 것(모양·색·장식·글자)을 고르고 날짜·동네·예산을 적으면 가게 5곳까지 물어봐요. 내 사진을 올리면 AI가 모양·색·장식·글자를 읽어 설명을 채워요."
               shot={
-                <PhoneShot
-                  src={screenDesignPick}
-                  alt="손님 앱 디자인 상세에서 '이 사진에서 무엇을 가져갈까요?' 창. 전체·모양·색·장식·글자 고르기와 '견적 요청서 쓰기'"
-                  className="h-[300px] w-[240px] md:h-[400px] md:w-[300px]"
+                <ShotVideo
+                  frame="phone"
+                  src={VIDEO.quote}
+                  poster={videoQuote}
+                  start={10.4}
+                  label="견적 받기"
+                  alt="손님 앱에서 파스텔 빈티지 디자인의 '이 디자인으로 견적 받기'를 눌러 모양·장식만 고르면 요청서 설명이 채워지고, 날짜·동네·크기·예산을 넣어 보낸 뒤 가게 견적(48,000원, 비슷하게)이 도착하는 영상(예시)"
+                  className={PHONE_VIDEO}
                 />
               }
             />
@@ -357,10 +377,14 @@ export default function CustomerHomePage() {
               }
               body="사이즈·맛·레터링을 골라 예약해요. 가게가 여는 날·시간만 고를 수 있고, 오늘 가져갈 케이크는 당일픽업으로 찾아요."
               shot={
-                <PhoneShot
-                  src={screenHome}
-                  alt="손님 앱 홈. 검색창, 레터링·드로잉·캐릭터 등 카테고리 12칸, '오늘 바로 가져갈 수 있어요' 당일픽업 줄"
-                  className="h-[300px] w-[240px] md:h-[400px] md:w-[300px]"
+                <ShotVideo
+                  frame="phone"
+                  src={VIDEO.reserve}
+                  poster={videoReserve}
+                  start={13.4}
+                  label="예약"
+                  alt="손님 앱 상품에서 예약신청을 눌러 가게가 여는 날(쉬는 금요일은 막힘)과 오후 3시를 고르고, 1호·초콜릿·레터링 문구를 넣은 주문확인 뒤 마지막에 카카오·네이버·구글·애플 로그인 창이 뜨는 영상(예시)"
+                  className={PHONE_VIDEO}
                 />
               }
             />

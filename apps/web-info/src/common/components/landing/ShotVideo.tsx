@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { PC_FRAME, PHONE_FRAME } from "@/apps/web-info/common/components/landing/landing.styles";
 
 /**
- * 실제 앱을 눌러 가며 녹화한 짧은 사용법 영상(소리 없음, 반복). 화면 그림(`PhoneShot`·`PcShot`)과 같은 틀·같은 자리에 들어간다
+ * 실제 앱을 눌러 가며 녹화한 짧은 사용법 영상(소리 없음, 반복). 휴대폰 틀(`PHONE_FRAME`)·컴퓨터 화면 그림(`PcShot`)과 같은 틀로 칸의 화면 자리에 들어간다
  * (2026-11-24 운영자 "소개페이지에 동영상", 유튜브 등 다른 곳에는 올리지 않음). 만드는 법은 docs/web-info/README.md "사용법 영상".
  *
  * - 처음에는 포스터(그 칸을 가장 잘 보여 주는 장면) 그림만 받는다. 칸이 반 넘게 0.3초 이상 보이면 영상을 받아 포스터 장면부터 재생하고,

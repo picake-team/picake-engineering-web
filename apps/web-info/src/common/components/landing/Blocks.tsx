@@ -95,7 +95,7 @@ export function SolveRow({
   tag: string;
   title: ReactNode;
   body: ReactNode;
-  /** 칸 아래에 붙는 화면(PhoneShot 등) */
+  /** 칸 아래에 붙는 화면(사용법 영상 ShotVideo 등) */
   shot: ReactNode;
   flip?: boolean;
   /** 앞 칸 제목 아래 줄이면 h3, 혼자 서는 칸이면 h2(화면 읽기 프로그램의 제목 순서) */
