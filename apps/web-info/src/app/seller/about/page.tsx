@@ -117,7 +117,7 @@ const VIDEO = {
   order: "/videos/seller/order.mp4?v=1",
   chatOrder: "/videos/seller/chat-order.mp4?v=1",
   storeLink: "/videos/seller/store-link.mp4?v=1",
-  productCreate: "/videos/seller/product-create.mp4?v=1",
+  productCreate: "/videos/seller/product-create.mp4?v=2",
 } as const;
 /** 휴대폰 틀 폭: 영상 화면(390×560)이 PC 칸 높이 460px 안에 다 들어가게 280 */
 const PHONE_VIDEO = "w-[240px] md:w-[280px]";
@@ -420,6 +420,7 @@ export default function SellerAboutPage() {
                     frame="phone"
                     src={VIDEO.quote}
                     poster={videoQuote}
+                    label="견적"
                     start={0.5}
                     alt="판매자 앱 채팅에 온 손님 견적 요청서(참고 사진, 픽업 날짜, 1호 생크림, 예산 4만~6만원)에 금액 45,000원과 '비슷하게'를 골라 보내고, 손님이 그 견적으로 예약을 신청하자 '새 예약 신청이 왔어요' 알림을 눌러 예약을 여는 영상(예시)"
                     className={PHONE_VIDEO}
@@ -443,6 +444,7 @@ export default function SellerAboutPage() {
                     frame="phone"
                     src={VIDEO.order}
                     poster={videoOrder}
+                    label="주문서"
                     start={5.6}
                     alt="판매자 앱 주문 목록에서 예약 신청을 열어 사이즈·맛·초, 레터링 문구 '서연아 생일 축하해', 참고 사진, 요청 사항을 한 화면에서 보고 '예약 확인'을 누르자 입금 대기로 바뀌는 영상(예시)"
                     className={PHONE_VIDEO}
@@ -465,6 +467,7 @@ export default function SellerAboutPage() {
                     frame="phone"
                     src={VIDEO.chatOrder}
                     poster={videoChatOrder}
+                    label="카톡 주문 정리"
                     start={7.2}
                     alt="판매자 앱 '주문 적기'에서 복사해 둔 카톡 대화를 붙여 넣자 픽업 11월 28일 15:00, 2호 초코, 레터링, 52,000원 입금 받음, 손님 이름, 받은 곳 카톡, 메모가 채워지고, 등록하면 그날 달력에 픽케이크 예약과 함께 보이는 영상(예시)"
                     className={PHONE_VIDEO}
@@ -523,8 +526,9 @@ export default function SellerAboutPage() {
               frame="pc"
               src={VIDEO.productCreate}
               poster={videoProductCreate}
-              start={10.5}
-              alt="사장님 PC 상품 등록 화면에서 사진, 상품명 '딸기 생크림 케이크', 기본 케이크, 판매가 38,000원, 사이즈 1호를 넣는 동안 오른쪽 손님 화면 미리보기가 바로 바뀌는 영상(예시 가게)"
+              label="상품 등록"
+              start={9}
+              alt="사장님 PC 상품 등록 화면에서 사진, 상품명 '레터링 도시락 케이크', 커스텀 케이크, 판매가 18,000원을 넣는 동안 오른쪽 손님 화면 미리보기가 바로 바뀌는 영상(예시 가게)"
               sizes="(min-width: 1024px) 640px, (min-width: 768px) 90vw, 85vw"
             />
           }
@@ -549,6 +553,7 @@ export default function SellerAboutPage() {
                   frame="phone"
                   src={VIDEO.storeLink}
                   poster={videoStoreLink}
+                  label="가게 링크"
                   start={2}
                   alt="판매자 앱 '손님에게 링크 보내기' 창(최근 30일 링크로 온 손님 48명, 예약 신청 9건)에서 링크를 복사하고, 손님이 그 링크로 들어와 로그인 없이 상품·픽업 날짜·사이즈·맛을 고른 뒤 마지막에 '로그인하고 예약신청'을 누르자 카카오·네이버·구글·애플 로그인 창이 뜨는 영상(예시)"
                   className={PHONE_VIDEO}
