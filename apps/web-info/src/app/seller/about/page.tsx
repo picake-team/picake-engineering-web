@@ -101,7 +101,7 @@ const PAGE_URL = `${SITE_BASE_URL}/seller/about`;
  * 그림을 바꾸면 `?v=`를 올린다(카카오톡·인스타그램이 그림 주소로 옛 그림을 기억한다).
  */
 const SHARE_IMAGE = {
-  url: `${SITE_BASE_URL}/images/og/seller-about.jpg?v=3`,
+  url: `${SITE_BASE_URL}/images/og/seller-about.jpg?v=4`,
   width: 1200,
   height: 630,
   alt: "픽케이크 사장님 입점: 사진으로 묻는 손님께 금액만 보내세요",

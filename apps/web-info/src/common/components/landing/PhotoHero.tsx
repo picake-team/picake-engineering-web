@@ -37,7 +37,8 @@ const TONE_VARS: Record<"dark" | "light", Record<string, string>> = {
 export function PhotoHero({ photo, position, phone, tone = "dark", children }: PhotoHeroProps) {
   const light = tone === "light";
   const common = { alt: "", fill: true, priority: true, fetchPriority: "high" as const };
-  const { props: pc } = getImageProps({ ...common, src: photo, sizes: "100vw" });
+  // 밝은 바탕은 PC 사진이 오른쪽 54~56%만 차지해 그만큼만 받는다(1440 폭 2배 화면에서 약 1600px)
+  const { props: pc } = getImageProps({ ...common, src: photo, sizes: light ? "56vw" : "100vw" });
   const { props: phoneImg } = getImageProps({ ...common, src: phone.photo, sizes: "100vw" });
 
   return (
