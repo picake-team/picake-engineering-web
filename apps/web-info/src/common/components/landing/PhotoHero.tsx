@@ -9,8 +9,20 @@ interface PhotoHeroProps {
   position: string;
   /** 휴대폰 사진과 보일 곳(`phone-hero.ts`). 사진 아래 흰 바탕에 글을 둔다 */
   phone: { photo: StaticImageData; position: string };
+  /**
+   * 바탕 색. `dark`(기본, 손님 소개): PC는 어두운 사진 위 흰 글자. `light`(사장님 소개, 운영자 2026-11-25 A안):
+   * 사장님 앱 스토어 그림 1·2장과 같은 밝은 베이지 바탕 — 휴대폰은 사진 아래가 베이지로 이어지고,
+   * PC는 왼쪽 베이지에 진한 글자, 오른쪽에 사진이 번져 들어온다.
+   */
+  tone?: "dark" | "light";
   children: ReactNode;
 }
+
+/** 글자 색. 휴대폰은 늘 흰·베이지 바탕이라 진한 글자, PC만 바탕에 따라 바뀐다(`--hero-fg`·`--hero-fg-muted`) */
+const TONE_VARS: Record<"dark" | "light", Record<string, string>> = {
+  dark: { "--hero-fg": "#fff", "--hero-fg-muted": "rgba(255,255,255,0.8)" },
+  light: { "--hero-fg": "#2A1D18", "--hero-fg-muted": "rgba(42,29,24,0.75)" },
+};
 
 /**
  * 첫 화면.
@@ -22,19 +34,39 @@ interface PhotoHeroProps {
  * 두 사진은 `<picture>`로 폭에 맞는 한 장만 받는다(next/image 두 장을 숨기면 둘 다 받는다).
  * 사진은 첫 화면의 가장 큰 그림(LCP)이라 먼저 받는다.
  */
-export function PhotoHero({ photo, position, phone, children }: PhotoHeroProps) {
+export function PhotoHero({ photo, position, phone, tone = "dark", children }: PhotoHeroProps) {
+  const light = tone === "light";
   const common = { alt: "", fill: true, priority: true, fetchPriority: "high" as const };
-  const { props: pc } = getImageProps({ ...common, src: photo, sizes: "100vw" });
+  // 밝은 바탕은 PC 사진이 오른쪽 54~56%만 차지해 그만큼만 받는다(1440 폭 2배 화면에서 약 1600px)
+  const { props: pc } = getImageProps({ ...common, src: photo, sizes: light ? "56vw" : "100vw" });
   const { props: phoneImg } = getImageProps({ ...common, src: phone.photo, sizes: "100vw" });
 
   return (
     <section
       id="top"
-      className="relative isolate flex flex-col bg-white max-md:min-h-[calc(100svh-138px-env(safe-area-inset-bottom))] md:h-[calc(100svh-72px)] md:max-h-[860px] md:min-h-[600px] md:flex-row md:overflow-hidden md:bg-[#1B1512]"
-      style={{ "--hero-pos-phone": phone.position, "--hero-pos-pc": position } as CSSProperties}
+      className={`relative isolate flex flex-col max-md:min-h-[calc(100svh-138px-env(safe-area-inset-bottom))] md:h-[calc(100svh-72px)] md:max-h-[860px] md:min-h-[600px] md:flex-row md:overflow-hidden ${
+        light
+          ? "bg-[#EFE8DC] md:bg-[linear-gradient(90deg,#E6E0D3_0%,#EFE8DC_100%)]"
+          : "bg-white md:bg-[#1B1512]"
+      }`}
+      // 밝은 베이지 #EFE8DC는 사장님 앱 스토어 그림 1·2장(F7a, hq marketing/banners/2026-11-mk14)과 같은 값
+      style={
+        {
+          "--hero-pos-phone": phone.position,
+          "--hero-pos-pc": position,
+          ...TONE_VARS[tone],
+        } as CSSProperties
+      }
     >
-      {/* 휴대폰 사진 칸은 글 칸을 뺀 남는 높이 전부(아주 낮은 화면에서도 220px은 남김). PC는 화면 전체 */}
-      <div className="relative -z-10 min-h-[220px] w-full flex-1 overflow-hidden bg-gray-50 md:absolute md:inset-0 md:h-full">
+      {/* 휴대폰 사진 칸은 글 칸을 뺀 남는 높이 전부(아주 낮은 화면에서도 220px은 남김).
+          PC는 어두운 바탕이면 화면 전체, 밝은 바탕이면 오른쪽(왼쪽 끝은 바탕으로 번지게) */}
+      <div
+        className={`relative -z-10 min-h-[220px] w-full flex-1 overflow-hidden md:absolute md:inset-y-0 md:right-0 md:h-full md:w-auto ${
+          light
+            ? "bg-[#EFE8DC] md:left-[46%] md:[-webkit-mask-image:linear-gradient(90deg,transparent_0%,#000_26%)] md:[mask-image:linear-gradient(90deg,transparent_0%,#000_26%)] lg:left-[44%]"
+            : "bg-gray-50 md:left-0"
+        }`}
+      >
         <picture>
           <source media="(min-width: 768px)" srcSet={pc.srcSet} sizes={pc.sizes} />
           <img
@@ -42,19 +74,25 @@ export function PhotoHero({ photo, position, phone, children }: PhotoHeroProps) 
             className="object-cover [object-position:var(--hero-pos-phone)] md:[object-position:var(--hero-pos-pc)]"
           />
         </picture>
-        {/* 휴대폰: 사진 아래쪽을 흰 바탕으로 이어 사진과 글 사이에 선이 생기지 않게 */}
+        {/* 휴대폰: 사진 아래쪽을 바탕(흰색·베이지)으로 이어 사진과 글 사이에 선이 생기지 않게 */}
         <div
           aria-hidden
-          className="absolute inset-x-0 bottom-0 h-20 bg-[linear-gradient(to_top,#fff,rgba(255,255,255,0))] md:hidden"
+          className={`absolute inset-x-0 bottom-0 h-20 md:hidden ${
+            light
+              ? "bg-[linear-gradient(to_top,#EFE8DC,rgba(239,232,220,0))]"
+              : "bg-[linear-gradient(to_top,#fff,rgba(255,255,255,0))]"
+          }`}
         />
       </div>
-      {/* PC: 왼쪽 글 자리에 어두운 막 */}
+      {/* PC 어두운 바탕: 왼쪽 글 자리에 어두운 막 */}
+      {!light && (
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-10 hidden bg-[linear-gradient(90deg,rgba(20,17,15,0.88)_0%,rgba(20,17,15,0.52)_42%,rgba(20,17,15,0)_72%)] md:block"
+        />
+      )}
       <div
-        aria-hidden
-        className="absolute inset-0 -z-10 hidden bg-[linear-gradient(90deg,rgba(20,17,15,0.88)_0%,rgba(20,17,15,0.52)_42%,rgba(20,17,15,0)_72%)] md:block"
-      />
-      <div
-        className={`${WRAP} -mt-4 flex flex-col items-start pb-7 text-gray-900 md:mt-0 md:flex-1 md:justify-center md:pb-0 md:text-white`}
+        className={`${WRAP} -mt-4 flex flex-col items-start pb-7 text-gray-900 md:mt-0 md:flex-1 md:justify-center md:pb-0 md:text-[var(--hero-fg)]`}
       >
         {children}
       </div>
@@ -62,13 +100,16 @@ export function PhotoHero({ photo, position, phone, children }: PhotoHeroProps) 
   );
 }
 
-/** 첫 화면의 흐린 글자(제목 아래 작은 줄): 휴대폰 흰 바탕에서는 회색, PC 어두운 사진 위에서는 흰색 */
-const HERO_MUTED_TEXT = "text-gray-600 md:text-white/80";
+/** 첫 화면의 흐린 글자(제목 아래 작은 줄): 휴대폰은 회색, PC는 바탕에 맞춰(`PhotoHero` tone) */
+const HERO_MUTED_TEXT = "text-gray-600 md:text-[var(--hero-fg-muted)]";
+
+/** 첫 화면 작은 줄 안의 굵은 낱말(0원 등): 휴대폰은 진한 글자, PC는 바탕에 맞춰 */
+export const HERO_STRONG = "font-extrabold text-gray-900 md:text-[var(--hero-fg)]";
 
 /**
  * 첫 화면 형광펜(운영자 2026-11-25). 제목의 강조 낱말(`<em>`)과 작은 글의 0원(`<b>`)에 쓴다.
  * - 휴대폰(흰 바탕·진한 글자): 글자 아래쪽에 메인 주황(#FF653E)을 옅게 — 흰 바탕에서는 분홍빛으로 보인다(D안).
- * - PC(어두운 사진·흰 글자): 진한 주황 띠를 살짝 기울여(H5안). 옅게 깔면 어두운 사진 위에서 갈색으로 보여 진하게 했다.
+ * - PC: 진한 주황 띠를 살짝 기울여(H5안). 옅게 깔면 어두운 사진 위에서 갈색으로 보여 진하게 했다(밝은 바탕에서도 같은 띠에 진한 글자).
  * `HeroTitle`의 `[&_em]:` 이름에도 같은 값을 따로 적는다(tailwind는 글자 그대로 적힌 이름만 만든다).
  */
 export const HERO_MARKER =
