@@ -113,7 +113,7 @@ Picake web-user는 겉면만 앱 껍데기로 감싼 **웹뷰 앱**입니다 —
 2. "앱 버전" 라벨을 **2초 이내 간격으로 10회 연속 탭** → 심사용 로그인 바텀시트(`ReviewLoginBottomSheet`) 노출
 3. 6자리 코드 입력 → `POST /v1/consumer/auth/review-login` 호출 → 심사용 계정(`phone: "REVIEW_ACCOUNT"`, 최초 호출 시 자동 생성)으로 로그인
 
-**코드 관리(2026-11-15~)**: 판매자(§2-1)와 같이 **코드를 레포에 두지 않습니다.** 코드는 운영자 비밀번호 관리자에만 두고, 서버는 GitHub Actions 비밀값 `CONSUMER_REVIEW_LOGIN_CODE_SHA256`(코드의 SHA-256 16진수)과 비교합니다. 비밀값이 없으면 손님 심사용 로그인은 꺼집니다. 예전에는 코드가 `auth.constants.ts`에 그대로 있어(공개 레포) 11-15에 새 코드로 바꿨고, 예전 코드는 막힙니다. 코드를 바꿀 때: `printf '<새 6자리>' | shasum -a 256` 값을 `gh secret set CONSUMER_REVIEW_LOGIN_CODE_SHA256 --repo picake-team/picake-engineering-backend`로 넣고 backend를 다시 배포합니다. 심사노트에는 `{REVIEW_CODE}`로 쓰고 App Store Connect·Play Console에 붙일 때만 채웁니다. 테스트(CI·로컬 `.env.test`)는 테스트 전용 코드 000000의 해시를 씁니다.
+**코드 관리(2026-11-15~)**: 판매자(§2-1)와 같이 **코드를 레포에 두지 않습니다.** 코드는 운영자 비밀번호 관리자에만 두고, 서버는 GitHub Actions 비밀값 `CONSUMER_REVIEW_LOGIN_CODE_SHA256`(코드의 SHA-256 16진수)과 비교합니다. 비밀값이 없으면 손님 심사용 로그인은 꺼집니다. 예전에는 코드가 `auth.constants.ts`에 그대로 있어(공개 레포) 11-15에 새 코드로 바꿨고, 예전 코드는 막힙니다. 2026-11-25 Google Play 손님 앱 심사를 낼 때 운영자가 다시 새 코드로 정했습니다(서버 production v0.0.72). 코드를 바꿀 때: `printf '<새 6자리>' | shasum -a 256` 값을 `gh secret set CONSUMER_REVIEW_LOGIN_CODE_SHA256 --repo picake-team/picake-engineering-backend`로 넣고 backend를 다시 배포합니다. 비밀값만 바뀌었으면 마지막 production 태그와 같은 main 커밋에 다음 번호 태그를 붙입니다(판매자 11-25 v0.0.71, 손님 11-25 v0.0.72). 다시 배포하기 전에는 새 코드가 통하지 않으니, 콘솔에 새 코드를 넣고 심사를 내는 것은 배포가 끝난 뒤에 합니다. 심사노트에는 `{REVIEW_CODE}`로 쓰고 App Store Connect·Play Console에 붙일 때만 채웁니다. 테스트(CI·로컬 `.env.test`)는 테스트 전용 코드 000000의 해시를 씁니다.
 
 ## 2-1. 판매자 앱 심사용 로그인 (픽케이크 사장님, 기획 I-48)
 
@@ -141,7 +141,7 @@ Account deletion: 마이페이지 → 회원 탈퇴 (the review account can alwa
 
 ## 2-2. Google Play 심사 (앱 액세스·데이터 보안)
 
-Play Console에는 App Store 심사노트 대신 **앱 콘텐츠 → 앱 액세스**에 들어가는 방법을 적는다. 손님 앱은 §2, 판매자 앱은 §2-1의 심사용 로그인을 같은 글로 쓰고(코드는 붙일 때만 채운다), **데이터 보안** 설문은 App Store의 App Privacy와 같은 기준([[picake-legal-terms]] 처리방침의 수집 항목)으로 맞춘다.
+Play Console에는 App Store 심사노트 대신 **앱 콘텐츠 → 로그인 세부정보**(예전 이름 "앱 액세스")에 들어가는 방법을 적는다. 이름 "Review login (심사용 로그인)", 코드는 **비밀번호 칸**에만 넣고(운영자가 직접), 안내 글에는 "enter the 6-digit code from the Password field above"라고 쓴다. 두 앱에 실제로 넣은 안내 글·데이터 보안·콘텐츠 등급 답의 원문은 비공개 hq `marketing/store-listing.md`에 있다(판매자 앱 11-25 출시, 손님 앱 11-25 등록정보 검토 제출). 손님 앱은 §2, 판매자 앱은 §2-1의 심사용 로그인을 같은 글로 쓰고(코드는 붙일 때만 채운다), **데이터 보안** 설문은 App Store의 App Privacy와 같은 기준([[picake-legal-terms]] 처리방침의 수집 항목)으로 맞춘다.
 
 ## 3. App Store Connect 심사노트(App Review Information → Notes) 문구 초안
 
