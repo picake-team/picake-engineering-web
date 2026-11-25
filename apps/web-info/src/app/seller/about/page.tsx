@@ -23,11 +23,11 @@ import { StickyCta } from "@/apps/web-info/common/components/landing/StickyCta";
 import {
   HeroLead,
   HERO_MARKER,
+  HERO_STRONG,
   HeroTitle,
   PhotoHero,
 } from "@/apps/web-info/common/components/landing/PhotoHero";
 import { KakaoLink, PrimaryLink } from "@/apps/web-info/common/components/landing/Buttons";
-import { PHONE_HERO } from "@/apps/web-info/common/components/landing/phone-hero";
 import { ShotVideo } from "@/apps/web-info/common/components/landing/ShotVideo";
 import { PcShot } from "@/apps/web-info/common/components/landing/Shots";
 import {
@@ -45,7 +45,7 @@ import {
   TextWithPc,
   ZeroPrice,
 } from "@/apps/web-info/features/seller/components/SellerSections";
-import photoHero from "@/apps/web-info/features/seller/assets/photo-hero-ribbon.jpg";
+import photoHero from "@/apps/web-info/features/seller/assets/photo-hero-baker.jpg";
 import videoQuote from "@/apps/web-info/features/seller/assets/video-quote.jpg";
 import videoOrder from "@/apps/web-info/features/seller/assets/video-order.jpg";
 import videoChatOrder from "@/apps/web-info/features/seller/assets/video-chat-order.jpg";
@@ -80,8 +80,9 @@ import pcOrders from "@/apps/web-info/features/seller/assets/pc-orders.png";
  * 사용법 영상(2026-11-24, 운영자 "소개페이지에 동영상", 이 페이지에만 올림): 그림 한 장으로는 "바뀌는 순간"이 안 보이는 칸만
  *   견적·주문서·카톡 주문 정리·상품 등록(PC)·가게 링크 다섯 칸. 로컬 테스트 서버의 예시 가게 "달콤스토어"를 실제로 눌러 녹화했다.
  *   카톡 대화 읽기 결과는 같은 대화를 실제 AI가 읽은 결과(AI Draft Smoke 2026-11-19)다. 찍는 법은 docs/web-info/README.md "사용법 영상".
- * 사진: 첫 화면 Pexels 30637504(Meryem Şahin, 검정 리본 케이크 — 손님 앱 디자인 모음 "검정 리본"과 같은 사진의 큰 원본),
- *   상업 사용·수정 무료, 출처 표시 의무 없음. (마지막 칸 꽃 사진은 2026-11-25 뺐다)
+ * 사진: 첫 화면 Unsplash 1786114352364-b354a97bfbce(짤주머니로 크림을 짜는 사장님, 얼굴 없음 — 사장님 앱 스토어 그림 1·2장과 같은 사진,
+ *   운영자 2026-11-25 A안: 휴대폰·PC 같은 사진, 스토어와 같은 밝은 베이지 바탕). 상업 사용·수정 무료, 출처 표시 의무 없음.
+ *   예전 첫 화면 사진(PC 검정 리본 케이크 Pexels 30637504, 휴대폰 딸기 생크림)과 마지막 칸 꽃 사진은 2026-11-25 뺐다.
  */
 /**
  * 검색·AI 답변용 문구(2026-11-14). 사장님이 검색할 말(주문제작 케이크·예약·견적)과 한글·영문 이름(픽케이크·Picake)을 앞에 둔다.
@@ -100,7 +101,7 @@ const PAGE_URL = `${SITE_BASE_URL}/seller/about`;
  * 그림을 바꾸면 `?v=`를 올린다(카카오톡·인스타그램이 그림 주소로 옛 그림을 기억한다).
  */
 const SHARE_IMAGE = {
-  url: `${SITE_BASE_URL}/images/og/seller-about.jpg?v=3`,
+  url: `${SITE_BASE_URL}/images/og/seller-about.jpg?v=4`,
   width: 1200,
   height: 630,
   alt: "픽케이크 사장님 입점: 사진으로 묻는 손님께 금액만 보내세요",
@@ -288,10 +289,15 @@ export default function SellerAboutPage() {
       />
 
       <main className="bg-white text-gray-900">
-        {/* 1. 첫 화면: PC는 어두운 케이크 사진 + 흰 글자(시안 F), 휴대폰은 딸기 생크림 사진(PHONE_HERO) */}
+        {/* 1. 첫 화면: 사장님 사진(스토어 그림 1·2장과 같은 사진)에 밝은 베이지 바탕. 휴대폰은 사진 아래 글, PC는 왼쪽 글 | 오른쪽 사진 */}
         {/* 운영자 2026-11-25: 머리말은 화면에서만 숨기고(검색용으로 남음) 강조는 형광펜(휴대폰 D안 분홍빛 · PC H5안 기운 주황 띠),
             앱 안내 줄("앱은 안드로이드부터…")은 빼고(PC P4안 — 같은 말이 사장님 앱 칸에 있음), 휴대폰 사진은 아래 버튼 위까지 가득 */}
-        <PhotoHero photo={photoHero} position="50% 56%" phone={PHONE_HERO}>
+        <PhotoHero
+          photo={photoHero}
+          position="50% 34%"
+          phone={{ photo: photoHero, position: "50% 30%" }}
+          tone="light"
+        >
           <HeroTitle eyebrow="주문제작 케이크 가게 사장님께">
             사진으로 묻는 손님께
             <br />
@@ -299,8 +305,7 @@ export default function SellerAboutPage() {
           </HeroTitle>
           {/* 0원을 첫 화면에(운영자 2026-11-25 L3). 말은 11-19 수익 모델대로 — "평생 무료"·"모든 기능 무료"는 쓰지 않는다 */}
           <HeroLead>
-            주문 수수료도, 월 이용료도{" "}
-            <b className={`font-extrabold text-gray-900 md:text-white ${HERO_MARKER}`}>0원</b>
+            주문 수수료도, 월 이용료도 <b className={`${HERO_STRONG} ${HERO_MARKER}`}>0원</b>
             이에요
           </HeroLead>
           {/* 첫 화면 버튼은 PC만(운영자 2026-11-25: 휴대폰은 아래 고정 버튼 "입점 신청하기"·"앱 받기"만). 노랑 카카오톡 버튼은 뺌(위쪽 줄 "카카오톡 문의"·마무리 칸에 남음) */}
