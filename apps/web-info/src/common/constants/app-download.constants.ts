@@ -16,3 +16,14 @@ export const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com
 
 /** 앱 없이 쓰는 손님 웹 */
 export const CUSTOMER_WEB_URL = "https://picakes.com";
+
+/**
+ * 사장님 앱 "픽케이크 사장님"(판매자 앱, 기획 I-48). Google Play는 2026-11-25 출시, App Store는 아직 없다.
+ * 사장님 소개(`/seller/about`)의 앱 받기는 이 사이트의 `/seller/app`으로 보내고, 그 주소가 기기에 맞는 곳으로 보낸다
+ * (`app/seller/app/route.ts`). App Store에 나오면 거기에 아이폰 줄을 더하고 화면의 "아이폰 앱은 준비 중" 글을 뺀다.
+ */
+export const SELLER_PLAY_STORE_URL =
+  "https://play.google.com/store/apps/details?id=com.pickage.package.seller";
+
+/** 기기에 맞게 보내는 사장님 앱 입구(휴대폰 "앱 받기", PC QR). QR에는 스토어 주소 대신 이 주소를 넣는다 */
+export const SELLER_APP_DOWNLOAD_PATH = "/seller/app";

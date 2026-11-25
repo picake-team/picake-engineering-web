@@ -1,4 +1,3 @@
-import Image, { type StaticImageData } from "next/image";
 import type { ReactNode } from "react";
 import {
   CARD_BODY,
@@ -180,39 +179,5 @@ export function FaqList({ items }: { items: Faq[] }) {
         </div>
       ))}
     </dl>
-  );
-}
-
-/** 마지막 칸: 본문 폭 안 둥근 사진 칸 + 한 줄 + 버튼 */
-export function ClosingBox({
-  id,
-  photo,
-  title,
-  children,
-}: {
-  id?: string;
-  photo: StaticImageData;
-  title: ReactNode;
-  children: ReactNode;
-}) {
-  return (
-    <section id={id} className="pb-16 md:pb-28">
-      <div className={WRAP}>
-        <div className="relative isolate overflow-hidden rounded-[24px] bg-[#1B1512] px-6 py-16 text-center text-white md:rounded-[28px] md:py-24">
-          <Image
-            src={photo}
-            alt=""
-            fill
-            sizes="(min-width: 1280px) 1200px, 100vw"
-            className="-z-10 object-cover"
-          />
-          <div aria-hidden className="absolute inset-0 -z-10 bg-[rgba(27,21,18,0.62)]" />
-          <h2 className={TITLE}>{title}</h2>
-          <div className="mx-auto mt-8 flex max-w-[320px] flex-col gap-2 md:max-w-none md:flex-row md:justify-center md:gap-3">
-            {children}
-          </div>
-        </div>
-      </div>
-    </section>
   );
 }

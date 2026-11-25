@@ -4,6 +4,11 @@ import {
   SELLER_SIGNUP_URL,
 } from "@/apps/web-info/common/constants/partner.constants";
 import { SITE_BASE_URL } from "@/apps/web-info/common/constants/site.constants";
+import { SELLER_PLAY_STORE_URL } from "@/apps/web-info/common/constants/app-download.constants";
+import {
+  SellerAppBand,
+  SellerAppButtons,
+} from "@/apps/web-info/features/seller/components/SellerAppDownload";
 import { JsonLd } from "@/apps/web-info/common/components/seo/JsonLd";
 import {
   ORGANIZATION_ID,
@@ -13,6 +18,7 @@ import { SiteHeader } from "@/apps/web-info/common/components/landing/SiteHeader
 import { SiteFooter } from "@/apps/web-info/common/components/landing/SiteFooter";
 import { StickyCta } from "@/apps/web-info/common/components/landing/StickyCta";
 import {
+  HERO_MUTED_TEXT,
   HeroLead,
   HeroTitle,
   PhotoHero,
@@ -20,72 +26,59 @@ import {
 import { KakaoLink, PrimaryLink } from "@/apps/web-info/common/components/landing/Buttons";
 import { PHONE_HERO } from "@/apps/web-info/common/components/landing/phone-hero";
 import { ShotVideo } from "@/apps/web-info/common/components/landing/ShotVideo";
+import { PcShot } from "@/apps/web-info/common/components/landing/Shots";
 import {
-  ClosingBox,
   FaqList,
   PainGrid,
   SectionHeading,
   SolveRow,
   SplitSection,
-  TileGrid,
   type Faq,
   type Pain,
-  type Tile,
 } from "@/apps/web-info/common/components/landing/Blocks";
+import { PAPER, SECTION_Y, WRAP } from "@/apps/web-info/common/components/landing/landing.styles";
 import {
-  LEAD,
-  PAPER,
-  SECTION_Y,
-  WRAP,
-} from "@/apps/web-info/common/components/landing/landing.styles";
-import {
-  CompareTable,
-  FromToCards,
   HelpList,
-  PcGallery,
   TextWithPc,
   ZeroPrice,
-  type CompareRow,
-  type FromToCard,
-  type PcFeature,
 } from "@/apps/web-info/features/seller/components/SellerSections";
 import photoHero from "@/apps/web-info/features/seller/assets/photo-hero-ribbon.jpg";
-import photoFlower from "@/apps/web-info/features/seller/assets/photo-flower.jpg";
 import videoQuote from "@/apps/web-info/features/seller/assets/video-quote.jpg";
 import videoOrder from "@/apps/web-info/features/seller/assets/video-order.jpg";
 import videoChatOrder from "@/apps/web-info/features/seller/assets/video-chat-order.jpg";
 import videoStoreLink from "@/apps/web-info/features/seller/assets/video-store-link.jpg";
 import videoProductCreate from "@/apps/web-info/features/seller/assets/video-product-create.jpg";
-import pcCalendar from "@/apps/web-info/features/seller/assets/pc-calendar.png";
-import pcExport from "@/apps/web-info/features/seller/assets/pc-export.png";
 import pcOrders from "@/apps/web-info/features/seller/assets/pc-orders.png";
-import pcPrint from "@/apps/web-info/features/seller/assets/pc-print.png";
 
 /**
  * 사장님 입점 소개 페이지 (`https://info.picakes.com/seller/about`).
  * 2026-11-14 다시 만듦, 2026-11-17 시안 A(토스플레이스 방식), 2026-11-20 휴대폰·PC 새 구성(기획 I-49 이어서).
  *
  * 2026-11-20 운영자 결정: 첫 화면은 시안 F(어두운 케이크 사진 가득 + 흰 글자, 위쪽 줄·나머지 바탕은 밝게),
- * 두 번째 화면부터는 시안 A(고민 → 카톡과 비교 → 해결, 케끄 파트너 페이지의 순서). 글은 한 벌이고 휴대폰은 쌓고 PC는 나란히 둔다.
+ * 두 번째 화면부터는 시안 A(고민 → 해결, 케끄 파트너 페이지의 순서). 글은 한 벌이고 휴대폰은 쌓고 PC는 나란히 둔다.
+ * 2026-11-25 운영자 "덜 복잡하게, 읽기 쉽게": 고민 칸과 겹치던 카톡 비교표·AI 칸(카드 3장)을 빼고 AI 문장은 해결 줄로 옮김,
+ * 가게 컴퓨터는 그림 넷 → 상품 등록과 같은 글 | 화면 한 장, 이것도 돼요는 색 칸 → 줄 목록, 첫 화면 노랑 카카오톡 버튼 → 앱 받기,
+ * 마무리 칸은 사진 없이 카카오톡 문의만(입점 신청은 첫 화면·위쪽 줄·휴대폰 아래 버튼). 사장님 앱 띠·자주 묻는 질문 "휴대폰 앱"을 더함.
  *
  * 내세우는 것과 근거(사장님이 실제로 한 말, 기획 R-03 설문·R-04 답장·방문). 없는 기능·숫자·후기는 쓰지 않는다
  *   견적         "디자인마다 가격이 달라 정가 앱은 쓰기 어렵다"(R-04) → 요청서·견적 보내기·견적 받기 상품(I-46·I-01, P-84·P-94)
  *   주문서       번거로운 일 "주문 정보 누락·오기입"(R-03) → 상품 옵션·레터링·참고 사진·픽업 일시(F-08)
  *   카톡 주문 정리 "주문서가 등록되면 캘린더에 바로"(R-03) → 직접 적은 주문·대화/캡처 읽기·같은 달력(I-42, F-71·P-92)
- *   AI가 채워요   "주문 응대가 AI 수준이어야 카톡·네이버와 다르다"(R-03) → 대화·캡처 읽기(P-92), 손님 사진 읽기(P-89), 설명 초안(P-62)
+ *   AI           "주문 응대가 AI 수준이어야 카톡·네이버와 다르다"(R-03) → 해결 줄 안에: 손님 사진 읽기(견적, P-89)·대화·캡처 읽기(카톡 주문 정리, P-92)·설명 초안(상품 등록, P-62)
  *   등록 한 화면  "사진 보내고 등록할 시간이 전혀 없다"(R-04) → 한 화면 등록(F-25), AI 초안, 손님 화면 미리보기(F-76), 처음 등록 대행(P-60)
  *   가게 링크     "손님 가입이 간편해야 이탈이 적다"(R-03) → 마지막에 로그인(I-59), 링크 숫자(I-45)
+ *   사장님 앱     2026-11-25 Google Play 출시(I-48) → 새 예약·입금·채팅 휴대폰 알림(서버 알림 문구와 같음). 아이폰 앱은 준비 중
  *   가게 컴퓨터   2026-11-19 새 사장님이 PC로 가입(hq 연락 기록) → PC 화면(F-73~F-77)
  *   정산          "지금 정산 주기에 불만, 즉시 정산 선호"(R-03) → 손님이 가게 계좌로 바로(F-09)
  * 네이버 예약 상품·매장 정보 가져오기(I-10·I-43)는 공식 연동이 아니고 법무 점검표 18번이 "확인 필요"라 내세우지 않는다
  * (2026-11-20 운영자 "네이버 크롤링은 합법이 아닌 걸로 안다" → AI 판단).
  *
- * 화면 그림: PC 화면 4장은 로컬 심사용 예시 가게를 "달콤스토어"로 보이게 해 찍은 것(2026-11-20). 실제 가게·손님·주문이 아니다.
+ * 화면 그림: PC 화면(지금은 주문 화면 한 장)은 로컬 심사용 예시 가게를 "달콤스토어"로 보이게 해 찍은 것(2026-11-20). 실제 가게·손님·주문이 아니다.
  * 사용법 영상(2026-11-24, 운영자 "소개페이지에 동영상", 이 페이지에만 올림): 그림 한 장으로는 "바뀌는 순간"이 안 보이는 칸만
  *   견적·주문서·카톡 주문 정리·상품 등록(PC)·가게 링크 다섯 칸. 로컬 테스트 서버의 예시 가게 "달콤스토어"를 실제로 눌러 녹화했다.
  *   카톡 대화 읽기 결과는 같은 대화를 실제 AI가 읽은 결과(AI Draft Smoke 2026-11-19)다. 찍는 법은 docs/web-info/README.md "사용법 영상".
  * 사진: 첫 화면 Pexels 30637504(Meryem Şahin, 검정 리본 케이크 — 손님 앱 디자인 모음 "검정 리본"과 같은 사진의 큰 원본),
- *   마지막 칸 Unsplash lqM8r5cg5k4(Kash Tandon). 상업 사용·수정 무료, 출처 표시 의무 없음.
+ *   상업 사용·수정 무료, 출처 표시 의무 없음. (마지막 칸 꽃 사진은 2026-11-25 뺐다)
  */
 /**
  * 검색·AI 답변용 문구(2026-11-14). 사장님이 검색할 말(주문제작 케이크·예약·견적)과 한글·영문 이름(픽케이크·Picake)을 앞에 둔다.
@@ -128,6 +121,7 @@ const ANCHOR = {
   orderForm: "order-form",
   chatOrder: "chat-order",
   pc: "pc",
+  app: "app",
   start: "start",
   faq: "faq",
 } as const;
@@ -159,86 +153,17 @@ const PAINS: Pain[] = [
   },
 ];
 
-/** 카톡과 비교되는 것만(손님 가입·정산·비용은 카톡도 같아 넣지 않는다, 2026-11-20 검토) */
-const COMPARE: CompareRow[] = [
-  {
-    label: "가격 문의",
-    before: "사진을 보고 몇 번씩 주고받아요",
-    after: "요청서에 금액만 적어 보내요",
-  },
-  {
-    label: "주문 내용",
-    before: "레터링·사진·픽업 시간을 하나씩 물어요",
-    after: "손님이 주문서에 골라 보내요",
-  },
-  {
-    label: "“그날 돼요?”",
-    before: "날짜마다 되는지 답해요",
-    after: "가게가 여는 날·시간만 손님이 골라요",
-  },
-  {
-    label: "픽업 일정",
-    before: "대화방을 뒤져 날짜를 찾아요",
-    after: "달력에 날짜별로 보여요(카톡 주문도)",
-  },
-  { label: "입금·픽업 안내", before: "손님마다 직접 보내요", after: "알림톡이 알아서 가요" },
-];
-
-const AI_CARDS: FromToCard[] = [
-  {
-    from: "카톡 대화 · 캡처",
-    title: "주문이 채워져요",
-    body: "붙여 넣거나 캡처를 올리면 픽업 날짜·케이크·레터링·금액·입금이 들어가요.",
-  },
-  {
-    from: "손님이 올린 참고 사진",
-    title: "요청서 설명이 채워져요",
-    body: "모양·색·장식·글자를 읽어 요청서 설명으로 적어 와요.",
-  },
-  {
-    from: "적어 둔 사실 · 사이즈 · 옵션",
-    title: "상품 설명 초안을 써요",
-    body: "모르는 재료·보관 정보는 지어내지 않고 “[판매자 확인 필요]”로 남겨요.",
-  },
-];
-
-const PC_FEATURES: PcFeature[] = [
-  {
-    src: pcOrders,
-    alt: "사장님 PC 주문 화면. 왼쪽에 처리할 주문 목록, 오른쪽에 고른 주문의 픽업·주문 항목·레터링 상세(예시 가게)",
-    title: "목록과 상세를 나란히",
-    body: "주문을 누르면 옆 칸에 바로 보여요",
-  },
-  {
-    src: pcCalendar,
-    alt: "사장님 PC 캘린더. 날짜 칸마다 픽업 수와 픽업 줄, 오른쪽에 고른 날 픽업 목록(예시 가게)",
-    title: "달력 칸 안에 그날 픽업",
-    body: "날짜마다 픽업 수와 빼빼로·크리스마스 같은 대목이 보여요",
-  },
-  {
-    src: pcPrint,
-    alt: "그날 픽업할 주문서를 모은 인쇄 화면. 시간·케이크·레터링 문구(예시 가게)",
-    title: "그날 주문서 한 번에 인쇄",
-    body: "픽업 날 아침에 묶어서 뽑아요",
-  },
-  {
-    src: pcExport,
-    alt: "주문 화면 위에 열린 엑셀 내려받기 창. 기간을 고르는 칸(예시 가게)",
-    title: "주문·매출 엑셀로 내려받기",
-    body: "기간을 골라 엑셀·구글 시트로 열어요",
-  },
-];
-
-const MORE: Tile[] = [
-  { title: "영업 캘린더", body: "정기 휴무·영업시간, 그날만 쉬기·열기" },
-  { title: "입금 마감 자동 정리", body: "기한이 지나면 알아서 취소돼요" },
-  { title: "알림톡 자동 안내", body: "입금 계좌·픽업 전날·후기 부탁" },
-  { title: "손님 연락 채널", body: "채팅·카톡 채널·인스타·전화 중 보일 곳만" },
-  { title: "채팅", body: "손님 문의와 요청서를 한 곳에서" },
-  { title: "주문 찾기", body: "이름·전화 뒷자리·상품명으로" },
-  { title: "매출 통계", body: "기간별 매출과 잘 팔린 케이크" },
-  { title: "캘린더 내보내기", body: "아이폰·구글 캘린더로" },
-];
+/** 이것도 돼요: 이름 + 한 줄(처음 시작과 같은 줄 목록) */
+const MORE = [
+  ["영업 캘린더", "정기 휴무·영업시간, 그날만 쉬기·열기"],
+  ["입금 마감 자동 정리", "기한이 지나면 알아서 취소돼요"],
+  ["알림톡 자동 안내", "입금 계좌·픽업 전날·후기 부탁"],
+  ["손님 연락 채널", "채팅·카톡 채널·인스타·전화 중 보일 곳만"],
+  ["채팅", "손님 문의와 요청서를 한 곳에서"],
+  ["주문 찾기", "이름·전화 뒷자리·상품명으로"],
+  ["매출 통계", "기간별 매출과 잘 팔린 케이크"],
+  ["캘린더 내보내기", "아이폰·구글 캘린더로"],
+] as const;
 
 /** 처음 시작에 대신 해 드리는 일(2026-11-17 운영자 결정). 입점 조건(P-60)·카카오 채널·연락 문구와 같은 말이어야 한다 */
 const START_HELP = [
@@ -278,6 +203,10 @@ const FAQS: Faq[] = [
   {
     q: "컴퓨터에서도 쓸 수 있나요?",
     a: "네. 휴대폰과 컴퓨터(PC·태블릿)에서 같은 기능을 써요. 컴퓨터에서는 주문 목록과 상세를 나란히 보고, 주문·매출을 엑셀로 내려받고, 그날 주문서를 한 번에 인쇄해요.",
+  },
+  {
+    q: "휴대폰 앱이 있나요?",
+    a: "네. 안드로이드는 Google Play에서 “픽케이크 사장님” 앱을 받으면 새 예약 신청·손님 입금·채팅을 휴대폰 알림으로 받아요. 아이폰 앱은 준비 중이라 지금은 휴대폰 브라우저(seller.picakes.com)에서 같은 화면을 써요.",
   },
   { q: "배달도 되나요?", a: "지금은 매장 픽업 주문만 받아요." },
 ];
@@ -364,13 +293,16 @@ export default function SellerAboutPage() {
             <em>금액만</em> 보내세요
           </HeroTitle>
           <HeroLead>정해진 케이크는 주문서로, 예약은 달력으로</HeroLead>
+          {/* 손님 소개처럼 첫 화면에 앱 받기(운영자 2026-11-25). 노랑 카카오톡 버튼은 뺌(위쪽 줄 "카카오톡 문의"·마무리 칸에 남음) */}
           <div className="mt-7 flex w-full flex-col gap-2.5 md:mt-9 md:w-auto md:flex-row md:gap-3">
             <PrimaryLink id={HERO_CTA_ID} href={SELLER_SIGNUP_URL}>
               입점 신청하기
             </PrimaryLink>
-            {/* 맨 아래 마무리 칸과 같은 노랑 카카오 버튼(운영자 2026-11-21) */}
-            <KakaoLink href={KAKAO_CHANNEL_CHAT_URL}>카카오톡으로 물어보기</KakaoLink>
+            <SellerAppButtons cardSide="right" />
           </div>
+          <p className={`mt-3 text-[14px] leading-[1.6] md:mt-4 md:text-[15px] ${HERO_MUTED_TEXT}`}>
+            앱은 안드로이드부터 · 아이폰 앱은 준비 중이에요
+          </p>
         </PhotoHero>
 
         {/* 2. 고민: 사장님들이 들려준 어려움(R-03·R-04) */}
@@ -391,7 +323,7 @@ export default function SellerAboutPage() {
           </div>
         </section>
 
-        {/* 3. 카톡으로 받을 때와 비교 → 해결 줄(견적·주문서·카톡 주문 정리) */}
+        {/* 3. 해결 줄(견적·주문서·카톡 주문 정리·가게 링크). 고민 칸과 겹치던 비교표는 2026-11-25 뺐다 */}
         <section aria-labelledby="compare-title" className={SECTION_Y}>
           <div className={WRAP}>
             <SectionHeading
@@ -402,8 +334,7 @@ export default function SellerAboutPage() {
                 </>
               }
             />
-            <CompareTable rows={COMPARE} />
-            <div className="mt-10 grid gap-4 md:mt-14 md:gap-5">
+            <div className="mt-8 grid gap-4 md:mt-12 md:gap-5">
               <SolveRow
                 id={ANCHOR.quote}
                 tag="견적"
@@ -414,7 +345,7 @@ export default function SellerAboutPage() {
                     금액만 적어 보내요
                   </>
                 }
-                body="손님이 사진·픽업 날짜·예산을 보내면 채팅으로 요청서가 와요. 손님은 고른 견적으로 바로 예약 신청해요. 대표 디자인을 “견적 받기” 상품으로 올려 두면 손님이 그 디자인으로 바로 물어봐요."
+                body="손님이 사진·날짜·예산을 보내면 채팅으로 요청서가 와요. 사진은 AI가 읽어 설명을 채워 와요. 금액을 보내면 손님이 그 견적으로 바로 예약 신청해요."
                 shot={
                   <ShotVideo
                     frame="phone"
@@ -438,7 +369,7 @@ export default function SellerAboutPage() {
                     다시 묻지 않아도 돼요
                   </>
                 }
-                body="상품에 레터링 문구·참고 사진 칸을 넣어 두면 손님이 사이즈·맛·픽업 시간과 함께 골라 보내요. 예약을 확인하면 입금 안내·픽업 전날 안내·후기 부탁이 알림톡으로 가요."
+                body="상품에 레터링 문구·참고 사진 칸을 넣어 두면 손님이 사이즈·맛·픽업 시간과 함께 골라 보내요."
                 shot={
                   <ShotVideo
                     frame="phone"
@@ -461,7 +392,7 @@ export default function SellerAboutPage() {
                     붙여 넣으면 정리돼요
                   </>
                 }
-                body="대화를 붙여 넣거나 캡처를 올리면 날짜·케이크·금액이 채워지고, 픽케이크로 받은 예약과 같은 달력에 보여요. 아이폰·구글 캘린더로도 내보내요."
+                body="대화를 붙여 넣거나 캡처를 올리면 AI가 날짜·케이크·금액을 채우고, 픽케이크 예약과 같은 달력에 보여요."
                 shot={
                   <ShotVideo
                     frame="phone"
@@ -474,29 +405,34 @@ export default function SellerAboutPage() {
                   />
                 }
               />
+              <SolveRow
+                flip
+                tag="가게 링크"
+                title={
+                  <>
+                    인스타 프로필에 링크 하나,
+                    <br />
+                    손님은 가입 전에 끝까지 골라요
+                  </>
+                }
+                body="로그인은 마지막에 한 번이고 카카오·네이버·구글·애플 중 고르면 돼요. 링크로 몇 명이 들어와 몇 건 예약했는지도 보여요."
+                shot={
+                  <ShotVideo
+                    frame="phone"
+                    src={VIDEO.storeLink}
+                    poster={videoStoreLink}
+                    label="가게 링크"
+                    start={2}
+                    alt="판매자 앱 '손님에게 링크 보내기' 창(최근 30일 링크로 온 손님 48명, 예약 신청 9건)에서 링크를 복사하고, 손님이 그 링크로 들어와 로그인 없이 상품·픽업 날짜·사이즈·맛을 고른 뒤 마지막에 '로그인하고 예약신청'을 누르자 카카오·네이버·구글·애플 로그인 창이 뜨는 영상(예시)"
+                    className={PHONE_VIDEO}
+                  />
+                }
+              />
             </div>
           </div>
         </section>
 
-        {/* 4. AI가 채워요(R-03 "AI 수준이어야") */}
-        <section aria-labelledby="ai-title" className={`${PAPER} ${SECTION_Y}`}>
-          <div className={WRAP}>
-            <SectionHeading
-              id="ai-title"
-              kicker="입력은 AI가"
-              title={
-                <>
-                  손으로 적던 것을 <em>AI가 채워요</em>
-                </>
-              }
-              // 요청서 설명(가운데 카드)은 손님이 고친다 — "사장님이 저장"이라고 하지 않는다(P-89)
-              lead="채운 내용은 확인하고 고칠 수 있어요"
-            />
-            <FromToCards items={AI_CARDS} />
-          </div>
-        </section>
-
-        {/* 5. 상품 등록은 한 화면(R-04 "등록할 시간이 없다"). 네이버 가져오기는 내세우지 않는다(법무 점검표 18) */}
+        {/* 4. 상품 등록은 한 화면(R-04 "등록할 시간이 없다"). 네이버 가져오기는 내세우지 않는다(법무 점검표 18) */}
         <TextWithPc
           id="product"
           kicker="등록할 시간이 없으시면"
@@ -534,74 +470,49 @@ export default function SellerAboutPage() {
           }
         />
 
-        {/* 6. 가게 링크(R-03 "손님 가입이 간편해야") */}
-        <section className="pb-16 md:pb-28">
-          <div className={WRAP}>
-            <SolveRow
-              headingLevel="h2"
-              tag="가게 링크"
-              title={
-                <>
-                  인스타 프로필에 링크 하나,
-                  <br />
-                  손님은 가입 전에 끝까지 골라요
-                </>
-              }
-              body="로그인은 마지막에 한 번이고 카카오·네이버·구글·애플 중 고르면 돼요. 링크로 몇 명이 들어와 몇 건 예약했는지도 보여요."
-              shot={
-                <ShotVideo
-                  frame="phone"
-                  src={VIDEO.storeLink}
-                  poster={videoStoreLink}
-                  label="가게 링크"
-                  start={2}
-                  alt="판매자 앱 '손님에게 링크 보내기' 창(최근 30일 링크로 온 손님 48명, 예약 신청 9건)에서 링크를 복사하고, 손님이 그 링크로 들어와 로그인 없이 상품·픽업 날짜·사이즈·맛을 고른 뒤 마지막에 '로그인하고 예약신청'을 누르자 카카오·네이버·구글·애플 로그인 창이 뜨는 영상(예시)"
-                  className={PHONE_VIDEO}
-                />
-              }
-            />
-          </div>
-        </section>
-
-        {/* 7. 가게 컴퓨터에서도(2026-11-19 PC로 가입한 사장님) */}
-        <section
+        {/* 5. 가게 컴퓨터에서도(2026-11-19 PC로 가입한 사장님). 상품 등록과 같은 글 | 화면 한 장(2026-11-25 단순하게) */}
+        <TextWithPc
           id={ANCHOR.pc}
-          aria-labelledby="pc-title"
-          className={`${PAPER} ${SECTION_Y} overflow-hidden`}
-        >
-          <div className={WRAP}>
-            <SectionHeading
-              id="pc-title"
-              kicker="가게 컴퓨터에서도"
-              title={
-                <>
-                  휴대폰과 같은 주문을 <em>더 넓게</em>
-                </>
-              }
+          className={PAPER}
+          kicker="가게 컴퓨터에서도"
+          title={
+            <>
+              휴대폰과 같은 주문을
+              <br />
+              <em>더 넓게</em> 봐요
+            </>
+          }
+          points={[
+            <>
+              <b>목록과 상세를 나란히</b> · 주문을 누르면 옆 칸에 바로 보여요
+            </>,
+            <>
+              <b>그날 주문서 한 번에 인쇄</b> · 픽업 날 아침에 묶어서 뽑아요
+            </>,
+            <>
+              <b>주문·매출 엑셀로 내려받기</b> · 기간을 골라 열어요
+            </>,
+            <>
+              컴퓨터 알림을 켜 두면 <b>새 주문 알림</b>이 컴퓨터에도 떠요
+            </>,
+          ]}
+          shot={
+            <PcShot
+              src={pcOrders}
+              alt="사장님 PC 주문 화면. 왼쪽에 처리할 주문 목록, 오른쪽에 고른 주문의 픽업·주문 항목·레터링 상세(예시 가게)"
             />
-            <PcGallery items={PC_FEATURES} />
-            <p className={`${LEAD} mt-8 text-center md:mt-10`}>
-              컴퓨터 알림을 켜 두면 새 주문 알림이 컴퓨터에도 떠요.
-            </p>
-          </div>
-        </section>
+          }
+        />
 
-        {/* 8. 이것도 돼요("0원이어도 기능을 보고 정하겠다", R-03) */}
-        <section aria-labelledby="more-title" className={SECTION_Y}>
-          <div className={WRAP}>
-            <SectionHeading
-              id="more-title"
-              title={
-                <>
-                  이것도 <em>돼요</em>
-                </>
-              }
-            />
-            <TileGrid items={MORE} className="mt-8 md:mt-11" />
-          </div>
-        </section>
+        {/* 6. 이것도 돼요("0원이어도 기능을 보고 정하겠다", R-03). 색 칸 대신 처음 시작과 같은 줄 목록(2026-11-25 단순하게) */}
+        <SplitSection id="more" title="이것도 돼요">
+          <HelpList items={MORE} />
+        </SplitSection>
 
-        {/* 9. 처음 시작은 저희가 */}
+        {/* 7. 사장님 앱(2026-11-25 Google Play 출시, 기획 I-48). 손님 소개의 "사장님이세요?" 띠와 같은 모양 */}
+        <SellerAppBand id={ANCHOR.app} />
+
+        {/* 8. 처음 시작은 저희가 */}
         <SplitSection
           id={ANCHOR.start}
           title={
@@ -615,37 +526,46 @@ export default function SellerAboutPage() {
           <HelpList items={START_HELP} />
         </SplitSection>
 
-        {/* 10. 0원 + 정산(R-03 "즉시 정산 선호") */}
+        {/* 9. 0원 + 정산(R-03 "즉시 정산 선호") */}
         <ZeroPrice
           steps="사업자등록번호 확인 → 매장 정보"
           note="손님 입금은 가게 계좌로 바로 · 정산을 기다리지 않아요"
         />
 
-        {/* 11. 자주 묻는 질문 */}
+        {/* 10. 자주 묻는 질문 */}
         <SplitSection id={ANCHOR.faq} title="자주 묻는 질문">
           <FaqList items={FAQS} />
         </SplitSection>
 
-        {/* 12. 마무리 */}
-        <ClosingBox
+        {/* 11. 마무리: 사진 없이 카카오톡 문의만(운영자 2026-11-25 — 입점 신청은 첫 화면·위쪽 줄·휴대폰 아래 버튼에 있음) */}
+        <section
           id={CLOSING_ID}
-          photo={photoFlower}
-          title={
-            <>
-              함께 시작할 첫 가게를
-              <br />
-              찾고 있어요
-            </>
-          }
+          aria-labelledby="closing-title"
+          className={`${PAPER} py-14 md:py-20`}
         >
-          <PrimaryLink href={SELLER_SIGNUP_URL}>입점 신청하기</PrimaryLink>
-          <KakaoLink href={KAKAO_CHANNEL_CHAT_URL}>카카오톡으로 물어보기</KakaoLink>
-        </ClosingBox>
+          <div className={`${WRAP} flex flex-col items-center text-center`}>
+            <h2
+              id="closing-title"
+              className="text-[22px] leading-[1.35] font-extrabold tracking-[-0.03em] text-gray-900 md:text-[28px]"
+            >
+              궁금한 점은 편하게 물어보세요
+            </h2>
+            <p className="mt-1.5 text-[15px] leading-[1.6] text-gray-700 md:text-[17px]">
+              카카오톡 채널 “픽케이크”에서 답해 드려요
+            </p>
+            <div className="mt-6 w-full max-w-[320px] md:w-auto md:max-w-none">
+              <KakaoLink href={KAKAO_CHANNEL_CHAT_URL}>카카오톡으로 물어보기</KakaoLink>
+            </div>
+          </div>
+        </section>
       </main>
 
       <SiteFooter
         id={FOOTER_ID}
-        links={[{ label: "손님 화면 보기", href: "https://picakes.com" }]}
+        links={[
+          { label: "사장님 앱 받기(Google Play)", href: SELLER_PLAY_STORE_URL, external: true },
+          { label: "손님 화면 보기", href: "https://picakes.com" },
+        ]}
       />
 
       <StickyCta

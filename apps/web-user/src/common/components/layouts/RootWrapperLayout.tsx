@@ -62,9 +62,6 @@ export default function RootWrapperLayout({ children }: RootWrapperLayoutProps) 
     if (pathname === "/qa") return { variant: "minimal" };
     // 앱 다운로드 진입점(/app) 하위는 QR로 직진입하는 단독 화면이라 공통 헤더 없음
     if (pathname?.startsWith("/app/")) return { variant: "minimal" };
-    // 입점 안내(/partner)도 QR로 직진입하는 단독 화면
-    if (pathname === PATHS.PARTNER || pathname?.startsWith(`${PATHS.PARTNER}/`))
-      return { variant: "minimal" };
     // 로그인/회원가입 화면(콜백 포함)은 자체 레이아웃을 쓰므로 공통 헤더 없음
     if (pathname?.startsWith("/auth/")) return { variant: "minimal" };
     if (pathname?.startsWith("/mypage/")) return { variant: "minimal" };

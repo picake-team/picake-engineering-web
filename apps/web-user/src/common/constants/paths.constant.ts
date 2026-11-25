@@ -99,10 +99,10 @@ export const PATHS = {
 
   /**
    * 입점 안내 진입점 — 사장님께 보여주는 QR에 넣는 주소(`https://picakes.com/partner`).
-   * 입점 소개 페이지와 사전 수요조사 설문으로 연결합니다.
+   * 2026-11-25부터 사장님 소개(정보 사이트 `/seller/about`)로 바로 보낸다(`next.config.ts` redirects).
    */
   PARTNER: "/partner",
-  /** 입점 소개 페이지 (`/partner` 의 첫 버튼 "사장님 소개 페이지 보기") */
+  /** 사장님 소개 옛 주소(정보 사이트로 영구 이동, `next.config.ts` redirects) */
   PARTNER_ABOUT: "/partner/about",
 
   AUTH: {
