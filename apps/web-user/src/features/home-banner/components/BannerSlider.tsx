@@ -11,6 +11,7 @@ import type {
   HomeBannerImageAlign,
 } from "@/apps/web-user/features/home-banner/types/home-banner.type";
 import { Skeleton } from "@/apps/web-user/common/components/skeleton/Skeleton";
+import { resolveBannerLink } from "@/apps/web-user/features/home-banner/utils/banner-link.util";
 
 /** 정렬값 → object-position (이미지가 화면보다 넓을 때 잘리는 방향 제어) */
 const ALIGN_OBJECT_POSITION: Record<HomeBannerImageAlign, string> = {
@@ -117,20 +118,27 @@ export default function BannerSlider({ initialBanners }: { initialBanners?: Home
             />
           );
 
+          const link = banner.linkUrl ? resolveBannerLink(banner.linkUrl) : null;
+
           return (
             <SwiperSlide key={banner.id}>
-              {banner.linkUrl ? (
-                banner.linkUrl.startsWith("http") ? (
+              {link ? (
+                link.kind === "external" ? (
                   <a
-                    href={banner.linkUrl}
+                    href={link.href}
                     className="relative block h-full w-full"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     {slideContent}
                   </a>
+                ) : link.kind === "page" ? (
+                  // 우리 사이트 주소는 같은 창에서(손님 앱 웹뷰 밖으로 나가지 않게) — resolveBannerLink
+                  <a href={link.href} className="relative block h-full w-full">
+                    {slideContent}
+                  </a>
                 ) : (
-                  <Link href={banner.linkUrl} className="relative block h-full w-full">
+                  <Link href={link.href} className="relative block h-full w-full">
                     {slideContent}
                   </Link>
                 )
