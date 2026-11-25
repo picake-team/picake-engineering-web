@@ -4,7 +4,10 @@ import {
   SELLER_SIGNUP_URL,
 } from "@/apps/web-info/common/constants/partner.constants";
 import { SITE_BASE_URL } from "@/apps/web-info/common/constants/site.constants";
-import { SELLER_PLAY_STORE_URL } from "@/apps/web-info/common/constants/app-download.constants";
+import {
+  SELLER_APP_DOWNLOAD_PATH,
+  SELLER_PLAY_STORE_URL,
+} from "@/apps/web-info/common/constants/app-download.constants";
 import {
   SellerAppBand,
   SellerAppButtons,
@@ -18,8 +21,8 @@ import { SiteHeader } from "@/apps/web-info/common/components/landing/SiteHeader
 import { SiteFooter } from "@/apps/web-info/common/components/landing/SiteFooter";
 import { StickyCta } from "@/apps/web-info/common/components/landing/StickyCta";
 import {
-  HERO_MUTED_TEXT,
   HeroLead,
+  HERO_MARKER,
   HeroTitle,
   PhotoHero,
 } from "@/apps/web-info/common/components/landing/PhotoHero";
@@ -286,23 +289,27 @@ export default function SellerAboutPage() {
 
       <main className="bg-white text-gray-900">
         {/* 1. 첫 화면: PC는 어두운 케이크 사진 + 흰 글자(시안 F), 휴대폰은 딸기 생크림 사진(PHONE_HERO) */}
+        {/* 운영자 2026-11-25: 머리말은 화면에서만 숨기고(검색용으로 남음) 강조는 형광펜(휴대폰 D안 분홍빛 · PC H5안 기운 주황 띠),
+            앱 안내 줄("앱은 안드로이드부터…")은 빼고(PC P4안 — 같은 말이 사장님 앱 칸에 있음), 휴대폰 사진은 아래 버튼 위까지 가득 */}
         <PhotoHero photo={photoHero} position="50% 56%" phone={PHONE_HERO}>
           <HeroTitle eyebrow="주문제작 케이크 가게 사장님께">
             사진으로 묻는 손님께
             <br />
             <em>금액만</em> 보내세요
           </HeroTitle>
-          <HeroLead>정해진 케이크는 주문서로, 예약은 달력으로</HeroLead>
-          {/* 손님 소개처럼 첫 화면에 앱 받기(운영자 2026-11-25). 노랑 카카오톡 버튼은 뺌(위쪽 줄 "카카오톡 문의"·마무리 칸에 남음) */}
-          <div className="mt-7 flex w-full flex-col gap-2.5 md:mt-9 md:w-auto md:flex-row md:gap-3">
-            <PrimaryLink id={HERO_CTA_ID} href={SELLER_SIGNUP_URL}>
+          {/* 0원을 첫 화면에(운영자 2026-11-25 L3). 말은 11-19 수익 모델대로 — "평생 무료"·"모든 기능 무료"는 쓰지 않는다 */}
+          <HeroLead>
+            주문 수수료도, 월 이용료도{" "}
+            <b className={`font-extrabold text-gray-900 md:text-white ${HERO_MARKER}`}>0원</b>
+            이에요
+          </HeroLead>
+          {/* 첫 화면 버튼은 PC만(운영자 2026-11-25: 휴대폰은 아래 고정 버튼 "입점 신청하기"·"앱 받기"만). 노랑 카카오톡 버튼은 뺌(위쪽 줄 "카카오톡 문의"·마무리 칸에 남음) */}
+          <div className="mt-9 hidden md:flex md:w-auto md:flex-row md:gap-3">
+            <PrimaryLink id={HERO_CTA_ID} href={SELLER_SIGNUP_URL} width="hero">
               입점 신청하기
             </PrimaryLink>
             <SellerAppButtons cardSide="right" />
           </div>
-          <p className={`mt-3 text-[14px] leading-[1.6] md:mt-4 md:text-[15px] ${HERO_MUTED_TEXT}`}>
-            앱은 안드로이드부터 · 아이폰 앱은 준비 중이에요
-          </p>
         </PhotoHero>
 
         {/* 2. 고민: 사장님들이 들려준 어려움(R-03·R-04) */}
@@ -571,7 +578,8 @@ export default function SellerAboutPage() {
       <StickyCta
         label="입점 신청하기"
         href={SELLER_SIGNUP_URL}
-        watchIds={[HERO_CTA_ID, CLOSING_ID, FOOTER_ID]}
+        secondary={{ label: "앱 받기", href: SELLER_APP_DOWNLOAD_PATH }}
+        watchIds={[HERO_CTA_ID, ANCHOR.app, CLOSING_ID, FOOTER_ID]}
       />
     </>
   );

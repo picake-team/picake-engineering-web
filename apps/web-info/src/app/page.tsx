@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { SITE_BASE_URL, SITE_OG_IMAGE } from "@/apps/web-info/common/constants/site.constants";
-import {
-  APP_DOWNLOAD_URL,
-  CUSTOMER_WEB_URL,
-} from "@/apps/web-info/common/constants/app-download.constants";
+import { APP_DOWNLOAD_URL } from "@/apps/web-info/common/constants/app-download.constants";
 import { JsonLd } from "@/apps/web-info/common/components/seo/JsonLd";
 import {
   ORGANIZATION_ID,
@@ -13,7 +10,6 @@ import { SiteHeader } from "@/apps/web-info/common/components/landing/SiteHeader
 import { SiteFooter } from "@/apps/web-info/common/components/landing/SiteFooter";
 import { StickyCta } from "@/apps/web-info/common/components/landing/StickyCta";
 import {
-  HERO_MUTED_TEXT,
   HeroLead,
   HeroTitle,
   PhotoHero,
@@ -70,7 +66,7 @@ import videoReserve from "@/apps/web-info/features/customer/assets/video-reserve
 const TITLE = "주문제작 케이크 예약·견적 | 픽케이크(Picake)";
 const DESCRIPTION =
   "픽케이크(Picake)는 주문제작 케이크를 견적과 주문서로 예약하는 서비스예요. 사진을 고르면 요청서가 채워지고, 가게 5곳까지 한 번에 견적을 받아요. 디자인 모음에서 고르고, 가게가 여는 날만 골라 예약해요.";
-const SHARE_TITLE = "원하는 케이크, 사진으로 견적 받아요 | 픽케이크";
+const SHARE_TITLE = "케이크 견적, 가게 5곳에 한 번에 | 픽케이크";
 const SHARE_DESCRIPTION =
   "디자인 고르기부터 예약·픽업 안내까지 한 곳에서. 주문제작 케이크 예약은 픽케이크.";
 const PAGE_URL = `${SITE_BASE_URL}/`;
@@ -277,21 +273,18 @@ export default function CustomerHomePage() {
       <main className="bg-white text-gray-900">
         {/* 1. 첫 화면: PC는 어두운 하트 케이크 사진 + 흰 글자(시안 F), 휴대폰은 딸기 생크림 사진(PHONE_HERO). 앱 받기(배민처럼 버튼, PC는 QR을 눌러 열기) */}
         <PhotoHero photo={photoHero} position="62% 50%" phone={PHONE_HERO}>
+          {/* 제목은 손님이 가장 번거로워한 "가게마다 따로 묻기"(R-02)를 숫자로(운영자 2026-11-25 K2안, 견적 칸 "요청서 한 번에 가게 5곳까지"와 같은 말).
+              머리말·형광펜·휴대폰 사진 가득은 사장님 소개와 같은 규칙 */}
           <HeroTitle eyebrow="주문제작 케이크 예약">
-            원하는 케이크,
+            케이크 견적,
             <br />
-            사진으로 <em>견적</em> 받아요
+            가게 <em>5곳</em>에 한 번에
           </HeroTitle>
           <HeroLead>디자인 고르기부터 예약·픽업 안내까지 한 곳에서</HeroLead>
-          <div className="mt-7 w-full md:mt-9 md:w-auto">
+          {/* 첫 화면 앱 받기는 PC만(운영자 2026-11-25: 휴대폰은 아래 고정 "앱 받기"만) */}
+          <div className="mt-9 hidden md:block md:w-auto">
             <AppDownloadButtons id={HERO_CTA_ID} openerId={HEADER_APP_ID} />
           </div>
-          <a
-            href={CUSTOMER_WEB_URL}
-            className={`mt-4 inline-block rounded-sm py-1 text-[15px] underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-current md:mt-5 ${HERO_MUTED_TEXT}`}
-          >
-            앱 없이 웹으로 둘러보기
-          </a>
         </PhotoHero>
 
         {/* 2. 고민: 손님이 겪는 번거로움(R-02·R-11) */}

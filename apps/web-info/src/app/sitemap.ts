@@ -10,14 +10,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     {
       // 손님 소개(2026-11-20 새로)
       url: `${SITE_BASE_URL}/`,
-      lastModified: "2026-11-20",
+      lastModified: "2026-11-25",
       changeFrequency: "monthly",
       priority: 1,
     },
     {
       url: `${SITE_BASE_URL}/seller/about`,
       // 내용을 크게 바꾸면 이 날짜도 바꾼다(검색엔진이 다시 읽으러 오는 신호)
-      lastModified: "2026-11-20",
+      lastModified: "2026-11-25",
       changeFrequency: "monthly",
       priority: 1,
     },

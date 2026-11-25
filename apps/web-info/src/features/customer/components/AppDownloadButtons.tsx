@@ -2,17 +2,16 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import QrAppDownload from "@/apps/web-info/features/customer/assets/qr-app-download.svg";
-import { PrimaryLink } from "@/apps/web-info/common/components/landing/Buttons";
 import {
-  APP_DOWNLOAD_URL,
   APP_STORE_URL,
   PLAY_STORE_URL,
 } from "@/apps/web-info/common/constants/app-download.constants";
 
 /**
  * 손님 소개 첫 화면의 앱 받기(2026-11-20 운영자: "QR이 바로 보이지 말고 배달의민족처럼 버튼으로").
- * - 휴대폰: "앱 받기" 하나. 손님 웹 `/app`이 기기에 맞는 스토어로 보낸다(QR은 휴대폰에서 쓸 일이 없다).
- * - PC: [App Store] [Google Play] [QR] 버튼. QR 버튼을 누르면 그 오른쪽에 QR 카드가 열린다(바깥을 누르거나 Esc로 닫힘).
+ * PC에만 쓴다: [App Store] [Google Play] [QR] 버튼. 휴대폰은 2026-11-25부터 첫 화면에 버튼을 두지 않고 아래 고정 "앱 받기"(`StickyCta` →
+ *   손님 웹 `/app`이 기기에 맞는 스토어로 보냄)만 쓴다(운영자). QR 버튼을 누르면 그 오른쪽에 QR 카드가 열린다(바깥을 누르거나 Esc로 닫힘).
+ *   768~1023 폭은 오른쪽 자리가 모자라(버튼 200으로 넓힌 뒤 카드 끝 778px) 사장님 소개처럼 버튼 줄 위로 연다.
  *   아래로 열면 노트북 화면(높이 900 이하)에서 첫 화면 밖으로 나가 잘렸다(2026-11-20 검토).
  *   PC 위쪽 줄 "앱 받기"(`openerId`)를 눌러도 열린다 — 손님 웹 `/app`은 PC를 손님 웹 홈으로 보내서 PC에서는 QR이 길이다.
  * 스토어 상표 그림(배지)은 쓰지 않고 글자 버튼으로 둔다.
@@ -52,67 +51,60 @@ export function AppDownloadButtons({ id, openerId }: { id?: string; openerId?: s
     };
   }, [open]);
 
-  // 흰 버튼 바탕(가로 여백은 따로: 글자 버튼 px-6, QR 버튼은 정사각형)
+  // 흰 버튼 바탕(넓이는 따로: 글자 버튼은 사장님 소개 첫 화면 버튼과 같은 200 — 운영자 2026-11-25 B2안, QR 버튼은 정사각형)
   const store =
     "inline-flex h-14 items-center justify-center rounded-[14px] bg-white text-[16px] font-bold text-gray-900 transition-transform duration-fast active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white";
 
   return (
-    <>
-      <div className="w-full md:hidden">
-        <PrimaryLink id={id} href={APP_DOWNLOAD_URL}>
-          앱 받기
-        </PrimaryLink>
-      </div>
-      <div ref={wrapRef} className="relative hidden items-center gap-2.5 md:flex">
-        <a
-          href={APP_STORE_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={`${store} px-6`}
-        >
-          App Store
-        </a>
-        <a
-          href={PLAY_STORE_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={`${store} px-6`}
-        >
-          Google Play
-        </a>
-        <button
-          ref={buttonRef}
-          type="button"
-          aria-label="앱 받기 QR 코드 보기"
-          aria-expanded={open}
-          aria-controls={cardId}
-          onClick={() => setOpen((v) => !v)}
-          className={`${store} w-14 shrink-0 ${open ? "ring-2 ring-primary" : ""}`}
-        >
-          <QrGlyph />
-        </button>
-        {/* 버튼 줄 오른쪽. 카드(높이 약 277px) 위끝을 버튼 줄보다 72px 위에 둔다 — 제목을 가리지 않고, 첫 화면이 가장 낮을 때(600px)도
+    <div id={id} ref={wrapRef} className="relative flex items-center gap-2.5">
+      <a
+        href={APP_STORE_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={`${store} w-[200px]`}
+      >
+        App Store
+      </a>
+      <a
+        href={PLAY_STORE_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={`${store} w-[200px]`}
+      >
+        Google Play
+      </a>
+      <button
+        ref={buttonRef}
+        type="button"
+        aria-label="앱 받기 QR 코드 보기"
+        aria-expanded={open}
+        aria-controls={cardId}
+        onClick={() => setOpen((v) => !v)}
+        className={`${store} w-14 shrink-0 ${open ? "ring-2 ring-primary" : ""}`}
+      >
+        <QrGlyph />
+      </button>
+      {/* 버튼 줄 오른쪽. 카드(높이 약 277px) 위끝을 버튼 줄보다 72px 위에 둔다 — 제목을 가리지 않고, 첫 화면이 가장 낮을 때(600px)도
             아래가 잘리지 않는다. 움직임(popup-in)이 transform을 써서 위치는 margin으로 */}
-        <div
-          id={cardId}
-          hidden={!open}
-          className="absolute top-1/2 left-[calc(100%+14px)] z-20 -mt-[100px] w-[248px] rounded-[18px] bg-white p-6 text-gray-900 shadow-[0_24px_48px_-16px_rgba(0,0,0,0.45)] data-[open=true]:animate-popup-in"
-          data-open={open}
-        >
-          {/* QR 둘레는 흰 여백 24px(약 4칸) — 카메라가 QR 끝을 찾게 */}
-          <QrAppDownload
-            role="img"
-            aria-label="앱 받기 QR 코드"
-            className="mx-auto block size-[168px]"
-          />
-          <p className="mt-4 text-center text-[15px] leading-[1.5] font-semibold">
-            휴대폰 카메라로 찍으면
-            <br />
-            앱을 받을 수 있어요
-          </p>
-        </div>
+      <div
+        id={cardId}
+        hidden={!open}
+        className="absolute right-0 bottom-[calc(100%+12px)] z-20 w-[248px] lg:top-1/2 lg:right-auto lg:bottom-auto lg:left-[calc(100%+14px)] lg:-mt-[100px] rounded-[18px] bg-white p-6 text-gray-900 shadow-[0_24px_48px_-16px_rgba(0,0,0,0.45)] data-[open=true]:animate-popup-in"
+        data-open={open}
+      >
+        {/* QR 둘레는 흰 여백 24px(약 4칸) — 카메라가 QR 끝을 찾게 */}
+        <QrAppDownload
+          role="img"
+          aria-label="앱 받기 QR 코드"
+          className="mx-auto block size-[168px]"
+        />
+        <p className="mt-4 text-center text-[15px] leading-[1.5] font-semibold">
+          휴대폰 카메라로 찍으면
+          <br />
+          앱을 받을 수 있어요
+        </p>
       </div>
-    </>
+    </div>
   );
 }
 
