@@ -15,7 +15,10 @@ interface PhotoHeroProps {
 /**
  * 첫 화면.
  * - PC: 화면 가득한 어두운 케이크 사진 위에 흰 글자(운영자 2026-11-20 시안 F, 위쪽 줄·나머지 바탕은 밝게).
- * - 휴대폰: 밝은 케이크 사진 아래 흰 바탕에 진한 글자(운영자 2026-11-21 B안 — 11-17 첫 화면과 같은 모양).
+ * - 휴대폰: 밝은 케이크 사진 아래 흰 바탕에 진한 글자(운영자 2026-11-21 B안 — 11-17 첫 화면과 같은 모양). 첫 화면에 버튼이 없고
+ *   (아래 고정 `StickyCta`만, 2026-11-25) 사진이 아래 고정 줄 바로 위까지 남는 높이를 다 채운다(운영자 "첫 화면 이미지는 가득").
+ *   높이 = 보이는 화면(svh) − 위쪽 줄 57px − 아래 고정 줄 81px(+아이폰 아래 여백). 위쪽 줄·`StickyCta` 높이를 바꾸면 같이 고친다.
+ * 사장님·손님 소개가 같은 모양을 쓴다(2026-11-25 두 페이지를 맞춤 — 머리말 숨김·형광펜·버튼 넓이도 같음).
  * 두 사진은 `<picture>`로 폭에 맞는 한 장만 받는다(next/image 두 장을 숨기면 둘 다 받는다).
  * 사진은 첫 화면의 가장 큰 그림(LCP)이라 먼저 받는다.
  */
@@ -27,12 +30,11 @@ export function PhotoHero({ photo, position, phone, children }: PhotoHeroProps) 
   return (
     <section
       id="top"
-      className="relative isolate flex flex-col bg-white md:h-[calc(100svh-72px)] md:max-h-[860px] md:min-h-[600px] md:flex-row md:overflow-hidden md:bg-[#1B1512]"
+      className="relative isolate flex flex-col bg-white max-md:min-h-[calc(100svh-138px-env(safe-area-inset-bottom))] md:h-[calc(100svh-72px)] md:max-h-[860px] md:min-h-[600px] md:flex-row md:overflow-hidden md:bg-[#1B1512]"
       style={{ "--hero-pos-phone": phone.position, "--hero-pos-pc": position } as CSSProperties}
     >
-      {/* 휴대폰 사진 칸은 화면 높이의 54%까지(폭이 좁으면 9:10) — 아이폰 13(보이는 높이 664)에서도 주 버튼이 첫 화면에 보이게.
-          11-17은 62%였는데 그때보다 제목이 커서 버튼이 밀렸다. 보이는 높이가 620 이하인 작은 휴대폰(아이폰 SE 등)은 44%. PC는 화면 전체 */}
-      <div className="relative -z-10 h-[min(112vw,54svh)] w-full max-md:[@media(max-height:620px)]:h-[44svh] overflow-hidden bg-gray-50 md:absolute md:inset-0 md:h-full">
+      {/* 휴대폰 사진 칸은 글 칸을 뺀 남는 높이 전부(아주 낮은 화면에서도 220px은 남김). PC는 화면 전체 */}
+      <div className="relative -z-10 min-h-[220px] w-full flex-1 overflow-hidden bg-gray-50 md:absolute md:inset-0 md:h-full">
         <picture>
           <source media="(min-width: 768px)" srcSet={pc.srcSet} sizes={pc.sizes} />
           <img
@@ -52,7 +54,7 @@ export function PhotoHero({ photo, position, phone, children }: PhotoHeroProps) 
         className="absolute inset-0 -z-10 hidden bg-[linear-gradient(90deg,rgba(20,17,15,0.88)_0%,rgba(20,17,15,0.52)_42%,rgba(20,17,15,0)_72%)] md:block"
       />
       <div
-        className={`${WRAP} -mt-4 flex flex-col items-start pb-10 text-gray-900 md:mt-0 md:flex-1 md:justify-center md:pb-0 md:text-white`}
+        className={`${WRAP} -mt-4 flex flex-col items-start pb-7 text-gray-900 md:mt-0 md:flex-1 md:justify-center md:pb-0 md:text-white`}
       >
         {children}
       </div>
@@ -60,18 +62,29 @@ export function PhotoHero({ photo, position, phone, children }: PhotoHeroProps) 
   );
 }
 
-/** 첫 화면의 흐린 글자: 휴대폰 흰 바탕에서는 회색, PC 어두운 사진 위에서는 흰색(손님 쪽 "앱 없이 웹으로 둘러보기" 등) */
-export const HERO_MUTED_TEXT = "text-gray-600 md:text-white/80";
+/** 첫 화면의 흐린 글자(제목 아래 작은 줄): 휴대폰 흰 바탕에서는 회색, PC 어두운 사진 위에서는 흰색 */
+const HERO_MUTED_TEXT = "text-gray-600 md:text-white/80";
 
-/** 첫 화면 제목. 머리말도 h1 안에 둔다(검색엔진이 읽는 제목에 "주문제작 케이크"가 들어간다) */
+/**
+ * 첫 화면 형광펜(운영자 2026-11-25). 제목의 강조 낱말(`<em>`)과 작은 글의 0원(`<b>`)에 쓴다.
+ * - 휴대폰(흰 바탕·진한 글자): 글자 아래쪽에 메인 주황(#FF653E)을 옅게 — 흰 바탕에서는 분홍빛으로 보인다(D안).
+ * - PC(어두운 사진·흰 글자): 진한 주황 띠를 살짝 기울여(H5안). 옅게 깔면 어두운 사진 위에서 갈색으로 보여 진하게 했다.
+ * `HeroTitle`의 `[&_em]:` 이름에도 같은 값을 따로 적는다(tailwind는 글자 그대로 적힌 이름만 만든다).
+ */
+export const HERO_MARKER =
+  "max-md:bg-[linear-gradient(transparent_56%,rgba(255,101,62,0.38)_56%)] max-md:px-0.5 md:bg-[linear-gradient(-4deg,transparent_40%,#FF653E_40%,#FF653E_84%,transparent_84%)] md:px-1";
+
+/**
+ * 첫 화면 제목. 머리말도 h1 안에 둔다(검색엔진이 읽는 제목에 "주문제작 케이크"가 들어간다).
+ * 머리말은 화면에서만 숨기고(검색·화면 읽기에는 남음, 운영자 2026-11-25 "글 덩어리를 줄여 한눈에"),
+ * 강조 낱말(`<em>`)은 주황 글자 대신 형광펜(`HERO_MARKER`와 같은 모양).
+ */
 export function HeroTitle({ eyebrow, children }: { eyebrow: string; children: ReactNode }) {
   return (
     <h1>
-      {/* 머리말: 휴대폰 흰 바탕에서는 메인 주황(11-17과 같음), PC 어두운 사진 위에서는 연한 주황 */}
-      <span className="block text-[14px] font-bold text-primary md:text-base md:text-[#FFB59E]">
-        {eyebrow}
-      </span>
-      <span className="mt-2.5 block text-[clamp(32px,9.4vw,40px)] leading-[1.24] font-extrabold tracking-[-0.04em] text-balance md:mt-3.5 md:text-[52px] lg:text-[60px] [&_em]:not-italic [&_em]:text-primary">
+      <span className="sr-only">{eyebrow}</span>
+      {/* HERO_MARKER와 같은 값(tailwind는 글자 그대로 적힌 이름만 만든다) */}
+      <span className="block text-[clamp(30px,8.8vw,36px)] leading-[1.3] font-extrabold tracking-[-0.04em] text-balance md:text-[52px] md:leading-[1.24] lg:text-[60px] [&_em]:text-inherit [&_em]:not-italic max-md:[&_em]:bg-[linear-gradient(transparent_56%,rgba(255,101,62,0.38)_56%)] max-md:[&_em]:px-0.5 md:[&_em]:bg-[linear-gradient(-4deg,transparent_40%,#FF653E_40%,#FF653E_84%,transparent_84%)] md:[&_em]:px-1">
         {children}
       </span>
     </h1>
@@ -80,7 +93,10 @@ export function HeroTitle({ eyebrow, children }: { eyebrow: string; children: Re
 
 export function HeroLead({ children }: { children: ReactNode }) {
   return (
-    <p className={`mt-3 text-base leading-[1.6] md:mt-4 md:text-[19px] ${HERO_MUTED_TEXT}`}>
+    // text-balance: 작은 휴대폰(320)에서 "한 / 곳에서"처럼 낱말 하나만 다음 줄로 떨어지지 않게
+    <p
+      className={`mt-3 text-base leading-[1.6] text-balance md:mt-4 md:text-[19px] ${HERO_MUTED_TEXT}`}
+    >
       {children}
     </p>
   );

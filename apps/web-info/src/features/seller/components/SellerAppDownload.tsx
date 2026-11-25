@@ -54,7 +54,7 @@ export function SellerAppButtons({ cardSide }: { cardSide: "right" | "left" }) {
         <LineLink href={SELLER_APP_DOWNLOAD_PATH}>앱 받기</LineLink>
       </div>
       <div ref={wrapRef} className="relative hidden items-center gap-2.5 md:flex">
-        <LineLink href={SELLER_PLAY_STORE_URL} external>
+        <LineLink href={SELLER_PLAY_STORE_URL} external width="hero">
           Google Play
         </LineLink>
         <button
