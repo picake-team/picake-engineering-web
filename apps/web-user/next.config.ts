@@ -55,6 +55,14 @@ const nextConfig: NextConfig = {
       // 사장님 입점 소개 페이지는 정보 사이트(web-info)로 옮겼다(2026-10-27). 게이트(`/partner`)의 "소개페이지 바로가기"와
       // 이미 공유된 링크가 계속 동작하도록 남겨 둔다. 2주 동안 문제가 없어 2026-11-10 영구(308)로 올렸다.
       { source: "/partner/about", destination: PARTNER_ABOUT_URL, permanent: true },
+      // 입점 안내 QR(`/partner`)은 사장님 소개로 바로 보낸다(2026-11-25 운영자 — 소개 첫 화면에 입점 신청·앱 받기가 다 있어
+      // 버튼 둘만 있던 중간 화면을 없앰). 인쇄한 QR은 이 주소 그대로 두고, 목적지를 바꿀 수 있게 임시(307)로 둔다.
+      // utm_source=partner_gate로 hq 매일 방문 리포트·데이터 리포트가 "입점 게이트(QR)"로 센다.
+      {
+        source: "/partner",
+        destination: `${PARTNER_ABOUT_URL}?utm_source=partner_gate&utm_medium=offline&utm_campaign=qr`,
+        permanent: false,
+      },
       // 옛 채팅을 숨기던 /chat → / 돌려보내기는 새 채팅(기획 I-11)에서 지웠다. 채팅이 닫혀 있으면 화면이 "준비 중"을 보여 준다
     ];
   },
