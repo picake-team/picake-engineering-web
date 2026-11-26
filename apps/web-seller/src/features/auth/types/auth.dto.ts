@@ -66,6 +66,8 @@ export interface GoogleRegisterRequestDto {
   phone: string;
   agreedToTerms: boolean;
   agreedToPrivacy: boolean;
+  /** 만 14세 이상 확인(법무 LG-02) — 카카오 간편가입에서 동의했으면 생략 */
+  agreedToAge14?: boolean;
   /** 동의한 약관 문서 ID 목록 (버전 이력 기록용) */
   termsDocumentIds?: string[];
 }
@@ -81,6 +83,8 @@ export interface KakaoRegisterRequestDto {
   /** 카카오 간편가입에서 약관에 모두 동의했으면 보내지 않는다(서버가 가입표로 확인) */
   agreedToTerms?: boolean;
   agreedToPrivacy?: boolean;
+  /** 만 14세 이상 확인(법무 LG-02) — 카카오 간편가입에서 동의했으면 생략 */
+  agreedToAge14?: boolean;
   /** 동의한 약관 문서 ID 목록 (버전 이력 기록용) */
   termsDocumentIds?: string[];
 }
@@ -95,6 +99,8 @@ export interface NaverRegisterRequestDto {
   phone?: string;
   agreedToTerms: boolean;
   agreedToPrivacy: boolean;
+  /** 만 14세 이상 확인(법무 LG-02) — 카카오 간편가입에서 동의했으면 생략 */
+  agreedToAge14?: boolean;
   termsDocumentIds?: string[];
 }
 

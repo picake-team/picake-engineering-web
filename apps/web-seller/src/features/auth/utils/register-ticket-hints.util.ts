@@ -36,7 +36,12 @@ export function readRegisterTicketHints(token: string): RegisterTicketHints {
 }
 
 /** 사장님 필수 약관(카카오 간편가입 태그, backend KAKAO_SERVICE_TERMS.seller와 같게) */
-export const KAKAO_SELLER_REQUIRED_TERMS = ["picake_s_tos", "picake_s_privacy"] as const;
+/** 만 14세 이상(picake_s_age14, 법무 LG-02)은 웹이 먼저 필수로 본다 — 카카오에서 받지 못했으면 가입 화면 약관 상자에서 받는다 */
+export const KAKAO_SELLER_REQUIRED_TERMS = [
+  "picake_s_age14",
+  "picake_s_tos",
+  "picake_s_privacy",
+] as const;
 
 /** 카카오에서 사장님 필수 약관에 모두 동의했으면 가입 화면에서 약관을 다시 받지 않는다 */
 export function hasAllKakaoSellerTerms(terms: string[] | undefined): boolean {

@@ -1,5 +1,6 @@
 /**
- * 회원가입 약관 동의 상자(디자인 8-C): 전체 동의 + [필수] 서비스 이용약관·개인정보 처리방침, "보기"는 창으로 문서를 연다.
+ * 회원가입 약관 동의 상자(디자인 8-C): 전체 동의 + [필수] 만 14세 이상·서비스 이용약관·개인정보 처리방침, "보기"는 창으로 문서를 연다
+ * (만 14세 이상은 문서가 없어 "보기" 없음, 법무 LG-02 11-26).
  * 동의 상태·필수 검사는 PC `SellerTermsAgreementSection`과 같은 값을 쓴다.
  */
 import { useState } from "react";
@@ -10,7 +11,8 @@ import { TermsDocumentScreen } from "@/apps/web-seller/features/terms/components
 import type { TermsType } from "@/apps/web-seller/features/terms/types/terms.dto";
 import type { SellerTermsAgreementState } from "@/apps/web-seller/features/auth/components/SellerTermsAgreementSection";
 
-const ITEMS: { key: keyof SellerTermsAgreementState; label: string; type: TermsType }[] = [
+const ITEMS: { key: keyof SellerTermsAgreementState; label: string; type?: TermsType }[] = [
+  { key: "ageOver14", label: "만 14세 이상입니다" },
   { key: "termsOfService", label: "서비스 이용약관", type: "SELLER_TERMS_OF_SERVICE" },
   { key: "privacyPolicy", label: "개인정보 처리방침", type: "SELLER_PRIVACY_POLICY" },
 ];
@@ -46,7 +48,11 @@ export function SellerTermsBox({
           className="sr-only"
           checked={all}
           onChange={(e) =>
-            onChange({ termsOfService: e.target.checked, privacyPolicy: e.target.checked })
+            onChange({
+              ageOver14: e.target.checked,
+              termsOfService: e.target.checked,
+              privacyPolicy: e.target.checked,
+            })
           }
         />
         <Box on={all} />
@@ -64,14 +70,16 @@ export function SellerTermsBox({
             <Box on={value[i.key]} />
             <span className="flex-1">[필수] {i.label}</span>
           </label>
-          <button
-            type="button"
-            onClick={() => setPreview(i)}
-            className="inline-flex min-h-11 items-center px-1 text-ink-600"
-            aria-label={`${i.label} 보기`}
-          >
-            보기
-          </button>
+          {i.type ? (
+            <button
+              type="button"
+              onClick={() => setPreview(i)}
+              className="inline-flex min-h-11 items-center px-1 text-ink-600"
+              aria-label={`${i.label} 보기`}
+            >
+              보기
+            </button>
+          ) : null}
         </div>
       ))}
       <BottomSheet
@@ -80,7 +88,7 @@ export function SellerTermsBox({
         showClose
         title={preview?.label ?? ""}
       >
-        {preview ? (
+        {preview?.type ? (
           <div className="-mx-5 text-sub">
             <TermsDocumentScreen termsType={preview.type} />
           </div>

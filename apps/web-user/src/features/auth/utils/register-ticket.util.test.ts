@@ -35,10 +35,19 @@ describe("가입표 읽기(카카오 한 번에 가입 화면용)", () => {
     expect(readRegisterTicketHints("not-a-ticket")).toEqual({});
   });
 
-  it("손님 필수 약관 3개가 다 있어야 약관을 다시 받지 않는다", () => {
+  it("손님 필수 약관 4개(만 14세 이상 포함)가 다 있어야 약관을 다시 받지 않는다", () => {
+    expect(
+      hasAllKakaoConsumerTerms([
+        "picake_c_age14",
+        "picake_c_tos",
+        "picake_c_privacy",
+        "picake_c_third_party",
+      ]),
+    ).toBe(true);
+    // 카카오에서 만 14세 이상을 받지 못했으면(콘솔에 약관이 없던 때 등) 가입 화면에서 약관을 받는다(법무 LG-02)
     expect(
       hasAllKakaoConsumerTerms(["picake_c_tos", "picake_c_privacy", "picake_c_third_party"]),
-    ).toBe(true);
+    ).toBe(false);
     expect(hasAllKakaoConsumerTerms(["picake_c_tos", "picake_c_privacy"])).toBe(false);
     expect(hasAllKakaoConsumerTerms(undefined)).toBe(false);
   });

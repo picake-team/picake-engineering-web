@@ -7,7 +7,7 @@ export function googleAuthorizeUrl(): string {
 }
 
 export function kakaoAuthorizeUrl(): string {
-  return `https://kauth.kakao.com/oauth/authorize?client_id=${import.meta.env.VITE_PUBLIC_KAKAO_RESTAPI_KEY}&redirect_uri=${window.location.origin}${ROUTES.AUTH.KAKAO_REDIRECT_URI}&response_type=code&service_terms=picake_s_tos,picake_s_privacy`;
+  return `https://kauth.kakao.com/oauth/authorize?client_id=${import.meta.env.VITE_PUBLIC_KAKAO_RESTAPI_KEY}&redirect_uri=${window.location.origin}${ROUTES.AUTH.KAKAO_REDIRECT_URI}&response_type=code&service_terms=picake_s_age14,picake_s_tos,picake_s_privacy`;
 }
 
 /**
