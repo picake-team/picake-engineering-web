@@ -130,15 +130,32 @@ Picake web-user는 겉면만 앱 껍데기로 감싼 **웹뷰 앱**입니다 —
 코드를 바꿀 때: `printf '<새 6자리>' | shasum -a 256`의 값을 `gh secret set SELLER_REVIEW_LOGIN_CODE_SHA256 --repo picake-team/picake-engineering-backend`로 넣고 backend를 다시 배포(staging·production 태그)합니다. 심사노트에는 아래처럼 `{SELLER_REVIEW_CODE}`로 쓰고 App Store Connect에 붙일 때만 채웁니다.
 
 ```
-To review the seller app without social login: on the login screen, tap the Picake
-logo 10 times within 2 seconds. A "심사용 로그인" (review login) sheet opens; enter the
-code {SELLER_REVIEW_CODE} and tap 로그인. You will be signed in to a sample store that
-is hidden from customers, with sample orders in every status. The orders reset each
-time you use the review login, so you can process them from the beginning.
-Sample customer chats are in the 채팅 (Chat) tab.
-To check push notifications: 스토어 (Store) tab → gear icon → 알림 설정 → 테스트 알림 보내기.
-Account deletion: 마이페이지 → 회원 탈퇴 (the review account can always be deleted).
+HOW TO SIGN IN (no social account needed)
+1. On the login screen, tap the Picake logo 10 times within 2 seconds.
+2. A "심사용 로그인" (review login) sheet opens. Enter the 6-digit code: {SELLER_REVIEW_CODE} and tap "로그인" (Log in).
+You will be signed in to a sample store that is hidden from customers, with sample orders in every status. The orders reset each time you use the review login.
+
+Kakao, Naver, Google and Apple sign-in ask for a Korean phone number (SMS) and the account owner's 2-step verification, so please use the review login above.
+
+ABOUT THIS APP
+This is the shop-owner app of Picake. Customers order through the separate Picake (픽케이크) app; shop owners use this app to receive reservations, send quotes and chat with customers.
+
+WHAT TO TRY
+- Open an order to see the lettering and reference photos, and move it to the next status.
+- Sample customer chats are in the 채팅 (Chat) tab.
+- Push test: 스토어 (Store) tab → gear icon → 알림 설정 → 테스트 알림 보내기.
+
+ACCOUNT DELETION
+마이페이지 → 회원 탈퇴. The review account can always be deleted; signing in with the code again creates it again.
+
+NATIVE FEATURES
+Push notifications for new reservations, customer payments, chat and the morning pickup summary; camera and photo library for product photos.
+
+PAYMENTS
+Physical goods only (custom cakes picked up at the store). Customers pay the store directly by bank transfer. No in-app digital purchases.
 ```
+
+위 글은 2026-11-26 App Store Connect 사장님 앱 1.0.0 심사 메모에 넣은 그대로입니다(코드 칸은 비워 두고 제출 직전 운영자가 채움, "로그인 필요" 체크는 끔 — 손님 앱과 같음). "Apple sign-in" 문장은 판매자 애플 로그인(backend #191·web #565)이 켜진 뒤에 맞는 말이라, 켜기 전에 제출하면 빼야 합니다. 원문 정본은 비공개 hq `marketing/store-listing.md` "판매자 앱 — App Store".
 
 ## 2-2. Google Play 심사 (앱 액세스·데이터 보안)
 
