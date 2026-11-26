@@ -138,7 +138,7 @@ export function LoginBottomSheet() {
               }}
             >
               <AppleLogoIcon />
-              Apple로 시작하기
+              Apple로 계속하기
               {lastProvider === "apple" && <RecentLoginBubble />}
             </a>
           )}
