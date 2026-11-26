@@ -59,6 +59,7 @@ const oauthMobile = () => import("@/apps/web-seller/pages/auth/OAuthCallback.mob
 const GoogleAuthCallbackMobilePage = lazyPage(oauthMobile, "GoogleAuthCallbackMobilePage");
 const KakaoAuthCallbackMobilePage = lazyPage(oauthMobile, "KakaoAuthCallbackMobilePage");
 const NaverAuthCallbackMobilePage = lazyPage(oauthMobile, "NaverAuthCallbackMobilePage");
+const AppleAuthCallbackMobilePage = lazyPage(oauthMobile, "AppleAuthCallbackMobilePage");
 const ActAsEntryPage = lazyPage(
   () => import("@/apps/web-seller/pages/act-as/ActAs"),
   "ActAsEntryPage",
@@ -202,6 +203,11 @@ export const AUTH_ROUTE_CONFIG: AppRouteConfig[] = [
   {
     path: ROUTES.AUTH.NAVER_REDIRECT_URI,
     mobile: NaverAuthCallbackMobilePage,
+    desktop: SAME_SCREEN,
+  },
+  {
+    path: ROUTES.AUTH.APPLE_REDIRECT_URI,
+    mobile: AppleAuthCallbackMobilePage,
     desktop: SAME_SCREEN,
   },
   { path: ROUTES.TERMS.TERMS_OF_SERVICE, mobile: TermsOfServicePage, desktop: SAME_SCREEN },

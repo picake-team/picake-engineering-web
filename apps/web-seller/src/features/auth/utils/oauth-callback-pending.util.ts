@@ -5,10 +5,13 @@
 export type PendingGoogleRegister = { provider: "google"; registerToken: string };
 export type PendingKakaoRegister = { provider: "kakao"; registerToken: string };
 export type PendingNaverRegister = { provider: "naver"; registerToken: string };
+/** 애플은 처음 인가 때만 이름을 줘서(서버 콜백이 주소로 넘김) 가입표와 같이 들고 있는다 */
+export type PendingAppleRegister = { provider: "apple"; registerToken: string; name?: string };
 export type PendingOAuthRegister =
   | PendingGoogleRegister
   | PendingKakaoRegister
-  | PendingNaverRegister;
+  | PendingNaverRegister
+  | PendingAppleRegister;
 
 let pendingRegister: PendingOAuthRegister | null = null;
 

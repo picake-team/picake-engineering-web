@@ -18,6 +18,9 @@ export interface SellerMypageProfileResponseDto {
   kakaoEmail: string;
   /** 네이버로 가입했을 때만(아니면 빈 문자열). 네이버는 이메일을 받지 않는다. 서버가 주기 전 응답에는 없을 수 있다 */
   naverId?: string;
+  /** 애플로 가입했을 때만(아니면 빈 문자열, 2026-11-26). 서버가 주기 전 응답에는 없을 수 있다 */
+  appleId?: string;
+  appleEmail?: string;
   sellerVerificationStatus: string;
   createdAt: string;
   lastLoginAt: string;
