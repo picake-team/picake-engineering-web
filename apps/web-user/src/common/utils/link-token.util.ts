@@ -8,8 +8,9 @@ const LINK_TOKEN_PATTERNS: [RegExp, string][] = [
   [/\/quote-links\/[A-Za-z0-9_-]+/g, "/quote-links/[token]"],
   // 소셜 가입표(저장소를 못 쓰는 브라우저만 주소에 실림 — 카카오 번호·이름이 들어 있다)
   [/registerToken=[^&#\s]+/g, "registerToken=[token]"],
-  // 소셜 로그인 콜백 주소의 code·state(네이버 state는 취소하고 돌아오면 30분 동안 다시 쓰는 값, 11-16 밤 검토)
-  [/([?&](?:code|state)=)[^&#\s]+/g, "$1[token]"],
+  // 소셜 로그인 콜백 주소의 code·state(네이버 state는 취소하고 돌아오면 30분 동안 다시 쓰는 값, 11-16 밤 검토),
+  // 애플 콜백의 appleName(애플이 처음 한 번 주는 실명 — app/auth/login/apple/route.ts가 실어 보냄, 11-26 검토)
+  [/([?&](?:code|state|appleName)=)[^&#\s]+/g, "$1[token]"],
 ];
 
 export function scrubLinkToken(value: string): string {

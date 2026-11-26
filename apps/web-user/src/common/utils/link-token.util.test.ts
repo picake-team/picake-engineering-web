@@ -32,6 +32,10 @@ describe("소셜 가입표도 지운다(저장소를 못 쓰는 브라우저만 
     expect(scrubLinkToken("/auth/login/kakao?state=x&code=y#frag")).toBe(
       "/auth/login/kakao?state=[token]&code=[token]#frag",
     );
+    // 애플 콜백은 애플이 준 실명(appleName)이 주소에 실린다(11-26)
+    expect(scrubLinkToken("/auth/login/apple/callback?code=c1&appleName=홍길동")).toBe(
+      "/auth/login/apple/callback?code=[token]&appleName=[token]",
+    );
     expect(scrubLinkToken("https://picakes.com/search?q=하트")).toBe(
       "https://picakes.com/search?q=하트",
     );

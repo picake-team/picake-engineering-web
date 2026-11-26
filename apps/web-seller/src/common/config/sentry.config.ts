@@ -5,9 +5,10 @@ import { isStagingOrProduction } from "@/apps/web-seller/common/utils/environmen
 /**
  * 오류 기록(주소·이동 기록)에 소셜 로그인 콜백의 code·state와 가입표가 남지 않게 가린다(11-16 밤 검토 —
  * 네이버 state는 취소하고 돌아오면 30분 동안 다시 쓰는 값). 손님 웹 `scrubLinkToken`과 같은 규칙.
+ * 애플 콜백의 appleName(애플이 처음 한 번 주는 실명, 서버 apple/callback이 실어 보냄)도 가린다(11-26 검토).
  */
 export function scrubAuthQuery(value: string): string {
-  return value.replace(/([?&](?:code|state|registerToken)=)[^&#\s]+/g, "$1[token]");
+  return value.replace(/([?&](?:code|state|registerToken|appleName)=)[^&#\s]+/g, "$1[token]");
 }
 
 function scrubEvent(event: ErrorEvent): ErrorEvent {

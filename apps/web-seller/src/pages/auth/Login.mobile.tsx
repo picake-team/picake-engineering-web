@@ -1,5 +1,6 @@
 /**
- * 휴대폰 로그인 (SC-61, 디자인 8-B): 로고 + 큰 문장 + 카카오·네이버·구글(·Apple)로 시작하기(네이버는 키가 있는 환경만), 아래 "처음이세요?"(사장님 소개 페이지)·계정 찾기.
+ * 휴대폰 로그인 (SC-61, 디자인 8-B): 로고 + 큰 문장 + 카카오·네이버·구글로 시작하기·Apple로 계속하기(네이버·애플은 키가 있는 환경만), 아래 "처음이세요?"(사장님 소개 페이지)·계정 찾기.
+ * 애플 버튼 글은 애플 허용 문구("Apple로 계속하기", 휴먼 인터페이스 가이드라인 — 2026-11-26).
  * 버튼 문구·순서는 손님 앱과 같게(I-48 "로그인·가입은 손님 앱처럼"). 로고는 손님 웹과 같은 것.
  * 약관·개인정보 처리방침·버전은 이 화면에 두지 않는다(운영자 결정). 처리방침은 가입 화면 약관 동의와
  * 마이페이지에서, 버전은 마이페이지에서 본다. 심사용 로그인 입구는 버전 대신 로고: 2초 안에 10번 누르면
@@ -18,12 +19,15 @@ import {
   SELLER_NAVER_LOGIN_ENABLED,
   SOCIAL_LOGIN_ICON_CLASS,
   SOCIAL_LOGIN_NAVER_ICON_CLASS,
+  appleAuthorizeUrl,
   googleAuthorizeUrl,
   kakaoAuthorizeUrl,
   naverAuthorizeUrl,
+  refreshAppleHrefOnClick,
   refreshNaverHrefOnClick,
 } from "@/apps/web-seller/features/auth/components/mobile/socialLogin";
 import { NaverLogoIcon } from "@/apps/web-seller/common/components/icons/NaverLogoIcon";
+import { AppleLogoIcon } from "@/apps/web-seller/common/components/icons/AppleLogoIcon";
 import { ReviewLoginSheet } from "@/apps/web-seller/features/auth/components/mobile/ReviewLoginSheet";
 import { SELLER_INTRO_URL } from "@/apps/web-seller/common/constants/seller-intro.constant";
 import { isSellerAppWebView } from "@/apps/web-seller/common/utils/webview.bridge";
@@ -126,10 +130,15 @@ export const LoginMobilePage: React.FC = () => {
           {lastProvider === "google" && <RecentLoginBubble />}
         </a>
         {SELLER_APPLE_LOGIN_ENABLED ? (
-          <button type="button" className={cx(BTN, "bg-black text-white")}>
-            Apple로 시작하기
+          <a
+            href={appleAuthorizeUrl()}
+            onClick={refreshAppleHrefOnClick}
+            className={cx(BTN, "bg-black text-white")}
+          >
+            <AppleLogoIcon className={SOCIAL_LOGIN_ICON_CLASS} />
+            Apple로 계속하기
             {lastProvider === "apple" && <RecentLoginBubble />}
-          </button>
+          </a>
         ) : null}
       </div>
       <div className="flex items-center justify-center gap-3 pb-[max(20px,env(safe-area-inset-bottom))] pt-4 text-sub text-ink-600">

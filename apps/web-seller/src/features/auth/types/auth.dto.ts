@@ -16,6 +16,7 @@ export const PHONE_VERIFICATION_PURPOSE = {
   GOOGLE_REGISTRATION: "google_registration",
   KAKAO_REGISTRATION: "kakao_registration",
   NAVER_REGISTRATION: "naver_registration",
+  APPLE_REGISTRATION: "apple_registration",
   PHONE_CHANGE: "phone_change",
   FIND_ACCOUNT: "find_account",
 } as const;
@@ -104,13 +105,30 @@ export interface NaverRegisterRequestDto {
   termsDocumentIds?: string[];
 }
 
+/** 애플 로그인 요청 — 서버 콜백이 넘긴 code(state는 화면이 먼저 확인하고 보내지 않는다) */
+export interface AppleLoginRequestDto {
+  code: string;
+}
+
+/** 애플 가입 — 구글과 같게 문자 인증한 번호로 */
+export interface AppleRegisterRequestDto {
+  registerToken: string;
+  name: string;
+  phone: string;
+  agreedToTerms: boolean;
+  agreedToPrivacy: boolean;
+  /** 만 14세 이상 확인(법무 LG-02) */
+  agreedToAge14?: boolean;
+  termsDocumentIds?: string[];
+}
+
 /** POST /v1/seller/auth/find-account */
 export interface FindAccountRequestDto {
   phone: string;
 }
 
 export interface FindAccountResponseDto {
-  loginType: "google" | "kakao" | "naver";
+  loginType: "google" | "kakao" | "naver" | "apple";
   loginId: string;
   loginEmail: string | null;
 }
