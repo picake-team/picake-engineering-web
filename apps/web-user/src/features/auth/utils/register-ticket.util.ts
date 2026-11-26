@@ -109,11 +109,11 @@ export function isRegisterTicketExpired(
 
 /**
  * 손님 필수 약관(카카오 간편가입 태그, backend KAKAO_SERVICE_TERMS.consumer와 같게).
- * 만 14세 이상(picake_c_age14, 법무 LG-02)은 웹이 먼저 필수로 본다 — 카카오에서 받지 못했으면 가입 화면 약관 칸에서 받는다
+ * 만 14세 이상(카카오 전용 연령 동의, 태그 user_age_check 고정 — 손님·사장님 같이, 법무 LG-02)은 웹이 먼저 필수로 본다 — 카카오에서 받지 못했으면 가입 화면 약관 칸에서 받는다
  * (서버는 1단계에서 기록만 하고 막지 않음).
  */
 export const KAKAO_CONSUMER_REQUIRED_TERMS = [
-  "picake_c_age14",
+  "user_age_check",
   "picake_c_tos",
   "picake_c_privacy",
   "picake_c_third_party",

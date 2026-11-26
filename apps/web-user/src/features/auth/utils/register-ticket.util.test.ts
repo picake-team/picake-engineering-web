@@ -38,7 +38,7 @@ describe("가입표 읽기(카카오 한 번에 가입 화면용)", () => {
   it("손님 필수 약관 4개(만 14세 이상 포함)가 다 있어야 약관을 다시 받지 않는다", () => {
     expect(
       hasAllKakaoConsumerTerms([
-        "picake_c_age14",
+        "user_age_check",
         "picake_c_tos",
         "picake_c_privacy",
         "picake_c_third_party",
