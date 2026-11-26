@@ -25,12 +25,15 @@ import { DEFAULT_SELLER_NOTIFICATION_SETTINGS } from "@/apps/web-seller/features
 import { DevicePushStatusCard } from "@/apps/web-seller/features/notification/components/mobile/PushOffBanner";
 import { PcNotificationRows } from "@/apps/web-seller/features/notification/components/desktop/PcNotificationRows";
 import { useIsDesktopShell } from "@/apps/web-seller/common/ui/shell";
-import { isSellerAppWebView } from "@/apps/web-seller/common/utils/webview.bridge";
+import { appPlatform, isSellerAppWebView } from "@/apps/web-seller/common/utils/webview.bridge";
 
-const TIPS = [
+// 아이폰 앱에는 다른 플랫폼 이름을 쓰지 않는다(App Store 2.3.10, 11-26) — 안드로이드 안내는 안드로이드 앱에서만
+const tips = (ios: boolean) => [
   "휴대폰 설정 > 알림에서 '픽케이크 사장님' 알림이 켜져 있는지",
   "방해 금지 모드·집중 모드가 켜져 있지 않은지",
-  "배터리 절약 모드가 앱을 멈추게 하지 않는지(안드로이드는 배터리 사용 '제한 없음')",
+  ios
+    ? "배터리 절약 모드가 앱을 멈추게 하지 않는지"
+    : "배터리 절약 모드가 앱을 멈추게 하지 않는지(안드로이드는 배터리 사용 '제한 없음')",
   "이 화면 위 '주문 알림 받기'가 켜져 있는지",
   "앱에서 로그아웃하면 그 휴대폰에는 알림이 가지 않아요",
 ];
@@ -182,7 +185,7 @@ export const StoreDetailNotificationSettingsMobilePage: React.FC = () => {
       </button>
       {tipsOpen ? (
         <ul className="list-disc pl-5 text-sub leading-normal text-ink-700">
-          {TIPS.map((t) => (
+          {tips(appPlatform() === "ios").map((t) => (
             <li key={t}>{t}</li>
           ))}
         </ul>
