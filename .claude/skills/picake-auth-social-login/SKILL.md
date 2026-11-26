@@ -107,8 +107,9 @@ analytics 이벤트는 `request_social_auth` / `success_login` / `fail_social_au
 
 ## 5. Apple 로그인 — 확정된 결정 사항 (2026-08 기준)
 
-- **범위: 지금은 web-user(손님)만.** `Seller` 테이블·판매자 컨트롤러에는 Apple 필드가 없습니다.
-  - **판매자 Apple 로그인(2026-11-05 결정, 기획 I-48, 판매자 앱 심사 4.8 대비) — 아직 만들지 않음.** 판매자 웹에는 버튼 스위치 `SELLER_APPLE_LOGIN_ENABLED`(`apps/web-seller/src/features/auth/components/mobile/socialLogin.ts`, 지금 `false`)만 있습니다. 주의: `web-seller`는 Vite 정적 앱이라 Apple이 `form_post`로 보내는 응답을 받을 서버 경로(web-user의 `route.ts` 같은 것)가 없습니다 — 백엔드가 받아 `code`만 판매자 웹 콜백으로 넘기는 방식을 검토하세요. Services ID에 판매자 도메인·Return URL을 더하는 일은 Apple 개발자 계정 주인(앱담당자)만 할 수 있습니다.
+- **범위: 손님(web-user, 2026-08)과 사장님(web-seller, 2026-11-26 — 판매자 앱 심사 4.8, 기획 I-48).** 같은 Services ID를 같이 써서 같은 애플 계정이면 `sub`(appleId)가 손님·사장님에서 같다 — 탈퇴 때 다른 쪽 계정이 남아 있으면 revoke하지 않는다(카카오·네이버와 같은 규칙).
+  - **판매자 흐름**: `web-seller`는 Vite 정적 앱이라 Apple의 `form_post`를 받을 곳이 없어 **Return URL이 서버 주소** `https://api.picakes.com/v1/seller/auth/apple/callback`(상용)·`https://api-staging.picakes.com/v1/seller/auth/apple/callback`(그 밖 — 로컬도 staging)이다. 서버 `apple/callback`이 form_post를 받아 `code`·`state`·처음 한 번 오는 이름(`appleName`)만 `PUBLIC_SELLER_DOMAIN` + `/auth/login/apple`로 303 넘기고(돌아갈 곳은 서버 설정 하나, `utils/apple-signin.util`), 화면은 state(네이버와 같은 이 탭의 저장소)를 먼저 확인한 뒤 `apple/login`에 code를 보낸다. 서버는 토큰 교환 redirect_uri로 같은 서버 주소를 쓴다(`getSellerAppleRedirectUri` — 판매자 웹 `sellerAppleRedirectUri`와 글자까지 같아야 함). 가입은 구글처럼 문자 인증(`apple_registration`, audience seller).
+  - **켜는 순서**: ① 앱담당자(계정 주인만)가 Services ID → Sign In with Apple Configure에 Domains `api.picakes.com`·`api-staging.picakes.com`, Return URL 위 둘을 저장(Continue → Save까지) ② 서버 상용 ③ Vercel 판매자 웹(staging·상용)에 `VITE_PUBLIC_APPLE_CLIENT_ID=com.product.picake.web`을 넣고 다시 배포 — 키가 없으면 버튼이 없어 웹이 먼저 나가도 깨지지 않는다(네이버와 같음). Return URL 저장 확인: `https://appleid.apple.com/auth/authorize?client_id=com.product.picake.web&redirect_uri=<주소>&response_type=code`가 약 131KB면 등록됨, 약 11KB면 "Invalid web redirect url"(2026-11-26).
 - **환경: dev는 별도 지원 안 함, staging 도메인으로 대체.** Apple Services ID의 Return URL은 HTTPS 도메인만 등록 가능해 `localhost`를 쓸 수 없습니다. 그래서 dev(로컬)에서도 Apple 버튼의 redirect_uri는 항상 `https://staging.picakes.com`으로 고정합니다 — 즉 dev에서 Apple 로그인을 누르면 실제 콜백 처리는 **스테이징에 배포된 프론트/백엔드가 담당**합니다(로컬로 돌아오지 않음). 별도 "dev용 Return URL"을 Apple에 등록할 필요가 없습니다.
 - **등록된 자격 정보** (Apple Developer 계정 소유, dev/staging/prod 구분 없이 공용 — Kakao의 `KAKAO_CLIENT_ID`/Firebase의 `FIREBASE_PRIVATE_KEY`와 동일한 "환경 무관 공용 시크릿" 패턴):
   - Services ID(=client_id): `com.product.picake.web`
@@ -116,7 +117,7 @@ analytics 이벤트는 `request_social_auth` / `success_login` / `fail_social_au
   - Team ID: `S5AJRJ2DLR`
   - Key ID: `MVGV5R9ZTY`
   - `.p8` private key — **값 자체는 절대 코드/문서/커밋에 남기지 않는다.** GitHub Secrets에만 등록.
-  - Return URL: production(`https://picakes.com/auth/login/apple`)은 등록 완료, staging(`https://staging.picakes.com/auth/login/apple`)은 앱담당자에게 추가 등록 요청 필요.
+  - Return URL: production(`https://picakes.com/auth/login/apple`)·staging(`https://staging.picakes.com/auth/login/apple`) 모두 등록됨(2026-11-26 확인: Apple authorize가 정상 화면 약 131KB, 안 된 주소는 약 11KB 오류). 판매자 `https://api(-staging).picakes.com/v1/seller/auth/apple/callback`은 11-26 오후에도 아직 미저장(앱담당자가 Services ID에서 Continue → Save).
   - `aud` 검증: `com.product.picake`(네이티브) / `com.product.picake.web`(웹) 두 값 모두 허용하기로 결정.
 
 ### 필요한 환경변수 — 정확히 이것만 추가
@@ -155,9 +156,9 @@ analytics 이벤트는 `request_social_auth` / `success_login` / `fail_social_au
 - **탈퇴 시 revoke 필수(Apple 가이드라인 5.1.1(v))**: 로그인·가입 성공 시마다 `refresh_token`을 `TokenEncryptionUtil`(AES-256-GCM, `apps/backend/src/common/utils/token-encryption.util.ts`)로 암호화해 `Consumer.appleRefreshToken`에 저장해두고, 탈퇴 시점에 복호화해 `POST https://appleid.apple.com/auth/revoke`를 호출합니다(`AuthAppleOauthService.revokeToken`, `AuthWithdrawService`에서 호출). 구글은 탈퇴 시 provider 쪽 연결을 끊지 않고, 카카오(어드민 키로 unlink, 상용만)·네이버(접근 토큰 삭제, 상용만)는 2026-11-16부터 끊습니다 — 같은 앱을 쓰는 다른 역할 계정이 남아 있으면 끊지 않습니다(위 카카오·네이버 칸).
 - `sub`는 Team ID + Primary App ID에 연결된 Services ID 기준으로, 동일 Apple 계정이면 네이티브 앱/웹 어느 경로로 로그인해도 같은 값이 나옵니다 — `Consumer.appleId` 컬럼 하나로 양쪽 겸용 가능합니다.
 
-### DB(Prisma) — Apple은 Consumer 전용, `buildAnonymizedWithdrawalData` 공용 빌더에 넣지 말 것
+### DB(Prisma) — Apple 필드는 손님·사장님 둘 다(사장님 2026-11-26), 탈퇴 익명화는 분기마다
 
-`appleId`/`appleEmail`/`appleRefreshToken`은 `Consumer`에만 추가했고 `Seller`엔 없습니다(§5 범위 — 판매자는 아직). `auth-withdraw.service.ts`의 `buildAnonymizedWithdrawalData()`는 Consumer/Seller 탈퇴에서 **공용으로 재사용**되는 함수라, 여기에 `appleId: null` 등을 넣으면 `Seller.update()` 호출에서 존재하지 않는 컬럼이라 타입 에러가 납니다. Apple 필드는 `consumer.update({ data: { ...buildAnonymizedWithdrawalData(...), appleId: null, appleEmail: null, appleRefreshToken: null } })`처럼 **consumer 분기 호출부에서만** 스프레드로 추가하세요.
+`appleId`/`appleEmail`/`appleRefreshToken`은 `Consumer`(2026-08)와 `Seller`(2026-11-26)에 있습니다. `auth-withdraw.service.ts`의 `buildAnonymizedWithdrawalData()` 공용 빌더에는 넣지 않고, 손님·사장님 분기의 `update({ data: { ...buildAnonymizedWithdrawalData(...), appleId: null, appleEmail: null, appleRefreshToken: null } })`에서 각각 비웁니다.
 
 ### 새 provider 추가 시 "표준 파일 목록"에 없는 숨은 지점 (반드시 grep으로 확인)
 

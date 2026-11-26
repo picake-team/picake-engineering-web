@@ -7,9 +7,9 @@ description: 손님·사장님 앱 스토어 심사 준비·반려 대응, 심�
 
 > **이 문서의 `apps/backend/...` 경로와 `deploy-*-backend-ec2.yml` 워크플로우는 별도 레포 [`picake-engineering-backend`](https://github.com/picake-team/picake-engineering-backend)의 것입니다.** 로컬에서는 이 레포의 형제 폴더(`../picake-engineering-backend`)에서 확인하세요. `apps/web-*` 경로는 이 레포입니다.
 
-> **현재 상태(2026-08-30 기준): 심사 승인 완료, iOS 앱스토어 배포 성공.** 4차 반려(§1의 2.1(a)+1.5, §3-2)까지 대응한 재심사에서 통과됨. 이 문서는 이력 참고용으로 계속 유지하고, 새 반려가 오면 §4 절차대로 대응해 §1에 이어서 기록하세요.
+> **현재 상태(2026-11-26): 손님 1.0.1(Capacitor)·판매자 1.0.0 App Store 심사 준비 중.** 손님 1.0.0(Flutter)은 2026-08-30 승인·배포(4차 반려 §1의 2.1(a)+1.5, §3-2까지 대응한 재심사에서 통과). 손님 1.0.1 등록정보는 11-26에 넣었고(제출 전), 판매자는 Google Play만 11-25 출시. 제출 전에는 앱 레포 `docs/release-checklist.md`(출시 관문 — 코드·정책·콘솔·사람)를 처음부터 끝까지 돌립니다. 새 반려가 오면 §4 절차대로 대응해 §1에 이어서 기록하세요.
 
-> **판매자 앱(2026-11-05~ 준비 중, 기획 I-48)도 이 기록을 기준으로 준비합니다.** 판매자 앱은 `web-seller`를 같은 방식(웹뷰 앱 껍데기)으로 감싼 별도 앱입니다. 2026-11-05 기준 판매자 쪽에는 Apple 로그인(4.8)·심사용 로그인(2.1(a))·미리 채운 심사용 가게(2.1(a) 데모 콘텐츠)가 없었고, 앱 안 탈퇴(5.1.1(v))는 판매자 마이페이지에 이미 있습니다. 심사용 로그인·심사용 가게는 2026-11-07에 만들었습니다(§2-1). Apple 로그인은 아직 없고, 앱담당자의 Apple 설정 뒤에 만들어 켭니다(`SELLER_APPLE_LOGIN_ENABLED`, [[picake-auth-social-login]] §5). Support URL은 손님 앱과 같은 `https://picakes.com/mypage/support`를 씁니다. 스토어 계정(App Store Connect·Play Console) 주인은 앱담당자이고 운영자가 초대받아 있습니다(역할에 따라 고칠 수 있는 칸이 다름). 앱 코드는 앱 레포 `picake-engineering-app`(2026-11-13 Flutter → Capacitor)에 있습니다.
+> **판매자 앱(2026-11-05~ 준비 중, 기획 I-48)도 이 기록을 기준으로 준비합니다.** 판매자 앱은 `web-seller`를 같은 방식(웹뷰 앱 껍데기)으로 감싼 별도 앱입니다. 2026-11-05 기준 판매자 쪽에는 Apple 로그인(4.8)·심사용 로그인(2.1(a))·미리 채운 심사용 가게(2.1(a) 데모 콘텐츠)가 없었고, 앱 안 탈퇴(5.1.1(v))는 판매자 마이페이지에 이미 있습니다. 심사용 로그인·심사용 가게는 2026-11-07에 만들었습니다(§2-1). Apple 로그인은 아직 없고, 앱담당자가 Services ID에 판매자 Return URL을 저장한 뒤에 만들어 켭니다(`SELLER_APPLE_LOGIN_ENABLED`, [[picake-auth-social-login]] §5 — 2026-11-26 오후에도 미저장: Apple authorize가 약 11KB 오류 쪽). Support URL은 손님 앱과 같은 `https://picakes.com/mypage/support`를 씁니다. 운영자는 App Store Connect(2026-11-23)·Play Console(11-24, 두루랩스 계정) **관리자**라 등록정보·개인정보 라벨·연령 등급·심사 메모는 AI가 운영자 계정으로 넣습니다. 애플 개발자 계정은 앱담당자 개인 계정이라 **Identifiers(Services ID의 Return URL 등)·팀 API 키·인증서는 계정 주인(앱담당자)만** 다룹니다(운영자 관리자 계정은 팀 키 403, 11-26 확인). 앱 코드는 앱 레포 `picake-engineering-app`(2026-11-13 Flutter → Capacitor)에 있습니다.
 
 > **비밀번호·개인 연락처를 이 문서에 적지 마세요.** 이 레포는 공개 레포입니다. 2026-11-05에 §3-2의 구글 데모 계정 비밀번호와 운영자 개인 번호를 지웠습니다. git 기록에는 남아 있으므로 그 계정 비밀번호는 바꿔야 합니다.
 
@@ -18,7 +18,7 @@ Picake web-user는 겉면만 앱 껍데기로 감싼 **웹뷰 앱**입니다 —
 ## 0. 이 저장소에서 할 수 있는 일 vs 없는 일
 
 - 네이티브 앱(Info.plist 권한 문구, 앱 아이콘, Associated Domains 등)은 앱 레포 `picake-engineering-app`(형제 폴더)에서 고친다(앱 레포 스킬 `picake-app-release`). 이 레포에서 고칠 수 있는 건 web-user/backend 코드다.
-- 다음 항목은 **스토어 콘솔·실제 설정 확인이 필요** — 임의로 답하거나 추측해서 심사노트에 쓰지 않습니다(권한 문구·아이콘은 앱 레포에서 확인, 콘솔 항목은 앱담당자 또는 초대받은 운영자):
+- 다음 항목은 **스토어 콘솔·실제 설정 확인이 필요** — 임의로 답하거나 추측해서 심사노트에 쓰지 않습니다(권한 문구·아이콘은 앱 레포에서 확인, 콘솔 항목은 운영자 관리자 계정으로 콘솔을 열어 확인):
   - Info.plist 권한 사용 설명 문구(위치·알림 등), 앱 아이콘, 스크린샷, 앱 이름/부제
   - App Store Connect의 **App Privacy(개인정보 수집 항목 설문)** — 실제 수집 항목(휴대폰번호, 위치, 소셜 로그인 식별자 등, [[picake-legal-terms]] skill의 개인정보처리방침 항목과 일치해야 함)과 어긋나면 그 자체로 반려 사유가 됨
   - Associated Domains capability 설정 여부(현재 iOS는 Universal Links를 껐으므로 **켜져 있으면 안 됨** — 아래 §1의 딥링크 항목 참고)
@@ -53,7 +53,7 @@ Picake web-user는 겉면만 앱 껍데기로 감싼 **웹뷰 앱**입니다 —
 
 ### 5.1.1(v) 계정 삭제 — 대응 완료
 
-앱 내에서 고객센터 문의 없이 바로 탈퇴 가능해야 합니다. `apps/web-user/src/app/mypage/setting/account/page.tsx` + `WithdrawBottomSheet` + `useWithdraw` 훅으로 마이페이지 > 설정 > 계정에서 즉시 탈퇴 가능. Apple 계정으로 가입한 경우 탈퇴 시 `POST https://appleid.apple.com/auth/revoke`까지 호출([[picake-auth-social-login]] skill §5 "탈퇴 시 revoke 필수"). 진행 중인 주문이 있으면 탈퇴가 막히는데(`WITHDRAW_BLOCKED_ACTIVE_ORDERS`), 이건 정상 비즈니스 로직이지 심사 반려 사유가 아님 — 다만 심사관 계정에 진행 중 주문이 남아있으면 탈퇴 테스트가 막히니 심사 전 확인.
+앱 내에서 고객센터 문의 없이 바로 탈퇴 가능해야 합니다. `apps/web-user/src/app/mypage/setting/account/page.tsx` + `WithdrawBottomSheet` + `useWithdraw` 훅으로 마이페이지 > 설정 > 계정에서 즉시 탈퇴 가능. Apple 계정으로 가입한 경우 탈퇴 시 `POST https://appleid.apple.com/auth/revoke`까지 호출([[picake-auth-social-login]] skill §5 "탈퇴 시 revoke 필수"). 진행 중인 주문이 있으면 탈퇴가 막히는데(`WITHDRAW_BLOCKED_ACTIVE_ORDERS`), 이건 정상 비즈니스 로직이지 심사 반려 사유가 아님 — 다만 심사관 계정에 진행 중 주문이 남아있으면 탈퇴 테스트가 막혔음. backend #189(2026-11-26, 상용 전)부터 손님 심사용 계정(`REVIEW_ACCOUNT`)은 진행 중 예약을 "심사용 계정 탈퇴"로 취소하고 탈퇴됨(판매자 심사 계정과 같게). #189가 상용에 나가기 전에는 심사 전 확인.
 
 ### 2.1(a) 필요한 정보 / 데모 콘텐츠 — 실제 반려 이력, 근본 원인은 "활성 지역" 판정 버그, 대응 완료
 
@@ -93,7 +93,7 @@ Picake web-user는 겉면만 앱 껍데기로 감싼 **웹뷰 앱**입니다 —
 
 **대응 완료(2026-08-19, PR #159·#160)**: 마이페이지 > 고객 서비스에 "고객센터" 메뉴 추가 → `/mypage/support` 신설(로그인 불필요). `CustomerSupportScreen.tsx`에 이메일(`picakeee@gmail.com`)·전화(`010-3007-5647`)·카카오톡 채널("픽케이크")·인스타그램(`@picake_app`)을 라벨+값 형태로 노출(전부 탭 불가능한 단순 정보 행으로 통일, 카카오 채널은 실제 URL 미확보로 텍스트만). staging(`web-user/staging-v0.0.225`)·production(`web-user/production-v0.0.13`) 배포 완료.
 
-**App Store Connect 쪽 대응**: Support URL 필드 자체(`https://picakes.com/mypage/support`로 교체)는 앱담당자가 App Store Connect에서 직접 수정해야 하는 부분이라 이 저장소로는 할 수 없었지만, §3-2 회신 시점에 앱담당자가 실제로 교체 완료(회신문에 "We have also updated the Support URL field..."로 명시). 재심사에서 승인됨 — 상세는 §3-2 결과 참고.
+**App Store Connect 쪽 대응**: Support URL 필드 자체(`https://picakes.com/mypage/support`로 교체)는 앱담당자가 App Store Connect에서 직접 수정해야 하는 부분이라 이 저장소로는 할 수 없었지만, §3-2 회신 시점에 앱담당자가 실제로 교체 완료(회신문에 "We have also updated the Support URL field..."로 명시). 재심사에서 승인됨 — 상세는 §3-2 결과 참고. **2026-11-26에 보니 콘솔 칸이 다시 `http://picakes.com`이어서** 1.0.1에 `https://picakes.com/mypage/support`로 넣었습니다(버전마다 칸을 확인).
 
 **남겨진 TODO**: 카카오톡 채널의 실제 `pf.kakao.com` URL을 확보하면 `CustomerSupportScreen.tsx`의 텍스트 표시를 클릭 가능한 링크로 바꿀 수 있음 (현재는 URL을 몰라 지어내지 않고 텍스트만 표시 — §0 원칙과 동일).
 
@@ -113,7 +113,7 @@ Picake web-user는 겉면만 앱 껍데기로 감싼 **웹뷰 앱**입니다 —
 2. "앱 버전" 라벨을 **2초 이내 간격으로 10회 연속 탭** → 심사용 로그인 바텀시트(`ReviewLoginBottomSheet`) 노출
 3. 6자리 코드 입력 → `POST /v1/consumer/auth/review-login` 호출 → 심사용 계정(`phone: "REVIEW_ACCOUNT"`, 최초 호출 시 자동 생성)으로 로그인
 
-**코드 관리(2026-11-15~)**: 판매자(§2-1)와 같이 **코드를 레포에 두지 않습니다.** 코드는 운영자 비밀번호 관리자에만 두고, 서버는 GitHub Actions 비밀값 `CONSUMER_REVIEW_LOGIN_CODE_SHA256`(코드의 SHA-256 16진수)과 비교합니다. 비밀값이 없으면 손님 심사용 로그인은 꺼집니다. 예전에는 코드가 `auth.constants.ts`에 그대로 있어(공개 레포) 11-15에 새 코드로 바꿨고, 예전 코드는 막힙니다. 2026-11-25 Google Play 손님 앱 심사를 낼 때 운영자가 다시 새 코드로 정했습니다(서버 production v0.0.72). 코드를 바꿀 때: `printf '<새 6자리>' | shasum -a 256` 값을 `gh secret set CONSUMER_REVIEW_LOGIN_CODE_SHA256 --repo picake-team/picake-engineering-backend`로 넣고 backend를 다시 배포합니다. 비밀값만 바뀌었으면 마지막 production 태그와 같은 main 커밋에 다음 번호 태그를 붙입니다(판매자 11-25 v0.0.71, 손님 11-25 v0.0.72). 다시 배포하기 전에는 새 코드가 통하지 않으니, 콘솔에 새 코드를 넣고 심사를 내는 것은 배포가 끝난 뒤에 합니다. 심사노트에는 `{REVIEW_CODE}`로 쓰고 App Store Connect·Play Console에 붙일 때만 채웁니다. 테스트(CI·로컬 `.env.test`)는 테스트 전용 코드 000000의 해시를 씁니다.
+**코드 관리(2026-11-15~)**: 판매자(§2-1)와 같이 **코드를 레포에 두지 않습니다.** 코드는 운영자 비밀번호 관리자에만 두고, 서버는 GitHub Actions 비밀값 `CONSUMER_REVIEW_LOGIN_CODE_SHA256`(코드의 SHA-256 16진수)과 비교합니다. 비밀값이 없으면 손님 심사용 로그인은 꺼집니다. 예전에는 코드가 `auth.constants.ts`에 그대로 있어(공개 레포) 11-15에 새 코드로 바꿨고, 예전 코드는 막힙니다. 로그인 시도는 IP당 1시간 5번(성공한 로그인도 셈 — 아이폰·아이패드로 다시 들어오다 막힐 수 있어 backend #189 상용 뒤 20번). 2026-11-25 Google Play 손님 앱 심사를 낼 때 운영자가 다시 새 코드로 정했습니다(서버 production v0.0.72). 코드를 바꿀 때: `printf '<새 6자리>' | shasum -a 256` 값을 `gh secret set CONSUMER_REVIEW_LOGIN_CODE_SHA256 --repo picake-team/picake-engineering-backend`로 넣고 backend를 다시 배포합니다. 비밀값만 바뀌었으면 마지막 production 태그와 같은 main 커밋에 다음 번호 태그를 붙입니다(판매자 11-25 v0.0.71, 손님 11-25 v0.0.72). 다시 배포하기 전에는 새 코드가 통하지 않으니, 콘솔에 새 코드를 넣고 심사를 내는 것은 배포가 끝난 뒤에 합니다. 심사노트에는 `{REVIEW_CODE}`로 쓰고 App Store Connect·Play Console에 붙일 때만 채웁니다. 테스트(CI·로컬 `.env.test`)는 테스트 전용 코드 000000의 해시를 씁니다.
 
 ## 2-1. 판매자 앱 심사용 로그인 (픽케이크 사장님, 기획 I-48)
 
@@ -125,77 +125,77 @@ Picake web-user는 겉면만 앱 껍데기로 감싼 **웹뷰 앱**입니다 —
 4. 심사관이 회원 탈퇴까지 확인할 수 있게 **심사용 계정은 예시 주문이 진행 중이어도 탈퇴**되고 심사용 가게는 지워짐. 다음 심사용 로그인 때 새로 만듦
 5. 예시 주문의 손님은 휴대폰 번호가 없는 예시 계정이라 알림톡이 나가지 않음. 휴대폰 알림 확인은 스토어 탭 위 톱니(설정) → 알림 설정 → "테스트 알림 보내기"
 
-**코드 관리**: 코드는 운영자 비밀번호 관리자에만 두고, 서버는 GitHub Actions 비밀값 `SELLER_REVIEW_LOGIN_CODE_SHA256`(코드의 SHA-256 16진수)과 비교합니다. 비밀값이 없으면 심사용 로그인은 꺼져 있습니다(항상 "심사용 로그인 코드가 올바르지 않습니다."). 6자리라 해시만 보여도 바로 풀리므로 해시도 레포·문서에 적지 않습니다. IP당 1시간에 5번까지라, 확인하다 막히면 1시간 기다립니다.
+**코드 관리**: 코드는 운영자 비밀번호 관리자에만 두고, 서버는 GitHub Actions 비밀값 `SELLER_REVIEW_LOGIN_CODE_SHA256`(코드의 SHA-256 16진수)과 비교합니다. 비밀값이 없으면 심사용 로그인은 꺼져 있습니다(항상 "심사용 로그인 코드가 올바르지 않습니다."). 6자리라 해시만 보여도 바로 풀리므로 해시도 레포·문서에 적지 않습니다. IP당 1시간에 5번까지라(backend #189 상용 뒤 20번), 확인하다 막히면 1시간 기다립니다(서버를 다시 켜면 풀림 — 로컬).
 
 코드를 바꿀 때: `printf '<새 6자리>' | shasum -a 256`의 값을 `gh secret set SELLER_REVIEW_LOGIN_CODE_SHA256 --repo picake-team/picake-engineering-backend`로 넣고 backend를 다시 배포(staging·production 태그)합니다. 심사노트에는 아래처럼 `{SELLER_REVIEW_CODE}`로 쓰고 App Store Connect에 붙일 때만 채웁니다.
 
 ```
-To review the seller app without social login: on the login screen, tap the Picake
-logo 10 times within 2 seconds. A "심사용 로그인" (review login) sheet opens; enter the
-code {SELLER_REVIEW_CODE} and tap 로그인. You will be signed in to a sample store that
-is hidden from customers, with sample orders in every status. The orders reset each
-time you use the review login, so you can process them from the beginning.
-To check push notifications: 스토어 (Store) tab → gear icon → 알림 설정 → 테스트 알림 보내기.
-Account deletion: 마이페이지 → 회원 탈퇴 (the review account can always be deleted).
+HOW TO SIGN IN (no social account needed)
+1. On the login screen, tap the Picake logo 10 times within 2 seconds.
+2. A "심사용 로그인" (review login) sheet opens. Enter the 6-digit code: {SELLER_REVIEW_CODE} and tap "로그인" (Log in).
+You will be signed in to a sample store that is hidden from customers, with sample orders in every status. The orders reset each time you use the review login.
+
+Kakao, Naver, Google and Apple sign-in ask for a Korean phone number (SMS) and the account owner's 2-step verification, so please use the review login above.
+
+ABOUT THIS APP
+This is the shop-owner app of Picake. Customers order through the separate Picake (픽케이크) app; shop owners use this app to receive reservations, send quotes and chat with customers.
+
+WHAT TO TRY
+- Open an order to see the lettering and reference photos, and move it to the next status.
+- Sample customer chats are in the 채팅 (Chat) tab.
+- Push test: 스토어 (Store) tab → gear icon → 알림 설정 → 테스트 알림 보내기.
+
+ACCOUNT DELETION
+마이페이지 → 회원 탈퇴. The review account can always be deleted; signing in with the code again creates it again.
+
+NATIVE FEATURES
+Push notifications for new reservations, customer payments, chat and the morning pickup summary; camera and photo library for product photos.
+
+PAYMENTS
+Physical goods only (custom cakes picked up at the store). Customers pay the store directly by bank transfer. No in-app digital purchases.
 ```
+
+위 글은 2026-11-26 App Store Connect 사장님 앱 1.0.0 심사 메모에 넣은 그대로입니다(코드 칸은 비워 두고 제출 직전 운영자가 채움, "로그인 필요" 체크는 끔 — 손님 앱과 같음). "Apple sign-in" 문장은 판매자 애플 로그인(backend #191·web #565)이 켜진 뒤에 맞는 말이라, 켜기 전에 제출하면 빼야 합니다. 원문 정본은 비공개 hq `marketing/store-listing.md` "판매자 앱 — App Store".
 
 ## 2-2. Google Play 심사 (앱 액세스·데이터 보안)
 
 Play Console에는 App Store 심사노트 대신 **앱 콘텐츠 → 로그인 세부정보**(예전 이름 "앱 액세스")에 들어가는 방법을 적는다. 이름 "Review login (심사용 로그인)", 코드는 **비밀번호 칸**에만 넣고(운영자가 직접), 안내 글에는 "enter the 6-digit code from the Password field above"라고 쓴다. 두 앱에 실제로 넣은 안내 글·데이터 보안·콘텐츠 등급 답의 원문은 비공개 hq `marketing/store-listing.md`에 있다(판매자 앱 11-25 출시, 손님 앱 11-25 등록정보 검토 제출). 손님 앱은 §2, 판매자 앱은 §2-1의 심사용 로그인을 같은 글로 쓰고(코드는 붙일 때만 채운다), **데이터 보안** 설문은 App Store의 App Privacy와 같은 기준([[picake-legal-terms]] 처리방침의 수집 항목)으로 맞춘다.
 
-## 3. App Store Connect 심사노트(App Review Information → Notes) 문구 초안
+## 3. App Store Connect 심사노트(App Review Information → Notes) 문구
 
-제출 전 §2에서 확인한 실제 코드 값으로 `{REVIEW_CODE}`를 채워서 사용하세요.
-
-**한국어 초안:**
+**손님 1.0.1에 2026-11-26 실제로 넣은 글(영문)**이 정본입니다(비공개 hq `marketing/store-listing.md` "App Store 1.0.1"과 같음). 화면 경로는 실제 화면 글자 그대로(아래 탭 "MY" → 맨 아래 "버전정보" → "앱 버전" 라벨, `BottomNav.tsx`·`mypage/page.tsx`·`VersionInfoScreen.tsx`)이고, Play 로그인 세부정보 안내 글(§2-2)과 같은 경로입니다. 콘솔에는 코드 자리를 `______`로 비워 두고 **제출 전에 운영자가 코드를 넣습니다**(여기서는 `{REVIEW_CODE}`). "로그인 필요" 체크는 끔(데모 계정 칸을 쓰지 않음). 화면 경로·탈퇴 경로·앱 기능이 바뀌면 이 글과 Play 안내 글을 같이 고칩니다.
 
 ```
-[로그인 방법]
-1. 앱 실행 후 로그인 없이도 홈/상품/스토어를 둘러보실 수 있습니다.
-2. 로그인이 필요한 화면(주문, 좋아요 등) 테스트를 위해 심사용 로그인을 제공합니다:
-   마이페이지 > 버전 정보 화면에서 "앱 버전" 텍스트를 2초 이내 간격으로 10회 연속 탭하면
-   심사용 로그인 창이 나타납니다. 코드 "{REVIEW_CODE}"를 입력하면 로그인됩니다.
+HOW TO SIGN IN (no social account needed)
+1. Open the app and tap the "MY" tab at the bottom.
+2. Scroll to the end of the list and tap "버전정보" (Version Info).
+3. Tap the "앱 버전" (App Version) label 10 times within 2 seconds.
+4. A review login sheet opens. Enter the 6-digit code: {REVIEW_CODE} and tap "로그인" (Log in).
 
-[결제 안내]
-본 서비스는 베이커리 등 실물 상품/서비스를 다루며, 결제는 인앱결제가 아니라
-스토어 계좌로의 계좌이체(무통장입금) 방식입니다. 디지털 콘텐츠 판매가 아니므로
-In-App Purchase 대상이 아닙니다.
+Kakao, Naver, Google and Apple sign-in ask for a Korean phone number (SMS) and the account owner's 2-step verification, so please use the review login above.
 
-[위치 정보 안내]
-주변 스토어를 찾는 지도와 거리순 검색 결과를 처음 열 때 위치 권한을 요청합니다(앱을 켤 때는 묻지 않습니다). 홈의 케이크 목록은
-지역과 상관없이 보이고, 검색 결과만 고른 지역으로 거릅니다. 권한을 거부하거나
-서비스 지역 밖(해외 등)에서 접속하셔도 홈에서 등록된 케이크 상품을 바로 확인하실 수 있습니다.
+WHAT TO TRY
+- Browsing cakes, stores and cake designs needs no login.
+- With the review login you can send a quote request (견적 요청) and reserve a cake at the test store. Quote requests go to nearby cake shops, so a reply may not arrive during review.
+- Chat with a store: open a store page and tap the chat icon.
 
-문의사항이 있으시면 picakeee@gmail.com으로 연락 주시면 신속히 답변드리겠습니다.
+ACCOUNT DELETION
+MY > gear icon (설정) > 내 계정 정보 > 회원탈퇴. The review account can be deleted even with an active reservation; signing in with the code again creates a new review account.
+
+NATIVE FEATURES
+Push notifications for reservations, quotes and chat; KakaoTalk message buttons open the app (picake://); location for nearby stores.
+
+PAYMENTS
+Physical goods only (custom cakes picked up at the store). Customers pay the store directly by bank transfer. No in-app digital purchases.
 ```
 
-**영문 초안:**
-
-```
-[How to sign in]
-1. You can browse the home feed, products, and stores without signing in.
-2. For features that require an account (orders, likes, etc.), we provide a
-   reviewer login: go to My Page > App Version, tap the "App Version" label
-   10 times within 2 seconds to reveal a review-login sheet, then enter the
-   code "{REVIEW_CODE}" to sign in.
-
-[About payment]
-This app is for ordering real-world bakery goods/services. Payment is handled
-via bank transfer to the store's settlement account, not In-App Purchase —
-there is no digital content being sold, so IAP does not apply.
-
-[About location]
-The app asks for location permission only when you first open the map or distance-sorted search results to find nearby stores (not on launch). The
-home feed shows cake products regardless of region; only search results are
-filtered by the selected region. Even if permission is denied or you're outside
-our service area, you can browse cake products on the home screen right away.
-
-If you have any questions, please contact us at picakeee@gmail.com.
-```
+- "The review account can be deleted even with an active reservation"은 backend #189가 상용에 나간 뒤에 맞는 말입니다. 제출 전에 #189가 상용인지 확인합니다.
+- 4.2(웹을 감싼 앱) 대비로 앱만의 기능(NATIVE FEATURES)을 적고, 설명 글에서는 "앱이 없어도 웹에서" 문장을 뺐습니다.
+- 판매자 앱 심사노트는 §2-1 글을 쓰고, 앱만의 기능(알림·테스트 알림)과 결제 안내를 같은 모양으로 붙입니다.
 
 ## 3-2. 4차 반려(2.1(a) + 1.5)에 실제로 보낸 회신 (2026-08-23)
 
-Resolution Center에 아래 영문으로 회신 완료. 구글 데모 계정 비밀번호와 연락처(운영자 개인 번호)는 실제 회신에는 적었지만 이 문서에서는 `{…}`로 가렸습니다. 이 계정(`picakeee@gmail.com`)은 고객센터 이메일과 같은 계정이라 실 서비스 계정입니다. 비밀번호는 운영자가 따로 보관하고, 바꾸면 App Store Connect의 Review Notes도 함께 바꿉니다(앱담당자). 연락처는 App Store Connect의 App Review Information 필드(팀원 번호)와는 별개로 Notes 텍스트에만 적어 보냄.
+Resolution Center에 아래 영문으로 회신 완료. 구글 데모 계정 비밀번호와 연락처(운영자 개인 번호)는 실제 회신에는 적었지만 이 문서에서는 `{…}`로 가렸습니다. 이 계정(`picakeee@gmail.com`)은 고객센터 이메일과 같은 계정이라 실 서비스 계정입니다. 비밀번호는 운영자가 따로 보관합니다. 2026-11-26 손님 1.0.1부터는 데모 계정을 쓰지 않습니다(§3, "로그인 필요" 체크 끔). 연락처는 App Store Connect의 App Review Information 필드(팀원 번호)와는 별개로 Notes 텍스트에만 적어 보냄.
 
 ```
 Hello,
@@ -250,6 +250,11 @@ Thank you.
 4. 네이티브 앱 쪽(Info.plist, 권한 문구) 관련 반려면 앱 레포에서 고쳐 다시 내고, App Privacy 설문처럼 콘솔 항목이면 §0 목록대로 콘솔에서 고칩니다.
 
 ## 5. 제출 전 체크리스트
+
+전체 출시 관문(코드·정책·콘솔·사람)은 앱 레포 `docs/release-checklist.md`가 정본이고, 아래는 심사 메모·로그인 쪽 세부입니다.
+
+- [ ] Firebase(`project-3-7612d`) → 클라우드 메시징 → 두 iOS 앱의 **프로덕션** APNs 인증 키 칸이 채워졌는지(2026-11-26 두 앱 모두 비어 있었음 — 개발 칸만 있으면 TestFlight·App Store 아이폰에 알림이 안 감, 운영자가 올림)
+- [ ] App Store Connect 연령 등급 새 질문(메시지·채팅 예, 사용자 생성 콘텐츠 예, 위치 공유·데이팅 아니요 → 4+)에 답했는지 — 버전마다 확인
 
 - [ ] (손님 앱) §2 비밀값 `CONSUMER_REVIEW_LOGIN_CODE_SHA256`이 들어간 뒤 배포됐고, 운영자 비밀번호 관리자의 코드로 production 손님 앱에서 심사용 로그인이 되는지 확인. 심사노트의 `{REVIEW_CODE}`를 채웠는지 확인(코드는 11-15부터 레포에 없음)
 - [ ] (판매자 앱) §2-1 비밀값 `SELLER_REVIEW_LOGIN_CODE_SHA256`이 들어간 뒤 배포됐고, 운영자 비밀번호 관리자의 코드로 production 판매자 앱에서 심사용 로그인이 되는지 확인. 심사노트의 `{SELLER_REVIEW_CODE}`를 채웠는지 확인

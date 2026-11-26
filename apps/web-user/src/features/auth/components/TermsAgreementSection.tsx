@@ -7,6 +7,8 @@ import { TermsPreviewBottomSheet } from "@/apps/web-user/features/terms/componen
 import type { TermsType } from "@/apps/web-user/features/terms/types/terms.dto";
 
 export interface TermsAgreementState {
+  /** 만 14세 이상(약관 제5조, 법무 LG-02) — 문서가 없는 [필수] 항목, 서버에 agreedToAge14로 보낸다 */
+  ageOver14: boolean;
   termsOfService: boolean;
   privacyPolicy: boolean;
   thirdPartyConsent: boolean;
@@ -14,6 +16,7 @@ export interface TermsAgreementState {
 }
 
 export const INITIAL_TERMS_STATE: TermsAgreementState = {
+  ageOver14: false,
   termsOfService: false,
   privacyPolicy: false,
   thirdPartyConsent: false,
@@ -21,7 +24,7 @@ export const INITIAL_TERMS_STATE: TermsAgreementState = {
 };
 
 export function isRequiredTermsAllChecked(state: TermsAgreementState): boolean {
-  return state.termsOfService && state.privacyPolicy && state.thirdPartyConsent;
+  return state.ageOver14 && state.termsOfService && state.privacyPolicy && state.thirdPartyConsent;
 }
 
 interface TermsAgreementSectionProps {
@@ -33,10 +36,13 @@ interface TermsItem {
   key: keyof TermsAgreementState;
   label: string;
   required: boolean;
-  termsType: TermsType;
+  /** 볼 문서가 없는 항목(만 14세 이상)은 비워 "›"를 그리지 않는다 */
+  termsType?: TermsType;
 }
 
 const TERMS_ITEMS: TermsItem[] = [
+  // 카카오계정 가입처럼 전체 동의 바로 아래 첫 줄(운영자 11-26)
+  { key: "ageOver14", label: "만 14세 이상입니다", required: true },
   {
     key: "termsOfService",
     label: "서비스 이용약관",
@@ -77,6 +83,7 @@ export function TermsAgreementSection({ value, onChange }: TermsAgreementSection
         checked={allChecked}
         onChange={(checked) =>
           onChange({
+            ageOver14: checked,
             termsOfService: checked,
             privacyPolicy: checked,
             thirdPartyConsent: checked,
@@ -106,19 +113,21 @@ export function TermsAgreementSection({ value, onChange }: TermsAgreementSection
               }
               className="flex-1 min-w-0"
             />
-            <button
-              type="button"
-              onClick={() => setPreviewTerms(item)}
-              className="shrink-0 ml-2 p-1"
-              aria-label={`${item.label} 보기`}
-            >
-              <Icon name="arrow" width={16} height={16} className="text-gray-400 rotate-90" />
-            </button>
+            {item.termsType ? (
+              <button
+                type="button"
+                onClick={() => setPreviewTerms(item)}
+                className="shrink-0 ml-2 p-1"
+                aria-label={`${item.label} 보기`}
+              >
+                <Icon name="arrow" width={16} height={16} className="text-gray-400 rotate-90" />
+              </button>
+            ) : null}
           </div>
         ))}
       </div>
 
-      {previewTerms && (
+      {previewTerms?.termsType && (
         <TermsPreviewBottomSheet
           isOpen
           onClose={() => setPreviewTerms(null)}

@@ -6,17 +6,20 @@ import type { TermsType } from "@/apps/web-seller/features/terms/types/terms.dto
 import { cn } from "@/apps/web-seller/common/utils/classname.util";
 
 export interface SellerTermsAgreementState {
+  /** 만 14세 이상(판매자 약관 제5조, 법무 LG-02) — 문서가 없는 [필수] 항목, 서버에 agreedToAge14로 보낸다 */
+  ageOver14: boolean;
   termsOfService: boolean;
   privacyPolicy: boolean;
 }
 
 export const INITIAL_SELLER_TERMS_STATE: SellerTermsAgreementState = {
+  ageOver14: false,
   termsOfService: false,
   privacyPolicy: false,
 };
 
 export function isRequiredSellerTermsAllChecked(state: SellerTermsAgreementState): boolean {
-  return state.termsOfService && state.privacyPolicy;
+  return state.ageOver14 && state.termsOfService && state.privacyPolicy;
 }
 
 interface SellerTermsAgreementSectionProps {
@@ -27,10 +30,12 @@ interface SellerTermsAgreementSectionProps {
 interface TermsItem {
   key: keyof SellerTermsAgreementState;
   label: string;
-  termsType: TermsType;
+  /** 볼 문서가 없는 항목(만 14세 이상)은 비워 "›"를 그리지 않는다 */
+  termsType?: TermsType;
 }
 
 const TERMS_ITEMS: TermsItem[] = [
+  { key: "ageOver14", label: "만 14세 이상입니다" },
   {
     key: "termsOfService",
     label: "서비스 이용약관",
@@ -60,6 +65,7 @@ export function SellerTermsAgreementSection({ value, onChange }: SellerTermsAgre
             checked={allChecked}
             onChange={(checked) =>
               onChange({
+                ageOver14: checked,
                 termsOfService: checked,
                 privacyPolicy: checked,
               })
@@ -85,19 +91,23 @@ export function SellerTermsAgreementSection({ value, onChange }: SellerTermsAgre
               }
               className="min-w-0 flex-1"
             />
-            <button
-              type="button"
-              onClick={() => setPreviewTerms(item)}
-              className={cn(TERMS_LINK_SLOT_CLASS, "text-zinc-400 hover:text-zinc-700")}
-              aria-label={`${item.label} 보기`}
-            >
-              <ChevronRight className="size-4" aria-hidden />
-            </button>
+            {item.termsType ? (
+              <button
+                type="button"
+                onClick={() => setPreviewTerms(item)}
+                className={cn(TERMS_LINK_SLOT_CLASS, "text-zinc-400 hover:text-zinc-700")}
+                aria-label={`${item.label} 보기`}
+              >
+                <ChevronRight className="size-4" aria-hidden />
+              </button>
+            ) : (
+              <span className={TERMS_LINK_SLOT_CLASS} aria-hidden />
+            )}
           </div>
         ))}
       </div>
 
-      {previewTerms && (
+      {previewTerms?.termsType && (
         <TermsPreviewDialog
           open
           onClose={() => setPreviewTerms(null)}

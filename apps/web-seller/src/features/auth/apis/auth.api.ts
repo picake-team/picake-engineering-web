@@ -8,6 +8,8 @@ import {
   KakaoLoginRequestDto,
   NaverLoginRequestDto,
   NaverRegisterRequestDto,
+  AppleLoginRequestDto,
+  AppleRegisterRequestDto,
   TokenResponseDto,
   MeResponseDto,
   FindAccountRequestDto,
@@ -72,6 +74,17 @@ export const authApi = {
 
   naverRegister: async (data: NaverRegisterRequestDto): Promise<TokenResponseDto> => {
     const response = await sellerClient.post("/auth/naver/register", data);
+    return response.data.data;
+  },
+
+  appleLogin: async (code: string): Promise<TokenResponseDto> => {
+    const requestDto: AppleLoginRequestDto = { code };
+    const response = await sellerClient.post("/auth/apple/login", requestDto);
+    return response.data.data;
+  },
+
+  appleRegister: async (data: AppleRegisterRequestDto): Promise<TokenResponseDto> => {
+    const response = await sellerClient.post("/auth/apple/register", data);
     return response.data.data;
   },
 

@@ -59,6 +59,11 @@ export const ROUTES = {
     KAKAO_REDIRECT_URI: "/auth/login/kakao",
     /** 네이버 Callback URL — 네이버 개발자센터 앱(손님과 같은 앱)에 환경별로 등록 */
     NAVER_REDIRECT_URI: "/auth/login/naver",
+    /**
+     * 애플 로그인이 돌아오는 화면(2026-11-26). 애플 Return URL은 서버 주소(`/v1/seller/auth/apple/callback`)이고
+     * 서버가 code·state·이름만 이 화면으로 넘긴다(서버 `SELLER_APPLE_WEB_CALLBACK_PATH`와 같아야 함)
+     */
+    APPLE_REDIRECT_URI: "/auth/login/apple",
   },
   /** 운영자 대신 입력(기획 I-41) 들어오기(`?code=`)·끝난 화면. 서버 ACT_AS_SELLER_ENTRY_PATH와 같아야 한다 */
   ACT_AS: "/act-as",

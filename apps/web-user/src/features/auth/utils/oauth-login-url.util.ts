@@ -7,7 +7,7 @@ import { getOrCreateNaverOAuthState } from "@/apps/web-user/features/auth/utils/
  */
 /** 카카오 간편가입 약관 태그(손님) — 카카오 콘솔 [카카오 로그인] > [간편가입]에 등록한 태그 */
 export const KAKAO_CONSUMER_SERVICE_TERMS =
-  "picake_c_tos,picake_c_privacy,picake_c_third_party,picake_c_location";
+  "user_age_check,picake_c_tos,picake_c_privacy,picake_c_third_party,picake_c_location";
 
 export function getKakaoOAuthLoginUrl(): string | null {
   if (typeof window === "undefined") return null;

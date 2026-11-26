@@ -31,8 +31,12 @@ describe("가입표 읽기(사장님 카카오 한 번에 가입)", () => {
     expect(readRegisterTicketHints(fakeTicket({ phone: "02-123" })).phone).toBeUndefined();
   });
 
-  it("사장님 필수 약관 2개가 다 있어야 하고, 손님 약관은 치지 않는다", () => {
-    expect(hasAllKakaoSellerTerms(["picake_s_tos", "picake_s_privacy"])).toBe(true);
+  it("사장님 필수 약관 3개(만 14세 이상 포함)가 다 있어야 하고, 손님 약관은 치지 않는다", () => {
+    expect(hasAllKakaoSellerTerms(["user_age_check", "picake_s_tos", "picake_s_privacy"])).toBe(
+      true,
+    );
+    // 카카오에서 만 14세 이상을 받지 못했으면 가입 화면 약관 상자에서 받는다(법무 LG-02)
+    expect(hasAllKakaoSellerTerms(["picake_s_tos", "picake_s_privacy"])).toBe(false);
     expect(hasAllKakaoSellerTerms(["picake_s_tos", "picake_c_privacy"])).toBe(false);
   });
 });

@@ -1,8 +1,9 @@
 /**
- * 휴대폰 소셜 로그인 콜백 (구글·카카오·네이버). 지금 PC 콜백과 같은 서버 흐름이다:
+ * 휴대폰 소셜 로그인 콜백 (구글·카카오·네이버·애플). 지금 PC 콜백과 같은 서버 흐름이다:
  * code로 로그인 → 휴대폰 미연동이면 회원가입(SC-63: 실명 → 휴대폰 인증 → 약관 동의 → "가입하기")
  * → 그 번호로 다른 소셜 계정이 이미 있으면 "이미 가입한 계정이 있어요"(SC-97)와 그 수단의 로그인 버튼.
  * 손님 앱과 같게 "가입하기"를 눌러야 가입이 끝난다(PC는 "인증 완료"를 누르면 바로 가입).
+ * 애플(2026-11-26)은 애플 → 서버 콜백(form_post) → 이 화면(?code&state&appleName). state는 네이버처럼 먼저 확인한다.
  */
 import React, { useMemo, useRef, useState } from "react";
 import { formatPhoneDisplay } from "@/apps/web-seller/common/utils/phone-display.util";
@@ -53,24 +54,35 @@ import {
 import {
   googleAuthorizeUrl,
   kakaoAuthorizeUrl,
+  appleAuthorizeUrl,
   naverAuthorizeUrl,
+  refreshAppleHrefOnClick,
   refreshNaverReauthHrefOnClick,
+  SELLER_APPLE_LOGIN_ENABLED,
   SELLER_NAVER_LOGIN_ENABLED,
   SOCIAL_LOGIN_ICON_CLASS,
   SOCIAL_LOGIN_NAVER_ICON_CLASS,
 } from "@/apps/web-seller/features/auth/components/mobile/socialLogin";
 import { NaverLogoIcon } from "@/apps/web-seller/common/components/icons/NaverLogoIcon";
+import { AppleLogoIcon } from "@/apps/web-seller/common/components/icons/AppleLogoIcon";
 import {
   consumeNaverOAuthState,
   isNaverOAuthStateValid,
 } from "@/apps/web-seller/features/auth/utils/naver-oauth-state.util";
 import { saveLastLoginProvider } from "@/apps/web-seller/features/auth/utils/last-login-provider.util";
 
-type Provider = "google" | "kakao" | "naver";
+type Provider = "google" | "kakao" | "naver" | "apple";
 
 /** 가입표(registerToken): 로그인 때 서버가 확인한 소셜 ID가 들어 있다(30분) */
 interface SocialIdentity {
   registerToken: string;
+  /** 애플이 처음 인가 때만 주는 이름(서버 콜백이 주소로 넘김) — 가입 화면 이름 칸을 채운다(심사 4) */
+  name?: string;
+}
+
+/** 이 탭이 만든 state를 확인해야 하는 소셜(남이 만든 로그인 결과를 받지 않게) */
+function checksState(provider: Provider): provider is "naver" | "apple" {
+  return provider === "naver" || provider === "apple";
 }
 
 interface ExistingAccount {
@@ -95,6 +107,12 @@ const PROVIDER = {
     purpose: PHONE_VERIFICATION_PURPOSE.NAVER_REGISTRATION as PhoneVerificationPurpose,
     // 네이버는 state를 먼저 확인해야 해서 OAuthCallbackMobile에서 따로 부른다
     login: null,
+  },
+  apple: {
+    label: "Apple",
+    purpose: PHONE_VERIFICATION_PURPOSE.APPLE_REGISTRATION as PhoneVerificationPurpose,
+    // state 확인은 OAuthCallbackMobile에서 먼저(네이버와 같게). 서버에는 code만 보낸다
+    login: authApi.appleLogin,
   },
 } as const;
 
@@ -129,7 +147,20 @@ function existingAccountFrom(error: unknown): ExistingAccount | null {
 }
 
 function SocialLoginButton({ via }: { via: ExistingAccount["via"] }) {
+  if (via === "apple" && SELLER_APPLE_LOGIN_ENABLED) {
+    return (
+      <a
+        href={appleAuthorizeUrl()}
+        onClick={refreshAppleHrefOnClick}
+        className="relative flex h-12 w-full items-center justify-center rounded-control bg-black text-body font-bold text-white"
+      >
+        <AppleLogoIcon className={SOCIAL_LOGIN_ICON_CLASS} />
+        Apple로 로그인
+      </a>
+    );
+  }
   if (via === "apple") {
+    // 애플 키가 없는 환경 — 빈 client_id로 애플에 가지 않게 안내만
     return (
       <span className="flex h-12 items-center justify-center rounded-control bg-black text-body font-bold text-white">
         Apple 계정으로 가입돼 있어요
@@ -195,7 +226,7 @@ function SignUp({
     () => readRegisterTicketHints(identity.registerToken),
     [identity.registerToken],
   );
-  const [name, setName] = useState(hints.name ?? "");
+  const [name, setName] = useState(hints.name ?? identity.name ?? "");
   // 소셜 번호로 가입(문자 인증 없음, 카카오·네이버). "다른 번호"를 누르면 지금처럼 문자 인증
   const [useTicketPhone, setUseTicketPhone] = useState(
     offersTicketPhone(provider) && Boolean(hints.phone),
@@ -225,6 +256,7 @@ function SignUp({
     let termsPart: {
       agreedToTerms?: boolean;
       agreedToPrivacy?: boolean;
+      agreedToAge14?: boolean;
       termsDocumentIds?: string[];
     } = {};
     if (!termsFromKakao) {
@@ -239,6 +271,7 @@ function SignUp({
       termsPart = {
         agreedToTerms: terms.termsOfService,
         agreedToPrivacy: terms.privacyPolicy,
+        agreedToAge14: terms.ageOver14,
         termsDocumentIds,
       };
     }
@@ -248,6 +281,7 @@ function SignUp({
       const naverTerms = {
         agreedToTerms: terms.termsOfService,
         agreedToPrivacy: terms.privacyPolicy,
+        agreedToAge14: terms.ageOver14,
         termsDocumentIds: termsPart.termsDocumentIds,
       };
       const tokens =
@@ -267,6 +301,17 @@ function SignUp({
               })
           : await (async () => {
               const phone = await v.verifyCode();
+              if (provider === "apple") {
+                return await authApi.appleRegister({
+                  registerToken: identity.registerToken,
+                  name: name.trim(),
+                  phone,
+                  agreedToTerms: terms.termsOfService,
+                  agreedToPrivacy: terms.privacyPolicy,
+                  agreedToAge14: terms.ageOver14,
+                  termsDocumentIds: termsPart.termsDocumentIds,
+                });
+              }
               if (provider === "google") {
                 return await authApi.googleRegister({
                   registerToken: identity.registerToken,
@@ -274,6 +319,7 @@ function SignUp({
                   phone,
                   agreedToTerms: terms.termsOfService,
                   agreedToPrivacy: terms.privacyPolicy,
+                  agreedToAge14: terms.ageOver14,
                   termsDocumentIds: termsPart.termsDocumentIds,
                 });
               }
@@ -430,15 +476,22 @@ function OAuthCallbackMobile({ provider }: { provider: Provider }) {
 
   const pending = getPendingOAuthRegister();
   const initial: SocialIdentity | null =
-    pending?.provider === provider ? { registerToken: pending.registerToken } : null;
+    pending?.provider === provider
+      ? {
+          registerToken: pending.registerToken,
+          name: pending.provider === "apple" ? pending.name : undefined,
+        }
+      : null;
   const [identity, setIdentity] = useState<SocialIdentity | null>(initial);
   const [existing, setExisting] = useState<ExistingAccount | null>(null);
   // 확인을 마친 네이버 state(로그인 요청에 같이 보냄)
   const naverStateRef = useRef("");
+  // 애플이 처음 인가 때만 주는 이름 — 주소를 지우기 전에 읽어 둔다
+  const appleNameRef = useRef(provider === "apple" ? (params.get("appleName") ?? "").trim() : "");
 
   useOAuthCodeOnce(code, async (c) => {
-    if (provider === "naver") {
-      // 네이버: 주소의 state가 이 탭이 만든 값과 같을 때만(남이 만든 로그인 결과를 받지 않게)
+    if (checksState(provider)) {
+      // 네이버·애플: 주소의 state가 이 탭이 만든 값과 같을 때만(남이 만든 로그인 결과를 받지 않게)
       const state = params.get("state");
       if (!state || !isNaverOAuthStateValid(state)) {
         clearPendingOAuthRegister();
@@ -468,8 +521,13 @@ function OAuthCallbackMobile({ provider }: { provider: Provider }) {
       // 가입표: 서버가 확인한 소셜 ID가 들어 있어 가입은 이 값으로만 한다(30분)
       const registerToken = typeof p.registerToken === "string" ? p.registerToken : undefined;
       if (message.includes(AUTH_ERROR_MESSAGES.PHONE_VERIFICATION_REQUIRED) && registerToken) {
-        setPendingOAuthRegister({ provider, registerToken });
-        setIdentity({ registerToken });
+        const appleName = appleNameRef.current.slice(0, 50) || undefined;
+        setPendingOAuthRegister(
+          provider === "apple"
+            ? { provider, registerToken, name: appleName }
+            : { provider, registerToken },
+        );
+        setIdentity({ registerToken, name: appleName });
         // 주소의 code는 한 번만 쓴다
         navigate({ search: "" }, { replace: true });
       } else {
@@ -500,3 +558,4 @@ export const GoogleAuthCallbackMobilePage: React.FC = () => (
 );
 export const KakaoAuthCallbackMobilePage: React.FC = () => <OAuthCallbackMobile provider="kakao" />;
 export const NaverAuthCallbackMobilePage: React.FC = () => <OAuthCallbackMobile provider="naver" />;
+export const AppleAuthCallbackMobilePage: React.FC = () => <OAuthCallbackMobile provider="apple" />;

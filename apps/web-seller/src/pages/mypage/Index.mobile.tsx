@@ -36,6 +36,7 @@ function formatDay(iso: string | null | undefined) {
 function loginAccount(p: SellerMypageProfileResponseDto) {
   if (p.kakaoId) return `카카오${p.kakaoEmail ? ` (${p.kakaoEmail})` : ""}`;
   if (p.googleId) return `구글${p.googleEmail ? ` (${p.googleEmail})` : ""}`;
+  if (p.appleId) return `애플${p.appleEmail ? ` (${p.appleEmail})` : ""}`;
   // 네이버는 이메일을 받지 않는다
   if (p.naverId) return "네이버";
   return "–";

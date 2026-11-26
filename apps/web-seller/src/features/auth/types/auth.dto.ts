@@ -16,6 +16,7 @@ export const PHONE_VERIFICATION_PURPOSE = {
   GOOGLE_REGISTRATION: "google_registration",
   KAKAO_REGISTRATION: "kakao_registration",
   NAVER_REGISTRATION: "naver_registration",
+  APPLE_REGISTRATION: "apple_registration",
   PHONE_CHANGE: "phone_change",
   FIND_ACCOUNT: "find_account",
 } as const;
@@ -66,6 +67,8 @@ export interface GoogleRegisterRequestDto {
   phone: string;
   agreedToTerms: boolean;
   agreedToPrivacy: boolean;
+  /** 만 14세 이상 확인(법무 LG-02) — 카카오 간편가입에서 동의했으면 생략 */
+  agreedToAge14?: boolean;
   /** 동의한 약관 문서 ID 목록 (버전 이력 기록용) */
   termsDocumentIds?: string[];
 }
@@ -81,6 +84,8 @@ export interface KakaoRegisterRequestDto {
   /** 카카오 간편가입에서 약관에 모두 동의했으면 보내지 않는다(서버가 가입표로 확인) */
   agreedToTerms?: boolean;
   agreedToPrivacy?: boolean;
+  /** 만 14세 이상 확인(법무 LG-02) — 카카오 간편가입에서 동의했으면 생략 */
+  agreedToAge14?: boolean;
   /** 동의한 약관 문서 ID 목록 (버전 이력 기록용) */
   termsDocumentIds?: string[];
 }
@@ -95,6 +100,25 @@ export interface NaverRegisterRequestDto {
   phone?: string;
   agreedToTerms: boolean;
   agreedToPrivacy: boolean;
+  /** 만 14세 이상 확인(법무 LG-02) — 카카오 간편가입에서 동의했으면 생략 */
+  agreedToAge14?: boolean;
+  termsDocumentIds?: string[];
+}
+
+/** 애플 로그인 요청 — 서버 콜백이 넘긴 code(state는 화면이 먼저 확인하고 보내지 않는다) */
+export interface AppleLoginRequestDto {
+  code: string;
+}
+
+/** 애플 가입 — 구글과 같게 문자 인증한 번호로 */
+export interface AppleRegisterRequestDto {
+  registerToken: string;
+  name: string;
+  phone: string;
+  agreedToTerms: boolean;
+  agreedToPrivacy: boolean;
+  /** 만 14세 이상 확인(법무 LG-02) */
+  agreedToAge14?: boolean;
   termsDocumentIds?: string[];
 }
 
@@ -104,7 +128,7 @@ export interface FindAccountRequestDto {
 }
 
 export interface FindAccountResponseDto {
-  loginType: "google" | "kakao" | "naver";
+  loginType: "google" | "kakao" | "naver" | "apple";
   loginId: string;
   loginEmail: string | null;
 }
