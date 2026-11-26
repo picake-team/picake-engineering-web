@@ -117,7 +117,7 @@ analytics 이벤트는 `request_social_auth` / `success_login` / `fail_social_au
   - Team ID: `S5AJRJ2DLR`
   - Key ID: `MVGV5R9ZTY`
   - `.p8` private key — **값 자체는 절대 코드/문서/커밋에 남기지 않는다.** GitHub Secrets에만 등록.
-  - Return URL: production(`https://picakes.com/auth/login/apple`)은 등록 완료, staging(`https://staging.picakes.com/auth/login/apple`)은 앱담당자에게 추가 등록 요청 필요.
+  - Return URL: production(`https://picakes.com/auth/login/apple`)·staging(`https://staging.picakes.com/auth/login/apple`) 모두 등록됨(2026-11-26 확인: Apple authorize가 정상 화면 약 131KB, 안 된 주소는 약 11KB 오류). 판매자 `https://api(-staging).picakes.com/v1/seller/auth/apple/callback`은 11-26 오후에도 아직 미저장(앱담당자가 Services ID에서 Continue → Save).
   - `aud` 검증: `com.product.picake`(네이티브) / `com.product.picake.web`(웹) 두 값 모두 허용하기로 결정.
 
 ### 필요한 환경변수 — 정확히 이것만 추가
