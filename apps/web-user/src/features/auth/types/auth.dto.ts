@@ -54,6 +54,8 @@ export interface GoogleRegisterRequestDto {
   agreedToTerms: boolean;
   agreedToPrivacy: boolean;
   agreedToThirdParty: boolean;
+  /** 만 14세 이상 확인(법무 LG-02) — 카카오 간편가입에서 동의했으면 생략 */
+  agreedToAge14?: boolean;
   agreedToLocationTerms: boolean;
   /** 동의한 약관 문서 ID 목록 (버전 이력 기록용) */
   termsDocumentIds?: string[];
@@ -71,6 +73,8 @@ export interface KakaoRegisterRequestDto {
   agreedToTerms?: boolean;
   agreedToPrivacy?: boolean;
   agreedToThirdParty?: boolean;
+  /** 만 14세 이상 확인(법무 LG-02) — 카카오 간편가입에서 동의했으면 생략 */
+  agreedToAge14?: boolean;
   agreedToLocationTerms?: boolean;
   /** 동의한 약관 문서 ID 목록 (버전 이력 기록용) */
   termsDocumentIds?: string[];
@@ -88,6 +92,8 @@ export interface NaverRegisterRequestDto {
   agreedToTerms: boolean;
   agreedToPrivacy: boolean;
   agreedToThirdParty: boolean;
+  /** 만 14세 이상 확인(법무 LG-02) — 카카오 간편가입에서 동의했으면 생략 */
+  agreedToAge14?: boolean;
   agreedToLocationTerms: boolean;
   /** 동의한 약관 문서 ID 목록 (버전 이력 기록용) */
   termsDocumentIds?: string[];
@@ -101,6 +107,8 @@ export interface AppleRegisterRequestDto {
   agreedToTerms: boolean;
   agreedToPrivacy: boolean;
   agreedToThirdParty: boolean;
+  /** 만 14세 이상 확인(법무 LG-02) — 카카오 간편가입에서 동의했으면 생략 */
+  agreedToAge14?: boolean;
   agreedToLocationTerms: boolean;
   /** 동의한 약관 문서 ID 목록 (버전 이력 기록용) */
   termsDocumentIds?: string[];

@@ -266,6 +266,7 @@ export function AppleRegisterVerificationScreen() {
         agreedToTerms: termsState.termsOfService,
         agreedToPrivacy: termsState.privacyPolicy,
         agreedToThirdParty: termsState.thirdPartyConsent,
+        agreedToAge14: termsState.ageOver14,
         agreedToLocationTerms: termsState.locationTerms,
         termsDocumentIds,
       })

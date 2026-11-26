@@ -225,6 +225,7 @@ function SignUp({
     let termsPart: {
       agreedToTerms?: boolean;
       agreedToPrivacy?: boolean;
+      agreedToAge14?: boolean;
       termsDocumentIds?: string[];
     } = {};
     if (!termsFromKakao) {
@@ -239,6 +240,7 @@ function SignUp({
       termsPart = {
         agreedToTerms: terms.termsOfService,
         agreedToPrivacy: terms.privacyPolicy,
+        agreedToAge14: terms.ageOver14,
         termsDocumentIds,
       };
     }
@@ -248,6 +250,7 @@ function SignUp({
       const naverTerms = {
         agreedToTerms: terms.termsOfService,
         agreedToPrivacy: terms.privacyPolicy,
+        agreedToAge14: terms.ageOver14,
         termsDocumentIds: termsPart.termsDocumentIds,
       };
       const tokens =
@@ -274,6 +277,7 @@ function SignUp({
                   phone,
                   agreedToTerms: terms.termsOfService,
                   agreedToPrivacy: terms.privacyPolicy,
+                  agreedToAge14: terms.ageOver14,
                   termsDocumentIds: termsPart.termsDocumentIds,
                 });
               }
