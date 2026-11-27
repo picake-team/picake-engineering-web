@@ -1,6 +1,6 @@
 /**
  * 처음 사용 안내 (SC-69, 디자인 8-G · A69b, 앱에서만). 알림이 왜 필요한지 알리고 휴대폰 알림 허용을 한 번 묻는다.
- * 허용하면 "테스트 알림 보내기"로 확인, 허용하지 않으면 홈에 "알림 켜기" 안내가 남는다.
+ * 허용하면 "테스트 알림 보내기"로 확인, 허용하지 않으면 홈에 "알림 켜기" 안내가 남는다. 거절한 뒤 "알림 받기"는 휴대폰 알림 설정을 연다.
  */
 import React from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
@@ -12,7 +12,7 @@ import { cx } from "@/apps/web-seller/common/ui/cx";
 import { ROUTES } from "@/apps/web-seller/common/constants/route-paths.constant";
 import { useAlertStore } from "@/apps/web-seller/common/store/alert.store";
 import {
-  askPushPermission,
+  askPushPermissionOrOpenSettings,
   usePushPermissionStore,
 } from "@/apps/web-seller/common/store/push-permission.store";
 import getApiMessage from "@/apps/web-seller/common/utils/getApiMessage";
@@ -109,7 +109,7 @@ export const StoreWelcomeMobilePage: React.FC = () => {
         </>
       ) : (
         <>
-          <Button block onClick={() => void askPushPermission()}>
+          <Button block onClick={() => void askPushPermissionOrOpenSettings()}>
             알림 받기
           </Button>
           <Button variant="quiet" className="self-center" onClick={goHome}>
