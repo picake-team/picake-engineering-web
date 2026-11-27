@@ -186,7 +186,7 @@ export function orderStepState(order: Pick<OrderResponseDto, "orderStatus" | "pa
   }
 }
 
-/** 처리 버튼(바꿀 상태) 이름. 입금한 주문 취소(취소환불대기)도 사장님 말로 "예약 취소"(PC는 "취소환불대기로 변경") */
+/** 처리 버튼(바꿀 상태) 이름. 입금한 주문 취소(취소환불대기)도 사장님 말로 "예약 취소"(PC 화면도 이 이름을 쓴다) */
 export const ORDER_ACTION_LABEL: Partial<Record<OrderStatus, string>> = {
   [OrderStatus.PAYMENT_PENDING]: "예약 확인",
   [OrderStatus.CONFIRMED]: "예약 확정",
