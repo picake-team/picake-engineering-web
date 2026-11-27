@@ -7,9 +7,9 @@ description: 손님·사장님 앱 스토어 심사 준비·반려 대응, 심�
 
 > **이 문서의 `apps/backend/...` 경로와 `deploy-*-backend-ec2.yml` 워크플로우는 별도 레포 [`picake-engineering-backend`](https://github.com/picake-team/picake-engineering-backend)의 것입니다.** 로컬에서는 이 레포의 형제 폴더(`../picake-engineering-backend`)에서 확인하세요. `apps/web-*` 경로는 이 레포입니다.
 
-> **현재 상태(2026-11-26): 손님 1.0.1(Capacitor)·판매자 1.0.0 App Store 심사 준비 중.** 손님 1.0.0(Flutter)은 2026-08-30 승인·배포(4차 반려 §1의 2.1(a)+1.5, §3-2까지 대응한 재심사에서 통과). 손님 1.0.1 등록정보는 11-26에 넣었고(제출 전), 판매자는 Google Play만 11-25 출시. 제출 전에는 앱 레포 `docs/release-checklist.md`(출시 관문 — 코드·정책·콘솔·사람)를 처음부터 끝까지 돌립니다. 새 반려가 오면 §4 절차대로 대응해 §1에 이어서 기록하세요.
+> **현재 상태(2026-11-28): 손님 1.0.1(Capacitor) App Store 공개, 판매자 1.0.0 재심사 중.** 손님 1.0.0(Flutter)은 2026-08-30 승인·배포(4차 반려 §1의 2.1(a)+1.5, §3-2까지 대응한 재심사에서 통과). 손님 1.0.1은 11-27 09:53 제출 → 같은 날 11:56쯤 지적 없이 승인·공개. 판매자 1.0.0은 11-27 09:56 제출 → 22:57 반려(§1의 4.1(c) 부제 브랜드 + 2.1(b) 사업 모델 질문) → 11-28 00:42 고쳐서 회신·다시 제출. 판매자 Google Play는 11-25 출시. 제출 전에는 앱 레포 `docs/release-checklist.md`(출시 관문 — 코드·정책·콘솔·사람)를 처음부터 끝까지 돌립니다. 새 반려가 오면 §4 절차대로 대응해 §1에 이어서 기록하세요.
 
-> **판매자 앱(2026-11-05~ 준비 중, 기획 I-48)도 이 기록을 기준으로 준비합니다.** 판매자 앱은 `web-seller`를 같은 방식(웹뷰 앱 껍데기)으로 감싼 별도 앱입니다. 2026-11-05 기준 판매자 쪽에는 Apple 로그인(4.8)·심사용 로그인(2.1(a))·미리 채운 심사용 가게(2.1(a) 데모 콘텐츠)가 없었고, 앱 안 탈퇴(5.1.1(v))는 판매자 마이페이지에 이미 있습니다. 심사용 로그인·심사용 가게는 2026-11-07에 만들었습니다(§2-1). Apple 로그인은 아직 없고, 앱담당자가 Services ID에 판매자 Return URL을 저장한 뒤에 만들어 켭니다(`SELLER_APPLE_LOGIN_ENABLED`, [[picake-auth-social-login]] §5 — 2026-11-26 오후에도 미저장: Apple authorize가 약 11KB 오류 쪽). Support URL은 손님 앱과 같은 `https://picakes.com/mypage/support`를 씁니다. 운영자는 App Store Connect(2026-11-23)·Play Console(11-24, 두루랩스 계정) **관리자**라 등록정보·개인정보 라벨·연령 등급·심사 메모는 AI가 운영자 계정으로 넣습니다. 애플 개발자 계정은 앱담당자 개인 계정이라 **Identifiers(Services ID의 Return URL 등)·팀 API 키·인증서는 계정 주인(앱담당자)만** 다룹니다(운영자 관리자 계정은 팀 키 403, 11-26 확인). 앱 코드는 앱 레포 `picake-engineering-app`(2026-11-13 Flutter → Capacitor)에 있습니다.
+> **판매자 앱(2026-11-05~ 준비 중, 기획 I-48)도 이 기록을 기준으로 준비합니다.** 판매자 앱은 `web-seller`를 같은 방식(웹뷰 앱 껍데기)으로 감싼 별도 앱입니다. 2026-11-05 기준 판매자 쪽에는 Apple 로그인(4.8)·심사용 로그인(2.1(a))·미리 채운 심사용 가게(2.1(a) 데모 콘텐츠)가 없었고, 앱 안 탈퇴(5.1.1(v))는 판매자 마이페이지에 이미 있습니다. 심사용 로그인·심사용 가게는 2026-11-07에 만들었습니다(§2-1). Apple 로그인은 2026-11-27 상용 사장님 웹(production v0.0.69)에 켰습니다(`SELLER_APPLE_LOGIN_ENABLED`, [[picake-auth-social-login]] §5). Support URL은 손님 앱과 같은 `https://picakes.com/mypage/support`를 씁니다. 운영자는 App Store Connect(2026-11-23)·Play Console(11-24, 두루랩스 계정) **관리자**라 등록정보·개인정보 라벨·연령 등급·심사 메모는 AI가 운영자 계정으로 넣습니다. 애플 개발자 계정은 앱담당자 개인 계정이라 **Identifiers(Services ID의 Return URL 등)·팀 API 키·인증서는 계정 주인(앱담당자)만** 다룹니다(운영자 관리자 계정은 팀 키 403, 11-26 확인). 앱 코드는 앱 레포 `picake-engineering-app`(2026-11-13 Flutter → Capacitor)에 있습니다.
 
 > **비밀번호·개인 연락처를 이 문서에 적지 마세요.** 이 레포는 공개 레포입니다. 2026-11-05에 §3-2의 구글 데모 계정 비밀번호와 운영자 개인 번호를 지웠습니다. git 기록에는 남아 있으므로 그 계정 비밀번호는 바꿔야 합니다.
 
@@ -101,6 +101,22 @@ Picake web-user는 겉면만 앱 껍데기로 감싼 **웹뷰 앱**입니다 —
 
 실제 결제 수단은 PG 카드결제가 아니라 **스토어 정산 계좌로의 계좌이체(무통장입금)**입니다 (`apps/backend/src/modules/order`, [[picake-legal-terms]] skill §2 참고). 디지털 콘텐츠가 아니라 베이커리 등 실물/서비스 거래이므로 In-App Purchase 대상이 아니지만, 심사관이 "결제 버튼이 외부로 연결된다"고 오인해 3.1.1로 잘못 반려하는 경우가 있어 §3 심사노트 초안에 이 사실을 명시해 둡니다.
 
+### 2.1(b) 사업 모델 질문 — 판매자 앱 2026-11-27, 회신함
+
+**내용(Submission ID `f960277c-0d3c-4bb7-a013-f0050c847251`, 빌드 1.0.0 (1), iPad Air 11-inch (M3))**: "it appears the app may access or include paid digital content or services" — 유료 콘텐츠를 누가 쓰는지, 어디서 사는지, 예전에 산 것, IAP 없이 여는 것, 기업용 판매 대상 다섯 질문. 반려라기보다 답을 기다리는 상태다. 판매자 앱은 "매출·정산 계좌·입금 확인"이 보이고 설명에 "주문 수수료·월 이용료 0원"이 있어 돈이 오가는 앱으로 보였을 수 있다(짐작).
+
+**사실(11-28 코드로 확인)**: 판매자 화면에 유료 기능·구독·결제 화면이 없다(`apps/web-seller/src`의 "결제"는 손님이 가게에 내는 케이크값, "구독"은 달력 ics). 사장님에게 주문 수수료·월 이용료를 받지 않는다(기획 01 "수익 모델", 2026-11-19).
+
+**회신(11-28, 영문)**: 다섯 질문에 하나씩 "없다"로 답하고, 4번에 "손님이 실물 케이크값을 가게 자기 계좌로 직접 이체하고 매장에서 픽업한다. 픽케이크는 그 돈을 처리하지도 떼지도 않는다. 앱에서는 사장님이 입금 왔음을 표시할 뿐"이라고 씀. 같은 날 §2-1 심사 메모 PAYMENTS에 무료 한 줄을 더했다. 광고 같은 유료 상품을 사장님에게 팔기 시작하면 이 답과 메모를 먼저 고친다.
+
+### 4.1(c) Copycats — 부제에 다른 회사 브랜드, 판매자 앱 2026-11-27 반려, 대응 완료
+
+**내용(같은 제출)**: "The app's subtitle contains an icon, brand, or product name that belongs to the following developer: KakaoTalk and Instagram." 부제가 "카톡·인스타 주문까지 달력 하나에"였다.
+
+**한 일(11-28, 운영자가 고름)**: 부제를 "메신저·전화 주문까지 달력 하나에"로. 애플이 짚지 않았지만 잘 보이는 홍보 문구("카톡·인스타로 받은 주문까지" → "메신저·전화로 받은 주문까지")와 키워드(`카톡주문` → `주문정리`, 2.3.7은 키워드에 다른 앱 이름을 막음)도 바꿈. 설명 본문("카톡·인스타로 받은 주문", "카카오톡 채널·인스타그램·전화 중 손님에게 보일 곳")과 스크린샷 03·06의 글자는 사실을 말하는 글이라 그대로 뒀다 — 다시 지적되면 그때 고친다. Google Play 짧은 설명·대표 그래픽은 같은 문구로 11-25 통과해 그대로다(App Store와 글이 달라짐, 원문은 hq `marketing/store-listing.md`).
+
+**앞으로**: 이름·부제·키워드·홍보 문구에는 카톡·카카오톡·인스타·네이버 같은 다른 회사 이름을 쓰지 않는다(§5).
+
 ### Universal Links로 인한 iOS 백그라운드 전환 — 실제 버그, 대응 완료 (재활성화 금지)
 
 카카오톡 인앱브라우저 등에서 Universal Links로 앱이 열리면 진입 직후(~1초) iOS가 자체적으로 앱을 백그라운드로 내리고 Safari를 다시 띄우는 현상이 실기기에서 확인됐습니다(앱 쪽 코드에 외부 브라우저를 여는 경로 없음 확인, iOS 자체 동작으로 판단). 이런 동작은 심사관에게 "앱이 예기치 않게 종료/전환된다"는 인상을 줘 반려·재현 조사로 이어질 수 있습니다. 현재 iOS만 Universal Links를 끄고 커스텀 스킴으로 전환한 상태 — 상세와 재활성화 시 주의사항은 [[picake-link-app-deep-links]] skill §2 참고. **AASA(`apple-app-site-association`)에 appID를 다시 채워 Universal Links를 켜는 작업은 이 버그의 원인 규명 없이 하지 않습니다.**
@@ -153,9 +169,10 @@ Push notifications for new reservations, customer payments, chat and the morning
 
 PAYMENTS
 Physical goods only (custom cakes picked up at the store). Customers pay the store directly by bank transfer. No in-app digital purchases.
+The app and all its features are free for shop owners: no subscription, no monthly fee and no commission.
 ```
 
-위 글은 2026-11-26 App Store Connect 사장님 앱 1.0.0 심사 메모에 넣은 그대로입니다(코드 칸은 비워 두고 제출 직전 운영자가 채움, "로그인 필요" 체크는 끔 — 손님 앱과 같음). "Apple sign-in" 문장은 판매자 애플 로그인(backend #191·web #565)이 켜진 뒤에 맞는 말이라, 켜기 전에 제출하면 빼야 합니다. 원문 정본은 비공개 hq `marketing/store-listing.md` "판매자 앱 — App Store".
+위 글은 2026-11-26 App Store Connect 사장님 앱 1.0.0 심사 메모에 넣은 그대로입니다(코드 칸은 비워 두고 제출 직전 운영자가 채움, "로그인 필요" 체크는 끔 — 손님 앱과 같음). 마지막 줄(무료)은 11-28 2.1(b) 질문(§1) 뒤에 더했습니다 — 메모에 코드가 들어 있어 AI는 내용을 출력하지 않고 그 문장 뒤에만 붙였습니다. "Apple sign-in" 문장은 판매자 애플 로그인(backend #191·web #565)이 켜진 뒤에 맞는 말이라, 켜기 전에 제출하면 빼야 합니다. 원문 정본은 비공개 hq `marketing/store-listing.md` "판매자 앱 — App Store".
 
 ## 2-2. Google Play 심사 (앱 액세스·데이터 보안)
 
@@ -255,6 +272,8 @@ Thank you.
 
 - [ ] Firebase(`project-3-7612d`) → 클라우드 메시징 → 두 iOS 앱의 **프로덕션** APNs 인증 키 칸이 채워졌는지(2026-11-27 운영자가 두 앱 모두 올림 — 개발 칸만 있으면 TestFlight·App Store 아이폰에 알림이 안 감)
 - [ ] App Store Connect 연령 등급 새 질문(메시지·채팅 예, 사용자 생성 콘텐츠 예, 위치 공유·데이팅 아니요 → 4+)에 답했는지 — 버전마다 확인
+- [ ] 이름·부제·키워드·홍보 문구에 다른 회사 이름(카톡·카카오톡·인스타·네이버 등)이 없는지 — 4.1(c)·2.3.7, 2026-11-27 판매자 부제로 반려(§1)
+- [ ] 심사 메모 PAYMENTS에 "실물만, 가게 계좌 직접 이체, 앱 안 디지털 구매 없음"과 (판매자 앱) "사장님은 모두 무료"가 있는지 — 2.1(b) 사업 모델 질문 예방(§1)
 
 - [ ] (손님 앱) §2 비밀값 `CONSUMER_REVIEW_LOGIN_CODE_SHA256`이 들어간 뒤 배포됐고, 운영자 비밀번호 관리자의 코드로 production 손님 앱에서 심사용 로그인이 되는지 확인. 심사노트의 `{REVIEW_CODE}`를 채웠는지 확인(코드는 11-15부터 레포에 없음)
 - [ ] (판매자 앱) §2-1 비밀값 `SELLER_REVIEW_LOGIN_CODE_SHA256`이 들어간 뒤 배포됐고, 운영자 비밀번호 관리자의 코드로 production 판매자 앱에서 심사용 로그인이 되는지 확인. 심사노트의 `{SELLER_REVIEW_CODE}`를 채웠는지 확인
