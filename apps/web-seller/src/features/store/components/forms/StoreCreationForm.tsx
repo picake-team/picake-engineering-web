@@ -403,7 +403,7 @@ export const StoreCreationForm: React.FC<Props> = ({
             </button>
           )}
           <Button type="submit" className="ml-auto" disabled={submitting}>
-            {submitButtonText || (initialValue ? "수정하기" : "등록하기")}
+            {submitButtonText || (initialValue ? "저장하기" : "등록하기")}
           </Button>
         </div>
       )}

@@ -55,7 +55,8 @@ const formatDate = (iso: string) =>
 export const StoreNaverPlaceCard: React.FC<Props> = ({ storeId, connected, form, onApply }) => {
   const inFrame = useInMobileFrame();
   const mode = storeId ? "edit" : "create";
-  const submitLabel = mode === "edit" ? "수정하기" : "등록하기";
+  // 스토어 정보 수정 화면의 버튼은 "저장하기"(pages/store/detail/Edit.tsx) — 안내 글이 다른 이름을 말하지 않게
+  const submitLabel = mode === "edit" ? "저장하기" : "등록하기";
   const { addAlert } = useAlertStore();
 
   const previewMutation = usePreviewNaverPlace();
