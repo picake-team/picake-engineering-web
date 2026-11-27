@@ -113,7 +113,7 @@ Picake web-user는 겉면만 앱 껍데기로 감싼 **웹뷰 앱**입니다 —
 2. "앱 버전" 라벨을 **2초 이내 간격으로 10회 연속 탭** → 심사용 로그인 바텀시트(`ReviewLoginBottomSheet`) 노출
 3. 6자리 코드 입력 → `POST /v1/consumer/auth/review-login` 호출 → 심사용 계정(`phone: "REVIEW_ACCOUNT"`, 최초 호출 시 자동 생성)으로 로그인
 
-**코드 관리(2026-11-15~)**: 판매자(§2-1)와 같이 **코드를 레포에 두지 않습니다.** 코드는 운영자 비밀번호 관리자에만 두고, 서버는 GitHub Actions 비밀값 `CONSUMER_REVIEW_LOGIN_CODE_SHA256`(코드의 SHA-256 16진수)과 비교합니다. 비밀값이 없으면 손님 심사용 로그인은 꺼집니다. 예전에는 코드가 `auth.constants.ts`에 그대로 있어(공개 레포) 11-15에 새 코드로 바꿨고, 예전 코드는 막힙니다. 로그인 시도는 IP당 1시간 5번(성공한 로그인도 셈 — 아이폰·아이패드로 다시 들어오다 막힐 수 있어 backend #189 상용 뒤 20번). 2026-11-25 Google Play 손님 앱 심사를 낼 때 운영자가 다시 새 코드로 정했습니다(서버 production v0.0.72). 코드를 바꿀 때: `printf '<새 6자리>' | shasum -a 256` 값을 `gh secret set CONSUMER_REVIEW_LOGIN_CODE_SHA256 --repo picake-team/picake-engineering-backend`로 넣고 backend를 다시 배포합니다. 비밀값만 바뀌었으면 마지막 production 태그와 같은 main 커밋에 다음 번호 태그를 붙입니다(판매자 11-25 v0.0.71, 손님 11-25 v0.0.72). 다시 배포하기 전에는 새 코드가 통하지 않으니, 콘솔에 새 코드를 넣고 심사를 내는 것은 배포가 끝난 뒤에 합니다. 심사노트에는 `{REVIEW_CODE}`로 쓰고 App Store Connect·Play Console에 붙일 때만 채웁니다. 테스트(CI·로컬 `.env.test`)는 테스트 전용 코드 000000의 해시를 씁니다.
+**코드 관리(2026-11-15~)**: 판매자(§2-1)와 같이 **코드를 레포에 두지 않습니다.** 코드는 운영자 비밀번호 관리자에만 두고, 서버는 GitHub Actions 비밀값 `CONSUMER_REVIEW_LOGIN_CODE_SHA256`(코드의 SHA-256 16진수)과 비교합니다. 비밀값이 없으면 손님 심사용 로그인은 꺼집니다. 예전에는 코드가 `auth.constants.ts`에 그대로 있어(공개 레포) 11-15에 새 코드로 바꿨고, 예전 코드는 막힙니다. 로그인 시도는 IP당 1시간 20번(2026-11-26 backend #189, 전에는 5번)(성공한 로그인도 셈 — 아이폰·아이패드로 다시 들어오다 막힐 수 있어 backend #189 상용 뒤 20번). 2026-11-25 Google Play 손님 앱 심사를 낼 때 운영자가 다시 새 코드로 정했습니다(서버 production v0.0.72). 코드를 바꿀 때: `printf '<새 6자리>' | shasum -a 256` 값을 `gh secret set CONSUMER_REVIEW_LOGIN_CODE_SHA256 --repo picake-team/picake-engineering-backend`로 넣고 backend를 다시 배포합니다. 비밀값만 바뀌었으면 마지막 production 태그와 같은 main 커밋에 다음 번호 태그를 붙입니다(판매자 11-25 v0.0.71, 손님 11-25 v0.0.72). 다시 배포하기 전에는 새 코드가 통하지 않으니, 콘솔에 새 코드를 넣고 심사를 내는 것은 배포가 끝난 뒤에 합니다. 심사노트에는 `{REVIEW_CODE}`로 쓰고 App Store Connect·Play Console에 붙일 때만 채웁니다. 테스트(CI·로컬 `.env.test`)는 테스트 전용 코드 000000의 해시를 씁니다.
 
 ## 2-1. 판매자 앱 심사용 로그인 (픽케이크 사장님, 기획 I-48)
 
@@ -125,7 +125,7 @@ Picake web-user는 겉면만 앱 껍데기로 감싼 **웹뷰 앱**입니다 —
 4. 심사관이 회원 탈퇴까지 확인할 수 있게 **심사용 계정은 예시 주문이 진행 중이어도 탈퇴**되고 심사용 가게는 지워짐. 다음 심사용 로그인 때 새로 만듦
 5. 예시 주문의 손님은 휴대폰 번호가 없는 예시 계정이라 알림톡이 나가지 않음. 휴대폰 알림 확인은 스토어 탭 위 톱니(설정) → 알림 설정 → "테스트 알림 보내기"
 
-**코드 관리**: 코드는 운영자 비밀번호 관리자에만 두고, 서버는 GitHub Actions 비밀값 `SELLER_REVIEW_LOGIN_CODE_SHA256`(코드의 SHA-256 16진수)과 비교합니다. 비밀값이 없으면 심사용 로그인은 꺼져 있습니다(항상 "심사용 로그인 코드가 올바르지 않습니다."). 6자리라 해시만 보여도 바로 풀리므로 해시도 레포·문서에 적지 않습니다. IP당 1시간에 5번까지라(backend #189 상용 뒤 20번), 확인하다 막히면 1시간 기다립니다(서버를 다시 켜면 풀림 — 로컬).
+**코드 관리**: 코드는 운영자 비밀번호 관리자에만 두고, 서버는 GitHub Actions 비밀값 `SELLER_REVIEW_LOGIN_CODE_SHA256`(코드의 SHA-256 16진수)과 비교합니다. 비밀값이 없으면 심사용 로그인은 꺼져 있습니다(항상 "심사용 로그인 코드가 올바르지 않습니다."). 6자리라 해시만 보여도 바로 풀리므로 해시도 레포·문서에 적지 않습니다. IP당 1시간에 20번까지라(2026-11-26 backend #189, 전에는 5번), 확인하다 막히면 1시간 기다립니다(서버를 다시 켜면 풀림 — 로컬).
 
 코드를 바꿀 때: `printf '<새 6자리>' | shasum -a 256`의 값을 `gh secret set SELLER_REVIEW_LOGIN_CODE_SHA256 --repo picake-team/picake-engineering-backend`로 넣고 backend를 다시 배포(staging·production 태그)합니다. 심사노트에는 아래처럼 `{SELLER_REVIEW_CODE}`로 쓰고 App Store Connect에 붙일 때만 채웁니다.
 
@@ -253,7 +253,7 @@ Thank you.
 
 전체 출시 관문(코드·정책·콘솔·사람)은 앱 레포 `docs/release-checklist.md`가 정본이고, 아래는 심사 메모·로그인 쪽 세부입니다.
 
-- [ ] Firebase(`project-3-7612d`) → 클라우드 메시징 → 두 iOS 앱의 **프로덕션** APNs 인증 키 칸이 채워졌는지(2026-11-26 두 앱 모두 비어 있었음 — 개발 칸만 있으면 TestFlight·App Store 아이폰에 알림이 안 감, 운영자가 올림)
+- [ ] Firebase(`project-3-7612d`) → 클라우드 메시징 → 두 iOS 앱의 **프로덕션** APNs 인증 키 칸이 채워졌는지(2026-11-27 운영자가 두 앱 모두 올림 — 개발 칸만 있으면 TestFlight·App Store 아이폰에 알림이 안 감)
 - [ ] App Store Connect 연령 등급 새 질문(메시지·채팅 예, 사용자 생성 콘텐츠 예, 위치 공유·데이팅 아니요 → 4+)에 답했는지 — 버전마다 확인
 
 - [ ] (손님 앱) §2 비밀값 `CONSUMER_REVIEW_LOGIN_CODE_SHA256`이 들어간 뒤 배포됐고, 운영자 비밀번호 관리자의 코드로 production 손님 앱에서 심사용 로그인이 되는지 확인. 심사노트의 `{REVIEW_CODE}`를 채웠는지 확인(코드는 11-15부터 레포에 없음)
