@@ -24,6 +24,12 @@ type PushRegistration = { token: string; deviceId: string };
 
 /** 앱이 넣는 `window.PicakeApp` 중 손님 웹이 쓰는 것 */
 interface PicakeApp {
+  platform: "android" | "ios";
+  /** 앱 버전(예 "1.0.1", 검증 앱은 "1.0.1-staging.1128.abc1234"). 앱이 못 읽으면 "" */
+  version: string;
+  /** 스토어 빌드 번호(예 "18"). 앱이 못 읽으면 "" */
+  build: string;
+
   getDeviceId(): Promise<string>;
   /** 알림이 허용일 때만 값, 아니면 null */
   getPushToken(): Promise<PushRegistration | null>;
@@ -56,6 +62,11 @@ function errorCode(error: unknown): string | undefined {
 /** 앱(웹뷰) 안인지. 앱이 넣는 window.PicakeApp이 있는지로 본다 */
 export function isWebViewEnvironment(): boolean {
   return getPicakeApp() != null;
+}
+
+/** 앱이 알려 준 앱 버전(앱이 아니거나 앱이 못 읽었으면 null). 판매자 웹 appVersion과 같다 */
+export function appVersion(): string | null {
+  return getPicakeApp()?.version || null;
 }
 
 // ============================================================================
