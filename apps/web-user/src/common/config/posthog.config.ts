@@ -57,18 +57,34 @@ function sanitizeUrl(rawUrl: string): string {
 }
 
 /**
+ * 앱 안이면 앱이 알려 준 앱 버전·빌드 번호·OS(앱 레포 docs/bridge-contract.md §1). 브라우저면 빈 객체.
+ * 스토어에 남은 앱 버전을 세려고 붙인다 — 웹–앱 약속은 더하기만 하고, 없애는 것은 그 기능이 없는
+ * 앱 버전이 다 사라진 뒤라서(2026-11-28~). 앱의 UA는 고정값이라 `$os_version`으로는 알 수 없다.
+ */
+export function appVersionProperties(app: Window["PicakeApp"]): Record<string, string> {
+  if (!app) return {};
+  const properties: Record<string, string> = {};
+  if (app.version) properties.app_version = app.version;
+  if (app.build) properties.app_build = app.build;
+  if (app.platform) properties.app_platform = app.platform;
+  return properties;
+}
+
+/**
  * 전송 직전의 모든 이벤트(수동 $pageview + trackEvent 커스텀 이벤트 전부)에서
- * $current_url/$referrer에 남은 OAuth 코드·이메일 같은 민감정보를 제거하고, surface(app|web)를 붙입니다.
+ * $current_url/$referrer에 남은 OAuth 코드·이메일 같은 민감정보를 제거하고, surface(app|web)와
+ * 앱 안이면 앱 버전(app_version·app_build·app_platform)을 붙입니다.
  * posthog-js가 모든 이벤트에 $current_url을 자동으로 붙이기 때문에, PostHogPageView의
  * 캡처 호출만 고쳐서는 부족합니다(예: /auth/register/google?...&googleEmail=... 페이지에
  * 머무는 동안 발생한 success_signup 같은 커스텀 이벤트에도 같은 URL이 자동으로 붙음).
  */
-function sanitizeEvent(event: CaptureResult | null): CaptureResult | null {
+export function sanitizeEvent(event: CaptureResult | null): CaptureResult | null {
   if (!event?.properties) return event;
   // 손님 앱(웹뷰)인지 브라우저인지. 앱이 넣는 window.PicakeApp이 있는지로 본다
   // (webview.bridge의 isWebViewEnvironment와 같은 기준, 저장소를 불러오지 않으려고 여기서 직접 봄)
-  event.properties.surface =
-    typeof window !== "undefined" && window.PicakeApp != null ? "app" : "web";
+  const app = typeof window !== "undefined" ? window.PicakeApp : undefined;
+  event.properties.surface = app != null ? "app" : "web";
+  Object.assign(event.properties, appVersionProperties(app));
   if (typeof event.properties.$current_url === "string") {
     event.properties.$current_url = sanitizeUrl(event.properties.$current_url);
   }

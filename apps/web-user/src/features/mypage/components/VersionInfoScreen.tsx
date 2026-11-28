@@ -1,9 +1,18 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
+import { appVersion } from "@/apps/web-user/common/utils/webview.bridge";
 import { ReviewLoginBottomSheet } from "@/apps/web-user/features/auth/components/ReviewLoginBottomSheet";
 
-const APP_VERSION = "0.0.1";
+/** 앱 버전은 앱이 넣는 값이라 바뀌지 않는다(구독할 것이 없음) */
+function subscribeNothing(): () => void {
+  return () => {};
+}
+
+/** 서버 렌더에는 앱이 없다. 첫 화면 맞추기(hydration) 뒤 앱 값으로 바뀐다 */
+function noAppVersion(): string | null {
+  return null;
+}
 
 /** 이 횟수만큼 연속으로 탭하면 심사용 로그인 진입점이 열림 */
 const REVIEW_LOGIN_TAP_THRESHOLD = 10;
@@ -39,6 +48,8 @@ function formatBuildNumber(commitSha: string | undefined): string {
 }
 
 export function VersionInfoScreen() {
+  // 앱이 알려 준 버전(앱 레포 version.json). 브라우저로 열면 앱이 없어 "—"
+  const installedAppVersion = useSyncExternalStore(subscribeNothing, appVersion, noAppVersion);
   const buildNumber = formatBuildNumber(process.env.NEXT_PUBLIC_GITHUB_SHA);
   const [isReviewLoginOpen, setIsReviewLoginOpen] = useState(false);
   const tapCountRef = useRef(0);
@@ -60,7 +71,11 @@ export function VersionInfoScreen() {
 
   return (
     <div className="pt-4 pb-10">
-      <VersionInfoRow label="앱 버전" value={APP_VERSION} onLabelClick={handleVersionLabelClick} />
+      <VersionInfoRow
+        label="앱 버전"
+        value={installedAppVersion ?? "—"}
+        onLabelClick={handleVersionLabelClick}
+      />
       <VersionInfoRow label="웹 버전" value={buildNumber} />
       <ReviewLoginBottomSheet
         isOpen={isReviewLoginOpen}
