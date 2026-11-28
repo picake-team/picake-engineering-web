@@ -52,9 +52,28 @@ function sanitizeUrl(rawUrl: string): string {
   }
 }
 
-/** 전송 직전의 모든 이벤트에서 $current_url/$referrer에 남은 민감정보를 제거합니다. */
-function sanitizeEvent(event: CaptureResult | null): CaptureResult | null {
+/**
+ * 앱 안이면 앱이 알려 준 앱 버전·빌드 번호·OS(앱 레포 docs/bridge-contract.md §1). 브라우저면 빈 객체.
+ * 스토어에 남은 앱 버전을 세려고 붙인다 — 웹–앱 약속은 더하기만 하고, 없애는 것은 그 기능이 없는
+ * 앱 버전이 다 사라진 뒤라서(2026-11-28~, 손님 웹과 같음). 앱의 UA는 고정값이라 `$os_version`으로는 알 수 없다.
+ * `surface`는 붙이지 않는다 — 판매자 이벤트는 저마다 app/mobile_web/pc를 넣는다(sellerSurface).
+ */
+export function appVersionProperties(app: Window["PicakeApp"]): Record<string, string> {
+  if (!app) return {};
+  const properties: Record<string, string> = {};
+  if (app.version) properties.app_version = app.version;
+  if (app.build) properties.app_build = app.build;
+  if (app.platform) properties.app_platform = app.platform;
+  return properties;
+}
+
+/** 전송 직전의 모든 이벤트에서 $current_url/$referrer에 남은 민감정보를 제거하고, 앱 안이면 앱 버전을 붙입니다. */
+export function sanitizeEvent(event: CaptureResult | null): CaptureResult | null {
   if (!event?.properties) return event;
+  Object.assign(
+    event.properties,
+    appVersionProperties(typeof window !== "undefined" ? window.PicakeApp : undefined),
+  );
   if (typeof event.properties.$current_url === "string") {
     event.properties.$current_url = sanitizeUrl(event.properties.$current_url);
   }
